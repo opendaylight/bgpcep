@@ -8,8 +8,9 @@
 package org.opendaylight.protocol.bgp.l3vpn;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
@@ -33,58 +34,46 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.routes.VpnIpv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6.rev180329.l3vpn.ipv6.routes.VpnIpv6Routes;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Registers NLRI, Attributes, Extended communities Handlers.
  *
  * @author Claudio D. Gasparini
  */
+@Singleton
+@Component(immediate = true, service = BGPExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.l3vpn.BGPActivator")
 @MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MCAST_L3VPN_SAFI = 129;
 
-    private static void registerNlri(
-            final BGPExtensionProviderContext context,
-            final List<Registration> regs) {
-        final VpnIpv4NlriParser vpnIpv4NlriParser = new VpnIpv4NlriParser();
-        final VpnIpv4NextHopParserSerializer vpnIpv4NextHopParserSerializer = new VpnIpv4NextHopParserSerializer();
-
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-                vpnIpv4NlriParser, vpnIpv4NextHopParserSerializer, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriSerializer(VpnIpv4Routes.class, vpnIpv4NlriParser));
-
-        final VpnIpv6NlriParser vpnIpv6NlriParser = new VpnIpv6NlriParser();
-        final VpnIpv6NextHopParserSerializer vpnIpv6NextHopParserSerializer = new VpnIpv6NextHopParserSerializer();
-
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-                vpnIpv6NlriParser, vpnIpv6NextHopParserSerializer, Ipv6NextHopCase.class));
-        regs.add(context.registerNlriSerializer(VpnIpv6Routes.class, vpnIpv6NlriParser));
-
-        final L3vpnMcastIpv4NlriHandler l3vpnMcastIpv4NlriHandler = new L3vpnMcastIpv4NlriHandler();
-        final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
-                l3vpnMcastIpv4NlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriSerializer(L3vpnMcastRoutesIpv4.class, l3vpnMcastIpv4NlriHandler));
-
-
-        final L3vpnMcastIpv6NlriHandler l3vpnMcastIpv6NlriHandler = new L3vpnMcastIpv6NlriHandler();
-        final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
-                l3vpnMcastIpv6NlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
-        regs.add(context.registerNlriSerializer(L3vpnMcastRoutesIpv6.class, l3vpnMcastIpv6NlriHandler));
-    }
-
-    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<Registration> regs) {
-        regs.add(context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.class,
-                MCAST_L3VPN_SAFI));
+    @Inject
+    public BGPActivator() {
+        // Exposed for DI
     }
 
     @Override
     protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-        registerAfiSafi(context, regs);
-        registerNlri(context, regs);
-        return regs;
+        final VpnIpv4NlriParser vpnIpv4NlriParser = new VpnIpv4NlriParser();
+        final VpnIpv6NlriParser vpnIpv6NlriParser = new VpnIpv6NlriParser();
+        final L3vpnMcastIpv4NlriHandler l3vpnMcastIpv4NlriHandler = new L3vpnMcastIpv4NlriHandler();
+        final L3vpnMcastIpv6NlriHandler l3vpnMcastIpv6NlriHandler = new L3vpnMcastIpv6NlriHandler();
+
+        return List.of(
+            context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.class, MCAST_L3VPN_SAFI),
+            context.registerNlriParser(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+                vpnIpv4NlriParser, new VpnIpv4NextHopParserSerializer(), Ipv4NextHopCase.class),
+            context.registerNlriSerializer(VpnIpv4Routes.class, vpnIpv4NlriParser),
+            context.registerNlriParser(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+                vpnIpv6NlriParser, new VpnIpv6NextHopParserSerializer(), Ipv6NextHopCase.class),
+            context.registerNlriSerializer(VpnIpv6Routes.class, vpnIpv6NlriParser),
+            context.registerNlriParser(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                l3vpnMcastIpv4NlriHandler, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class),
+            context.registerNlriSerializer(L3vpnMcastRoutesIpv4.class, l3vpnMcastIpv4NlriHandler),
+            context.registerNlriParser(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+                l3vpnMcastIpv6NlriHandler, new Ipv6NextHopParserSerializer(), Ipv6NextHopCase.class),
+            context.registerNlriSerializer(L3vpnMcastRoutesIpv6.class, l3vpnMcastIpv6NlriHandler));
     }
 }
