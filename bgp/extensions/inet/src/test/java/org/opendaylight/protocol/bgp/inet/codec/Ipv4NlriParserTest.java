@@ -20,9 +20,10 @@ import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -48,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class Ipv4NlriParserTest {
     private static final byte[] MP_NLRI_BYTES = new byte[]{
         0x0, 0x0, 0x0, 0x1, 0x18, 0x1, 0x1, 0x1,
@@ -81,7 +83,6 @@ public class Ipv4NlriParserTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         final Ipv4Prefix prefix1 = new Ipv4Prefix(this.ipPrefix1);
         final Ipv4Prefix prefix2 = new Ipv4Prefix(this.ipPrefix2);
         final Ipv4Prefix wrongPrefix = new Ipv4Prefix(this.additionalIpWD);
