@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.mvpn.impl;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
@@ -28,16 +30,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Registers NLRI, Attributes, Extended communities Handlers.
  *
  * @author Claudio D. Gasparini
  */
+@Singleton
+@Component(immediate = true, service = BGPExtensionProviderActivator.class,
+           property = "org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator")
 @MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MVPN_SAFI = 5;
+
+    @Inject
+    public BGPActivator() {
+        // Exposed for DI
+    }
 
     private static void registerAttributesHandler(final BGPExtensionProviderContext context,
             final List<Registration> regs) {

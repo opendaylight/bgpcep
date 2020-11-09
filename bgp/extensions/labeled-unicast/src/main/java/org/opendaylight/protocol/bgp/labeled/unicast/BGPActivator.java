@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
@@ -23,10 +25,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = BGPExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator")
 @MetaInfServices(value = BGPExtensionProviderActivator.class)
 public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     private static final int LABELED_UNICAST_SAFI = 4;
+
+    @Inject
+    public BGPActivator() {
+        // Exposed for DI
+    }
 
     @Override
     protected List<Registration> startImpl(final BGPExtensionProviderContext context) {

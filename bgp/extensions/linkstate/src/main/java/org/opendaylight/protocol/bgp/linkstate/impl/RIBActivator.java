@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate.impl;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
@@ -16,16 +18,25 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
 /**
  * Activator for registering Linkstate AFI/SAFI to RIB.
  */
+@Singleton
+@Component(immediate = true, service = RIBExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator")
 @MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+    @Inject
+    public RIBActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(context.registerRIBSupport(LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance(mappingService)));
+            LinkstateSubsequentAddressFamily.class, LinkstateRIBSupport.getInstance(mappingService)));
     }
 }
