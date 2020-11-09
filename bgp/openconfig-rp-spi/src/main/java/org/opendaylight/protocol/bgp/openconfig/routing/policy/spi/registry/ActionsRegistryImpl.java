@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -213,21 +212,15 @@ final class ActionsRegistryImpl {
                 attributesUpdated = attributesUpdatedBuilder.build();
             }
 
-            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpConditionsAug = BindingReflections
-                    .getAugmentations(bgpAction);
-
-            if (bgpConditionsAug != null) {
-                for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry
-                        : bgpConditionsAug.entrySet()) {
-                    final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(entry.getKey());
-                    if (handler == null) {
-                        continue;
-                    } else if (attributesUpdated == null) {
-                        return null;
-                    }
-                    attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
-                            attributesUpdated, entry.getValue());
+            for (final Augmentation<BgpActions> action : bgpAction.augmentations().values()) {
+                final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(action.implementedInterface());
+                if (handler == null) {
+                    continue;
+                } else if (attributesUpdated == null) {
+                    return null;
                 }
+                attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
+                    attributesUpdated, action);
             }
         }
 
@@ -236,22 +229,15 @@ final class ActionsRegistryImpl {
         }
 
         // Export Actions Aug
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(actions);
-
-        if (conditionsAug == null) {
-            return attributes;
-        }
-
-        for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
-            final ActionsAugPolicy handler = this.actionsRegistry.get(entry.getKey());
+        for (final Augmentation<Actions> entry : actions.augmentations().values()) {
+            final ActionsAugPolicy handler = this.actionsRegistry.get(entry.implementedInterface());
             if (attributesUpdated == null) {
                 return null;
             } else if (handler == null) {
                 continue;
             }
-            attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
-                    attributesUpdated, (Augmentation<Actions>) entry.getValue());
+            attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
+                entry);
         }
 
         return attributesUpdated;
@@ -303,44 +289,30 @@ final class ActionsRegistryImpl {
                 return null;
             }
 
-            final Map<Class<? extends Augmentation<?>>, Augmentation<?>> bgpConditionsAug = BindingReflections
-                    .getAugmentations(bgpAction);
-
-            if (bgpConditionsAug == null) {
-                return attributes;
-            }
-
-            for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry
-                    : bgpConditionsAug.entrySet()) {
-                final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(entry.getKey());
+            for (final Augmentation<BgpActions> action : bgpAction.augmentations().values()) {
+                final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(action.implementedInterface());
                 if (handler == null) {
                     continue;
                 } else if (attributesUpdated == null) {
                     return null;
                 }
                 attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
-                        entry.getValue());
+                    action);
             }
             if (attributesUpdated == null) {
                 return null;
             }
         }
-        // Augmented Actions
-        final Map<Class<? extends Augmentation<?>>, Augmentation<?>> conditionsAug = BindingReflections
-                .getAugmentations(actions);
 
-        if (conditionsAug == null) {
-            return attributesUpdated;
-        }
-        for (final Map.Entry<Class<? extends Augmentation<?>>, Augmentation<?>> entry : conditionsAug.entrySet()) {
-            final ActionsAugPolicy handler = this.actionsRegistry.get(entry.getKey());
+        // Augmented Actions
+        for (final Augmentation<Actions> action : actions.augmentations().values()) {
+            final ActionsAugPolicy handler = this.actionsRegistry.get(action.implementedInterface());
             if (handler == null) {
                 continue;
             } else if (attributesUpdated == null) {
                 return null;
             }
-            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
-                    (Augmentation<Actions>) entry.getValue());
+            attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, action);
         }
         return attributesUpdated;
     }
