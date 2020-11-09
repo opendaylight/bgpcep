@@ -23,8 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -104,8 +105,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class FlowspecL3vpnIpv4NlriParserTest {
-
     private static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(),
         Flowspec.QNAME.getRevision(), "route-distinguisher"));
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
@@ -173,7 +174,6 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(any());
         doReturn(true).when(this.muliPathSupport).isTableTypeSupported(any());
     }
