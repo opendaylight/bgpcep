@@ -7,8 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -17,14 +19,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
  * Provides access to BGP AFI/SAFI registry.
  */
 public interface BGPTableTypeRegistryConsumer {
-
     /**
      * Looks for BgpTableType based on OpenConfig AFI/SAFI.
      *
      * @param afiSafiType afiSafi Type
      * @return Optional of BgpTableType or empty, if the table type is not supported.
      */
-    @NonNull Optional<BgpTableType> getTableType(@NonNull Class<? extends AfiSafiType> afiSafiType);
+    @Nullable BgpTableType getTableType(@NonNull Class<? extends AfiSafiType> afiSafiType);
 
     /**
      * Looks for BgpTableType based on OpenConfig AFI/SAFI.
@@ -32,7 +33,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param afiSafiType afiSafi Type
      * @return Optional of TableKey or empty, if the table type is not supported.
      */
-    @NonNull Optional<TablesKey> getTableKey(@NonNull Class<? extends AfiSafiType> afiSafiType);
+    @Nullable TablesKey getTableKey(@NonNull Class<? extends AfiSafiType> afiSafiType);
 
     /**
      * Looks for AfiSafiType based on BgpTableType.
@@ -40,7 +41,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param bgpTableType Bgp TableType
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
-    @NonNull Optional<Class<? extends AfiSafiType>> getAfiSafiType(@NonNull BgpTableType bgpTableType);
+    @Nullable Class<? extends AfiSafiType> getAfiSafiType(@NonNull BgpTableType bgpTableType);
 
     /**
      * Looks for AfiSafiType based on TablesKey.
@@ -48,5 +49,27 @@ public interface BGPTableTypeRegistryConsumer {
      * @param tablesKey Tables Key
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
-    @NonNull Optional<Class<? extends AfiSafiType>> getAfiSafiType(@NonNull TablesKey tablesKey);
+    @Nullable Class<? extends AfiSafiType> getAfiSafiType(@NonNull TablesKey tablesKey);
+
+    /**
+     * Create an immutable BGPTableTypeRegistryConsumer.
+     *
+     * @param extensionActivators Activators to use to populate the consumer
+     * @return An immutable instance
+     */
+    static @NonNull BGPTableTypeRegistryConsumer of(
+            final BGPTableTypeRegistryProviderActivator... extensionActivators) {
+        return of(Arrays.asList(extensionActivators));
+    }
+
+    /**
+     * Create an immutable BGPTableTypeRegistryConsumer.
+     *
+     * @param extensionActivators Activators to use to populate the consumer
+     * @return An immutable instance
+     */
+    static @NonNull BGPTableTypeRegistryConsumer of(
+            final Collection<BGPTableTypeRegistryProviderActivator> extensionActivators) {
+        return new DefaultBGPTableTypeRegistryConsumer(extensionActivators);
+    }
 }

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static com.google.common.base.Verify.verify;
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_ATTRIBUTES_AID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
@@ -55,7 +56,6 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
@@ -495,10 +495,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
             optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
         } else {
-            final Class<? extends AfiSafiType> afiSafiType
-                = tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey()).get();
-            optEffAtt = this.ribPolicies
-                .applyImportPolicies(this.peerImportParameters, routeAttrs, afiSafiType);
+            optEffAtt = ribPolicies.applyImportPolicies(peerImportParameters, routeAttrs,
+                verifyNotNull(tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())));
         }
         if (!optEffAtt.isPresent()) {
             deleteRoute(tx, ribSupport, routePath, routeBefore.orElse(null));

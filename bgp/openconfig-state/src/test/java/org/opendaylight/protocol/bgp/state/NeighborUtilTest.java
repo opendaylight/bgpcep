@@ -17,11 +17,11 @@ import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_K
 
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NeighborTimersStateAugmentationBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class NeighborUtilTest {
     @Mock
     private BGPSessionState sessionState;
@@ -53,17 +54,15 @@ public class NeighborUtilTest {
     @Mock
     private BGPAfiSafiState bgpAfiSafiState;
     private State state = State.IDLE;
-    private Optional<Class<? extends AfiSafiType>> afiSafi = Optional.empty();
+    private Class<? extends AfiSafiType> afiSafi = null;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
         doReturn(false).when(this.sessionState).isRouterRefreshCapabilitySupported();
         doReturn(false).when(this.sessionState).isMultiProtocolCapabilitySupported();
         doReturn(false).when(this.sessionState).isGracefulRestartCapabilitySupported();
         doReturn(false).when(this.sessionState).isAsn32CapabilitySupported();
         doReturn(false).when(this.sessionState).isAddPathCapabilitySupported();
-        doReturn(this.state).when(this.sessionState).getSessionState();
         doAnswer(invocation -> NeighborUtilTest.this.state).when(this.sessionState).getSessionState();
         doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
         doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
@@ -74,8 +73,6 @@ public class NeighborUtilTest {
         doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
         doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
         doReturn(0).when(this.bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
-
-
     }
 
     @Test
@@ -154,8 +151,8 @@ public class NeighborUtilTest {
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
                 .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build()).build();
 
-        this.afiSafi = Optional.of(IPV4UNICAST.class);
-        final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(this.afiSafi.get())
+        this.afiSafi = IPV4UNICAST.class;
+        final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(this.afiSafi)
                 .setState(afiSafiState)
                 .setGracefulRestart(graceful).build();
         assertEquals(Collections.singletonMap(expected.key(), expected),
