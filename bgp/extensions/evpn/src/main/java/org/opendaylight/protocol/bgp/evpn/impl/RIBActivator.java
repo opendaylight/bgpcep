@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.evpn.impl;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
@@ -16,9 +18,18 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = RIBExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.evpn.impl.RIBActivator")
 @MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+    @Inject
+    public RIBActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<Registration> startRIBExtensionProviderImpl(
             final RIBExtensionProviderContext context,

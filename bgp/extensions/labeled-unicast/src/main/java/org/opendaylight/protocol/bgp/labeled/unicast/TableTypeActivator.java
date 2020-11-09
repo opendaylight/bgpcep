@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
@@ -18,9 +20,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = BGPTableTypeRegistryProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.labeled.unicast.TableTypeActivator")
 @MetaInfServices(value = BGPTableTypeRegistryProviderActivator.class)
 public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
+    @Inject
+    public TableTypeActivator() {
+        // Exposed for DI
+    }
+
     @Override
     protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
             final BGPTableTypeRegistryProvider provider) {
