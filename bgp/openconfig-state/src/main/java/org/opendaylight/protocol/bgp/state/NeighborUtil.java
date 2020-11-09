@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -340,13 +339,14 @@ public final class NeighborUtil {
                 .collect(Collectors.toUnmodifiableMap(AfiSafi::key, Function.identity()));
     }
 
-    private static AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
+    private static @Nullable AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
             final @NonNull TablesKey tablesKey, final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
-        final Optional<Class<? extends AfiSafiType>> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
-        return afiSafi.map(aClass -> new AfiSafiBuilder().setAfiSafiName(aClass)
-                .setState(buildAfiSafiState(neighbor, tablesKey, neighbor.isAfiSafiSupported(tablesKey)))
-                .setGracefulRestart(buildAfiSafiGracefulRestartState(neighbor, tablesKey)).build()).orElse(null);
-
+        final Class<? extends AfiSafiType> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
+        return afiSafi == null ? null : new AfiSafiBuilder()
+            .setAfiSafiName(afiSafi)
+            .setState(buildAfiSafiState(neighbor, tablesKey, neighbor.isAfiSafiSupported(tablesKey)))
+            .setGracefulRestart(buildAfiSafiGracefulRestartState(neighbor, tablesKey))
+            .build();
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi

@@ -12,28 +12,23 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_KEY;
 
-import java.util.Optional;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class GlobalUtilTest {
     @Mock
     private BGPRibState ribState;
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        doReturn(Optional.empty()).when(this.tableRegistry).getAfiSafiType(eq(TABLES_KEY));
-    }
-
     @Test
     public void testNonSupportedAfiSafi() {
-        assertNull(GlobalUtil.buildAfiSafi(this.ribState, TABLES_KEY, this.tableRegistry));
+        doReturn(null).when(tableRegistry).getAfiSafiType(eq(TABLES_KEY));
+        assertNull(GlobalUtil.buildAfiSafi(ribState, TABLES_KEY, tableRegistry));
     }
 }

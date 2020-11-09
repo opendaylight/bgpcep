@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
@@ -192,7 +193,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
 
         final LocRibWriter<C, S, R, I> locRibWriter = LocRibWriter.create(
                 ribSupport,
-                this.tableTypeRegistry.getAfiSafiType(key).get(),
+                verifyNotNull(this.tableTypeRegistry.getAfiSafiType(key)),
                 txChain,
                 getInstanceIdentifier(),
                 this.localAs,
