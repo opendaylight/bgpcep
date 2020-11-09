@@ -20,15 +20,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
-public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeRegistryProvider {
-
+public class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeRegistryProvider {
     @GuardedBy("this")
     private final BiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes = HashBiMap.create();
     @GuardedBy("this")
     private final BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys = HashBiMap.create();
 
     @Override
-    public synchronized AbstractRegistration registerBGPTableType(final Class<? extends AddressFamily> afi,
+    public final synchronized AbstractRegistration registerBGPTableType(final Class<? extends AddressFamily> afi,
             final Class<? extends SubsequentAddressFamily> safi, final Class<? extends AfiSafiType> afiSafiType) {
         final BgpTableType tableType = new BgpTableTypeImpl(afi, safi);
         final Class<? extends AfiSafiType> prev = this.tableTypes.putIfAbsent(tableType, afiSafiType);
@@ -49,22 +48,22 @@ public final class SimpleBGPTableTypeRegistryProvider implements BGPTableTypeReg
     }
 
     @Override
-    public synchronized Optional<BgpTableType> getTableType(final Class<? extends AfiSafiType> afiSafiType) {
+    public final synchronized Optional<BgpTableType> getTableType(final Class<? extends AfiSafiType> afiSafiType) {
         return Optional.ofNullable(tableTypes.inverse().get(afiSafiType));
     }
 
     @Override
-    public Optional<TablesKey> getTableKey(final Class<? extends AfiSafiType> afiSafiType) {
+    public final Optional<TablesKey> getTableKey(final Class<? extends AfiSafiType> afiSafiType) {
         return Optional.ofNullable(tableKeys.inverse().get(afiSafiType));
     }
 
     @Override
-    public synchronized Optional<Class<? extends AfiSafiType>> getAfiSafiType(final BgpTableType bgpTableType) {
+    public final synchronized Optional<Class<? extends AfiSafiType>> getAfiSafiType(final BgpTableType bgpTableType) {
         return Optional.ofNullable(tableTypes.get(bgpTableType));
     }
 
     @Override
-    public Optional<Class<? extends AfiSafiType>> getAfiSafiType(final TablesKey tablesKey) {
+    public final Optional<Class<? extends AfiSafiType>> getAfiSafiType(final TablesKey tablesKey) {
         return Optional.ofNullable(tableKeys.get(tablesKey));
     }
 }

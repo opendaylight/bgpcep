@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
-import org.eclipse.jdt.annotation.NonNull;
+import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.yangtools.concepts.Registration;
 
+@NonNullByDefault
 public interface BGPTableTypeRegistryProviderActivator {
 
-    void startBGPTableTypeRegistryProvider(@NonNull BGPTableTypeRegistryProvider provider);
-
-    void stopBGPTableTypeRegistryProvider();
+    List<Registration> startBGPTableTypeRegistryProvider(BGPTableTypeRegistryProvider provider);
 }

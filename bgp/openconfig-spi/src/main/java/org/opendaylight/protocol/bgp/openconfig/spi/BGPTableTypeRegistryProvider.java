@@ -11,21 +11,20 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * The BGP extension may provide supported table type (AFI/SAFI).
  */
-public interface BGPTableTypeRegistryProvider extends  BGPTableTypeRegistryConsumer {
-
+public interface BGPTableTypeRegistryProvider extends BGPTableTypeRegistryConsumer {
     /**
      * Register supported AFI/SAFI.
+     *
      * @param afi Local representation of AFI.
      * @param safi Local representation of SAFI.
      * @param afiSafiType OpenConfig AFI/SAFI representation.
      * @return Registration ticket.
      */
-    @NonNull AbstractRegistration registerBGPTableType(@NonNull Class<? extends AddressFamily> afi,
+    @NonNull Registration registerBGPTableType(@NonNull Class<? extends AddressFamily> afi,
             @NonNull Class<? extends SubsequentAddressFamily> safi, @NonNull Class<? extends AfiSafiType> afiSafiType);
-
 }
