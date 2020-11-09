@@ -13,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.MockitoAnnotations.initMocks;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.MD5_PASSWORD;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.NEIGHBOR_ADDRESS;
@@ -34,7 +33,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
@@ -103,6 +104,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OpenConfigMappingUtilTest {
     private static final Neighbor NEIGHBOR = createNeighborExpected(NEIGHBOR_ADDRESS);
     private static final Neighbor EMPTY_NEIGHBOR = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
@@ -131,32 +133,17 @@ public class OpenConfigMappingUtilTest {
 
     private static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
     private static final AsNumber GLOBAL_AS = new AsNumber(Uint32.valueOf(73));
-    private static final List<AddressFamilies> FAMILIES;
-    private static final List<BgpTableType> TABLE_TYPES;
-    private static final List<AfiSafi> AFISAFIS = new ArrayList<>();
+    private static final List<AddressFamilies> FAMILIES = List.of(
+        new AddressFamiliesBuilder()
+            .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setSendReceive(SendReceive.Both).build(),
+        new AddressFamiliesBuilder()
+            .setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setSendReceive(SendReceive.Send).build(),
+        new AddressFamiliesBuilder()
+            .setAfi(Ipv6AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class)
+            .setSendReceive(SendReceive.Receive).build());
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
-
-    static {
-        FAMILIES = new ArrayList<>();
-        FAMILIES.add(new AddressFamiliesBuilder()
-                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setSendReceive(SendReceive.Both).build());
-        FAMILIES.add(new AddressFamiliesBuilder()
-                .setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
-                .setSendReceive(SendReceive.Send).build());
-        FAMILIES.add(new AddressFamiliesBuilder()
-                .setAfi(Ipv6AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class)
-                .setSendReceive(SendReceive.Receive).build());
-        TABLE_TYPES = new ArrayList<>();
-        TABLE_TYPES.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        TABLE_TYPES.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
-                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
-                        .setSendMax(N_PATHS).build()).build());
-        AFISAFIS.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
-                .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(Boolean.TRUE)
-                        .setSendMax(ALL_PATHS).build()).build());
-    }
 
     @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
@@ -166,18 +153,10 @@ public class OpenConfigMappingUtilTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
-        doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV4))
-            .when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
-        doReturn(java.util.Optional.of(BGP_TABLE_TYPE_IPV6))
-            .when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
-        doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv6AddressFamily.class,
-                MplsLabeledVpnSubsequentAddressFamily.class)))
+        doReturn(BGP_TABLE_TYPE_IPV4).when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
+        doReturn(BGP_TABLE_TYPE_IPV6).when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
+        doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class))
             .when(this.tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
-        doReturn(java.util.Optional.of(IPV4UNICAST.class))
-            .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV4);
-        doReturn(java.util.Optional.of(IPV6UNICAST.class))
-            .when(this.tableTypeRegistry).getAfiSafiType(BGP_TABLE_TYPE_IPV6);
         doReturn(AS).when(this.rib).getLocalAs();
     }
 
@@ -272,8 +251,8 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetNeighborInstanceName() {
-        assertEquals(NEIGHBOR_ADDRESS.getIpv4Address().getValue(), OpenConfigMappingUtil
-                .getNeighborInstanceName(BGP_II.child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY)));
+        assertEquals(NEIGHBOR_ADDRESS.getIpv4Address().getValue(), OpenConfigMappingUtil.getNeighborInstanceName(
+            BGP_II.child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY)));
     }
 
     @Test
