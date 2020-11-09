@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.Collections;
-import java.util.Optional;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
@@ -49,7 +48,7 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
         doReturn(DefaultPolicyType.REJECTROUTE).when(this.config).getDefaultExportPolicy();
         doReturn(Collections.singletonList("default-odl-import-policy")).when(this.config).getImportPolicy();
         doReturn(Collections.singletonList("default-odl-export-policy")).when(this.config).getExportPolicy();
-        doReturn(Optional.of(IPV4UNICAST.class)).when(this.tableRegistry).getAfiSafiType(any(TablesKey.class));
+        doReturn(IPV4UNICAST.class).when(this.tableRegistry).getAfiSafiType(any(TablesKey.class));
 
         this.policyProvider = new BGPRibRoutingPolicyFactoryImpl(getDataBroker(), this.statementRegistry);
         this.policies = this.policyProvider.buildBGPRibPolicy(AS, this.bgpID, this.ci, this.config);

@@ -122,10 +122,9 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 any(), anyInt(), any(KeyMapping.class));
         doReturn(this.dispatcher).when(this.rib).getDispatcher();
 
-        doReturn(java.util.Optional.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class)))
+        doReturn(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
                 .when(this.tableTypeRegistry).getTableType(any());
-        doReturn(java.util.Optional.of(TABLES_KEY)).when(this.tableTypeRegistry).getTableKey(any());
+        doReturn(TABLES_KEY).when(this.tableTypeRegistry).getTableKey(any());
         doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class)))
                 .when(this.rib).getLocalTables();

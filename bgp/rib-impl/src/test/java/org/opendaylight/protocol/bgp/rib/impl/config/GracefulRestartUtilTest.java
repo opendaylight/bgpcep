@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -20,11 +19,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class GracefulRestartUtilTest {
 
     private static final int RESTART_TIME = 5;
@@ -89,9 +90,8 @@ public class GracefulRestartUtilTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
-        doReturn(Optional.of(IPV4_KEY)).when(tableRegistry).getTableKey(IPV4UNICAST.class);
-        doReturn(Optional.of(IPV6_KEY)).when(tableRegistry).getTableKey(IPV6UNICAST.class);
+        doReturn(IPV4_KEY).when(tableRegistry).getTableKey(IPV4UNICAST.class);
+        doReturn(IPV6_KEY).when(tableRegistry).getTableKey(IPV6UNICAST.class);
     }
 
     @Test

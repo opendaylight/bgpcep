@@ -11,7 +11,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
-import org.opendaylight.protocol.bgp.openconfig.spi.AbstractBGPTableTypeRegistryProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProvider;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryProviderActivator;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4MULTICAST;
@@ -22,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -31,18 +30,16 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = BGPTableTypeRegistryProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator")
-@MetaInfServices(value = BGPTableTypeRegistryProviderActivator.class)
-public final class TableTypeActivator extends AbstractBGPTableTypeRegistryProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.l3vpn.TableTypeActivator")
+@MetaInfServices
+public final class TableTypeActivator implements BGPTableTypeRegistryProviderActivator {
     @Inject
     public TableTypeActivator() {
         // Exposed for DI
     }
 
     @Override
-    protected List<AbstractRegistration> startBGPTableTypeRegistryProviderImpl(
-            final BGPTableTypeRegistryProvider provider) {
+    public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
         return List.of(
             provider.registerBGPTableType(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
                 L3VPNIPV4UNICAST.class),
