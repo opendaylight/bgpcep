@@ -80,11 +80,9 @@ public final class DefaultFileWatcher extends AbstractRegistration implements Fi
     @PostConstruct
     public void activate() throws IOException {
         final File file = new File(PATH.toString());
-        if (!file.exists()) {
-            if (!file.mkdirs()) {
-                LOG.warn("Failed to create config directory {}", PATH);
-                return;
-            }
+        if (!file.exists() && !file.mkdirs()) {
+            LOG.warn("Failed to create config directory {}", PATH);
+            return;
         }
 
         PATH.register(getWatchService(), OVERFLOW, ENTRY_CREATE);
