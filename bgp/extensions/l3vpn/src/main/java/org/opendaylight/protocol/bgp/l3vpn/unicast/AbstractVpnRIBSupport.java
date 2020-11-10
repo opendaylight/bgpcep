@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
@@ -73,16 +72,15 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     protected AbstractVpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
-            final Class<S> containerClass,
+            final Class<S> containerClass, final QName containerQName,
             final Class<? extends AddressFamily> afiClass,
             final QName vpnDstContainerClassQname) {
         super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
                 MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
-        final QName classQname = BindingReflections.findQName(containerClass).intern();
-        final QName vpnDstClassQname = QName.create(classQname, VpnDestination.QNAME.getLocalName());
-        this.nlriRoutesListNid = NodeIdentifier.create(vpnDstClassQname);
-        this.labelStackNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "label-stack").intern());
-        this.lvNid = NodeIdentifier.create(QName.create(vpnDstClassQname, "label-value").intern());
+        this.nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule())
+            .intern());
+        this.labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());
+        this.lvNid = NodeIdentifier.create(QName.create(containerQName, "label-value").intern());
     }
 
     private VpnDestination extractVpnDestination(final DataContainerNode<? extends PathArgument> route) {

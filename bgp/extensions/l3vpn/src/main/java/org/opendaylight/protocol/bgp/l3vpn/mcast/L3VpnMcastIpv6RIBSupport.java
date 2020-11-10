@@ -54,7 +54,7 @@ public final class L3VpnMcastIpv6RIBSupport
 
     private L3VpnMcastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                L3vpnMcastRoutesIpv6Case.class,
+                L3vpnMcastRoutesIpv6Case.class, L3vpnMcastRoutesIpv6Case.QNAME,
                 L3vpnMcastRoutesIpv6.class,
                 Ipv6AddressFamily.class,
                 DestinationIpv6L3vpnMcast.QNAME,
