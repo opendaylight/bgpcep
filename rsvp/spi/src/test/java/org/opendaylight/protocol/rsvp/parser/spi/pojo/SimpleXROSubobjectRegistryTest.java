@@ -5,21 +5,22 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleXROSubobjectRegistryTest {
     private final int subObjectTypeOne = 1;
     private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
@@ -37,16 +39,14 @@ public class SimpleXROSubobjectRegistryTest {
     @Mock
     private XROSubobjectSerializer rroSubobjectSerializer;
 
-
     @Before
     public void setUp() throws RSVPParsingException {
-        MockitoAnnotations.initMocks(this);
         this.simpleXROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this.rroSubobjectParser);
-        Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this
+        doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this
             .input, false);
         final ArgumentCaptor<SubobjectContainer> arg = ArgumentCaptor.forClass(SubobjectContainer.class);
         final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             ((ByteBuf) args[1]).writeBoolean(Boolean.TRUE);
             return null;

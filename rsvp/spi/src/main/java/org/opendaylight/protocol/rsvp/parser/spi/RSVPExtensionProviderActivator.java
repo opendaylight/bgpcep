@@ -5,11 +5,13 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi;
 
-public interface RSVPExtensionProviderActivator {
-    void start(RSVPExtensionProviderContext context);
+import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.yangtools.concepts.Registration;
 
-    void stop();
+@NonNullByDefault
+public interface RSVPExtensionProviderActivator {
+    List<Registration> start(RSVPExtensionProviderContext context);
 }

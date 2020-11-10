@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv6PrefixSubobjectParser;
@@ -19,8 +20,9 @@ import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROLabelSubobjec
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROPathKey128SubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionConsumerContext;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.DefaultRSVPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -69,19 +71,19 @@ public class RROSubobjectParserTest {
         )));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(IP_4_PREFIX_BYTES, ByteArray.getAllBytes(buff));
+        assertArrayEquals(IP_4_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
     }
 
@@ -100,19 +102,19 @@ public class RROSubobjectParserTest {
             ByteArray.cutBytes(IP_6_PREFIX_BYTES, 2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(IP_6_PREFIX_BYTES, ByteArray.getAllBytes(buff));
+        assertArrayEquals(IP_6_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
     }
 
@@ -132,19 +134,19 @@ public class RROSubobjectParserTest {
             2))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(UNNUMBERED_BYTES, ByteArray.getAllBytes(buff));
+        assertArrayEquals(UNNUMBERED_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -160,19 +162,19 @@ public class RROSubobjectParserTest {
         )));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(PATH_KEY_32_BYTES, ByteArray.getAllBytes(buff));
+        assertArrayEquals(PATH_KEY_32_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
         }
     }
 
@@ -191,53 +193,50 @@ public class RROSubobjectParserTest {
             2))));
         final ByteBuf buff = Unpooled.buffer();
         RROPathKey128SubobjectParser.serializeSubobject(subs.build(), buff);
-        Assert.assertArrayEquals(PATH_KEY_128_BYTES, ByteArray.getAllBytes(buff));
+        assertArrayEquals(PATH_KEY_128_BYTES, ByteArray.getAllBytes(buff));
 
         try {
             parser.parseSubobject(null);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
         try {
             parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-            Assert.fail();
+            fail();
         } catch (final IllegalArgumentException e) {
-            Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
     }
 
     @Test
     public void testRROLabelSubobject() throws Exception {
-        final SimpleRSVPExtensionProviderContext ctx = new SimpleRSVPExtensionProviderContext();
-        try (RSVPActivator a = new RSVPActivator()) {
-            a.start(ctx);
-            final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
-            final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
-            subs.setSubobjectType(new LabelCaseBuilder().setLabel(
-                new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
-                    new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
-                        new GeneralizedLabelBuilder().setGeneralizedLabel(
-                            new byte[]{(byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF}).build()).build()).build()
+        final RSVPExtensionConsumerContext ctx = new DefaultRSVPExtensionConsumerContext(new RSVPActivator());
+        final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
+        final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
+        subs.setSubobjectType(new LabelCaseBuilder().setLabel(
+            new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
+                new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
+                    new GeneralizedLabelBuilder().setGeneralizedLabel(
+                        new byte[]{(byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF}).build()).build()).build()
             ).build());
-            assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(LABEL_BYTES, 2)
+        assertEquals(subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(LABEL_BYTES, 2)
             )));
-            final ByteBuf buff = Unpooled.buffer();
-            parser.serializeSubobject(subs.build(), buff);
-            Assert.assertArrayEquals(LABEL_BYTES, ByteArray.getAllBytes(buff));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeSubobject(subs.build(), buff);
+        assertArrayEquals(LABEL_BYTES, ByteArray.getAllBytes(buff));
 
-            try {
-                parser.parseSubobject(null);
-                Assert.fail();
-            } catch (final IllegalArgumentException e) {
-                Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-            }
-            try {
-                parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-                Assert.fail();
-            } catch (final IllegalArgumentException e) {
-                Assert.assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-            }
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
     }
 }
