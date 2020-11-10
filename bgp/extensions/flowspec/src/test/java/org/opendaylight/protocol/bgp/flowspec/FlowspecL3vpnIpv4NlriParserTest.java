@@ -166,11 +166,8 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         0x0c, (byte) 0x81, (byte) 0x0e
     };
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
     private final FlowspecL3vpnIpv4NlriParser fsParser = new FlowspecL3vpnIpv4NlriParser(
-        this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-            SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+        FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN);
 
     @Before
     public void setUp() {
@@ -210,8 +207,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         fs.add(builder.build());
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -327,8 +323,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         fs.add(builder.build());
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -416,8 +411,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         fs.add(builder.build());
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -550,8 +544,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         fs.add(builder.build());
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
