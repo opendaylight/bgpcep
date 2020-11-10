@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -77,16 +78,12 @@ public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecR
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fsContext);
-        final BGPActivator act = new BGPActivator(activator);
+        final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
-        this.ribSupport = FlowspecIpv4RIBSupport.getInstance(fsContext, this.adapter.currentSerializer());
+        this.ribSupport = new FlowspecIpv4RIBSupport(this.adapter.currentSerializer());
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-                fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                        SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
         this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)

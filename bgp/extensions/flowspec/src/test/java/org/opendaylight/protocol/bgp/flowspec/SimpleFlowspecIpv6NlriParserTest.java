@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -82,11 +83,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     private PeerSpecificParserConstraint constraint;
     @Mock
     private MultiPathSupport muliPathSupport;
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
-    private final SimpleFlowspecIpv6NlriParser fsParser = new SimpleFlowspecIpv6NlriParser(
-        this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-            SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+    private final SimpleFlowspecIpv6NlriParser fsParser = new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC);
 
     private static final byte[] REACHED_NLRI = new byte[] {
         0x13,

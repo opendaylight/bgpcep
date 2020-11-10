@@ -11,7 +11,7 @@ import static com.google.common.base.Verify.verify;
 
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.destination.ipv4.DestinationFlowspecL3vpnIpv4;
@@ -32,11 +32,8 @@ public final class FlowspecL3vpnIpv4RIBSupport
         FlowspecL3vpnRoute,
         FlowspecL3vpnRouteKey> {
     private static final FlowspecL3vpnIpv4Routes EMPTY_CONTAINER = new FlowspecL3vpnIpv4RoutesBuilder().build();
-    private static FlowspecL3vpnIpv4RIBSupport SINGLETON;
 
-    private FlowspecL3vpnIpv4RIBSupport(
-            final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public FlowspecL3vpnIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
                 FlowspecL3vpnIpv4RoutesCase.class,
@@ -44,19 +41,8 @@ public final class FlowspecL3vpnIpv4RIBSupport
                 FlowspecL3vpnRoute.class,
                 DestinationFlowspecL3vpnIpv4.QNAME,
                 Ipv4AddressFamily.class,
-                new FlowspecL3vpnIpv4NlriParser(context
-                        .getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN))
+                new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN)
         );
-    }
-
-    public static synchronized FlowspecL3vpnIpv4RIBSupport getInstance(
-            final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new FlowspecL3vpnIpv4RIBSupport(context, mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override
