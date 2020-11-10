@@ -7,9 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import java.util.Collections;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.doReturn;
+
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
@@ -35,26 +37,22 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void testExtensionProvider() {
         final BindingNormalizedNodeSerializer codec = adapter.currentSerializer();
-        final ServiceLoaderRIBExtensionConsumerContext ctx =
-                ServiceLoaderRIBExtensionConsumerContext.createConsumerContext(codec);
-        Assert.assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        final TestActivator act = new TestActivator();
-        act.startRIBExtensionProvider(ctx, codec);
-        Assert.assertNotNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        act.close();
-        Assert.assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        ctx.close();
+        var ctx = new DefaultRIBExtensionConsumerContext(codec);
+        assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+
+        ctx = new DefaultRIBExtensionConsumerContext(codec, new TestActivator());
+        assertNotNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
     }
 
-    private final class TestActivator extends AbstractRIBExtensionProviderActivator {
+    private static final class TestActivator implements RIBExtensionProviderActivator {
         @Override
-        protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
+        public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {
             final RIBSupport<?, ?, ?, ?> support = Mockito.mock(RIBSupport.class);
-            Mockito.doReturn(Route.class).when(support).routesListClass();
-            Mockito.doReturn(DataObject.class).when(support).routesContainerClass();
-            Mockito.doReturn(DataObject.class).when(support).routesCaseClass();
-            return Collections.singletonList(context.registerRIBSupport(Ipv4AddressFamily.class,
+            doReturn(Route.class).when(support).routesListClass();
+            doReturn(DataObject.class).when(support).routesContainerClass();
+            doReturn(DataObject.class).when(support).routesCaseClass();
+            return List.of(context.registerRIBSupport(Ipv4AddressFamily.class,
                     UnicastSubsequentAddressFamily.class, support));
         }
     }

@@ -79,7 +79,6 @@ public final class RouteTargetConstrainRIBSupport
     private static final RouteTargetConstrainRoutes EMPTY_CONTAINER
             = new RouteTargetConstrainRoutesBuilder().setRouteTargetConstrainRoute(Collections.emptyList()).build();
     private static final String ORIGIN_AS = "origin-as";
-    private static RouteTargetConstrainRIBSupport SINGLETON;
     private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects
             = ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
     private final NodeIdentifier originAsNid;
@@ -92,7 +91,7 @@ public final class RouteTargetConstrainRIBSupport
      *
      * @param mappingService Serialization service
      */
-    private RouteTargetConstrainRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    public RouteTargetConstrainRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 RouteTargetConstrainRoutesCase.class,
                 RouteTargetConstrainRoutes.class,
@@ -101,14 +100,6 @@ public final class RouteTargetConstrainRIBSupport
                 RouteTargetConstrainSubsequentAddressFamily.class,
                 DestinationRouteTargetConstrain.QNAME);
         this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
-    }
-
-    public static synchronized RouteTargetConstrainRIBSupport getInstance(
-            final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new RouteTargetConstrainRIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

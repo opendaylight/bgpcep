@@ -51,7 +51,5 @@ public class ActivatorTest extends AbstractRIBActivatorTest {
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
 
         assertNotNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
-
-        ribAct.close();
     }
 }

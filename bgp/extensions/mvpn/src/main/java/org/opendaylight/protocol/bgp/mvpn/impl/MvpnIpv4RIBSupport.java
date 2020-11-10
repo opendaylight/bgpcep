@@ -49,22 +49,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  */
 final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case, MvpnRoutesIpv4> {
     private static final MvpnRoutesIpv4 EMPTY_CONTAINER = new MvpnRoutesIpv4Builder().build();
-    private static MvpnIpv4RIBSupport SINGLETON;
 
-    private MvpnIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    MvpnIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 MvpnRoutesIpv4Case.class,
                 MvpnRoutesIpv4.class,
                 Ipv4AddressFamily.class,
                 DestinationMvpn.QNAME,
                 MvpnDestination.QNAME);
-    }
-
-    static synchronized MvpnIpv4RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new MvpnIpv4RIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn

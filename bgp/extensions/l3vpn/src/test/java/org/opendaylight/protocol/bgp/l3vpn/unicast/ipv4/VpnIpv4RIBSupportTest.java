@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4;
 
 import static org.junit.Assert.assertEquals;
@@ -72,7 +71,7 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = VpnIpv4RIBSupport.getInstance(this.adapter.currentSerializer());
+        this.ribSupport = new VpnIpv4RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

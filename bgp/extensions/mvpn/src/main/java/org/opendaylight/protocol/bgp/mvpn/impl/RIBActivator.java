@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.McastVpnSubsequentAddressFamily;
@@ -27,22 +26,21 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = RIBExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.mvpn.impl.RIBActivator")
-@MetaInfServices(value = RIBExtensionProviderActivator.class)
-public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.mvpn.impl.RIBActivator")
+@MetaInfServices
+public final class RIBActivator implements RIBExtensionProviderActivator {
     @Inject
     public RIBActivator() {
         // Exposed for DI
     }
 
     @Override
-    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
+    public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
             context.registerRIBSupport(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                MvpnIpv4RIBSupport.getInstance(mappingService)),
+                new MvpnIpv4RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
-                MvpnIpv6RIBSupport.getInstance(mappingService)));
+                new MvpnIpv6RIBSupport(mappingService)));
     }
 }
