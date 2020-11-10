@@ -5,12 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.graph.impl;
 
-import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -28,6 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,40 +41,35 @@ import org.slf4j.LoggerFactory;
  * This Class Implements the DataStoreService interface providing the methods required to manage the network
  * representation elements in the Data Store.
  *
- *
  * @author Olivier Dugeon
  * @author Philippe Niger
  */
-
-public class GraphListener implements DataTreeChangeListener<Graph> {
-
+@Component(service = {})
+@Singleton
+public final class GraphListener implements DataTreeChangeListener<Graph>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(GraphListener.class);
-    private final DataBroker dataBroker;
-    private final InstanceIdentifier<Graph> graphIdentifier;
+    private static final InstanceIdentifier<Graph> GRAPH_IDENTIFIER =
+        InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
+
     private final ConnectedGraphProvider graphProvider;
-    private ListenerRegistration<GraphListener> listenerRegistration = null;
 
-    public GraphListener(final DataBroker dataBroker, final ConnectedGraphProvider provider) {
-        this.dataBroker = dataBroker;
-        this.graphIdentifier = InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
-        this.graphProvider = provider;
-        LOG.info("Graph Model Listener started");
-    }
+    private ListenerRegistration<GraphListener> listenerRegistration;
 
-    /**
-     * Initialization of the Graph Topology Listener. This method is called through the blueprint.
-     */
-    public void init() {
-        checkState(this.listenerRegistration == null, "Graph Listener has been registered before");
-        final DataTreeIdentifier<Graph> treeId = DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
-                graphIdentifier);
-        this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(treeId, this);
-        LOG.info("Registered listener {} on Graph Model at {}", this, this.graphIdentifier);
+    @Inject
+    @Activate
+    public GraphListener(@Reference final DataBroker dataBroker, @Reference final ConnectedGraphProvider provider) {
+        this.graphProvider = requireNonNull(provider);
+        this.listenerRegistration = dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, GRAPH_IDENTIFIER), this);
+        LOG.info("Registered listener {} on Graph Model at {}", this, GRAPH_IDENTIFIER);
     }
 
     /**
      * Close this Listener.
      */
+    @Override
+    @Deactivate
+    @PreDestroy
     public void close() {
         if (this.listenerRegistration != null) {
             LOG.debug("Unregistered listener {} on Graph", this);
@@ -86,8 +87,8 @@ public class GraphListener implements DataTreeChangeListener<Graph> {
      * @param cgraph   Connected Graph where children Data Object must insert or remove
      * @param children List of children (Vertex, Edge or Prefix)
      */
-    private void parseSubTree(ConnectedGraph cgraph,
-            Collection<? extends DataObjectModification<? extends DataObject>> children) {
+    private void parseSubTree(final ConnectedGraph cgraph,
+            final Collection<? extends DataObjectModification<? extends DataObject>> children) {
         for (DataObjectModification<? extends DataObject> child : children) {
             DataObject value;
             switch (child.getModificationType()) {
