@@ -24,7 +24,7 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
-import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.SimpleRouteTargetConstrainNlriRegistry;
+import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.ImmutableRouteTargetConstrainNlriRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
@@ -175,7 +175,7 @@ public final class RouteTargetConstrainRIBSupport
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode routeTarget) {
         final ByteBuf buffer = Unpooled.buffer();
         final RouteTargetConstrainDestination dest = extractDestination(routeTarget);
-        buffer.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
+        buffer.writeBytes(ImmutableRouteTargetConstrainNlriRegistry.getInstance()
                 .serializeRouteTargetConstrain(dest.getRouteTargetConstrainChoice()));
         final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
                 routeTarget.getChild(routePathIdNid());

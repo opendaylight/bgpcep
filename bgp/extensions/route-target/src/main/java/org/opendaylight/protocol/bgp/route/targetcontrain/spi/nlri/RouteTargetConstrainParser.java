@@ -11,6 +11,7 @@ import io.netty.buffer.ByteBuf;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
 
+@Deprecated
 public interface RouteTargetConstrainParser<T extends RouteTargetConstrainChoice> {
     /**
      * Decode input buffer to BGP Route Target.
@@ -19,11 +20,4 @@ public interface RouteTargetConstrainParser<T extends RouteTargetConstrainChoice
      * @return Route Target
      */
     @NonNull T parseRouteTargetConstrain(@NonNull ByteBuf buffer);
-
-    /**
-     * Returns NlriType handled by parser.
-     *
-     * @return NlriType
-     */
-    Integer getType();
 }
