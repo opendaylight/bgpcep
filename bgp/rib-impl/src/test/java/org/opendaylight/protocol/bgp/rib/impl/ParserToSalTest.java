@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -26,12 +27,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -39,7 +38,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
@@ -68,10 +67,10 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private final IpAddressNoZone localAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));
     private BGPMock mock;
-    private AbstractRIBExtensionProviderActivator baseact;
-    private AbstractRIBExtensionProviderActivator lsact;
-    private RIBExtensionProviderContext ext1;
-    private RIBExtensionProviderContext ext2;
+    private final RIBExtensionProviderActivator baseact = new RIBActivator();
+    private final RIBExtensionProviderActivator lsact = new org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator();
+    private final RIBExtensionProviderContext ext1 = new SimpleRIBExtensionProviderContext();
+    private final RIBExtensionProviderContext ext2 = new SimpleRIBExtensionProviderContext();
     @Mock
     private BGPDispatcher dispatcher;
     private ConstantCodecsRegistry codecsRegistry;
@@ -86,25 +85,14 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
                 .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
 
-        Mockito.doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
+        doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
                 .createReconnectingClient(any(InetSocketAddress.class), any(InetSocketAddress.class),
                         anyInt(), any(KeyMapping.class));
-
-        this.ext1 = new SimpleRIBExtensionProviderContext();
-        this.ext2 = new SimpleRIBExtensionProviderContext();
-        this.baseact = new RIBActivator();
-        this.lsact = new org.opendaylight.protocol.bgp.linkstate.impl.RIBActivator();
 
         final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
         this.baseact.startRIBExtensionProvider(this.ext1, serializer);
         this.lsact.startRIBExtensionProvider(this.ext2, serializer);
         this.codecsRegistry = new ConstantCodecsRegistry(serializer);
-    }
-
-    @After
-    public void tearDown() {
-        this.lsact.close();
-        this.baseact.close();
     }
 
     @Test

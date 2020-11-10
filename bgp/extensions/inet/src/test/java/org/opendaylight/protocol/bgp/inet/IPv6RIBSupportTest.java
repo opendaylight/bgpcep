@@ -74,7 +74,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = IPv6RIBSupport.getInstance(this.adapter.currentSerializer());
+        this.ribSupport = new IPv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

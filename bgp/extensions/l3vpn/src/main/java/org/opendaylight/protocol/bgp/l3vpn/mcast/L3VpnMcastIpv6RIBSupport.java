@@ -49,10 +49,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 public final class L3VpnMcastIpv6RIBSupport
         extends AbstractL3vpnMcastIpRIBSupport<L3vpnMcastRoutesIpv6Case, L3vpnMcastRoutesIpv6> {
     private static final L3vpnMcastRoutesIpv6 EMPTY_CONTAINER = new L3vpnMcastRoutesIpv6Builder().build();
-    private static L3VpnMcastIpv6RIBSupport SINGLETON;
 
-
-    private L3VpnMcastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    public L3VpnMcastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 L3vpnMcastRoutesIpv6Case.class, L3vpnMcastRoutesIpv6Case.QNAME,
                 L3vpnMcastRoutesIpv6.class,
@@ -60,15 +58,6 @@ public final class L3VpnMcastIpv6RIBSupport
                 DestinationIpv6L3vpnMcast.QNAME,
                 L3vpnMcastDestination.QNAME);
     }
-
-    public static synchronized L3VpnMcastIpv6RIBSupport getInstance(
-            final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new L3VpnMcastIpv6RIBSupport(mappingService);
-        }
-        return SINGLETON;
-    }
-
 
     @Override
     protected DestinationL3vpnMcastIpv6AdvertizedCase buildDestination(final Collection<MapEntryNode> routes) {

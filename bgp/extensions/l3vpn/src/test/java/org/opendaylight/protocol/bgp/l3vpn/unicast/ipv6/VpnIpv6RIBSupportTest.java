@@ -71,7 +71,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnIpv6RoutesC
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = VpnIpv6RIBSupport.getInstance(this.adapter.currentSerializer());
+        this.ribSupport = new VpnIpv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

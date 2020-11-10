@@ -90,7 +90,7 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ribSupport = L3VpnMcastIpv6RIBSupport.getInstance(this.adapter.currentSerializer());
+        ribSupport = new L3VpnMcastIpv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(ribSupport);
     }
 

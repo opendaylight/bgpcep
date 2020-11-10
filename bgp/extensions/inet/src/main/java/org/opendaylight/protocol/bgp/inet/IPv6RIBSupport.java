@@ -39,11 +39,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  * Class supporting IPv6 unicast RIBs.
  */
 final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Routes, Ipv6Route, Ipv6RouteKey> {
-
     private static final Ipv6Routes EMPTY_CONTAINER = new Ipv6RoutesBuilder().build();
-    private static IPv6RIBSupport SINGLETON;
 
-    private IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.Ipv6Prefix.class,
                 Ipv6AddressFamily.class,
@@ -52,13 +50,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
                 Ipv6Route.class,
                 DestinationIpv6.QNAME,
                 Ipv6Prefixes.QNAME);
-    }
-
-    static synchronized IPv6RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new IPv6RIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

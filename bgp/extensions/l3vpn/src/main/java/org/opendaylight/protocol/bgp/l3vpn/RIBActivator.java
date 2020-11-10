@@ -16,7 +16,6 @@ import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6RIBSupport;
-import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
@@ -32,26 +31,25 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = RIBExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.l3vpn.RIBActivator")
-@MetaInfServices(value = RIBExtensionProviderActivator.class)
-public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.l3vpn.RIBActivator")
+@MetaInfServices
+public final class RIBActivator implements RIBExtensionProviderActivator {
     @Inject
     public RIBActivator() {
         // Exposed for DI
     }
 
     @Override
-    protected List<Registration> startRIBExtensionProviderImpl(final RIBExtensionProviderContext context,
+    public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
             context.registerRIBSupport(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-                VpnIpv4RIBSupport.getInstance(mappingService)),
+                new VpnIpv4RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
-                VpnIpv6RIBSupport.getInstance(mappingService)),
+                new VpnIpv6RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
-                L3VpnMcastIpv4RIBSupport.getInstance(mappingService)),
+                new L3VpnMcastIpv4RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
-                L3VpnMcastIpv6RIBSupport.getInstance(mappingService)));
+                new L3VpnMcastIpv6RIBSupport(mappingService)));
     }
 }

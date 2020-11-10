@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 
 public final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport<VpnIpv6RoutesCase, VpnIpv6Routes> {
     private static final VpnIpv6Routes EMPTY_CONTAINER = new VpnIpv6RoutesBuilder().build();
-    private static VpnIpv6RIBSupport SINGLETON;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -37,19 +36,12 @@ public final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport<VpnIpv6Routes
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
      */
-    private VpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    public VpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 VpnIpv6RoutesCase.class,
                 VpnIpv6Routes.class, VpnIpv6Routes.QNAME,
                 Ipv6AddressFamily.class,
                 VpnIpv6Destination.QNAME);
-    }
-
-    public static synchronized VpnIpv6RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new VpnIpv6RIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

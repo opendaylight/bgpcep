@@ -101,7 +101,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = LabeledUnicastIpv6RIBSupport.getInstance(this.adapter.currentSerializer());
+        this.ribSupport = new LabeledUnicastIpv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

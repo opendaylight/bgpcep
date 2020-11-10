@@ -40,11 +40,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  * Class supporting IPv4 unicast RIBs.
  */
 final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route, Ipv4RouteKey> {
-
     private static final Ipv4Routes EMPTY_CONTAINER = new Ipv4RoutesBuilder().build();
-    private static IPv4RIBSupport SINGLETON = null;
 
-    private IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
                 Ipv4PrefixAndPathId.class,
@@ -54,13 +52,6 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
                 Ipv4Route.class,
                 DestinationIpv4.QNAME,
                 Ipv4Prefixes.QNAME);
-    }
-
-    static synchronized IPv4RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new IPv4RIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {

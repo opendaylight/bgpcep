@@ -58,9 +58,8 @@ public final class LinkstateRIBSupport
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
     private static final LinkstateRoutes EMPTY_CONTAINER = new LinkstateRoutesBuilder().build();
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
-    private static LinkstateRIBSupport SINGLETON;
 
-    private LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    public LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
                 LinkstateRoutesCase.class,
@@ -69,13 +68,6 @@ public final class LinkstateRIBSupport
                 LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class,
                 DestinationLinkstate.QNAME);
-    }
-
-    public static synchronized LinkstateRIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new LinkstateRIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {

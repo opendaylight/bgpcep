@@ -115,13 +115,13 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private AdapterContext mappingService;
-    private RIBActivator ribActivator;
+    private final RIBActivator ribActivator = new RIBActivator();
     private BGPActivator bgpActivator;
     private BmpActivator bmpActivator;
     private BmpDispatcher dispatcher;
     private BmpMonitoringStation bmpApp;
     private BmpMessageRegistry msgRegistry;
-    private RIBExtensionProviderContext ribExtension;
+    private final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
     private ClusterSingletonService singletonService;
     private ClusterSingletonService singletonService2;
     @Mock
@@ -157,8 +157,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService2.closeServiceInstance())
             .when(this.singletonServiceRegistration2).close();
 
-        this.ribActivator = new RIBActivator();
-        this.ribExtension = new SimpleRIBExtensionProviderContext();
         this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
 
         this.bgpActivator = new BGPActivator();
@@ -205,7 +203,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @After
     public void tearDown() throws Exception {
-        this.ribActivator.close();
         this.bgpActivator.close();
         this.bmpActivator.close();
         this.dispatcher.close();

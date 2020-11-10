@@ -57,9 +57,8 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
 
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
     private static final EvpnRoutes EMPTY_CONTAINER = new EvpnRoutesBuilder().build();
-    private static EvpnRibSupport SINGLETON;
 
-    private EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
+    EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 EvpnRoutesCase.class,
                 EvpnRoutes.class,
@@ -67,13 +66,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
                 L2vpnAddressFamily.class,
                 EvpnSubsequentAddressFamily.class,
                 DestinationEvpn.QNAME);
-    }
-
-    static synchronized EvpnRibSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new EvpnRibSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

@@ -128,8 +128,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BGPDispatcherImpl serverDispatcher;
-    RIBExtensionProviderContext ribExtension;
-    private RIBActivator ribActivator;
+    final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
+    private final RIBActivator ribActivator = new RIBActivator();
     private BGPActivator bgpActivator;
     private NioEventLoopGroup worker;
     private NioEventLoopGroup boss;
@@ -143,8 +143,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.ribActivator = new RIBActivator();
-        this.ribExtension = new SimpleRIBExtensionProviderContext();
 
         this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
 
@@ -174,8 +172,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
             this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
-        this.ribActivator.close();
-        this.inetActivator.close();
         this.bgpActivator.close();
         this.clientDispatchers.forEach(BGPDispatcherImpl::close);
         this.clientDispatchers = null;

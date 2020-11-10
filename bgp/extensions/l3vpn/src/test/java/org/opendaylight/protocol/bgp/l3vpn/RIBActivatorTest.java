@@ -28,6 +28,5 @@ public class RIBActivatorTest extends AbstractRIBActivatorTest {
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
         assertNotNull(context.getRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
         assertNotNull(context.getRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
-        ribAct.close();
     }
 }

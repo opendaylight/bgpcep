@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @NonNullByDefault
 public interface RIBExtensionProviderActivator {
-    void startRIBExtensionProvider(RIBExtensionProviderContext context, BindingNormalizedNodeSerializer mappingService);
 
-    void stopRIBExtensionProvider();
+    List<Registration> startRIBExtensionProvider(RIBExtensionProviderContext context,
+        BindingNormalizedNodeSerializer mappingService);
 }

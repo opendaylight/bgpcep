@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -40,8 +40,7 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
             final T support) {
         final TablesKey key = new TablesKey(afi, safi);
         final RIBSupport<?, ?, ?, ?> prev = this.supports.putIfAbsent(key, support);
-        Preconditions.checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s",
-                afi, safi, prev);
+        checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
         this.domSupports.put(RibSupportUtils.toYangTablesKey(afi, safi), support);
         return new AbstractRIBSupportRegistration<>(support) {
             @Override

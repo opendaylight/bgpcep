@@ -33,21 +33,13 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 public final class LabeledUnicastIpv4RIBSupport
         extends AbstractLabeledUnicastRIBSupport<LabeledUnicastRoutesCase, LabeledUnicastRoutes> {
     private static final LabeledUnicastRoutes EMPTY_CONTAINER = new LabeledUnicastRoutesBuilder().build();
-    private static LabeledUnicastIpv4RIBSupport SINGLETON;
 
-    private LabeledUnicastIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
+    public LabeledUnicastIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 LabeledUnicastRoutesCase.class,
                 LabeledUnicastRoutes.class,
                 Ipv4AddressFamily.class,
                 DestinationLabeledUnicast.QNAME);
-    }
-
-    static synchronized LabeledUnicastIpv4RIBSupport getInstance(final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new LabeledUnicastIpv4RIBSupport(mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

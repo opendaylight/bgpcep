@@ -103,7 +103,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     public void setUp() throws Exception {
         super.setUp();
         NlriActivator.registerNlriParsers(new ArrayList<>());
-        this.ribSupport = RouteTargetConstrainRIBSupport.getInstance(this.adapter.currentSerializer());
+        this.ribSupport = new RouteTargetConstrainRIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

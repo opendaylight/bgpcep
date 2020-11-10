@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -90,7 +89,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
     private RIBImpl rib;
-    private RIBActivator a1;
+    private final RIBActivator a1 = new RIBActivator();
     @Mock
     private BGPDispatcher dispatcher;
 
@@ -132,7 +131,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
 
         final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
-        this.a1 = new RIBActivator();
         this.a1.startRIBExtensionProvider(context, serializer);
 
         mockedMethods();
@@ -221,11 +219,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     public DOMDataTreeWriteTransaction getTransaction() {
         return this.domTransWrite;
-    }
-
-    @After
-    public void tearDown() {
-        this.a1.close();
     }
 
     private class TestListenerRegistration implements ListenerRegistration<EventListener> {
