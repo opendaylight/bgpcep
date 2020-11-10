@@ -13,7 +13,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,11 +78,6 @@ public class EROSubobjectParserTest {
         this.ctx = new SimpleRSVPExtensionProviderContext();
         this.act = new RSVPActivator();
         this.act.start(this.ctx);
-    }
-
-    @After
-    public void tearDown() {
-        this.act.close();
     }
 
     @Test
