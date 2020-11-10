@@ -11,7 +11,7 @@ import static com.google.common.base.Verify.verify;
 
 import java.util.Map;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.destination.ipv6.DestinationFlowspecL3vpnIpv6;
@@ -32,11 +32,8 @@ public final class FlowspecL3vpnIpv6RIBSupport
         FlowspecL3vpnRoute,
         FlowspecL3vpnRouteKey> {
     private static final FlowspecL3vpnIpv6Routes EMPTY_CONTAINER = new FlowspecL3vpnIpv6RoutesBuilder().build();
-    private static FlowspecL3vpnIpv6RIBSupport SINGLETON;
 
-    private FlowspecL3vpnIpv6RIBSupport(
-            final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public FlowspecL3vpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
                 FlowspecL3vpnIpv6RoutesCase.class,
@@ -44,19 +41,8 @@ public final class FlowspecL3vpnIpv6RIBSupport
                 FlowspecL3vpnRoute.class,
                 DestinationFlowspecL3vpnIpv6.QNAME,
                 Ipv6AddressFamily.class,
-                new FlowspecL3vpnIpv6NlriParser(context
-                        .getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-                                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC_VPN))
+                new FlowspecL3vpnIpv6NlriParser(FlowspecTypeRegistries.SAFI.FLOWSPEC_VPN)
         );
-    }
-
-    public static synchronized FlowspecL3vpnIpv6RIBSupport getInstance(
-            final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new FlowspecL3vpnIpv6RIBSupport(context, mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override

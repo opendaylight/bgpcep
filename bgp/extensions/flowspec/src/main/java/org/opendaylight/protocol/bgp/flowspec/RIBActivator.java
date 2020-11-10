@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4RIBSupport;
@@ -20,14 +22,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = RIBExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.bgp.flowspec.RIBActivator")
 @MetaInfServices(value = RIBExtensionProviderActivator.class)
 public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
-    private final SimpleFlowspecExtensionProviderContext fsContext;
-
-    // FIXME: this requires proper injection
-    public RIBActivator(final SimpleFlowspecExtensionProviderContext context) {
-        this.fsContext = context;
+    @Inject
+    public RIBActivator() {
+        // Exposed for DI
     }
 
     @Override
@@ -35,12 +39,12 @@ public final class RIBActivator extends AbstractRIBExtensionProviderActivator {
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
             context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                FlowspecIpv4RIBSupport.getInstance(this.fsContext, mappingService)),
+                new FlowspecIpv4RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                FlowspecIpv6RIBSupport.getInstance(this.fsContext, mappingService)),
+                new FlowspecIpv6RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                FlowspecL3vpnIpv4RIBSupport.getInstance(this.fsContext, mappingService)),
+                new FlowspecL3vpnIpv4RIBSupport(mappingService)),
             context.registerRIBSupport(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                FlowspecL3vpnIpv6RIBSupport.getInstance(this.fsContext, mappingService)));
+                new FlowspecL3vpnIpv6RIBSupport(mappingService)));
     }
 }

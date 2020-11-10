@@ -22,9 +22,7 @@ public class ActivatorTest {
 
     @Test
     public void testActivator() throws Exception {
-        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fsContext);
-        final BGPActivator act = new BGPActivator(activator);
+        final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_SAFI));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(FLOWSPEC_VPN_SAFI));

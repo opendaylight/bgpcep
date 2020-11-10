@@ -159,11 +159,8 @@ public class SimpleFlowspecIpv4NlriParserTest {
         0x0c, (byte) 0x81, (byte) 0x0e
     };
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
     private final SimpleFlowspecIpv4NlriParser fsParser = new SimpleFlowspecIpv4NlriParser(
-        flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-            SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
     @Before
     public void setUp() {
@@ -209,8 +206,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             .build()).build());
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -313,8 +309,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         );
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -396,8 +391,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         );
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -531,8 +525,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         );
 
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -945,8 +938,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
     @Test
     public void testBatchedFlowspecNlri() throws Exception {
         final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+                FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
