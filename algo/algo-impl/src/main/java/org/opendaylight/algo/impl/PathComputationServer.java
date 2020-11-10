@@ -7,9 +7,13 @@
  */
 package org.opendaylight.algo.impl;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.algo.PathComputationAlgorithm;
 import org.opendaylight.algo.PathComputationProvider;
 import org.opendaylight.graph.ConnectedGraph;
@@ -35,23 +39,23 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-public class PathComputationServer implements AutoCloseable, PathComputationService, PathComputationProvider {
-
+@Singleton
+public final class PathComputationServer implements AutoCloseable, PathComputationService, PathComputationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PathComputationServer.class);
 
-    private ObjectRegistration<PathComputationService> pathService;
-    private RpcProviderService rpcProviderRegistry;
-    private ConnectedGraphProvider graphProvider;
+    private final RpcProviderService rpcProviderRegistry;
+    private final ConnectedGraphProvider graphProvider;
 
+    private ObjectRegistration<PathComputationService> pathService;
     private ConnectedGraph cgraph;
 
+    @Inject
     public PathComputationServer(final RpcProviderService rpcService, final ConnectedGraphProvider graphProvider) {
-        checkArgument(rpcService != null);
-        checkArgument(graphProvider != null);
-        this.rpcProviderRegistry = rpcService;
-        this.graphProvider = graphProvider;
+        this.rpcProviderRegistry = requireNonNull(rpcService);
+        this.graphProvider = requireNonNull(graphProvider);
     }
 
+    @PostConstruct
     public void init() {
         pathService = this.rpcProviderRegistry.registerRpcImplementation(PathComputationService.class, this);
     }
@@ -98,13 +102,14 @@ public class PathComputationServer implements AutoCloseable, PathComputationServ
     }
 
     @Override
-    public void close() throws Exception {
+    @PreDestroy
+    public void close() {
         pathService.close();
     }
 
     @Override
-    public PathComputationAlgorithm getPathComputationAlgorithm(ConnectedGraph runningGraph,
-            AlgorithmType algorithmType) {
+    public PathComputationAlgorithm getPathComputationAlgorithm(final ConnectedGraph runningGraph,
+            final AlgorithmType algorithmType) {
         PathComputationAlgorithm algo = null;
         switch (algorithmType) {
             case Spf:
