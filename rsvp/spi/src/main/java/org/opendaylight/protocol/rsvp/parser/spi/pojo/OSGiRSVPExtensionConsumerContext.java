@@ -16,11 +16,12 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 @Component(immediate = true, service = RSVPExtensionConsumerContext.class)
 // FIXME: merge with DefaultRSVPExtensionConsumerContext once we have OSGi R7
 public final class OSGiRSVPExtensionConsumerContext extends ForwardingRSVPExtensionConsumerContext {
-    @Reference
+    @Reference(policyOption = ReferencePolicyOption.GREEDY)
     List<RSVPExtensionProviderActivator> extensionActivators;
 
     private SimpleRSVPExtensionProviderContext delegate;
