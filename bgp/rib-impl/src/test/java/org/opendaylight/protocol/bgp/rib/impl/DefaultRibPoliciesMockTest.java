@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.BGPRibRoutingPolicyFactoryImpl;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.DefaultBGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractStatementRegistryConsumerTest;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -50,7 +50,7 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
         doReturn(Collections.singletonList("default-odl-export-policy")).when(this.config).getExportPolicy();
         doReturn(IPV4UNICAST.class).when(this.tableRegistry).getAfiSafiType(any(TablesKey.class));
 
-        this.policyProvider = new BGPRibRoutingPolicyFactoryImpl(getDataBroker(), this.statementRegistry);
+        this.policyProvider = new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), this.statementRegistry);
         this.policies = this.policyProvider.buildBGPRibPolicy(AS, this.bgpID, this.ci, this.config);
     }
 
