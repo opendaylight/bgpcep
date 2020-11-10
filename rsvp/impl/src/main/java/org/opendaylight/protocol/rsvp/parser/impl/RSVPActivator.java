@@ -9,6 +9,8 @@ package org.opendaylight.protocol.rsvp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv4PrefixSubobjectParser;
@@ -100,9 +102,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
+@Component(immediate = true, service = RSVPExtensionProviderActivator.class,
+           property = "type=org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator")
 @MetaInfServices(value = RSVPExtensionProviderActivator.class)
 public final class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
+    @Inject
+    public RSVPActivator() {
+        // Exposed for DI
+    }
 
     @Override
     protected List<Registration> startImpl(final RSVPExtensionProviderContext context) {
