@@ -40,7 +40,7 @@ public final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport<VpnIpv6Routes
     private VpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 VpnIpv6RoutesCase.class,
-                VpnIpv6Routes.class,
+                VpnIpv6Routes.class, VpnIpv6Routes.QNAME,
                 Ipv6AddressFamily.class,
                 VpnIpv6Destination.QNAME);
     }
