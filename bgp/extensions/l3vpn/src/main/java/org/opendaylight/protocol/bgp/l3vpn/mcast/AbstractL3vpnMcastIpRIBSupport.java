@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -39,7 +38,6 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -81,18 +79,16 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
      */
     AbstractL3vpnMcastIpRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
+            final Class<C> cazeClass, final QName cazeQName,
             final Class<S> containerClass,
             final Class<? extends AddressFamily> afiClass,
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, L3vpnMcastRoute.class, afiClass,
                 McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname);
-        final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
-        this.rdNid = new NodeIdentifier(QName.create(module, "route-distinguisher"));
+        this.rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
-
     }
 
     @Override

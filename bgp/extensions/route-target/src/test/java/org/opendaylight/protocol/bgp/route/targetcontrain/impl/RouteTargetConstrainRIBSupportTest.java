@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -19,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.NlriActivator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -173,8 +171,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testRouteAttributesIdentifier() {
-        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(BindingReflections
-                        .getQNameModule(RouteTargetConstrainRoutesCase.class))),
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(RouteTargetConstrainRoutesCase.QNAME.getModule())),
                 this.ribSupport.routeAttributesIdentifier());
     }
 
