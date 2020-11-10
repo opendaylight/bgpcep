@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.AFI;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.ipv6.FlowspecIpv6NlriParserHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.FlowspecBuilder;
@@ -20,9 +22,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecNlriParser {
-
-    public SimpleFlowspecIpv6NlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
-        super(flowspecTypeRegistry);
+    public SimpleFlowspecIpv6NlriParser(final SAFI safi) {
+        super(FlowspecTypeRegistries.getFlowspecTypeRegistry(AFI.IPV6, safi));
     }
 
     @Override

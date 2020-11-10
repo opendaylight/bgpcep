@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.testtool;
 
 import static org.opendaylight.protocol.bgp.testtool.BGPPeerBuilder.createPeer;
@@ -19,8 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.opendaylight.protocol.bgp.flowspec.FlowspecActivator;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
@@ -102,10 +99,8 @@ final class BGPTestTool {
                 .evpn.impl.BGPActivator();
         evpnActivator.start(ctx);
 
-        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator flowspecActivator = new FlowspecActivator(fsContext);
         final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator
-                = new org.opendaylight.protocol.bgp.flowspec.BGPActivator(flowspecActivator);
+                = new org.opendaylight.protocol.bgp.flowspec.BGPActivator();
         flowspecBGPActivator.start(ctx);
 
         final org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator labeledActivator
