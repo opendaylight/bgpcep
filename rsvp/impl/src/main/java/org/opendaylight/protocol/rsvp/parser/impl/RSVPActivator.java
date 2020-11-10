@@ -9,6 +9,8 @@ package org.opendaylight.protocol.rsvp.parser.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROAsNumberSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.EROIpv4PrefixSubobjectParser;
@@ -61,7 +63,6 @@ import org.opendaylight.protocol.rsvp.parser.impl.te.SecondaryRecordRouteObjectP
 import org.opendaylight.protocol.rsvp.parser.impl.te.SenderTspecObjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.te.SessionAttributeLspObjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.te.SessionAttributeLspRaObjectParser;
-import org.opendaylight.protocol.rsvp.parser.spi.AbstractRSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
@@ -100,12 +101,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
-@MetaInfServices(value = RSVPExtensionProviderActivator.class)
-public final class RSVPActivator extends AbstractRSVPExtensionProviderActivator {
+@Singleton
+@Component(immediate = true, property = "type=org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator")
+@MetaInfServices
+public final class RSVPActivator implements RSVPExtensionProviderActivator {
+    @Inject
+    public RSVPActivator() {
+        // Exposed for DI
+    }
 
     @Override
-    protected List<Registration> startImpl(final RSVPExtensionProviderContext context) {
+    public List<Registration> start(final RSVPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
         registerLabelParsers(regs, context);
