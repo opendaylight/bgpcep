@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.graph.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -16,6 +15,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -37,6 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,32 +53,39 @@ import org.slf4j.LoggerFactory;
  * This Class Implements the DataStoreService interface providing the methods
  * required to manage the network representation elements in the datastore.
  *
- *
  * @author Olivier Dugeon
  * @author Philippe Niger
  */
-
-public class ConnectedGraphServer implements ConnectedGraphProvider, TransactionChainListener {
-
+@Singleton
+@Component(immediate = true, service = ConnectedGraphProvider.class)
+public final class ConnectedGraphServer implements ConnectedGraphProvider, TransactionChainListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectedGraphServer.class);
+    private static final @NonNull InstanceIdentifier<GraphTopology> GRAPH_TOPOLOGY_IDENTIFIER =
+        InstanceIdentifier.create(GraphTopology.class);
+
+    private final Map<GraphKey, ConnectedGraphImpl> graphs = new HashMap<>();
     private final DataBroker dataBroker;
-    private final InstanceIdentifier<GraphTopology> graphTopologyIdentifier;
+
     private TransactionChain chain = null;
 
-    private final HashMap<GraphKey, ConnectedGraphImpl> graphs = new HashMap<>();
-
-    public ConnectedGraphServer(final DataBroker dataBroker) {
-        LOG.info("Create Graph Model Server");
-        this.dataBroker = dataBroker;
-        this.graphTopologyIdentifier = InstanceIdentifier.builder(GraphTopology.class).build();
+    @Inject
+    @Activate
+    public ConnectedGraphServer(@Reference final DataBroker dataBroker) {
+        this.dataBroker = requireNonNull(dataBroker);
+        initTransactionChain();
+        initOperationalGraphModel();
+        LOG.info("Graph Model Server started");
     }
 
     /**
-     * Initialization of the Graph Model Server. This method is called through the blueprint.
+     * Remove the Operation Graph Model and destroy the transaction chain.
      */
-    public void init() {
-        initTransactionChain();
-        initOperationalGraphModel();
+    @Override
+    @Deactivate
+    @PreDestroy
+    public void close() {
+        destroyOperationalGraphModel();
+        destroyTransactionChain();
     }
 
     /**
@@ -87,8 +103,8 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     private synchronized void initOperationalGraphModel() {
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-        LOG.info("Create Graph Model at top level in Operational DataStore: {}", this.graphTopologyIdentifier);
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.graphTopologyIdentifier, new GraphTopologyBuilder().build());
+        LOG.info("Create Graph Model at top level in Operational DataStore: {}", GRAPH_TOPOLOGY_IDENTIFIER);
+        trans.put(LogicalDatastoreType.OPERATIONAL, GRAPH_TOPOLOGY_IDENTIFIER, new GraphTopologyBuilder().build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -98,8 +114,7 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Failed to initialize GraphModel {} (transaction {}) by listener {}",
-                        ConnectedGraphServer.this.graphTopologyIdentifier, trans.getIdentifier(),
-                        ConnectedGraphServer.this, throwable);
+                    GRAPH_TOPOLOGY_IDENTIFIER, trans.getIdentifier(), ConnectedGraphServer.this, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
@@ -110,19 +125,19 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     private synchronized FluentFuture<? extends CommitInfo> destroyOperationalGraphModel() {
         requireNonNull(this.chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, this.graphTopologyIdentifier);
-        trans.delete(LogicalDatastoreType.CONFIGURATION, this.graphTopologyIdentifier);
+        trans.delete(LogicalDatastoreType.OPERATIONAL, GRAPH_TOPOLOGY_IDENTIFIER);
+        trans.delete(LogicalDatastoreType.CONFIGURATION, GRAPH_TOPOLOGY_IDENTIFIER);
         final FluentFuture<? extends CommitInfo> future = trans.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.trace("Operational GraphModel removed {}", ConnectedGraphServer.this.graphTopologyIdentifier);
+                LOG.trace("Operational GraphModel removed {}", GRAPH_TOPOLOGY_IDENTIFIER);
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Unable to reset operational GraphModel {} (transaction {})",
-                        ConnectedGraphServer.this.graphTopologyIdentifier, trans.getIdentifier(), throwable);
+                LOG.error("Unable to reset operational GraphModel {} (transaction {})", GRAPH_TOPOLOGY_IDENTIFIER,
+                    trans.getIdentifier(), throwable);
             }
         }, MoreExecutors.directExecutor());
 
@@ -155,31 +170,22 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     }
 
     /**
-     * Remove the Operation Graph Model and destroy the transaction chain.
-     */
-    public void close() {
-        destroyOperationalGraphModel();
-        destroyTransactionChain();
-    }
-
-    /**
      *  DataStore Instance Identifier creation for the various Graph components.
      */
-    private InstanceIdentifier<Graph> getGraphInstanceIdentifier(final String name) {
-        GraphKey graphKey = new GraphKey(name);
-        return this.graphTopologyIdentifier.child(Graph.class, graphKey);
+    private static InstanceIdentifier<Graph> getGraphInstanceIdentifier(final String name) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, new GraphKey(name));
     }
 
-    private InstanceIdentifier<Vertex> getVertexInstanceIdentifier(final Graph graph, final Vertex vertex) {
-        return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Vertex.class, vertex.key());
+    private static InstanceIdentifier<Vertex> getVertexInstanceIdentifier(final Graph graph, final Vertex vertex) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Vertex.class, vertex.key());
     }
 
-    private InstanceIdentifier<Edge> getEdgeInstanceIdentifier(final Graph graph, final Edge edge) {
-        return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Edge.class, edge.key());
+    private static InstanceIdentifier<Edge> getEdgeInstanceIdentifier(final Graph graph, final Edge edge) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Edge.class, edge.key());
     }
 
-    private InstanceIdentifier<Prefix> getPrefixInstanceIdentifier(final Graph graph, final Prefix prefix) {
-        return this.graphTopologyIdentifier.child(Graph.class, graph.key()).child(Prefix.class, prefix.key());
+    private static InstanceIdentifier<Prefix> getPrefixInstanceIdentifier(final Graph graph, final Prefix prefix) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Prefix.class, prefix.key());
     }
 
     /**
@@ -366,19 +372,19 @@ public class ConnectedGraphServer implements ConnectedGraphProvider, Transaction
     }
 
     @Override
-    public final synchronized void onTransactionChainFailed(final TransactionChain transactionChain,
+    public synchronized void onTransactionChainFailed(final TransactionChain transactionChain,
             final Transaction transaction, final Throwable cause) {
-        LOG.error("GraphModel builder for {} failed in transaction: {} ", this.graphTopologyIdentifier,
+        LOG.error("GraphModel builder for {} failed in transaction: {} ", GRAPH_TOPOLOGY_IDENTIFIER,
                 transaction != null ? transaction.getIdentifier() : null, cause);
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final TransactionChain transactionChain) {
-        LOG.info("GraphModel builder for {} shut down", this.graphTopologyIdentifier);
+    public void onTransactionChainSuccessful(final TransactionChain transactionChain) {
+        LOG.info("GraphModel builder for {} shut down", GRAPH_TOPOLOGY_IDENTIFIER);
     }
 
     @Override
-    public ArrayList<ConnectedGraph> getConnectedGraphs() {
+    public List<ConnectedGraph> getConnectedGraphs() {
         return new ArrayList<>(this.graphs.values());
     }
 
