@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
@@ -160,8 +159,8 @@ public final class MvpnIpv6RIBSupportTest extends AbstractRIBSupportTest<MvpnRou
 
     @Test
     public void testRouteAttributesIdentifier() {
-        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(
-            BindingReflections.getQNameModule(MvpnRoutesIpv6Case.class))), this.ribSupport.routeAttributesIdentifier());
+        assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(MvpnRoutesIpv6Case.QNAME.getModule())),
+            this.ribSupport.routeAttributesIdentifier());
     }
 
     @Test
