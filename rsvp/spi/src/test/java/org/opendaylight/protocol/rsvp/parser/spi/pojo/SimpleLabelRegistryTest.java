@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import static org.junit.Assert.assertEquals;
@@ -17,15 +16,17 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleLabelRegistryTest {
     private final short ctype = 1;
     private final SimpleLabelRegistry simpleLabelRegistry = new SimpleLabelRegistry();
@@ -37,7 +38,6 @@ public class SimpleLabelRegistryTest {
 
     @Before
     public void setUp() throws RSVPParsingException {
-        MockitoAnnotations.initMocks(this);
         this.simpleLabelRegistry.registerLabelParser(this.ctype, this.labelParser);
         this.simpleLabelRegistry.registerLabelSerializer(MockLabel.class, this.labelSerializer);
         Mockito.doReturn(new MockLabel()).when(this.labelParser).parseLabel(this.input);

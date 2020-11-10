@@ -17,10 +17,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectSerializer;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObjectBuilder;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleRSVPObjectRegistryTest {
     private final int subObjectTypeOne = 1;
     private final int subObjectCTypeOne = 1;
@@ -40,7 +42,6 @@ public class SimpleRSVPObjectRegistryTest {
 
     @Before
     public void setUp() throws RSVPParsingException {
-        MockitoAnnotations.initMocks(this);
         this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne,
             this.rsvpTeObjectParser);
         this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
