@@ -75,7 +75,7 @@ public final class FlowspecActivator implements AutoCloseable {
         final SimpleFlowspecExtensionProviderContext.AFI afi,
         final SimpleFlowspecExtensionProviderContext.SAFI safi
     ) {
-        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = this.context.getFlowspecTypeRegistry(afi, safi);
+        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.flowspecTypeRegistry(afi, safi);
 
         final FSPortHandler portHandler = new FSPortHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(FSPortHandler.PORT_VALUE, portHandler));
@@ -126,7 +126,7 @@ public final class FlowspecActivator implements AutoCloseable {
         final SimpleFlowspecExtensionProviderContext.AFI afi,
         final SimpleFlowspecExtensionProviderContext.SAFI safi
     ) {
-        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = this.context.getFlowspecTypeRegistry(afi, safi);
+        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.flowspecTypeRegistry(afi, safi);
 
         final FSIpv4DestinationPrefixHandler destinationPrefixHandler = new FSIpv4DestinationPrefixHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(
@@ -157,7 +157,7 @@ public final class FlowspecActivator implements AutoCloseable {
         final SimpleFlowspecExtensionProviderContext.AFI afi,
         final SimpleFlowspecExtensionProviderContext.SAFI safi
     ) {
-        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = this.context.getFlowspecTypeRegistry(afi, safi);
+        final SimpleFlowspecTypeRegistry flowspecTypeRegistry = context.flowspecTypeRegistry(afi, safi);
 
         final FSIpv6DestinationPrefixHandler destinationPrefixHandler = new FSIpv6DestinationPrefixHandler();
         this.registrations.add(flowspecTypeRegistry.registerFlowspecTypeParser(
