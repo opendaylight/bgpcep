@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import static org.junit.Assert.assertEquals;
@@ -16,10 +15,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainerBuilder;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleEROSubobjectRegistryTest {
     private final int subObjectTypeOne = 1;
     private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
@@ -40,7 +41,6 @@ public class SimpleEROSubobjectRegistryTest {
 
     @Before
     public void setUp() throws RSVPParsingException {
-        MockitoAnnotations.initMocks(this);
         this.simpleEROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this.rroSubobjectParser);
         Mockito.doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser)
             .parseSubobject(this.input, false);
