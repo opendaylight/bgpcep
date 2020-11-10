@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de07348d_047c886f",
+        "filename": "bgp/extensions/linkstate/src/test/java/org/opendaylight/protocol/bgp/linkstate/TableTypeActivatorTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2020-11-10T11:55:21Z",
+      "side": 0,
+      "message": "this needs to be resurrected",
+      "range": {
+        "startLine": 23,
+        "startChar": 14,
+        "endLine": 23,
+        "endChar": 35
+      },
+      "revId": "0dc2a3085669ab72ed2966d2b43acccdb6877564",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
