@@ -85,8 +85,7 @@ public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<Flow
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = FlowspecL3vpnIpv6RIBSupport
-                .getInstance(new SimpleFlowspecExtensionProviderContext(), this.adapter.currentSerializer());
+        this.ribSupport = new FlowspecL3vpnIpv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 

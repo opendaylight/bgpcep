@@ -31,10 +31,8 @@ public final class FlowspecIpv6RIBSupport
         FlowspecRoute,
         FlowspecRouteKey> {
     private static final FlowspecIpv6Routes EMPTY_CONTAINER = new FlowspecIpv6RoutesBuilder().build();
-    private static FlowspecIpv6RIBSupport SINGLETON;
 
-    private FlowspecIpv6RIBSupport(final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
+    public FlowspecIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
                 FlowspecIpv6RoutesCase.class,
@@ -43,19 +41,8 @@ public final class FlowspecIpv6RIBSupport
                 Ipv6AddressFamily.class,
                 FlowspecSubsequentAddressFamily.class,
                 DestinationFlowspecIpv6.QNAME,
-                new SimpleFlowspecIpv6NlriParser(context
-                        .getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-                                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC))
+                new SimpleFlowspecIpv6NlriParser(FlowspecTypeRegistries.SAFI.FLOWSPEC)
         );
-    }
-
-    static synchronized FlowspecIpv6RIBSupport getInstance(
-            final SimpleFlowspecExtensionProviderContext context,
-            final BindingNormalizedNodeSerializer mappingService) {
-        if (SINGLETON == null) {
-            SINGLETON = new FlowspecIpv6RIBSupport(context, mappingService);
-        }
-        return SINGLETON;
     }
 
     @Override
