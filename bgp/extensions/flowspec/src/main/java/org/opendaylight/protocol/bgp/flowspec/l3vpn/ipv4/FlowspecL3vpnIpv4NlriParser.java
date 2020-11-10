@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4;
 
 import io.netty.buffer.ByteBuf;
 import java.util.List;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries;
 import org.opendaylight.protocol.bgp.flowspec.ipv4.FlowspecIpv4NlriParserHelper;
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnNlriParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.Flowspec;
@@ -28,9 +28,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
  * @author Kevin Wang
  */
 public final class FlowspecL3vpnIpv4NlriParser extends AbstractFlowspecL3vpnNlriParser {
-
-    public FlowspecL3vpnIpv4NlriParser(SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
-        super(flowspecTypeRegistry);
+    public FlowspecL3vpnIpv4NlriParser(final FlowspecTypeRegistries.SAFI safi) {
+        super(FlowspecTypeRegistries.getFlowspecTypeRegistry(FlowspecTypeRegistries.AFI.IPV4, safi));
     }
 
     @Override

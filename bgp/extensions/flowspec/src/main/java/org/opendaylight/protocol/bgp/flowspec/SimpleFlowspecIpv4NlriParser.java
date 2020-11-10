@@ -20,9 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
 public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecNlriParser {
-
-    public SimpleFlowspecIpv4NlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
-        super(flowspecTypeRegistry);
+    public SimpleFlowspecIpv4NlriParser(final FlowspecTypeRegistries.SAFI safi) {
+        super(FlowspecTypeRegistries.getFlowspecTypeRegistry(FlowspecTypeRegistries.AFI.IPV4, safi));
     }
 
     @Override

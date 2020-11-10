@@ -86,11 +86,8 @@ public class FlowspecL3vpnIpv6NlriParserTest {
     private PeerSpecificParserConstraint constraint;
     @Mock
     private MultiPathSupport muliPathSupport;
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
     private final FlowspecL3vpnIpv6NlriParser fsParser = new FlowspecL3vpnIpv6NlriParser(
-        this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV6,
-            SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        FlowspecTypeRegistries.SAFI.FLOWSPEC);
 
     private static final byte[] REACHED_NLRI = new byte[]{
         0x1B,   // NLRI length: 19+8=27
