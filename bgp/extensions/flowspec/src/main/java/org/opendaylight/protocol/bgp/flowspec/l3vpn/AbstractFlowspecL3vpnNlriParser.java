@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecTypeRegistry;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.FlowspecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
@@ -30,7 +30,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     public static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getModule(),
             "route-distinguisher"));
 
-    protected AbstractFlowspecL3vpnNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    protected AbstractFlowspecL3vpnNlriParser(final FlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
     }
 
