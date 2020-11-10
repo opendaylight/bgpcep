@@ -136,7 +136,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     public static final NodeIdentifier VALUE_NID
             = new NodeIdentifier(QName.create(Flowspec.QNAME.getModule(), "value"));
 
-    protected final SimpleFlowspecTypeRegistry flowspecTypeRegistry;
+    protected final FlowspecTypeRegistry flowspecTypeRegistry;
 
     /**
      * Add this constant to length value to achieve all ones in the leftmost nibble.
@@ -156,7 +156,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     private static final String FLOW_SEPARATOR = " AND ";
 
-    protected AbstractFlowspecNlriParser(final SimpleFlowspecTypeRegistry flowspecTypeRegistry) {
+    protected AbstractFlowspecNlriParser(final FlowspecTypeRegistry flowspecTypeRegistry) {
         this.flowspecTypeRegistry = requireNonNull(flowspecTypeRegistry);
     }
 

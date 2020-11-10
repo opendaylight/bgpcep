@@ -7,40 +7,44 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-public class SimpleFlowspecExtensionProviderContext {
+public final class SimpleFlowspecExtensionProviderContext {
     public enum AFI {
-        IPV4(0),
-        IPV6(1);
+        IPV4(0b0),
+        IPV6(0b1);
 
-        public final int index;
+        final int index;
 
-        AFI(int index) {
+        AFI(final int index) {
             this.index = index;
         }
     }
 
     public enum SAFI {
-        FLOWSPEC(0),
-        FLOWSPEC_VPN(1);
+        FLOWSPEC(0b00),
+        FLOWSPEC_VPN(0b10);
 
-        public final int index;
+        final int index;
 
-        SAFI(int index) {
+        SAFI(final int index) {
             this.index = index;
         }
     }
 
-    private final SimpleFlowspecTypeRegistry[][] flowspecTypeRegistries = new SimpleFlowspecTypeRegistry[2][2];
+    private final SimpleFlowspecTypeRegistry[] flowspecTypeRegistries;
 
     public SimpleFlowspecExtensionProviderContext() {
-        for (AFI afi : AFI.values()) {
-            for (SAFI safi : SAFI.values()) {
-                this.flowspecTypeRegistries[afi.index][safi.index] = new SimpleFlowspecTypeRegistry();
-            }
+        final int size = AFI.values().length * SAFI.values().length;
+        flowspecTypeRegistries = new SimpleFlowspecTypeRegistry[size];
+        for (int i = 0; i < size; ++i) {
+            flowspecTypeRegistries[i] = new SimpleFlowspecTypeRegistry();
         }
     }
 
-    public SimpleFlowspecTypeRegistry getFlowspecTypeRegistry(AFI afi, SAFI safi) {
-        return this.flowspecTypeRegistries[afi.index][safi.index];
+    public FlowspecTypeRegistry getFlowspecTypeRegistry(final AFI afi, final SAFI safi) {
+        return flowspecTypeRegistry(afi, safi);
+    }
+
+    SimpleFlowspecTypeRegistry flowspecTypeRegistry(final AFI afi, final SAFI safi) {
+        return this.flowspecTypeRegistries[afi.index + safi.index];
     }
 }
