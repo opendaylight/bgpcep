@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.spi.nlri;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
@@ -14,7 +13,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
  * Route Target Parser/ Serializer.
  *
  * @param <T> Route Target Constrain
+ * @deprecated Not used anywhere
  */
+@Deprecated
 public interface RouteTargetHandler<T extends RouteTargetConstrainChoice>
         extends RouteTargetConstrainParser<T>, RouteTargetConstrainSerializer<T> {
+
 }

@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.ArrayList;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -46,17 +45,12 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
     @Override
     protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-        NlriActivator.registerNlriParsers(regs);
-
-        regs.add(context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.class, RT_SAFI));
-
         final RouteTargetConstrainNlriHandler routeTargetNlriHandler = new RouteTargetConstrainNlriHandler();
-        final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
-                routeTargetNlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
-        regs.add(context.registerNlriSerializer(RouteTargetConstrainRoutes.class, routeTargetNlriHandler));
-
-        return regs;
+        return List.of(
+            context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.class, RT_SAFI),
+            context.registerNlriParser(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
+                routeTargetNlriHandler, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class,
+                Ipv6NextHopCase.class),
+            context.registerNlriSerializer(RouteTargetConstrainRoutes.class, routeTargetNlriHandler));
     }
 }
