@@ -7,9 +7,12 @@
  */
 package org.opendaylight.algo.impl;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.algo.PathComputationAlgorithm;
 import org.opendaylight.algo.PathComputationProvider;
 import org.opendaylight.graph.ConnectedGraph;
@@ -23,10 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.GetConstrainedPathOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.GetConstrainedPathOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathComputationService;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,25 +42,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-public class PathComputationServer implements AutoCloseable, PathComputationService, PathComputationProvider {
-
+@Singleton
+@Component(immediate = true, service = PathComputationProvider.class)
+public final class PathComputationServer implements AutoCloseable, PathComputationService, PathComputationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PathComputationServer.class);
 
-    private ObjectRegistration<PathComputationService> pathService;
-    private RpcProviderService rpcProviderRegistry;
-    private ConnectedGraphProvider graphProvider;
+    private final ConnectedGraphProvider graphProvider;
+    private final Registration registration;
 
-    private ConnectedGraph cgraph;
-
-    public PathComputationServer(final RpcProviderService rpcService, final ConnectedGraphProvider graphProvider) {
-        checkArgument(rpcService != null);
-        checkArgument(graphProvider != null);
-        this.rpcProviderRegistry = rpcService;
-        this.graphProvider = graphProvider;
-    }
-
-    public void init() {
-        pathService = this.rpcProviderRegistry.registerRpcImplementation(PathComputationService.class, this);
+    @Inject
+    @Activate
+    public PathComputationServer(@Reference final RpcProviderService rpcService,
+            @Reference final ConnectedGraphProvider graphProvider) {
+        this.graphProvider = requireNonNull(graphProvider);
+        registration = rpcService.registerRpcImplementation(PathComputationService.class, this);
     }
 
     @Override
@@ -64,15 +66,15 @@ public class PathComputationServer implements AutoCloseable, PathComputationServ
         LOG.info("Got Path Computation Service request");
 
         /* First, get graph */
-        this.cgraph = graphProvider.getConnectedGraph(input.getGraphName());
-        if (this.cgraph == null) {
+        final ConnectedGraph cgraph = graphProvider.getConnectedGraph(input.getGraphName());
+        if (cgraph == null) {
             output.setStatus(ComputationStatus.Failed);
             return RpcResultBuilder.<GetConstrainedPathOutput>failed()
                     .withError(RpcError.ErrorType.RPC, "Unknown Graph Name").buildFuture();
         }
 
         /* get a new Path Computation Algorithm according to Input choice */
-        PathComputationAlgorithm algo = getPathComputationAlgorithm(this.cgraph, input.getAlgorithm());
+        PathComputationAlgorithm algo = getPathComputationAlgorithm(cgraph, input.getAlgorithm());
         if (algo == null) {
             output.setStatus(ComputationStatus.Failed);
             return RpcResultBuilder.<GetConstrainedPathOutput>failed()
@@ -98,13 +100,15 @@ public class PathComputationServer implements AutoCloseable, PathComputationServ
     }
 
     @Override
-    public void close() throws Exception {
-        pathService.close();
+    @Deactivate
+    @PreDestroy
+    public void close() {
+        registration.close();
     }
 
     @Override
-    public PathComputationAlgorithm getPathComputationAlgorithm(ConnectedGraph runningGraph,
-            AlgorithmType algorithmType) {
+    public PathComputationAlgorithm getPathComputationAlgorithm(final ConnectedGraph runningGraph,
+            final AlgorithmType algorithmType) {
         PathComputationAlgorithm algo = null;
         switch (algorithmType) {
             case Spf:
