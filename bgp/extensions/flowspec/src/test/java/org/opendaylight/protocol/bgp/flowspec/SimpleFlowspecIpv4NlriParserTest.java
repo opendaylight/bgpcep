@@ -14,6 +14,8 @@ import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.sun.tools.javac.resources.CompilerProperties.Fragments;
+import com.sun.tools.javac.util.JCDiagnostic.Fragment;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.BitmaskOperandParser;
@@ -32,11 +35,10 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.BitmaskOperand;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.Dscp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.Fragment;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.FlowspecBuilder;
@@ -57,11 +59,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.dscp._case.Dscps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.dscp._case.DscpsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.fragment._case.Fragments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.fragment._case.FragmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.icmp.code._case.Codes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.icmp.code._case.CodesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.icmp.type._case.Types;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.icmp.type._case.TypesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.packet.length._case.PacketLengths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.packet.length._case.PacketLengthsBuilder;
@@ -159,11 +159,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         0x0c, (byte) 0x81, (byte) 0x0e
     };
 
-    private final SimpleFlowspecExtensionProviderContext flowspecContext = new SimpleFlowspecExtensionProviderContext();
-    private final FlowspecActivator fsa = new FlowspecActivator(this.flowspecContext);
-    private final SimpleFlowspecIpv4NlriParser fsParser = new SimpleFlowspecIpv4NlriParser(
-        flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-            SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+    private final SimpleFlowspecIpv4NlriParser fsParser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
     @Before
     public void setUp() {
@@ -208,9 +204,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             .setDestinationFlowspecIpv4(new DestinationFlowspecIpv4Builder().setFlowspec(fs).build())
             .build()).build());
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -312,9 +306,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -395,9 +387,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -530,9 +520,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
             ).build()
         );
 
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            this.flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);
@@ -944,9 +932,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
     @Test
     public void testBatchedFlowspecNlri() throws Exception {
-        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(
-            flowspecContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv4NlriParser parser = new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC);
 
         final MpReachNlriBuilder result = new MpReachNlriBuilder();
         result.setAfi(Ipv4AddressFamily.class);

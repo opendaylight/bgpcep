@@ -15,8 +15,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.flowspec.BGPActivator;
-import org.opendaylight.protocol.bgp.flowspec.FlowspecActivator;
-import org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -84,10 +82,7 @@ public class FSExtendedCommunitiesTest {
 
     @Before
     public void setUp() throws Exception {
-        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fsContext);
-
-        this.act = new BGPActivator(activator);
+        this.act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.act.start(context);
         this.registry = context.getExtendedCommunityRegistry();

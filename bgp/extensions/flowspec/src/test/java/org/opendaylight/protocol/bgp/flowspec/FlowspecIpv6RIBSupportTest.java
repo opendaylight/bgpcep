@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
@@ -76,20 +77,16 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        final SimpleFlowspecExtensionProviderContext fsContext = new SimpleFlowspecExtensionProviderContext();
-        final FlowspecActivator activator = new FlowspecActivator(fsContext);
-        final BGPActivator act = new BGPActivator(activator);
+        final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
 
-        final SimpleFlowspecIpv6NlriParser parser = new SimpleFlowspecIpv6NlriParser(
-                fsContext.getFlowspecTypeRegistry(SimpleFlowspecExtensionProviderContext.AFI.IPV4,
-                        SimpleFlowspecExtensionProviderContext.SAFI.FLOWSPEC));
+        final SimpleFlowspecIpv6NlriParser parser = new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC);
         this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
         this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
                 .setAttributes(new AttributesBuilder().build()).build();
         this.routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Map.of(this.route.key(), this.route)).build();
-        this.ribSupport = FlowspecIpv6RIBSupport.getInstance(fsContext, this.adapter.currentSerializer());
+        this.ribSupport = new FlowspecIpv6RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }
 
