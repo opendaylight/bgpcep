@@ -13,13 +13,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
-import org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.NlriActivator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
@@ -102,7 +100,6 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        NlriActivator.registerNlriParsers(new ArrayList<>());
         this.ribSupport = new RouteTargetConstrainRIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
     }

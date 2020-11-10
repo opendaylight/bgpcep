@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
@@ -20,9 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
  *
  * @author Claudio D. Gasparini
  */
-public final class RouteTargetIpv4RouteHandler implements RouteTargetHandler<RouteTargetConstrainIpv4RouteCase> {
-    private static final int TYPE = 1;
-
+final class RouteTargetIpv4RouteHandler implements RouteTargetHandler<RouteTargetConstrainIpv4RouteCase> {
     @Override
     public RouteTargetConstrainIpv4RouteCase parseRouteTargetConstrain(final ByteBuf buffer) {
         return new RouteTargetConstrainIpv4RouteCaseBuilder()
@@ -30,20 +27,14 @@ public final class RouteTargetIpv4RouteHandler implements RouteTargetHandler<Rou
     }
 
     @Override
-    public Integer getType() {
-        return TYPE;
+    public byte getType() {
+        return 1;
     }
-
 
     @Override
     public ByteBuf serializeRouteTargetConstrain(final RouteTargetConstrainIpv4RouteCase routeTarget) {
         final ByteBuf byteAggregator = Unpooled.buffer();
         RouteTargetIpv4Handler.serialize(routeTarget.getRouteTargetIpv4(), byteAggregator);
         return byteAggregator;
-    }
-
-    @Override
-    public Class<RouteTargetConstrainIpv4RouteCase> getClazz() {
-        return RouteTargetConstrainIpv4RouteCase.class;
     }
 }

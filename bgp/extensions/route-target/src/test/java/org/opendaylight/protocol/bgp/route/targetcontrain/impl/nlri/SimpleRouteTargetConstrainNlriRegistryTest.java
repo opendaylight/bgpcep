@@ -11,14 +11,11 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.NlriActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -82,8 +79,8 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
             .setAs4RouteTargetExtendedCommunity(new As4RouteTargetExtendedCommunityBuilder()
                     .setAs4SpecificCommon(AS_COMMON).build()).build();
 
-    private final SimpleRouteTargetConstrainNlriRegistry nlriRegistry
-            = SimpleRouteTargetConstrainNlriRegistry.getInstance();
+    private final ImmutableRouteTargetConstrainNlriRegistry nlriRegistry
+            = ImmutableRouteTargetConstrainNlriRegistry.getInstance();
     private final Integer type;
     private final byte[] expectedBuffer;
     private final byte[] expectedBufferWithType;
@@ -109,11 +106,6 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
                 {RT_AS_2_OCT, RT_2_OCT_TYPE, RT_2_OCT_BUFF, RT_2_OCT_BUFF_WT},
                 {RT_DEFAULT, null, RT_DEFAULT_BUFF, RT_DEFAULT_BUFF}
         });
-    }
-
-    @Before
-    public void setUp() {
-        NlriActivator.registerNlriParsers(new ArrayList<>());
     }
 
     @Test

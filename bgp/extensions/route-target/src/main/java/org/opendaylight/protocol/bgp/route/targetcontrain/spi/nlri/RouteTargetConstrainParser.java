@@ -19,11 +19,4 @@ public interface RouteTargetConstrainParser<T extends RouteTargetConstrainChoice
      * @return Route Target
      */
     @NonNull T parseRouteTargetConstrain(@NonNull ByteBuf buffer);
-
-    /**
-     * Returns NlriType handled by parser.
-     *
-     * @return NlriType
-     */
-    Integer getType();
 }

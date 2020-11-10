@@ -65,7 +65,7 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
                 //Skip Subtype
                 nlriBuf.skipBytes(1);
             }
-            builder.setRouteTargetConstrainChoice(SimpleRouteTargetConstrainNlriRegistry.getInstance()
+            builder.setRouteTargetConstrainChoice(ImmutableRouteTargetConstrainNlriRegistry.getInstance()
                     .parseRouteTargetConstrain(type, nlriBuf));
             dests.add(builder.build());
         }
@@ -84,7 +84,7 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
                 if (originAs != null) {
                     ByteBufUtils.write(nlri, originAs.getValue());
                 }
-                nlri.writeBytes(SimpleRouteTargetConstrainNlriRegistry.getInstance()
+                nlri.writeBytes(ImmutableRouteTargetConstrainNlriRegistry.getInstance()
                         .serializeRouteTargetConstrain(rtcChoice));
             }
         }
