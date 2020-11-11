@@ -88,7 +88,6 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         registerAfiSafi(context, regs);
         registerNlri(context, regs);
         registerAttributesHandler(context, regs);
-        NlriActivator.registerNlriParsers(regs);
         return regs;
     }
 }
