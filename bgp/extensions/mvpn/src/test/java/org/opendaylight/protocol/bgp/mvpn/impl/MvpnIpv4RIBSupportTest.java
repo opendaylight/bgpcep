@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -94,7 +93,6 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
         super.setUp();
         this.ribSupport = new MvpnIpv4RIBSupport(this.adapter.currentSerializer());
         setUpTestCustomizer(this.ribSupport);
-        NlriActivator.registerNlriParsers(new ArrayList<>());
     }
 
     @Test

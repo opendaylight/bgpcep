@@ -11,10 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.mvpn.impl.NlriActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -57,11 +54,6 @@ public class LeafADHandlerTest {
             .setOrigRouteIp(new IpAddressNoZone(new Ipv4AddressNoZone("1.0.0.1"))).build())
             .build();
     private final LeafADHandler handler = new LeafADHandler();
-
-    @Before
-    public void setUp() {
-        NlriActivator.registerNlriParsers(new ArrayList<>());
-    }
 
     @Test
     public void testParser() {
