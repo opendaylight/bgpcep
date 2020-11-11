@@ -13,7 +13,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.DefaultGatewayExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESILabelExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESImpRouteTargetExtCom;
@@ -61,7 +60,6 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         registerNlriHandler(context, regs);
         registerExtendedCommunities(context, regs);
-        ESIActivator.registerEsiTypeParsers(regs);
 
         return regs;
     }

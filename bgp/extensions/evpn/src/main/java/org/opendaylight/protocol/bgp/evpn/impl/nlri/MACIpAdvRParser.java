@@ -19,7 +19,7 @@ import static org.opendaylight.protocol.util.MplsLabelUtil.mplsLabelForByteBuf;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEsiTypeRegistry;
+import org.opendaylight.protocol.bgp.evpn.impl.esi.types.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;

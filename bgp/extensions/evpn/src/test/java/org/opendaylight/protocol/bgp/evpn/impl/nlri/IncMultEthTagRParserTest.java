@@ -20,10 +20,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.MACIpAdvRParserTest.c
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.ORI_NID;
 
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCaseBuilder;
@@ -47,17 +44,10 @@ public class IncMultEthTagRParserTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a,
         (byte) 0x20, (byte) 0x7f, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
-    private IncMultEthTagRParser parser;
-
-    @Before
-    public void setUp() {
-        this.parser = new IncMultEthTagRParser();
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-    }
+    private final IncMultEthTagRParser parser = new IncMultEthTagRParser();
 
     @Test
     public void parserTest() {
-
         final IncMultiEthernetTagResCase expected = IncMultEthTagRParserTest.createIncMultiCase();
         assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));

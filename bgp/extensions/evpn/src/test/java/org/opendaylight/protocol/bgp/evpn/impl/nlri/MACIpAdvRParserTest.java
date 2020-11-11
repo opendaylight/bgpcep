@@ -33,10 +33,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.MPLS2_N
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.VLAN_NID;
 
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
@@ -94,13 +91,7 @@ public class MACIpAdvRParserTest {
         (byte) 0x05, (byte) 0xdc, (byte) 0x10, //MPLS
     };
 
-    private MACIpAdvRParser parser;
-
-    @Before
-    public void setUp() {
-        this.parser = new MACIpAdvRParser();
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-    }
+    private final MACIpAdvRParser parser = new MACIpAdvRParser();
 
     @Test
     public void parserCase1Test() {

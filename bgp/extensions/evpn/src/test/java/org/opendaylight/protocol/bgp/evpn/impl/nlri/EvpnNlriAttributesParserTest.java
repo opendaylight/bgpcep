@@ -12,11 +12,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.destination.EvpnDestinationBuilder;
@@ -36,13 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 
 public class EvpnNlriAttributesParserTest {
-    private EvpnNlriParser parser;
-
-    @Before
-    public void setUp() {
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        this.parser = new EvpnNlriParser();
-    }
+    private final EvpnNlriParser parser = new EvpnNlriParser();
 
     @Test
     public void testAttributes1() throws BGPParsingException {

@@ -21,10 +21,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistr
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.a.d.route.EthernetADRouteBuilder;
@@ -64,13 +61,7 @@ public class EthADRParserTest {
         (byte) 0x02, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x0a, (byte) 0x05, (byte) 0xdc, (byte) 0x10
     };
-    private EthADRParser parser;
-
-    @Before
-    public void setUp() {
-        this.parser = new EthADRParser();
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-    }
+    private final EthADRParser parser = new EthADRParser();
 
     @Test
     public void parserTest() {
