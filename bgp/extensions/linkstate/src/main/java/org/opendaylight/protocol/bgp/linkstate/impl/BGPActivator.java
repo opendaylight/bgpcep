@@ -12,16 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.BackupUnnumberedParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.EroMetricParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv4BackupEro;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv4EroParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv4PrefixSidParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv6BackupEro;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv6EroParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv6PrefixSidParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.SIDParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.UnnumberedEroParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.Ipv4PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.Ipv6PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkNlriParser;
@@ -47,7 +37,6 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RemoteNodeDescriptorTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RouterIdTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleBindingSubTlvsRegistry;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
@@ -62,16 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.TeLspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.LinkstateRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.EroMetricCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv4EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv4EroCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv6EroBackupCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv6EroCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.Ipv6PrefixSidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.PrefixSidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.SidLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdBackupEroCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.UnnumberedInterfaceIdEroCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCase;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -121,54 +100,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
 
         registerNlriCodecs(regs, nlriTypeReg);
         registerNlriTlvCodecs(regs, nlriTypeReg);
-        registerBindingSubTlvs(regs);
         return regs;
-    }
-
-    private static void registerBindingSubTlvs(final List<Registration> regs) {
-        final SimpleBindingSubTlvsRegistry simpleReg = SimpleBindingSubTlvsRegistry.getInstance();
-
-        final SIDParser sidParser = new SIDParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(sidParser.getType(), sidParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(SidLabelCase.class, sidParser));
-
-        final Ipv4PrefixSidParser prefixSidParser = new Ipv4PrefixSidParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(prefixSidParser.getType(), prefixSidParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(PrefixSidCase.class, prefixSidParser));
-
-        final Ipv6PrefixSidParser ipv6PrefixSidParser = new Ipv6PrefixSidParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(ipv6PrefixSidParser.getType(), ipv6PrefixSidParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(Ipv6PrefixSidCase.class, ipv6PrefixSidParser));
-
-        final EroMetricParser eroMetricParser = new EroMetricParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(eroMetricParser.getType(), eroMetricParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(EroMetricCase.class, eroMetricParser));
-
-        final Ipv4EroParser ipv4EroParser = new Ipv4EroParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(ipv4EroParser.getType(), ipv4EroParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(Ipv4EroCase.class, ipv4EroParser));
-
-        final Ipv4BackupEro ipv4BackupEro = new Ipv4BackupEro();
-        regs.add(simpleReg.registerBindingSubTlvsParser(ipv4BackupEro.getType(), ipv4BackupEro));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(Ipv4EroBackupCase.class, ipv4BackupEro));
-
-        final Ipv6EroParser ipv6EroParser = new Ipv6EroParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(ipv6EroParser.getType(), ipv6EroParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(Ipv6EroCase.class, ipv6EroParser));
-
-        final Ipv6BackupEro ipv6BackupEro = new Ipv6BackupEro();
-        regs.add(simpleReg.registerBindingSubTlvsParser(ipv6BackupEro.getType(), ipv6BackupEro));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(Ipv6EroBackupCase.class, ipv6BackupEro));
-
-        final UnnumberedEroParser unnumberedEroParser = new UnnumberedEroParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(unnumberedEroParser.getType(), unnumberedEroParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdEroCase.class,
-            unnumberedEroParser));
-
-        final BackupUnnumberedParser backupUnnumberedParser = new BackupUnnumberedParser();
-        regs.add(simpleReg.registerBindingSubTlvsParser(backupUnnumberedParser.getType(), backupUnnumberedParser));
-        regs.add(simpleReg.registerBindingSubTlvsSerializer(UnnumberedInterfaceIdBackupEroCase.class,
-            backupUnnumberedParser));
     }
 
     private static void registerNlriCodecs(final List<Registration> regs, final SimpleNlriTypeRegistry nlriTypeReg) {
