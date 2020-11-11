@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.RD_NID;
-import static org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEvpnNlriRegistryTest.EVPN_NID;
+import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistryTest.EVPN_NID;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -60,7 +60,6 @@ public class EvpnNlriParserTest {
     @Before
     public void setUp() {
         ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        NlriActivator.registerNlriParsers(new ArrayList<>());
         this.dest = Collections.singletonList(new EvpnDestinationBuilder()
                 .setRouteDistinguisher(RD)
                 .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build());

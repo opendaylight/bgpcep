@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESImpRouteTa
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.Layer2AttributesExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.MACMobExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
-import org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -61,7 +60,6 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         regs.add(context.registerAddressFamily(L2vpnAddressFamily.class, L2VPN_AFI));
 
         registerNlriHandler(context, regs);
-        NlriActivator.registerNlriParsers(regs);
         registerExtendedCommunities(context, regs);
         ESIActivator.registerEsiTypeParsers(regs);
 

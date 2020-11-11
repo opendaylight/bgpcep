@@ -17,7 +17,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBu
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest.LAN_AUT_GEN_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.MACIpAdvRParserTest.createEti;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.MPLS_NID;
-import static org.opendaylight.protocol.bgp.evpn.spi.pojo.SimpleEvpnNlriRegistryTest.EVPN_NID;
+import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistryTest.EVPN_NID;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

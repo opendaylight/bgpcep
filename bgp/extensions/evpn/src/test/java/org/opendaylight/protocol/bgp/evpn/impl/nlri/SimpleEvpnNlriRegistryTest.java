@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.evpn.spi.pojo;
+package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
-import org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest;
-import org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriActivator;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.Evpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.NlriType;
@@ -49,7 +47,6 @@ public final class SimpleEvpnNlriRegistryTest {
     public void setUp() {
         final ArrayList<Registration> reg = new ArrayList<>();
         ESIActivator.registerEsiTypeParsers(reg);
-        NlriActivator.registerNlriParsers(reg);
     }
 
     @Test
