@@ -21,10 +21,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.WRON
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.ORI_NID;
 
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.es.route.EsRouteBuilder;
@@ -69,13 +66,7 @@ public class EthSegRParserTest {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
     };
-    private EthSegRParser parser;
-
-    @Before
-    public void setUp() {
-        this.parser = new EthSegRParser();
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-    }
+    private final EthSegRParser parser = new EthSegRParser();
 
     @Test
     public void parserTest() {

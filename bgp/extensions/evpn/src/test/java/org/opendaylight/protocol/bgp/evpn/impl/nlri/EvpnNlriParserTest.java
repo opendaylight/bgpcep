@@ -17,12 +17,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistr
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
@@ -48,22 +44,16 @@ import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUn
 
 public class EvpnNlriParserTest {
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
-    private List<EvpnDestination> dest;
-    private EvpnNlriParser parser;
+
+    private final List<EvpnDestination> dest = List.of(new EvpnDestinationBuilder()
+        .setRouteDistinguisher(RD)
+        .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build());
+    private final EvpnNlriParser parser = new EvpnNlriParser();
 
     private static ChoiceNode createMACIpAdvChoice() {
         final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
         choice.withNodeIdentifier(EVPN_CHOICE_NID);
         return choice.addChild(MACIpAdvRParserTest.createMacIpCont()).build();
-    }
-
-    @Before
-    public void setUp() {
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        this.dest = Collections.singletonList(new EvpnDestinationBuilder()
-                .setRouteDistinguisher(RD)
-                .setEvpnChoice(IncMultEthTagRParserTest.createIncMultiCase()).build());
-        this.parser = new EvpnNlriParser();
     }
 
     @Test

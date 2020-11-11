@@ -14,11 +14,9 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTe
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.evpn.impl.esi.types.ESIActivator;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTest;
+import org.opendaylight.protocol.bgp.evpn.impl.esi.types.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRoute;
@@ -36,11 +34,6 @@ public class SimpleEsiTypeRegistryTest {
         public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
         }
-    }
-
-    @Before
-    public void setUp() {
-        ESIActivator.registerEsiTypeParsers(new ArrayList<>());
     }
 
     @Test
