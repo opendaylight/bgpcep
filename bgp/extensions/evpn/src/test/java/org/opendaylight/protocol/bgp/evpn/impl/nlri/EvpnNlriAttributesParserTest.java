@@ -41,7 +41,6 @@ public class EvpnNlriAttributesParserTest {
     @Before
     public void setUp() {
         ESIActivator.registerEsiTypeParsers(new ArrayList<>());
-        NlriActivator.registerNlriParsers(new ArrayList<>());
         this.parser = new EvpnNlriParser();
     }
 

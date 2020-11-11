@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.evpn.spi.pojo;
+package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -19,8 +19,15 @@ import org.opendaylight.protocol.bgp.evpn.spi.EvpnSerializer;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.concepts.MultiRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.NlriType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.es.route.EsRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.a.d.route.EthernetADRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
-import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EthernetADRouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.IncMultiEthernetTagResCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.MacIpAdvRouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.inc.multi.ethernet.tag.res.IncMultiEthernetTagRes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.mac.ip.adv.route.MacIpAdvRoute;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -30,33 +37,47 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 
 public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
+    @FunctionalInterface
+    private interface SerializerInterface {
+        EvpnChoice check(EvpnSerializer serializer, ContainerNode cont);
+    }
+
     private static final SimpleEvpnNlriRegistry SINGLETON = new SimpleEvpnNlriRegistry();
     private final HandlerRegistry<DataContainer, EvpnParser, EvpnSerializer> handlers = new HandlerRegistry<>();
     private final MultiRegistry<NodeIdentifier, EvpnSerializer> modelHandlers = new MultiRegistry<>();
 
     private SimpleEvpnNlriRegistry() {
-    }
+        final EthADRParser ethADR = new EthADRParser();
+        registerNlriParser(ethADR.getType(), ethADR);
+        handlers.registerSerializer(EthernetADRouteCase.class, ethADR);
+        registerNlriModelSerializer(EthernetADRoute.QNAME, ethADR);
 
-    @FunctionalInterface
-    private interface SerializerInterface {
-        EvpnChoice check(EvpnSerializer serializer, ContainerNode cont);
+        final MACIpAdvRParser macIpAR = new MACIpAdvRParser();
+        registerNlriParser(macIpAR.getType(), macIpAR);
+        handlers.registerSerializer(MacIpAdvRouteCase.class, macIpAR);
+        registerNlriModelSerializer(MacIpAdvRoute.QNAME, macIpAR);
+
+        final IncMultEthTagRParser incMultETR = new IncMultEthTagRParser();
+        registerNlriParser(incMultETR.getType(), incMultETR);
+        handlers.registerSerializer(IncMultiEthernetTagResCase.class, incMultETR);
+        registerNlriModelSerializer(IncMultiEthernetTagRes.QNAME, incMultETR);
+
+        final EthSegRParser ethSR = new EthSegRParser();
+        registerNlriParser(ethSR.getType(), ethSR);
+        handlers.registerSerializer(EsRouteCase.class, ethSR);
+        registerNlriModelSerializer(EsRoute.QNAME, ethSR);
     }
 
     public static SimpleEvpnNlriRegistry getInstance() {
         return SINGLETON;
     }
 
-    public Registration registerNlriParser(final NlriType esiType, final EvpnParser parser) {
-        return this.handlers.registerParser(esiType.getIntValue(), parser);
+    private void registerNlriParser(final NlriType esiType, final EvpnParser parser) {
+        handlers.registerParser(esiType.getIntValue(), parser);
     }
 
-    public Registration registerNlriSerializer(final Class<? extends EvpnChoice> evpnClass,
-            final EvpnSerializer serializer) {
-        return this.handlers.registerSerializer(evpnClass, serializer);
-    }
-
-    public Registration registerNlriModelSerializer(final QName qname, final EvpnSerializer serializer) {
-        return this.modelHandlers.register(new NodeIdentifier(qname), serializer);
+    private void registerNlriModelSerializer(final QName qname, final EvpnSerializer serializer) {
+        modelHandlers.register(NodeIdentifier.create(qname), serializer);
     }
 
     @Override
