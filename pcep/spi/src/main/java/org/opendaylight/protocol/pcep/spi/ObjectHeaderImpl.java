@@ -28,12 +28,12 @@ public class ObjectHeaderImpl implements ObjectHeader {
     }
 
     @Override
-    public Boolean isIgnore() {
+    public Boolean getIgnore() {
         return this.ignored;
     }
 
     @Override
-    public Boolean isProcessingRule() {
+    public Boolean getProcessingRule() {
         return this.processed;
     }
 

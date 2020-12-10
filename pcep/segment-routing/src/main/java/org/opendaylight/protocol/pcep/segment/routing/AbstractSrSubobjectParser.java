@@ -63,12 +63,12 @@ public abstract class AbstractSrSubobjectParser {
         }
 
         @Override
-        public Boolean isMFlag() {
+        public Boolean getMFlag() {
             return this.mflag;
         }
 
         @Override
-        public Boolean isCFlag() {
+        public Boolean getCFlag() {
             return this.cflag;
         }
 

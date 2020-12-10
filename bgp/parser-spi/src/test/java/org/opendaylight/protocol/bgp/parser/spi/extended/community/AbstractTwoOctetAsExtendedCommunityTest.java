@@ -15,11 +15,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class AbstractTwoOctetAsExtendedCommunityTest {
     @Test
     public void testGetType() {
-        final AbstractTwoOctetAsExtendedCommunity abstractTwoOctetAsExtendedCommunity =
-                new AbstractTwoOctetAsExtendedCommunity() {
+        final AbstractTwoOctetAsExtendedCommunity community = new AbstractTwoOctetAsExtendedCommunity() {
             @Override
             public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity,
                     final ByteBuf byteAggregator) {
+                // No-op
             }
 
             @Override
@@ -32,8 +32,7 @@ public class AbstractTwoOctetAsExtendedCommunityTest {
                 return null;
             }
         };
-        Assert.assertEquals(0, abstractTwoOctetAsExtendedCommunity.getType(true));
-        Assert.assertEquals(64, abstractTwoOctetAsExtendedCommunity.getType(false));
+        Assert.assertEquals(0, community.getType(true));
+        Assert.assertEquals(64, community.getType(false));
     }
-
 }

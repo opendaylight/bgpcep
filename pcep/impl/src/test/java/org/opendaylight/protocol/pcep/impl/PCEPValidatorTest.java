@@ -530,8 +530,8 @@ public class PCEPValidatorTest {
                                 .build()))
                         .build())
                     .build())
-               .build(),
-            new RrosBuilder()
+                .build(),
+                new RrosBuilder()
                 .setRouteObject(new SecondaryReportedRouteObjectCaseBuilder()
                     .setSrro(new SrroBuilder()
                         .setIgnore(false)

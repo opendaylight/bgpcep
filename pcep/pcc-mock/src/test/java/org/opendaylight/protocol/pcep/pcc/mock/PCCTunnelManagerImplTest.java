@@ -319,7 +319,7 @@ public class PCCTunnelManagerImplTest {
         reqBuilder.setEro(ERO);
         final LspBuilder lsp = new LspBuilder().setTlvs(new TlvsBuilder()
             .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-            new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(Uint32.valueOf(plspId)));
+                new SymbolicPathName(SYMBOLIC_NAME)).build()).build()).setPlspId(new PlspId(Uint32.valueOf(plspId)));
         if (delegate.isPresent()) {
             lsp.setDelegate(Boolean.TRUE);
         }
