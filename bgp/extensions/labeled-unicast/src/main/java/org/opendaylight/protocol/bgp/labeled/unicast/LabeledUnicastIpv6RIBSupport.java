@@ -53,7 +53,7 @@ final class LabeledUnicastIpv6RIBSupport
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
                 .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                 .DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
                         .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.ipv6
                         .labeled.unicast._case.DestinationIpv6LabeledUnicastBuilder()
                         .setCLabeledUnicastDestination(extractRoutes(routes)).build()).build();

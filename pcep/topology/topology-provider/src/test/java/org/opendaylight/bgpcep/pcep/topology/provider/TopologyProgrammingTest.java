@@ -215,6 +215,6 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     protected Open getLocalPref() {
         return new OpenBuilder(super.getLocalPref()).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
                 .xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder().addAugmentation(
-                new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
+                    new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
     }
 }

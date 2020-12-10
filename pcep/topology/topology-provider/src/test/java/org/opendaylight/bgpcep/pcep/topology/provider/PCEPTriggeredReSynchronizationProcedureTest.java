@@ -197,7 +197,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp
                         .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
                         .setLspId(new LspId(Uint32.ONE)).build()).setSymbolicPathName(
-                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("test".getBytes())).build())
+                            new SymbolicPathNameBuilder().setPathName(new SymbolicPathName("test".getBytes())).build())
                     .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
                         .pcep.sync.optimizations.rev200720.Tlvs1Builder().setLspDbVersion(new LspDbVersionBuilder()
                                 .setLspDbVersionValue(Uint64.ONE).build()).build()).build())
