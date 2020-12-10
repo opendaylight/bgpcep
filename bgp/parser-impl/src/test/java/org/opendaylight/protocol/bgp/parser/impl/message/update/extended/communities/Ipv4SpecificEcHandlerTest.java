@@ -29,15 +29,13 @@ public class Ipv4SpecificEcHandlerTest {
     @Test
     public void testHandlerDeprecated() {
         final Ipv4SpecificEcHandler handler = new Ipv4SpecificEcHandler();
-        final Inet4SpecificExtendedCommunityCase input
-                = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                new Inet4SpecificExtendedCommunityBuilder()
+        final Inet4SpecificExtendedCommunityCase input = new Inet4SpecificExtendedCommunityCaseBuilder()
+                .setInet4SpecificExtendedCommunity(new Inet4SpecificExtendedCommunityBuilder()
                         .setGlobalAdministrator(new Ipv4AddressNoZone("12.51.2.5"))
                         .setLocalAdministrator(new byte[]{21, 45}).build()).build();
 
-        final Inet4SpecificExtendedCommunityCase expected
-                = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                new Inet4SpecificExtendedCommunityBuilder()
+        final Inet4SpecificExtendedCommunityCase expected = new Inet4SpecificExtendedCommunityCaseBuilder()
+                .setInet4SpecificExtendedCommunity(new Inet4SpecificExtendedCommunityBuilder()
                         .setInet4SpecificExtendedCommunityCommon(new Inet4SpecificExtendedCommunityCommonBuilder()
                                 .setGlobalAdministrator(new Ipv4AddressNoZone("12.51.2.5"))
                                 .setLocalAdministrator(new byte[]{21, 45}).build()).build())
@@ -53,9 +51,8 @@ public class Ipv4SpecificEcHandlerTest {
     @Test
     public void testHandle() {
         final Ipv4SpecificEcHandler handler = new Ipv4SpecificEcHandler();
-        final Inet4SpecificExtendedCommunityCase expected
-                = new Inet4SpecificExtendedCommunityCaseBuilder().setInet4SpecificExtendedCommunity(
-                new Inet4SpecificExtendedCommunityBuilder()
+        final Inet4SpecificExtendedCommunityCase expected = new Inet4SpecificExtendedCommunityCaseBuilder()
+                .setInet4SpecificExtendedCommunity(new Inet4SpecificExtendedCommunityBuilder()
                         .setInet4SpecificExtendedCommunityCommon(new Inet4SpecificExtendedCommunityCommonBuilder()
                                 .setGlobalAdministrator(new Ipv4AddressNoZone("12.51.2.5"))
                                 .setLocalAdministrator(new byte[]{21, 45}).build()).build())

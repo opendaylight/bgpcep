@@ -339,11 +339,11 @@ public class ParserTest {
 
         final LocalNodeDescriptorsBuilder ndBuilder = new LocalNodeDescriptorsBuilder()
             .setAsNumber(new AsNumber(Uint32.valueOf(100))).setDomainId(
-            new DomainIdentifier(Uint32.valueOf(0x19191901L))).setAreaId(new AreaIdentifier(Uint32.ZERO));
+                new DomainIdentifier(Uint32.valueOf(0x19191901L))).setAreaId(new AreaIdentifier(Uint32.ZERO));
 
         final RemoteNodeDescriptorsBuilder rdBuilder = new RemoteNodeDescriptorsBuilder()
             .setAsNumber(new AsNumber(Uint32.valueOf(100))).setDomainId(
-            new DomainIdentifier(Uint32.valueOf(0x19191901L))).setAreaId(new AreaIdentifier(Uint32.ZERO));
+                new DomainIdentifier(Uint32.valueOf(0x19191901L))).setAreaId(new AreaIdentifier(Uint32.ZERO));
 
         final CLinkstateDestinationBuilder clBuilder = new CLinkstateDestinationBuilder();
         clBuilder.setIdentifier(new Identifier(Uint64.ONE));

@@ -189,8 +189,8 @@ public class LinkstateNlriParserTest {
         assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
             new IsisPseudonodeBuilder().setPsn(Uint8.valueOf(5)).setIsIsRouterIdentifier(
-               new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                   new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
+                new IsIsRouterIdentifierBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
             nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
