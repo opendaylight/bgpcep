@@ -114,7 +114,7 @@ public final class SessionStateImpl implements PcepSessionState {
     }
 
     @Override
-    public synchronized Boolean isSynchronized() {
+    public synchronized Boolean getSynchronized() {
         return this.topologySessionStats.isSessionSynchronized();
     }
 

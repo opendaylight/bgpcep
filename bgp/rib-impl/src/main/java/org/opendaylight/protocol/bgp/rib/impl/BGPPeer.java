@@ -193,7 +193,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .collect(Collectors.toList());
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
                 UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                new AdvertizedRoutesBuilder().setDestinationType(
+                    new AdvertizedRoutesBuilder().setDestinationType(
                         new DestinationIpv4CaseBuilder().setDestinationIpv4(
                                 new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
         if (message.getAttributes() != null) {
@@ -227,7 +227,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1
                         .urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.unreach.nlri
                         .withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
-                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
+                            new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
     private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {

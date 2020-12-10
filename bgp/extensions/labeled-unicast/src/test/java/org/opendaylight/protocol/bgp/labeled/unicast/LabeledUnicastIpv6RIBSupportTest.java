@@ -71,7 +71,7 @@ public class LabeledUnicastIpv6RIBSupportTest extends AbstractRIBSupportTest<Lab
             .setPathId(PATH_ID).setLabelStack(LABEL_STACK).setPrefix(IPV6_PREFIX).build());
     private static final DestinationIpv6LabeledUnicastCase REACH_NLRI
             = new DestinationIpv6LabeledUnicastCaseBuilder().setDestinationIpv6LabeledUnicast(
-            new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(LABELED_DESTINATION_LIST)
+                new DestinationIpv6LabeledUnicastBuilder().setCLabeledUnicastDestination(LABELED_DESTINATION_LIST)
                     .build()).build();
     private static final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329
             .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type

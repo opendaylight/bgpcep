@@ -229,8 +229,8 @@ public class PcepRROSubobjectParserTest {
             a.start(ctx);
             final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
             final SubobjectBuilder subs = new SubobjectBuilder()
-                    .setSubobjectType(new LabelCaseBuilder().setLabel(
-                        new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
+                .setSubobjectType(new LabelCaseBuilder().setLabel(
+                    new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
                         new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
                             new GeneralizedLabelBuilder().setGeneralizedLabel(
                                 new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF })

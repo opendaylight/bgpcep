@@ -184,9 +184,9 @@ final class BmpRibInWriter {
                 .collect(Collectors.toList());
         final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
             UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-            new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                    new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+                new AdvertizedRoutesBuilder().setDestinationType(
+                    new DestinationIpv4CaseBuilder().setDestinationIpv4(
+                        new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
         if (message.getAttributes() != null) {
             b.setCNextHop(message.getAttributes().getCNextHop());
         }

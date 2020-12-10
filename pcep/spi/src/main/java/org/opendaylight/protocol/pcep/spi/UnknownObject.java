@@ -56,12 +56,12 @@ public final class UnknownObject implements Object {
     }
 
     @Override
-    public Boolean isIgnore() {
+    public Boolean getIgnore() {
         return Boolean.FALSE;
     }
 
     @Override
-    public Boolean isProcessingRule() {
+    public Boolean getProcessingRule() {
         return Boolean.FALSE;
     }
 }
