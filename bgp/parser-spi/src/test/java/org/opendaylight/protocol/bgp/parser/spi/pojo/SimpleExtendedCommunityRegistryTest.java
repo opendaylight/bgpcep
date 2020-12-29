@@ -66,7 +66,7 @@ public class SimpleExtendedCommunityRegistryTest {
         final ExtendedCommunities parsedExtendedCommunity =
                 this.register.parseExtendedCommunity(Unpooled.copiedBuffer(new byte[] {0, 0, 0, 0, 0, 0, 0, 0}));
         verify(this.parser).parseExtendedCommunity(any(ByteBuf.class));
-        Assert.assertTrue(parsedExtendedCommunity.isTransitive());
+        Assert.assertTrue(parsedExtendedCommunity.getTransitive());
         //no value parser
         assertNull(parsedExtendedCommunity.getExtendedCommunity());
     }

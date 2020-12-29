@@ -40,7 +40,7 @@ public class RedirectIpNextHopEcHandler implements ExtendedCommunityParser, Exte
         } else {
             Ipv6Util.writeIpv6Address(nextHopAddress.getIpv6AddressNoZone(), byteAggregator);
         }
-        byteAggregator.writeShort(Boolean.TRUE.equals(redirect.isCopy()) ? 1 : 0);
+        byteAggregator.writeShort(Boolean.TRUE.equals(redirect.getCopy()) ? 1 : 0);
     }
 
     @Override

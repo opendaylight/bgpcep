@@ -68,7 +68,7 @@ public abstract class AbstractEROPathKeySubobjectParser implements EROSubobjectP
         final ByteBuf body = Unpooled.buffer();
         ByteBufUtils.write(body, pathKey.getValue());
         body.writeBytes(pceID);
-        EROSubobjectUtil.formatSubobject(pceID.length == PCE_ID_F_LENGTH ? TYPE_32 : TYPE_128, subobject.isLoose(),
+        EROSubobjectUtil.formatSubobject(pceID.length == PCE_ID_F_LENGTH ? TYPE_32 : TYPE_128, subobject.getLoose(),
                 body, buffer);
     }
 }

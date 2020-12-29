@@ -61,7 +61,7 @@ public class ComplementaryTest {
         final CParameters tlv4 = new CParametersBuilder().setAs4BytesCapability(
             new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(40))).build()).build();
 
-        assertFalse(tlv3.getRestartFlags().isRestartState());
+        assertFalse(tlv3.getRestartFlags().getRestartState());
 
         assertEquals(0, tlv3.getRestartTime().intValue());
 

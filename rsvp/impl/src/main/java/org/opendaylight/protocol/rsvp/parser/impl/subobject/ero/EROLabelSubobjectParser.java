@@ -79,7 +79,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
             subobject.getSubobjectType().getClass());
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
-        this.registry.serializeLabel(label.isUniDirectional(), false, label.getLabelType(), body);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        this.registry.serializeLabel(label.getUniDirectional(), false, label.getLabelType(), body);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

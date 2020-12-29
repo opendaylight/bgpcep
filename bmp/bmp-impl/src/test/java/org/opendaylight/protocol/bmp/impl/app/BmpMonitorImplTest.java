@@ -332,14 +332,14 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             final Tables prePolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
             assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
-            assertFalse(prePolicyTable.getAttributes().isUptodate());
+            assertFalse(prePolicyTable.getAttributes().getUptodate());
 
             assertNotNull(peer.getPostPolicyRib());
             assertEquals(1, peer.getPostPolicyRib().nonnullTables().size());
             final Tables postPolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
             assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
             assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
-            assertFalse(postPolicyTable.getAttributes().isUptodate());
+            assertFalse(postPolicyTable.getAttributes().getUptodate());
 
             assertNotNull(peer.getPeerSession());
             final PeerSession peerSession = peer.getPeerSession();
@@ -397,7 +397,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
             assertFalse(prePolicyRib.getTables().isEmpty());
             final Tables tables = prePolicyRib.getTables().values().iterator().next();
-            assertTrue(tables.getAttributes().isUptodate());
+            assertTrue(tables.getAttributes().getUptodate());
             assertEquals(3, ((Ipv4RoutesCase) tables.getRoutes()).getIpv4Routes().getIpv4Route().size());
             return tables;
         });
@@ -410,7 +410,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
             assertFalse(postPolicyRib.getTables().isEmpty());
             final Tables tables = postPolicyRib.getTables().values().iterator().next();
-            assertTrue(tables.getAttributes().isUptodate());
+            assertTrue(tables.getAttributes().getUptodate());
             assertEquals(3, ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
                     .rev180329.bmp.monitor.monitor.router.peer.post.policy.rib.tables.routes.Ipv4RoutesCase)
                     tables.getRoutes()).getIpv4Routes().getIpv4Route().size());

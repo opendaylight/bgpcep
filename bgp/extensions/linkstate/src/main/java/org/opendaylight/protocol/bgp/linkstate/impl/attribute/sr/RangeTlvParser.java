@@ -102,7 +102,7 @@ public final class RangeTlvParser {
 
     public static void serializeSrRange(final SrRange srRange, final ByteBuf aggregator) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(INNER_AREA, srRange.isInterArea());
+        flags.set(INNER_AREA, srRange.getInterArea());
         flags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED);
         aggregator.writeShort(srRange.getRangeSize().toJava());

@@ -87,7 +87,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             final Tables table = new TablesBuilder()
                     .setAfi(afi)
                     .setSafi(safi)
-                    .setAfiFlags(new Tables.AfiFlags(Boolean.valueOf(afiFlags == AFI_FLAG_FORWARDING_STATE)))
+                    .setAfiFlags(new Tables.AfiFlags(afiFlags == AFI_FLAG_FORWARDING_STATE))
                     .setLongLivedStaleTime(new Uint24(Uint32.valueOf(staleTime)))
                     .build();
             tables.add(table);
@@ -126,7 +126,7 @@ public final class LlGracefulCapabilityHandler implements CapabilityParser, Capa
             final Integer safival = this.safiReg.numberForClass(safi);
             checkArgument(safival != null, "Unhandled subsequent address family %s", safi);
             buffer.writeByte(safival);
-            if (table.getAfiFlags() != null && table.getAfiFlags().isForwardingState()) {
+            if (table.getAfiFlags() != null && table.getAfiFlags().getForwardingState()) {
                 buffer.writeByte(AFI_FLAG_FORWARDING_STATE);
             } else {
                 buffer.writeByte(0);

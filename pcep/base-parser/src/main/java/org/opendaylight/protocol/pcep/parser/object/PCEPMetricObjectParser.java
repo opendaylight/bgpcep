@@ -63,8 +63,8 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         bytes.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(bytes.readByte());
         return new MetricBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setBound(flags.get(B_FLAG_OFFSET))
                 .setComputed(flags.get(C_FLAG_OFFSET))
                 .setMetricType(ByteBufUtils.readUint8(bytes))
@@ -80,11 +80,11 @@ public final class PCEPMetricObjectParser extends CommonObjectParser implements 
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(C_FLAG_OFFSET, mObj.isComputed());
-        flags.set(B_FLAG_OFFSET, mObj.isBound());
+        flags.set(C_FLAG_OFFSET, mObj.getComputed());
+        flags.set(B_FLAG_OFFSET, mObj.getBound());
         flags.toByteBuf(body);
         ByteBufUtils.writeMandatory(body, mObj.getMetricType(), "MetricType");
         writeFloat32(mObj.getValue(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

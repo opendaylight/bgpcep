@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import io.netty.buffer.ByteBuf;
@@ -32,10 +31,10 @@ public class UnrecognizedAttributesSerializer implements AttributeSerializer {
         for (final UnrecognizedAttributes unrecognizedAttr : unrecognizedAttrs.values()) {
             LOG.trace("Serializing unrecognized attribute of type {}", unrecognizedAttr.getType());
             int flags = AttributeUtil.OPTIONAL;
-            if (unrecognizedAttr.isPartial()) {
+            if (unrecognizedAttr.getPartial()) {
                 flags |= AttributeUtil.PARTIAL;
             }
-            if (unrecognizedAttr.isTransitive()) {
+            if (unrecognizedAttr.getTransitive()) {
                 flags |= AttributeUtil.TRANSITIVE;
             }
             AttributeUtil.formatAttribute(flags, unrecognizedAttr.getType().toJava(),

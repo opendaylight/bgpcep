@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -63,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -428,7 +430,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final ReportedLsp previous = this.lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
-            final List<Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
+            final Map<PathKey, Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
             // if all paths or the last path were deleted, delete whole tunnel
             if (updatedPaths.isEmpty()) {
                 LOG.debug("All paths were removed, removing LSP with {}.", id);
@@ -454,7 +456,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         this.lspData.put(name, rl);
     }
 
-    private static List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
+    private static Map<PathKey, Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
             final String name, final boolean remove) {
         // just one path should be reported
         final Path path = Iterables.getOnlyElement(rlb.getPath().values());
@@ -499,7 +501,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             }
         }
         LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
-        return updatedPaths;
+        return Maps.uniqueIndex(updatedPaths, Path::key);
     }
 
     /**
@@ -618,7 +620,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             .map(pathList -> pathList.values().iterator().next())
             .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
             .map(LspObject::getLsp).filter(Objects::nonNull)
-            .filter(Lsp::isDelegate)
+            .filter(Lsp::getDelegate)
             .count());
     }
 
