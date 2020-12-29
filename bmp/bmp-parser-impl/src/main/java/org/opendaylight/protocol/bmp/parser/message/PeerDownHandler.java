@@ -47,7 +47,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         Preconditions.checkArgument(message instanceof PeerDownNotification,
                 "An instance of PeerDownNotification is required");
         final PeerDownNotification peerDown = (PeerDownNotification) message;
-        if (peerDown.isLocalSystemClosed()) {
+        if (peerDown.getLocalSystemClosed()) {
             if (peerDown.getData() instanceof FsmEventCode) {
                 buffer.writeByte(REASON_TWO.getValue());
                 ByteBufUtils.writeOrZero(buffer, ((FsmEventCode) peerDown.getData()).getFsmEventCode());

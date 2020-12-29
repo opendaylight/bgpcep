@@ -100,15 +100,15 @@ public final class SrPrefixAttributesParser {
         SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE, LOCAL);
         if (flags instanceof OspfPrefixFlagsCase) {
             final OspfPrefixFlags ospfFlags = ((OspfPrefixFlagsCase) flags).getOspfPrefixFlags();
-            bitFlags.set(NO_PHP_OSPF, ospfFlags.isNoPhp());
-            bitFlags.set(MAPPING_SERVER, ospfFlags.isMappingServer());
-            bitFlags.set(EXPLICIT_NULL, ospfFlags.isExplicitNull());
+            bitFlags.set(NO_PHP_OSPF, ospfFlags.getNoPhp());
+            bitFlags.set(MAPPING_SERVER, ospfFlags.getMappingServer());
+            bitFlags.set(EXPLICIT_NULL, ospfFlags.getExplicitNull());
         } else if (flags instanceof IsisPrefixFlagsCase) {
             final IsisPrefixFlags isisFlags = ((IsisPrefixFlagsCase) flags).getIsisPrefixFlags();
-            bitFlags.set(RE_ADVERTISEMENT, isisFlags.isReadvertisement());
-            bitFlags.set(NODE_SID, isisFlags.isNodeSid());
-            bitFlags.set(NO_PHP, isisFlags.isNoPhp());
-            bitFlags.set(EXPLICIT_NULL, isisFlags.isExplicitNull());
+            bitFlags.set(RE_ADVERTISEMENT, isisFlags.getReadvertisement());
+            bitFlags.set(NODE_SID, isisFlags.getNodeSid());
+            bitFlags.set(NO_PHP, isisFlags.getNoPhp());
+            bitFlags.set(EXPLICIT_NULL, isisFlags.getExplicitNull());
         }
         return bitFlags;
     }

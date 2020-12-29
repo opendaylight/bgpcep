@@ -36,7 +36,7 @@ public final class Ipv6BackupEro implements BindingSubTlvsParser, BindingSubTlvs
         checkArgument(bindingSubTlv instanceof Ipv6EroBackupCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
         final Ipv6EroBackup ipv6Backup = ((Ipv6EroBackupCase) bindingSubTlv).getIpv6EroBackup();
-        TlvUtil.writeTLV(getType(), Ipv6EroParser.serializeIpv6EroCase(ipv6Backup.isLoose(), ipv6Backup.getAddress()),
+        TlvUtil.writeTLV(getType(), Ipv6EroParser.serializeIpv6EroCase(ipv6Backup.getLoose(), ipv6Backup.getAddress()),
             aggregator);
     }
 }

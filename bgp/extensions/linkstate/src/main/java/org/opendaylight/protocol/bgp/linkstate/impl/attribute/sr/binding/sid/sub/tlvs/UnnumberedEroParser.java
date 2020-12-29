@@ -46,7 +46,7 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
             "Wrong BindingSubTlv instance expected", bindingSubTlv);
         final UnnumberedInterfaceIdEro unnumberedEro =
                 ((UnnumberedInterfaceIdEroCase) bindingSubTlv).getUnnumberedInterfaceIdEro();
-        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.isLoose(), unnumberedEro.getRouterId(),
+        TlvUtil.writeTLV(getType(), serializeUnnumberedIdEro(unnumberedEro.getLoose(), unnumberedEro.getRouterId(),
             unnumberedEro.getInterfaceId()), aggregator);
     }
 

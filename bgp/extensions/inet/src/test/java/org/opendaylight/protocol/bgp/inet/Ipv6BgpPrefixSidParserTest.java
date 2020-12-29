@@ -36,7 +36,7 @@ public final class Ipv6BgpPrefixSidParserTest {
         final ByteBuf serialized = Unpooled.buffer(3);
         this.handler.serializeBgpPrefixSidTlv(tlv.build(), serialized);
         assertArrayEquals(this.expected, serialized.array());
-        assertTrue(this.handler.parseBgpPrefixSidTlv(serialized).isProcessIpv6HeadAbility());
+        assertTrue(this.handler.parseBgpPrefixSidTlv(serialized).getProcessIpv6HeadAbility());
     }
 
     @Test

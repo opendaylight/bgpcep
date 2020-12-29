@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +55,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -79,25 +82,25 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         rpcService.init();
 
         // PCEP topology with one PCC node
-        final Topology t1 = createTopology(TOPOLOGY_ID1, Collections.singletonList(createPcepNode(NODE_ID1)));
+        final Topology t1 = createTopology(TOPOLOGY_ID1, BindingMap.of(createPcepNode(NODE_ID1)));
 
         // PCEP topology with two PCC node
         final Topology t2 =
-                createTopology(TOPOLOGY_ID2, Arrays.asList(createPcepNode(NODE_ID2), createPcepNode(NODE_ID3)));
+                createTopology(TOPOLOGY_ID2, BindingMap.of(createPcepNode(NODE_ID2), createPcepNode(NODE_ID3)));
 
         // Non-PCEP topology with one non-PCC node
         final Topology t3 = createTopology(NONPCEP_TOPOLOGY,
-                Collections.singletonList(new NodeBuilder().setNodeId(new NodeId(NONPCEP_NODE)).build()));
+                BindingMap.of(new NodeBuilder().setNodeId(new NodeId(NONPCEP_NODE)).build()));
 
         final WriteTransaction wtx = getDataBroker().newWriteOnlyTransaction();
         final NetworkTopologyBuilder ntb = new NetworkTopologyBuilder();
-        ntb.setTopology(Arrays.asList(t1, t2, t3));
+        ntb.setTopology(BindingMap.of(t1, t2, t3));
         wtx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
                 ntb.build());
         wtx.commit().get();
     }
 
-    private static Topology createTopology(final String topologyId, final List<Node> nodes) {
+    private static Topology createTopology(final String topologyId, final Map<NodeKey, Node> nodes) {
         return new TopologyBuilder().setTopologyId(new TopologyId(topologyId)).setNode(nodes).build();
     }
 
@@ -260,7 +263,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .getTopology().values() .iterator().next();
         final var ot2 = createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
                 .getTopology().values().iterator().next();
-        final GetStatsOutput out = new GetStatsOutputBuilder().setTopology(Arrays.asList(ot1, ot2)).build();
+        final GetStatsOutput out = new GetStatsOutputBuilder().setTopology(BindingMap.of(ot1, ot2)).build();
 
         // Implicitly match all PCEP topologies and nodes
         in = createGetStatsInput(null, null);
@@ -271,7 +274,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                 .iterator().next();
         final var it2 = createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().values()
                 .iterator().next();
-        in = new GetStatsInputBuilder().setTopology(Arrays.asList(it1, it2)).build();
+        in = new GetStatsInputBuilder().setTopology(BindingMap.of(it1, it2)).build();
         performCountTest(in, out);
     }
 
@@ -322,8 +325,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         } else {
             topology = null;
         }
-        return new GetStatsInputBuilder().setTopology(topology != null ? Collections.singletonList(topology) : null)
-                .build();
+        return new GetStatsInputBuilder().setTopology(topology != null ? BindingMap.of(topology) : null).build();
     }
 
     private static GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,

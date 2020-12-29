@@ -30,7 +30,7 @@ public final class BNCUtil {
                 Preconditions.checkArgument(type instanceof IpPrefixCase,
                     "Wrong instance of PCEPObject. Passed %s. Needed IpPrefixCase.", type.getClass());
                 return new SubobjectBuilder().setIpPrefix(((IpPrefixCase) type).getIpPrefix().getIpPrefix())
-                    .setLoose(sob.isLoose()).build();
+                    .setLoose(sob.getLoose()).build();
             }).collect(Collectors.toList());
     }
 
@@ -45,7 +45,7 @@ public final class BNCUtil {
                 return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                     .explicit.route.object.ero.SubobjectBuilder()
                     .setSubobjectType(subObjType)
-                    .setLoose(sob.isLoose())
+                    .setLoose(sob.getLoose())
                     .build();
             }).collect(Collectors.toList());
     }

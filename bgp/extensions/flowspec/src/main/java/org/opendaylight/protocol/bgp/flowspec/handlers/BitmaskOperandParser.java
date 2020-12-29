@@ -51,9 +51,9 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
             final ByteBuf buffer) {
         final BitArray bs = new BitArray(OPERAND_LENGTH);
         bs.set(END_OF_LIST, endOfList);
-        bs.set(AND_BIT, op.isAndBit());
-        bs.set(MATCH, op.isMatch());
-        bs.set(NOT, op.isNot());
+        bs.set(AND_BIT, op.getAndBit());
+        bs.set(MATCH, op.getMatch());
+        bs.set(NOT, op.getNot());
         final byte len = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
         buffer.writeByte(bs.toByte() | len);
     }
@@ -67,19 +67,19 @@ public final class BitmaskOperandParser extends AbstractOperandParser<BitmaskOpe
     @Override
     public String toString(final BitmaskOperand op, final boolean isFirst) {
         final StringBuilder buffer = new StringBuilder();
-        if (!op.isAndBit() && !isFirst) {
+        if (!op.getAndBit() && !isFirst) {
             buffer.append("or ");
         }
-        if (op.isAndBit()) {
+        if (op.getAndBit()) {
             buffer.append("and ");
         }
-        if (op.isMatch()) {
+        if (op.getMatch()) {
             buffer.append("does ");
-            if (op.isNot()) {
+            if (op.getNot()) {
                 buffer.append("not ");
             }
             buffer.append("match ");
-        } else if (op.isNot()) {
+        } else if (op.getNot()) {
             buffer.append("is not ");
         }
         return buffer.toString();

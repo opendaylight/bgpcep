@@ -13,12 +13,9 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
@@ -62,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
@@ -90,7 +88,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID, new TopologyBuilder()
-                .withKey(new TopologyKey(PCEP_TOPOLOGY_ID)).setNode(Collections.emptyList())
+                .withKey(new TopologyKey(PCEP_TOPOLOGY_ID))
                 .setTopologyId(PCEP_TOPOLOGY_ID).build());
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
                 .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build());
@@ -127,35 +125,35 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
             dst = tmp;
         }
 
-        Assert.assertEquals(srcId, src.getNodeId());
-        Assert.assertEquals(dstId, dst.getNodeId());
+        assertEquals(srcId, src.getNodeId());
+        assertEquals(dstId, dst.getNodeId());
 
-        Assert.assertEquals(1, dst.getTerminationPoint().size());
-        Assert.assertEquals(1, src.getTerminationPoint().size());
+        assertEquals(1, dst.getTerminationPoint().size());
+        assertEquals(1, src.getTerminationPoint().size());
         final TerminationPoint dstTp = dst.nonnullTerminationPoint().values().iterator().next();
         final TerminationPoint srcTp = src.nonnullTerminationPoint().values().iterator().next();
         final TpId dstNodeTpId = new TpId(dstId.getValue());
         final TpId srcNodeTpId = new TpId(srcId.getValue());
-        Assert.assertEquals(dstNodeTpId, dstTp.getTpId());
-        Assert.assertEquals(srcNodeTpId, srcTp.getTpId());
+        assertEquals(dstNodeTpId, dstTp.getTpId());
+        assertEquals(srcNodeTpId, srcTp.getTpId());
 
-        Assert.assertEquals(1, src.getSupportingNode().size());
-        Assert.assertNull(dst.getSupportingNode());
+        assertEquals(1, src.getSupportingNode().size());
+        assertNull(dst.getSupportingNode());
         final SupportingNode sNode = src.nonnullSupportingNode().values().iterator().next();
-        Assert.assertEquals(NODE1_ID, sNode.key().getNodeRef());
+        assertEquals(NODE1_ID, sNode.key().getNodeRef());
 
-        Assert.assertEquals(1, tunnelTopo.nonnullLink().size());
+        assertEquals(1, tunnelTopo.nonnullLink().size());
         final Link link = tunnelTopo.nonnullLink().values().iterator().next();
-        Assert.assertEquals(srcId, link.getSource().getSourceNode());
-        Assert.assertEquals(srcNodeTpId, link.getSource().getSourceTp());
-        Assert.assertEquals(dstId, link.getDestination().getDestNode());
-        Assert.assertEquals(dstNodeTpId, link.getDestination().getDestTp());
+        assertEquals(srcId, link.getSource().getSourceNode());
+        assertEquals(srcNodeTpId, link.getSource().getSourceTp());
+        assertEquals(dstId, link.getDestination().getDestNode());
+        assertEquals(dstNodeTpId, link.getDestination().getDestTp());
 
         // update second node -> adds supporting node and second link
         createNode(NODE2_ID, NODE2_IPV4, LSP2_NAME, LSP2_ID, NODE1_IPV4);
         readDataOperational(getDataBroker(), TUNNEL_TOPO_IID, updatedNodeTopo -> {
             assertNotNull(updatedNodeTopo.getNode());
-            Assert.assertEquals(2, updatedNodeTopo.getNode().size());
+            assertEquals(2, updatedNodeTopo.getNode().size());
             final Node updatedNode;
             if (updatedNodeTopo.nonnullNode().values().iterator().next().getNodeId().equals(srcId)) {
                 updatedNode = Iterables.get(updatedNodeTopo.nonnullNode().values(), 1);
@@ -164,10 +162,10 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
             }
 
             assertNotNull(updatedNode.getSupportingNode());
-            Assert.assertEquals(1, updatedNode.nonnullSupportingNode().size());
+            assertEquals(1, updatedNode.nonnullSupportingNode().size());
             final SupportingNode sNode2 = updatedNode.nonnullSupportingNode().values().iterator().next();
-            Assert.assertEquals(NODE2_ID, sNode2.getNodeRef());
-            Assert.assertEquals(2, updatedNodeTopo.getLink().size());
+            assertEquals(NODE2_ID, sNode2.getNodeRef());
+            assertEquals(2, updatedNodeTopo.getLink().size());
             return updatedNodeTopo;
 
         });
@@ -219,11 +217,11 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                                 .build()).build()).build()).build()).setAdministrative(true)
                 .setDelegate(true).build()).build());
         final ReportedLsp reportedLps = new ReportedLspBuilder().withKey(new ReportedLspKey(lspName)).setPath(
-                Collections.singletonList(pathBuilder.build())).build();
+                BindingMap.of(pathBuilder.build())).build();
         final Node1Builder node1Builder = new Node1Builder();
         node1Builder.setPathComputationClient(new PathComputationClientBuilder()
                 .setStateSync(PccSyncState.Synchronized)
-                .setReportedLsp(Lists.newArrayList(reportedLps))
+                .setReportedLsp(BindingMap.of(reportedLps))
                 .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ipv4Address)))
                 .build());
         nodeBuilder.addAugmentation(node1Builder.build());

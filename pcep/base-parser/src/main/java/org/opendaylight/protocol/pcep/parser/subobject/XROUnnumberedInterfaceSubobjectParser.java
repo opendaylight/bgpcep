@@ -45,11 +45,11 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         final UnnumberedBuilder ubuilder = new UnnumberedBuilder()
                 .setRouterId(ByteBufUtils.readUint32(buffer))
                 .setInterfaceId(ByteBufUtils.readUint32(buffer));
-        final SubobjectBuilder builder = new SubobjectBuilder()
+        return new SubobjectBuilder()
                 .setMandatory(mandatory)
                 .setAttribute(attr)
-                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build());
-        return builder.build();
+                .setSubobjectType(new UnnumberedCaseBuilder().setUnnumbered(ubuilder.build()).build())
+                .build();
     }
 
     @Override
@@ -65,6 +65,6 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
 
         ByteBufUtils.writeMandatory(body, specObj.getRouterId(), "RouterId");
         ByteBufUtils.writeMandatory(body, specObj.getInterfaceId(), "InterfaceId");
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

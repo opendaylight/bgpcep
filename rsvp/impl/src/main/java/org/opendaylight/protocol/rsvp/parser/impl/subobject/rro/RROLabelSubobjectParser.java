@@ -80,7 +80,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
         requireNonNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
-        this.registry.serializeLabel(label.isUniDirectional(), label.isGlobal(), label.getLabelType(), body);
+        this.registry.serializeLabel(label.getUniDirectional(), label.getGlobal(), label.getLabelType(), body);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

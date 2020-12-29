@@ -66,7 +66,7 @@ public abstract class AbstractFSFragmentHandler implements FlowspecTypeParser, F
             final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(parseFragment(nlri.readByte()));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             fragments.add(builder.build());
         }
         return fragments;
