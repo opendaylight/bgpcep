@@ -54,7 +54,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
                 .opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
                 .subobjects.subobject.type.exrs._case.exrs.ExrsBuilder();
             b.setAttribute(s.getAttribute());
-            b.setMandatory(s.isMandatory());
+            b.setMandatory(s.getMandatory());
             b.setSubobjectType(s.getSubobjectType());
             exrss.add(b.build());
         }
@@ -71,19 +71,19 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route
             .object.exclude.route.object.SubobjectContainer> list = new ArrayList<>();
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-            .subobjects.subobject.type.exrs._case.exrs.Exrs ex : e.getExrs()) {
+            .subobjects.subobject.type.exrs._case.exrs.Exrs ex : e.nonnullExrs()) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route
                 .object.exclude.route.object.SubobjectContainerBuilder b = new org.opendaylight.yang.gen.v1.urn
                 .opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object
                 .SubobjectContainerBuilder();
             b.setAttribute(ex.getAttribute());
-            b.setMandatory(ex.isMandatory());
+            b.setMandatory(ex.getMandatory());
             b.setSubobjectType(ex.getSubobjectType());
             list.add(b.build());
         }
         final ByteBuf body = Unpooled.buffer();
         localSerializeSubobject(list, body);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 
     private List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object
@@ -94,8 +94,8 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route
             .object.exclude.route.object.SubobjectContainer> subs = new ArrayList<>();
         while (buffer.isReadable()) {
-            final boolean mandatory = (buffer.getByte(buffer.readerIndex()) & (1 << Values.FIRST_BIT_OFFSET)) != 0;
-            final int type = (buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~(1 << Values
+            final boolean mandatory = (buffer.getByte(buffer.readerIndex()) & 1 << Values.FIRST_BIT_OFFSET) != 0;
+            final int type = buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES & ~(1 << Values
                 .FIRST_BIT_OFFSET);
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;
             if (length > buffer.readableBytes()) {

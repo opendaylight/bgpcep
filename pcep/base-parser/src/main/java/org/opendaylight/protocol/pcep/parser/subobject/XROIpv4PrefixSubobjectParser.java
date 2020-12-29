@@ -77,6 +77,6 @@ public class XROIpv4PrefixSubobjectParser implements XROSubobjectParser, XROSubo
         final Attribute attribute = subobject.getAttribute();
         checkArgument(attribute != null, "Attribute is mandatory.");
         body.writeByte(attribute.getIntValue());
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

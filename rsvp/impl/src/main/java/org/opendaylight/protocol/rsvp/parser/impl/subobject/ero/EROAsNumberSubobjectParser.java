@@ -37,6 +37,6 @@ public class EROAsNumberSubobjectParser implements EROSubobjectParser, EROSubobj
             "Unknown subobject instance. Passed %s. Needed AsNumberCase.",
             subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

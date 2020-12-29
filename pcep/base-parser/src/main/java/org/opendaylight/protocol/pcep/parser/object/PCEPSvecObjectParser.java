@@ -78,8 +78,8 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
             throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
         }
         return new SvecBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setLinkDiverse(flags.get(L_FLAG_OFFSET))
                 .setNodeDiverse(flags.get(N_FLAG_OFFSET))
                 .setSrlgDiverse(flags.get(S_FLAG_OFFSET))
@@ -97,11 +97,11 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_OFFSET);
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(L_FLAG_OFFSET, svecObj.isLinkDiverse());
-        flags.set(N_FLAG_OFFSET, svecObj.isNodeDiverse());
-        flags.set(S_FLAG_OFFSET, svecObj.isSrlgDiverse());
-        flags.set(D_FLAG_OFFSET, svecObj.isLinkDirectionDiverse());
-        flags.set(P_FLAG_OFFSET, svecObj.isPartialPathDiverse());
+        flags.set(L_FLAG_OFFSET, svecObj.getLinkDiverse());
+        flags.set(N_FLAG_OFFSET, svecObj.getNodeDiverse());
+        flags.set(S_FLAG_OFFSET, svecObj.getSrlgDiverse());
+        flags.set(D_FLAG_OFFSET, svecObj.getLinkDirectionDiverse());
+        flags.set(P_FLAG_OFFSET, svecObj.getPartialPathDiverse());
         flags.toByteBuf(body);
 
         final List<RequestId> requestIDs = svecObj.getRequestsIds();
@@ -110,6 +110,6 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         for (final RequestId requestId : requestIDs) {
             ByteBufUtils.write(body, requestId.getValue());
         }
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

@@ -227,9 +227,9 @@ public class PCEPTopologySessionListenerTest
             assertTrue(replyTime.getMaxTime().toJava() > 0);
             final StatefulCapabilitiesStatsAug statefulCapabilities = listenerState
                     .getPeerCapabilities().augmentation(StatefulCapabilitiesStatsAug.class);
-            assertFalse(statefulCapabilities.isActive());
-            assertTrue(statefulCapabilities.isInstantiation());
-            assertTrue(statefulCapabilities.isStateful());
+            assertFalse(statefulCapabilities.getActive());
+            assertTrue(statefulCapabilities.getInstantiation());
+            assertTrue(statefulCapabilities.getStateful());
             return pcc;
         });
 

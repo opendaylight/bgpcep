@@ -59,6 +59,6 @@ public class SEROBasicProtectionSubobjectParser extends ProtectionCommonParser
             .getProtectionSubobject();
         final ByteBuf body = Unpooled.buffer();
         serializeBody(CTYPE, protObj, body);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

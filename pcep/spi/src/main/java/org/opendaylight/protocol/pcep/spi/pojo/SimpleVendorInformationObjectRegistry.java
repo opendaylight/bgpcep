@@ -44,7 +44,7 @@ public class SimpleVendorInformationObjectRegistry implements VendorInformationO
             throws PCEPDeserializerException {
         final ObjectParser parser = this.handlers.getParser(enterpriseNumber.getValue().intValue());
         if (parser == null) {
-            if (!header.isProcessingRule()) {
+            if (!header.getProcessingRule()) {
                 return Optional.empty();
             }
             return Optional.of(new UnknownObject(PCEPErrors.UNRECOGNIZED_OBJ_CLASS));

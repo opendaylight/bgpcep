@@ -44,9 +44,9 @@ public final class BandwidthUsageObjectCodec extends CommonObjectParser implemen
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
                     + "; Expected multiple of " + BW_LENGTH + ".");
         }
-        final BandwidthUsageBuilder builder = new BandwidthUsageBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        final BandwidthUsageBuilder builder = new BandwidthUsageBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule());
         final List<Bandwidth> bwSamples = new ArrayList<>(bytes.readableBytes() / BW_LENGTH);
         while (bytes.isReadable()) {
             bwSamples.add(new Bandwidth(ByteArray.readBytes(bytes, BW_LENGTH)));
@@ -64,7 +64,7 @@ public final class BandwidthUsageObjectCodec extends CommonObjectParser implemen
         for (final Bandwidth bw : bwSample) {
             writeFloat32(bw, body);
         }
-        ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
+        ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(), object.getIgnore(),
             body, buffer);
     }
 }

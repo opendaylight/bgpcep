@@ -39,8 +39,8 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
             .route.object.secondary.record.route.object.SubobjectContainer> srroSbo = sbo.stream()
             .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary
                 .record.route.object.secondary.record.route.object.SubobjectContainerBuilder()
-                .setProtectionAvailable(so.isProtectionAvailable())
-                .setProtectionInUse(so.isProtectionInUse())
+                .setProtectionAvailable(so.getProtectionAvailable())
+                .setProtectionInUse(so.getProtectionInUse())
                 .setSubobjectType(so.getSubobjectType())
                 .build()
             ).collect(Collectors.toList());
@@ -55,8 +55,8 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
         final ByteBuf bufferAux = Unpooled.buffer();
         final List<SubobjectContainer> srroSbo = srro.getSubobjectContainer()
             .stream().map(so -> new SubobjectContainerBuilder()
-                .setProtectionAvailable(so.isProtectionAvailable())
-                .setProtectionInUse(so.isProtectionInUse())
+                .setProtectionAvailable(so.getProtectionAvailable())
+                .setProtectionInUse(so.getProtectionInUse())
                 .setSubobjectType(so.getSubobjectType())
                 .build()).collect(Collectors.toList());
         serializeList(srroSbo, bufferAux);

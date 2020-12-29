@@ -123,7 +123,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
             case INIT:
                 if (obj instanceof Rp) {
                     final Rp rp = (Rp) obj;
-                    if (rp.isProcessingRule()) {
+                    if (rp.getProcessingRule()) {
                         errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                         return null;
                     }

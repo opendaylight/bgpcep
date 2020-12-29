@@ -95,33 +95,21 @@ final class SyncOptimization {
 
     private static boolean isSyncAvoidance(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isIncludeDbVersion() != null) {
-            return stateful1.isIncludeDbVersion();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getIncludeDbVersion());
     }
 
     private static boolean isDeltaSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isDeltaLspSyncCapability() != null) {
-            return stateful1.isDeltaLspSyncCapability();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getDeltaLspSyncCapability());
     }
 
     private static boolean isTriggeredInitialSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isTriggeredInitialSync() != null) {
-            return stateful1.isTriggeredInitialSync();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredInitialSync());
     }
 
     private static boolean isTriggeredReSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isTriggeredResync() != null) {
-            return stateful1.isTriggeredResync();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredResync());
     }
 }

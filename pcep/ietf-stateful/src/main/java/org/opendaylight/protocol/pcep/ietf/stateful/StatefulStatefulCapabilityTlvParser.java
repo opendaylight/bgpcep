@@ -58,7 +58,7 @@ public class StatefulStatefulCapabilityTlvParser implements TlvParser, TlvSerial
 
     protected BitArray serializeFlags(final Stateful sct) {
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
-        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        flags.set(U_FLAG_OFFSET, sct.getLspUpdateCapability());
         return flags;
     }
 }

@@ -34,13 +34,13 @@ public abstract class AbstractPceIdObjectParser extends CommonObjectParser imple
         if (pceId.getIpAddress().getIpv4AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
             Ipv4Util.writeIpv4Address(pceId.getIpAddress().getIpv4AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
-                body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(),
+                object.getIgnore(), body, buffer);
         } else if (pceId.getIpAddress().getIpv6AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
             Ipv6Util.writeIpv6Address(pceId.getIpAddress().getIpv6AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
-                body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(),
+                object.getIgnore(), body, buffer);
         }
     }
 }

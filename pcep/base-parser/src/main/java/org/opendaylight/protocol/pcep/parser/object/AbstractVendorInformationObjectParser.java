@@ -49,7 +49,6 @@ public abstract class AbstractVendorInformationObjectParser extends CommonObject
         serializeEnterpriseSpecificInformation(((VendorInformationObject) object).getEnterpriseSpecificInformation(),
                 body);
         ObjectUtil.formatSubobject(VENDOR_INFORMATION_OBJECT_TYPE, VENDOR_INFORMATION_OBJECT_CLASS,
-                object.isProcessingRule(), object.isIgnore(), body, buffer);
+                object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
-
 }

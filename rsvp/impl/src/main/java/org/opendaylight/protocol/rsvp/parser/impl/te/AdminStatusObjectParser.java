@@ -44,13 +44,13 @@ public final class AdminStatusObjectParser extends AbstractRSVPObjectParser {
         final AdminStatusObject addObject = (AdminStatusObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
         final BitArray reflect = new BitArray(FLAGS_SIZE);
-        reflect.set(REFLECT, addObject.isReflect());
+        reflect.set(REFLECT, addObject.getReflect());
         reflect.toByteBuf(output);
         output.writeShort(0);
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(TESTING, addObject.isTesting());
-        flags.set(DOWN, addObject.isAdministrativelyDown());
-        flags.set(DELETION, addObject.isDeletionInProgress());
+        flags.set(TESTING, addObject.getTesting());
+        flags.set(DOWN, addObject.getAdministrativelyDown());
+        flags.set(DELETION, addObject.getDeletionInProgress());
         flags.toByteBuf(output);
     }
 }

@@ -23,13 +23,13 @@ public final class PCEPUnreachDestinationSerializer implements ObjectSerializer 
             "Wrong instance of PCEPObject. Passed %s. Needed UnreachDestinationObj.", object.getClass());
         final UnreachDestinationObj uPObj = (UnreachDestinationObj) object;
         final Destination destination = uPObj.getDestination();
-        final Boolean processing = object.isProcessingRule();
-        final Boolean ignore = object.isIgnore();
+        final Boolean processing = object.getProcessingRule();
+        final Boolean ignore = object.getIgnore();
         if (destination instanceof Ipv6DestinationCase) {
-            final Ipv6DestinationCase ipv6 = ((Ipv6DestinationCase) destination);
+            final Ipv6DestinationCase ipv6 = (Ipv6DestinationCase) destination;
             PCEPIpv6UnreachDestinationParser.serializeObject(processing, ignore, ipv6, buffer);
         } else if (destination instanceof Ipv4DestinationCase) {
-            final Ipv4DestinationCase ipv4 = ((Ipv4DestinationCase) destination);
+            final Ipv4DestinationCase ipv4 = (Ipv4DestinationCase) destination;
             PCEPIpv4UnreachDestinationParser.serializeObject(processing, ignore, ipv4, buffer);
         }
     }

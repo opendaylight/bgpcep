@@ -47,8 +47,8 @@ public final class PCEPLoadBalancingObjectParser extends CommonObjectParser impl
         }
         bytes.skipBytes(RESERVED + FLAGS_F_LENGTH);
         return new LoadBalancingBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setMaxLsp(ByteBufUtils.readUint8(bytes))
                 .setMinBandwidth(new Bandwidth(ByteArray.readAllBytes(bytes)))
                 .build();
@@ -63,6 +63,6 @@ public final class PCEPLoadBalancingObjectParser extends CommonObjectParser impl
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
         ByteBufUtils.writeOrZero(body, specObj.getMaxLsp());
         writeFloat32(specObj.getMinBandwidth(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

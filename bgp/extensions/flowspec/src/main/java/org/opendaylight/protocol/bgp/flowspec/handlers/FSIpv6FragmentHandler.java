@@ -22,9 +22,9 @@ public class FSIpv6FragmentHandler extends AbstractFSFragmentHandler {
     protected final byte serializeFragment(final Fragment fragment) {
         final BitArray bs = new BitArray(Byte.SIZE);
         bs.set(DONT_FRAGMENT, Boolean.FALSE);
-        bs.set(FIRST_FRAGMENT, fragment.isFirst());
-        bs.set(IS_A_FRAGMENT, fragment.isIsA());
-        bs.set(LAST_FRAGMENT, fragment.isLast());
+        bs.set(FIRST_FRAGMENT, fragment.getFirst());
+        bs.set(IS_A_FRAGMENT, fragment.getIsA());
+        bs.set(LAST_FRAGMENT, fragment.getLast());
         return bs.toByte();
     }
 }

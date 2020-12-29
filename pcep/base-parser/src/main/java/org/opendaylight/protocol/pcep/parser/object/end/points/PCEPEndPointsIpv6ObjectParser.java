@@ -57,7 +57,7 @@ public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
-        if (!header.isProcessingRule()) {
+        if (!header.getProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
             return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, builder.build());
         }
@@ -67,8 +67,8 @@ public final class PCEPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final Ipv6Builder ipv6bldr = new Ipv6Builder()
                 .setSourceIpv6Address(Ipv6Util.addressForByteBuf(bytes))
                 .setDestinationIpv6Address(Ipv6Util.addressForByteBuf(bytes));
-        return builder.setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+        return builder.setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setAddressFamily(new Ipv6CaseBuilder().setIpv6(ipv6bldr.build()).build())
                 .build();
     }

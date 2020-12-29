@@ -37,15 +37,15 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
 
         final SrroBuilder builder = new SrroBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         final List<Subobject> subObjects = parseSubobjects(buffer);
 
         builder.setSubobject(subObjects.stream()
             .map(so -> new SubobjectBuilder()
                     .setSubobjectType(so.getSubobjectType())
-                    .setProtectionAvailable(so.isProtectionAvailable())
-                    .setProtectionInUse(so.isProtectionInUse())
+                    .setProtectionAvailable(so.getProtectionAvailable())
+                    .setProtectionInUse(so.getProtectionInUse())
                     .build())
             .collect(Collectors.toList()));
 
@@ -56,17 +56,17 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Srro,
             "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
-        final Srro sero = ((Srro) object);
+        final Srro sero = (Srro) object;
         final ByteBuf body = Unpooled.buffer();
-        final List<Subobject> subObjects = sero.getSubobject().stream()
+        final List<Subobject> subObjects = sero.nonnullSubobject().stream()
             .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                 .reported.route.object.rro.SubobjectBuilder()
                     .setSubobjectType(so.getSubobjectType())
-                    .setProtectionAvailable(so.isProtectionAvailable())
-                    .setProtectionInUse(so.isProtectionInUse())
+                    .setProtectionAvailable(so.getProtectionAvailable())
+                    .setProtectionInUse(so.getProtectionInUse())
                     .build())
             .collect(Collectors.toList());
         serializeSubobject(subObjects, body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

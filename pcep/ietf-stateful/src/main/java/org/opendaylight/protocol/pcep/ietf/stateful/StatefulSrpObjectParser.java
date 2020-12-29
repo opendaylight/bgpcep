@@ -53,8 +53,8 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
                 + "; Expected: >=" + MIN_SIZE + ".");
         }
         final SrpBuilder builder = new SrpBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule());
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule());
         parseFlags(builder, bytes);
         builder.setOperationId(new SrpIdNumber(ByteBufUtils.readUint32(bytes)));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
@@ -87,7 +87,7 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         checkArgument(srpId != null, "SrpId is mandatory.");
         ByteBufUtils.write(body, srpId.getValue());
         serializeTlvs(srp.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     protected void serializeFlags(final Srp srp, final ByteBuf body) {

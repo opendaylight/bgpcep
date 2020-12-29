@@ -53,9 +53,9 @@ public class EROPathKey32SubobjectParser implements EROSubobjectParser, EROSubob
             .getPathKey();
         final ByteBuf body = serializePathKey(pk);
         if (pk.getPceId().getValue().length == PCE_ID_F_LENGTH) {
-            EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+            EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
         } else if (pk.getPceId().getValue().length == EROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
-            EROSubobjectUtil.formatSubobject(EROPathKey128SubobjectParser.TYPE, subobject.isLoose(), body, buffer);
+            EROSubobjectUtil.formatSubobject(EROPathKey128SubobjectParser.TYPE, subobject.getLoose(), body, buffer);
         }
     }
 }

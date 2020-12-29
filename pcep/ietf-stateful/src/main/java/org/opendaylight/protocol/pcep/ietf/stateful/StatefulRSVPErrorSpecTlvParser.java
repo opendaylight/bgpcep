@@ -132,8 +132,8 @@ public final class StatefulRSVPErrorSpecTlvParser implements TlvParser, TlvSeria
 
     private static void serializeRsvp(final RsvpError rsvp, final ByteBuf body) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(IN_PLACE, rsvp.getFlags().isInPlace());
-        flags.set(NOT_GUILTY, rsvp.getFlags().isNotGuilty());
+        flags.set(IN_PLACE, rsvp.getFlags().getInPlace());
+        flags.set(NOT_GUILTY, rsvp.getFlags().getNotGuilty());
         final IpAddressNoZone node = rsvp.getNode();
         checkArgument(node != null, "Node is mandatory.");
         final ByteBuf rsvpObjBuf = Unpooled.buffer();
