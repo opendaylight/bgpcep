@@ -44,8 +44,8 @@ public class PCCEndPointIpv4ObjectParserTest {
 
         assertEquals(IP1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
         assertEquals(IP2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
-        assertFalse(output.isIgnore());
-        assertFalse(output.isProcessingRule());
+        assertFalse(output.getIgnore());
+        assertFalse(output.getProcessingRule());
     }
 
     @Test(expected = IllegalArgumentException.class)

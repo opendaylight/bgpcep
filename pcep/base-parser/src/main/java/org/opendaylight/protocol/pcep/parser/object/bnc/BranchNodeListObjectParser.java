@@ -33,20 +33,20 @@ public final class BranchNodeListObjectParser extends AbstractEROWithSubobjectsP
         throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final BranchNodeListBuilder builder = new BranchNodeListBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
-        builder.setSubobject(BNCUtil.toBncSubobject(parseSubobjects(bytes))).build();
-        return builder.build();
+        return new BranchNodeListBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule())
+            .setSubobject(BNCUtil.toBncSubobject(parseSubobjects(bytes)))
+            .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof BranchNodeList,
             "Wrong instance of PCEPObject. Passed %s. Needed BranchNodeList.", object.getClass());
-        final BranchNodeList nbnc = ((BranchNodeList) object);
+        final BranchNodeList nbnc = (BranchNodeList) object;
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(BNCUtil.toIroSubject(nbnc.getSubobject()), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

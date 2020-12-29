@@ -41,8 +41,8 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
     public Gc parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final GcBuilder builder = new GcBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setMaxHop(ByteBufUtils.readUint8(bytes))
                 .setMaxUtilization(ByteBufUtils.readUint8(bytes))
                 .setMinUtilization(ByteBufUtils.readUint8(bytes))
@@ -63,7 +63,7 @@ public class PCEPGlobalConstraintsObjectParser extends AbstractObjectWithTlvsPar
         ByteBufUtils.writeOrZero(body, specObj.getMinUtilization());
         ByteBufUtils.writeOrZero(body, specObj.getOverBookingFactor());
         serializeTlvs(specObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

@@ -37,6 +37,6 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
             "Unknown subobject instance. Passed %s. Needed AsNumberCase.",
             subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

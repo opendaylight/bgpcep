@@ -530,16 +530,16 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     private static String stringFragment(final Fragment fragment) {
         final StringBuilder buffer = new StringBuilder();
-        if (fragment.isDoNot()) {
+        if (fragment.getDoNot()) {
             buffer.append("'DO NOT' ");
         }
-        if (fragment.isFirst()) {
+        if (fragment.getFirst()) {
             buffer.append("'IS FIRST' ");
         }
-        if (fragment.isLast()) {
+        if (fragment.getLast()) {
             buffer.append("'IS LAST' ");
         }
-        if (fragment.isIsA()) {
+        if (fragment.getIsA()) {
             buffer.append("'IS A' ");
         }
         return buffer.toString();

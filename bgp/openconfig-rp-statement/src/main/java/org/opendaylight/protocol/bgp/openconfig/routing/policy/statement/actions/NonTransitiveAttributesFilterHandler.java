@@ -60,13 +60,13 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
             // TODO: consider using Maps.filterValues(attributes.getUnrecognizedAttributes(),
             //                                        UnrecognizedAttributes::isTransitive)) ?
             builder.setUnrecognizedAttributes(attributes.getUnrecognizedAttributes().values().stream()
-                    .filter(UnrecognizedAttributes::isTransitive)
+                    .filter(UnrecognizedAttributes::getTransitive)
                     .collect(ImmutableMap.toImmutableMap(UnrecognizedAttributes::key, Function.identity())));
         }
         final List<ExtendedCommunities> oldExt = attributes.getExtendedCommunities();
         if (oldExt != null) {
             builder.setExtendedCommunities(oldExt.stream()
-                    .filter(ExtendedCommunity::isTransitive)
+                    .filter(ExtendedCommunity::getTransitive)
                     .collect(Collectors.toList()));
         }
         return builder.build();

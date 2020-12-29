@@ -82,7 +82,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
                 bytes.skipBytes(PEER_DISTINGUISHER_SIZE);
                 break;
         }
-        if (phBuilder.isIpv4()) {
+        if (phBuilder.getIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
             phBuilder.setAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(bytes)));
         } else {
@@ -101,7 +101,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
         output.writeByte(peerType.getIntValue());
         final BitArray flags = new BitArray(FLAGS_SIZE);
         flags.set(L_FLAG_POS, peerHeader.getAdjRibInType().getIntValue() != 0);
-        flags.set(V_FLAG_POS, !peerHeader.isIpv4());
+        flags.set(V_FLAG_POS, !peerHeader.getIpv4());
         flags.toByteBuf(output);
         final PeerDistinguisher peerDistinguisher = peerHeader.getPeerDistinguisher();
         switch (peerType) {
@@ -116,7 +116,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T extends Builder<?>> exte
                 output.writeZero(PEER_DISTINGUISHER_SIZE);
                 break;
         }
-        if (peerHeader.isIpv4()) {
+        if (peerHeader.getIpv4()) {
             output.writeZero(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
             Ipv4Util.writeIpv4Address(peerHeader.getAddress().getIpv4AddressNoZone(), output);
         } else {

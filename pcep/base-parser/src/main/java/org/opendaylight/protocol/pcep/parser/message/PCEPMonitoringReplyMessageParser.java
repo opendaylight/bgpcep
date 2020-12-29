@@ -61,21 +61,15 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         serializeObject(monRepMsg.getPccIdReq(), body);
         if (monRepMsg.getMonitoringMetricsList() instanceof GeneralMetricsList) {
             final GeneralMetricsList gml = (GeneralMetricsList) monRepMsg.getMonitoringMetricsList();
-            if (gml.getMetricPce() != null) {
-                for (final MetricPce metricPce : gml.getMetricPce()) {
-                    serializeMetricPce(metricPce, body);
-                }
+            for (final MetricPce metricPce : gml.nonnullMetricPce()) {
+                serializeMetricPce(metricPce, body);
             }
         } else if (monRepMsg.getMonitoringMetricsList() instanceof SpecificMetricsList) {
             final SpecificMetricsList sml = (SpecificMetricsList) monRepMsg.getMonitoringMetricsList();
-            if (sml.getSpecificMetrics() != null) {
-                for (final SpecificMetrics specificMetrics : sml.getSpecificMetrics()) {
-                    serializeObject(specificMetrics.getRp(), body);
-                    if (specificMetrics.getMetricPce() != null) {
-                        for (final MetricPce metricPce : specificMetrics.getMetricPce()) {
-                            serializeMetricPce(metricPce, body);
-                        }
-                    }
+            for (final SpecificMetrics specificMetrics : sml.nonnullSpecificMetrics()) {
+                serializeObject(specificMetrics.getRp(), body);
+                for (final MetricPce metricPce : specificMetrics.nonnullMetricPce()) {
+                    serializeMetricPce(metricPce, body);
                 }
             }
         }

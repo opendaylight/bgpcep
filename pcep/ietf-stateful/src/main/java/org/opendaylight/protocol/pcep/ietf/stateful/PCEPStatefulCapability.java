@@ -43,8 +43,8 @@ public final class PCEPStatefulCapability implements PCEPCapability {
     }
 
     public PCEPStatefulCapability(final PcepIetfStatefulConfig config) {
-        this(config.isStateful(), config.isActive(), config.isInitiated(), config.isTriggeredInitialSync(),
-                config.isTriggeredResync(), config.isDeltaLspSyncCapability(), config.isIncludeDbVersion());
+        this(config.getStateful(), config.getActive(), config.getInitiated(), config.getTriggeredInitialSync(),
+                config.getTriggeredResync(), config.getDeltaLspSyncCapability(), config.getIncludeDbVersion());
     }
 
     @Override

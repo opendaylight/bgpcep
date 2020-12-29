@@ -131,14 +131,14 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     protected void serializeSvec(final PcreqMessage msg, final ByteBuf buffer) {
-        for (final Svec s : msg.getSvec()) {
+        for (final Svec s : msg.nonnullSvec()) {
             serializeObject(s.getSvec(), buffer);
             serializeObject(s.getOf(), buffer);
             serializeObject(s.getGc(), buffer);
             serializeObject(s.getXro(), buffer);
             if (s.getMetric() != null) {
                 for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
-                        .message.pcreq.message.svec.Metric m : s.getMetric()) {
+                        .message.pcreq.message.svec.Metric m : s.nonnullMetric()) {
                     serializeObject(m.getMetric(), buffer);
                 }
             }
@@ -159,10 +159,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         serializeObject(p2p.getLoadBalancing(), buffer);
         serializeObject(p2p.getLspa(), buffer);
         serializeObject(p2p.getBandwidth(), buffer);
-        if (p2p.getMetrics() != null) {
-            for (final Metrics m : p2p.getMetrics()) {
-                serializeObject(m.getMetric(), buffer);
-            }
+        for (final Metrics m : p2p.nonnullMetrics()) {
+            serializeObject(m.getMetric(), buffer);
         }
         serializeObject(p2p.getIro(), buffer);
         serializeObject(p2p.getRro(), buffer);
@@ -190,11 +188,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         serializeObject(p2mp.getOf(), buffer);
         serializeObject(p2mp.getLspa(), buffer);
         serializeObject(p2mp.getBandwidth(), buffer);
-        if (p2mp.getMetric() != null) {
-            for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
-                    .message.pcreq.message.requests.segment.computation.p2mp.Metric m : p2mp.getMetric()) {
-                serializeObject(m.getMetric(), buffer);
-            }
+        for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
+                .message.pcreq.message.requests.segment.computation.p2mp.Metric m : p2mp.nonnullMetric()) {
+            serializeObject(m.getMetric(), buffer);
         }
         if (p2mp.getIroBncChoice() instanceof IroCase) {
             serializeObject(((IroCase) p2mp.getIroBncChoice()).getIro(), buffer);
@@ -212,10 +208,8 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     protected void serializeMonitoringRequest(final MonitoringRequest monReq, final ByteBuf out) {
         serializeObject(monReq.getMonitoring(), out);
         serializeObject(monReq.getPccIdReq(), out);
-        if (monReq.getPceIdList() != null) {
-            for (final PceIdList pceId : monReq.getPceIdList()) {
-                serializeObject(pceId.getPceId(), out);
-            }
+        for (final PceIdList pceId : monReq.nonnullPceIdList()) {
+            serializeObject(pceId.getPceId(), out);
         }
     }
 
@@ -268,7 +262,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             }
             rpObj = (Rp) objects.get(0);
             objects.remove(0);
-            if (!rpObj.isProcessingRule()) {
+            if (!rpObj.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
             } else {
                 rBuilder.setRp(rpObj);
@@ -278,7 +272,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 rBuilder.setVendorInformationObject(vendorInfo);
             }
             // expansion
-            if (rpObj.isPathKey() && objects.get(0) instanceof PathKey) {
+            if (rpObj.getPathKey() && objects.get(0) instanceof PathKey) {
                 rBuilder.setPathKeyExpansion(
                         new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
             }
@@ -288,12 +282,12 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 return null;
             }
 
-            if (!rpObj.isP2mp()) {
+            if (!rpObj.getP2mp()) {
                 // p2p
                 final P2pBuilder p2pBuilder = new P2pBuilder();
                 final EndpointsObj ep = (EndpointsObj) objects.get(0);
                 objects.remove(0);
-                if (!ep.isProcessingRule()) {
+                if (!ep.getProcessingRule()) {
                     errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rpObj)));
                 } else {
                     p2pBuilder.setEndpointsObj(ep);
@@ -336,7 +330,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             builder.setVendorInformationObject(viObjects);
         }
 
-        if (rp.isReoptimization() && builder.getBandwidth() != null
+        if (rp.getReoptimization() && builder.getBandwidth() != null
                 && !builder.getReportedRoute().getReoptimizationBandwidth().getBandwidth().equals(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
                             .concepts.rev131125.Bandwidth(new byte[] { 0 }))
@@ -427,7 +421,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             case OF_IN:
                 if (obj instanceof ClassType) {
                     final ClassType classType = (ClassType) obj;
-                    if (!classType.isProcessingRule()) {
+                    if (!classType.getProcessingRule()) {
                         errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
                     } else {
                         builder.setClassType(classType);
@@ -520,7 +514,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             builder.setMetric(metrics);
         }
 
-        if (rp.isReoptimization() && builder.getBandwidth() != null) {
+        if (rp.getReoptimization() && builder.getBandwidth() != null) {
             if (!isValidReoptimizationRro(epRros) || !isValidReoptimizationBandwidth(epRros)) {
                 errors.add(createErrorMsg(PCEPErrors.RRO_MISSING, Optional.of(rp)));
             }
@@ -529,7 +523,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new SegmentComputationBuilder().setP2mp(builder.build()).build();
     }
 
-    private boolean isValidReoptimizationRro(final List<EndpointRroPair> epRros) {
+    private static boolean isValidReoptimizationRro(final List<EndpointRroPair> epRros) {
         for (EndpointRroPair epRro : epRros) {
             if (epRro.getRros() == null || epRro.getRros().isEmpty()) {
                 return false;
@@ -538,7 +532,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private boolean isValidReoptimizationBandwidth(final List<EndpointRroPair> epRros) {
+    private static boolean isValidReoptimizationBandwidth(final List<EndpointRroPair> epRros) {
         for (EndpointRroPair epRro : epRros) {
             if (epRro.getReoptimizationBandwidth() == null) {
                 return false;
@@ -557,7 +551,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             case RP:
                 if (obj instanceof EndpointsObj) {
                     final EndpointRroPairBuilder rroPairBuilder = new EndpointRroPairBuilder();
-                    if (obj.isProcessingRule()) {
+                    if (obj.getProcessingRule()) {
                         rroPairBuilder.setEndpointsObj((EndpointsObj) obj);
                     } else {
                         errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
@@ -568,7 +562,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 // fallthrough
             case ENDPOINT:
                 if (obj instanceof Rro || obj instanceof Srro) {
-                    if (obj.isProcessingRule()) {
+                    if (obj.getProcessingRule()) {
                         final int lastIndex = epRros.size() - 1;
                         final EndpointRroPair endpointRroPair = epRros.get(lastIndex);
                         List<Rros> rros = endpointRroPair.getRros();

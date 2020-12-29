@@ -47,8 +47,8 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(FLAGS_F_LENGTH + RESERVED);
         final ErrorObjectBuilder builder = new ErrorObjectBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setType(ByteBufUtils.readUint8(bytes))
                 .setValue(ByteBufUtils.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
@@ -73,7 +73,7 @@ public final class PCEPErrorObjectParser extends AbstractObjectWithTlvsParser<Er
         ByteBufUtils.writeMandatory(body, errObj.getType(), "Type");
         ByteBufUtils.writeMandatory(body, errObj.getValue(), "Value");
         serializeTlvs(errObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

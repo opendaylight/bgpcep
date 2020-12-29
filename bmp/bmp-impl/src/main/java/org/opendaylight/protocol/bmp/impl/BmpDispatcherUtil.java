@@ -38,7 +38,7 @@ public final class BmpDispatcherUtil {
     public static ChannelInitializer<AbstractChannel> createChannelWithDecoder(
             final @NonNull BmpSessionFactory sessionFactory, final @NonNull BmpHandlerFactory hf,
             final @NonNull BmpSessionListenerFactory slf) {
-        return new ChannelInitializer<AbstractChannel>() {
+        return new ChannelInitializer<>() {
             @Override
             protected void initChannel(final AbstractChannel ch) throws Exception {
                 ch.pipeline().addLast(hf.getDecoders());
@@ -50,7 +50,7 @@ public final class BmpDispatcherUtil {
     public static ChannelInitializer<AbstractChannel> createChannelWithEncoder(
             final @NonNull BmpSessionFactory sessionFactory, final @NonNull BmpHandlerFactory hf,
             final @NonNull BmpSessionListenerFactory slf) {
-        return new ChannelInitializer<AbstractChannel>() {
+        return new ChannelInitializer<>() {
             @Override
             protected void initChannel(final AbstractChannel ch) throws Exception {
                 ch.pipeline().addLast(hf.getEncoders());
@@ -72,7 +72,7 @@ public final class BmpDispatcherUtil {
     public static ServerBootstrap createServerBootstrap(final @NonNull BmpSessionFactory sessionFactory,
             final @NonNull BmpHandlerFactory hf, final @NonNull BmpSessionListenerFactory slf,
             final @NonNull CreateChannel createChannel, final @NonNull EventLoopGroup bossGroup,
-            final @NonNull EventLoopGroup workerGroup, final @NonNull KeyMapping keys, boolean tryEpollSocket) {
+            final @NonNull EventLoopGroup workerGroup, final @NonNull KeyMapping keys, final boolean tryEpollSocket) {
 
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
         serverBootstrap.childHandler(createChannel.create(sessionFactory, hf, slf));
@@ -116,7 +116,8 @@ public final class BmpDispatcherUtil {
             final @NonNull BmpHandlerFactory hf, final @NonNull CreateChannel createChannel,
             final @NonNull BmpSessionListenerFactory slf, final @NonNull InetSocketAddress remoteAddress,
             final @Nullable SocketAddress localAddress, final @NonNull EventLoopGroup workerGroup,
-            final int connectTimeout, final @NonNull KeyMapping keys, boolean reuseAddress, boolean tryEpollSocket) {
+            final int connectTimeout, final @NonNull KeyMapping keys, final boolean reuseAddress,
+            final boolean tryEpollSocket) {
         final Bootstrap bootstrap = new Bootstrap();
         bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);

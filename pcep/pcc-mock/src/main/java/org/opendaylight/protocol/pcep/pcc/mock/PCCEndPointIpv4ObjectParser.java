@@ -28,8 +28,8 @@ public class PCCEndPointIpv4ObjectParser extends PCEPEndPointsIpv4ObjectParser {
         if (bytes.readableBytes() != Ipv4Util.IP4_LENGTH * 2) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         final Ipv4Builder b = new Ipv4Builder();
         b.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
         b.setDestinationIpv4Address(Ipv4Util.addressForByteBuf(bytes));

@@ -97,7 +97,7 @@ public final class GracefulRestartUtil {
             final GracefulRestart gr = afiSafi.getGracefulRestart();
             if (gr != null) {
                 final Config config = gr.getConfig();
-                if (config != null && Boolean.TRUE.equals(config.isEnabled())) {
+                if (config != null && Boolean.TRUE.equals(config.getEnabled())) {
                     final Class<? extends AfiSafiType> afiSafiName = afiSafi.getAfiSafiName();
                     if (afiSafiName != null) {
                         final TablesKey tablesKey = tableTypeRegistry.getTableKey(afiSafiName);

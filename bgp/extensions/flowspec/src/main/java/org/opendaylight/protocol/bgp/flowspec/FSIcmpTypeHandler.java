@@ -50,7 +50,7 @@ public final class FSIcmpTypeHandler implements FlowspecTypeParser, FlowspecType
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(ByteBufUtils.readUint8(nlri));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             icmps.add(builder.build());
         }
         return icmps;

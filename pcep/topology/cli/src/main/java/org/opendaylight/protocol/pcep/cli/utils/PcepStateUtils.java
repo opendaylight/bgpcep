@@ -118,7 +118,7 @@ public final class PcepStateUtils {
         table.addRow().addContent("Topology Id", topologyId);
         table.addRow().addContent("Node Id", nodeId);
         table.addRow().addContent("Session duration", pcepSessionState.getSessionDuration());
-        table.addRow().addContent("Synchronized", pcepSessionState.isSynchronized());
+        table.addRow().addContent("Synchronized", pcepSessionState.getSynchronized());
         table.addRow().addContent("Delegated Lsp Count", pcepSessionState.getDelegatedLspsCount());
     }
 
@@ -129,9 +129,9 @@ public final class PcepStateUtils {
         final StatefulCapabilitiesStatsAug stateFulCapa = capa.augmentation(StatefulCapabilitiesStatsAug.class);
         if (stateFulCapa != null) {
             addHeader(table, "Stateful Capabilities");
-            table.addRow().addContent("Stateful", stateFulCapa.isStateful());
-            table.addRow().addContent("Active", stateFulCapa.isActive());
-            table.addRow().addContent("Instantiation", stateFulCapa.isInstantiation());
+            table.addRow().addContent("Stateful", stateFulCapa.getStateful());
+            table.addRow().addContent("Active", stateFulCapa.getActive());
+            table.addRow().addContent("Instantiation", stateFulCapa.getInstantiation());
         }
 
     }

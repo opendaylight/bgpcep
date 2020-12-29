@@ -232,7 +232,7 @@ final class OpenConfigMappingUtil {
     }
 
     private static SendReceive toSendReceiveMode(final BgpNeighborAddPathsConfig addPath) {
-        if (addPath.isReceive() && addPath.getSendMax() != null) {
+        if (addPath.getReceive() && addPath.getSendMax() != null) {
             return SendReceive.Both;
         }
         if (addPath.getSendMax() != null) {
@@ -244,7 +244,7 @@ final class OpenConfigMappingUtil {
     private static boolean isRrClient(final BgpNeighborGroup neighbor) {
         final RouteReflector routeReflector = neighbor.getRouteReflector();
         if (routeReflector != null && routeReflector.getConfig() != null) {
-            return routeReflector.getConfig().isRouteReflectorClient();
+            return routeReflector.getConfig().getRouteReflectorClient();
         }
         return false;
     }
@@ -277,7 +277,7 @@ final class OpenConfigMappingUtil {
         if (transport != null) {
             final Config config = transport.getConfig();
             if (config != null) {
-                final Boolean passive = config.isPassiveMode();
+                final Boolean passive = config.getPassiveMode();
                 if (passive != null) {
                     return Optional.of(!passive);
                 }
@@ -509,6 +509,6 @@ final class OpenConfigMappingUtil {
         }
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
             .Config config = errorHandling.getConfig();
-        return config == null ? Optional.empty() : Optional.of(config.isTreatAsWithdraw());
+        return config == null ? Optional.empty() : Optional.of(config.getTreatAsWithdraw());
     }
 }

@@ -63,7 +63,7 @@ final class SimpleExtendedCommunityRegistry implements ExtendedCommunityRegistry
         if (serializer == null) {
             return;
         }
-        byteAggregator.writeByte(Shorts.checkedCast(serializer.getType(extendedCommunity.isTransitive())));
+        byteAggregator.writeByte(Shorts.checkedCast(serializer.getType(extendedCommunity.getTransitive())));
         byteAggregator.writeByte(Shorts.checkedCast(serializer.getSubType()));
         serializer.serializeExtendedCommunity(extendedCommunity.getExtendedCommunity(), byteAggregator);
     }
