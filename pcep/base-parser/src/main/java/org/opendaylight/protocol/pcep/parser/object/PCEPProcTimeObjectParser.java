@@ -47,14 +47,14 @@ public class PCEPProcTimeObjectParser extends CommonObjectParser implements Obje
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED);
         final BitArray flagBits = new BitArray(FLAGS);
-        flagBits.set(E_FLAG_POSITION, procTime.isEstimated());
+        flagBits.set(E_FLAG_POSITION, procTime.getEstimated());
         flagBits.toByteBuf(body);
         ByteBufUtils.writeOrZero(body, procTime.getCurrentProcTime());
         ByteBufUtils.writeOrZero(body, procTime.getMinProcTime());
         ByteBufUtils.writeOrZero(body, procTime.getMaxProcTime());
         ByteBufUtils.writeOrZero(body, procTime.getAverageProcTime());
         ByteBufUtils.writeOrZero(body, procTime.getVarianceProcTime());
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     @Override

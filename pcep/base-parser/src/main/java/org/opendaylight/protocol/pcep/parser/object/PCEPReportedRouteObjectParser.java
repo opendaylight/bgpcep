@@ -33,11 +33,11 @@ public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjec
     public Rro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         Preconditions.checkArgument(bytes != null && bytes.isReadable(),
             "Array of bytes is mandatory. Can't be null or empty.");
-        final RroBuilder builder = new RroBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
-                .setSubobject(parseSubobjects(bytes.slice()));
-        return builder.build();
+        return new RroBuilder()
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
+                .setSubobject(parseSubobjects(bytes.slice()))
+                .build();
     }
 
     @Override
@@ -47,6 +47,6 @@ public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjec
         final Rro obj = (Rro) object;
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(obj.getSubobject(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

@@ -39,7 +39,7 @@ public final class BackupUnnumberedParser implements BindingSubTlvsParser, Bindi
             "Wrong BindingSubTlv instance expected", bindingSubTlv);
         final UnnumberedInterfaceIdBackupEro unnumberedBackup =
                 ((UnnumberedInterfaceIdBackupEroCase) bindingSubTlv).getUnnumberedInterfaceIdBackupEro();
-        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.isLoose(),
+        TlvUtil.writeTLV(BACKUP_UNNUMBERED_ERO, serializeUnnumberedIdEro(unnumberedBackup.getLoose(),
             unnumberedBackup.getRouterId(), unnumberedBackup.getInterfaceId()), aggregator);
     }
 }

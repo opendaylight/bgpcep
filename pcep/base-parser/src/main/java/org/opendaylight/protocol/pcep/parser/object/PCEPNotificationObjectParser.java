@@ -49,8 +49,8 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(NT_F_OFFSET);
         final CNotificationBuilder builder = new CNotificationBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setType(ByteBufUtils.readUint8(bytes))
                 .setValue(ByteBufUtils.readUint8(bytes));
         parseTlvs(builder, bytes.slice());
@@ -74,7 +74,7 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
         ByteBufUtils.writeMandatory(body, notObj.getType(), "Type");
         ByteBufUtils.writeMandatory(body, notObj.getValue(), "Value");
         serializeTlvs(notObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

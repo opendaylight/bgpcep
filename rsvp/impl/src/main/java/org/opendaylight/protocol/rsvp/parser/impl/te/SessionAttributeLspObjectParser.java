@@ -64,9 +64,9 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
         output.writeByte(sessionObject.getSetupPriority().toJava());
         output.writeByte(sessionObject.getHoldPriority().toJava());
         final BitArray bs = new BitArray(FLAGS_SIZE);
-        bs.set(LOCAL_PROTECTION, sessionObject.isLocalProtectionDesired());
-        bs.set(LABEL_RECORDING, sessionObject.isLabelRecordingDesired());
-        bs.set(SE_STYLE, sessionObject.isSeStyleDesired());
+        bs.set(LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired());
+        bs.set(LABEL_RECORDING, sessionObject.getLabelRecordingDesired());
+        bs.set(SE_STYLE, sessionObject.getSeStyleDesired());
         bs.toByteBuf(output);
         output.writeByte(sessionName.readableBytes());
         output.writeBytes(sessionName);

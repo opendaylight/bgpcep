@@ -66,6 +66,6 @@ public class EROIpv6PrefixSubobjectParser implements EROSubobjectParser, EROSubo
         final ByteBuf body = Unpooled.buffer();
         Ipv6Util.writeIpv6Prefix(ipv6prefix, body);
         body.writeZero(RESERVED);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

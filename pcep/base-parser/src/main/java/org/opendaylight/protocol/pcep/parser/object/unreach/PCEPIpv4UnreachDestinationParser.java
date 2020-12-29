@@ -52,8 +52,8 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         if (bytes.readableBytes() % Ipv4Util.IP4_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         List<Ipv4AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
             dest.add(Ipv4Util.addressForByteBuf(bytes));

@@ -48,7 +48,7 @@ public final class FSDscpHandler implements FlowspecTypeParser, FlowspecTypeSeri
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(new Dscp(ByteBufUtils.readUint8(nlri)));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             dscps.add(builder.build());
         }
         return dscps;

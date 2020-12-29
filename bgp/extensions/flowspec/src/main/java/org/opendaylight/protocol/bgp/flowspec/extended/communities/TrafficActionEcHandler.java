@@ -42,8 +42,8 @@ public class TrafficActionEcHandler implements ExtendedCommunityParser, Extended
                 .getTrafficActionExtendedCommunity();
         byteAggregator.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(SAMPLE_BIT, trafficAction.isSample());
-        flags.set(TERMINAL_BIT, trafficAction.isTerminalAction());
+        flags.set(SAMPLE_BIT, trafficAction.getSample());
+        flags.set(TERMINAL_BIT, trafficAction.getTerminalAction());
         flags.toByteBuf(byteAggregator);
     }
 

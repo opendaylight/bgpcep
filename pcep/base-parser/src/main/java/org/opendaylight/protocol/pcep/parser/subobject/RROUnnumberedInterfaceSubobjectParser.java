@@ -65,8 +65,8 @@ public class RROUnnumberedInterfaceSubobjectParser implements RROSubobjectParser
             "Unknown subobject instance. Passed %s. Needed UnnumberedCase.", subobject.getSubobjectType().getClass());
         final UnnumberedSubobject specObj = ((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered();
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        flags.set(LPA_F_OFFSET, subobject.getProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.getProtectionInUse());
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         flags.toByteBuf(body);
         body.writeZero(RESERVED);

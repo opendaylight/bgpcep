@@ -130,7 +130,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private void connectMonitoredRouters(final BmpDispatcher pdispatcher) {
         if (this.monitoredRouters != null) {
             for (final MonitoredRouter mr : this.monitoredRouters) {
-                if (mr.isActive()) {
+                if (mr.getActive()) {
                     requireNonNull(mr.getAddress());
                     requireNonNull(mr.getPort());
                     final String s = mr.getAddress().getIpv4AddressNoZone().getValue();

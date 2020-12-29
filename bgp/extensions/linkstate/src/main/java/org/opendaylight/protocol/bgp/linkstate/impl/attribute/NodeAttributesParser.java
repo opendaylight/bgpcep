@@ -199,12 +199,12 @@ public final class NodeAttributesParser {
         if (nodeFlagBits != null) {
             final ByteBuf nodeFlagBuf = Unpooled.buffer(1);
             final BitArray flags = new BitArray(FLAGS_SIZE);
-            flags.set(OVERLOAD_BIT, nodeFlagBits.isOverload());
-            flags.set(ATTACHED_BIT, nodeFlagBits.isAttached());
-            flags.set(EXTERNAL_BIT, nodeFlagBits.isExternal());
-            flags.set(ABBR_BIT, nodeFlagBits.isAbr());
-            flags.set(ROUTER_BIT, nodeFlagBits.isRouter());
-            flags.set(V6_BIT, nodeFlagBits.isV6());
+            flags.set(OVERLOAD_BIT, nodeFlagBits.getOverload());
+            flags.set(ATTACHED_BIT, nodeFlagBits.getAttached());
+            flags.set(EXTERNAL_BIT, nodeFlagBits.getExternal());
+            flags.set(ABBR_BIT, nodeFlagBits.getAbr());
+            flags.set(ROUTER_BIT, nodeFlagBits.getRouter());
+            flags.set(V6_BIT, nodeFlagBits.getV6());
             flags.toByteBuf(nodeFlagBuf);
             TlvUtil.writeTLV(NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
         }

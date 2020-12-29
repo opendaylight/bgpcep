@@ -52,8 +52,8 @@ public final class PCEPIpv6UnreachDestinationParser extends CommonObjectParser {
         if (bytes.readableBytes() % Ipv6Util.IPV6_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         List<Ipv6AddressNoZone> dest = new ArrayList<>();
         while (bytes.isReadable()) {
             dest.add(Ipv6Util.addressForByteBuf(bytes));

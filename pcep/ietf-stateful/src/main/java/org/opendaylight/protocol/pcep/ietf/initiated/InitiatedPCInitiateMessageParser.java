@@ -65,10 +65,8 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
         serializeObject(req.getEro(), buffer);
         serializeObject(req.getLspa(), buffer);
         serializeObject(req.getBandwidth(), buffer);
-        if (req.getMetrics() != null) {
-            for (final Metrics m : req.getMetrics()) {
-                serializeObject(m.getMetric(), buffer);
-            }
+        for (final Metrics m : req.nonnullMetrics()) {
+            serializeObject(m.getMetric(), buffer);
         }
         serializeObject(req.getIro(), buffer);
     }

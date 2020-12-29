@@ -40,7 +40,7 @@ public class PCEPOverloadObjectParser extends CommonObjectParser implements Obje
         final ByteBuf body = Unpooled.buffer(BODY_SIZE);
         body.writeZero(RESERVED + FLAGS);
         ByteBufUtils.writeOrZero(body, overload.getDuration());
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     @Override

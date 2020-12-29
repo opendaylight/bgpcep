@@ -45,7 +45,7 @@ public final class Ipv6EroParser implements BindingSubTlvsParser, BindingSubTlvs
         checkArgument(bindingSubTlv instanceof Ipv6EroCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
         final Ipv6Ero ipv6Ero = ((Ipv6EroCase) bindingSubTlv).getIpv6Ero();
-        TlvUtil.writeTLV(getType(), serializeIpv6EroCase(ipv6Ero.isLoose(), ipv6Ero.getAddress()), aggregator);
+        TlvUtil.writeTLV(getType(), serializeIpv6EroCase(ipv6Ero.getLoose(), ipv6Ero.getAddress()), aggregator);
     }
 
     public static Ipv6EroCase parseIpv6EroCase(final ByteBuf buffer) {

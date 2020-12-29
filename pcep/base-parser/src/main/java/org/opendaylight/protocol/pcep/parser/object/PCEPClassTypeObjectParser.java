@@ -54,7 +54,7 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        if (!header.isProcessingRule()) {
+        if (!header.getProcessingRule()) {
             LOG.debug("Processed bit not set on CLASS TYPE OBJECT, ignoring it");
             return null;
         }
@@ -64,8 +64,8 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
         }
         final short ct = (short) bytes.readUnsignedInt();
         final ClassTypeBuilder builder = new ClassTypeBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                         .ClassType(Uint8.valueOf(ct)));
 
@@ -86,6 +86,6 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
             .ClassType classType = ((ClassType) object).getClassType();
         checkArgument(classType != null, "ClassType is mandatory.");
         ByteBufUtils.write(body, classType.getValue());
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

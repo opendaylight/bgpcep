@@ -83,7 +83,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         final PeerUpNotificationBuilder peerUpNot = new PeerUpNotificationBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
 
-        if (peerUpNot.getPeerHeader().isIpv4()) {
+        if (peerUpNot.getPeerHeader().getIpv4()) {
             bytes.skipBytes(Ipv6Util.IPV6_LENGTH - Ipv4Util.IP4_LENGTH);
             peerUpNot.setLocalAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(bytes)));
         } else {

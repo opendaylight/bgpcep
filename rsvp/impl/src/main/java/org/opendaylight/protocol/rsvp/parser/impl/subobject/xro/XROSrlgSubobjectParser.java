@@ -68,6 +68,6 @@ public class XROSrlgSubobjectParser implements XROSubobjectParser, XROSubobjectS
         checkArgument(attribute != null, "Attribute is mandatory.");
         body.writeByte(0);
         body.writeByte(attribute.getIntValue());
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }
