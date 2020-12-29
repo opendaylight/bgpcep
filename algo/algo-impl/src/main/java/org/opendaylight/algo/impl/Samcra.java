@@ -44,16 +44,14 @@ public class Samcra extends AbstractPathComputation {
      * and path length information
      */
     private static class SamcraPath {
-
-        private ConnectedVertex cvertex;
+        private final ArrayList<CspfPath> pathList = new ArrayList<>();
+        private final ConnectedVertex cvertex;
         private int pathCount;
         private CspfPath currentPath = null;
-        private ArrayList<CspfPath> pathList;
 
-        SamcraPath(ConnectedVertex vertex) {
+        SamcraPath(final ConnectedVertex vertex) {
             this.cvertex = vertex;
             this.pathCount = 0;
-            pathList = new ArrayList<CspfPath>();
         }
 
         public ConnectedVertex getVertex() {
@@ -72,7 +70,7 @@ public class Samcra extends AbstractPathComputation {
             return this.pathCount;
         }
 
-        public void setCurrentPath(CspfPath path) {
+        public void setCurrentPath(final CspfPath path) {
             this.currentPath = path;
         }
 
@@ -80,7 +78,7 @@ public class Samcra extends AbstractPathComputation {
             return this.currentPath;
         }
 
-        public void addPath(CspfPath path) {
+        public void addPath(final CspfPath path) {
             this.pathList.add(path);
         }
 
@@ -92,16 +90,16 @@ public class Samcra extends AbstractPathComputation {
     private static final Logger LOG = LoggerFactory.getLogger(Samcra.class);
 
     /* List of potential Samcra Path that satisfy given constraints */
-    private HashMap<Long, SamcraPath> samcraPaths;
+    private final HashMap<Long, SamcraPath> samcraPaths;
 
     /* TE Metric cost and Delay cost for the current selected Path */
     int teCost = Integer.MAX_VALUE;
     /* Uint24 Max value */
     int delayCost = 16777215;
 
-    public Samcra(ConnectedGraph graph) {
+    public Samcra(final ConnectedGraph graph) {
         super(graph);
-        samcraPaths = new HashMap<Long, SamcraPath>();
+        samcraPaths = new HashMap<>();
     }
 
     /* Samcra Algo:
@@ -126,7 +124,7 @@ public class Samcra extends AbstractPathComputation {
      */
 
     @Override
-    public ConstrainedPath computeP2pPath(VertexKey src, VertexKey dst, PathConstraints cts) {
+    public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
         ConstrainedPathBuilder cpathBuilder;
         List<ConnectedEdge> edges;
         CspfPath currentPath;
@@ -155,7 +153,7 @@ public class Samcra extends AbstractPathComputation {
             LOG.debug(" - Process path up to Vertex {} from Priority Queue", currentPath.getVertex().toString());
 
             /* Prepare Samcra Path from current CSP Path except for the source */
-            if (!(currentPath.equals(pathSource))) {
+            if (!currentPath.equals(pathSource)) {
                 SamcraPath currentSamcraPath = samcraPaths.get(currentPath.getVertexKey());
                 CspfPath currentCspfPath = currentSamcraPath.getCurrentPath();
                 float queuePathLength = currentCspfPath.getPathLength();
@@ -182,7 +180,7 @@ public class Samcra extends AbstractPathComputation {
                 float pathLength = relaxSamcra(edge, currentPath, pathSource);
 
                 /* Check if we found a valid and better path */
-                if ((pathLength > 0F) && (pathLength <= currentPathLength)) {
+                if (pathLength > 0F && pathLength <= currentPathLength) {
                     final SamcraPath finalPath = samcraPaths.get(pathDestination.getVertexKey());
                     cpathBuilder.setPathDescription(getPathDescription(finalPath.getCurrentPath().getPath()))
                             .setMetric(Uint32.valueOf(finalPath.getCurrentPath().getCost()))
@@ -203,7 +201,7 @@ public class Samcra extends AbstractPathComputation {
             float previousLength = 1.0F;
             CspfPath selectedPath = null;
 
-            if (!(currentPath.equals(pathSource))) {
+            if (!currentPath.equals(pathSource)) {
                 LOG.debug(" - Processing current path {} up to {} from Priority Queue", currentPath.toString(),
                         currentPath.getVertex().toString());
                 SamcraPath currentSamcraPath = samcraPaths.get(currentPath.getVertexKey());
@@ -219,8 +217,8 @@ public class Samcra extends AbstractPathComputation {
                             testedPath.toString(), testedPath.getPathStatus());
                     if (testedPath.getPathStatus() == CspfPath.SELECTED) {
                         testedPath.setPathStatus(CspfPath.PROCESSED);
-                    } else if ((testedPath.getPathStatus() == CspfPath.ACTIVE)
-                            && (testedPath.getPathLength() < previousLength)) {
+                    } else if (testedPath.getPathStatus() == CspfPath.ACTIVE
+                            && testedPath.getPathLength() < previousLength) {
                         selectedPath = testedPath;
                         previousLength = testedPath.getPathLength();
                     }
@@ -243,8 +241,8 @@ public class Samcra extends AbstractPathComputation {
          * The "ConstrainedPathBuilder" object contains the optimal path if it exists
          * Otherwise an empty path with status failed is returned
          */
-        if ((cpathBuilder.getStatus() == ComputationStatus.InProgress)
-                || (cpathBuilder.getPathDescription().size() == 0)) {
+        if (cpathBuilder.getStatus() == ComputationStatus.InProgress
+                || cpathBuilder.getPathDescription().size() == 0) {
             cpathBuilder.setStatus(ComputationStatus.Failed);
         } else {
             cpathBuilder.setStatus(ComputationStatus.Completed);
@@ -259,7 +257,7 @@ public class Samcra extends AbstractPathComputation {
      * If relevant, update the computed path on the remote end-point connected vertex.
      * If the connected vertex has not already been processed, the corresponding CspfPath object is created.
      */
-    private float relaxSamcra(ConnectedEdge edge, CspfPath currentPath, CspfPath source) {
+    private float relaxSamcra(final ConnectedEdge edge, final CspfPath currentPath, final CspfPath source) {
         LOG.debug("   - Start SAMCRA relaxing Edge {} to Vertex {}", edge.toString(), edge.getDestination().toString());
 
         /* Process CspfPath including the next Vertex */
@@ -277,7 +275,7 @@ public class Samcra extends AbstractPathComputation {
          * The predecessor connected vertex is checked to avoid unnecessary processing.
          */
         Long predecessorId = 0L;
-        if (!(currentPath.equals(source))) {
+        if (!currentPath.equals(source)) {
             LOG.debug("     - Check predecessor");
             SamcraPath currentSamcraPath = samcraPaths.get(currentPath.getVertexKey());
             CspfPath currentVertexPath = currentSamcraPath.getCurrentPath();
@@ -332,7 +330,7 @@ public class Samcra extends AbstractPathComputation {
         CspfPath currentSamcraPath = samcraPath.getCurrentPath();
         if (currentSamcraPath == null) {
             LOG.debug("     - Add new Path {}", newPath.toString());
-            if (!(newPath.equals(pathDestination))) {
+            if (!newPath.equals(pathDestination)) {
                 priorityQueue.add(newPath);
             }
             newPath.setPathStatus(CspfPath.SELECTED);
@@ -350,8 +348,8 @@ public class Samcra extends AbstractPathComputation {
              * the CspfPath if it is present in the Priority Queue, then, update the Path Weight,
              * and finally (re-)insert it in the Priority Queue.
              */
-            if (!(newPath.equals(pathDestination))) {
-                priorityQueue.removeIf((path) -> path.getVertexKey().equals(newPath.getVertexKey()));
+            if (!newPath.equals(pathDestination)) {
+                priorityQueue.removeIf(path -> path.getVertexKey().equals(newPath.getVertexKey()));
                 priorityQueue.add(newPath);
             }
             newPath.setPathStatus(CspfPath.SELECTED);
@@ -368,7 +366,7 @@ public class Samcra extends AbstractPathComputation {
         samcraPaths.put(samcraPath.getVertex().getKey(), samcraPath);
 
         /* If the destination is reached, return the computed path length 0 otherwise */
-        if ((samcraPath.getVertex().getKey()).equals(pathDestination.getVertexKey())) {
+        if (samcraPath.getVertex().getKey().equals(pathDestination.getVertexKey())) {
             return samcraPath.getCurrentPath().getPathLength();
         } else {
             return 0F;
@@ -382,11 +380,11 @@ public class Samcra extends AbstractPathComputation {
      *
      * @return true if path is dominated false otherwise
      */
-    private boolean isPathDominated(SamcraPath samcraPath) {
+    private boolean isPathDominated(final SamcraPath samcraPath) {
         /* Evaluate Path Domination */
         LOG.debug("       - Check path domination");
         Uint32 teMetric = constraints.getTeMetric();
-        Uint32 delay = (constraints.getDelay() != null) ? constraints.getDelay().getValue() : null;
+        Uint32 delay = constraints.getDelay() != null ? constraints.getDelay().getValue() : null;
 
         for (CspfPath testedPath : samcraPath.getPathList()) {
             boolean pathCostDominated = false;
@@ -411,14 +409,14 @@ public class Samcra extends AbstractPathComputation {
                     }
                 }
 
-                if ((((teMetric != null) && (pathCostDominated)) && ((pathDelayDominated) || (delay == null)))
-                        || ((teMetric == null) && ((delay != null) && (pathDelayDominated)))) {
+                if (teMetric != null && pathCostDominated && (pathDelayDominated || delay == null)
+                        || teMetric == null && delay != null && pathDelayDominated) {
                     LOG.debug("       - New path is dominated by teCost {} and/or delayCost {}", teCost, delayCost);
                     /* A path that dominates the current path has been found */
                     return true;
-                } else if ((((teMetric != null) && (testedPathCostDominated))
-                        && ((testedPathDelayDominated) || (delay == null)))
-                        || ((teMetric == null) && ((delay != null) && (testedPathDelayDominated)))) {
+                } else if (teMetric != null && testedPathCostDominated
+                        && (testedPathDelayDominated || delay == null)
+                        || teMetric == null && delay != null && testedPathDelayDominated) {
                     /* Old Path is dominated by the new path. Mark it as Dominated and decrement
                      * the number of valid Paths */
                     testedPath.setPathStatus(CspfPath.DOMINATED);
@@ -431,21 +429,22 @@ public class Samcra extends AbstractPathComputation {
         return false;
     }
 
-    private CspfPath createNonDominatedPath(ConnectedEdge edge, ConnectedVertex vertex, CspfPath cspfPath) {
+    private CspfPath createNonDominatedPath(final ConnectedEdge edge, final ConnectedVertex vertex,
+            final CspfPath cspfPath) {
         float pathLength = 1.0F;
         Uint32 metric = constraints.getTeMetric();
-        Uint32 delay = (constraints.getDelay() != null) ? constraints.getDelay().getValue() : null;
+        Uint32 delay = constraints.getDelay() != null ? constraints.getDelay().getValue() : null;
 
         LOG.debug("       - Create new non dominated path");
 
         /* Compute Path length as key for the path Weight */
         float teLength = 0.0F;
-        if ((metric != null) && (metric.intValue() > 0)) {
+        if (metric != null && metric.intValue() > 0) {
             teLength = (float) teCost / metric.intValue();
             pathLength = teLength;
         }
         float delayLength = 0.0F;
-        if ((delay != null) && (delay.intValue() > 0)) {
+        if (delay != null && delay.intValue() > 0) {
             delayLength = (float) delayCost / delay.intValue();
             if (delayLength > teLength) {
                 pathLength = delayLength;

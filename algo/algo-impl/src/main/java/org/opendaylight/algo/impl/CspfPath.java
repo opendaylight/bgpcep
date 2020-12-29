@@ -31,7 +31,7 @@ import org.opendaylight.graph.ConnectedVertex;
 public class CspfPath implements Comparable<CspfPath> {
 
     /* Associated Connected Vertex: i.e. the current vertex in the Path */
-    private ConnectedVertex cvertex;
+    private final ConnectedVertex cvertex;
 
     /* Path Length and associated cost and delay */
     private float pathLength = 0;
@@ -40,7 +40,7 @@ public class CspfPath implements Comparable<CspfPath> {
     private int delay = 16777215;
 
     /* Path as Connected Edge list from the source up to the Connected Vertex */
-    private ArrayList<ConnectedEdge> currentPath = new ArrayList<ConnectedEdge>();
+    private final ArrayList<ConnectedEdge> currentPath = new ArrayList<>();
 
     /* Penultimate Connected Vertex in the current Path */
     private Long predecessor;
@@ -54,7 +54,7 @@ public class CspfPath implements Comparable<CspfPath> {
     /* Key used by the Priority Queue to sort the paths */
     private Integer key = Integer.MAX_VALUE;
 
-    public CspfPath(ConnectedVertex vertex) {
+    public CspfPath(final ConnectedVertex vertex) {
         this.cvertex = vertex;
     }
 
@@ -66,7 +66,7 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.cvertex.getKey();
     }
 
-    public CspfPath setCost(int cost) {
+    public CspfPath setCost(final int cost) {
         this.cost = cost;
         return this;
     }
@@ -75,7 +75,7 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.cost;
     }
 
-    public CspfPath setDelay(int delay) {
+    public CspfPath setDelay(final int delay) {
         this.delay = delay;
         return this;
     }
@@ -84,13 +84,13 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.delay;
     }
 
-    public CspfPath addConnectedEdge(ConnectedEdge edge) {
+    public CspfPath addConnectedEdge(final ConnectedEdge edge) {
         this.currentPath.add(edge);
         return this;
     }
 
-    public CspfPath replacePath(List<ConnectedEdge> list) {
-        if ((list != null) && (list.size() != 0)) {
+    public CspfPath replacePath(final List<ConnectedEdge> list) {
+        if (list != null && list.size() != 0) {
             this.currentPath.clear();
         }
         this.currentPath.addAll(list);
@@ -105,7 +105,7 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.currentPath.size();
     }
 
-    public CspfPath setPathStatus(byte status) {
+    public CspfPath setPathStatus(final byte status) {
         this.pathStatus = status;
         return this;
     }
@@ -114,7 +114,7 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.pathStatus;
     }
 
-    public CspfPath setPredecessor(Long vertexId) {
+    public CspfPath setPredecessor(final Long vertexId) {
         this.predecessor = vertexId;
         return this;
     }
@@ -123,7 +123,7 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.predecessor;
     }
 
-    public CspfPath setPathLength(float length) {
+    public CspfPath setPathLength(final float length) {
         this.pathLength = length;
         return this;
     }
@@ -149,7 +149,7 @@ public class CspfPath implements Comparable<CspfPath> {
      *
      */
 
-    public CspfPath setKey(Integer key) {
+    public CspfPath setKey(final Integer key) {
         this.key = key;
         return this;
     }
@@ -159,12 +159,12 @@ public class CspfPath implements Comparable<CspfPath> {
     }
 
     @Override
-    public int compareTo(CspfPath other) {
+    public int compareTo(final CspfPath other) {
         return this.key.compareTo(other.getKey());
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(final Object object) {
         if (!(object instanceof CspfPath)) {
             return false;
         }
@@ -182,7 +182,7 @@ public class CspfPath implements Comparable<CspfPath> {
     public String toString() {
         String output = "_path={";
         for (ConnectedEdge edge : currentPath) {
-            if ((edge.getEdge() != null) && (edge.getEdge().getEdgeAttributes() != null)) {
+            if (edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null) {
                 output = output + edge.getEdge().getEdgeAttributes().getRemoteAddress().toString() + ", ";
             }
         }

@@ -28,17 +28,16 @@ import org.slf4j.LoggerFactory;
  * @author Philippe Cadro
  */
 public class ShortestPathFirst extends AbstractPathComputation {
-
     private static final Logger LOG = LoggerFactory.getLogger(ShortestPathFirst.class);
 
-    private HashMap<Long, CspfPath> visitedVertices;
+    private final HashMap<Long, CspfPath> visitedVertices = new HashMap<>();
 
-    public ShortestPathFirst(ConnectedGraph graph) {
+    public ShortestPathFirst(final ConnectedGraph graph) {
         super(graph);
-        visitedVertices = new HashMap<Long, CspfPath>();
     }
 
-    public ConstrainedPath computeP2pPath(VertexKey src, VertexKey dst, PathConstraints cts) {
+    @Override
+    public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
         ConstrainedPathBuilder cpathBuilder;
         List<ConnectedEdge> edges;
         CspfPath currentPath;
@@ -68,7 +67,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
                     LOG.trace("  Prune Edge {}", edge.toString());
                     continue;
                 }
-                if ((relax(edge, currentPath)) && (pathDestination.getCost() < currentCost)) {
+                if (relax(edge, currentPath) && pathDestination.getCost() < currentCost) {
                     currentCost = pathDestination.getCost();
                     cpathBuilder.setPathDescription(getPathDescription(pathDestination.getPath()))
                             .setMetric(Uint32.valueOf(pathDestination.getCost()))
@@ -81,8 +80,8 @@ public class ShortestPathFirst extends AbstractPathComputation {
          * The "ConstrainedPathBuilder" object contains the optimal path if it exists
          * Otherwise an empty path with status failed is returned
          */
-        if ((cpathBuilder.getStatus() == ComputationStatus.InProgress)
-                || (cpathBuilder.getPathDescription().size() == 0)) {
+        if (cpathBuilder.getStatus() == ComputationStatus.InProgress
+                || cpathBuilder.getPathDescription().size() == 0) {
             cpathBuilder.setStatus(ComputationStatus.Failed);
         } else {
             cpathBuilder.setStatus(ComputationStatus.Completed);
@@ -90,7 +89,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
         return cpathBuilder.build();
     }
 
-    private boolean relax(ConnectedEdge edge, CspfPath currentPath) {
+    private boolean relax(final ConnectedEdge edge, final CspfPath currentPath) {
         LOG.debug("    Start relaxing Edge {} to Vertex {}", edge.toString(), edge.getDestination().toString());
         final Long nextVertexKey = edge.getDestination().getKey();
 
@@ -119,7 +118,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
              * weight, the Priority Queue must be re-ordered. So, we need fist to remove the CspfPath if it is present
              * in the Priority Queue, then, update the Path Weight, and finally (re-)insert it in the Priority Queue.
              */
-            priorityQueue.removeIf((path) -> path.getVertexKey().equals(nextVertexKey));
+            priorityQueue.removeIf(path -> path.getVertexKey().equals(nextVertexKey));
             nextPath.setKey(totalCost);
             priorityQueue.add(nextPath);
             LOG.debug("    Added path to Vertex {} in the Priority Queue with weight {}",
