@@ -53,6 +53,6 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeZero(RESERVED);
         serializeUnnumeredInterface(((UnnumberedCase) subobject.getSubobjectType()).getUnnumbered(), body);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

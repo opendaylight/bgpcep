@@ -246,14 +246,14 @@ public final class SrLinkAttributesParser {
         final BitArray bitFlags = new BitArray(FLAGS_BITS_SIZE);
         if (flags instanceof OspfAdjFlagsCase) {
             final OspfAdjFlags ospfFlags = ((OspfAdjFlagsCase) flags).getOspfAdjFlags();
-            bitFlags.set(BACKUP_OSPF, ospfFlags.isBackup());
-            bitFlags.set(SET_OSPF, ospfFlags.isSet());
+            bitFlags.set(BACKUP_OSPF, ospfFlags.getBackup());
+            bitFlags.set(SET_OSPF, ospfFlags.getSet());
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_OSPF, LOCAL_OSPF);
         } else if (flags instanceof IsisAdjFlagsCase) {
             final IsisAdjFlags isisFlags = ((IsisAdjFlagsCase) flags).getIsisAdjFlags();
-            bitFlags.set(ADDRESS_FAMILY_FLAG, isisFlags.isAddressFamily());
-            bitFlags.set(BACKUP_ISIS, isisFlags.isBackup());
-            bitFlags.set(SET_ISIS, isisFlags.isSet());
+            bitFlags.set(ADDRESS_FAMILY_FLAG, isisFlags.getAddressFamily());
+            bitFlags.set(BACKUP_ISIS, isisFlags.getBackup());
+            bitFlags.set(SET_ISIS, isisFlags.getSet());
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_ISIS, LOCAL_ISIS);
         } else if (flags == null) {
             SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE_EPE, LOCAL_EPE);

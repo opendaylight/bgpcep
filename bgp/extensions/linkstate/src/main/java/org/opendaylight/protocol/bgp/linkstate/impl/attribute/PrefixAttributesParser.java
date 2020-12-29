@@ -208,10 +208,10 @@ public final class PrefixAttributesParser {
         if (prefixAtrributes.getIgpBits() != null) {
             final BitArray igpBit = new BitArray(FLAGS_SIZE);
             final IgpBits igpBits = prefixAtrributes.getIgpBits();
-            igpBit.set(UP_DOWN_BIT, igpBits.getUpDown().isUpDown() || igpBits.isIsIsUpDown());
-            igpBit.set(OSPF_NO_UNICAST, igpBits.isOspfNoUnicast());
-            igpBit.set(OSPF_LOCAL_ADDRESS, igpBits.isOspfLocalAddress());
-            igpBit.set(OSPF_PROPAGATE_ADDRESS, igpBits.isOspfPropagateNssa());
+            igpBit.set(UP_DOWN_BIT, igpBits.getUpDown().getUpDown() || igpBits.getIsIsUpDown());
+            igpBit.set(OSPF_NO_UNICAST, igpBits.getOspfNoUnicast());
+            igpBit.set(OSPF_LOCAL_ADDRESS, igpBits.getOspfLocalAddress());
+            igpBit.set(OSPF_PROPAGATE_ADDRESS, igpBits.getOspfPropagateNssa());
             TlvUtil.writeTLV(IGP_FLAGS, Unpooled.wrappedBuffer(igpBit.array()), byteAggregator);
         }
         serializeRouteTags(prefixAtrributes.getRouteTags(), byteAggregator);

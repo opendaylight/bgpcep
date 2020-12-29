@@ -62,7 +62,7 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
             final Inline inline = (Inline) setExtCommunityMethod;
             final List<ExtendedCommunities> list = inline.getExtCommunityMember()
                     .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
-                            .setTransitive(ge.isTransitive()).build()).collect(Collectors.toList());
+                            .setTransitive(ge.getTransitive()).build()).collect(Collectors.toList());
             return inlineSetExtComm(attributes, list, options);
         }
         return referenceSetExtComm(attributes, ((Reference) setExtCommunityMethod).getExtCommunitySetRef(), options);

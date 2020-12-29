@@ -54,7 +54,7 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
     }
 
     private static void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
-        body.writeBoolean(pmsiTunnelAttribute.isLeafInformationRequired());
+        body.writeBoolean(pmsiTunnelAttribute.getLeafInformationRequired());
     }
 
     @Override

@@ -48,10 +48,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     protected PriorityQueue<CspfPath> priorityQueue;
     protected HashMap<Long, CspfPath> processedPath;
 
-    protected AbstractPathComputation(ConnectedGraph graph) {
+    protected AbstractPathComputation(final ConnectedGraph graph) {
         this.graph = graph;
-        priorityQueue = new PriorityQueue<CspfPath>();
-        processedPath = new HashMap<Long, CspfPath>();
+        priorityQueue = new PriorityQueue<>();
+        processedPath = new HashMap<>();
     }
 
     /**
@@ -66,7 +66,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      * @return Constrained Path Builder with status set to 'OnGoing' if
      *         initialization success, 'Failed' otherwise
      */
-    protected ConstrainedPathBuilder initializePathComputation(VertexKey src, VertexKey dst) {
+    protected ConstrainedPathBuilder initializePathComputation(final VertexKey src, final VertexKey dst) {
         ConstrainedPathBuilder cpathBuilder = new ConstrainedPathBuilder().setStatus(ComputationStatus.InProgress);
 
         /* Check that source and destination vertexKey are not identical */
@@ -121,7 +121,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      *
      * @return True if Edge must be prune, False if Edge must be keep
      */
-    protected boolean pruneEdge(ConnectedEdge edge, CspfPath path) {
+    protected boolean pruneEdge(final ConnectedEdge edge, final CspfPath path) {
         /* Check that Constraints are initialized */
         if (constraints == null) {
             LOG.warn("Constraints not set");
@@ -129,7 +129,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Edge could point to an unknown Vertex e.g. with inter-domain link */
-        if ((edge.getDestination() == null) || (edge.getDestination().getVertex() == null)) {
+        if (edge.getDestination() == null || edge.getDestination().getVertex() == null) {
             LOG.debug("No Destination");
             return true;
         }
@@ -144,15 +144,15 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /* Check that Edge belongs to the requested address family */
         switch (constraints.getAddressFamily()) {
             case Ipv4:
-                if ((attributes.getRemoteAddress() == null)
-                        || (attributes.getRemoteAddress().getIpv4Address() == null)) {
+                if (attributes.getRemoteAddress() == null
+                        || attributes.getRemoteAddress().getIpv4Address() == null) {
                     LOG.debug("No Ipv4 address");
                     return true;
                 }
                 break;
             case Ipv6:
-                if ((attributes.getRemoteAddress() == null)
-                        || (attributes.getRemoteAddress().getIpv6Address() == null)) {
+                if (attributes.getRemoteAddress() == null
+                        || attributes.getRemoteAddress().getIpv6Address() == null) {
                     LOG.debug("No Ipv6 address");
                     return true;
                 }
@@ -222,17 +222,17 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
         /* Check that Edge respect Loss constraint */
         if (constraints.getLoss() != null) {
-            if ((attributes.getLoss() == null)
-                    || (attributes.getLoss().getValue().intValue() > constraints.getLoss().getValue().intValue())) {
+            if (attributes.getLoss() == null
+                    || attributes.getLoss().getValue().intValue() > constraints.getLoss().getValue().intValue()) {
                 return true;
             }
         }
 
         /* Check that Edge meet Bandwidth constraint */
         if (constraints.getBandwidth() != null) {
-            if ((attributes.getMaxLinkBandwidth() == null) || (attributes.getMaxResvLinkBandwidth() == null)
-                    || (attributes.getUnreservedBandwidth() == null)
-                    || (attributes.getUnreservedBandwidth().get(constraints.getClassType().intValue()) == null)) {
+            if (attributes.getMaxLinkBandwidth() == null || attributes.getMaxResvLinkBandwidth() == null
+                    || attributes.getUnreservedBandwidth() == null
+                    || attributes.getUnreservedBandwidth().get(constraints.getClassType().intValue()) == null) {
                 return true;
             } else {
                 Long bandwidth = constraints.getBandwidth().getValue().longValue();
@@ -252,8 +252,8 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Check that Edge belongs to admin group */
-        if ((constraints.getAdminGroup() != null)
-                && !(constraints.getAdminGroup().equals(attributes.getAdminGroup()))) {
+        if (constraints.getAdminGroup() != null
+                && !constraints.getAdminGroup().equals(attributes.getAdminGroup())) {
             LOG.debug("Not in the requested admin-group");
             return true;
         }
@@ -272,11 +272,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      * @return MPLS Label if Connected Vertex is Segment Routing aware, Null
      *         otherwise
      */
-    protected @Nullable MplsLabel getIpv4NodeSid(ConnectedVertex cvertex) {
+    protected @Nullable MplsLabel getIpv4NodeSid(final ConnectedVertex cvertex) {
         /*
          * Check that Vertex is Segment Routing aware
          */
-        if ((cvertex.getVertex() == null) || (cvertex.getVertex().getSrgb() == null)) {
+        if (cvertex.getVertex() == null || cvertex.getVertex().getSrgb() == null) {
             return null;
         }
         /*
@@ -287,10 +287,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return null;
         }
         for (Prefix prefix : cvertex.getPrefixes()) {
-            if ((prefix.getPrefixSid() == null) || (prefix.isNodeSid() == null)) {
+            if (prefix.getPrefixSid() == null || prefix.getNodeSid() == null) {
                 continue;
             }
-            if (prefix.isNodeSid() && prefix.getPrefix().getIpv4Prefix() != null) {
+            if (prefix.getNodeSid() && prefix.getPrefix().getIpv4Prefix() != null) {
                 return new MplsLabel(Uint32.valueOf(prefix.getPrefixSid().intValue()));
             }
         }
@@ -304,11 +304,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      * @return MPLS Label if Connected Vertex is Segment Routing aware, Null
      *         otherwise
      */
-    protected @Nullable MplsLabel getIpv6NodeSid(ConnectedVertex cvertex) {
+    protected @Nullable MplsLabel getIpv6NodeSid(final ConnectedVertex cvertex) {
         /*
          * Check that Vertex is Segment Routing aware
          */
-        if ((cvertex.getVertex() == null) || (cvertex.getVertex().getSrgb() == null)) {
+        if (cvertex.getVertex() == null || cvertex.getVertex().getSrgb() == null) {
             return null;
         }
         /*
@@ -319,10 +319,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return null;
         }
         for (Prefix prefix : cvertex.getPrefixes()) {
-            if ((prefix.getPrefixSid() == null) || (prefix.isNodeSid() == null)) {
+            if (prefix.getPrefixSid() == null || prefix.getNodeSid() == null) {
                 continue;
             }
-            if (prefix.isNodeSid() && prefix.getPrefix().getIpv6Prefix() != null) {
+            if (prefix.getNodeSid() && prefix.getPrefix().getIpv6Prefix() != null) {
                 return new MplsLabel(Uint32.valueOf(prefix.getPrefixSid().intValue()));
             }
         }
@@ -338,8 +338,8 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      *
      * @return Path Description
      */
-    protected List<PathDescription> getPathDescription(List<ConnectedEdge> edges) {
-        ArrayList<PathDescription> list = new ArrayList<PathDescription>();
+    protected List<PathDescription> getPathDescription(final List<ConnectedEdge> edges) {
+        ArrayList<PathDescription> list = new ArrayList<>();
 
         for (ConnectedEdge edge : edges) {
             PathDescription pathDesc = null;
