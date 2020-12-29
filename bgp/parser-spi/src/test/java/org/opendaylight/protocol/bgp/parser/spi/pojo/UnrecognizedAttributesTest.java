@@ -50,8 +50,8 @@ public class UnrecognizedAttributesTest {
         final UnrecognizedAttributesKey expectedAttribKey =
             new UnrecognizedAttributesKey(unrecogAttrib.getType());
 
-        assertTrue(unrecogAttrib.isPartial());
-        assertTrue(unrecogAttrib.isTransitive());
+        assertTrue(unrecogAttrib.getPartial());
+        assertTrue(unrecogAttrib.getTransitive());
         assertArrayEquals(ByteArray.cutBytes(attributeBytes, NON_VALUE_BYTES), unrecogAttrib.getValue());
         assertEquals(NON_EXISTENT_TYPE, unrecogAttrib.getType().shortValue());
         assertEquals(expectedAttribKey, unrecogAttrib.key());

@@ -80,14 +80,14 @@ public final class BindingSidLabelParser {
         final BitArray bitFlags = new BitArray(FLAGS_SIZE);
         if (flags instanceof IsisBindingFlagsCase) {
             final IsisBindingFlagsCase isisFlags = (IsisBindingFlagsCase) flags;
-            bitFlags.set(AFI, isisFlags.isAddressFamily());
-            bitFlags.set(MIRROR_CONTEXT, isisFlags.isMirrorContext());
-            bitFlags.set(SPREAD_TLV, isisFlags.isSpreadTlv());
-            bitFlags.set(LEAKED, isisFlags.isLeakedFromLevel2());
-            bitFlags.set(ATTACHED, isisFlags.isAttachedFlag());
+            bitFlags.set(AFI, isisFlags.getAddressFamily());
+            bitFlags.set(MIRROR_CONTEXT, isisFlags.getMirrorContext());
+            bitFlags.set(SPREAD_TLV, isisFlags.getSpreadTlv());
+            bitFlags.set(LEAKED, isisFlags.getLeakedFromLevel2());
+            bitFlags.set(ATTACHED, isisFlags.getAttachedFlag());
         } else if (flags instanceof OspfBindingFlagsCase) {
             final OspfBindingFlagsCase ospfFlags = (OspfBindingFlagsCase) flags;
-            bitFlags.set(MIRROR_CONTEXT_OSPF, ospfFlags.isMirroring());
+            bitFlags.set(MIRROR_CONTEXT_OSPF, ospfFlags.getMirroring());
         }
         return bitFlags;
     }

@@ -451,7 +451,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
             final Flags prefixFlags = srPrefix.getFlags();
             if (prefixFlags instanceof IsisPrefixFlagsCase) {
-                return !Boolean.FALSE.equals(((IsisPrefixFlagsCase) prefixFlags).getIsisPrefixFlags().isNodeSid());
+                return !Boolean.FALSE.equals(((IsisPrefixFlagsCase) prefixFlags).getIsisPrefixFlags().getNodeSid());
             }
             return true;
         }

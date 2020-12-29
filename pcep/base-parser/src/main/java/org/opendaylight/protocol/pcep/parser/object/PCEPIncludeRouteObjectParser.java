@@ -42,34 +42,34 @@ public final class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobject
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
                 .route.object.ero.Subobject s : parseSubobjects(bytes)) {
             subs.add(new SubobjectBuilder()
-                .setLoose(s.isLoose())
+                .setLoose(s.getLoose())
                 .setSubobjectType(s.getSubobjectType())
                 .build());
         }
-        final IroBuilder builder = new IroBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
-                .setSubobject(subs);
-        return builder.build();
+        return new IroBuilder()
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
+                .setSubobject(subs)
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Iro,
             "Wrong instance of PCEPObject. Passed %s. Needed IroObject.", object.getClass());
-        final Iro iro = ((Iro) object);
+        final Iro iro = (Iro) object;
         final ByteBuf body = Unpooled.buffer();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
             .route.object.ero.Subobject> subs = new ArrayList<>();
-        for (final Subobject s : iro.getSubobject()) {
+        for (final Subobject s : iro.nonnullSubobject()) {
             subs.add(
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                     .explicit.route.object.ero.SubobjectBuilder()
-                        .setLoose(s.isLoose())
+                        .setLoose(s.getLoose())
                         .setSubobjectType(s.getSubobjectType())
                         .build());
         }
         serializeSubobject(subs, body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

@@ -59,15 +59,15 @@ public class PCEPP2MPEndPointsIpv4ObjectParser extends CommonObjectParser {
     public Object parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EndpointsObjBuilder builder = new EndpointsObjBuilder();
-        if (!header.isProcessingRule()) {
+        if (!header.getProcessingRule()) {
             LOG.debug("Processed bit not set on Endpoints OBJECT, ignoring it.");
             return new UnknownObject(PCEPErrors.P_FLAG_NOT_SET, builder.build());
         }
         if (bytes.readableBytes() % Ipv4Util.IP4_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         final P2mpIpv4Builder p2mpIpv4Builder = new P2mpIpv4Builder();
         p2mpIpv4Builder.setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()));
         p2mpIpv4Builder.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));

@@ -61,14 +61,14 @@ public class NoPathVectorTlvParser implements TlvParser, TlvSerializer {
         final ByteBuf body = Unpooled.buffer();
         final BitArray flags = new BitArray(FLAGS_SIZE);
         final Flags f = noPath.getFlags();
-        flags.set(REACHABLITY_PROBLEM, f.isP2mpUnreachable());
-        flags.set(NO_GCO_SOLUTION, f.isNoGcoSolution());
-        flags.set(NO_GCO_MIGRATION_PATH, f.isNoGcoMigration());
-        flags.set(PATH_KEY, f.isPathKey());
-        flags.set(CHAIN_UNAVAILABLE, f.isChainUnavailable());
-        flags.set(UNKNOWN_SRC, f.isUnknownSource());
-        flags.set(UNKNOWN_DEST, f.isUnknownDestination());
-        flags.set(PCE_UNAVAILABLE, f.isPceUnavailable());
+        flags.set(REACHABLITY_PROBLEM, f.getP2mpUnreachable());
+        flags.set(NO_GCO_SOLUTION, f.getNoGcoSolution());
+        flags.set(NO_GCO_MIGRATION_PATH, f.getNoGcoMigration());
+        flags.set(PATH_KEY, f.getPathKey());
+        flags.set(CHAIN_UNAVAILABLE, f.getChainUnavailable());
+        flags.set(UNKNOWN_SRC, f.getUnknownSource());
+        flags.set(UNKNOWN_DEST, f.getUnknownDestination());
+        flags.set(PCE_UNAVAILABLE, f.getPceUnavailable());
         flags.toByteBuf(body);
         TlvUtil.formatTlv(TYPE, body, buffer);
     }

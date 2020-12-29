@@ -30,14 +30,14 @@ public final class FSSourcePortHandler implements FlowspecTypeParser, FlowspecTy
     public static final int SOURCE_PORT_VALUE = 6;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof SourcePortCase, "SourcePortCase class is mandatory!");
         output.writeByte(SOURCE_PORT_VALUE);
         NumericTwoByteOperandParser.INSTANCE.serialize(((SourcePortCase) fsType).getSourcePorts(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new SourcePortCaseBuilder().setSourcePorts(parseSourcePort(buffer)).build();
     }
@@ -53,7 +53,7 @@ public final class FSSourcePortHandler implements FlowspecTypeParser, FlowspecTy
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             ports.add(builder.build());
         }
         return ports;

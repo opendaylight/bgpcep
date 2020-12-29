@@ -87,7 +87,7 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
             state = State.ERROR_IN;
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
-            if (o.isProcessingRule()) {
+            if (o.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
             }

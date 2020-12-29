@@ -33,20 +33,20 @@ public final class PCEPExplicitRouteObjectParser extends AbstractEROWithSubobjec
     public Ero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         // Explicit approval of empty ERO
         Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
-        final EroBuilder builder = new EroBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
-                .setSubobject(parseSubobjects(buffer));
-        return builder.build();
+        return new EroBuilder()
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
+                .setSubobject(parseSubobjects(buffer))
+                .build();
     }
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Ero,
             "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
-        final Ero ero = ((Ero) object);
+        final Ero ero = (Ero) object;
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(ero.getSubobject(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

@@ -29,7 +29,7 @@ public final class Ipv6BgpPrefixSidParser implements BgpPrefixSidTlvParser, BgpP
         final Ipv6SidTlv ipv6Tlv = (Ipv6SidTlv) tlv;
         bytes.writeZero(RESERVED);
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(PROCESS_IPV6_HEADER_FLAG, ipv6Tlv.isProcessIpv6HeadAbility());
+        flags.set(PROCESS_IPV6_HEADER_FLAG, ipv6Tlv.getProcessIpv6HeadAbility());
         flags.toByteBuf(bytes);
     }
 

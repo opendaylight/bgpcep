@@ -37,8 +37,9 @@ public class InitiatedSrpObjectParser extends StatefulSrpObjectParser {
     @Override
     protected void serializeFlags(final Srp srp, final ByteBuf body) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        if (srp.augmentation(Srp1.class) != null) {
-            flags.set(REMOVE_FLAG, srp.augmentation(Srp1.class).isRemove());
+        final Srp1 aug = srp.augmentation(Srp1.class);
+        if (aug != null) {
+            flags.set(REMOVE_FLAG, aug.getRemove());
         }
         flags.toByteBuf(body);
     }

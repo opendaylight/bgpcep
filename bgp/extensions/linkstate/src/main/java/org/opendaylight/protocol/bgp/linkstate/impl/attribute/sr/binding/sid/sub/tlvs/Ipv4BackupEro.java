@@ -36,7 +36,7 @@ public final class Ipv4BackupEro implements BindingSubTlvsParser, BindingSubTlvs
         checkArgument(bindingSubTlv instanceof Ipv4EroBackupCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
         final Ipv4EroBackup ipv4Backup = ((Ipv4EroBackupCase) bindingSubTlv).getIpv4EroBackup();
-        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.isLoose(), ipv4Backup.getAddress()),
+        TlvUtil.writeTLV(getType(), Ipv4EroParser.serializeIpv4EroCase(ipv4Backup.getLoose(), ipv4Backup.getAddress()),
             aggregator);
     }
 }

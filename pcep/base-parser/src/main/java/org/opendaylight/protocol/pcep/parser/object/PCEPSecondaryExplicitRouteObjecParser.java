@@ -37,12 +37,12 @@ public final class PCEPSecondaryExplicitRouteObjecParser extends AbstractEROWith
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
 
         final SeroBuilder builder = new SeroBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        builder.setIgnore(header.getIgnore());
+        builder.setProcessingRule(header.getProcessingRule());
         final List<Subobject> subObjects = parseSubobjects(buffer);
 
         builder.setSubobject(subObjects.stream()
-            .map(so -> new SubobjectBuilder().setLoose(so.isLoose()).setSubobjectType(so.getSubobjectType()).build())
+            .map(so -> new SubobjectBuilder().setLoose(so.getLoose()).setSubobjectType(so.getSubobjectType()).build())
             .collect(Collectors.toList()));
 
         return builder.build();
@@ -52,16 +52,16 @@ public final class PCEPSecondaryExplicitRouteObjecParser extends AbstractEROWith
     public void serializeObject(final Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Sero,
             "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
-        final Sero sero = ((Sero) object);
+        final Sero sero = (Sero) object;
         final ByteBuf body = Unpooled.buffer();
-        final List<Subobject> subObjects = sero.getSubobject().stream()
+        final List<Subobject> subObjects = sero.nonnullSubobject().stream()
             .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                 .explicit.route.object.ero.SubobjectBuilder()
-                    .setLoose(so.isLoose())
+                    .setLoose(so.getLoose())
                     .setSubobjectType(so.getSubobjectType())
                     .build())
             .collect(Collectors.toList());
         serializeSubobject(subObjects, body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }
