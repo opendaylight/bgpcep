@@ -76,15 +76,15 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
         body.writeZero(RESERVED);
         final Flags flags = monitoring.getFlags();
         final BitArray flagBits = new BitArray(FLAGS_SIZE);
-        flagBits.set(I_FLAG_POS, flags.isIncomplete());
-        flagBits.set(C_FLAG_POS, flags.isOverload());
-        flagBits.set(P_FLAG_POS, flags.isProcessingTime());
-        flagBits.set(G_FLAG_POS, flags.isGeneral());
-        flagBits.set(L_FLAG_POS, flags.isLiveness());
+        flagBits.set(I_FLAG_POS, flags.getIncomplete());
+        flagBits.set(C_FLAG_POS, flags.getOverload());
+        flagBits.set(P_FLAG_POS, flags.getProcessingTime());
+        flagBits.set(G_FLAG_POS, flags.getGeneral());
+        flagBits.set(L_FLAG_POS, flags.getLiveness());
         flagBits.toByteBuf(body);
         ByteBufUtils.writeOrZero(body, monitoring.getMonitoringId());
         serializeTlvs(monitoring.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     @Override

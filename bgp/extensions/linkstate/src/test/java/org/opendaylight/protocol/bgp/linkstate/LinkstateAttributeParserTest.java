@@ -256,8 +256,8 @@ public class LinkstateAttributeParserTest {
         assertNotNull(ls.getUnreservedBandwidth());
         assertEquals(8, ls.getUnreservedBandwidth().size());
         assertEquals(LinkProtectionType.Dedicated1to1, ls.getLinkProtection());
-        assertTrue(ls.getMplsProtocol().isLdp());
-        assertTrue(ls.getMplsProtocol().isRsvpte());
+        assertTrue(ls.getMplsProtocol().getLdp());
+        assertTrue(ls.getMplsProtocol().getRsvpte());
         assertEquals(Uint32.TEN, ls.getMetric().getValue());
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
         assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
@@ -316,12 +316,12 @@ public class LinkstateAttributeParserTest {
 
         assertEquals(2, ls.getTopologyIdentifier().size());
         assertEquals(42, ls.getTopologyIdentifier().get(0).getValue().intValue());
-        assertTrue(ls.getNodeFlags().isOverload());
-        assertFalse(ls.getNodeFlags().isAttached());
-        assertTrue(ls.getNodeFlags().isExternal());
-        assertTrue(ls.getNodeFlags().isAbr());
-        assertTrue(ls.getNodeFlags().isRouter());
-        assertTrue(ls.getNodeFlags().isV6());
+        assertTrue(ls.getNodeFlags().getOverload());
+        assertFalse(ls.getNodeFlags().getAttached());
+        assertTrue(ls.getNodeFlags().getExternal());
+        assertTrue(ls.getNodeFlags().getAbr());
+        assertTrue(ls.getNodeFlags().getRouter());
+        assertTrue(ls.getNodeFlags().getV6());
 
         assertEquals("12K-2", ls.getDynamicHostname());
         assertEquals(2, ls.getIsisAreaId().size());
@@ -346,15 +346,15 @@ public class LinkstateAttributeParserTest {
         assertNotNull(ls);
 
         assertNotNull(ls.getSrRange());
-        assertFalse(ls.getSrRange().isInterArea());
+        assertFalse(ls.getSrRange().getInterArea());
         assertEquals(1, ls.getSrRange().getSubTlvs().size());
         assertNotNull(ls.getSrBindingSidLabels());
         final IgpBits ispBits = ls.getIgpBits();
-        assertTrue(ispBits.getUpDown().isUpDown());
-        assertTrue(ispBits.isIsIsUpDown());
-        assertTrue(ispBits.isOspfNoUnicast());
-        assertTrue(ispBits.isOspfLocalAddress());
-        assertTrue(ispBits.isOspfPropagateNssa());
+        assertTrue(ispBits.getUpDown().getUpDown());
+        assertTrue(ispBits.getIsIsUpDown());
+        assertTrue(ispBits.getOspfNoUnicast());
+        assertTrue(ispBits.getOspfLocalAddress());
+        assertTrue(ispBits.getOspfPropagateNssa());
         assertEquals(2, ls.getRouteTags().size());
         assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0)
             .getValue());

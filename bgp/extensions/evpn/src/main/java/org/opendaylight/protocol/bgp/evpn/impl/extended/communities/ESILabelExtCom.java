@@ -42,7 +42,7 @@ public final class ESILabelExtCom extends AbstractExtendedCommunities {
             "The extended community %s is not EsiLabelExtendedCommunityCaseCase type.", extendedCommunity);
         final EsiLabelExtendedCommunity extCom = ((EsiLabelExtendedCommunityCase) extendedCommunity)
                 .getEsiLabelExtendedCommunity();
-        byteAggregator.writeBoolean(extCom.isSingleActiveMode());
+        byteAggregator.writeBoolean(extCom.getSingleActiveMode());
         byteAggregator.writeZero(RESERVED);
         byteAggregator.writeBytes(byteBufForMplsLabel(extCom.getEsiLabel()));
     }

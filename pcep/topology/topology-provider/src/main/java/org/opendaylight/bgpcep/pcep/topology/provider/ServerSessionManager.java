@@ -16,7 +16,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -103,11 +102,14 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         final TopologyKey key = InstanceIdentifier.keyOf(this.topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = this.dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
-        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder().withKey(key)
-                .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
-                        .addAugmentation(new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build())
-                            .build()).build())
-                .setNode(new ArrayList<>()).build());
+        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.topology, new TopologyBuilder()
+            .withKey(key)
+            .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
+                .addAugmentation(new TopologyTypes1Builder()
+                    .setTopologyPcep(new TopologyPcepBuilder().build())
+                    .build())
+                .build())
+            .build());
         try {
             tx.commit().get();
             LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());

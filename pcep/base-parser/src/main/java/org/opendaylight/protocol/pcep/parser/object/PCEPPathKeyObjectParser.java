@@ -45,14 +45,14 @@ public final class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsPars
         final List<Subobject> subs = parseSubobjects(bytes);
         for (final Subobject sub : subs) {
             final PathKeyCase pkc = (PathKeyCase) sub.getSubobjectType();
-            pk.add(new PathKeysBuilder().setLoose(sub.isLoose()).setPceId(pkc.getPathKey().getPceId())
+            pk.add(new PathKeysBuilder().setLoose(sub.getLoose()).setPceId(pkc.getPathKey().getPceId())
                 .setPathKey(pkc.getPathKey().getPathKey()).build());
         }
-        final PathKeyBuilder builder = new PathKeyBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
-                .setPathKeys(pk);
-        return builder.build();
+        return new PathKeyBuilder()
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
+                .setPathKeys(pk)
+                .build();
     }
 
     @Override
@@ -61,11 +61,10 @@ public final class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsPars
             "Wrong instance of PCEPObject. Passed %s. Needed PathKeyObject.", object.getClass());
         final PathKey pkey = (PathKey) object;
         final ByteBuf body = Unpooled.buffer();
-        final List<PathKeys> pks = pkey.getPathKeys();
         final List<Subobject> subs = new ArrayList<>();
-        for (final PathKeys pk : pks) {
+        for (final PathKeys pk : pkey.nonnullPathKeys()) {
             subs.add(new SubobjectBuilder()
-                    .setLoose(pk.isLoose())
+                    .setLoose(pk.getLoose())
                     .setSubobjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp
                         .rev150820.explicit.route.subobjects.subobject.type.PathKeyCaseBuilder()
                         .setPathKey(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp
@@ -77,6 +76,6 @@ public final class PCEPPathKeyObjectParser extends AbstractEROWithSubobjectsPars
                     .build());
         }
         serializeSubobject(subs, body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

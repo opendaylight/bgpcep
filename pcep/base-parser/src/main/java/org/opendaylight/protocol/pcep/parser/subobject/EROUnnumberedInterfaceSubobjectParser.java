@@ -60,6 +60,6 @@ public class EROUnnumberedInterfaceSubobjectParser implements EROSubobjectParser
         body.writeZero(RESERVED);
         ByteBufUtils.writeMandatory(body, specObj.getRouterId(), "RouterId");
         ByteBufUtils.writeMandatory(body, specObj.getInterfaceId(), "InterfaceId");
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

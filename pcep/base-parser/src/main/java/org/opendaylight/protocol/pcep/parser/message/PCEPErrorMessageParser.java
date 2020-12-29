@@ -55,11 +55,11 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
             .PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
-        Preconditions.checkArgument(err.getErrors() != null && !err.getErrors().isEmpty(),
+        Preconditions.checkArgument(err.getErrors() != null && !err.nonnullErrors().isEmpty(),
                 "Errors should not be empty.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeCases(err, buffer);
-        for (final Errors e : err.getErrors()) {
+        for (final Errors e : err.nonnullErrors()) {
             serializeObject(e.getErrorObject(), buffer);
         }
 
@@ -76,8 +76,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
                 .PcerrMessage err, final ByteBuf buffer) {
         if (err.getErrorType() instanceof RequestCase) {
-            final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
-            for (final Rps r : rps) {
+            for (final Rps r : ((RequestCase) err.getErrorType()).getRequest().nonnullRps()) {
                 serializeObject(r.getRp(), buffer);
             }
         }
@@ -103,7 +102,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             state = State.ERROR_IN;
         } else if (obj instanceof Rp) {
             final Rp o = (Rp) obj;
-            if (o.isProcessingRule()) {
+            if (o.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
             }

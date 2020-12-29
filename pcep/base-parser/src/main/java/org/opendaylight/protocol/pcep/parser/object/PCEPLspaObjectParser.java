@@ -53,8 +53,8 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     public Lspa parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
         final LspaBuilder builder = new LspaBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
                 .setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
                 .setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
@@ -81,11 +81,11 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ByteBufUtils.writeOrZero(body, lspaObj.getSetupPriority());
         ByteBufUtils.writeOrZero(body, lspaObj.getHoldPriority());
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(L_FLAG_OFFSET, lspaObj.isLocalProtectionDesired());
+        flags.set(L_FLAG_OFFSET, lspaObj.getLocalProtectionDesired());
         flags.toByteBuf(body);
         body.writeZero(RESERVED);
         serializeTlvs(lspaObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

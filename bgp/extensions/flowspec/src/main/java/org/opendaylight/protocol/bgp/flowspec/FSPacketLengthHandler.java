@@ -30,14 +30,14 @@ public final class FSPacketLengthHandler implements FlowspecTypeParser, Flowspec
     public static final int PACKET_LENGTH_VALUE = 10;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof PacketLengthCase, "PacketLengthCase class is mandatory!");
         output.writeByte(PACKET_LENGTH_VALUE);
         NumericTwoByteOperandParser.INSTANCE.serialize(((PacketLengthCase) fsType).getPacketLengths(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new PacketLengthCaseBuilder().setPacketLengths(parsePacketLength(buffer)).build();
     }
@@ -53,7 +53,7 @@ public final class FSPacketLengthHandler implements FlowspecTypeParser, Flowspec
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             packetLengths.add(builder.build());
         }
         return packetLengths;

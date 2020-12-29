@@ -22,10 +22,10 @@ public class FSIpv4FragmentHandler extends AbstractFSFragmentHandler {
     @Override
     protected final byte serializeFragment(final Fragment fragment) {
         final BitArray bs = new BitArray(Byte.SIZE);
-        bs.set(DONT_FRAGMENT, fragment.isDoNot());
-        bs.set(FIRST_FRAGMENT, fragment.isFirst());
-        bs.set(IS_A_FRAGMENT, fragment.isIsA());
-        bs.set(LAST_FRAGMENT, fragment.isLast());
+        bs.set(DONT_FRAGMENT, fragment.getDoNot());
+        bs.set(FIRST_FRAGMENT, fragment.getFirst());
+        bs.set(IS_A_FRAGMENT, fragment.getIsA());
+        bs.set(LAST_FRAGMENT, fragment.getLast());
         return bs.toByte();
     }
 }

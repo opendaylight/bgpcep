@@ -50,7 +50,7 @@ public final class FSIpv6NextHeaderHandler implements FlowspecTypeParser, Flowsp
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             builder.setValue(ByteBufUtils.readUint8(nlri));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             headers.add(builder.build());
         }
         return headers;

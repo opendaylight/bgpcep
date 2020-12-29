@@ -205,9 +205,9 @@ public class TopologyStatsRpcServiceImpl
                 sb.setPeerCapabilities(new PeerCapabilitiesBuilder(topoPeerCapability)
                         .removeAugmentation(StatefulCapabilitiesStatsAug.class)
                         .addAugmentation(new StatefulCapabilitiesRpcAugBuilder()
-                            .setActive(capabilityStatsAug.isActive())
-                            .setInstantiation(capabilityStatsAug.isInstantiation())
-                            .setStateful(capabilityStatsAug.isStateful())
+                            .setActive(capabilityStatsAug.getActive())
+                            .setInstantiation(capabilityStatsAug.getInstantiation())
+                            .setStateful(capabilityStatsAug.getStateful())
                             .build())
                         .build());
             }
