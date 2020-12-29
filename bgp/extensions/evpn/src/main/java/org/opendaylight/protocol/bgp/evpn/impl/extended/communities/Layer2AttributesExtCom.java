@@ -66,9 +66,9 @@ public class Layer2AttributesExtCom extends AbstractExtendedCommunities {
         final Layer2AttributesExtendedCommunity extCom = ((Layer2AttributesExtendedCommunityCase) extendedCommunity)
                 .getLayer2AttributesExtendedCommunity();
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(PRIMARY_PE_OFFSET, extCom.isPrimaryPe());
-        flags.set(BACKUP_PE_OFFSET, extCom.isBackupPe());
-        flags.set(CONTROL_WORD_OFFSET, extCom.isControlWord());
+        flags.set(PRIMARY_PE_OFFSET, extCom.getPrimaryPe());
+        flags.set(BACKUP_PE_OFFSET, extCom.getBackupPe());
+        flags.set(CONTROL_WORD_OFFSET, extCom.getControlWord());
 
         final byte[] res = flags.array();
         byte aux = 0;

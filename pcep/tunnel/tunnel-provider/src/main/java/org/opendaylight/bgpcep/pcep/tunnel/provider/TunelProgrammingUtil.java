@@ -72,7 +72,7 @@ final class TunelProgrammingUtil {
                 if (h1 != null) {
                     final SubobjectBuilder sb = new SubobjectBuilder();
                     sb.fieldsFrom(h1);
-                    sb.setLoose(h.isLoose());
+                    sb.setLoose(h.getLoose());
                     subobjs.add(sb.build());
                 } else {
                     LOG.debug("Ignoring unhandled explicit hop {}", h);
@@ -86,7 +86,7 @@ final class TunelProgrammingUtil {
     public static NodeId supportingNode(final Node node) {
         for (final SupportingNode n : node.nonnullSupportingNode().values()) {
             final SupportingNode1 n1 = n.augmentation(SupportingNode1.class);
-            if (n1 != null && n1.getPathComputationClient().isControlling()) {
+            if (n1 != null && n1.getPathComputationClient().getControlling()) {
                 return n.key().getNodeRef();
             }
         }

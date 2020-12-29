@@ -65,9 +65,9 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
     @Override
     public Lsp parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        final LspBuilder builder = new LspBuilder();
-        builder.setIgnore(header.isIgnore());
-        builder.setProcessingRule(header.isProcessingRule());
+        final LspBuilder builder = new LspBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule());
         final int[] plspIdRaw
             = new int[] { bytes.readUnsignedByte(), bytes.readUnsignedByte(), bytes.getUnsignedByte(2), };
         builder.setPlspId(new PlspId(Uint32.valueOf(plspIdRaw[0] << FLAGS_SIZE | plspIdRaw[1] << FOUR_BITS_SHIFT
@@ -128,15 +128,15 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         res[res.length - 1] = (byte) (res[res.length - 1] | op);
         body.writeByte(res[res.length - 1]);
         serializeTlvs(specObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     protected BitArray serializeFlags(final Lsp specObj) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(DELEGATE, specObj.isDelegate());
-        flags.set(REMOVE, specObj.isRemove());
-        flags.set(SYNC, specObj.isSync());
-        flags.set(ADMINISTRATIVE, specObj.isAdministrative());
+        flags.set(DELEGATE, specObj.getDelegate());
+        flags.set(REMOVE, specObj.getRemove());
+        flags.set(SYNC, specObj.getSync());
+        flags.set(ADMINISTRATIVE, specObj.getAdministrative());
         return flags;
     }
 

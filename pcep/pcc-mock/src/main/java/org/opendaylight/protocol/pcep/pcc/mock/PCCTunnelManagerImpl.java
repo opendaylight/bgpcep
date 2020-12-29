@@ -236,7 +236,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             }
         } else if (isReSyncTriggered(lsp)) {
             handledDbTriggeredResync(update, session);
-        } else if (lsp.isDelegate() != null && lsp.isDelegate()) {
+        } else if (Boolean.TRUE.equals(lsp.getDelegate())) {
             //regular LSP update
             reportToAll(update, session);
         } else {
@@ -247,12 +247,11 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     @Override
     public void onMessagePcInitiate(final Requests request, final PCCSession session) {
-        if (request.getSrp().augmentation(Srp1.class) != null
-                && request.getSrp().augmentation(Srp1.class).isRemove()) {
+        final Srp1 aug = request.getSrp().augmentation(Srp1.class);
+        if (aug != null && aug.getRemove()) {
             //remove LSP
             removeTunnel(request, session);
-        } else if (request.getLsp().isDelegate() != null && request.getLsp().isDelegate()
-                && request.getEndpointsObj() == null) {
+        } else if (Boolean.TRUE.equals(request.getLsp().getDelegate()) && request.getEndpointsObj() == null) {
             //take LSP delegation
             takeDelegation(request, session);
         } else {
@@ -283,16 +282,16 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     private boolean isReSyncTriggered(final Lsp lsp) {
-        return this.syncOptimization.isTriggeredReSyncEnabled() && lsp.isSync();
+        return this.syncOptimization.isTriggeredReSyncEnabled() && lsp.getSync();
     }
 
     private boolean isInitialSyncTriggered(final Lsp lsp) {
-        return lsp.getPlspId().getValue().toJava() == 0 && lsp.isSync()
+        return lsp.getPlspId().getValue().toJava() == 0 && lsp.getSync()
                 && this.syncOptimization.isTriggeredInitSyncEnabled();
     }
 
     private void handledDbTriggeredResync(final Updates update, final PCCSession session) {
-        this.syncOptimization.setResynchronizingState(Boolean.TRUE);
+        this.syncOptimization.setResynchronizingState(true);
         final SrpIdNumber operationId = update.getSrp().getOperationId();
         if (update.getLsp().getPlspId().getValue().toJava() == 0) {
             reportAllKnownLsp(Optional.of(operationId), session);
@@ -300,7 +299,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             reportLsp(update.getLsp().getPlspId(), operationId, session);
         }
         sendEndOfSynchronization(session, Optional.of(operationId));
-        this.syncOptimization.setResynchronizingState(Boolean.FALSE);
+        this.syncOptimization.setResynchronizingState(false);
     }
 
     private void lspReport(final PCCSession session) {

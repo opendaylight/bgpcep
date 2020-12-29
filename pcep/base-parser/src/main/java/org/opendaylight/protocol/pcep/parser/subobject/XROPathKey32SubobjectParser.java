@@ -72,6 +72,6 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
         ByteBufUtils.write(body, pathKey.getValue());
         checkArgument(pceId.length == PCE_ID_F_LENGTH, "PceId 32 Bit required.");
         body.writeBytes(pceId);
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

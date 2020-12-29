@@ -105,6 +105,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -299,7 +300,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         final PlspId plspid = lsp.getPlspId();
         final Srp srp = report.getSrp();
 
-        if (!lsp.isSync() && (plspid == null || plspid.getValue().toJava() == 0)) {
+        if (!lsp.getSync() && (plspid == null || plspid.getValue().toJava() == 0)) {
             purgeStaleLsps(ctx);
             if (isTriggeredSyncInProcess()) {
                 if (srp == null) {
@@ -320,14 +321,14 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         solicited = isSolicited(srp, lsp, ctx, rlb);
 
         // if remove flag is set in SRP object, remove the tunnel immediately
-        if (solicited && srp.augmentation(Srp1.class) != null) {
-            final Srp1 initiatedSrp = srp.augmentation(Srp1.class);
-            if (initiatedSrp.isRemove()) {
+        final Srp1 initiatedSrp = srp.augmentation(Srp1.class);
+        if (solicited && initiatedSrp != null) {
+            if (initiatedSrp.getRemove()) {
                 super.removeLsp(ctx, plspid);
                 return false;
             }
         }
-        rlb.setPath(Collections.singletonList(buildPath(report, srp, lsp)));
+        rlb.setPath(BindingMap.of(buildPath(report, srp, lsp)));
 
         String name = lookupLspName(plspid);
         if (lsp.getTlvs() != null && lsp.getTlvs().getSymbolicPathName() != null) {
@@ -340,7 +341,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             updatePccNode(ctx, new PathComputationClientBuilder()
                 .addAugmentation(new PathComputationClient1Builder().setLspDbVersion(lspDbVersion).build()).build());
         }
-        updateLsp(ctx, plspid, name, rlb, solicited, lsp.isRemove());
+        updateLsp(ctx, plspid, name, rlb, solicited, lsp.getRemove());
         unmarkStaleLsp(plspid);
 
         LOG.debug("LSP {} updated", lsp);
@@ -482,7 +483,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         }
         rb.setSrp(srpBuilder.build());
         rb.setLsp(new LspBuilder().setRemove(Boolean.FALSE).setPlspId(reportedLsp.getPlspId())
-                .setDelegate(reportedLsp.isDelegate()).build());
+                .setDelegate(reportedLsp.getDelegate()).build());
         return rb.build();
     }
 
@@ -491,9 +492,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
             final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent
-        requireNonNull(reportedLsp.isDelegate());
+        final boolean isDelegate = requireNonNull(reportedLsp.getDelegate());
         final Message msg;
-        if (reportedLsp.isDelegate()) {
+        if (isDelegate) {
             // we already have delegation, send update
             final UpdatesBuilder rb = new UpdatesBuilder();
             rb.setSrp(srp);
@@ -507,7 +508,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         } else {
             final Lsp1 lspCreateFlag = reportedLsp.augmentation(Lsp1.class);
             // we only retake delegation for PCE initiated tunnels
-            if (lspCreateFlag != null && !lspCreateFlag.isCreate()) {
+            if (lspCreateFlag != null && !lspCreateFlag.getCreate()) {
                 LOG.warn("Unable to retake delegation of PCC-initiated tunnel: {}", reportedLsp);
                 return OperationResults.createUnsent(PCEPErrors.UPDATE_REQ_FOR_NON_LSP).future();
             }
@@ -674,12 +675,12 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
     private synchronized void setStatefulCapabilities(final Stateful stateful) {
         this.statefulCapability.set(true);
-        if (stateful.isLspUpdateCapability() != null) {
-            this.lspUpdateCapability.set(stateful.isLspUpdateCapability());
+        if (stateful.getLspUpdateCapability() != null) {
+            this.lspUpdateCapability.set(stateful.getLspUpdateCapability());
         }
         final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
-        if (stateful1 != null && stateful1.isInitiation() != null) {
-            this.initiationCapability.set(stateful1.isInitiation());
+        if (stateful1 != null && stateful1.getInitiation() != null) {
+            this.initiationCapability.set(stateful1.getInitiation());
         }
     }
 
@@ -808,8 +809,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             rb.setSrp(srpBuilder.build());
 
             rb.setLsp(new LspBuilder()
-                .setAdministrative(inputLsp.isAdministrative())
-                .setDelegate(inputLsp.isDelegate())
+                .setAdministrative(inputLsp.getAdministrative())
+                .setDelegate(inputLsp.getDelegate())
                 .setPlspId(PLSPID_ZERO)
                 .setTlvs(tlvsBuilder.build())
                 .build());
@@ -863,9 +864,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             final Lsp inputLsp = args != null ? args.getLsp() : null;
             final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
             if (inputLsp != null) {
-                lspBuilder.setDelegate(inputLsp.isDelegate() != null && inputLsp.isDelegate())
+                lspBuilder.setDelegate(Boolean.TRUE.equals(inputLsp.getDelegate()))
                         .setTlvs(inputLsp.getTlvs())
-                        .setAdministrative(inputLsp.isAdministrative() != null && inputLsp.isAdministrative());
+                        .setAdministrative(Boolean.TRUE.equals(inputLsp.getAdministrative()));
             }
             return redelegate(reportedLsp, srp, lspBuilder.build(), this.input);
         }

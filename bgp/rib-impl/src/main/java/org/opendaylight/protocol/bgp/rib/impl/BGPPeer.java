@@ -406,7 +406,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             } else {
                 forwardingTables = advertisedTables.values().stream()
                         .filter(table -> table.getAfiFlags() != null)
-                        .filter(table -> table.getAfiFlags().isForwardingState())
+                        .filter(table -> table.getAfiFlags().getForwardingState())
                         .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
                         .collect(Collectors.toSet());
             }

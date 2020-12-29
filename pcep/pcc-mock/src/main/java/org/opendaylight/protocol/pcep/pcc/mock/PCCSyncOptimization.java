@@ -27,8 +27,9 @@ final class PCCSyncOptimization {
     private final boolean isTriggeredReSyncEnable;
     private final LspDbVersion localLspDbVersion;
     private final LspDbVersion remoteLspDbVersion;
+
     private Uint64 lspDBVersion = Uint64.ONE;
-    private Boolean resynchronizing = Boolean.FALSE;
+    private boolean resynchronizing = false;
 
     PCCSyncOptimization(final @NonNull PCCSession session) {
         requireNonNull(session);
@@ -108,34 +109,22 @@ final class PCCSyncOptimization {
 
     private static boolean isSyncAvoidance(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isIncludeDbVersion() != null) {
-            return stateful1.isIncludeDbVersion();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getIncludeDbVersion());
     }
 
     private static boolean isDeltaSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isDeltaLspSyncCapability() != null) {
-            return stateful1.isDeltaLspSyncCapability();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getDeltaLspSyncCapability());
     }
 
     private static boolean isTriggeredInitialSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isTriggeredInitialSync() != null) {
-            return stateful1.isTriggeredInitialSync();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredInitialSync());
     }
 
     private static boolean isTriggeredReSync(final Tlvs openTlvs) {
         final Stateful1 stateful1 = getStateful1(openTlvs);
-        if (stateful1 != null && stateful1.isTriggeredResync() != null) {
-            return stateful1.isTriggeredResync();
-        }
-        return false;
+        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredResync());
     }
 
     public Optional<Uint64> incrementLspDBVersion() {
@@ -156,7 +145,7 @@ final class PCCSyncOptimization {
         return !doesLspDbMatch() || this.resynchronizing;
     }
 
-    public void setResynchronizingState(final Boolean resync) {
+    void setResynchronizingState(final boolean resync) {
         this.resynchronizing = resync;
     }
 }

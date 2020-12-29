@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
@@ -62,7 +61,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
                                 .addAugmentation(new TopologyTypes1Builder()
                                         .setTopologyTunnelPcep(
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
-                        .setNode(new ArrayList<>()).build());
+                        .build());
         try {
             tx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {

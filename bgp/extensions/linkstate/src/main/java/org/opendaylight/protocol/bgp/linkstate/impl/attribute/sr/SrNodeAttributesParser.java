@@ -59,9 +59,9 @@ public final class SrNodeAttributesParser {
 
     public static void serializeSrCapabilities(final SrCapabilities caps, final ByteBuf buffer) {
         final BitArray bs = new BitArray(FLAGS_SIZE);
-        bs.set(MPLS_IPV4, caps.isMplsIpv4());
-        bs.set(MPLS_IPV6, caps.isMplsIpv6());
-        bs.set(SR_IPV6, caps.isSrIpv6());
+        bs.set(MPLS_IPV4, caps.getMplsIpv4());
+        bs.set(MPLS_IPV6, caps.getMplsIpv6());
+        bs.set(SR_IPV6, caps.getSrIpv6());
         bs.toByteBuf(buffer);
         buffer.writeZero(RESERVERED);
         RFC8294ByteBufUtils.writeUint24(buffer, caps.getRangeSize());

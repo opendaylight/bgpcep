@@ -74,8 +74,8 @@ public class RROIpv6PrefixSubobjectParser implements RROSubobjectParser, RROSubo
     static void serializeSubobject(final ByteBuf buffer, final SubobjectContainer subobject,
             final Ipv6Prefix ipv6Prefix) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        flags.set(LPA_F_OFFSET, subobject.getProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.getProtectionInUse());
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         Ipv6Util.writeIpv6Prefix(ipv6Prefix, body);
         flags.toByteBuf(body);

@@ -44,13 +44,13 @@ public final class PCEPBandwidthObjectParser extends CommonObjectParser implemen
                 "Wrong length of array of bytes. Passed: " + bytes.readableBytes()
                 + "; Expected: " + BANDWIDTH_F_LENGTH + ".");
         }
-        final BandwidthBuilder builder = new BandwidthBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+        return new BandwidthBuilder()
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setBandwidth(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
-                    .Bandwidth(ByteArray.getAllBytes(bytes)));
-        return builder.build();
+                    .Bandwidth(ByteArray.getAllBytes(bytes)))
+                .build();
     }
 
     @Override
@@ -60,6 +60,6 @@ public final class PCEPBandwidthObjectParser extends CommonObjectParser implemen
             "Wrong instance of PCEPObject. Passed %s. Needed BandwidthObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();
         writeFloat32(((Bandwidth) object).getBandwidth(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

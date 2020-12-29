@@ -66,7 +66,7 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             flags.add(builder.build());
         }
         return flags;

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -154,17 +154,17 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final NodeBuilder nodeBuilder = new NodeBuilder();
         nodeBuilder.setNodeId(nodeId);
         nodeBuilder.withKey(new NodeKey(nodeId));
-        nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
+        nodeBuilder.setTerminationPoint(BindingMap.of(tpBuilder.build()));
         final SupportingNode supportingNode = new SupportingNodeBuilder()
                 .withKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
                 .addAugmentation(new SupportingNode1Builder()
                         .setPathComputationClient(new PathComputationClientBuilder()
                                 .setControlling(true).build()).build()).build();
-        nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
+        nodeBuilder.setSupportingNode(BindingMap.of(supportingNode));
         return nodeBuilder.build();
     }
 
-    private static ExplicitHops createExplicitHop(final String ipv4Prefix, Uint32 order) {
+    private static ExplicitHops createExplicitHop(final String ipv4Prefix, final Uint32 order) {
         return new ExplicitHopsBuilder()
                 .setOrder(order)
                 .addAugmentation(new ExplicitHops1Builder()
@@ -242,7 +242,6 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         createInputBuilder.setBandwidth(bwd);
         createInputBuilder.setClassType(classType);
         createInputBuilder.setSymbolicPathName(tunnelName);
-        createInputBuilder.setExplicitHops(Collections.emptyList());
         createInputBuilder.addAugmentation(new PcepCreateP2pTunnelInput1Builder()
                 .setAdministrativeStatus(AdministrativeStatus.Active).build());
         this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());
@@ -264,7 +263,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         updateInputBuilder.setNetworkTopologyRef(topologyRef);
         updateInputBuilder.setBandwidth(bwd);
         updateInputBuilder.setClassType(classType);
-        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
+        updateInputBuilder.setExplicitHops(BindingMap.of(createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
                 createExplicitHop(IPV4_PREFIX2, Uint32.TWO)));
         updateInputBuilder.setLinkId(LINK1_ID);
         updateInputBuilder.addAugmentation(new PcepUpdateTunnelInput1Builder()
@@ -297,7 +296,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         topologyBuilder.withKey(new TopologyKey(TOPOLOGY_ID));
         topologyBuilder.setServerProvided(true);
         topologyBuilder.setTopologyId(TOPOLOGY_ID);
-        topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
+        topologyBuilder.setNode(BindingMap.of(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
                 createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build());

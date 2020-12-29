@@ -72,8 +72,8 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         parseTlvs(tbuilder, bytes.slice());
         final OpenBuilder builder = new OpenBuilder()
                 .setVersion(new ProtocolVersion(Uint8.valueOf(versionValue)))
-                .setProcessingRule(header.isProcessingRule())
-                .setIgnore(header.isIgnore())
+                .setProcessingRule(header.getProcessingRule())
+                .setIgnore(header.getIgnore())
                 .setKeepalive(Uint8.valueOf(keepalive))
                 .setSessionId(sessionId)
                 .setTlvs(tbuilder.build());
@@ -111,7 +111,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ByteBufUtils.writeOrZero(body, open.getDeadTimer());
         ByteBufUtils.writeMandatory(body, open.getSessionId(), "SessionId");
         serializeTlvs(open.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

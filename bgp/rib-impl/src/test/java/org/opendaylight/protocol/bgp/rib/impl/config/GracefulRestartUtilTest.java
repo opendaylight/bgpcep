@@ -104,14 +104,14 @@ public class GracefulRestartUtilTest {
         assertNotNull(params);
         final GracefulRestartCapability gracefulCapability = params.getGracefulRestartCapability();
         assertNotNull(gracefulCapability);
-        assertTrue(gracefulCapability.getRestartFlags().isRestartState());
+        assertTrue(gracefulCapability.getRestartFlags().getRestartState());
         assertEquals(RESTART_TIME, gracefulCapability.getRestartTime().intValue());
         final var tables = gracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
         tables.values().forEach(table -> {
-            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
-                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
+            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().getForwardingState()
+                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().getForwardingState());
         });
     }
 
@@ -175,8 +175,8 @@ public class GracefulRestartUtilTest {
         assertEquals(2, tables.size());
         assertEquals(STALE_TIME, tables.values().iterator().next().getLongLivedStaleTime().getValue().intValue());
         tables.values().forEach(table -> {
-            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().isForwardingState()
-                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().isForwardingState());
+            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().getForwardingState()
+                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().getForwardingState());
         });
     }
 

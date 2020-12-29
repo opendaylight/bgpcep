@@ -48,8 +48,8 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         return new OfBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setCode(new OfId(ofId))
                 .setTlvs(tlvsBuilder.build())
                 .build();
@@ -67,7 +67,7 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
         ByteBufUtils.write(body, code.getValue());
         body.writeZero(RESERVED);
         serializeTlvs(specObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

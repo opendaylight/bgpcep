@@ -55,15 +55,15 @@ public class SyncOptimizationsCapabilityTlvParser extends InitiatedStatefulCapab
             .rev200720.Stateful1 sf2 = sct.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .controller.pcep.sync.optimizations.rev200720.Stateful1.class);
         if (sf2 != null) {
-            flags.set(F_FLAG_OFFSET, sf2.isTriggeredInitialSync());
-            flags.set(D_FLAG_OFFSET, sf2.isDeltaLspSyncCapability());
-            flags.set(T_FLAG_OFFSET, sf2.isTriggeredResync());
-            flags.set(S_FLAG_OFFSET, sf2.isIncludeDbVersion());
+            flags.set(F_FLAG_OFFSET, sf2.getTriggeredInitialSync());
+            flags.set(D_FLAG_OFFSET, sf2.getDeltaLspSyncCapability());
+            flags.set(T_FLAG_OFFSET, sf2.getTriggeredResync());
+            flags.set(S_FLAG_OFFSET, sf2.getIncludeDbVersion());
         }
         if (sfi != null) {
-            flags.set(I_FLAG_OFFSET, sfi.isInitiation());
+            flags.set(I_FLAG_OFFSET, sfi.getInitiation());
         }
-        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        flags.set(U_FLAG_OFFSET, sct.getLspUpdateCapability());
         return flags;
     }
 }
