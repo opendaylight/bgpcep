@@ -44,8 +44,8 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
                     + "; Expected: " + PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH + ".");
         }
         final ReoptimizationBandwidthBuilder builder = new ReoptimizationBandwidthBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setBandwidth(
                     new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
                         .Bandwidth(ByteArray.getAllBytes(bytes)));
@@ -61,6 +61,6 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
                 object.getClass());
         final ByteBuf body = Unpooled.buffer();
         writeFloat32(((ReoptimizationBandwidth) object).getBandwidth(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

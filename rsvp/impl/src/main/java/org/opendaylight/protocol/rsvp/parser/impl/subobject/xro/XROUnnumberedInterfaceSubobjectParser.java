@@ -58,6 +58,6 @@ public class XROUnnumberedInterfaceSubobjectParser implements XROSubobjectParser
         final Attribute attribute = subobject.getAttribute();
         body.writeByte(attribute != null ? attribute.getIntValue() : 0);
         serializeUnnumeredInterface(((UnnumberedCase) type).getUnnumbered(), body);
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

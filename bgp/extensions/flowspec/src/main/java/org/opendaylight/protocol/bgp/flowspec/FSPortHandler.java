@@ -30,14 +30,14 @@ public final class FSPortHandler implements FlowspecTypeParser, FlowspecTypeSeri
     public static final int PORT_VALUE = 4;
 
     @Override
-    public void serializeType(FlowspecType fsType, ByteBuf output) {
+    public void serializeType(final FlowspecType fsType, final ByteBuf output) {
         Preconditions.checkArgument(fsType instanceof PortCase, "PortCase class is mandatory!");
         output.writeByte(PORT_VALUE);
         NumericTwoByteOperandParser.INSTANCE.serialize(((PortCase) fsType).getPorts(), output);
     }
 
     @Override
-    public FlowspecType parseType(ByteBuf buffer) {
+    public FlowspecType parseType(final ByteBuf buffer) {
         requireNonNull(buffer, "input buffer is null, missing data to parse.");
         return new PortCaseBuilder().setPorts(parsePort(buffer)).build();
     }
@@ -53,7 +53,7 @@ public final class FSPortHandler implements FlowspecTypeParser, FlowspecTypeSeri
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
             builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
-            end = op.isEndOfList();
+            end = op.getEndOfList();
             ports.add(builder.build());
         }
         return ports;

@@ -68,6 +68,6 @@ public class EROIpv4PrefixSubobjectParser implements EROSubobjectParser, EROSubo
         checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
         Ipv4Util.writeIpv4Prefix(prefix.getIpv4Prefix(), body);
         body.writeZero(RESERVED);
-        EROSubobjectUtil.formatSubobject(TYPE, subobject.isLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

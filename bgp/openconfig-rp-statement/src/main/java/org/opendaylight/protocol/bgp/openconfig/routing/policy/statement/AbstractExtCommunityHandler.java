@@ -64,6 +64,6 @@ public class AbstractExtCommunityHandler {
         }
         return result.get().getExtCommunityMember()
                 .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
-                        .setTransitive(ge.isTransitive()).build()).collect(Collectors.toList());
+                        .setTransitive(ge.getTransitive()).build()).collect(Collectors.toList());
     }
 }

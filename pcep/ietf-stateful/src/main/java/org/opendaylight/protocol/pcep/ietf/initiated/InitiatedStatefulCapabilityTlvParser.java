@@ -36,9 +36,9 @@ public class InitiatedStatefulCapabilityTlvParser extends StatefulStatefulCapabi
         final BitArray flags = new BitArray(FLAGS_F_LENGTH);
         final Stateful1 sfi = sct.augmentation(Stateful1.class);
         if (sfi != null) {
-            flags.set(I_FLAG_OFFSET, sfi.isInitiation());
+            flags.set(I_FLAG_OFFSET, sfi.getInitiation());
         }
-        flags.set(U_FLAG_OFFSET, sct.isLspUpdateCapability());
+        flags.set(U_FLAG_OFFSET, sct.getLspUpdateCapability());
         return flags;
     }
 }

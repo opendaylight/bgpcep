@@ -7,18 +7,25 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
-import com.google.common.collect.Lists;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -78,21 +85,19 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.osgi.framework.BundleContext;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
@@ -143,28 +148,29 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
 
     private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
-        final TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
-        tpBuilder.setTpId(tpId);
-        tpBuilder.withKey(new TerminationPointKey(tpId));
-        tpBuilder.addAugmentation(new TerminationPoint1Builder()
-                .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
+        return new NodeBuilder()
+            .setNodeId(nodeId)
+            .setTerminationPoint(BindingMap.of(new TerminationPointBuilder()
+                .setTpId(tpId)
+                .addAugmentation(new TerminationPoint1Builder()
+                    .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
                         .setTerminationPointType(new IpBuilder()
-                                .setIpAddress(Collections.singletonList(new IpAddress(new Ipv4Address(ipv4Address))))
-                                .build()).build()).build());
-        final NodeBuilder nodeBuilder = new NodeBuilder();
-        nodeBuilder.setNodeId(nodeId);
-        nodeBuilder.withKey(new NodeKey(nodeId));
-        nodeBuilder.setTerminationPoint(Lists.newArrayList(tpBuilder.build()));
-        final SupportingNode supportingNode = new SupportingNodeBuilder()
-                .withKey(new SupportingNodeKey(nodeId, new TopologyId("dummy")))
+                            .setIpAddress(Collections.singletonList(new IpAddress(new Ipv4Address(ipv4Address))))
+                            .build())
+                        .build())
+                    .build())
+                .build()))
+            .setSupportingNode(BindingMap.of(new SupportingNodeBuilder()
+                .setTopologyRef(new TopologyId("dummy"))
+                .setNodeRef(nodeId)
                 .addAugmentation(new SupportingNode1Builder()
-                        .setPathComputationClient(new PathComputationClientBuilder()
-                                .setControlling(true).build()).build()).build();
-        nodeBuilder.setSupportingNode(Lists.newArrayList(supportingNode));
-        return nodeBuilder.build();
+                    .setPathComputationClient(new PathComputationClientBuilder().setControlling(true).build())
+                    .build())
+                .build()))
+            .build();
     }
 
-    private static ExplicitHops createExplicitHop(final String ipv4Prefix, Uint32 order) {
+    private static ExplicitHops createExplicitHop(final String ipv4Prefix, final Uint32 order) {
         return new ExplicitHopsBuilder()
                 .setOrder(order)
                 .addAugmentation(new ExplicitHops1Builder()
@@ -176,56 +182,50 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() throws SchedulerException, InterruptedException, ExecutionException {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(true).when(this.instruction).checkedExecutionStart();
-        Mockito.doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
-        Mockito.doAnswer(invocation -> {
-            final Runnable callback = invocation.getArgument(0);
-            callback.run();
+        doReturn(true).when(instruction).checkedExecutionStart();
+        doNothing().when(instruction).executionCompleted(InstructionStatus.Failed, null);
+        doAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
             return null;
-        }).when(this.instructionFuture).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doReturn(false).when(this.futureAddLspOutput).isCancelled();
-        Mockito.doAnswer(invocation -> {
-            final Runnable callback = invocation.getArgument(0);
-            callback.run();
+        }).when(instructionFuture).addListener(ArgumentMatchers.any(Runnable.class), Mockito.any(Executor.class));
+        doReturn(false).when(futureAddLspOutput).isCancelled();
+        doAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
             return null;
-        }).when(this.futureAddLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doReturn(false).when(this.futureUpdateLspOutput).isCancelled();
-        Mockito.doAnswer(invocation -> {
-            final Runnable callback = invocation.getArgument(0);
-            callback.run();
+        }).when(futureAddLspOutput).addListener(any(Runnable.class), any(Executor.class));
+        doReturn(false).when(futureUpdateLspOutput).isCancelled();
+        doAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
             return null;
-        }).when(this.futureUpdateLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doReturn(false).when(this.futureRemoveLspOutput).isCancelled();
-        Mockito.doAnswer(invocation -> {
-            final Runnable callback = invocation.getArgument(0);
-            callback.run();
+        }).when(futureUpdateLspOutput).addListener(any(Runnable.class), any(Executor.class));
+        doReturn(false).when(futureRemoveLspOutput).isCancelled();
+        doAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
             return null;
-        }).when(this.futureRemoveLspOutput).addListener(Mockito.any(Runnable.class), Mockito.any(Executor.class));
-        Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.addLspInput = invocation.getArgument(0);
-            return TunnelProgrammingTest.this.futureAddLspOutput;
-        }).when(this.topologyService).addLsp(Mockito.any(AddLspInput.class));
-        Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.updateLspInput = invocation.getArgument(0);
-            return TunnelProgrammingTest.this.futureUpdateLspOutput;
-        }).when(this.topologyService).updateLsp(Mockito.any(UpdateLspInput.class));
-        Mockito.doAnswer(invocation -> {
-            TunnelProgrammingTest.this.removeLspInput = invocation.getArgument(0);
-            return TunnelProgrammingTest.this.futureRemoveLspOutput;
-        }).when(this.topologyService).removeLsp(Mockito.any(RemoveLspInput.class));
-        Mockito.doReturn(this.instruction).when(this.instructionFuture).get();
-        Mockito.doReturn(true).when(this.instructionFuture).isDone();
-        Mockito.doReturn(this.instructionFuture).when(this.scheduler)
-                .scheduleInstruction(Mockito.any(SubmitInstructionInput.class));
+        }).when(futureRemoveLspOutput).addListener(any(Runnable.class), any(Executor.class));
+        doAnswer(invocation -> {
+            addLspInput = invocation.getArgument(0);
+            return futureAddLspOutput;
+        }).when(topologyService).addLsp(any(AddLspInput.class));
+        doAnswer(invocation -> {
+            updateLspInput = invocation.getArgument(0);
+            return futureUpdateLspOutput;
+        }).when(topologyService).updateLsp(any(UpdateLspInput.class));
+        doAnswer(invocation -> {
+            removeLspInput = invocation.getArgument(0);
+            return futureRemoveLspOutput;
+        }).when(topologyService).removeLsp(any(RemoveLspInput.class));
+        doReturn(instruction).when(instructionFuture).get();
+        doReturn(true).when(instructionFuture).isDone();
+        doReturn(instructionFuture).when(scheduler)
+                .scheduleInstruction(any(SubmitInstructionInput.class));
 
-        Mockito.doReturn(this.topologyService).when(this.rpcs)
+        doReturn(topologyService).when(rpcs)
                 .getRpcService(NetworkTopologyPcepService.class);
 
         createInitialTopology();
-        final TunnelProviderDependencies dependencies = new TunnelProviderDependencies(getDataBroker(), this.cssp,
-                this.rpr, this.rpcs, this.bundleContext);
-        this.tunnelProgramming = new TunnelProgramming(this.scheduler, dependencies);
+        tunnelProgramming = new TunnelProgramming(scheduler,
+            new TunnelProviderDependencies(getDataBroker(), cssp, rpr, rpcs, bundleContext));
     }
 
     @Test
@@ -235,88 +235,89 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final String tunnelName = "create-tunnel";
         final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
         // create tunnel
-        final PcepCreateP2pTunnelInputBuilder createInputBuilder = new PcepCreateP2pTunnelInputBuilder();
-        createInputBuilder.setDestination(new DestinationBuilder().setNode(NODE2_ID).setTp(TP2_ID).build());
-        createInputBuilder.setSource(new SourceBuilder().setNode(NODE1_ID).setTp(TP1_ID).build());
-        createInputBuilder.setNetworkTopologyRef(topologyRef);
-        createInputBuilder.setBandwidth(bwd);
-        createInputBuilder.setClassType(classType);
-        createInputBuilder.setSymbolicPathName(tunnelName);
-        createInputBuilder.setExplicitHops(Collections.emptyList());
-        createInputBuilder.addAugmentation(new PcepCreateP2pTunnelInput1Builder()
-                .setAdministrativeStatus(AdministrativeStatus.Active).build());
-        this.tunnelProgramming.pcepCreateP2pTunnel(createInputBuilder.build());
+        tunnelProgramming.pcepCreateP2pTunnel(new PcepCreateP2pTunnelInputBuilder()
+            .setDestination(new DestinationBuilder().setNode(NODE2_ID).setTp(TP2_ID).build())
+            .setSource(new SourceBuilder().setNode(NODE1_ID).setTp(TP1_ID).build())
+            .setNetworkTopologyRef(topologyRef)
+            .setBandwidth(bwd)
+            .setClassType(classType)
+            .setSymbolicPathName(tunnelName)
+            .addAugmentation(new PcepCreateP2pTunnelInput1Builder()
+                .setAdministrativeStatus(AdministrativeStatus.Active)
+                .build())
+            .build());
         //check add-lsp input
-        Assert.assertNotNull(this.addLspInput);
-        Assert.assertEquals(tunnelName, this.addLspInput.getName());
-        final Arguments agrs = this.addLspInput.getArguments();
-        Assert.assertNotNull(agrs);
-        Assert.assertEquals(bwd, agrs.getBandwidth().getBandwidth());
-        Assert.assertEquals(classType, agrs.getClassType().getClassType());
+        assertNotNull(addLspInput);
+        assertEquals(tunnelName, addLspInput.getName());
+        final Arguments agrs = addLspInput.getArguments();
+        assertNotNull(agrs);
+        assertEquals(bwd, agrs.getBandwidth().getBandwidth());
+        assertEquals(classType, agrs.getClassType().getClassType());
         final Ipv4 ipv4Endpoints = ((Ipv4Case) agrs.getEndpointsObj().getAddressFamily()).getIpv4();
-        Assert.assertEquals(NODE1_IPV4, ipv4Endpoints.getSourceIpv4Address().getValue());
-        Assert.assertEquals(NODE2_IPV4, ipv4Endpoints.getDestinationIpv4Address().getValue());
-        Assert.assertEquals(NODE1_ID.getValue(), this.addLspInput.getNode().getValue());
+        assertEquals(NODE1_IPV4, ipv4Endpoints.getSourceIpv4Address().getValue());
+        assertEquals(NODE2_IPV4, ipv4Endpoints.getDestinationIpv4Address().getValue());
+        assertEquals(NODE1_ID.getValue(), addLspInput.getNode().getValue());
         createLink();
 
         // update tunnel
-        final PcepUpdateTunnelInputBuilder updateInputBuilder = new PcepUpdateTunnelInputBuilder();
-        updateInputBuilder.setNetworkTopologyRef(topologyRef);
-        updateInputBuilder.setBandwidth(bwd);
-        updateInputBuilder.setClassType(classType);
-        updateInputBuilder.setExplicitHops(Lists.newArrayList(createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
-                createExplicitHop(IPV4_PREFIX2, Uint32.TWO)));
-        updateInputBuilder.setLinkId(LINK1_ID);
-        updateInputBuilder.addAugmentation(new PcepUpdateTunnelInput1Builder()
-                .setAdministrativeStatus(AdministrativeStatus.Active).build());
-        this.tunnelProgramming.pcepUpdateTunnel(updateInputBuilder.build());
+        tunnelProgramming.pcepUpdateTunnel(new PcepUpdateTunnelInputBuilder()
+            .setNetworkTopologyRef(topologyRef)
+            .setBandwidth(bwd)
+            .setClassType(classType)
+            // We assert on explicit order
+            .setExplicitHops(BindingMap.ordered(
+                createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
+                createExplicitHop(IPV4_PREFIX2, Uint32.TWO)))
+            .setLinkId(LINK1_ID)
+            .addAugmentation(new PcepUpdateTunnelInput1Builder()
+                .setAdministrativeStatus(AdministrativeStatus.Active)
+                .build())
+            .build());
         //check update-lsp input
-        Assert.assertNotNull(this.updateLspInput);
-        Assert.assertEquals(LINK1_ID.getValue(), this.updateLspInput.getName());
+        assertNotNull(updateLspInput);
+        assertEquals(LINK1_ID.getValue(), updateLspInput.getName());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.update.lsp
-                .args.Arguments updArgs = this.updateLspInput.getArguments();
-        Assert.assertEquals(2, updArgs.getEro().getSubobject().size());
-        final List<Subobject> subObjects = updArgs.getEro().getSubobject();
+                .args.Arguments updArgs = updateLspInput.getArguments();
+        assertEquals(2, updArgs.getEro().nonnullSubobject().size());
+        final List<Subobject> subObjects = updArgs.getEro().nonnullSubobject();
         final IpPrefixCase prefix1 = (IpPrefixCase) subObjects.get(0).getSubobjectType();
         final IpPrefixCase prefix2 = (IpPrefixCase) subObjects.get(1).getSubobjectType();
-        Assert.assertEquals(IPV4_PREFIX1, prefix1.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
-        Assert.assertEquals(IPV4_PREFIX2, prefix2.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
+        assertEquals(IPV4_PREFIX1, prefix1.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
+        assertEquals(IPV4_PREFIX2, prefix2.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue());
 
         // delete tunnel
         final PcepDestroyTunnelInputBuilder destroyInputBuilder = new PcepDestroyTunnelInputBuilder();
         destroyInputBuilder.setLinkId(LINK1_ID);
         destroyInputBuilder.setNetworkTopologyRef(topologyRef);
-        this.tunnelProgramming.pcepDestroyTunnel(destroyInputBuilder.build());
-        Assert.assertNotNull(this.removeLspInput);
-        Assert.assertEquals(LINK1_ID.getValue(), this.removeLspInput.getName());
-        Assert.assertEquals(NODE1_ID.getValue(), this.removeLspInput.getNode().getValue());
+        tunnelProgramming.pcepDestroyTunnel(destroyInputBuilder.build());
+        assertNotNull(removeLspInput);
+        assertEquals(LINK1_ID.getValue(), removeLspInput.getName());
+        assertEquals(NODE1_ID, removeLspInput.getNode());
     }
 
     private void createInitialTopology() throws InterruptedException, ExecutionException {
-        final TopologyBuilder topologyBuilder = new TopologyBuilder();
-        topologyBuilder.withKey(new TopologyKey(TOPOLOGY_ID));
-        topologyBuilder.setServerProvided(true);
-        topologyBuilder.setTopologyId(TOPOLOGY_ID);
-        topologyBuilder.setNode(Lists.newArrayList(createNode(NODE1_ID, TP1_ID, NODE1_IPV4),
-                createNode(NODE2_ID, TP2_ID, NODE2_IPV4)));
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TOPO_IID, topologyBuilder.build());
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TOPO_IID, new TopologyBuilder()
+            .setTopologyId(TOPOLOGY_ID)
+            .setServerProvided(true)
+            .setTopologyId(TOPOLOGY_ID)
+            .setNode(BindingMap.of(createNode(NODE1_ID, TP1_ID, NODE1_IPV4), createNode(NODE2_ID, TP2_ID, NODE2_IPV4)))
+            .build());
         wTx.commit().get();
     }
 
     private void createLink() throws InterruptedException, ExecutionException {
-        final LinkBuilder linkBuilder = new LinkBuilder();
-        linkBuilder.setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                .rev131021.link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build());
-        linkBuilder.setDestination(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology
-                .rev131021.link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build());
-        linkBuilder.setLinkId(LINK1_ID);
-        linkBuilder.withKey(new LinkKey(LINK1_ID));
-        linkBuilder.addAugmentation(new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL,
-            TOPO_IID.builder().child(Link.class, new LinkKey(LINK1_ID)).build(), linkBuilder.build());
+            TOPO_IID.child(Link.class, new LinkKey(LINK1_ID)),
+            new LinkBuilder()
+                .setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021
+                    .link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build())
+                .setDestination(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021
+                    .link.attributes.DestinationBuilder().setDestNode(NODE2_ID).setDestTp(TP2_ID).build())
+                .setLinkId(LINK1_ID)
+                .addAugmentation(new Link1Builder().setSymbolicPathName(LINK1_ID.getValue()).build())
+                .build());
         wTx.commit().get();
     }
-
 }

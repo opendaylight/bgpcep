@@ -66,6 +66,6 @@ public class XROPathKey128SubobjectParser implements XROSubobjectParser {
         final PceId pceId = pk.getPceId();
         checkArgument(pceId != null, "PceId is mandatory.");
         body.writeBytes(pceId.getValue());
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }
