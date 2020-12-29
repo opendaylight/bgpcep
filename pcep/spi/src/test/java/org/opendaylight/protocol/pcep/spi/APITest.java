@@ -33,8 +33,8 @@ public class APITest {
     public void testObjectHeader() {
         ObjectHeaderImpl header = new ObjectHeaderImpl(null, true);
         assertEquals("ObjectHeader [objClass=, processed=null, ignored=true]", header.toString());
-        assertTrue(header.isIgnore());
-        assertNull(header.isProcessingRule());
+        assertTrue(header.getIgnore());
+        assertNull(header.getProcessingRule());
 
         assertEquals(new ObjectHeaderImpl(null, true).hashCode(),  header.hashCode());
         assertEquals(new ObjectHeaderImpl(null, true), header);
@@ -43,8 +43,8 @@ public class APITest {
     @Test
     public void testUnknownObject() {
         UnknownObject un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
-        assertFalse(un.isIgnore());
-        assertFalse(un.isProcessingRule());
+        assertFalse(un.getIgnore());
+        assertFalse(un.getProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(),
             un.getErrors().get(0).getErrorObject().getType());

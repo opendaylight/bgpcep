@@ -96,8 +96,8 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         final RpBuilder builder = new RpBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setFragmentation(flags.get(F_FLAG_OFFSET))
                 .setP2mp(flags.get(N_FLAG_OFFSET))
                 .setEroCompression(flags.get(E_FLAG_OFFSET))
@@ -139,16 +139,16 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         final ByteBuf body = Unpooled.buffer();
         final Rp rpObj = (Rp) object;
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(R_FLAG_OFFSET, rpObj.isReoptimization());
-        flags.set(B_FLAG_OFFSET, rpObj.isBiDirectional());
-        flags.set(O_FLAG_OFFSET, rpObj.isLoose());
-        flags.set(M_FLAG_OFFSET, rpObj.isMakeBeforeBreak());
-        flags.set(D_FLAG_OFFSET, rpObj.isOrder());
-        flags.set(P_FLAG_OFFSET, rpObj.isPathKey());
-        flags.set(S_FLAG_OFFSET, rpObj.isSupplyOf());
-        flags.set(F_FLAG_OFFSET, rpObj.isFragmentation());
-        flags.set(N_FLAG_OFFSET, rpObj.isP2mp());
-        flags.set(E_FLAG_OFFSET, rpObj.isEroCompression());
+        flags.set(R_FLAG_OFFSET, rpObj.getReoptimization());
+        flags.set(B_FLAG_OFFSET, rpObj.getBiDirectional());
+        flags.set(O_FLAG_OFFSET, rpObj.getLoose());
+        flags.set(M_FLAG_OFFSET, rpObj.getMakeBeforeBreak());
+        flags.set(D_FLAG_OFFSET, rpObj.getOrder());
+        flags.set(P_FLAG_OFFSET, rpObj.getPathKey());
+        flags.set(S_FLAG_OFFSET, rpObj.getSupplyOf());
+        flags.set(F_FLAG_OFFSET, rpObj.getFragmentation());
+        flags.set(N_FLAG_OFFSET, rpObj.getP2mp());
+        flags.set(E_FLAG_OFFSET, rpObj.getEroCompression());
         final byte[] res = flags.array();
         if (rpObj.getPriority() != null) {
             final byte p = rpObj.getPriority().byteValue();
@@ -159,7 +159,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
         checkArgument(requestId != null, "RequestId is mandatory");
         ByteBufUtils.write(body, requestId.getValue());
         serializeTlvs(rpObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

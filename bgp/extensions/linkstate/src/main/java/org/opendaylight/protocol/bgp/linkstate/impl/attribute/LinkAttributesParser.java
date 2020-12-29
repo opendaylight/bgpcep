@@ -373,8 +373,8 @@ public final class LinkAttributesParser {
         if (mplsProtocolMask != null) {
             final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer(1);
             final BitArray mask = new BitArray(FLAGS_SIZE);
-            mask.set(LDP_BIT, mplsProtocolMask.isLdp());
-            mask.set(RSVP_BIT, mplsProtocolMask.isRsvpte());
+            mask.set(LDP_BIT, mplsProtocolMask.getLdp());
+            mask.set(RSVP_BIT, mplsProtocolMask.getRsvpte());
             mask.toByteBuf(mplsProtocolMaskBuf);
             TlvUtil.writeTLV(MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
         }

@@ -76,8 +76,8 @@ public class RROIpv4PrefixSubobjectParser implements RROSubobjectParser, RROSubo
         }
 
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(LPA_F_OFFSET, subobject.isProtectionAvailable());
-        flags.set(LPIU_F_OFFSET, subobject.isProtectionInUse());
+        flags.set(LPA_F_OFFSET, subobject.getProtectionAvailable());
+        flags.set(LPIU_F_OFFSET, subobject.getProtectionInUse());
         final ByteBuf body = Unpooled.buffer(CONTENT4_LENGTH);
         checkArgument(prefix.getIpv4Prefix() != null, "Ipv4Prefix is mandatory.");
         Ipv4Util.writeIpv4Prefix(prefix.getIpv4Prefix(), body);

@@ -101,10 +101,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         serializeObject(failure.getNoPath(), buffer);
         serializeObject(failure.getLspa(), buffer);
         serializeObject(failure.getBandwidth(), buffer);
-        if (failure.getMetrics() != null) {
-            for (final Metrics m : failure.getMetrics()) {
-                serializeObject(m.getMetric(), buffer);
-            }
+        for (final Metrics m : failure.nonnullMetrics()) {
+            serializeObject(m.getMetric(), buffer);
         }
         serializeObject(failure.getIro(), buffer);
     }
@@ -113,15 +111,13 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         if (success == null || success.getSuccess() == null) {
             return;
         }
-        for (final Paths p : success.getSuccess().getPaths()) {
+        for (final Paths p : success.getSuccess().nonnullPaths()) {
             serializeObject(p.getEro(), buffer);
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getOf(), buffer);
             serializeObject(p.getBandwidth(), buffer);
-            if (p.getMetrics() != null) {
-                for (final Metrics m : p.getMetrics()) {
-                    serializeObject(m.getMetric(), buffer);
-                }
+            for (final Metrics m : p.nonnullMetrics()) {
+                serializeObject(m.getMetric(), buffer);
             }
             serializeObject(p.getIro(), buffer);
         }
@@ -134,10 +130,8 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     private void serializeMonitoringMetrics(final Replies reply, final ByteBuf buffer) {
-        if (reply.getMetricPce() != null) {
-            for (final MetricPce metricPce : reply.getMetricPce()) {
-                serializeMetricPce(metricPce, buffer);
-            }
+        for (final MetricPce metricPce : reply.nonnullMetricPce()) {
+            serializeMetricPce(metricPce, buffer);
         }
     }
 

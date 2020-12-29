@@ -49,8 +49,8 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
         output.writeShort(0);
         final BitArray reflect = new BitArray(FLAGS_SIZE);
-        reflect.set(BOUND, metric.isBound());
-        reflect.set(COMPUTED, metric.isComputed());
+        reflect.set(BOUND, metric.getBound());
+        reflect.set(COMPUTED, metric.getComputed());
         reflect.toByteBuf(output);
         output.writeByte(metric.getMetricType().toJava());
         writeFloat32(metric.getValue(), output);

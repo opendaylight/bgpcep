@@ -54,12 +54,12 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
         final Uint8 reason = ByteBufUtils.readUint8(bytes);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
-        final CCloseBuilder builder = new CCloseBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
-                .setReason(reason)
-                .setTlvs(tlvsBuilder.build());
-        return builder.build();
+        return new CCloseBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule())
+            .setReason(reason)
+            .setTlvs(tlvsBuilder.build())
+            .build();
     }
 
     @Override
@@ -71,7 +71,7 @@ public final class PCEPCloseObjectParser extends AbstractObjectWithTlvsParser<Tl
         body.writeZero(RESERVED + FLAGS_F_LENGTH);
         ByteBufUtils.writeMandatory(body, obj.getReason(), "Reason");
         serializeTlvs(obj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

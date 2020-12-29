@@ -27,7 +27,8 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
     @Override
     public Subobject parseSubobject(final ByteBuf buffer, final boolean mandatory) throws PCEPDeserializerException {
         return new SubobjectBuilder().setMandatory(mandatory)
-                .setSubobjectType(AsNumberCaseParser.parseSubobject(buffer)).build();
+                .setSubobjectType(AsNumberCaseParser.parseSubobject(buffer))
+                .build();
     }
 
     @Override
@@ -35,6 +36,6 @@ public class XROAsNumberSubobjectParser implements XROSubobjectParser, XROSubobj
         Preconditions.checkArgument(subobject.getSubobjectType() instanceof AsNumberCase,
                 "Unknown subobject instance. Passed %s. Needed AsNumberCase.", subobject.getSubobjectType().getClass());
         final ByteBuf body = AsNumberCaseParser.serializeSubobject((AsNumberCase) subobject.getSubobjectType());
-        XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+        XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
     }
 }

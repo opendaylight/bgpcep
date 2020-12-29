@@ -37,7 +37,7 @@ public class ProtectionCommonParser {
 
     protected static void serializeBodyType1(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
-        flagBitArray.set(SECONDARY, protObj.isSecondary());
+        flagBitArray.set(SECONDARY, protObj.getSecondary());
         flagBitArray.toByteBuf(output);
         output.writeShort(0);
         output.writeByte(protObj.getLinkFlags().getIntValue());
@@ -45,17 +45,17 @@ public class ProtectionCommonParser {
 
     protected static void serializeBodyType2(final ProtectionSubobject protObj, final ByteBuf output) {
         final BitArray flagBitArray = new BitArray(FLAGS_SIZE);
-        flagBitArray.set(SECONDARY, protObj.isSecondary());
-        flagBitArray.set(PROTECTING, protObj.isProtecting());
-        flagBitArray.set(NOTIFICATION, protObj.isNotification());
-        flagBitArray.set(OPERATIONAL, protObj.isOperational());
+        flagBitArray.set(SECONDARY, protObj.getSecondary());
+        flagBitArray.set(PROTECTING, protObj.getProtecting());
+        flagBitArray.set(NOTIFICATION, protObj.getNotification());
+        flagBitArray.set(OPERATIONAL, protObj.getOperational());
         flagBitArray.toByteBuf(output);
         output.writeByte(protObj.getLspFlag().getIntValue());
         output.writeByte(0);
         output.writeByte(protObj.getLinkFlags().getIntValue());
         final BitArray flagInPlaceBitArray = new BitArray(FLAGS_SIZE);
-        flagInPlaceBitArray.set(IN_PLACE, protObj.isInPlace());
-        flagInPlaceBitArray.set(REQUIRED, protObj.isRequired());
+        flagInPlaceBitArray.set(IN_PLACE, protObj.getInPlace());
+        flagInPlaceBitArray.set(REQUIRED, protObj.getRequired());
         flagInPlaceBitArray.toByteBuf(output);
         output.writeByte(protObj.getSegFlag().getIntValue());
         output.writeShort(0);

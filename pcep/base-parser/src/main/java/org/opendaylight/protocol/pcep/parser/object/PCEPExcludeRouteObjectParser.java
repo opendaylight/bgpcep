@@ -37,8 +37,8 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         bytes.skipBytes(FLAGS_OFFSET);
         return new XroBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setFlags(new Flags(bytes.readBoolean()))
                 .setSubobject(parseSubobjects(bytes.slice()))
                 .build();
@@ -52,8 +52,8 @@ public final class PCEPExcludeRouteObjectParser extends AbstractXROWithSubobject
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_OFFSET);
         final Flags flags = obj.getFlags();
-        body.writeBoolean(flags != null && Boolean.TRUE.equals(flags.isFail()));
+        body.writeBoolean(flags != null && Boolean.TRUE.equals(flags.getFail()));
         serializeSubobject(obj.getSubobject(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 }

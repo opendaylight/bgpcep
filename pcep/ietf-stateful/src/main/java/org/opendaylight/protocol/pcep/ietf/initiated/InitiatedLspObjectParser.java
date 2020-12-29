@@ -47,12 +47,13 @@ public class InitiatedLspObjectParser extends StatefulLspObjectParser {
     @Override
     protected BitArray serializeFlags(final Lsp specObj) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(DELEGATE, specObj.isDelegate());
-        flags.set(REMOVE, specObj.isRemove());
-        flags.set(SYNC, specObj.isSync());
-        flags.set(ADMINISTRATIVE, specObj.isAdministrative());
-        if (specObj.augmentation(Lsp1.class) != null) {
-            flags.set(CREATE_FLAG_OFFSET, specObj.augmentation(Lsp1.class).isCreate());
+        flags.set(DELEGATE, specObj.getDelegate());
+        flags.set(REMOVE, specObj.getRemove());
+        flags.set(SYNC, specObj.getSync());
+        flags.set(ADMINISTRATIVE, specObj.getAdministrative());
+        final Lsp1 aug = specObj.augmentation(Lsp1.class);
+        if (aug != null) {
+            flags.set(CREATE_FLAG_OFFSET, aug.getCreate());
         }
         return flags;
     }

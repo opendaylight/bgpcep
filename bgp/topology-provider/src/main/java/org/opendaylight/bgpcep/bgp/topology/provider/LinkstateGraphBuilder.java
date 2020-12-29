@@ -369,21 +369,19 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             }
             builder.setSrlgs(srlgs);
         }
-        if (la.getSrAdjIds() != null) {
-            for (SrAdjIds adj : la.getSrAdjIds()) {
-                if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
-                    boolean backup = false;
-                    if (adj.getFlags() instanceof OspfAdjFlags) {
-                        backup = ((OspfAdjFlags) adj.getFlags()).isBackup();
-                    }
-                    if (adj.getFlags() instanceof IsisAdjFlags) {
-                        backup = ((IsisAdjFlags) adj.getFlags()).isBackup();
-                    }
-                    if (!backup) {
-                        builder.setAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
-                    } else {
-                        builder.setBackupAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
-                    }
+        for (SrAdjIds adj : la.nonnullSrAdjIds()) {
+            if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
+                boolean backup = false;
+                if (adj.getFlags() instanceof OspfAdjFlags) {
+                    backup = ((OspfAdjFlags) adj.getFlags()).getBackup();
+                }
+                if (adj.getFlags() instanceof IsisAdjFlags) {
+                    backup = ((IsisAdjFlags) adj.getFlags()).getBackup();
+                }
+                if (!backup) {
+                    builder.setAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
+                } else {
+                    builder.setBackupAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
                 }
             }
         }
@@ -448,10 +446,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     .build());
         }
         if (na.getNodeFlags() != null) {
-            if (na.getNodeFlags().isAbr()) {
+            if (na.getNodeFlags().getAbr()) {
                 builder.setVertexType(VertexType.Abr);
             }
-            if (na.getNodeFlags().isExternal()) {
+            if (na.getNodeFlags().getExternal()) {
                 builder.setVertexType(VertexType.AsbrOut);
             }
         } else {
@@ -541,7 +539,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             builder.setPrefixSid(((SidCase) pa.getSrPrefix().getSidLabelIndex()).getSid());
             if (pa.getSrPrefix().getFlags() instanceof IsisPrefixFlagsCase) {
                 builder.setNodeSid(
-                        ((IsisPrefixFlagsCase) pa.getSrPrefix().getFlags()).getIsisPrefixFlags().isNodeSid());
+                        ((IsisPrefixFlagsCase) pa.getSrPrefix().getFlags()).getIsisPrefixFlags().getNodeSid());
             } else {
                 /*
                  * Seems that OSPF Flags are not accessible. Assuming that the

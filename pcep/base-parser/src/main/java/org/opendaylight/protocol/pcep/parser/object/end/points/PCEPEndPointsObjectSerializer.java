@@ -30,8 +30,8 @@ public final class PCEPEndPointsObjectSerializer implements ObjectSerializer {
             "Wrong instance of PCEPObject. Passed %s. Needed EndpointsObject.", object.getClass());
         final EndpointsObj ePObj = (EndpointsObj) object;
         final AddressFamily afi = ePObj.getAddressFamily();
-        final Boolean processing = object.isProcessingRule();
-        final Boolean ignore = object.isIgnore();
+        final Boolean processing = object.getProcessingRule();
+        final Boolean ignore = object.getIgnore();
         if (afi instanceof Ipv6Case) {
             final Ipv6 ipv6 = ((Ipv6Case) afi).getIpv6();
             PCEPEndPointsIpv6ObjectParser.serializeObject(processing, ignore, ipv6, buffer);
