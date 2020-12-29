@@ -87,7 +87,7 @@ final class NeighborStateCliUtils {
                 .augmentation(NeighborAfiSafiStateAugmentation.class);
         addHeader(table, "AFI state");
         table.addRow().addContent("Family", afiSafi.getAfiSafiName().getSimpleName());
-        table.addRow().addContent("Active", state.isActive());
+        table.addRow().addContent("Active", state.getActive());
         final Prefixes prefixes = state.getPrefixes();
         if (prefixes == null) {
             return;

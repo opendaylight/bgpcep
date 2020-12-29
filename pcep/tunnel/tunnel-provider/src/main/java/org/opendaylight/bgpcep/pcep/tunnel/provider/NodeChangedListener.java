@@ -72,6 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,9 +212,9 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final NodeKey nk = new NodeKey(new NodeId(url));
         final NodeBuilder nb = new NodeBuilder();
         nb.withKey(nk).setNodeId(nk.getNodeId());
-        nb.setTerminationPoint(Lists.newArrayList(tpb.build()));
+        nb.setTerminationPoint(BindingMap.of(tpb.build()));
         if (sni != null) {
-            nb.setSupportingNode(Lists.newArrayList(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
+            nb.setSupportingNode(BindingMap.of(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
                     inControl)));
         }
         final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.key());
@@ -258,13 +259,13 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
         final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
         final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni,
-                rl.getLsp().isDelegate());
+                rl.getLsp().getDelegate());
 
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
                 .Link1Builder slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
                 .stateful.rev200720.Link1Builder();
         slab.setOperationalStatus(rl.getLsp().getOperational());
-        slab.setAdministrativeStatus(rl.getLsp().isAdministrative() ? AdministrativeStatus.Active :
+        slab.setAdministrativeStatus(rl.getLsp().getAdministrative() ? AdministrativeStatus.Active :
                 AdministrativeStatus.Inactive);
 
         final LinkId id = linkIdForLsp(identifier, value);

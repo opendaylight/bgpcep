@@ -99,12 +99,12 @@ public abstract class AbstractSrSubobjectParser {
 
         /* Flags set according to RFC8664#section 4.3.1 */
         final BitArray bits = new BitArray(BITSET_LENGTH);
-        bits.set(M_FLAG_POSITION, srSubobject.isMFlag());
+        bits.set(M_FLAG_POSITION, srSubobject.getMFlag());
         /* C flag MUST be set to 0 if M flag is set to 0 */
-        if (!srSubobject.isMFlag()) {
+        if (!srSubobject.getMFlag()) {
             bits.set(C_FLAG_POSITION, Boolean.FALSE);
         } else {
-            bits.set(C_FLAG_POSITION, srSubobject.isCFlag());
+            bits.set(C_FLAG_POSITION, srSubobject.getCFlag());
         }
         /* M & C flags MUST be set to 0 if S flag is set to 1 */
         if (srSubobject.getSid() == null) {
@@ -113,7 +113,7 @@ public abstract class AbstractSrSubobjectParser {
             bits.set(S_FLAG_POSITION, Boolean.TRUE);
         }
         /* F flag MUST be set if NT=0 or NAI is absent */
-        if ((srSubobject.getNai() == null) || (srSubobject.getNaiType().getIntValue() == 0)) {
+        if (srSubobject.getNai() == null || srSubobject.getNaiType().getIntValue() == 0) {
             bits.set(F_FLAG_POSITION, Boolean.TRUE);
         }
         /* Write Flags */
@@ -121,7 +121,7 @@ public abstract class AbstractSrSubobjectParser {
 
         /* Write SID */
         if (srSubobject.getSid() != null) {
-            if (srSubobject.isMFlag()) {
+            if (srSubobject.getMFlag()) {
                 buffer.writeInt(srSubobject.getSid().intValue() << MPLS_LABEL_OFFSET);
             } else {
                 ByteBufUtils.writeOrZero(buffer, srSubobject.getSid());

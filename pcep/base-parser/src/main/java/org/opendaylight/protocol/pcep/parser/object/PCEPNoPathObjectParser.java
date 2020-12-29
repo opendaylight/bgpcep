@@ -62,8 +62,8 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         return new NoPathBuilder()
-                .setIgnore(header.isIgnore())
-                .setProcessingRule(header.isProcessingRule())
+                .setIgnore(header.getIgnore())
+                .setProcessingRule(header.getProcessingRule())
                 .setNatureOfIssue(issue)
                 .setUnsatisfiedConstraints(flags.get(C_FLAG_OFFSET))
                 .setTlvs(tlvsBuilder.build())
@@ -85,11 +85,11 @@ public class PCEPNoPathObjectParser extends AbstractObjectWithTlvsParser<TlvsBui
         final ByteBuf body = Unpooled.buffer();
         ByteBufUtils.writeMandatory(body, nPObj.getNatureOfIssue(), "NatureOfIssue");
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(C_FLAG_OFFSET, nPObj.isUnsatisfiedConstraints());
+        flags.set(C_FLAG_OFFSET, nPObj.getUnsatisfiedConstraints());
         flags.toByteBuf(body);
         body.writeZero(RESERVED_F_LENGTH);
         serializeTlvs(nPObj.getTlvs(), body);
-        ObjectUtil.formatSubobject(TYPE, CLASS, object.isProcessingRule(), object.isIgnore(), body, buffer);
+        ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

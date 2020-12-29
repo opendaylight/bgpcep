@@ -71,10 +71,8 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
             serializeObject(p.getLspa(), buffer);
             serializeObject(p.getBandwidth(), buffer);
             serializeObject(p.getReoptimizationBandwidth(), buffer);
-            if (p.getMetrics() != null) {
-                for (final Metrics m : p.getMetrics()) {
-                    serializeObject(m.getMetric(), buffer);
-                }
+            for (final Metrics m : p.nonnullMetrics()) {
+                serializeObject(m.getMetric(), buffer);
             }
             serializeObject(p.getIro(), buffer);
         }

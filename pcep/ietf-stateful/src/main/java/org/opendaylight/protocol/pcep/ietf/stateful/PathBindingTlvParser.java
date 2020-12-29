@@ -130,7 +130,7 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
             final MplsLabelEntry mplsEntry = (MplsLabelEntry) bindingValue;
             final long entry = getMplsStackEntry(mplsEntry.getLabel())
                     | mplsEntry.getTrafficClass().toJava() << TC_SHIFT
-                    | (mplsEntry.isBottomOfStack() ? 1 : 0) << S_SHIFT
+                    | (mplsEntry.getBottomOfStack() ? 1 : 0) << S_SHIFT
                     | mplsEntry.getTimeToLive().toJava();
             ByteBufUtils.write(buf, Uint32.valueOf(entry));
         }

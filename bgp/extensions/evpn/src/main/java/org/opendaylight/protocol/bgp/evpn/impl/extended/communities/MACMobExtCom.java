@@ -41,7 +41,7 @@ public final class MACMobExtCom extends AbstractExtendedCommunities {
             "The extended community %s is not MacMobilityExtendedCommunityCase type.", extendedCommunity);
         final MacMobilityExtendedCommunity extCom = ((MacMobilityExtendedCommunityCase) extendedCommunity)
                 .getMacMobilityExtendedCommunity();
-        byteAggregator.writeBoolean(extCom.isStatic());
+        byteAggregator.writeBoolean(extCom.getStatic());
         byteAggregator.writeZero(RESERVED);
         byteAggregator.writeInt(extCom.getSeqNumber().intValue());
     }

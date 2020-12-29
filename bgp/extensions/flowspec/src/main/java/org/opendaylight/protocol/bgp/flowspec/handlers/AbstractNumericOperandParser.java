@@ -48,10 +48,10 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
             final boolean endOfList, final ByteBuf buffer) {
         final BitArray operandValues = new BitArray(OPERAND_LENGTH);
         operandValues.set(END_OF_LIST, endOfList);
-        operandValues.set(AND_BIT, operand.isAndBit());
-        operandValues.set(LESS_THAN, operand.isLessThan());
-        operandValues.set(GREATER_THAN, operand.isGreaterThan());
-        operandValues.set(EQUAL, operand.isEquals());
+        operandValues.set(AND_BIT, operand.getAndBit());
+        operandValues.set(LESS_THAN, operand.getLessThan());
+        operandValues.set(GREATER_THAN, operand.getGreaterThan());
+        operandValues.set(EQUAL, operand.getEquals());
         final byte byteLength = (byte) (Integer.numberOfTrailingZeros(length) << LENGTH_SHIFT);
         buffer.writeByte(operandValues.toByte() | byteLength);
     }
@@ -79,26 +79,26 @@ public abstract class AbstractNumericOperandParser<N> extends AbstractOperandPar
     @Override
     public String toString(final NumericOperand operand, final boolean isFirst) {
         final StringBuilder buffer = new StringBuilder();
-        if (operand.isAndBit()) {
+        if (operand.getAndBit()) {
             buffer.append("and ");
         } else if (!isFirst) {
             buffer.append("or ");
         }
-        if (operand.isLessThan()) {
+        if (operand.getLessThan()) {
             buffer.append("is less than ");
-            if (operand.isEquals()) {
+            if (operand.getEquals()) {
                 buffer.append("or equals to ");
             }
             return buffer.toString();
         }
-        if (operand.isGreaterThan()) {
+        if (operand.getGreaterThan()) {
             buffer.append("is greater than ");
-            if (operand.isEquals()) {
+            if (operand.getEquals()) {
                 buffer.append("or equals to ");
             }
             return buffer.toString();
         }
-        if (operand.isEquals()) {
+        if (operand.getEquals()) {
             buffer.append("equals to ");
         }
         return buffer.toString();

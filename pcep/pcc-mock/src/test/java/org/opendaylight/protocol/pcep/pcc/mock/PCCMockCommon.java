@@ -148,7 +148,7 @@ public abstract class PCCMockCommon {
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
         assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
-                .augmentation(Stateful1.class).isInitiation());
+                .augmentation(Stateful1.class).getInitiation());
         assertNull(session.getLocalTlvs().augmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue());
     }
@@ -173,7 +173,7 @@ public abstract class PCCMockCommon {
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
         assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
-                .augmentation(Stateful1.class).isInitiation());
+                .augmentation(Stateful1.class).getInitiation());
         final Uint64 pceDBVersion = session.getLocalTlvs().augmentation(Tlvs3.class)
                 .getLspDbVersion().getLspDbVersionValue();
         assertEquals(startingDBVersion, pceDBVersion);
@@ -186,7 +186,7 @@ public abstract class PCCMockCommon {
         assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive().shortValue());
         final Stateful1 stateful = session.getRemoteTlvs().augmentation(Tlvs1.class)
                 .getStateful().augmentation(Stateful1.class);
-        assertTrue(stateful.isInitiation());
+        assertTrue(stateful.getInitiation());
     }
 
     protected static void checkSequequenceDBVersionSync(final TestingSessionListener pceSessionListener,
@@ -196,9 +196,9 @@ public abstract class PCCMockCommon {
             for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
                 if (lsp.getPlspId().getValue().toJava() == 0) {
-                    assertEquals(false, lsp.isSync());
+                    assertEquals(false, lsp.getSync());
                 } else {
-                    assertEquals(true, lsp.isSync());
+                    assertEquals(true, lsp.getSync());
                 }
                 final Uint64 actuaLspDBVersion = lsp.getTlvs()
                         .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep

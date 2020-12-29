@@ -55,9 +55,9 @@ public class XROPathKey32SubobjectParser implements XROSubobjectParser, XROSubob
         final ByteBuf body = serializePathKey(pk);
         final byte[] pceId = pk.getPceId().getValue();
         if (pceId.length == PCE_ID_F_LENGTH) {
-            XROSubobjectUtil.formatSubobject(TYPE, subobject.isMandatory(), body, buffer);
+            XROSubobjectUtil.formatSubobject(TYPE, subobject.getMandatory(), body, buffer);
         } else if (pceId.length == XROPathKey128SubobjectParser.PCE128_ID_F_LENGTH) {
-            XROSubobjectUtil.formatSubobject(XROPathKey128SubobjectParser.TYPE, subobject.isMandatory(), body, buffer);
+            XROSubobjectUtil.formatSubobject(XROPathKey128SubobjectParser.TYPE, subobject.getMandatory(), body, buffer);
         }
     }
 }

@@ -41,8 +41,8 @@ public class SrPceCapabilityTlvParser implements TlvParser, TlvSerializer {
         /* Flags */
         final SrPceCapability srPceCapability = (SrPceCapability) tlv;
         final BitArray bits = new BitArray(BITSET_LENGTH);
-        bits.set(N_FLAG_POSITION, srPceCapability.isNFlag());
-        bits.set(X_FLAG_POSITION, srPceCapability.isXFlag());
+        bits.set(N_FLAG_POSITION, srPceCapability.getNFlag());
+        bits.set(X_FLAG_POSITION, srPceCapability.getXFlag());
         bits.toByteBuf(body);
 
         /* MSD */

@@ -34,13 +34,13 @@ public abstract class AbstractPccIdReqObjectParser extends CommonObjectParser im
         if (pccIdReq.getIpAddress().getIpv4AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH);
             Ipv4Util.writeIpv4Address(pccIdReq.getIpAddress().getIpv4AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
-                    body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(),
+                object.getIgnore(), body, buffer);
         } else if (pccIdReq.getIpAddress().getIpv6AddressNoZone() != null) {
             final ByteBuf body = Unpooled.buffer(Ipv6Util.IPV6_LENGTH);
             Ipv6Util.writeIpv6Address(pccIdReq.getIpAddress().getIpv6AddressNoZone(), body);
-            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.isProcessingRule(), object.isIgnore(),
-                    body, buffer);
+            ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(),
+                object.getIgnore(), body, buffer);
         }
     }
 }
