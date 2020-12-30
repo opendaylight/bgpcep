@@ -39,12 +39,22 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     private final I addPathRouteKeyIdentifier;
     private final boolean depreferenced;
 
+    // Note: this field hides in the alignment shadow of 'depreferenced', but is used only in AdvertizedRoute.
+    // TODO: move this field back when we require JDK15+ (see https://bugs.openjdk.java.net/browse/JDK-8237767)
+    final boolean isFirstBestPath;
+
     AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
             final Attributes attributes, final boolean depreferenced) {
+        this(ribSupport, route, fromPeerId, attributes, depreferenced, false);
+    }
+
+    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final PeerId fromPeerId,
+            final Attributes attributes, final boolean depreferenced, final boolean isFirstBestPath) {
         this.fromPeerId = fromPeerId;
         this.route = route;
         this.attributes = attributes;
         this.depreferenced = depreferenced;
+        this.isFirstBestPath = isFirstBestPath;
 
         final @NonNull String routeKey = verifyNotNull(route.getRouteKey());
         this.nonAddPathRouteKeyIdentifier = ribSupport.createRouteListKey(routeKey);

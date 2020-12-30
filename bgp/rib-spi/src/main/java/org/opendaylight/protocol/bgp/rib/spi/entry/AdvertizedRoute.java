@@ -27,7 +27,6 @@ import org.opendaylight.yangtools.yang.binding.Identifier;
 public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> extends AbstractAdvertizedRoute<C, S, R, I> {
-    private final boolean isFirstBestPath;
 
     public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final R route, final Attributes attributes,
             final PeerId fromPeerId, final boolean depreferenced) {
@@ -36,11 +35,10 @@ public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tabl
 
     public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final boolean isFirstBestPath,
             final R route, final Attributes attributes, final PeerId fromPeerId, final boolean depreferenced) {
-        super(ribSupport, route, fromPeerId, attributes, depreferenced);
-        this.isFirstBestPath = isFirstBestPath;
+        super(ribSupport, route, fromPeerId, attributes, depreferenced, isFirstBestPath);
     }
 
     public boolean isFirstBestPath() {
-        return this.isFirstBestPath;
+        return isFirstBestPath;
     }
 }
