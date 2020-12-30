@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv4.L3vpnMcastRoutesIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.ipv4.L3vpnMcastRoutesIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationL3vpnMcastIpv4AdvertizedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationL3vpnMcastIpv4AdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.l3vpn.mcast.ipv4.advertized._case.DestinationIpv4L3vpnMcast;
@@ -48,8 +47,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  */
 public final class L3VpnMcastIpv4RIBSupport
         extends AbstractL3vpnMcastIpRIBSupport<L3vpnMcastRoutesIpv4Case, L3vpnMcastRoutesIpv4> {
-    private static final L3vpnMcastRoutesIpv4 EMPTY_CONTAINER = new L3vpnMcastRoutesIpv4Builder().build();
-
     public L3VpnMcastIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 L3vpnMcastRoutesIpv4Case.class, L3vpnMcastRoutesIpv4Case.QNAME,
@@ -72,11 +69,6 @@ public final class L3VpnMcastIpv4RIBSupport
                         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.l3vpn.mcast.ipv4
                         .withdrawn._case.DestinationIpv4L3vpnMcastBuilder()
                         .setL3vpnMcastDestination(extractRoutes(routes)).build()).build();
-    }
-
-    @Override
-    public L3vpnMcastRoutesIpv4 emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

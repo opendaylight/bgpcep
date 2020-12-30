@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.routes.FlowspecIpv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.routes.FlowspecIpv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -31,8 +30,6 @@ public final class FlowspecIpv6RIBSupport
         FlowspecIpv6Routes,
         FlowspecRoute,
         FlowspecRouteKey> {
-    private static final FlowspecIpv6Routes EMPTY_CONTAINER = new FlowspecIpv6RoutesBuilder().build();
-
     public FlowspecIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -56,11 +53,6 @@ public final class FlowspecIpv6RIBSupport
             builder = new FlowspecRouteBuilder();
         }
         return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public FlowspecIpv6Routes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

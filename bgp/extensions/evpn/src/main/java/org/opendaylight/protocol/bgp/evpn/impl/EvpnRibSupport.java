@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.bgp.rib.rib.loc.rib.tables.routes.EvpnRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.destination.EvpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.EvpnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.EvpnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRouteKey;
@@ -56,7 +55,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
 
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
-    private static final EvpnRoutes EMPTY_CONTAINER = new EvpnRoutesBuilder().build();
 
     EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
@@ -134,11 +132,6 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
             builder = new EvpnRouteBuilder();
         }
         return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public EvpnRoutes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

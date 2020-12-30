@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.destination.MvpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.mvpn.routes.ipv6.MvpnRoutesIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationMvpnIpv6AdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv6.advertized._case.DestinationMvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv6.advertized._case.DestinationMvpnBuilder;
@@ -48,8 +47,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  * @author Claudio D. Gasparini
  */
 final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case, MvpnRoutesIpv6> {
-    private static final MvpnRoutesIpv6 EMPTY_CONTAINER = new MvpnRoutesIpv6Builder().build();
-
     MvpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 MvpnRoutesIpv6Case.class,
@@ -85,11 +82,6 @@ final class MvpnIpv6RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv6Case
                         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn.ipv6
                         .withdrawn._case.DestinationMvpnBuilder().setMvpnDestination(extractRoutes(routes))
                         .build()).build();
-    }
-
-    @Override
-    public MvpnRoutesIpv6 emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

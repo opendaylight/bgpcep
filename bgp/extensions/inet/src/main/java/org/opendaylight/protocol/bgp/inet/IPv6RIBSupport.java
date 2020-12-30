@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.prefixes.destination.ipv6.Ipv6PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.Ipv6Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.Ipv6RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv6.routes.ipv6.routes.Ipv6RouteKey;
@@ -39,8 +38,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  * Class supporting IPv6 unicast RIBs.
  */
 final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Routes, Ipv6Route, Ipv6RouteKey> {
-    private static final Ipv6Routes EMPTY_CONTAINER = new Ipv6RoutesBuilder().build();
-
     IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.Ipv6Prefix.class,
@@ -85,11 +82,6 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
             builder = new Ipv6RouteBuilder();
         }
         return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public Ipv6Routes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

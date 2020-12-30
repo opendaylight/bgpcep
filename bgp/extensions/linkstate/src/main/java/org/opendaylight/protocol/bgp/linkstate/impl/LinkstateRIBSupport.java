@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.destination.CLinkstateDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.LinkstateRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.LinkstateRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRouteKey;
@@ -56,7 +55,6 @@ import org.slf4j.LoggerFactory;
 public final class LinkstateRIBSupport
         extends AbstractRIBSupport<LinkstateRoutesCase, LinkstateRoutes, LinkstateRoute, LinkstateRouteKey> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-    private static final LinkstateRoutes EMPTY_CONTAINER = new LinkstateRoutesBuilder().build();
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
 
     public LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
@@ -148,11 +146,6 @@ public final class LinkstateRIBSupport
             builder = new LinkstateRouteBuilder();
         }
         return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public LinkstateRoutes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

@@ -19,7 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv4.route.FlowspecRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv4.route.FlowspecRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.routes.FlowspecRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.routes.FlowspecRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -31,8 +30,6 @@ public final class FlowspecIpv4RIBSupport
         FlowspecRoutes,
         FlowspecRoute,
         FlowspecRouteKey> {
-    private static final FlowspecRoutes EMPTY_CONTAINER = new FlowspecRoutesBuilder().build();
-
     public FlowspecIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -56,11 +53,6 @@ public final class FlowspecIpv4RIBSupport
             builder = new FlowspecRouteBuilder();
         }
         return builder.withKey(key).setAttributes(attributes).build();
-    }
-
-    @Override
-    public FlowspecRoutes emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override

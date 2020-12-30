@@ -272,15 +272,6 @@ public interface RIBSupport<
     }
 
     /**
-     * Return the table-type-specific empty routes container, as augmented into the
-     * bgp-peer model under /peer/effect-rib-in/tables/routes choice node/routes container. This needs to include all
-     * the skeleton nodes under which the individual routes will be stored.
-     *
-     * @return Protocol-specific container in the routes, may not be null.
-     */
-    @NonNull S emptyRoutesContainer();
-
-    /**
      * Construct a Route List Key using new path Id for Families.
      *
      * @param pathId   The path identifier

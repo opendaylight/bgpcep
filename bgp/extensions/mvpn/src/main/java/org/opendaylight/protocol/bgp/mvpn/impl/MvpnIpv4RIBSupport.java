@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.bgp.rib.rib.loc.rib.tables.routes.MvpnRoutesIpv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.destination.MvpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationMvpnIpv4AdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv4.advertized._case.DestinationMvpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.mvpn.ipv4.advertized._case.DestinationMvpnBuilder;
@@ -48,8 +47,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
  * @author Claudio D. Gasparini
  */
 final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case, MvpnRoutesIpv4> {
-    private static final MvpnRoutesIpv4 EMPTY_CONTAINER = new MvpnRoutesIpv4Builder().build();
-
     MvpnIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 MvpnRoutesIpv4Case.class,
@@ -84,11 +81,6 @@ final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update
                         .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn.ipv4.withdrawn
                         ._case.DestinationMvpnBuilder().setMvpnDestination(extractRoutes(routes)).build()).build();
-    }
-
-    @Override
-    public MvpnRoutesIpv4 emptyRoutesContainer() {
-        return EMPTY_CONTAINER;
     }
 
     @Override
