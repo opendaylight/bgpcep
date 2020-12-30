@@ -80,14 +80,13 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
          * Get the Connected Vertex from the Graph to initialize the source of
          * the Cspf Path
          */
-        ConnectedVertex vertex = null;
-        vertex = graph.getConnectedVertex(src.getVertexId().longValue());
+        ConnectedVertex vertex = graph.getConnectedVertex(src.getVertexId().longValue());
         if (vertex == null) {
             LOG.warn("Found no source for Vertex Key {}", src);
             cpathBuilder.setStatus(ComputationStatus.Failed);
             return cpathBuilder;
         }
-        LOG.debug("Create Path Source with Vertex {}", vertex.toString());
+        LOG.debug("Create Path Source with Vertex {}", vertex);
         pathSource = new CspfPath(vertex).setCost(0).setDelay(0);
         cpathBuilder.setSource(vertex.getVertex().getVertexId());
 
@@ -101,7 +100,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             cpathBuilder.setStatus(ComputationStatus.Failed);
             return cpathBuilder;
         }
-        LOG.debug("Create Path Destination with Vertex {}", vertex.toString());
+        LOG.debug("Create Path Destination with Vertex {}", vertex);
         pathDestination = new CspfPath(vertex);
         cpathBuilder.setDestination(vertex.getVertex().getVertexId());
 
@@ -183,7 +182,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
         /* Skip checking other Constraints for simple SPF algorithm */
         if (this instanceof ShortestPathFirst) {
-            LOG.trace("Edge {} is valid for Simple Path Computation", edge.toString());
+            LOG.trace("Edge {} is valid for Simple Path Computation", edge.);
             return false;
         }
 
@@ -261,7 +260,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /*
          * OK. All is fine. We can consider this Edge valid, so not to be prune
          */
-        LOG.trace("Edge {} is valid for Constrained Path Computation", edge.toString());
+        LOG.trace("Edge {} is valid for Constrained Path Computation", edge);
         return false;
     }
 
