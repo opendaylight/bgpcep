@@ -58,13 +58,13 @@ public class ShortestPathFirst extends AbstractPathComputation {
         while (priorityQueue.size() != 0) {
             currentPath = priorityQueue.poll();
             visitedVertices.put(currentPath.getVertexKey(), currentPath);
-            LOG.debug("Process path to Vertex {} from Priority Queue", currentPath.getVertex().toString());
+            LOG.debug("Process path to Vertex {} from Priority Queue", currentPath.getVertex());
             edges = currentPath.getVertex().getOutputConnectedEdges();
 
             for (ConnectedEdge edge : edges) {
                 /* Check that Edge point to a valid Vertex and is suitable for the Constraint Address Family */
                 if (pruneEdge(edge, currentPath)) {
-                    LOG.trace("  Prune Edge {}", edge.toString());
+                    LOG.trace("  Prune Edge {}", edge);
                     continue;
                 }
                 if (relax(edge, currentPath) && pathDestination.getCost() < currentCost) {
@@ -90,7 +90,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
     }
 
     private boolean relax(final ConnectedEdge edge, final CspfPath currentPath) {
-        LOG.debug("    Start relaxing Edge {} to Vertex {}", edge.toString(), edge.getDestination().toString());
+        LOG.debug("    Start relaxing Edge {} to Vertex {}", edge, edge.getDestination());
         final Long nextVertexKey = edge.getDestination().getKey();
 
         /* Verify if we have not visited this Vertex to avoid loop */
@@ -122,7 +122,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
             nextPath.setKey(totalCost);
             priorityQueue.add(nextPath);
             LOG.debug("    Added path to Vertex {} in the Priority Queue with weight {}",
-                    nextPath.getVertex().toString(), nextPath.getKey());
+                    nextPath.getVertex(), nextPath.getKey());
         }
         /* Return True if we reach the destination, false otherwise */
         return pathDestination.equals(nextPath);
