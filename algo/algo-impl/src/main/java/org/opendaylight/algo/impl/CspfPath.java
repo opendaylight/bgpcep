@@ -180,13 +180,12 @@ public class CspfPath implements Comparable<CspfPath> {
 
     @Override
     public String toString() {
-        String output = "_path={";
+        final StringBuilder sb = new StringBuilder("_path={");
         for (ConnectedEdge edge : currentPath) {
             if (edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null) {
-                output = output + edge.getEdge().getEdgeAttributes().getRemoteAddress().toString() + ", ";
+                sb.append(edge.getEdge().getEdgeAttributes().getRemoteAddress()).append(", ");
             }
         }
-        return output + "}";
+        return sb.append('}').toString();
     }
-
 }

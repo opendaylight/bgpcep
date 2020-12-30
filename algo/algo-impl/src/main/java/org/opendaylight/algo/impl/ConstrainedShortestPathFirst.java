@@ -39,16 +39,11 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
 
     @Override
     public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
-        ConstrainedPathBuilder cpathBuilder;
-        List<ConnectedEdge> edges;
-        CspfPath currentPath;
-        int currentCost = Integer.MAX_VALUE;
-
         LOG.info("Start CSPF Path Computation from {} to {} with constraints {}", src, dst, cts);
 
         /* Initialize algorithm */
         this.constraints = cts;
-        cpathBuilder = initializePathComputation(src, dst);
+        ConstrainedPathBuilder cpathBuilder = initializePathComputation(src, dst);
         if (cpathBuilder.getStatus() == ComputationStatus.Failed) {
             return cpathBuilder.build();
         }
@@ -59,17 +54,18 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
 
         /* Process all Connected Vertex until priority queue becomes empty. Connected Vertices are added into the
          * priority queue when processing the next Connected Vertex: see relaxMC() method */
+        int currentCost = Integer.MAX_VALUE;
         while (priorityQueue.size() != 0) {
-            currentPath = priorityQueue.poll();
+            CspfPath currentPath = priorityQueue.poll();
             visitedVertices.put(currentPath.getVertexKey(), currentPath);
-            LOG.debug("Got path to Vertex {} from Priority Queue", currentPath.getVertex().toString());
-            edges = currentPath.getVertex().getOutputConnectedEdges();
+            LOG.debug("Got path to Vertex {} from Priority Queue", currentPath.getVertex());
+            List<ConnectedEdge> edges = currentPath.getVertex().getOutputConnectedEdges();
 
             for (ConnectedEdge edge : edges) {
                 /* Skip Connected Edges that must be prune i.e. Edges that not satisfy the given constraints,
                  * in particular the Bandwidth, TE Metric and Delay. */
                 if (pruneEdge(edge, currentPath)) {
-                    LOG.trace("  Prune Edge {}", edge.toString());
+                    LOG.trace("  Prune Edge {}", edge);
                     continue;
                 }
                 if (relaxMultiConstraints(edge, currentPath) && pathDestination.getCost() < currentCost) {
@@ -95,8 +91,7 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
     }
 
     private boolean relaxMultiConstraints(final ConnectedEdge edge, final CspfPath currentPath) {
-        LOG.debug("    Start relaxing Multi Constraints on Edge {} to Vertex {}",
-                edge.toString(), edge.getDestination().toString());
+        LOG.debug("    Start relaxing Multi Constraints on Edge {} to Vertex {}", edge, edge.getDestination());
         final Long nextVertexKey = edge.getDestination().getKey();
 
         /* Verify if we have not visited this Vertex to avoid loop */
@@ -126,7 +121,7 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
             priorityQueue.removeIf(path -> path.getVertexKey().equals(nextVertexKey));
             nextPath.setKey(totalCost);
             priorityQueue.add(nextPath);
-            LOG.debug("    Added path to Vertex {} in the Priority Queue", nextPath.getVertex().toString());
+            LOG.debug("    Added path to Vertex {} in the Priority Queue", nextPath.getVertex());
         }
         /* Return True if we reach the destination, false otherwise */
         return pathDestination.equals(nextPath);
