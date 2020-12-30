@@ -252,7 +252,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
-        return !(isEmptyOrNull(this.bestPath) || isEmptyOrNull(newBestPathList))
+        return (!isEmptyOrNull(this.bestPath) && !isEmptyOrNull(newBestPathList))
                 && this.bestPath.get(0).equals(newBestPathList.get(0));
     }
 
