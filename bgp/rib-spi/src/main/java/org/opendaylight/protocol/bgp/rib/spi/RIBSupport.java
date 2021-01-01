@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -319,12 +318,11 @@ public interface RIBSupport<
     @NonNull String extractRouteKey(@NonNull NodeIdentifierWithPredicates routeListKey);
 
     /**
-     * Extract a route list from the adj-rib-in instantiation of table routes.
+     * Extract attributes from an route entry.
      *
-     * @param routes Table route choice
-     * @return A potentially empty list of routes
+     * @param route Route entry
+     * @return Associated attributes, potentially null
+     * @throws NullPointerException if route is null
      */
-    @NonNull Map<I, R> extractAdjRibInRoutes(Routes routes);
-
-    @Nullable ContainerNode extractAttributes(@NonNull MapEntryNode value);
+    @Nullable ContainerNode extractAttributes(@NonNull MapEntryNode route);
 }
