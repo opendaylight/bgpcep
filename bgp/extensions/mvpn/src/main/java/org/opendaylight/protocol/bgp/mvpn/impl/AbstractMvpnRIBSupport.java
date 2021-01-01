@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.MvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
@@ -48,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author Claudio D. Gasparini
  */
 abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C> & MvpnRoutes> extends AbstractRIBSupport<C, S, MvpnRoute, MvpnRouteKey> {
+        S extends ChildOf<? super C> & MvpnRoutes> extends AbstractRIBSupport<C, S, MvpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
     private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
@@ -73,8 +72,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
-                McastVpnSubsequentAddressFamily.class, destContainerQname,
-                key -> key.getPathId().getValue(), MvpnRouteKey::getRouteKey);
+                McastVpnSubsequentAddressFamily.class, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
 

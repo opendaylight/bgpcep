@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -18,8 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
@@ -35,9 +32,8 @@ public interface RIBExtensionConsumerContext {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-        R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I>
-            getRIBSupport(@NonNull TablesKey key);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
+        @NonNull TablesKey key);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -46,10 +42,8 @@ public interface RIBExtensionConsumerContext {
      * @param safi Subsequent Address Family identifier
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-        R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I>
-            getRIBSupport(@NonNull Class<? extends AddressFamily> afi,
-                    @NonNull Class<? extends SubsequentAddressFamily> safi);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
+            @NonNull Class<? extends AddressFamily> afi, @NonNull Class<? extends SubsequentAddressFamily> safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -58,7 +52,6 @@ public interface RIBExtensionConsumerContext {
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
 
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-        R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>> @Nullable RIBSupport<C, S, R, I>
-            getRIBSupport(@NonNull NodeIdentifierWithPredicates key);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
+            @NonNull NodeIdentifierWithPredicates key);
 }

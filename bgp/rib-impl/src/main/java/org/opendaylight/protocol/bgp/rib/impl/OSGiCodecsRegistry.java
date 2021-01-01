@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 public final class OSGiCodecsRegistry implements CodecsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(OSGiCodecsRegistry.class);
 
-    private final ConcurrentMap<RIBSupport<?, ?, ?, ?>, Codecs> contexts = new ConcurrentHashMap<>();
+    private final ConcurrentMap<RIBSupport<?, ?>, Codecs> contexts = new ConcurrentHashMap<>();
     private volatile BindingCodecTree codecTree;
 
     @Override
-    public Codecs getCodecs(final RIBSupport<?, ?, ?, ?> ribSupport) {
+    public Codecs getCodecs(final RIBSupport<?, ?> ribSupport) {
         return contexts.computeIfAbsent(ribSupport, this::createCodecs);
     }
 
@@ -63,7 +63,7 @@ public final class OSGiCodecsRegistry implements CodecsRegistry {
         LOG.info("BGP codec registry stopped");
     }
 
-    private Codecs createCodecs(final RIBSupport<?, ?, ?, ?> key) {
+    private Codecs createCodecs(final RIBSupport<?, ?> key) {
         final Codecs codecs = new CodecsImpl(key);
         codecs.onCodecTreeUpdated(codecTree);
         return codecs;
