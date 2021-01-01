@@ -18,25 +18,22 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     private final RIBExtensionConsumerContext extensionContext;
     private final CodecsRegistry codecs;
-    private final LoadingCache<RIBSupport<?, ?, ?, ?>, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
-            .build(new CacheLoader<RIBSupport<?, ?, ?, ?>, RIBSupportContextImpl>() {
+    private final LoadingCache<RIBSupport<?, ?>, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
+            .build(new CacheLoader<RIBSupport<?, ?>, RIBSupportContextImpl>() {
                 @Override
-                public RIBSupportContextImpl load(final RIBSupport<?, ?, ?, ?> key) {
+                public RIBSupportContextImpl load(final RIBSupport<?, ?> key) {
                     return createRIBSupportContext(key);
                 }
             });
@@ -53,27 +50,26 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private RIBSupportContextImpl createRIBSupportContext(final RIBSupport<?, ?, ?, ?> support) {
+    private RIBSupportContextImpl createRIBSupportContext(final RIBSupport<?, ?> support) {
         return new RIBSupportContextImpl(support, this.codecs);
     }
 
     @Override
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-            RIBSupport<C, S, R, I> getRIBSupport(final TablesKey key) {
+    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            RIBSupport<C, S> getRIBSupport(final TablesKey key) {
         final RIBSupportContext ribSupport = getRIBSupportContext(key);
         return ribSupport == null ? null : ribSupport.getRibSupport();
     }
 
     @Override
     public RIBSupportContext getRIBSupportContext(final TablesKey key) {
-        final RIBSupport<?, ?, ?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
+        final RIBSupport<?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
         return ribSupport == null ? null : this.contexts.getUnchecked(ribSupport);
     }
 
     @Override
     public RIBSupportContext getRIBSupportContext(final NodeIdentifierWithPredicates key) {
-        final RIBSupport<?, ?, ?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
+        final RIBSupport<?, ?> ribSupport = this.extensionContext.getRIBSupport(key);
         return ribSupport == null ? null : this.contexts.getUnchecked(ribSupport);
     }
 }

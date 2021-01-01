@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -17,30 +16,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 abstract class ForwardingRIBExtensionConsumerContext implements RIBExtensionConsumerContext {
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-            R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>>
-                RIBSupport<C, S, R, I> getRIBSupport(final TablesKey key) {
+    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
+            RIBSupport<C, S> getRIBSupport(final TablesKey key) {
         return delegate().getRIBSupport(key);
     }
 
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-            R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>>
-                RIBSupport<C, S, R, I> getRIBSupport(final Class<? extends AddressFamily> afi,
-                    final Class<? extends SubsequentAddressFamily> safi) {
+    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
+            RIBSupport<C, S> getRIBSupport(final Class<? extends AddressFamily> afi,
+                final Class<? extends SubsequentAddressFamily> safi) {
         return delegate().getRIBSupport(afi, safi);
     }
 
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>,
-            R extends Route & ChildOf<S> & Identifiable<I>, I extends Identifier<R>>
-                RIBSupport<C, S, R, I> getRIBSupport(final NodeIdentifierWithPredicates key) {
+    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
+            RIBSupport<C, S> getRIBSupport(final NodeIdentifierWithPredicates key) {
         return delegate().getRIBSupport(key);
     }
 
