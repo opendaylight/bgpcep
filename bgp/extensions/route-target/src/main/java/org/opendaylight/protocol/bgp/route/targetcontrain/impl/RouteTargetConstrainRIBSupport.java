@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl;
 
-import static com.google.common.base.Verify.verify;
-
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -28,7 +25,6 @@ import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.ImmutableRou
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.bgp.rib.rib.loc.rib.tables.routes.RouteTargetConstrainRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.RouteTargetConstrainChoice;
@@ -176,15 +172,5 @@ public final class RouteTargetConstrainRIBSupport
                 routeTarget.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
                 ByteArray.encodeBase64(buffer), maybePathIdLeaf);
-    }
-
-    @Override
-    public Map<RouteTargetConstrainRouteKey, RouteTargetConstrainRoute> extractAdjRibInRoutes(final Routes routes) {
-        verify(routes instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target
-            .constrain.rev180618.bgp.rib.rib.peer.adj.rib.in.tables.routes.RouteTargetConstrainRoutesCase,
-            "Unrecognized routes %s", routes);
-        return ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618
-                .bgp.rib.rib.peer.adj.rib.in.tables.routes.RouteTargetConstrainRoutesCase) routes)
-                .getRouteTargetConstrainRoutes().nonnullRouteTargetConstrainRoute();
     }
 }
