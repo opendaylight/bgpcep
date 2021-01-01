@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
@@ -53,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecRoutesCase, FlowspecRoutes,
-        FlowspecRoute, FlowspecRouteKey> {
+        FlowspecRoute> {
 
     private FlowspecIpv4RIBSupport ribSupport;
     private FlowspecRoute route;

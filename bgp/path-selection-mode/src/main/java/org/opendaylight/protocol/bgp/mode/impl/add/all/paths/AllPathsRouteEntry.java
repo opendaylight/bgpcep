@@ -13,24 +13,20 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AllPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-        extends AddPathAbstractRouteEntry<C, S, R, I> {
+final class AllPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        extends AddPathAbstractRouteEntry<C, S> {
     private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size) {
         // Select the best path for the case when AddPath is not supported
         final AddPathSelector selector = new AddPathSelector(localAs);

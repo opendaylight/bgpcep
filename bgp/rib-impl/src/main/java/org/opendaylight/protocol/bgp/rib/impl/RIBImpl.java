@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -69,8 +68,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -102,7 +99,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DOMDataBrokerExtension domService;
-    private final Map<DOMTransactionChain, LocRibWriter<?, ?, ?, ?>> txChainToLocRibWriter = new HashMap<>();
+    private final Map<DOMTransactionChain, LocRibWriter<?, ?>> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
@@ -160,7 +157,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         // create locRibWriter for each table
         final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
 
-        final RIBSupport<? extends Routes, ?, ?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<? extends Routes, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport != null) {
             final MapEntryNode emptyTable = ribSupport.emptyTable();
             final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
@@ -177,10 +174,9 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         }
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
+    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void createLocRibWriter(final TablesKey key) {
-        final RIBSupport<C, S, R, I> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<C, S> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }
@@ -191,7 +187,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        final LocRibWriter<C, S, R, I> locRibWriter = LocRibWriter.create(
+        final LocRibWriter<C, S> locRibWriter = LocRibWriter.create(
                 ribSupport,
                 verifyNotNull(this.tableTypeRegistry.getAfiSafiType(key)),
                 txChain,
@@ -252,7 +248,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             final DOMDataTreeTransaction transaction, final Throwable cause) {
         LOG.error("Broken chain in RIB {} transaction {}",
             getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
-        final LocRibWriter<?, ?, ?, ?> locRibWriter = this.txChainToLocRibWriter.remove(chain);
+        final LocRibWriter<?, ?> locRibWriter = this.txChainToLocRibWriter.remove(chain);
         if (locRibWriter != null) {
             final DOMTransactionChain newChain = createPeerDOMChain(this);
             startLocRib(locRibWriter.getTableKey());

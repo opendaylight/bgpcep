@@ -47,8 +47,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
-public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesCase, VpnIpv4Routes, VpnRoute,
-        VpnRouteKey> {
+public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesCase, VpnIpv4Routes, VpnRoute> {
     private VpnIpv4RIBSupport ribSupport;
 
     private static final DestinationVpnIpv4Case REACH_NLRI = new DestinationVpnIpv4CaseBuilder().setVpnIpv4Destination(

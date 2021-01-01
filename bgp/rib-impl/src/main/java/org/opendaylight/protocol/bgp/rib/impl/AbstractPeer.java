@@ -52,7 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -60,8 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -228,21 +225,20 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
-                    final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
+                    final List<ActualBestPathRoutes<C, S>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
 
-        final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
+        final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
         final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
-        for (final ActualBestPathRoutes<C, S, R, I> initRoute : routesToStore) {
+        for (final ActualBestPathRoutes<C, S> initRoute : routesToStore) {
             if (!supportsLLGR() && initRoute.isDepreferenced()) {
                 // Stale Long-lived Graceful Restart routes should not be propagated
                 continue;
@@ -282,16 +278,15 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutes, final List<AdvertizedRoute<C, S, R, I>> newRoutes) {
+    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
+                final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
         final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
-        final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
+        final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         deleteRouteRibOut(ribSupport, staleRoutes, tx);
         installRouteRibOut(entryDep, newRoutes, tx);
 
@@ -311,22 +306,20 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void reEvaluateAdvertizement(
-            final RouteEntryDependenciesContainer entryDep,
-            final List<ActualBestPathRoutes<C, S, R, I>> routesToStore) {
+    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
+                final List<ActualBestPathRoutes<C, S>> routesToStore) {
         if (this.bindingChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
 
-        final RIBSupport<C,S,R,I> ribSupport = entryDep.getRIBSupport();
+        final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         final NodeIdentifierWithPredicates tk = ribSupport.tablesKey();
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
         final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
-        for (final ActualBestPathRoutes<C, S, R, I> actualBestRoute : routesToStore) {
+        for (final ActualBestPathRoutes<C, S> actualBestRoute : routesToStore) {
             final PeerId fromPeerId = actualBestRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
                 continue;
@@ -368,7 +361,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final PeerId fromPeerId, final MapEntryNode route, final YangInstanceIdentifier routePath,
             final ContainerNode attrs) {
         final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
-        final RIBSupport<?, ?, ?, ?> ribSupport = entryDep.getRIBSupport();
+        final RIBSupport<?, ?> ribSupport = entryDep.getRIBSupport();
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this,
             ribSupport.extractRouteKey(route.getIdentifier()), this.rtCache);
 
@@ -388,17 +381,16 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             : ribSupport.attributeToContainerNode(routePath.node(ribSupport.routeAttributesIdentifier()), exportAttrs));
     }
 
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void installRouteRibOut(
-                    final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S, R, I>> routes,
-                    final DOMDataTreeWriteOperations tx) {
-        final RIBSupport<C, S, R, I> ribSupport = entryDep.getRIBSupport();
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void installRouteRibOut(
+            final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S>> routes,
+            final DOMDataTreeWriteOperations tx) {
+        final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         final TablesKey tk = ribSupport.getTablesKey();
         final BGPPeerTracker peerTracker = entryDep.getPeerTracker();
         final boolean addPathSupported = supportsAddPathSupported(tk);
         final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
 
-        for (final AdvertizedRoute<C, S, R, I> advRoute : routes) {
+        for (final AdvertizedRoute<C, S> advRoute : routes) {
             final PeerId fromPeerId = advRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, tk) || !advRoute.isFirstBestPath() && !addPathSupported) {
                 continue;
@@ -427,40 +419,33 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }
     }
 
-    private static YangInstanceIdentifier createRoutePath(final RIBSupport<?, ?, ?, ?> ribSupport,
-            final YangInstanceIdentifier tableRibout, final RouteKeyIdentifier<?, ?> advRoute,
-            final boolean withAddPath) {
+    private static YangInstanceIdentifier createRoutePath(final RIBSupport<?, ?> ribSupport,
+            final YangInstanceIdentifier tableRibout, final RouteKeyIdentifier advRoute, final boolean withAddPath) {
         return ribSupport.createRouteIdentifier(tableRibout,
             withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void deleteRouteRibOut(
-            final RIBSupport<C, S, R, I> ribSupport,
-            final List<StaleBestPathRoute<C, S, R, I>> staleRoutesIid,
-            final DOMDataTreeWriteOperations tx) {
+    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            void deleteRouteRibOut(final RIBSupport<C, S> ribSupport, final List<StaleBestPathRoute> staleRoutesIid,
+                final DOMDataTreeWriteOperations tx) {
         final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
         staleRoutesIid.forEach(staleRouteIid
             -> removeRoute(ribSupport, addPathSupported, tableRibout, staleRouteIid, tx));
     }
 
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void storeRoute(
-                    final RIBSupport<C, S, R, I> ribSupport, final RouteKeyIdentifier<R, I> advRoute,
-                    final MapEntryNode route, final YangInstanceIdentifier routePath, final ContainerNode effAttr,
-                    final DOMDataTreeWriteOperations tx) {
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void storeRoute(
+            final RIBSupport<C, S> ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
+            final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> void removeRoute(final RIBSupport<C, S, R, I> ribSupport,
-            final boolean addPathSupported, final YangInstanceIdentifier tableRibout,
-            final StaleBestPathRoute<C, S, R, I> staleRouteIid, final DOMDataTreeWriteOperations tx) {
+    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            void removeRoute(final RIBSupport<C, S> ribSupport, final boolean addPathSupported,
+                final YangInstanceIdentifier tableRibout, final StaleBestPathRoute staleRouteIid,
+                final DOMDataTreeWriteOperations tx) {
         if (addPathSupported) {
             List<NodeIdentifierWithPredicates> staleRoutesIId = staleRouteIid.getAddPathRouteKeyIdentifiers();
             for (final NodeIdentifierWithPredicates id : staleRoutesIId) {
@@ -480,11 +465,10 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     // FIXME: why is this different from removeRoute()?
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>> void deleteRoute(
-            final RIBSupport<C, S, R, I> ribSupport,  final boolean addPathSupported,
-            final YangInstanceIdentifier tableRibout,
-            final AbstractAdvertizedRoute<C, S , R, I> advRoute, final DOMDataTreeWriteOperations tx) {
+    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void deleteRoute(
+            final RIBSupport<C, S> ribSupport,  final boolean addPathSupported,
+            final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute<C, S> advRoute,
+            final DOMDataTreeWriteOperations tx) {
         final YangInstanceIdentifier ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
             addPathSupported ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
         LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());

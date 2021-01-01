@@ -17,14 +17,11 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -32,12 +29,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> implements RouteEntry<C, S, R, I> {
-    private static final class Stale<C extends Routes & DataObject & ChoiceIn<Tables>,
-            S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
-            I extends Identifier<R>> extends StaleBestPathRoute<C, S, R, I> {
+final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        implements RouteEntry<C, S> {
+    private static final class Stale extends StaleBestPathRoute {
         Stale(final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier) {
             super(nonAddPathRouteKeyIdentifier);
         }
@@ -77,13 +71,13 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         return this.offsets.isEmpty();
     }
 
-    private MapEntryNode createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey) {
+    private MapEntryNode createRoute(final RIBSupport<C, S> ribSup, final String routeKey) {
         final MapEntryNode route = this.offsets.getValue(this.values, this.offsets.offsetOf(bestPath.getRouterId()));
         return ribSup.createRoute(route, ribSup.createRouteListArgument(routeKey), bestPath.getAttributes());
     }
 
     @Override
-    public boolean selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs) {
+    public boolean selectBest(final RIBSupport<C, S> ribSupport, final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -127,30 +121,28 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
-            final String routeKey) {
+    public Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<C, S> ribSupport, final String routeKey) {
         if (removedBestPath == null) {
             return Optional.empty();
         }
         removedBestPath = null;
-        return Optional.of(new Stale<C, S, R, I>(ribSupport.createRouteListArgument(routeKey)));
+        return Optional.of(new Stale(ribSupport.createRouteListArgument(routeKey)));
     }
 
     @Override
-    public List<AdvertizedRoute<C, S, R, I>> newBestPaths(final RIBSupport<C, S, R, I> ribSupport,
-            final String routeKey) {
+    public List<AdvertizedRoute<C, S>> newBestPaths(final RIBSupport<C, S> ribSupport, final String routeKey) {
         if (this.bestPath == null) {
             return Collections.emptyList();
         }
         final MapEntryNode route = createRoute(ribSupport, routeKey);
-        final AdvertizedRoute<C, S, R, I> adv = new AdvertizedRoute<>(ribSupport, route, this.bestPath.getAttributes(),
+        final AdvertizedRoute<C, S> adv = new AdvertizedRoute<>(ribSupport, route, this.bestPath.getAttributes(),
                 this.bestPath.getPeerId(), this.bestPath.isDepreferenced());
         LOG.trace("Selected best route {}", route);
         return Collections.singletonList(adv);
     }
 
     @Override
-    public List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(final RIBSupport<C, S, R, I> ribSupport,
+    public List<ActualBestPathRoutes<C, S>> actualBestPaths(final RIBSupport<C, S> ribSupport,
             final RouteEntryInfo entryInfo) {
         if (this.bestPath == null) {
             return Collections.emptyList();

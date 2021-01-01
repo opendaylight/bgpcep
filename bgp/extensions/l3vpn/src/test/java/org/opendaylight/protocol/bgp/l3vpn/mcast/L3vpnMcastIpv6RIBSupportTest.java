@@ -53,7 +53,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMcastRoutesIpv6Case, L3vpnMcastRoutesIpv6,
-        L3vpnMcastRoute, L3vpnMcastRouteKey> {
+        L3vpnMcastRoute> {
     private static final PathId PATH_ID = new PathId(Uint32.ZERO);
     private static final IpPrefix IPV6_PREFIX = new IpPrefix(new Ipv6Prefix("2001:db8:1:1::/64"));
     private static final RouteDistinguisher RD = new RouteDistinguisher(new RdIpv4("1.2.3.4:258"));

@@ -13,20 +13,16 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-        extends AddPathAbstractRouteEntry<C, S, R, I> {
+final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        extends AddPathAbstractRouteEntry<C, S> {
     private static final Logger LOG = LoggerFactory.getLogger(NPathsRouteEntry.class);
 
     private final int npaths;
@@ -36,7 +32,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size) {
         final int limit = Math.min(npaths, size);
         switch (limit) {
@@ -49,7 +45,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
         }
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size, final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final boolean[] offsets = new boolean[size];

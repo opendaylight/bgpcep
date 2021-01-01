@@ -16,7 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.ipv4.routes.Ipv4Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -25,7 +24,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route, Ipv4RouteKey> {
+public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route> {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
 
@@ -34,8 +33,7 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
 
     public RIBSupportTestImp(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService, Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class, Ipv4Prefixes.QNAME,
-            key -> key.getPathId().getValue(), Ipv4RouteKey::getRouteKey);
+            UnicastSubsequentAddressFamily.class, Ipv4Prefixes.QNAME);
     }
 
     @Override

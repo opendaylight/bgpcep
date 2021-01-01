@@ -52,7 +52,6 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -67,8 +66,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> extends AbstractConcurrentDataBrokerTest {
+        R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractConcurrentDataBrokerTest {
     protected static final PathId PATH_ID = new PathId(Uint32.ONE);
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
@@ -85,9 +83,9 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
     protected AdapterContext adapter;
-    private AbstractRIBSupport<C, S, R, I> abstractRIBSupport;
+    private AbstractRIBSupport<C, S, R> abstractRIBSupport;
 
-    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I> ribSupport) throws Exception {
+    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
     }
 

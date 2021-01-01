@@ -55,7 +55,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
 
 public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<RouteTargetConstrainRoutesCase,
-        RouteTargetConstrainRoutes, RouteTargetConstrainRoute, RouteTargetConstrainRouteKey> {
+        RouteTargetConstrainRoutes, RouteTargetConstrainRoute> {
     private static final AsNumber ORIGIN_AS = new AsNumber(Uint32.valueOf(72));
     private static final PathId PATH_ID = new PathId(Uint32.ZERO);
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
