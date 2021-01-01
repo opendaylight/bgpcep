@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.destination.CLabeledUnicastDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.routes.list.LabeledUnicastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -52,7 +51,7 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractLabeledUnicastRIBSupport<
         C extends Routes & DataObject,
         S extends ChildOf<? super C> & LabeledUnicastRoutesList>
-        extends AbstractRIBSupport<C, S, LabeledUnicastRoute, LabeledUnicastRouteKey> {
+        extends AbstractRIBSupport<C, S, LabeledUnicastRoute> {
     private static final NodeIdentifier LABEL_STACK_NID
             = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
     private static final NodeIdentifier LV_NID
@@ -83,7 +82,7 @@ abstract class AbstractLabeledUnicastRIBSupport<
                 LabeledUnicastRoute.class,
                 addressFamilyClass,
                 LabeledUnicastSubsequentAddressFamily.class,
-                destinationQname, key -> key.getPathId().getValue(), LabeledUnicastRouteKey::getRouteKey);
+                destinationQname);
     }
 
     @Override

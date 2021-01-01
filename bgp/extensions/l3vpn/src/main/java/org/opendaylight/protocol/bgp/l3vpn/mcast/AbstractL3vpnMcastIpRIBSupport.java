@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.destination.L3vpnMcastDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.destination.L3vpnMcastDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.l3vpn.mcast.routes.L3vpnMcastRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
@@ -56,7 +55,7 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractL3vpnMcastIpRIBSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C> & L3vpnMcastRoutes>
-        extends AbstractRIBSupport<C, S, L3vpnMcastRoute, L3vpnMcastRouteKey> {
+        extends AbstractRIBSupport<C, S, L3vpnMcastRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractL3vpnMcastIpRIBSupport.class);
     private final NodeIdentifier nlriRoutesList;
     private final NodeIdentifier rdNid;
@@ -82,8 +81,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, L3vpnMcastRoute.class, afiClass,
-                McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname,
-                key -> key.getPathId().getValue(), L3vpnMcastRouteKey::getRouteKey);
+                McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);

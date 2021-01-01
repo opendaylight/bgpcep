@@ -14,26 +14,23 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
-    private final RIBSupport<?, ?, ?, ?> ribSupport;
+    private final RIBSupport<?, ?> ribSupport;
     private final YangInstanceIdentifier locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
     private final Class<? extends AfiSafiType> afiSafiType;
     private final BGPPeerTracker peerTracker;
 
     RouteEntryDependenciesContainerImpl(
-            final RIBSupport<?, ?, ?, ?> ribSupport,
+            final RIBSupport<?, ?> ribSupport,
             final BGPPeerTracker peerTracker,
             final BGPRibRoutingPolicy routingPolicies,
             final Class<? extends AfiSafiType> afiSafiType,
@@ -47,10 +44,9 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
 
     @Override
     @SuppressWarnings("unchecked")
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
-            R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
-            RIBSupport<C, S, R, I> getRIBSupport() {
-        return (RIBSupport<C, S, R, I>) this.ribSupport;
+    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+            RIBSupport<C, S> getRIBSupport() {
+        return (RIBSupport<C, S>) this.ribSupport;
     }
 
     @Override
