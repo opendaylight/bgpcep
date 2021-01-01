@@ -51,7 +51,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param localAs The local autonomous system number
      * @return return true if it has changed
      */
-    boolean selectBest(RIBSupport<C, S, R, I> ribSupport, long localAs);
+    boolean selectBest(RIBSupport<C, S> ribSupport, long localAs);
 
     /**
      * Add Route.
@@ -69,7 +69,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param ribSupport RIB Support
      * @param entryInfo  Route Entry Info wrapper
      */
-    @NonNull List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+    @NonNull List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(@NonNull RIBSupport<C, S> ribSupport,
             @NonNull RouteEntryInfo entryInfo);
 
     /**
@@ -79,7 +79,7 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param routeKey   of stale route
      * @return list containing list of stale best path
      */
-    @NonNull Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+    @NonNull Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(@NonNull RIBSupport<C, S> ribSupport,
             @NonNull String routeKey);
 
     /**
@@ -88,6 +88,6 @@ public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param ribSupport RIB Support
      * @param routeKey   route key
      */
-    @NonNull List<AdvertizedRoute<C, S, R, I>> newBestPaths(@NonNull RIBSupport<C, S, R, I> ribSupport,
+    @NonNull List<AdvertizedRoute<C, S, R, I>> newBestPaths(@NonNull RIBSupport<C, S> ribSupport,
             @NonNull String routeKey);
 }
