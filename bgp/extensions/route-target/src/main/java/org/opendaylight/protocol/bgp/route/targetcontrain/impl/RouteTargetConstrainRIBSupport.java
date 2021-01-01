@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.destination.RouteTargetConstrainDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.RouteTargetConstrainRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationRouteTargetConstrainAdvertizedCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrainBuilder;
@@ -64,7 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouteTargetConstrainRIBSupport
         extends AbstractRIBSupport<RouteTargetConstrainRoutesCase, RouteTargetConstrainRoutes,
-        RouteTargetConstrainRoute, RouteTargetConstrainRouteKey> {
+        RouteTargetConstrainRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(RouteTargetConstrainRIBSupport.class);
 
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(RouteTargetConstrainDestination.QNAME);
@@ -88,8 +87,7 @@ public final class RouteTargetConstrainRIBSupport
                 RouteTargetConstrainRoute.class,
                 Ipv4AddressFamily.class,
                 RouteTargetConstrainSubsequentAddressFamily.class,
-                DestinationRouteTargetConstrain.QNAME,
-                key -> key.getPathId().getValue(), RouteTargetConstrainRouteKey::getRouteKey);
+                DestinationRouteTargetConstrain.QNAME);
         this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 

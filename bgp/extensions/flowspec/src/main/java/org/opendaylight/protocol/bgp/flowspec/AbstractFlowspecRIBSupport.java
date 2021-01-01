@@ -14,7 +14,6 @@ import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -28,9 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -43,8 +40,7 @@ public abstract class AbstractFlowspecRIBSupport<
         T extends AbstractFlowspecNlriParser,
         C extends Routes & DataObject,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> extends AbstractRIBSupport<C, S, R, I> {
+        R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractRIBSupport<C, S, R> {
     protected final T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
@@ -55,11 +51,9 @@ public abstract class AbstractFlowspecRIBSupport<
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
             final QName dstContainerClassQName,
-            final T nlriParser, final Function<I, Uint32> keyToPathId, final Function<I, String> keyToRouteKey
+            final T nlriParser
     ) {
-        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName,
-            keyToPathId, keyToRouteKey);
-
+        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName);
         this.nlriParser = requireNonNull(nlriParser);
     }
 
