@@ -160,7 +160,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         // create locRibWriter for each table
         final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
 
-        final RIBSupport<? extends Routes, ?, ?, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<? extends Routes, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport != null) {
             final MapEntryNode emptyTable = ribSupport.emptyTable();
             final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
@@ -180,7 +180,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
             R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
             void createLocRibWriter(final TablesKey key) {
-        final RIBSupport<C, S, R, I> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<C, S> ribSupport = this.ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }
