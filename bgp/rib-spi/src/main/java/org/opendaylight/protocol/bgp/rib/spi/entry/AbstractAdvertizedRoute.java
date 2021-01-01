@@ -42,12 +42,12 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     // TODO: move this field back when we require JDK15+ (see https://bugs.openjdk.java.net/browse/JDK-8237767)
     final boolean isFirstBestPath;
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+    AbstractAdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final ContainerNode attributes, final boolean depreferenced) {
         this(ribSupport, route, fromPeerId, attributes, depreferenced, false);
     }
 
-    AbstractAdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+    AbstractAdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final ContainerNode attributes, final boolean depreferenced, final boolean isFirstBestPath) {
         this.fromPeerId = fromPeerId;
         this.route = route;

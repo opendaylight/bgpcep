@@ -28,8 +28,6 @@ import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -46,11 +44,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNod
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<
-        C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>> {
+public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> {
     /**
      * Return the table-type-specific empty table with routes empty container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -87,7 +81,7 @@ public interface RIBSupport<
      *
      * @return Class
      */
-    @NonNull Class<R> routesListClass();
+    @NonNull Class<? extends Route> routesListClass();
 
     default @NonNull ImmutableCollection<Class<? extends BindingObject>> cacheableAttributeObjects() {
         return ImmutableSet.of();
@@ -248,7 +242,7 @@ public interface RIBSupport<
      * @param normalizedNode NormalizedNode representing Route
      * @return Route
      */
-    R fromNormalizedNode(YangInstanceIdentifier routerId, NormalizedNode<?, ?> normalizedNode);
+    Route fromNormalizedNode(YangInstanceIdentifier routerId, NormalizedNode<?, ?> normalizedNode);
 
     /**
      * Translates supplied YANG Instance Identifier and NormalizedNode into Binding data Attribute.

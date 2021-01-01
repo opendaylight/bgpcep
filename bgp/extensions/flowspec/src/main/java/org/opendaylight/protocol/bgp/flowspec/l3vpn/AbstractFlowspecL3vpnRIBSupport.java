@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
 import com.google.common.collect.Iterables;
 import java.util.Collection;
-import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecRIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -23,18 +22,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport
         <T extends AbstractFlowspecL3vpnNlriParser,
                 C extends Routes & DataObject,
                 S extends ChildOf<? super C>,
-                R extends Route & ChildOf<? super S> & Identifiable<I>,
-                I extends Identifier<R>>
-        extends AbstractFlowspecRIBSupport<T, C, S, R, I> {
+                R extends Route & ChildOf<? super S> & Identifiable<?>>
+        extends AbstractFlowspecRIBSupport<T, C, S, R> {
 
     protected AbstractFlowspecL3vpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -43,11 +39,10 @@ public abstract class AbstractFlowspecL3vpnRIBSupport
             final Class<R> listClass,
             final QName dstContainerClassQName,
             final Class<? extends AddressFamily> afiClass,
-            final T flowspecNlriParser, final Function<I, Uint32> keyToPathId, final Function<I, String> keyToRouteKey
+            final T flowspecNlriParser
     ) {
         super(mappingService, cazeClass, containerClass, listClass, afiClass,
-            FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser,
-            keyToPathId, keyToRouteKey);
+            FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
     }
 
     @Override
