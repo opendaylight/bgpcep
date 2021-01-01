@@ -30,7 +30,7 @@ final class AllPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size) {
         // Select the best path for the case when AddPath is not supported
         final AddPathSelector selector = new AddPathSelector(localAs);

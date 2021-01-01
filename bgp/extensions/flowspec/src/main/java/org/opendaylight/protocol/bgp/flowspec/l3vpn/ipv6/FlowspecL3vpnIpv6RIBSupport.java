@@ -13,7 +13,6 @@ import org.opendaylight.protocol.bgp.flowspec.l3vpn.AbstractFlowspecL3vpnRIBSupp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecL3vpnIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.destination.ipv6.DestinationFlowspecL3vpnIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.route.FlowspecL3vpnRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.l3vpn.ipv6.routes.FlowspecL3vpnIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
@@ -21,8 +20,7 @@ public final class FlowspecL3vpnIpv6RIBSupport
         extends AbstractFlowspecL3vpnRIBSupport<FlowspecL3vpnIpv6NlriParser,
         FlowspecL3vpnIpv6RoutesCase,
         FlowspecL3vpnIpv6Routes,
-        FlowspecL3vpnRoute,
-        FlowspecL3vpnRouteKey> {
+        FlowspecL3vpnRoute> {
     public FlowspecL3vpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -31,8 +29,7 @@ public final class FlowspecL3vpnIpv6RIBSupport
                 FlowspecL3vpnRoute.class,
                 DestinationFlowspecL3vpnIpv6.QNAME,
                 Ipv6AddressFamily.class,
-                new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN),
-                key -> key.getPathId().getValue(), FlowspecL3vpnRouteKey::getRouteKey
+                new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN)
         );
     }
 }

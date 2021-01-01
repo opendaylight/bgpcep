@@ -29,12 +29,12 @@ public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tabl
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> extends AbstractAdvertizedRoute<C, S, R, I> {
 
-    public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route,
+    public AdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route,
             final ContainerNode attributes, final PeerId fromPeerId, final boolean depreferenced) {
         this(ribSupport, true, route, attributes, fromPeerId, depreferenced);
     }
 
-    public AdvertizedRoute(final RIBSupport<C, S, R, I> ribSupport, final boolean isFirstBestPath,
+    public AdvertizedRoute(final RIBSupport<C, S> ribSupport, final boolean isFirstBestPath,
             final MapEntryNode route, final ContainerNode attributes, final PeerId fromPeerId,
             final boolean depreferenced) {
         super(ribSupport, route, fromPeerId, attributes, depreferenced, isFirstBestPath);

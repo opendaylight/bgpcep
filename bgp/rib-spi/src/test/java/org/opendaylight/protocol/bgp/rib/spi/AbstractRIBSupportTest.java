@@ -85,9 +85,9 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
     protected AdapterContext adapter;
-    private AbstractRIBSupport<C, S, R, I> abstractRIBSupport;
+    private AbstractRIBSupport<C, S, R> abstractRIBSupport;
 
-    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I> ribSupport) throws Exception {
+    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R> ribSupport) throws Exception {
         this.abstractRIBSupport = ribSupport;
     }
 
