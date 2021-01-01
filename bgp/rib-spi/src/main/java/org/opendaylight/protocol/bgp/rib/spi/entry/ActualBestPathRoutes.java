@@ -30,7 +30,7 @@ public final class ActualBestPathRoutes<C extends Routes & DataObject & ChoiceIn
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & Identifiable<I>,
         I extends Identifier<R>> extends AbstractAdvertizedRoute<C, S, R, I> {
 
-    public ActualBestPathRoutes(final RIBSupport<C, S, R, I> ribSupport, final MapEntryNode route,
+    public ActualBestPathRoutes(final RIBSupport<C, S> ribSupport, final MapEntryNode route,
             final PeerId fromPeerId, final ContainerNode attributes, final boolean depreferenced) {
         super(ribSupport, route, fromPeerId, attributes, depreferenced);
     }

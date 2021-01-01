@@ -86,7 +86,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private final Map<String, RouteEntry<C, S, R, I>> routeEntries = new HashMap<>();
     private final long ourAs;
-    private final RIBSupport<C, S, R, I> ribSupport;
+    private final RIBSupport<C, S> ribSupport;
     private final DOMDataTreeChangeService dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
@@ -100,7 +100,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     @GuardedBy("this")
     private ListenerRegistration<?> reg;
 
-    private LocRibWriter(final RIBSupport<C, S, R, I> ribSupport,
+    private LocRibWriter(final RIBSupport<C, S> ribSupport,
             final DOMTransactionChain chain,
             final YangInstanceIdentifier ribIId,
             final Uint32 ourAs,
@@ -127,7 +127,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     public static <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>,
                 R extends Route & ChildOf<? super S> & Identifiable<I>, I extends Identifier<R>>
                 LocRibWriter<C, S, R, I> create(
-            final @NonNull RIBSupport<C, S, R, I> ribSupport,
+            final @NonNull RIBSupport<C, S> ribSupport,
             final @NonNull Class<? extends AfiSafiType> afiSafiType,
             final @NonNull DOMTransactionChain chain,
             final @NonNull YangInstanceIdentifier ribIId,

@@ -90,9 +90,9 @@ public final class CodecsImpl implements Codecs {
     private BindingNormalizedNodeCachingCodec<MpReachNlri> reachNlriCodec;
     private BindingNormalizedNodeCachingCodec<MpUnreachNlri> unreachNlriCodec;
 
-    private final RIBSupport<?, ?, ?, ?> ribSupport;
+    private final RIBSupport<?, ?> ribSupport;
 
-    public CodecsImpl(final RIBSupport<?, ?, ?, ?> ribSupport) {
+    public CodecsImpl(final RIBSupport<?, ?> ribSupport) {
         this.ribSupport = requireNonNull(ribSupport);
         final Builder<Class<? extends BindingObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
