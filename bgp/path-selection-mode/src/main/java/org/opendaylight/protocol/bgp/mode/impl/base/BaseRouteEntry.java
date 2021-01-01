@@ -77,13 +77,13 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         return this.offsets.isEmpty();
     }
 
-    private MapEntryNode createRoute(final RIBSupport<C, S, R, I> ribSup, final String routeKey) {
+    private MapEntryNode createRoute(final RIBSupport<C, S> ribSup, final String routeKey) {
         final MapEntryNode route = this.offsets.getValue(this.values, this.offsets.offsetOf(bestPath.getRouterId()));
         return ribSup.createRoute(route, ribSup.createRouteListArgument(routeKey), bestPath.getAttributes());
     }
 
     @Override
-    public boolean selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs) {
+    public boolean selectBest(final RIBSupport<C, S> ribSupport, final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -127,7 +127,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S, R, I> ribSupport,
+    public Optional<StaleBestPathRoute<C, S, R, I>> removeStalePaths(final RIBSupport<C, S> ribSupport,
             final String routeKey) {
         if (removedBestPath == null) {
             return Optional.empty();
@@ -137,8 +137,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public List<AdvertizedRoute<C, S, R, I>> newBestPaths(final RIBSupport<C, S, R, I> ribSupport,
-            final String routeKey) {
+    public List<AdvertizedRoute<C, S, R, I>> newBestPaths(final RIBSupport<C, S> ribSupport, final String routeKey) {
         if (this.bestPath == null) {
             return Collections.emptyList();
         }
@@ -150,7 +149,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
     }
 
     @Override
-    public List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(final RIBSupport<C, S, R, I> ribSupport,
+    public List<ActualBestPathRoutes<C, S, R, I>> actualBestPaths(final RIBSupport<C, S> ribSupport,
             final RouteEntryInfo entryInfo) {
         if (this.bestPath == null) {
             return Collections.emptyList();
