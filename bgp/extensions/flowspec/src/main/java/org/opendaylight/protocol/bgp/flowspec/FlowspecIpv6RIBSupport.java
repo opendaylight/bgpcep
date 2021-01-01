@@ -13,7 +13,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.ipv6.DestinationFlowspecIpv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
@@ -21,8 +20,7 @@ public final class FlowspecIpv6RIBSupport
         extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv6NlriParser,
         FlowspecIpv6RoutesCase,
         FlowspecIpv6Routes,
-        FlowspecRoute,
-        FlowspecRouteKey> {
+        FlowspecRoute> {
     public FlowspecIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(
                 mappingService,
@@ -32,8 +30,7 @@ public final class FlowspecIpv6RIBSupport
                 Ipv6AddressFamily.class,
                 FlowspecSubsequentAddressFamily.class,
                 DestinationFlowspecIpv6.QNAME,
-                new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC),
-                key -> key.getPathId().getValue(), FlowspecRouteKey::getRouteKey
+                new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC)
         );
     }
 }

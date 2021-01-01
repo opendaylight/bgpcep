@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -30,9 +29,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -50,9 +47,8 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractIPRibSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<S> & Identifiable<I>,
-        I extends Identifier<R>>
-        extends AbstractRIBSupport<C, S, R, I> {
+        R extends Route & ChildOf<S> & Identifiable<?>>
+        extends AbstractRIBSupport<C, S, R> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
@@ -65,10 +61,9 @@ abstract class AbstractIPRibSupport<
             final Class<C> cazeClass,
             final Class<S> containerClass,
             final Class<R> listClass,
-            final QName destinationQname, final QName prefixesQname,
-            final Function<I, Uint32> keyToPathId, final Function<I, String> keyToRouteKey) {
+            final QName destinationQname, final QName prefixesQname) {
         super(mappingService, cazeClass, containerClass, listClass, addressFamilyClass,
-                UnicastSubsequentAddressFamily.class, destinationQname, keyToPathId, keyToRouteKey);
+                UnicastSubsequentAddressFamily.class, destinationQname);
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
         this.prefixNid = new NodeIdentifier(QName.create(routeQName(), "prefix").intern());

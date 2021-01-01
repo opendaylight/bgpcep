@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -51,7 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S extends ChildOf<? super C> & L3vpnIpRoute>
-        extends AbstractRIBSupport<C, S, VpnRoute, VpnRouteKey> {
+        extends AbstractRIBSupport<C, S, VpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
     private final NodeIdentifier nlriRoutesListNid;
     private final NodeIdentifier labelStackNid;
@@ -73,8 +72,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
             final Class<? extends AddressFamily> afiClass,
             final QName vpnDstContainerClassQname) {
         super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
-                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname,
-                key -> key.getPathId().getValue(), VpnRouteKey::getRouteKey);
+                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
         this.nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule())
             .intern());
         this.labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());

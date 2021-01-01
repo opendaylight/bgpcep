@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -65,7 +64,6 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
-import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
@@ -92,9 +90,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRIBSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<I>,
-        I extends Identifier<R>>
-        implements RIBSupport<C, S, R, I> {
+        R extends Route & ChildOf<? super S> & Identifiable<?>>
+        implements RIBSupport<C, S> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
@@ -137,8 +134,6 @@ public abstract class AbstractRIBSupport<
     private final NodeIdentifierWithPredicates tablesKey;
     private final ImmutableList<PathArgument> relativeRoutesPath;
     private final ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
-    private final Function<I, String> keyToRouteKey;
-    private final Function<I, Uint32> keyToPathId;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -161,9 +156,7 @@ public abstract class AbstractRIBSupport<
             final Class<R> listClass,
             final Class<? extends AddressFamily> afiClass,
             final Class<? extends SubsequentAddressFamily> safiClass,
-            final QName destContainerQname,
-            final Function<I, Uint32> keyToPathId,
-            final Function<I, String> keyToRouteKey) {
+            final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         this.routesContainerIdentifier = NodeIdentifier.create(
             BindingReflections.findQName(containerClass).bindTo(module));
@@ -172,8 +165,6 @@ public abstract class AbstractRIBSupport<
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        this.keyToRouteKey = requireNonNull(keyToRouteKey);
-        this.keyToPathId = requireNonNull(keyToPathId);
         this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
         this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         this.routesListIdentifier = NodeIdentifier.create(routeQname);

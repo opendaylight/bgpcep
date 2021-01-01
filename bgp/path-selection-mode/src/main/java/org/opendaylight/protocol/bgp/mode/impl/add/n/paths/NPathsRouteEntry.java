@@ -36,7 +36,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size) {
         final int limit = Math.min(npaths, size);
         switch (limit) {
@@ -49,7 +49,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S
         }
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S, R, I> ribSupport, final long localAs,
+    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
             final int size, final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final boolean[] offsets = new boolean[size];
