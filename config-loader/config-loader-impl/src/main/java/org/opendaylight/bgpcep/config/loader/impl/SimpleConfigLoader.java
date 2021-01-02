@@ -8,7 +8,7 @@
 package org.opendaylight.bgpcep.config.loader.impl;
 
 import com.google.common.annotations.Beta;
-import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import javax.annotation.PostConstruct;
@@ -22,13 +22,13 @@ import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
 @Singleton
 public final class SimpleConfigLoader extends AbstractWatchingConfigLoader implements AutoCloseable {
     private final @NonNull WatchService watchService;
-    private final @NonNull File directory;
+    private final @NonNull Path directory;
 
     @Inject
     public SimpleConfigLoader(final FileWatcher fileWatcher, final BindingRuntimeContext runtimeContext) {
         updateModelContext(runtimeContext.getEffectiveModelContext());
-        this.watchService = fileWatcher.getWatchService();
-        this.directory = new File(fileWatcher.getPathFile());
+        watchService = fileWatcher.getWatchService();
+        directory = Path.of(fileWatcher.getPathFile());
     }
 
     @PostConstruct
@@ -43,7 +43,7 @@ public final class SimpleConfigLoader extends AbstractWatchingConfigLoader imple
     }
 
     @Override
-    File directory() {
+    Path directory() {
         return directory;
     }
 
