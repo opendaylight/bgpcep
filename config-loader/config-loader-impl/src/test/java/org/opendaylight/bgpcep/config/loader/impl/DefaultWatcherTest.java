@@ -10,18 +10,16 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
+import java.nio.file.Path;
 import org.junit.Test;
 
 public class DefaultWatcherTest {
-    private static final String PATH = String.join(File.separator, "etc", "opendaylight", "bgpcep");
-
     @Test
     public void bgpFileWatcherTest() throws Exception {
         try (DefaultFileWatcher bgpFileWatcher = new DefaultFileWatcher()) {
             bgpFileWatcher.activate();
 
-            assertEquals(PATH, bgpFileWatcher.getPathFile());
+            assertEquals(Path.of("etc", "opendaylight", "bgpcep"), bgpFileWatcher.getPathFile());
             assertNotNull(bgpFileWatcher.getWatchService());
         }
     }

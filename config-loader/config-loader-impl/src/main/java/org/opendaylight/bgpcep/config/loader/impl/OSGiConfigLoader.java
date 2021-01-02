@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import com.google.common.annotations.Beta;
-import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.WatchKey;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
@@ -26,7 +26,7 @@ public final class OSGiConfigLoader extends AbstractWatchingConfigLoader {
     @Reference
     FileWatcher watcher;
 
-    private File directory;
+    private Path directory;
 
     @Reference(policy = ReferencePolicy.DYNAMIC, updated = "setRuntimeContext", unbind = "setRuntimeContext")
     void setRuntimeContext(final BindingRuntimeContext runtimeContext) {
@@ -35,7 +35,7 @@ public final class OSGiConfigLoader extends AbstractWatchingConfigLoader {
 
     @Activate
     void activate() {
-        directory = new File(watcher.getPathFile());
+        directory = watcher.getPathFile();
         start();
     }
 
@@ -49,7 +49,7 @@ public final class OSGiConfigLoader extends AbstractWatchingConfigLoader {
     }
 
     @Override
-    File directory() {
+    Path directory() {
         return verifyNotNull(directory);
     }
 
