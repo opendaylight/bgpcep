@@ -10,19 +10,21 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import com.google.common.base.Stopwatch;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -100,22 +102,18 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         final ProcessorRegistration reg = new ProcessorRegistration();
         this.configServices.put(reg, context);
 
-        final File[] fList = directory().listFiles();
-        if (fList != null) {
-            final List<String> newFiles = new ArrayList<>();
-            for (final File newFile : fList) {
-                if (newFile.isFile()) {
-                    final String filename = newFile.getName();
-                    if (context.matchesFile(filename)) {
-                        newFiles.add(filename);
-                    }
-                }
-            }
-
-            for (final String filename : newFiles) {
-                handleConfigFile(context, filename);
-            }
+        final Stream<Path> files;
+        try {
+            files = Files.list(directory());
+        } catch (IOException e) {
+            LOG.info("Failed to access directory", e);
+            return reg;
         }
+
+        files.filter(Files::isRegularFile)
+            .map(path -> path.getFileName().toString())
+            .filter(context::matchesFile)
+            .forEach(filename -> handleConfigFile(context, filename));
         return reg;
     }
 
@@ -132,7 +130,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         }
     }
 
-    abstract @NonNull File directory();
+    abstract @NonNull Path directory();
 
     private synchronized void unregister(final ProcessorRegistration reg) {
         configServices.remove(reg);
@@ -163,7 +161,31 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
-        final File newFile = new File(directory(), filename);
+        try (InputStream resourceAsStream = openFile(filename)) {
+            final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
+
+            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
+                xmlParser.parse(reader);
+            } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
+                LOG.warn("Failed to parse xml", e);
+            } finally {
+                reader.close();
+            }
+        }
+
+        return result.getResult();
+    }
+
+    private InputStream openFile(final String filename) throws FileNotFoundException, IOException {
+        final Path filePath = directory().resolve(filename);
+        final File newFile;
+        try {
+            newFile = filePath.toFile();
+        } catch (UnsupportedOperationException e) {
+            LOG.info("File name is not backed by a file", e);
+            return Files.newInputStream(filePath);
+        }
+
         try (RandomAccessFile raf = new RandomAccessFile(newFile, READ)) {
             final FileChannel channel = raf.getChannel();
 
@@ -184,19 +206,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
                 }
             }
 
-            try (InputStream resourceAsStream = new FileInputStream(newFile)) {
-                final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
-
-                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
-                    xmlParser.parse(reader);
-                } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
-                    LOG.warn("Failed to parse xml", e);
-                } finally {
-                    reader.close();
-                }
-            }
+            return new FileInputStream(newFile);
         }
-
-        return result.getResult();
     }
 }

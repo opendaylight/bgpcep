@@ -10,7 +10,14 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Map;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -22,8 +29,33 @@ import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBrokerTest {
     protected final class TestConfigLoader extends AbstractConfigLoader {
         @Override
-        File directory() {
-            return new File(getResourceFolder());
+        Path directory() {
+            final URI uri;
+            try {
+                uri = getResourceFolder().toURI();
+            } catch (URISyntaxException e) {
+                throw new IllegalStateException(e);
+            }
+
+            // from https://stackoverflow.com/a/48298758
+            if ("jar".equals(uri.getScheme())) {
+                for (FileSystemProvider provider : FileSystemProvider.installedProviders()) {
+                    if (provider.getScheme().equalsIgnoreCase("jar")) {
+                        try {
+                            provider.getFileSystem(uri);
+                        } catch (FileSystemNotFoundException e) {
+                            // in this case we need to initialize it first:
+                            try {
+                                provider.newFileSystem(uri, Map.of());
+                            } catch (IOException io) {
+                                throw new IllegalStateException(io);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return Path.of(uri);
         }
 
         public void triggerEvent(final String filename) {
@@ -55,7 +87,7 @@ public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBro
         return customizer;
     }
 
-    protected String getResourceFolder() {
-        return ClassLoader.getSystemClassLoader().getResource("initial").getPath();
+    protected URL getResourceFolder() {
+        return ClassLoader.getSystemClassLoader().getResource("initial");
     }
 }
