@@ -15,6 +15,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -167,11 +168,13 @@ public final class CheckUtil {
                 return;
             }
         }
-        throw new AssertionError("Expected " + numberOfMessages + " but received "
-                + listener.getListMessageSize());
+        throw new AssertionError("Expected " + numberOfMessages + " but received " + listener.getListMsg());
     }
 
     public interface ListenerCheck {
+
+        List<?> getListMsg();
+
         int getListMessageSize();
     }
 

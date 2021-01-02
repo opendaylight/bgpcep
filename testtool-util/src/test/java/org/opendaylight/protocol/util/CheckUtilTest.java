@@ -29,10 +29,10 @@ import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -45,25 +45,20 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("topotest");
-    private final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
-            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                    new TopologyKey(TOPOLOGY_ID));
+    private static final KeyedInstanceIdentifier<Topology, TopologyKey> TOPOLOGY_IID =
+            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID));
     private static final int TIMEOUT = 1;
+
     @Mock
     private ListenerCheck listenerCheck;
     @Mock
     private ChannelFuture future;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test(expected = VerifyException.class)
     public void testWaitFutureSuccessFail() {
-        when(this.future.isDone()).thenReturn(false);
         doReturn(this.future).when(this.future).addListener(any());
         waitFutureSuccess(this.future, 10L, TimeUnit.MILLISECONDS);
     }
@@ -80,18 +75,18 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test(expected = NullPointerException.class)
     public void testReadDataOperationalNull() throws Exception {
-        readDataOperational(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
+        readDataOperational(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT);
     }
 
     @Test(expected = NullPointerException.class)
     public void testReadDataConfigurationNull() throws Exception {
-        readDataConfiguration(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
+        readDataConfiguration(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT);
     }
 
     @Test(expected = AssertionError.class)
     public void testReadDataOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNotNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -100,7 +95,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     @Test(expected = AssertionError.class)
     public void testReadDataConfigurationFail() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNotNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -109,7 +104,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void testReadDataOperational() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -118,7 +113,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void testReadDataConfiguration() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -126,39 +121,36 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     private void storeTopo(final LogicalDatastoreType dsType) throws ExecutionException, InterruptedException {
         final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
-        wt.mergeParentStructurePut(dsType, this.topologyIIdKeyed,
-                new TopologyBuilder()
-                        .setTopologyId(TOPOLOGY_ID)
-                        .build());
+        wt.mergeParentStructurePut(dsType, TOPOLOGY_IID, new TopologyBuilder().setTopologyId(TOPOLOGY_ID).build());
         wt.commit().get();
     }
 
     @Test
     public void testCheckPresentConfiguration() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        checkPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
+        checkPresentConfiguration(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test
     public void testCheckPresentOperational() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        checkPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+        checkPresentOperational(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test(expected = AssertionError.class)
     public void testCheckNotPresentOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+        checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test
     public void testCheckNotPresentOperational() throws Exception {
-        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+        checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test
     public void testCheckNotPresentConfiguration() throws Exception {
-        checkNotPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
+        checkNotPresentConfiguration(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test(expected = AssertionError.class)
