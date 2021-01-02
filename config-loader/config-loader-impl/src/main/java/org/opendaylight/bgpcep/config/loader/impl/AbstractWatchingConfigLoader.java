@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.config.loader.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.ClosedWatchServiceException;
+import java.nio.file.Path;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,7 +67,10 @@ abstract class AbstractWatchingConfigLoader extends AbstractConfigLoader {
             }
 
             if (key != null) {
-                key.pollEvents().stream().map(event -> event.context().toString()).forEach(this::handleEvent);
+                key.pollEvents().stream()
+                    .filter(event -> event.kind().type().equals(Path.class))
+                    .map(event -> (Path) event.context())
+                    .forEach(this::handleEvent);
                 if (!key.reset()) {
                     LOG.warn("Could not reset the watch key.");
                 }
