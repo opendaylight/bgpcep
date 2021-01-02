@@ -9,20 +9,22 @@ package org.opendaylight.bgpcep.config.loader.impl;
 
 import com.google.common.base.Stopwatch;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -66,8 +68,8 @@ abstract class AbstractConfigLoader implements ConfigLoader {
             this.pattern = pattern;
         }
 
-        boolean matchesFile(final String filename) {
-            return pattern.matcher(filename).matches();
+        boolean matchesFile(final Path path) {
+            return pattern.matcher(path.getFileName().toString()).matches();
         }
 
         void updateSchemaNode(final EffectiveModelContext newContext) {
@@ -98,31 +100,26 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         context.updateSchemaNode(currentContext);
 
         final ProcessorRegistration reg = new ProcessorRegistration();
-        this.configServices.put(reg, context);
+        configServices.put(reg, context);
 
-        final File[] fList = directory().listFiles();
-        if (fList != null) {
-            final List<String> newFiles = new ArrayList<>();
-            for (final File newFile : fList) {
-                if (newFile.isFile()) {
-                    final String filename = newFile.getName();
-                    if (context.matchesFile(filename)) {
-                        newFiles.add(filename);
-                    }
-                }
-            }
-
-            for (final String filename : newFiles) {
-                handleConfigFile(context, filename);
-            }
+        final Stream<Path> files;
+        try {
+            files = Files.list(directory());
+        } catch (IOException e) {
+            LOG.info("Failed to access directory", e);
+            return reg;
         }
+
+        files.filter(Files::isRegularFile)
+            .filter(context::matchesFile)
+            .forEach(path -> handleConfigFile(context, path));
         return reg;
     }
 
-    final synchronized void handleEvent(final String filename) {
+    final synchronized void handleEvent(final Path path) {
         configServices.values().stream()
-                .filter(context -> context.matchesFile(filename))
-                .forEach(context -> handleConfigFile(context, filename));
+                .filter(context -> context.matchesFile(path))
+                .forEach(context -> handleConfigFile(context, path));
     }
 
     final synchronized void updateModelContext(final EffectiveModelContext newModelContext) {
@@ -132,71 +129,81 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         }
     }
 
-    abstract @NonNull File directory();
+    abstract @NonNull Path directory();
 
     private synchronized void unregister(final ProcessorRegistration reg) {
         configServices.remove(reg);
     }
 
     @Holding("this")
-    private void handleConfigFile(final ProcessorContext context, final String filename) {
+    private void handleConfigFile(final ProcessorContext context, final Path path) {
         final EffectiveStatementInference schema = context.schema;
         if (schema == null) {
-            LOG.info("No schema present for {}, ignoring file {}", context.processor.fileRootSchema(), filename);
+            LOG.info("No schema present for {}, ignoring file {}", context.processor.fileRootSchema(), path);
             return;
         }
 
         final NormalizedNode dto;
         try {
-            dto = parseDefaultConfigFile(schema, filename);
+            dto = parseDefaultConfigFile(schema, path);
         } catch (final IOException | XMLStreamException e) {
-            LOG.warn("Failed to parse config file {}", filename, e);
+            LOG.warn("Failed to parse config file {}", path, e);
             return;
         }
-        LOG.info("Loading initial config {}", filename);
+        LOG.info("Loading initial config {}", path);
         context.processor.loadConfiguration(dto);
     }
 
     @Holding("this")
-    private NormalizedNode parseDefaultConfigFile(final EffectiveStatementInference schema, final String filename)
+    private static NormalizedNode parseDefaultConfigFile(final EffectiveStatementInference schema, final Path path)
             throws IOException, XMLStreamException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
 
-        final File newFile = new File(directory(), filename);
-        try (RandomAccessFile raf = new RandomAccessFile(newFile, READ)) {
-            final FileChannel channel = raf.getChannel();
+        try (InputStream resourceAsStream = openFile(path)) {
+            final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
 
-            FileLock lock = null;
-            final Stopwatch stopwatch = Stopwatch.createStarted();
-            while (lock == null || stopwatch.elapsed(TimeUnit.NANOSECONDS) > TIMEOUT_NANOS) {
-                try {
-                    lock = channel.tryLock();
-                } catch (final IllegalStateException e) {
-                    //Ignore
-                }
-                if (lock == null) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        LOG.warn("Failed to lock xml", e);
-                    }
-                }
-            }
-
-            try (InputStream resourceAsStream = new FileInputStream(newFile)) {
-                final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
-
-                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
-                    xmlParser.parse(reader);
-                } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
-                    LOG.warn("Failed to parse xml", e);
-                } finally {
-                    reader.close();
-                }
+            try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
+                xmlParser.parse(reader);
+            } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
+                LOG.warn("Failed to parse xml", e);
+            } finally {
+                reader.close();
             }
         }
 
         return result.getResult();
+    }
+
+    private static InputStream openFile(final Path filePath) throws FileNotFoundException, IOException {
+        final File newFile;
+        try {
+            newFile = filePath.toFile();
+        } catch (UnsupportedOperationException e) {
+            LOG.info("File name is not backed by a file", e);
+            return Files.newInputStream(filePath);
+        }
+
+        final FileChannel channel = new RandomAccessFile(newFile, READ).getChannel();
+        final Stopwatch stopwatch = Stopwatch.createStarted();
+        do {
+            FileLock lock = null;
+            try {
+                lock = channel.tryLock();
+            } catch (final IllegalStateException e) {
+                //Ignore
+            }
+            if (lock != null) {
+                break;
+            }
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                LOG.warn("Failed to lock xml", e);
+            }
+        } while (stopwatch.elapsed(TimeUnit.NANOSECONDS) > TIMEOUT_NANOS);
+
+        return Channels.newInputStream(channel);
     }
 }

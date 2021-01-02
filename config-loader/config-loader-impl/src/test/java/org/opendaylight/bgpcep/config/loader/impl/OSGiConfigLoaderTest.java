@@ -13,6 +13,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -46,13 +48,14 @@ public class OSGiConfigLoaderTest {
     @Before
     public void before() throws InterruptedException {
         doReturn(watchService).when(watcher).getWatchService();
-        doReturn("foo").when(watcher).getPathFile();
+        doReturn(Path.of("foo")).when(watcher).getPathFile();
         doReturn(watchKey).when(watchService).take();
         doAnswer(inv -> {
             doThrow(new RuntimeException("enough!")).when(watchKey).pollEvents();
             return List.of(watchEvent);
         }).when(watchKey).pollEvents();
-        doReturn("watchEvent").when(watchEvent).context();
+        doReturn(StandardWatchEventKinds.ENTRY_MODIFY).when(watchEvent).kind();
+        doReturn(Path.of("foo")).when(watchEvent).context();
         doReturn(true).when(watchKey).reset();
         doReturn(domContext).when(bindingContext).getEffectiveModelContext();
 
