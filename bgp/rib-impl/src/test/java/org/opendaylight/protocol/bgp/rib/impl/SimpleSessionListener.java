@@ -41,9 +41,6 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     public SimpleSessionListener() {
     }
 
-    synchronized List<Notification> getListMsg() {
-        return this.listMsg;
-    }
 
     @Override
     public void markUptodate(final TablesKey tablesKey) {
@@ -101,6 +98,11 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
         assertTrue("Session up",
                 Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
         return (BGPSessionImpl) this.bgpSession;
+    }
+
+    @Override
+    public synchronized List<Notification> getListMsg() {
+        return this.listMsg;
     }
 
     @Override

@@ -13,8 +13,10 @@ import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -75,21 +77,23 @@ public final class CheckUtil {
     private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
             final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
             throws InterruptedException, ExecutionException {
-        AssertionError lastError = null;
+
+        AssertionError lastError;
         final Stopwatch sw = Stopwatch.createStarted();
         do {
+            final ListenableFuture<Optional<T>> future;
             try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final Optional<T> data = tx.read(ldt, iid).get();
-                if (data.isPresent()) {
-                    try {
-                        return function.apply(data.get());
-                    } catch (final AssertionError e) {
-                        lastError = e;
-                        Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
-                    }
-                }
+                future = tx.read(ldt, iid);
+            }
+
+            try {
+                return function.apply(future.get().orElseThrow(() -> new AssertionError("Data not present at " + iid)));
+            } catch (final AssertionError e) {
+                lastError = e;
+                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
             }
         } while (sw.elapsed(TimeUnit.SECONDS) <= timeout);
+
         throw lastError;
     }
 
@@ -116,20 +120,22 @@ public final class CheckUtil {
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
             final LogicalDatastoreType ldt, final InstanceIdentifier<T> iid) throws InterruptedException,
                 ExecutionException {
-        AssertionError lastError = null;
+        AssertionError lastError;
         final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= 10) {
+        do {
+            final ListenableFuture<Boolean> future;
             try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                final Optional<T> data = tx.read(ldt, iid).get();
-                try {
-                    assert !data.isPresent();
-                    return;
-                } catch (final AssertionError e) {
-                    lastError = e;
-                    Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-                }
+                future = tx.exists(ldt, iid);
             }
-        }
+
+            if (!future.get()) {
+                return;
+            }
+
+            lastError = new AssertionError("Data still exists at " + iid);
+            Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
+        } while (sw.elapsed(TimeUnit.SECONDS) <= 10);
+
         throw lastError;
     }
 
@@ -167,11 +173,13 @@ public final class CheckUtil {
                 return;
             }
         }
-        throw new AssertionError("Expected " + numberOfMessages + " but received "
-                + listener.getListMessageSize());
+        throw new AssertionError("Expected " + numberOfMessages + " but received " + listener.getListMsg());
     }
 
     public interface ListenerCheck {
+
+        List<?> getListMsg();
+
         int getListMessageSize();
     }
 

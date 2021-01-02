@@ -9,6 +9,7 @@ package org.opendaylight.protocol.util;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -29,10 +30,10 @@ import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -45,71 +46,67 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("topotest");
-    private final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
-            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                    new TopologyKey(TOPOLOGY_ID));
+    private static final KeyedInstanceIdentifier<Topology, TopologyKey> TOPOLOGY_IID =
+            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID));
     private static final int TIMEOUT = 1;
+
     @Mock
     private ListenerCheck listenerCheck;
     @Mock
     private ChannelFuture future;
 
-    @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-    }
-
-    @Test(expected = VerifyException.class)
+    @Test
     public void testWaitFutureSuccessFail() {
-        when(this.future.isDone()).thenReturn(false);
-        doReturn(this.future).when(this.future).addListener(any());
-        waitFutureSuccess(this.future, 10L, TimeUnit.MILLISECONDS);
+        doReturn(future).when(future).addListener(any());
+        assertThrows(VerifyException.class, () -> waitFutureSuccess(future, 10L, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testWaitFutureSuccess() {
-        when(this.future.isSuccess()).thenReturn(true);
+        when(future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
-            ((GenericFutureListener)invocation.getArgument(0)).operationComplete(CheckUtilTest.this.future);
-            return CheckUtilTest.this.future;
-        }).when(this.future).addListener(any());
-        waitFutureSuccess(this.future);
+            invocation.getArgument(0, GenericFutureListener.class).operationComplete(future);
+            return future;
+        }).when(future).addListener(any());
+        waitFutureSuccess(future);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testReadDataOperationalNull() throws Exception {
-        readDataOperational(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
+    @Test
+    public void testReadDataOperationalNull() {
+        assertThrows(AssertionError.class,
+            () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testReadDataConfigurationNull() throws Exception {
-        readDataConfiguration(getDataBroker(), topologyIIdKeyed, test -> false, TIMEOUT);
+    public void testReadDataConfigurationNull() {
+        assertThrows(AssertionError.class,
+            () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
-    @Test(expected = AssertionError.class)
     public void testReadDataOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+
+        assertThrows(AssertionError.class, () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNotNull(result.getNode());
             return result;
-        }, TIMEOUT);
+        }, TIMEOUT));
     }
 
-    @Test(expected = AssertionError.class)
     public void testReadDataConfigurationFail() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+
+        assertThrows(AssertionError.class, () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNotNull(result.getNode());
             return result;
-        }, TIMEOUT);
+        }, TIMEOUT));
     }
 
     @Test
     public void testReadDataOperational() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        readDataOperational(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -118,7 +115,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     @Test
     public void testReadDataConfiguration() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        readDataConfiguration(getDataBroker(), this.topologyIIdKeyed, result -> {
+        readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
             assertNull(result.getNode());
             return result;
         }, TIMEOUT);
@@ -126,55 +123,53 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     private void storeTopo(final LogicalDatastoreType dsType) throws ExecutionException, InterruptedException {
         final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
-        wt.mergeParentStructurePut(dsType, this.topologyIIdKeyed,
-                new TopologyBuilder()
-                        .setTopologyId(TOPOLOGY_ID)
-                        .build());
+        wt.mergeParentStructurePut(dsType, TOPOLOGY_IID, new TopologyBuilder().setTopologyId(TOPOLOGY_ID).build());
         wt.commit().get();
     }
 
     @Test
     public void testCheckPresentConfiguration() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
-        checkPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
+        checkPresentConfiguration(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test
     public void testCheckPresentOperational() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        checkPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+        checkPresentOperational(getDataBroker(), TOPOLOGY_IID);
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testCheckNotPresentOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
-        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+
+        assertThrows(AssertionError.class, () -> checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID));
     }
 
     @Test
     public void testCheckNotPresentOperational() throws Exception {
-        checkNotPresentOperational(getDataBroker(), this.topologyIIdKeyed);
+        checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID);
     }
 
     @Test
     public void testCheckNotPresentConfiguration() throws Exception {
-        checkNotPresentConfiguration(getDataBroker(), this.topologyIIdKeyed);
+        checkNotPresentConfiguration(getDataBroker(), TOPOLOGY_IID);
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testCheckEquals() throws Exception {
-        checkEquals(Assert::fail, TIMEOUT);
+        assertThrows(AssertionError.class, () -> checkEquals(Assert::fail, TIMEOUT));
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testCheckReceivedMessagesNotEqual() {
-        doReturn(0).when(this.listenerCheck).getListMessageSize();
-        checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
+        doReturn(0).when(listenerCheck).getListMessageSize();
+        assertThrows(AssertionError.class, () -> checkReceivedMessages(listenerCheck, 1, TIMEOUT));
     }
 
     @Test
     public void testCheckReceivedMessagesEqual() {
-        doReturn(1).when(this.listenerCheck).getListMessageSize();
-        checkReceivedMessages(this.listenerCheck, 1, TIMEOUT);
+        doReturn(1).when(listenerCheck).getListMessageSize();
+        checkReceivedMessages(listenerCheck, 1, TIMEOUT);
     }
 }
