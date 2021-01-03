@@ -70,7 +70,7 @@ public class EROExplicitExclusionRouteSubobjectParser implements EROSubobjectPar
             .route.object.xro.Subobject> xros = new ArrayList<>();
         while (buffer.isReadable()) {
             final boolean mandatory =
-                    (buffer.getByte(buffer.readerIndex()) & 1 << Values.FIRST_BIT_OFFSET) != 0 ? true : false;
+                    (buffer.getByte(buffer.readerIndex()) & 1 << Values.FIRST_BIT_OFFSET) != 0;
             final int type =
                     buffer.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES & ~(1 << Values.FIRST_BIT_OFFSET);
             final int length = buffer.readUnsignedByte() - HEADER_LENGTH;

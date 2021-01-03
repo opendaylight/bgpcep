@@ -617,7 +617,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private static boolean isLongLivedStaleTable(final Optional<NormalizedNode<?, ?>> optTable) {
         final Optional<NormalizedNode<?, ?>> optAttributes = NormalizedNodes.findNode(optTable, ATTRIBUTES_NID);
-        return optAttributes.isPresent() ? isLongLivedStale(extractContainer(optAttributes)) : false;
+        return optAttributes.isPresent() && isLongLivedStale(extractContainer(optAttributes));
     }
 
     private static ContainerNode effectiveAttributes(final Optional<? extends NormalizedNode<?, ?>> optUptodate) {

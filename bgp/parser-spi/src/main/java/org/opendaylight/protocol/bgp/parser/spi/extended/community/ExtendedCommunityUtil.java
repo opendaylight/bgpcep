@@ -14,6 +14,7 @@ public final class ExtendedCommunityUtil {
     private static final byte NON_TRANS = 0x40;
 
     private ExtendedCommunityUtil() {
+        // Hidden on pupose
     }
 
     /**
@@ -25,7 +26,7 @@ public final class ExtendedCommunityUtil {
      *         type.
      */
     public static int setTransitivity(final int type, final boolean isTransitive) {
-        return isTransitive ? type : ExtendedCommunityUtil.toNonTransitiveType(type);
+        return isTransitive ? type : type | NON_TRANS;
     }
 
     /**
@@ -35,10 +36,6 @@ public final class ExtendedCommunityUtil {
      * @return True if input type is transitive, false if the type is non-transitive
      */
     public static boolean isTransitive(final int type) {
-        return (type & NON_TRANS) == 0 ? true : false;
-    }
-
-    private static int toNonTransitiveType(final int type) {
-        return type | NON_TRANS;
+        return (type & NON_TRANS) == 0;
     }
 }

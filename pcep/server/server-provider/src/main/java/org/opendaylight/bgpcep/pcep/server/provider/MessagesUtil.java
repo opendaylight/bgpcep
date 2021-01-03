@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.server.provider;
 
 import com.google.common.collect.Lists;
@@ -84,14 +83,14 @@ public final class MessagesUtil {
     public static final int PATH_DELAY = 12;
 
     private MessagesUtil() {
-        throw new UnsupportedOperationException();
+        // Hidden on purpose
     }
 
-    public static Ero getEro(List<PathDescription> pathDescriptions) {
+    public static Ero getEro(final List<PathDescription> pathDescriptions) {
         /* Prepare ERO */
-        final EroBuilder eroBuilder = new EroBuilder();
-        eroBuilder.setIgnore(false);
-        eroBuilder.setProcessingRule(true);
+        final EroBuilder eroBuilder = new EroBuilder()
+            .setIgnore(false)
+            .setProcessingRule(true);
         final List<Subobject> eroSubs = new ArrayList<>();
 
         /* Fulfill ERO sublist */
@@ -121,7 +120,7 @@ public final class MessagesUtil {
             } else {
                 /* Prepare SubObject for Segment Routing */
                 SrEroType srEro = null;
-                if ((path.getLocalIpv4() != null) && (path.getRemoteIpv4() != null)) {
+                if (path.getLocalIpv4() != null && path.getRemoteIpv4() != null) {
                     srEro = new SrEroTypeBuilder()
                             .setNaiType(NaiType.Ipv4Adjacency)
                             .setSid(path.getSid())
@@ -135,7 +134,7 @@ public final class MessagesUtil {
                                     .build())
                             .build();
                 }
-                if ((path.getLocalIpv6() != null) && (path.getRemoteIpv6() != null)) {
+                if (path.getLocalIpv6() != null && path.getRemoteIpv6() != null) {
                     srEro = new SrEroTypeBuilder()
                             .setNaiType(NaiType.Ipv6Adjacency)
                             .setSid(path.getSid())
@@ -165,30 +164,30 @@ public final class MessagesUtil {
         return eroBuilder.build();
     }
 
-    private static PathsBuilder buildPath(ConstrainedPath cpath) {
+    private static PathsBuilder buildPath(final ConstrainedPath cpath) {
         final PathsBuilder pathBuilder = new PathsBuilder();
 
         /* Get ERO from Path Description */
         pathBuilder.setEro(getEro(cpath.getPathDescription()));
 
         /* Fulfill Computed Metrics if available */
-        final ArrayList<Metrics> metrics = new ArrayList<Metrics>();
+        final ArrayList<Metrics> metrics = new ArrayList<>();
         if (cpath.getMetric() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
                     .setMetricType(Uint8.valueOf(IGP_METRIC)).setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(Float.valueOf(cpath.getMetric().floatValue())).array()));
+                            ByteBuffer.allocate(4).putFloat(cpath.getMetric().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
         if (cpath.getTeMetric() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
                     .setMetricType(Uint8.valueOf(TE_METRIC)).setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(Float.valueOf(cpath.getTeMetric().floatValue())).array()));
+                            ByteBuffer.allocate(4).putFloat(cpath.getTeMetric().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
         if (cpath.getDelay() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
                     .setMetricType(Uint8.valueOf(PATH_DELAY)).setValue(new Float32(ByteBuffer.allocate(4)
-                            .putFloat(Float.valueOf(cpath.getDelay().getValue().floatValue())).array()));
+                            .putFloat(cpath.getDelay().getValue().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
         if (!metrics.isEmpty()) {
@@ -198,7 +197,7 @@ public final class MessagesUtil {
         if (cpath.getBandwidth() != null) {
             final BandwidthBuilder bwBuilder = new BandwidthBuilder();
             bwBuilder.setBandwidth(new Bandwidth(new Float32(ByteBuffer.allocate(4)
-                    .putFloat(Float.valueOf(cpath.getBandwidth().getValue().floatValue())).array())));
+                    .putFloat(cpath.getBandwidth().getValue().floatValue()).array())));
             pathBuilder.setBandwidth(bwBuilder.build());
             if (cpath.getClassType() != null) {
                 pathBuilder.setClassType(new ClassTypeBuilder().setClassType(
@@ -210,10 +209,10 @@ public final class MessagesUtil {
         return pathBuilder;
     }
 
-    public static Pcrep createPcRepMessage(Rp rp, P2p p2p, ConstrainedPath cpath) {
+    public static Pcrep createPcRepMessage(final Rp rp, final P2p p2p, final ConstrainedPath cpath) {
 
         /* Prepare Path Object with ERO and Object from the Request */
-        final ArrayList<Paths> paths = new ArrayList<Paths>();
+        final ArrayList<Paths> paths = new ArrayList<>();
         PathsBuilder pathBuilder = buildPath(cpath);
 
         if (p2p.getLspa() != null) {
@@ -238,11 +237,11 @@ public final class MessagesUtil {
         return new PcrepBuilder().setPcrepMessage(msgBuilder.build()).build();
     }
 
-    public static Pcrep createNoPathMessage(Rp rp, byte reason) {
+    public static Pcrep createNoPathMessage(final Rp rp, final byte reason) {
 
         /* Prepare NoPath Object */
         final Flags flags = new Flags(false, false, false, false, false, false,
-                (reason == UNKNOWN_DESTINATION) ? true : false, (reason == UNKNOWN_SOURCE) ? true : false);
+                reason == UNKNOWN_DESTINATION, reason == UNKNOWN_SOURCE);
         final NoPathVectorBuilder npvBuilder = new NoPathVectorBuilder().setFlags(flags);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder().setNoPathVector(npvBuilder.build());
         final NoPathBuilder npBuilder = new NoPathBuilder()
