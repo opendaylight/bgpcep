@@ -53,10 +53,9 @@ final class BgpAttributeConditionsUtil {
             && matchLocalPref(attributes.getLocalPref(), conditions.getLocalPrefEq());
     }
 
-    private static boolean matchAfiSafi(
-            final Class<? extends AfiSafiType> afiSafi,
+    private static boolean matchAfiSafi(final Class<? extends AfiSafiType> afiSafi,
             final List<Class<? extends AfiSafiType>> afiSafiIn) {
-        return afiSafiIn == null ? true : afiSafiIn.contains(afiSafi);
+        return afiSafiIn == null || afiSafiIn.contains(afiSafi);
     }
 
     private static boolean matchMED(final MultiExitDisc multiExitDisc, final Uint32 med) {
@@ -72,7 +71,7 @@ final class BgpAttributeConditionsUtil {
             return true;
         }
 
-        final List<Segments> segments = asPath.getSegments();
+        final List<Segments> segments = asPath.nonnullSegments();
         int total = segments.stream().map(AsPathSegment::getAsSequence)
                 .filter(Objects::nonNull).mapToInt(List::size).sum();
 
