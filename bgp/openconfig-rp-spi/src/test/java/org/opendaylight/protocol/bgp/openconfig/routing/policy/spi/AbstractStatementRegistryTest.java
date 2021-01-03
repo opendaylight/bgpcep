@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.junit.Before;
 import org.opendaylight.bgpcep.config.loader.routing.policy.AbstractOpenconfigRoutingPolicyLoaderTest;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -27,14 +26,8 @@ public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPoli
     public static final long LOCAL_AS = 8;
     public static final Ipv4AddressNoZone IPV4 = new Ipv4AddressNoZone("1.2.3.4");
     public static final ClusterIdentifier CLUSTER = new ClusterIdentifier(IPV4);
-    protected StatementRegistry statementRegistry;
 
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        this.statementRegistry = new StatementRegistry();
-    }
+    protected final StatementRegistry statementRegistry = new StatementRegistry();
 
     protected List<Statement> loadStatement(final String policyName) throws ExecutionException, InterruptedException {
         final ReadWriteTransaction rt = getDataBroker().newReadWriteTransaction();
