@@ -51,14 +51,14 @@ public class PathComputationImpl implements PathComputation {
     private final ConnectedGraph tedGraph;
     private final PathComputationProvider algoProvider;
 
-    public PathComputationImpl(ConnectedGraph tedGraph, PathComputationProvider algoProvider) {
+    public PathComputationImpl(final ConnectedGraph tedGraph, final PathComputationProvider algoProvider) {
         Preconditions.checkArgument(tedGraph != null);
         this.tedGraph = tedGraph;
         this.algoProvider = algoProvider;
     }
 
     @Override
-    public Message computePath(Requests req) {
+    public Message computePath(final Requests req) {
         LOG.info("Received Compute Path request");
 
         /* Check that Request Parameter Object is present */
@@ -93,7 +93,7 @@ public class PathComputationImpl implements PathComputation {
 
         /* Determine Path Computation Algorithm according to Input choice */
         AlgorithmType algoType;
-        if ((cts.getTeMetric() == null) && (cts.getDelay() == null)) {
+        if (cts.getTeMetric() == null && cts.getDelay() == null) {
             algoType = AlgorithmType.Spf;
         } else if (cts.getDelay() == null) {
             algoType = AlgorithmType.Cspf;
@@ -121,8 +121,8 @@ public class PathComputationImpl implements PathComputation {
     }
 
     @Override
-    public Ero computeEro(EndpointsObj endpoints, Bandwidth bandwidth, ClassType classType, List<Metrics> metrics,
-            boolean segmentRouting) {
+    public Ero computeEro(final EndpointsObj endpoints, final Bandwidth bandwidth, final ClassType classType,
+            final List<Metrics> metrics, final boolean segmentRouting) {
         VertexKey source = getSourceVertexKey(endpoints);
         VertexKey destination = getDestinationVertexKey(endpoints);
         if (source == null) {
@@ -136,7 +136,7 @@ public class PathComputationImpl implements PathComputation {
 
         /* Determine Path Computation Algorithm according to parameters */
         AlgorithmType algoType;
-        if ((cts.getTeMetric() == null) && (cts.getDelay() == null) && (cts.getBandwidth() == null)) {
+        if (cts.getTeMetric() == null && cts.getDelay() == null && cts.getBandwidth() == null) {
             algoType = AlgorithmType.Spf;
         } else if (cts.getDelay() == null) {
             algoType = AlgorithmType.Cspf;
@@ -164,7 +164,7 @@ public class PathComputationImpl implements PathComputation {
         }
     }
 
-    private VertexKey getSourceVertexKey(EndpointsObj endPoints) {
+    private VertexKey getSourceVertexKey(final EndpointsObj endPoints) {
         IpAddress address = null;
 
         if (endPoints.getAddressFamily() instanceof Ipv4Case) {
@@ -179,10 +179,10 @@ public class PathComputationImpl implements PathComputation {
 
         ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
         LOG.debug("Compute path from Source {}", vertex != null ? vertex : "Unknown");
-        return (vertex != null) ? vertex.getVertex().key() : null;
+        return vertex != null ? vertex.getVertex().key() : null;
     }
 
-    private VertexKey getDestinationVertexKey(EndpointsObj endPoints) {
+    private VertexKey getDestinationVertexKey(final EndpointsObj endPoints) {
         IpAddress address = null;
 
         if (endPoints.getAddressFamily() instanceof Ipv4Case) {
@@ -197,16 +197,16 @@ public class PathComputationImpl implements PathComputation {
 
         ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
         LOG.debug("Compute path to Destination {}", vertex != null ? vertex : "Unknown");
-        return (vertex != null) ? vertex.getVertex().key() : null;
+        return vertex != null ? vertex.getVertex().key() : null;
     }
 
-    private PathConstraints getConstraints(P2p parameters, boolean segmentRouting) {
+    private static PathConstraints getConstraints(final P2p parameters, final boolean segmentRouting) {
         return getConstraints(parameters.getEndpointsObj(), parameters.getBandwidth(), parameters.getClassType(),
                 parameters.getMetrics(), segmentRouting);
     }
 
-    private PathConstraints getConstraints(EndpointsObj endpoints, Bandwidth bandwidth, ClassType classType,
-            List<Metrics> metrics, boolean segmentRouting) {
+    private static PathConstraints getConstraints(final EndpointsObj endpoints, final Bandwidth bandwidth,
+            final ClassType classType, final List<Metrics> metrics, final boolean segmentRouting) {
         ConstraintsBuilder ctsBuilder = new ConstraintsBuilder();
         Float convert;
 
@@ -244,17 +244,9 @@ public class PathComputationImpl implements PathComputation {
 
         /* Set Address Family */
         if (endpoints.getAddressFamily() instanceof Ipv4Case) {
-            if (segmentRouting) {
-                ctsBuilder.setAddressFamily(AddressFamily.SrIpv4);
-            } else {
-                ctsBuilder.setAddressFamily(AddressFamily.Ipv4);
-            }
+            ctsBuilder.setAddressFamily(segmentRouting ? AddressFamily.SrIpv4 : AddressFamily.Ipv4);
         } else {
-            if (segmentRouting) {
-                ctsBuilder.setAddressFamily(AddressFamily.SrIpv6);
-            } else {
-                ctsBuilder.setAddressFamily(AddressFamily.Ipv6);
-            }
+            ctsBuilder.setAddressFamily(segmentRouting ? AddressFamily.SrIpv6 : AddressFamily.Ipv6);
         }
 
         return ctsBuilder.build();
