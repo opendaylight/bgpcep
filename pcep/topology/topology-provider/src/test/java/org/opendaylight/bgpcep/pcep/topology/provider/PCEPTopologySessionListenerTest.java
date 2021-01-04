@@ -396,7 +396,7 @@ public class PCEPTopologySessionListenerTest
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
-            assertEquals(1, topology.getNode().size());
+            assertEquals(1, topology.nonnullNode().size());
             return topology;
         });
     }
@@ -420,7 +420,7 @@ public class PCEPTopologySessionListenerTest
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
-            assertEquals(1, topology.getNode().size());
+            assertEquals(1, topology.nonnullNode().size());
             return topology;
         });
 
@@ -459,7 +459,7 @@ public class PCEPTopologySessionListenerTest
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         this.listener.onMessage(this.session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
-            assertEquals(1, topology.getNode().size());
+            assertEquals(1, topology.nonnullNode().size());
             return topology;
         });
 
@@ -494,7 +494,7 @@ public class PCEPTopologySessionListenerTest
         this.listener.onSessionUp(this.session);
         this.listener.onMessage(this.session, rptmsg);
         readDataOperational(getDataBroker(), TOPO_IID, node -> {
-            assertFalse(node.getNode().isEmpty());
+            assertFalse(node.nonnullNode().isEmpty());
             return node;
         });
     }
