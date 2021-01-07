@@ -68,21 +68,34 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, Peer,
         PeerTransactionChain, DOMTransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
-    protected final RIB rib;
-    final String name;
-    final PeerRole peerRole;
+
+    final RTCClientRouteCache rtCache = new RTCClientRouteCache();
+    final RIB rib;
+
     private final ClusterIdentifier clusterId;
+    private final PeerRole peerRole;
     private final AsNumber localAs;
+    private final String name;
+
+    // FIXME: revisit locking here to improve concurrency:
+    //        -- identifiers, peerId are a shared resource
+    //        -- domChain seems to really be 'ribInChain', accessed from netty thread
+    //        -- ribOutChain is accessed from LocRibWriter
+    //        hence we want to use the two chains concurrently. The problem is their lifecycle in response to errors,
+    //        which needs figuring out.
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
-    @VisibleForTesting
-    DOMTransactionChain ribOutChain;
     byte[] rawIdentifier;
     @GuardedBy("this")
     PeerId peerId;
+
+    // These seem to be separate
+    @GuardedBy("this")
+    @VisibleForTesting
+    DOMTransactionChain ribOutChain;
+    @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
-    RTCClientRouteCache rtCache = new RTCClientRouteCache();
 
     AbstractPeer(
             final RIB rib,
