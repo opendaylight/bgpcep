@@ -111,7 +111,7 @@ public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
         doNothing().when(serviceRegistration).close();
 
         final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), this.policyProvider,
-            mock(CodecsRegistry.class), getDomBroker(), getDataBroker());
+            mock(CodecsRegistry.class), getDomBroker());
         doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
 
         doReturn(new BgpPeer(mock(RpcProviderService.class))).when(this.blueprintContainer)
