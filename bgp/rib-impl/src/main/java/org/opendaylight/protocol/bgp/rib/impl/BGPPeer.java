@@ -113,6 +113,12 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
 
+    private final RIB rib;
+
+    // FIXME: Alright, this right here is a ton of state which has intertwined initialization and dependencies Split
+    //        these out into separate behavior objects. This also has relationship with state in AbstractPeer -- which
+    //        hints at an obvious layer of indirection. Yeah, yeah, we can always add one of those, but the point
+    //        is that this class is a mutable meeting point, whereas the behaviour has captured invariants.
     private final LoadingCache<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
         CacheBuilder.newBuilder().build(new CacheLoader<NodeIdentifierWithPredicates, YangInstanceIdentifier>() {
             @Override
@@ -122,13 +128,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         });
 
     private ImmutableSet<TablesKey> tables = ImmutableSet.of();
-    private final RIB rib;
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final BgpPeer bgpPeer;
 
+    // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerRibOutIId;
     @GuardedBy("this")
     private Registration trackerRegistration;
@@ -141,7 +147,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private EffectiveRibInWriter effRibInWriter;
     private ObjectRegistration<BgpPeerRpcService> rpcRegistration;
     private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
+    // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
+    // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
     private boolean sessionUp;
     private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
@@ -395,7 +403,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .rev180329.bgp.rib.rib.Peer, PeerKey> peerIId = getInstanceIdentifier().child(org.opendaylight.yang.gen
                     .v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer.class,
                     new PeerKey(this.peerId));
-            this.peerPath = createPeerPath();
+            this.peerPath = createPeerPath(this.peerId);
             this.peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
             createEffRibInWriter();
@@ -550,6 +558,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
         final FluentFuture<? extends CommitInfo> future;
+        // FIXME: this is a typical example of something which should be handled by a behavior into which we have
+        //        transitioned way before this method is called. This really begs to be an abstract base class with
+        //        a 'clearTables' or similar callout
         if (isRestartingGracefully()) {
             final Set<TablesKey> gracefulTables = getGracefulTables();
             this.ribWriter.storeStaleRoutes(gracefulTables);
