@@ -22,8 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
@@ -67,8 +65,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, TransactionChainListener,
-        DOMTransactionChainListener, Peer, PeerTransactionChain {
+abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, Peer,
+        PeerTransactionChain, DOMTransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
     protected final RIB rib;
     final String name;
@@ -79,7 +77,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     @VisibleForTesting
-    TransactionChain bindingChain;
+    DOMTransactionChain ribOutChain;
     byte[] rawIdentifier;
     @GuardedBy("this")
     PeerId peerId;
@@ -180,11 +178,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final TransactionChain chain) {
-        LOG.debug("Transaction chain {} successful.", chain);
-    }
-
-    @Override
     public final BGPErrorHandlingState getBGPErrorHandlingState() {
         return this;
     }
@@ -230,7 +223,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
                     final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.bindingChain == null) {
+        if (this.ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -239,7 +232,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
         for (final ActualBestPathRoutes<C, S> initRoute : routesToStore) {
             if (!supportsLLGR() && initRoute.isDepreferenced()) {
                 // Stale Long-lived Graceful Restart routes should not be propagated
@@ -283,11 +276,11 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
                 final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
-        if (this.bindingChain == null) {
+        if (this.ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
-        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
         final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         deleteRouteRibOut(ribSupport, staleRoutes, tx);
         installRouteRibOut(entryDep, newRoutes, tx);
@@ -311,7 +304,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
                 final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.bindingChain == null) {
+        if (this.ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -320,7 +313,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final NodeIdentifierWithPredicates tk = ribSupport.tablesKey();
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
         for (final ActualBestPathRoutes<C, S> actualBestRoute : routesToStore) {
             final PeerId fromPeerId = actualBestRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
@@ -477,7 +470,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
-    final synchronized void releaseBindingChain(final boolean isWaitForSubmitted) {
+    final synchronized void releaseRibOutChain(final boolean isWaitForSubmitted) {
         if (isWaitForSubmitted) {
             if (this.submitted != null) {
                 try {
@@ -487,14 +480,11 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 }
             }
         }
-        closeBindingChain();
-    }
 
-    private synchronized void closeBindingChain() {
-        if (this.bindingChain != null) {
+        if (this.ribOutChain != null) {
             LOG.info("Closing peer chain {}", getPeerId());
-            this.bindingChain.close();
-            this.bindingChain = null;
+            this.ribOutChain.close();
+            this.ribOutChain = null;
         }
     }
 
