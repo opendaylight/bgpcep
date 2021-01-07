@@ -76,7 +76,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     private final AsNumber localAs;
     private final String name;
 
-    // FIXME: revisit locking here to improve concurrency:
+    // FIXME: Revisit locking here to improve concurrency:
     //        -- identifiers, peerId are a shared resource
     //        -- domChain seems to really be 'ribInChain', accessed from netty thread
     //        -- ribOutChain is accessed from LocRibWriter
@@ -84,6 +84,10 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     //        which needs figuring out.
     @GuardedBy("this")
     private DOMTransactionChain domChain;
+    // FIXME: This is an invariant once the peer is 'resolved' -- which happens instantaneously for ApplicationPeer.
+    //        There are also a number YangInstanceIdentifiers which are tied to it. We want to keep all of them in one
+    //        structure for isolation. This could be a separate DTO (JDK16 record) or isolated into an abstract behavior
+    //        class.
     @GuardedBy("this")
     PeerId peerId;
 
@@ -148,8 +152,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         return future;
     }
 
-    synchronized YangInstanceIdentifier createPeerPath() {
-        return this.rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(this.peerId));
+    final YangInstanceIdentifier createPeerPath(final PeerId newPeerId) {
+        return rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
     }
 
     @Override
