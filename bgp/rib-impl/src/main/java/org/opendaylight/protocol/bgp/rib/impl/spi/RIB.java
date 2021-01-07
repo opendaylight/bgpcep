@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
@@ -55,14 +54,6 @@ public interface RIB extends RibReference, RibOutRefresh {
      * @return A new transaction chain.
      */
     DOMTransactionChain createPeerDOMChain(DOMTransactionChainListener listener);
-
-    /**
-     * Allocate a new transaction chain for use with a peer.
-     *
-     * @param listener {@link TransactionChainListener} handling recovery
-     * @return A new transaction chain.
-     */
-    TransactionChain createPeerChain(TransactionChainListener listener);
 
     /**
      * Return the RIB extensions available to the RIB instance.
