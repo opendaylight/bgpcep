@@ -161,7 +161,9 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         final Open open = createClassicOpen(true);
         this.sessionv6.writeAndFlush(open);
         checkIdleState(this.nonIpv4);
-        assertNull(this.nonIpv4.bindingChain);
+        synchronized (this.nonIpv4) {
+            assertNull(this.nonIpv4.bindingChain);
+        }
     }
 
     /**
