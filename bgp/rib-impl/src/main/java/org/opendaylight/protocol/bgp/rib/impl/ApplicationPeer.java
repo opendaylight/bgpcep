@@ -148,7 +148,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 }
             }
         };
-        this.peerPath = createPeerPath();
+        this.peerPath = createPeerPath(this.peerId);
         this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, this.peerPath, context, localTables,
                 Collections.emptyMap(), registerAppPeerListener);
         this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
