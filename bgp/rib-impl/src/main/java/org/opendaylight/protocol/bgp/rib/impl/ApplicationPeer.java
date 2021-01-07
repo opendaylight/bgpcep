@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.mdsal.binding.api.Transaction;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
@@ -324,12 +322,6 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     @Override
     public void onTransactionChainFailed(final DOMTransactionChain chain, final DOMDataTreeTransaction transaction,
-            final Throwable cause) {
-        LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
-    }
-
-    @Override
-    public void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
             final Throwable cause) {
         LOG.error("Transaction chain {} failed.", transaction != null ? transaction.getIdentifier() : null, cause);
     }

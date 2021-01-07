@@ -39,11 +39,10 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.Transaction;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -355,7 +354,20 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized void onSessionUp(final BGPSession session) {
         this.currentSession = session;
         this.sessionUp = true;
-        this.bindingChain = this.rib.createPeerChain(this);
+
+        this.ribOutChain = this.rib.createPeerDOMChain(new DOMTransactionChainListener() {
+            @Override
+            public void onTransactionChainSuccessful(final DOMTransactionChain chain) {
+                LOG.debug("RibOut transaction chain {} successful.", chain);
+            }
+
+            @Override
+            public void onTransactionChainFailed(final DOMTransactionChain chain,
+                    final DOMDataTreeTransaction transaction, final Throwable cause) {
+                onRibOutChainFailed(cause);
+            }
+        });
+
         if (this.currentSession instanceof BGPSessionStateProvider) {
             ((BGPSessionStateProvider) this.currentSession).registerMessagesCounter(this);
         }
@@ -551,7 +563,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         } else {
             future = terminateConnection();
         }
-        releaseBindingChain(isWaitForSubmitted);
+        releaseRibOutChain(isWaitForSubmitted);
 
         closeSession();
         return future;
@@ -667,10 +679,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         releaseConnection(true);
     }
 
-    @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
-            final Throwable cause) {
-        LOG.error("Transaction domChain failed.", cause);
+    private synchronized void onRibOutChainFailed(final Throwable cause) {
+        LOG.error("RibOut transaction chain failed.", cause);
         releaseConnection(false);
     }
 
