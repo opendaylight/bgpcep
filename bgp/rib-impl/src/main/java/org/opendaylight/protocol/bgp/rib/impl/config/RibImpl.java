@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
@@ -73,21 +72,18 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private Ipv4AddressNoZone routerId;
 
     private ClusterIdentifier clusterId;
-    private final DataBroker dataBroker;
 
     public RibImpl(
             final RIBExtensionConsumerContext contextProvider,
             final BGPDispatcher dispatcher,
             final BGPRibRoutingPolicyFactory policyProvider,
             final CodecsRegistry codecsRegistry,
-            final DOMDataBroker domBroker,
-            final DataBroker dataBroker
+            final DOMDataBroker domBroker
     ) {
         this.extensions = contextProvider;
         this.dispatcher = dispatcher;
         this.codecsRegistry = codecsRegistry;
         this.domBroker = domBroker;
-        this.dataBroker = dataBroker;
         this.policyProvider = policyProvider;
     }
 
@@ -162,11 +158,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     @Override
     public DOMDataTreeChangeService getService() {
         return this.ribImpl.getService();
-    }
-
-    @Override
-    public DataBroker getDataBroker() {
-        return this.ribImpl.getDataBroker();
     }
 
     FluentFuture<? extends CommitInfo> closeServiceInstance() {
@@ -248,7 +239,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
                 this.dispatcher,
                 codecsRegistry,
                 this.domBroker,
-                this.dataBroker,
                 ribPolicy,
                 toTableTypes(this.afiSafi, tableTypeRegistry),
                 pathSelectionModes);
