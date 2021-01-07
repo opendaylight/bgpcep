@@ -235,7 +235,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     public synchronized void instantiateServiceInstance() {
         createDomChain();
-        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), this.peerRole, this);
+        this.ribWriter = AdjRibInWriter.create(this.rib.getYangRibId(), getRole(), this);
         setActive(true);
     }
 
@@ -282,7 +282,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private void checkMandatoryAttributesPresence(final Update message) throws BGPDocumentedException {
         if (MessageUtil.isAnyNlriPresent(message)) {
             final Attributes attrs = message.getAttributes();
-            if (this.peerRole == PeerRole.Ibgp && (attrs == null || attrs.getLocalPref() == null)) {
+            if (getRole() == PeerRole.Ibgp && (attrs == null || attrs.getLocalPref() == null)) {
                 throw new BGPDocumentedException(BGPError.MANDATORY_ATTR_MISSING_MSG + "LOCAL_PREF",
                         BGPError.WELL_KNOWN_ATTR_MISSING,
                         new byte[]{LocalPreferenceAttributeParser.TYPE});
@@ -378,7 +378,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         final List<AddressFamilies> addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final Set<BgpTableType> advertizedTableTypes = session.getAdvertisedTableTypes();
-        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", this.name,
+        LOG.info("Session with peer {} went up with tables {} and Add Path tables {}", getName(),
                 advertizedTableTypes, addPathTablesType);
         final Set<TablesKey> setTables = advertizedTableTypes.stream().map(t -> new TablesKey(t.getAfi(), t.getSafi()))
                 .collect(Collectors.toSet());
@@ -517,22 +517,22 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @Override
     public synchronized void onSessionDown(final BGPSession session, final Exception exc) {
         if (exc.getMessage().equals(BGPSessionImpl.END_OF_INPUT)) {
-            LOG.info("Session with peer {} went down", this.name);
+            LOG.info("Session with peer {} went down", getName());
         } else {
-            LOG.info("Session with peer {} went down", this.name, exc);
+            LOG.info("Session with peer {} went down", getName(), exc);
         }
         releaseConnectionGracefully();
     }
 
     @Override
     public synchronized void onSessionTerminated(final BGPSession session, final BGPTerminationReason cause) {
-        LOG.info("Session with peer {} terminated: {}", this.name, cause);
+        LOG.info("Session with peer {} terminated: {}", getName(), cause);
         releaseConnectionGracefully();
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("name", this.name).add("tables", this.tables).toString();
+        return MoreObjects.toStringHelper(this).add("name", getName()).add("tables", this.tables).toString();
     }
 
     @Override
