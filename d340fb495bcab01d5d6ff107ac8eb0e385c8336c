@@ -45,6 +45,54 @@
       "revId": "d340fb495bcab01d5d6ff107ac8eb0e385c8336c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efb8f3ea_4a326228",
+        "filename": "bgp/openconfig-rp-statement/src/main/java/org/opendaylight/protocol/bgp/openconfig/routing/policy/statement/conditions/MatchBgpNeighborSetHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2021-01-07T10:12:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e58d0e33_54afd479",
+      "range": {
+        "startLine": 78,
+        "startChar": 77,
+        "endLine": 78,
+        "endChar": 83
+      },
+      "revId": "d340fb495bcab01d5d6ff107ac8eb0e385c8336c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72152516_5bd309aa",
+        "filename": "bgp/openconfig-rp-statement/src/main/java/org/opendaylight/protocol/bgp/openconfig/routing/policy/statement/conditions/MatchBgpNeighborSetHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3443
+      },
+      "writtenOn": "2021-01-07T10:12:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb61fffc_8d9c5b71",
+      "range": {
+        "startLine": 78,
+        "startChar": 95,
+        "endLine": 78,
+        "endChar": 116
+      },
+      "revId": "d340fb495bcab01d5d6ff107ac8eb0e385c8336c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
