@@ -228,7 +228,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
                     final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.bindingChain == null) {
+        if (this.domChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -281,7 +281,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
                 final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
-        if (this.bindingChain == null) {
+        if (this.domChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -309,7 +309,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
                 final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.bindingChain == null) {
+        if (this.domChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
