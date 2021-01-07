@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
@@ -139,11 +137,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     @Override
     public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
         return this.ribImpl.createPeerDOMChain(listener);
-    }
-
-    @Override
-    public TransactionChain createPeerChain(final TransactionChainListener listener) {
-        return this.ribImpl.createPeerChain(listener);
     }
 
     @Override
