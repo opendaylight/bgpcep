@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
@@ -92,7 +91,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
     private final DOMDataBroker domDataBroker;
-    private final DataBroker dataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
@@ -121,7 +119,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             final BGPDispatcher dispatcher,
             final CodecsRegistry codecsRegistry,
             final DOMDataBroker domDataBroker,
-            final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final List<BgpTableType> localTables,
             final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies
@@ -135,7 +132,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = requireNonNull(domDataBroker);
-        this.dataBroker = requireNonNull(dataBroker);
         this.domService = this.domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
@@ -298,11 +294,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     @Override
     public DOMDataTreeChangeService getService() {
         return (DOMDataTreeChangeService) this.domService;
-    }
-
-    @Override
-    public DataBroker getDataBroker() {
-        return this.dataBroker;
     }
 
     @Override
