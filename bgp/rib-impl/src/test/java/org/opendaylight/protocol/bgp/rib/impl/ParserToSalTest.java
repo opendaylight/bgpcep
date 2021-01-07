@@ -101,7 +101,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
                 LinkstateSubsequentAddressFamily.class));
 
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), this.policies,
                 tables, Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
                 .createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
@@ -118,7 +118,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
                 UnicastSubsequentAddressFamily.class));
         final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
+                this.dispatcher, this.codecsRegistry, getDomBroker(), this.policies,
                 tables, Collections.singletonMap(TABLE_KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();

@@ -113,7 +113,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         tableTypes.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
         this.ribImpl = new RIBImpl(this.tableRegistry, RIBID, AS_NUMBER, BGP_ID, this.ribExtension,
                 this.serverDispatcher, this.codecsRegistry,
-                getDomBroker(), getDataBroker(), this.policies, tableTypes, pathTables);
+                getDomBroker(), this.policies, tableTypes, pathTables);
 
         this.ribImpl.instantiateServiceInstance();
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(
