@@ -39,6 +39,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
@@ -164,7 +165,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
         doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, this.service)).when(this.dom)
             .getExtensions();
-        doReturn(this.domChain).when(this.dom).createMergingTransactionChain(any(AbstractPeer.class));
+        doReturn(this.domChain).when(this.dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
         doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(Optional.empty()).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
