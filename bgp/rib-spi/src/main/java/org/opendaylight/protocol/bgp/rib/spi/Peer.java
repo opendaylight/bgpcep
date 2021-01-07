@@ -33,13 +33,6 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
     @NonNull String getName();
 
     /**
-     * Return the peer's BGP identifier as raw byte array.
-     *
-     * @return byte[] raw identifier
-     */
-    byte[] getRawIdentifier();
-
-    /**
      * Close Peers and performs asynchronously DS clean up.
      *
      * @return future

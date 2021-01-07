@@ -18,7 +18,6 @@ import com.google.common.base.Verify;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -124,7 +123,6 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 new IpAddressNoZone(ipAddress), Collections.emptySet());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
-        this.rawIdentifier = InetAddresses.forString(ipAddress.getValue()).getAddress();
         this.peerId = RouterIds.createPeerId(ipAddress);
 
         final YangInstanceIdentifier peerRib = targetRib.getYangRibId().node(PEER_NID)
