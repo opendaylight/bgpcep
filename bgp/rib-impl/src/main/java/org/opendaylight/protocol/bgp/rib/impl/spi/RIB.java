@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
@@ -86,13 +85,6 @@ public interface RIB extends RibReference, RibOutRefresh {
      * @return DOMDataTreeChangeService
      */
     DOMDataTreeChangeService getService();
-
-    /**
-     * Return DataBroker.
-     *
-     * @return DataBroker
-     */
-    DataBroker getDataBroker();
 
     /**
      * Returns true if RIB supports table.

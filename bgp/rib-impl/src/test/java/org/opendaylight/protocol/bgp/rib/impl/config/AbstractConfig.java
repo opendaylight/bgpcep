@@ -93,7 +93,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 .getInstanceIdentifier();
         doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
 
-        doReturn(getDataBroker()).when(this.rib).getDataBroker();
         doReturn(AS).when(this.rib).getLocalAs();
         doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
         doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
