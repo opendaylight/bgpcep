@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -20,7 +19,6 @@ import java.net.InetSocketAddress;
 import java.util.Collections;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
@@ -94,10 +92,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 .params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
                 .getInstanceIdentifier();
         doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
-        doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            return getDataBroker().createTransactionChain((TransactionChainListener) args[0]);
-        }).when(this.rib).createPeerChain(any(TransactionChainListener.class));
 
         doReturn(getDataBroker()).when(this.rib).getDataBroker();
         doReturn(AS).when(this.rib).getLocalAs();
