@@ -27,10 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.Transaction;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -81,8 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionChainListener,
-        DOMTransactionChainListener, AutoCloseable {
+public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactionChainListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
@@ -92,7 +87,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
     private final DOMDataBroker domDataBroker;
-    private final DataBroker dataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final YangInstanceIdentifier yangRibId;
     private final RIBSupportContextRegistryImpl ribContextRegistry;
@@ -121,7 +115,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             final BGPDispatcher dispatcher,
             final CodecsRegistry codecsRegistry,
             final DOMDataBroker domDataBroker,
-            final DataBroker dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final List<BgpTableType> localTables,
             final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies
@@ -135,7 +128,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
         this.localTables = ImmutableSet.copyOf(localTables);
         this.localTablesKeys = new HashSet<>();
         this.domDataBroker = requireNonNull(domDataBroker);
-        this.dataBroker = requireNonNull(dataBroker);
         this.domService = this.domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
@@ -237,13 +229,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain chain,
-            final Transaction transaction, final Throwable cause) {
-        LOG.error("Broken chain in RIB {} transaction {}",
-                getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
-    }
-
-    @Override
     public synchronized void onTransactionChainFailed(final DOMTransactionChain chain,
             final DOMDataTreeTransaction transaction, final Throwable cause) {
         LOG.error("Broken chain in RIB {} transaction {}",
@@ -255,11 +240,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
             locRibWriter.restart(newChain);
             this.txChainToLocRibWriter.put(newChain, locRibWriter);
         }
-    }
-
-    @Override
-    public void onTransactionChainSuccessful(final TransactionChain chain) {
-        LOG.info("RIB {} closed successfully", getInstanceIdentifier());
     }
 
     @Override
@@ -298,11 +278,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     @Override
     public DOMDataTreeChangeService getService() {
         return (DOMDataTreeChangeService) this.domService;
-    }
-
-    @Override
-    public DataBroker getDataBroker() {
-        return this.dataBroker;
     }
 
     @Override
