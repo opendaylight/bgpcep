@@ -540,9 +540,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         this.adjRibOutListenerSet.clear();
         final FluentFuture<? extends CommitInfo> future;
-        if (!isRestartingGracefully()) {
-            future = terminateConnection();
-        } else {
+        if (isRestartingGracefully()) {
             final Set<TablesKey> gracefulTables = getGracefulTables();
             this.ribWriter.storeStaleRoutes(gracefulTables);
             future = this.ribWriter.clearTables(Sets.difference(this.tables, gracefulTables));
@@ -550,6 +548,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 this.peerRestartStopwatch = Stopwatch.createStarted();
                 handleRestartTimer();
             }
+        } else {
+            future = terminateConnection();
         }
         releaseBindingChain(isWaitForSubmitted);
 
