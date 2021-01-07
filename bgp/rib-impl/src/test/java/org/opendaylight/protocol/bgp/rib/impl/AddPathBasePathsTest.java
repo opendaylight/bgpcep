@@ -43,7 +43,7 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
 
         this.ribImpl = new RIBImpl(this.tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID),
                 this.ribExtension,
-                this.serverDispatcher, this.codecsRegistry, getDomBroker(), getDataBroker(), this.policies,
+                this.serverDispatcher, this.codecsRegistry, getDomBroker(), this.policies,
                 TABLES_TYPE, pathTables);
         this.ribImpl.instantiateServiceInstance();
         final ChannelFuture channelFuture = this.serverDispatcher.createServer(
