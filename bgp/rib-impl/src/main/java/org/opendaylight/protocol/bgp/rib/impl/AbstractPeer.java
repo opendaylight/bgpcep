@@ -13,7 +13,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +84,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     //        which needs figuring out.
     @GuardedBy("this")
     private DOMTransactionChain domChain;
-    @GuardedBy("this")
-    byte[] rawIdentifier;
     @GuardedBy("this")
     PeerId peerId;
 
@@ -163,11 +160,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @Override
     public final PeerRole getRole() {
         return this.peerRole;
-    }
-
-    @Override
-    public final synchronized byte[] getRawIdentifier() {
-        return Arrays.copyOf(this.rawIdentifier, this.rawIdentifier.length);
     }
 
     @Override

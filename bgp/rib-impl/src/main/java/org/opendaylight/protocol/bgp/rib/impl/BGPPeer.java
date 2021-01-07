@@ -19,7 +19,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -390,7 +389,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             addBgp4Support();
         }
         if (!isRestartingGracefully()) {
-            this.rawIdentifier = InetAddresses.forString(session.getBgpId().getValue()).getAddress();
             this.peerId = RouterIds.createPeerId(session.getBgpId());
 
             final KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
