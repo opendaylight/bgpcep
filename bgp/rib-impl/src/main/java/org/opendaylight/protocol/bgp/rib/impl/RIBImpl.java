@@ -311,11 +311,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, TransactionCh
     }
 
     @Override
-    public TransactionChain createPeerChain(final TransactionChainListener listener) {
-        return this.dataBroker.createMergingTransactionChain(listener);
-    }
-
-    @Override
     public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
         return this.domDataBroker.createMergingTransactionChain(listener);
     }
