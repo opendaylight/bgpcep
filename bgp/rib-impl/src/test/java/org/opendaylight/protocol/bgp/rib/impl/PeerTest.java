@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -143,7 +142,6 @@ public class PeerTest extends AbstractRIBTestSetup {
         this.mockSession();
         assertEquals(this.neighborAddress.getIpv4AddressNoZone().getValue(), this.classic.getName());
         this.classic.onSessionUp(this.session);
-        Assert.assertArrayEquals(new byte[]{1, 1, 1, 1}, this.classic.getRawIdentifier());
         assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1"
                         + ".urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily,"
                         + " _safi=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
