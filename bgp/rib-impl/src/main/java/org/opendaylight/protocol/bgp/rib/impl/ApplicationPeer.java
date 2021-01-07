@@ -293,8 +293,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         if (this.effectiveRibInWriter != null) {
             this.effectiveRibInWriter.close();
         }
-        final FluentFuture<? extends CommitInfo> future;
-        future = removePeer(this.peerPath);
+        final FluentFuture<? extends CommitInfo> future = removePeer(this.peerPath);
         closeDomChain();
         if (this.trackerRegistration != null) {
             this.trackerRegistration.close();
