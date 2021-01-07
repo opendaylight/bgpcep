@@ -51,7 +51,7 @@ public interface RIB extends RibReference, RibOutRefresh {
     /**
      * Allocate a new transaction chain for use with a peer.
      *
-     * @param listener {@link TransactionChainListener} handling recovery
+     * @param listener {@link DOMTransactionChainListener} handling recovery
      * @return A new transaction chain.
      */
     DOMTransactionChain createPeerDOMChain(DOMTransactionChainListener listener);
