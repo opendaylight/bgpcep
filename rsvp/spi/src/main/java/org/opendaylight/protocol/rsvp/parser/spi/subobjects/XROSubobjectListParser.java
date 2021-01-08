@@ -37,8 +37,8 @@ public abstract class XROSubobjectListParser extends AbstractRSVPObjectParser {
         while (byteBuf.isReadable()) {
             final boolean mandatory = (byteBuf.getUnsignedByte(byteBuf.readerIndex()) & (1 << Values
                 .FIRST_BIT_OFFSET)) != 0;
-            final int type = UnsignedBytes.checkedCast((byteBuf.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES) & ~
-                (1 << Values.FIRST_BIT_OFFSET));
+            final int type = UnsignedBytes.checkedCast((byteBuf.readUnsignedByte() & Values.BYTE_MAX_VALUE_BYTES)
+                    & ~(1 << Values.FIRST_BIT_OFFSET));
             final int length = byteBuf.readUnsignedByte() - HEADER_LENGHT;
             if (length > byteBuf.readableBytes()) {
                 throw new RSVPParsingException("Wrong length specified. Passed: " + length
