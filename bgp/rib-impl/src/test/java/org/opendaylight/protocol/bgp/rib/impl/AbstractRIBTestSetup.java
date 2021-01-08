@@ -27,9 +27,6 @@ import java.util.concurrent.Executor;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -63,9 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.util.concurrent.FluentFutures;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -96,12 +90,6 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
     @Mock
     private DOMDataBroker dom;
-
-    @Mock
-    private TransactionChain chain;
-
-    @Mock
-    private WriteTransaction transWrite;
 
     @Mock
     private DOMTransactionChain domChain;
@@ -143,22 +131,17 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
     }
 
-    @SuppressWarnings("unchecked")
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
-        final ReadTransaction readTx = mock(ReadTransaction.class);
         doReturn(new TestListenerRegistration()).when(this.service)
                 .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
                         any(ClusteredDOMDataTreeChangeListener.class));
-        doNothing().when(readTx).close();
         doNothing().when(this.domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(this.domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
         doNothing().when(this.domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doReturn(FluentFutures.immediateFluentFuture(Optional.empty())).when(readTx)
-            .read(eq(LogicalDatastoreType.OPERATIONAL), any(InstanceIdentifier.class));
         doNothing().when(this.domChain).close();
         doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
@@ -166,15 +149,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, this.service)).when(this.dom)
             .getExtensions();
         doReturn(this.domChain).when(this.dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
-        doReturn(this.transWrite).when(this.chain).newWriteOnlyTransaction();
         doReturn(Optional.empty()).when(this.future).get();
         doReturn(this.future).when(this.domTransWrite).commit();
         doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
-        doNothing().when(this.transWrite).mergeParentStructurePut(eq(LogicalDatastoreType.OPERATIONAL),
-                any(InstanceIdentifier.class), any(DataObject.class));
-        doNothing().when(this.transWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
-                any(InstanceIdentifier.class), any(DataObject.class));
-        doReturn(this.future).when(this.transWrite).commit();
     }
 
     public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,
