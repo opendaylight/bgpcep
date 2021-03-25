@@ -331,6 +331,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         synchronized void instantiateServiceInstance() {
+            if (isServiceInstantiated) {
+                LOG.warn("Peer {} has already been instantiated", this.neighborAddress);
+                return;
+            }
             this.isServiceInstantiated = true;
             LOG.info("Peer instantiated {}", this.neighborAddress);
             this.bgpPeer.instantiateServiceInstance();
