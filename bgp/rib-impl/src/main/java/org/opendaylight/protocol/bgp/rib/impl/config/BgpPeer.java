@@ -166,6 +166,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public void close() {
         if (this.bgpPeerSingletonService != null) {
+            this.bgpPeerSingletonService.closeServiceInstance();
             this.bgpPeerSingletonService = null;
         }
         if (this.serviceRegistration != null) {
@@ -331,6 +332,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
 
         synchronized void instantiateServiceInstance() {
+            if (isServiceInstantiated) {
+                LOG.warn("Peer {} has already been instantiated", this.neighborAddress);
+                return;
+            }
             this.isServiceInstantiated = true;
             LOG.info("Peer instantiated {}", this.neighborAddress);
             this.bgpPeer.instantiateServiceInstance();
