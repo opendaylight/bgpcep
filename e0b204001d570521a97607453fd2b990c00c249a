@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "756b9f4f_c46d753d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2021-03-29T17:29:56Z",
+      "side": 0,
+      "message": "bgpPeerSingletonService.closeServiceInstance();\nthis.bgpPeerSingletonService \u003d null;",
+      "revId": "e0b204001d570521a97607453fd2b990c00c249a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
