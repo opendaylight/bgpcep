@@ -16,6 +16,29 @@
       "revId": "77dae56668a29ff09198591e4b0b6f4ffcbb3785",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f8f5cc_7bd2ea06",
+        "filename": "pcep/topology/topology-stats/src/main/java/org/opendaylight/bgpcep/pcep/topology/stats/provider/TopologyStatsProviderImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-04-15T17:29:19Z",
+      "side": 1,
+      "message": "a bit redundant with line 176.\nAny particular reason to shift from debug to info here  ?",
+      "range": {
+        "startLine": 186,
+        "startChar": 28,
+        "endLine": 186,
+        "endChar": 32
+      },
+      "revId": "77dae56668a29ff09198591e4b0b6f4ffcbb3785",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
