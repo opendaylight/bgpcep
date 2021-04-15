@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40087f71_d41ea06c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-04-15T17:20:50Z",
+      "side": 1,
+      "message": "s/synchrinised/synchronised/",
+      "revId": "77dae56668a29ff09198591e4b0b6f4ffcbb3785",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
