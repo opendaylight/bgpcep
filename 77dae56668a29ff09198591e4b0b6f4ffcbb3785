@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "c653dc9b_62b6208d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-04-17T06:55:16Z",
+      "side": 1,
+      "message": "commit body lines length should peferably be \u003c\u003d 72 char\nand title \u003c\u003d 50 char",
+      "revId": "77dae56668a29ff09198591e4b0b6f4ffcbb3785",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "40087f71_d41ea06c",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
