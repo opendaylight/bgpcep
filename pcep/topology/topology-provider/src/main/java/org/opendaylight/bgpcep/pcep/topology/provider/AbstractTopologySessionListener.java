@@ -81,6 +81,9 @@ import org.slf4j.LoggerFactory;
  * @param <L> identifier type for LSPs
  */
 public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener, TopologySessionStats {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
+
+    static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
     static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
         private final ProtocolVersion version = new ProtocolVersion(Uint8.ONE);
 
@@ -94,12 +97,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             return this.version;
         }
     };
-    static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
+
     @GuardedBy("this")
     final Map<L, String> lsps = new HashMap<>();
     @GuardedBy("this")
-    final SessionStateImpl listenerState;
+    SessionStateImpl listenerState;
+
     @GuardedBy("this")
     private final Map<S, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
@@ -118,7 +121,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = requireNonNull(serverSessionManager);
-        this.listenerState = new SessionStateImpl(this);
     }
 
     @Override
@@ -173,7 +175,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
         state.storeNode(topologyAugment,
                 new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), this.session);
-        this.listenerState.init(psession);
+        this.listenerState = new SessionStateImpl(this, psession);
         this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
         LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(), state.getNodeId());
     }
@@ -232,6 +234,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             LOG.error("Session {} cannot be closed.", psession, e);
         }
         this.session = null;
+        this.listenerState = null;
         this.syncOptimization = null;
 
         // Clear all requests we know about
@@ -333,7 +336,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     final synchronized PCEPRequest removeRequest(final S id) {
         final PCEPRequest ret = this.requests.remove(id);
-        if (ret != null) {
+        if (ret != null && this.listenerState != null) {
             this.listenerState.processRequestStats(ret.getElapsedMillis());
         }
         LOG.trace("Removed request {} object {}", id, ret);
@@ -542,9 +545,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     protected abstract boolean onMessage(MessageContext ctx, Message message);
 
+    @Holding("this")
     final String lookupLspName(final L id) {
-        requireNonNull(id, "ID parameter null.");
-        return this.lsps.get(id);
+        return this.lsps.get(requireNonNull(id, "ID parameter null."));
     }
 
     /**
