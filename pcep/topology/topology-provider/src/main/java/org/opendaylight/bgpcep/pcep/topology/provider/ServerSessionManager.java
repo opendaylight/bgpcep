@@ -122,11 +122,13 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
             final boolean persistNode) {
+        final var localPCEPSession= session;
         if (this.isClosed.get()) {
             LOG.error("Session Manager has already been closed.");
             return;
         }
-        this.nodes.remove(createNodeId(session.getRemoteAddress()));
+        this.nodes.remove(createNodeId(localPCEPSession.getRemoteAddress()));
+        this.state.remove(createNodeId(localPCEPSession.getRemoteAddress()));
         if (nodeState != null) {
             LOG.debug("Node {} unbound", nodeState.getNodeId());
             nodeState.released(persistNode);
