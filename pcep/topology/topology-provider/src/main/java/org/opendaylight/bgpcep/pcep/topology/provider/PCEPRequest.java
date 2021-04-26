@@ -98,7 +98,7 @@ final class PCEPRequest {
         final long elapsedNanos = this.stopwatch.elapsed().toNanos();
         final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
         if (elapsedMillis == 0 && elapsedNanos > 0) {
-            return  MINIMUM_ELAPSED_TIME;
+            return MINIMUM_ELAPSED_TIME;
         }
         return elapsedMillis;
     }
