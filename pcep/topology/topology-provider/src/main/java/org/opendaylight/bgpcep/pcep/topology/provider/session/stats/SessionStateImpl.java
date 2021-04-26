@@ -61,20 +61,22 @@ public final class SessionStateImpl implements PcepSessionState {
 
     public synchronized void init(final PCEPSessionState session) {
         requireNonNull(session);
-        this.pcepSessionState = session;
-        final Open localOpen = session.getLocalOpen();
+        synchronized (session) {
+            this.pcepSessionState = session;
+            final Open localOpen = session.getLocalOpen();
 
-        if (localOpen.getTlvs() != null && localOpen.getTlvs().augmentation(Tlvs3.class) != null) {
-            final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
-            if (entityId != null) {
-                this.localPref = new LocalPrefBuilder(session.getLocalPref())
+            if (localOpen.getTlvs() != null && localOpen.getTlvs().augmentation(Tlvs3.class) != null) {
+                final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
+                if (entityId != null) {
+                    this.localPref = new LocalPrefBuilder(session.getLocalPref())
                         .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build()).build();
+                }
+            } else {
+                this.localPref = session.getLocalPref();
             }
-        } else {
-            this.localPref = session.getLocalPref();
-        }
 
-        this.peerPref = session.getPeerPref();
+            this.peerPref = session.getPeerPref();
+        }
         this.sessionUpDuration.start();
     }
 
@@ -135,10 +137,13 @@ public final class SessionStateImpl implements PcepSessionState {
 
     @Override
     public Messages getMessages() {
+        if (pcepSessionState == null) {
+            return null;
+        }
         return new MessagesBuilder(this.pcepSessionState.getMessages())
-                .setReplyTime(setReplyTime())
-                .addAugmentation(createStatefulMessages())
-                .build();
+            .setReplyTime(setReplyTime())
+            .addAugmentation(createStatefulMessages())
+            .build();
     }
 
     private StatefulMessagesStatsAug createStatefulMessages() {
