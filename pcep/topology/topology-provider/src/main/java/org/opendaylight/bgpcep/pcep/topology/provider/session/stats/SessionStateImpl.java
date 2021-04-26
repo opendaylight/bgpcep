@@ -50,9 +50,9 @@ public final class SessionStateImpl implements PcepSessionState {
     private final LongAdder totalTime = new LongAdder();
     private final LongAdder reqCount = new LongAdder();
     private final TopologySessionStats topologySessionStats;
+    private volatile PCEPSessionState pcepSessionState;
     private LocalPref localPref;
     private PeerPref peerPref;
-    private PCEPSessionState pcepSessionState;
 
     public SessionStateImpl(final TopologySessionStats topologySessionStats) {
         this.sessionUpDuration = Stopwatch.createUnstarted();
@@ -68,7 +68,7 @@ public final class SessionStateImpl implements PcepSessionState {
             final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
             if (entityId != null) {
                 this.localPref = new LocalPrefBuilder(session.getLocalPref())
-                        .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build()).build();
+                    .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build()).build();
             }
         } else {
             this.localPref = session.getLocalPref();
@@ -135,10 +135,14 @@ public final class SessionStateImpl implements PcepSessionState {
 
     @Override
     public Messages getMessages() {
-        return new MessagesBuilder(this.pcepSessionState.getMessages())
-                .setReplyTime(setReplyTime())
-                .addAugmentation(createStatefulMessages())
-                .build();
+        var localPcepSessionState = pcepSessionState;
+        if (localPcepSessionState == null) {
+            return null;
+        }
+        return new MessagesBuilder(localPcepSessionState.getMessages())
+            .setReplyTime(setReplyTime())
+            .addAugmentation(createStatefulMessages())
+            .build();
     }
 
     private StatefulMessagesStatsAug createStatefulMessages() {
