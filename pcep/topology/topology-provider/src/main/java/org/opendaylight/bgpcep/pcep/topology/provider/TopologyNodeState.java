@@ -101,6 +101,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
             }, MoreExecutors.directExecutor());
         }
 
+        close();
         this.lastReleased = System.nanoTime();
     }
 
@@ -150,6 +151,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
         LOG.error("Unexpected transaction failure in node {} transaction {}",
                 this.nodeId, transaction.getIdentifier(), cause);
+        close();
     }
 
     @Override
@@ -176,7 +178,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.trace("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
+                LOG.error("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
