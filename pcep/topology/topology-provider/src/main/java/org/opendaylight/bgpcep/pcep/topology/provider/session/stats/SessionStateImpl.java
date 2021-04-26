@@ -11,7 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Stopwatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
+import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPSessionState;
 import org.opendaylight.protocol.util.StatisticsUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
@@ -19,9 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
@@ -31,150 +31,144 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTimeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public final class SessionStateImpl implements PcepSessionState {
-    private final LongAdder lastReceivedRptMsgTimestamp = new LongAdder();
-    private final LongAdder receivedRptMsgCount = new LongAdder();
-    private final LongAdder sentUpdMsgCount = new LongAdder();
-    private final LongAdder sentInitMsgCount = new LongAdder();
-    private final Stopwatch sessionUpDuration;
-
-    private final LongAdder minReplyTime = new LongAdder();
-    private final LongAdder maxReplyTime = new LongAdder();
-    private final LongAdder totalTime = new LongAdder();
-    private final LongAdder reqCount = new LongAdder();
+    private final Stopwatch sessionUpDuration = Stopwatch.createStarted();
     private final TopologySessionStats topologySessionStats;
-    private LocalPref localPref;
-    private PeerPref peerPref;
-    private PCEPSessionState pcepSessionState;
+    private final PCEPSessionState session;
+    private final LocalPref localPref;
+    private final PeerPref peerPref;
 
-    public SessionStateImpl(final TopologySessionStats topologySessionStats) {
-        this.sessionUpDuration = Stopwatch.createUnstarted();
+    @GuardedBy("this")
+    private long minReplyMillis;
+    @GuardedBy("this")
+    private long maxReplyMillis;
+    @GuardedBy("this")
+    private long totalReplyMillis;
+    @GuardedBy("this")
+    private long requestCount;
+
+    @GuardedBy("this")
+    private long receivedRptMessageCount;
+    @GuardedBy("this")
+    private long receivedRptMessageTime;
+
+    @GuardedBy("this")
+    private long sentUpdMessageCount;
+    @GuardedBy("this")
+    private long sentInitMessageCount;
+
+    public SessionStateImpl(final TopologySessionStats topologySessionStats, final PCEPSessionState session) {
         this.topologySessionStats = requireNonNull(topologySessionStats);
+        this.session = requireNonNull(session);
+
+        final SpeakerEntityId entityId = extractEntityId(session.getLocalOpen());
+        localPref = entityId == null ? session.getLocalPref() : new LocalPrefBuilder(session.getLocalPref())
+            .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build())
+            .build();
+        peerPref = session.getPeerPref();
     }
 
-    public synchronized void init(final PCEPSessionState session) {
-        requireNonNull(session);
-        this.pcepSessionState = session;
-        final Open localOpen = session.getLocalOpen();
-
-        if (localOpen.getTlvs() != null && localOpen.getTlvs().augmentation(Tlvs3.class) != null) {
-            final SpeakerEntityId entityId = localOpen.getTlvs().augmentation(Tlvs3.class).getSpeakerEntityId();
-            if (entityId != null) {
-                this.localPref = new LocalPrefBuilder(session.getLocalPref())
-                        .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build()).build();
+    private static @Nullable SpeakerEntityId extractEntityId(final @NonNull Open localOpen) {
+        final Tlvs tlvs = localOpen.getTlvs();
+        if (tlvs != null) {
+            final Tlvs3 aug = tlvs.augmentation(Tlvs3.class);
+            if (aug != null) {
+                return aug.getSpeakerEntityId();
             }
-        } else {
-            this.localPref = session.getLocalPref();
         }
-
-        this.peerPref = session.getPeerPref();
-        this.sessionUpDuration.start();
+        return null;
     }
 
-    public synchronized void processRequestStats(final long duration) {
-        if (this.minReplyTime.longValue() == 0) {
-            this.minReplyTime.reset();
-            this.minReplyTime.add(duration);
-        } else if (duration < this.minReplyTime.longValue()) {
-            this.minReplyTime.reset();
-            this.minReplyTime.add(duration);
+    public synchronized void processRequestStats(final long durationMillis) {
+        if (minReplyMillis == 0 || durationMillis < minReplyMillis) {
+            minReplyMillis = durationMillis;
         }
-        if (duration > this.maxReplyTime.longValue()) {
-            this.maxReplyTime.reset();
-            this.maxReplyTime.add(duration);
+        if (durationMillis > maxReplyMillis) {
+            maxReplyMillis = durationMillis;
         }
-        this.totalTime.add(duration);
-        this.reqCount.increment();
+
+        requestCount++;
+        totalReplyMillis += durationMillis;
     }
 
     public synchronized void updateLastReceivedRptMsg() {
-        this.lastReceivedRptMsgTimestamp.reset();
-        this.lastReceivedRptMsgTimestamp.add(StatisticsUtil.getCurrentTimestampInSeconds());
-        this.receivedRptMsgCount.increment();
+        receivedRptMessageCount++;
+        receivedRptMessageTime = StatisticsUtil.getCurrentTimestampInSeconds();
     }
 
     public synchronized void updateStatefulSentMsg(final Message msg) {
         if (msg instanceof Pcinitiate) {
-            this.sentInitMsgCount.increment();
+            sentInitMessageCount++;
         } else if (msg instanceof Pcupd) {
-            this.sentUpdMsgCount.increment();
+            sentUpdMessageCount++;
         }
     }
 
     @Override
-    public synchronized String getSessionDuration() {
-        return StatisticsUtil.formatElapsedTime(this.sessionUpDuration.elapsed(TimeUnit.SECONDS));
+    public String getSessionDuration() {
+        return StatisticsUtil.formatElapsedTime(sessionUpDuration.elapsed(TimeUnit.SECONDS));
     }
 
     @Override
-    public synchronized Boolean isSynchronized() {
-        return this.topologySessionStats.isSessionSynchronized();
+    public Boolean isSynchronized() {
+        return topologySessionStats.isSessionSynchronized();
     }
 
     @Override
-    public synchronized PeerCapabilities getPeerCapabilities() {
+    public PeerCapabilities getPeerCapabilities() {
         return new PeerCapabilitiesBuilder()
-                .addAugmentation(createStatefulCapabilities())
-                .build();
-    }
-
-    private StatefulCapabilitiesStatsAug createStatefulCapabilities() {
-        return new StatefulCapabilitiesStatsAugBuilder()
-                .setActive(this.topologySessionStats.isLspUpdateCapability())
-                .setInstantiation(this.topologySessionStats.isInitiationCapability())
-                .setStateful(this.topologySessionStats.isStatefulCapability())
-                .build();
+            .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
+                .setActive(topologySessionStats.isLspUpdateCapability())
+                .setInstantiation(topologySessionStats.isInitiationCapability())
+                .setStateful(topologySessionStats.isStatefulCapability())
+                .build())
+            .build();
     }
 
     @Override
     public Messages getMessages() {
-        return new MessagesBuilder(this.pcepSessionState.getMessages())
-                .setReplyTime(setReplyTime())
-                .addAugmentation(createStatefulMessages())
-                .build();
-    }
+        // Note: callout to session, do not hold lock
+        final Messages sessionMessages = session.getMessages();
 
-    private StatefulMessagesStatsAug createStatefulMessages() {
-        return new StatefulMessagesStatsAugBuilder()
-                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(this.lastReceivedRptMsgTimestamp.longValue()))
-                .setReceivedRptMsgCount(Uint32.valueOf(this.receivedRptMsgCount.longValue()))
-                .setSentInitMsgCount(Uint32.valueOf(this.sentInitMsgCount.longValue()))
-                .setSentUpdMsgCount(Uint32.valueOf(this.sentUpdMsgCount.longValue()))
-                .build();
-    }
+        synchronized (this) {
+            final long averageReply = requestCount == 0 ? 0 : Math.round((double) totalReplyMillis / requestCount);
 
-    private synchronized ReplyTime setReplyTime() {
-        long avg = 0;
-        if (this.reqCount.longValue() != 0) {
-            avg = Math.round((double) this.totalTime.longValue() / this.reqCount.longValue());
+            return new MessagesBuilder(sessionMessages)
+                .setReplyTime(new ReplyTimeBuilder()
+                    .setAverageTime(Uint32.saturatedOf(averageReply))
+                    .setMaxTime(Uint32.saturatedOf(maxReplyMillis))
+                    .setMinTime(Uint32.saturatedOf(minReplyMillis))
+                    .build())
+                .addAugmentation(new StatefulMessagesStatsAugBuilder()
+                    .setLastReceivedRptMsgTimestamp(Uint32.saturatedOf(receivedRptMessageTime))
+                    .setReceivedRptMsgCount(Uint32.saturatedOf(receivedRptMessageCount))
+                    .setSentInitMsgCount(Uint32.saturatedOf(sentInitMessageCount))
+                    .setSentUpdMsgCount(Uint32.saturatedOf(sentUpdMessageCount))
+                    .build())
+                .build();
         }
-        return new ReplyTimeBuilder()
-                .setAverageTime(Uint32.valueOf(avg))
-                .setMaxTime(Uint32.valueOf(this.maxReplyTime.longValue()))
-                .setMinTime(Uint32.valueOf(this.minReplyTime.longValue()))
-                .build();
     }
 
     @Override
     public LocalPref getLocalPref() {
-        return this.localPref;
+        return localPref;
     }
 
     @Override
     public PeerPref getPeerPref() {
-        return this.peerPref;
+        return peerPref;
     }
 
     @Override
     public Uint16 getDelegatedLspsCount() {
-        return Uint16.valueOf(this.topologySessionStats.getDelegatedLspsCount());
+        return Uint16.saturatedOf(topologySessionStats.getDelegatedLspsCount());
     }
 
     @Override
