@@ -153,9 +153,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
         LOG.error("Unexpected transaction failure in node {} transaction {}",
                 this.nodeId, transaction.getIdentifier(), cause);
-        if (closed.compareAndSet(false, true)) {
-            pchain.close();
-        }
+        close();
     }
 
     @Override
