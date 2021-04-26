@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -234,6 +235,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         return srp.getOperationId();
     }
 
+    @Holding("this")
     private void markAllLspAsStale() {
         this.staleLsps.addAll(this.lsps.keySet());
     }
@@ -295,6 +297,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         return true;
     }
 
+    @Holding("this")
     private boolean manageNextReport(final Reports report, final MessageContext ctx) {
         final Lsp lsp = report.getLsp();
         final PlspId plspid = lsp.getPlspId();
