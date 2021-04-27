@@ -105,8 +105,10 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
                 }
             }, MoreExecutors.directExecutor());
         } catch (final Exception e) {
-            LOG.warn("Failed to prepare Tx for PCEP stats update", e);
+            LOG.warn("Failed to prepare Tx {} for PCEP stats update", tx.getIdentifier(), e);
             tx.cancel();
+            this.transactionChain.close();
+            recreateTxChain();
         }
     }
 
@@ -115,13 +117,13 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
         if (closed.compareAndSet(false, true)) {
             LOG.info("Closing TopologyStatsProvider service.");
             this.scheduleTask.cancel(true);
-            final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
+            this.transactionChain.close();
+            final WriteTransaction wTx = this.dataBroker.newWriteOnlyTransaction();
             for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {
                 wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
             }
             wTx.commit().get();
             this.statsMap.clear();
-            this.transactionChain.close();
             this.scheduler.shutdown();
         }
     }
@@ -131,10 +133,9 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
             final Transaction transaction, final Throwable cause) {
         LOG.error("Transaction chain {} failed for tx {}",
                 chain, transaction != null ? transaction.getIdentifier() : null, cause);
-
-        if (!closed.get()) {
-            transactionChain.close();
-            transactionChain = dataBroker.createMergingTransactionChain(this);
+        chain.close();
+        if (chain == this.transactionChain) {
+            recreateTxChain();
         }
     }
 
@@ -146,27 +147,50 @@ public final class TopologyStatsProviderImpl implements TransactionChainListener
     @Override
     public synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
             final PcepSessionState sessionState) {
+        LOG.info("Bind: {}", nodeId.getKey().getNodeId());
         this.statsMap.put(nodeId, sessionState);
     }
 
     @Override
     public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+        LOG.info("Unbind: {}", nodeId.getKey().getNodeId());
         this.statsMap.remove(nodeId);
         this.statsPendingDelete.add(nodeId);
         final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, nodeId);
-        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.debug("Successfully removed Pcep Node stats {}.", nodeId.getKey().getNodeId());
-                TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
-            }
+        try {
+            wTx.delete(LogicalDatastoreType.OPERATIONAL, nodeId);
+            wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.debug("Successfully removed Pcep Node stats {}.", nodeId.getKey().getNodeId());
+                    TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
+                }
 
-            @Override
-            public void onFailure(final Throwable ex) {
-                LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId(), ex);
-                TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
+                @Override
+                public void onFailure(final Throwable ex) {
+                    LOG.warn("Failed to remove Pcep Node stats {}.", nodeId.getKey().getNodeId(), ex);
+                    TopologyStatsProviderImpl.this.statsPendingDelete.remove(nodeId);
+                }
+            }, MoreExecutors.directExecutor());
+        } catch (final Exception e) {
+            if (wTx != null) {
+                LOG.warn("Failed to prepare Tx {} for Pcep Node stats delete for node {}.", wTx.getIdentifier(),
+                    nodeId.getKey().getNodeId(), e);
+                wTx.cancel();
+                this.transactionChain.close();
+                recreateTxChain();
             }
-        }, MoreExecutors.directExecutor());
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private synchronized void recreateTxChain() {
+        try {
+            if (!closed.get()) {
+                transactionChain = dataBroker.createMergingTransactionChain(this);
+            }
+        } catch (final Exception e) {
+            LOG.error("Failed to recreate transaction chain {}", transactionChain, e);
+        }
     }
 }
