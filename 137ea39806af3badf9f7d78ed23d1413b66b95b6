@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "329291e9_3f1b4c78",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-04-27T19:01:55Z",
+      "side": 1,
+      "message": "we are logging nodeState.getNodeId() on line 181, so do not bother with these and keep things consistent",
+      "range": {
+        "startLine": 346,
+        "startChar": 72,
+        "endLine": 346,
+        "endChar": 104
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0bfb28a_f7ad6c0e",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-04-27T19:01:55Z",
+      "side": 1,
+      "message": "store in local, reuse for the two calls",
+      "range": {
+        "startLine": 129,
+        "startChar": 26,
+        "endLine": 129,
+        "endChar": 66
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34ceea45_3b5763e3",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-04-27T19:01:55Z",
+      "side": 1,
+      "message": "I will not take this unexplained AtomicBoolean, as it is pure overhead and not obvious what is going on.\n\nWhat it really is protecting is validity of \"this.chain\u0027, which we really should express in terms of reachability of the chain...\n\nBut this is unrelated to the rest of the patch, let\u0027s split changes to this file into yet another patch and I\u0027ll comment on the approach there.",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 66
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
