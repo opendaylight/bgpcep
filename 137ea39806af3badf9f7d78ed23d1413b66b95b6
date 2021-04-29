@@ -68,6 +68,30 @@
       "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be12b729_3fc05c4f",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8762
+      },
+      "writtenOn": "2021-04-29T20:31:04Z",
+      "side": 1,
+      "message": "You a right about that; I thought the intention was to prevent the execution chain.close() twice, but it seems that is not even necessary. I will drop that boolean completely, as it doesn\u0027t make any sense.\n\nIf I understand everything correctly, the problem is that transaction-chain failure is not handled anywhere once again. This means if the transaction chain failure occurs before the storeNode() execution (called from the onSessionUp), the controller will drop the PCEP session completely, and the device will try to reconnect. Not sure if it is the thing that needs to be fixed.\n\nI see also getChain() involved in synchronization operations, but it seems a kind of RPC.",
+      "parentUuid": "34ceea45_3b5763e3",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 66
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
