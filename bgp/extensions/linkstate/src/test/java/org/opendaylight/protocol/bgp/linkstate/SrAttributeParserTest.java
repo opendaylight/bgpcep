@@ -152,8 +152,7 @@ public class SrAttributeParserTest {
 
     @Before
     public void setUp() throws Exception {
-        final BGPActivator act = new BGPActivator(true,
-            ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
     }
