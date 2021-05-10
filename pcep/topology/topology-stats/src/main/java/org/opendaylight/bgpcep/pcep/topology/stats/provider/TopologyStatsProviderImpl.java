@@ -8,27 +8,27 @@
 package org.opendaylight.bgpcep.pcep.topology.stats.provider;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.eclipse.jdt.annotation.NonNull;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteOperations;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -38,93 +38,110 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TopologyStatsProviderImpl implements TransactionChainListener,
-        TopologySessionStatsRegistry, AutoCloseable {
-
+public final class TopologyStatsProviderImpl extends TimerTask
+        implements TransactionChainListener, TopologySessionStatsRegistry, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
+
+    private final Set<KeyedInstanceIdentifier<Node, NodeKey>> statsPendingDelete = ConcurrentHashMap.newKeySet();
     @GuardedBy("this")
     private final Map<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> statsMap = new HashMap<>();
-    private final Set<KeyedInstanceIdentifier<Node, NodeKey>> statsPendingDelete = ConcurrentHashMap.newKeySet();
     private final DataBroker dataBroker;
-    private final int timeout;
+    private final Timer timer;
+
+    @GuardedBy("this")
     private TransactionChain transactionChain;
-    private ScheduledFuture<?> scheduleTask;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    public TopologyStatsProviderImpl(final @NonNull DataBroker dataBroker, final int timeout) {
+    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds) {
         this.dataBroker = requireNonNull(dataBroker);
-        this.timeout = timeout;
-    }
-
-    public synchronized void init() {
         LOG.info("Initializing TopologyStatsProvider service.");
-        this.transactionChain = this.dataBroker.createMergingTransactionChain(this);
-        final TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                updatePcepStats();
-            }
-        };
-
-        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, this.timeout, SECONDS);
-    }
-
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private synchronized void updatePcepStats() {
-        final WriteTransaction tx = TopologyStatsProviderImpl.this.transactionChain.newWriteOnlyTransaction();
-
-        try {
-            for (final Map.Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry
-                    : this.statsMap.entrySet()) {
-                if (this.statsPendingDelete.contains(entry.getKey())) {
-                    continue;
-                }
-                final PcepTopologyNodeStatsAug nodeStatsAug = new PcepTopologyNodeStatsAugBuilder()
-                        .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build()).build();
-                final InstanceIdentifier<PcepTopologyNodeStatsAug> statId =
-                        entry.getKey().augmentation(PcepTopologyNodeStatsAug.class);
-                tx.put(LogicalDatastoreType.OPERATIONAL, statId, nodeStatsAug);
-            }
-            tx.commit().addCallback(new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.debug("Successfully committed Topology stats update");
-                }
-
-                @Override
-                public void onFailure(final Throwable ex) {
-                    LOG.error("Failed to commit Topology stats update", ex);
-                }
-            }, MoreExecutors.directExecutor());
-        } catch (final Exception e) {
-            LOG.warn("Failed to prepare Tx for PCEP stats update", e);
-            tx.cancel();
-        }
+        transactionChain = this.dataBroker.createMergingTransactionChain(this);
+        timer = new Timer("pcep-topology-stats-timer", true);
+        timer.scheduleAtFixedRate(this, 0, TimeUnit.SECONDS.toMillis(updateIntervalSeconds));
     }
 
     @Override
-    public synchronized void close() throws Exception {
-        if (closed.compareAndSet(false, true)) {
-            LOG.info("Closing TopologyStatsProvider service.");
-            this.scheduleTask.cancel(true);
-            final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-            for (final KeyedInstanceIdentifier<Node, NodeKey> statId : this.statsMap.keySet()) {
-                wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
+    public synchronized void close() throws InterruptedException, ExecutionException {
+        // Look at the transaction chain ...
+        // Take ownership of the chain and null it out -- indicating we are finished to all async others...
+        final TransactionChain chain = transactionChain;
+        if (chain == null) {
+            // ... it's null, we have already been called;
+            return;
+        }
+
+        // ... it's non-null, hence we have not been shutdown yet.
+        LOG.info("Closing TopologyStatsProvider service.");
+        transactionChain = null;
+
+        // Cancel the timer, by extension cancelling us as a timer task
+        timer.cancel();
+
+        // Issue deletes for all registered stats
+        final WriteTransaction wTx = chain.newWriteOnlyTransaction();
+        for (final KeyedInstanceIdentifier<Node, NodeKey> statId : statsMap.keySet()) {
+            wTx.delete(LogicalDatastoreType.OPERATIONAL, statId);
+        }
+        statsMap.clear();
+
+        // Fire the transaction commit ...
+        final FluentFuture<? > future = wTx.commit();
+        // ... close the transaction chain ...
+        chain.close();
+        // ... and wait for transaction commit to complete
+        future.get();
+    }
+
+    @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public synchronized void run() {
+        if (transactionChain == null) {
+            // Already closed, do not bother
+            return;
+        }
+
+        final WriteTransaction tx = transactionChain.newWriteOnlyTransaction();
+        try {
+            updateStatistics(tx);
+        } catch (Exception e) {
+            LOG.warn("Failed to prepare Tx for PCEP stats update", e);
+            tx.cancel();
+            return;
+        }
+
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.debug("Successfully committed Topology stats update");
             }
-            wTx.commit().get();
-            this.statsMap.clear();
-            this.transactionChain.close();
-            this.scheduler.shutdown();
+
+            @Override
+            public void onFailure(final Throwable ex) {
+                LOG.error("Failed to commit Topology stats update", ex);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    @Holding("this")
+    private void updateStatistics(final WriteOperations tx) {
+        for (Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry : statsMap.entrySet()) {
+            if (!statsPendingDelete.contains(entry.getKey())) {
+                tx.put(LogicalDatastoreType.OPERATIONAL, entry.getKey().augmentation(PcepTopologyNodeStatsAug.class),
+                    new PcepTopologyNodeStatsAugBuilder()
+                        .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build())
+                        .build());
+            }
         }
     }
+
+
+    // FIXME: audit this
+
+
+
 
     @Override
     public synchronized void onTransactionChainFailed(final TransactionChain chain,

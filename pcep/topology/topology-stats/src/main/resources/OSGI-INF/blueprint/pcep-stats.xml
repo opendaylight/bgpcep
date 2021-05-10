@@ -22,7 +22,7 @@
 
     <bean id="topologyStatsRegistry"
           class="org.opendaylight.bgpcep.pcep.topology.stats.provider.TopologyStatsProviderImpl"
-          init-method="init" destroy-method="close">
+          destroy-method="close">
         <argument ref="dataBroker"/>
         <argument>
             <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
