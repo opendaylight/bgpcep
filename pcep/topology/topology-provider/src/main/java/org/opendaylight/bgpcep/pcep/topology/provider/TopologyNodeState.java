@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -45,7 +44,6 @@ import org.slf4j.LoggerFactory;
 // This class is thread-safe
 final class TopologyNodeState implements AutoCloseable, TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
-    private final AtomicBoolean closed = new AtomicBoolean(false);
     private final Map<String, Metadata> metadata = new HashMap<>();
     private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
@@ -103,7 +101,6 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
             }, MoreExecutors.directExecutor());
         }
 
-        close();
         this.lastReleased = System.nanoTime();
     }
 
@@ -153,9 +150,6 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
         LOG.error("Unexpected transaction failure in node {} transaction {}",
                 this.nodeId, transaction.getIdentifier(), cause);
-        if (closed.compareAndSet(false, true)) {
-            pchain.close();
-        }
     }
 
     @Override
@@ -165,9 +159,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
     @Override
     public synchronized void close() {
-        if (closed.compareAndSet(false, true)) {
-            this.chain.close();
-        }
+        this.chain.close();
     }
 
     private synchronized void putTopologyNode() {
@@ -184,7 +176,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
+                LOG.trace("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
