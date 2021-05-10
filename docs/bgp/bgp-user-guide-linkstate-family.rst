@@ -88,43 +88,21 @@ To enable BGP-LS support in BGP plugin, first configure BGP speaker instance:
 
 Linkstate path attribute
 ''''''''''''''''''''''''
-IANA allocation for BGP-LS path attribute is TYPE 29.
-Some older BGP-LS implementations might still require earliest asigned allocation TYPE 99.
-To use TYPE = 99, you need to set value bellow to false.
+The BGP-LS specification has seen early field deployments before the code point assignments have been
+properly allocated. RFC7752 specifies this attribute to be TYPE 29, while earlier software is using
+TYPE 99.
 
-**URL:** ``/restconf/config/bgp-linkstate-app-config:bgp-linkstate-app-config``
+OpenDaylight defaults to using the RFC7752 allocation, but can be reconfigured to recognize the legacy
+code point allocation. This can be achieved through Karaf shell in a running instance:
 
-**RFC8040 URL:** ``/rests/data/bgp-linkstate-app-config:bgp-linkstate-app-config``
+.. code-block:: console
 
-**Method:** ``PUT``
+   opendaylight-user@root>config:edit org.opendaylight.bgp.extensions.linkstate
+   opendaylight-user@root>config:property-set ianaAttributeType false
+   opendaylight-user@root>config:update
 
-.. tabs::
-
-   .. tab:: XML
-
-      **Content-Type:** ``application/xml``
-
-      **Request Body:**
-
-      .. code-block:: xml
-
-         <bgp-linkstate-app-config xmlns="urn:opendaylight:params:xml:ns:yang:controller:bgp:linkstate-app-config">
-             <iana-linkstate-attribute-type>false</iana-linkstate-attribute-type>
-         </bgp-linkstate-app-config>
-
-   .. tab:: JSON
-
-      **Content-Type:** ``application/json``
-
-      **Request Body:**
-
-      .. code-block:: json
-
-         {
-             "bgp-linkstate-app-config": {
-                 "iana-linkstate-attribute-type": false
-             }
-         }
+Alternatively, the same effect can be achieved by placing the line ``ianaAttributeType = false`` into
+``etc/org.opendaylight.bgp.extensions.linkstate.cfg`` in the installation directory.
 
 BGP Peer
 ''''''''

@@ -26,8 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 public class ActivatorTest extends AbstractRIBActivatorTest {
     @Test
     public void testActivator() {
-        final BGPActivator act = new BGPActivator(true,
-                ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));
