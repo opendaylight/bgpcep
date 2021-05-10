@@ -160,8 +160,7 @@ public class LinkstateNlriParserTest {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
         this.registry = SimpleNlriTypeRegistry.getInstance();
-        final BGPActivator act = new BGPActivator(true,
-            ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance().getRsvpRegistry());
+        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
 
