@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.openconfig.spi;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableBiMap;
+import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,9 +19,14 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.Immutable;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 @Beta
 @Singleton
+@Component(immediate = true, service = BGPTableTypeRegistryConsumer.class)
 @MetaInfServices(value = BGPTableTypeRegistryConsumer.class)
 public final class DefaultBGPTableTypeRegistryConsumer extends AbstractBGPTableTypeRegistryConsumer
         implements Immutable {
@@ -39,6 +45,12 @@ public final class DefaultBGPTableTypeRegistryConsumer extends AbstractBGPTableT
         }
         tableTypes = ImmutableBiMap.copyOf(builder.tableTypes());
         tableKeys = ImmutableBiMap.copyOf(builder.tableKeys());
+    }
+
+    @Activate
+    public DefaultBGPTableTypeRegistryConsumer(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            List<BGPTableTypeRegistryProviderActivator> activators) {
+        this((Iterable<BGPTableTypeRegistryProviderActivator>) activators);
     }
 
     @Override
