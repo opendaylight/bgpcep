@@ -64,7 +64,7 @@ public final class SourceTreeJoinHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.SourceTreeJoin.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.SourceTreeJoin, this.handler.getType());
     }
 
     @Test

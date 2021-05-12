@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.SourceActiveADCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.SourceActiveADCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.source.active.a.d.grouping.SourceActiveAD;
@@ -24,18 +22,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  * @author Claudio D. Gasparini
  */
 public final class SourceActiveADHandler extends AbstractMvpnNlri<SourceActiveADCase> {
-    @Override
-    public int getType() {
-        return NlriType.SourceActiveAD.getIntValue();
+    public SourceActiveADHandler() {
+        super(SourceActiveADCase.class, NlriType.SourceActiveAD);
     }
 
     @Override
     public SourceActiveADCase parseMvpn(final ByteBuf buffer) {
-        final SourceActiveADBuilder builder = new SourceActiveADBuilder(parseRDMulticastSource(buffer));
-        builder.setMulticastGroup(IpAddressUtil.addressForByteBuf(buffer));
-        return new SourceActiveADCaseBuilder().setSourceActiveAD(builder.build()).build();
+        return new SourceActiveADCaseBuilder()
+            .setSourceActiveAD(new SourceActiveADBuilder(parseRDMulticastSource(buffer))
+                .setMulticastGroup(IpAddressUtil.addressForByteBuf(buffer))
+                .build())
+            .build();
     }
-
 
     @Override
     protected ByteBuf serializeBody(final SourceActiveADCase mvpn) {
@@ -44,10 +42,5 @@ public final class SourceActiveADHandler extends AbstractMvpnNlri<SourceActiveAD
         serializeRDMulticastSource(route, nlriByteBuf);
         nlriByteBuf.writeBytes(IpAddressUtil.bytesFor(route.getMulticastGroup()));
         return nlriByteBuf;
-    }
-
-    @Override
-    public Class<? extends MvpnChoice> getClazz() {
-        return SourceActiveADCase.class;
     }
 }

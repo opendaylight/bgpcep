@@ -25,5 +25,5 @@ public interface MvpnSerializer<T extends MvpnChoice> {
      *
      * @return MvpnChoice Class
      */
-    Class<? extends MvpnChoice> getClazz();
+    @NonNull Class<T> getClazz();
 }
