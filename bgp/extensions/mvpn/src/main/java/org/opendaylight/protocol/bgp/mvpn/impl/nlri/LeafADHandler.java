@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
@@ -31,9 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  * @author Claudio D. Gasparini
  */
 public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
-    @Override
-    public int getType() {
-        return NlriType.LeafAD.getIntValue();
+    public LeafADHandler() {
+        super(LeafADCase.class, NlriType.LeafAD);
     }
 
     @Override
@@ -49,10 +48,12 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
             routeKey = new SPmsiADCaseBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.mvpn.rev200120.mvpn.mvpn.choice.SPmsiADCase) key).build();
         }
-        return new LeafADCaseBuilder().setLeafAD(new LeafADBuilder()
+        return new LeafADCaseBuilder()
+            .setLeafAD(new LeafADBuilder()
                 .setLeafADRouteKey(routeKey)
-                .setOrigRouteIp(IpAddressUtil.addressForByteBufWOLength(buffer)).build())
-                .build();
+                .setOrigRouteIp(IpAddressUtil.addressForByteBufWOLength(buffer))
+                .build())
+            .build();
     }
 
     @Override
@@ -70,13 +71,8 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
         }
         nlriByteBuf.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(keyCase));
         final ByteBuf orig = IpAddressUtil.bytesWOLengthFor(leaf.getOrigRouteIp());
-        Preconditions.checkArgument(orig.readableBytes() > 0);
+        checkArgument(orig.readableBytes() > 0);
         nlriByteBuf.writeBytes(orig);
         return nlriByteBuf;
-    }
-
-    @Override
-    public Class<? extends MvpnChoice> getClazz() {
-        return LeafADCase.class;
     }
 }

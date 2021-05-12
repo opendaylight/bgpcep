@@ -57,7 +57,7 @@ public final class SourceActiveADHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.SourceActiveAD.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.SourceActiveAD, this.handler.getType());
     }
 
     @Test

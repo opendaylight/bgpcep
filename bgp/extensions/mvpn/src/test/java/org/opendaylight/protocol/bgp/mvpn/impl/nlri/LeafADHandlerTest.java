@@ -67,7 +67,7 @@ public class LeafADHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.LeafAD.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.LeafAD, this.handler.getType());
     }
 
     @Test
