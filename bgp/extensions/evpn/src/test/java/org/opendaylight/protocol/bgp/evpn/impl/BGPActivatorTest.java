@@ -29,6 +29,5 @@ public class BGPActivatorTest {
         assertEquals(L2vpnAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(L2VPN_AFI));
         assertEquals(EvpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
                 .classForFamily(EVPN_SAFI));
-        act.close();
     }
 }

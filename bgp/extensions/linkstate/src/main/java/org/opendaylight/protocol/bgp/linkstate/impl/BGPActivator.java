@@ -16,7 +16,6 @@ import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
@@ -42,11 +41,10 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @Singleton
 @Component(immediate = true,
            configurationPid = "org.opendaylight.bgp.extensions.linkstate",
-           service = BGPExtensionProviderActivator.class,
            property = "type=org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator")
 @Designate(ocd = BGPActivator.Configuration.class)
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     /**
      * Configuration for BGP linkstate extension.
      */
@@ -84,7 +82,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
 

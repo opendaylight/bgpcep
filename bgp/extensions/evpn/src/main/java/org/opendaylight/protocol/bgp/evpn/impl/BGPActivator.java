@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.ESImpRouteTa
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.Layer2AttributesExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.extended.communities.MACMobExtCom;
 import org.opendaylight.protocol.bgp.evpn.impl.nlri.EvpnNlriParser;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.NextHopParserSerializer;
@@ -37,10 +36,9 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.evpn.impl.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.evpn.impl.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     @VisibleForTesting
     static final int L2VPN_AFI = 25;
     @VisibleForTesting
@@ -52,7 +50,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
         regs.add(context.registerSubsequentAddressFamily(EvpnSubsequentAddressFamily.class, EVPN_SAFI));

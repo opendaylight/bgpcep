@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.session;
 
 import static org.junit.Assert.assertTrue;
@@ -78,7 +77,6 @@ public class BmpDispatcherImplTest {
 
     @After
     public void tearDown() throws Exception {
-        this.bgpActivator.close();
         this.bmpActivator.close();
         this.dispatcher.close();
     }

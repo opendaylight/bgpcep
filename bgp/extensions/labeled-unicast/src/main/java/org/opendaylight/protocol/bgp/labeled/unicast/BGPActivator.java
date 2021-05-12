@@ -13,7 +13,6 @@ import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
@@ -28,10 +27,9 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     private static final int LABELED_UNICAST_SAFI = 4;
 
     @Inject
@@ -40,7 +38,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final LUNlriParser luNlriParser = new LUNlriParser();
         final LabelIndexTlvParser labelHandler = new LabelIndexTlvParser();
         final OriginatorSrgbTlvParser originatorHandler = new OriginatorSrgbTlvParser();
