@@ -88,6 +88,21 @@
             <artifactId>netty-buffer</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+        </dependency>
+
         <!-- Testing dependencies -->
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
