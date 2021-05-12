@@ -21,8 +21,12 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.apply.policy.group.apply.policy.Config;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Singleton
+@Component(immediate = true)
 @MetaInfServices
 public final class DefaultBGPRibRoutingPolicyFactory implements BGPRibRoutingPolicyFactory {
     private final StatementRegistryConsumer statementRegistryConsumer;
@@ -33,8 +37,9 @@ public final class DefaultBGPRibRoutingPolicyFactory implements BGPRibRoutingPol
     }
 
     @Inject
-    public DefaultBGPRibRoutingPolicyFactory(final DataBroker databroker,
-            final StatementRegistryConsumer statementRegistryConsumer) {
+    @Activate
+    public DefaultBGPRibRoutingPolicyFactory(final @Reference DataBroker databroker,
+            final @Reference StatementRegistryConsumer statementRegistryConsumer) {
         this.databroker = requireNonNull(databroker);
         this.statementRegistryConsumer = requireNonNull(statementRegistryConsumer);
     }
