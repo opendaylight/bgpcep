@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Brocade Communications Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2021 PANTHEON.tech, s.r.o.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,22 +10,32 @@ package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.kohsuke.MetaInfServices;
+import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectRegistry;
+import org.opendaylight.protocol.rsvp.parser.spi.LabelRegistry;
+import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionConsumerContext;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderActivator;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
+import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectRegistry;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
- * Starts and stops RSVPExtensionProviderActivator instances for a RSVPExtensionProviderContext.
- *
- * @author Thomas Pantelis
+ * Starts and stops {@link RSVPExtensionProviderActivator} instances for an {@link RSVPExtensionProviderContext}.
  */
 @Singleton
-@MetaInfServices(value = RSVPExtensionConsumerContext.class)
-public class DefaultRSVPExtensionConsumerContext extends ForwardingRSVPExtensionConsumerContext {
+@Component(immediate = true, service = RSVPExtensionConsumerContext.class)
+@MetaInfServices
+public final class DefaultRSVPExtensionConsumerContext implements RSVPExtensionConsumerContext {
     private final @NonNull SimpleRSVPExtensionProviderContext delegate = new SimpleRSVPExtensionProviderContext();
 
     public DefaultRSVPExtensionConsumerContext() {
@@ -41,8 +52,34 @@ public class DefaultRSVPExtensionConsumerContext extends ForwardingRSVPExtension
         extensionActivators.forEach(activator -> activator.start(delegate));
     }
 
+    @Activate
+    public DefaultRSVPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            List<RSVPExtensionProviderActivator> extensionActivators) {
+        extensionActivators.forEach(activator -> activator.start(delegate));
+    }
+
     @Override
-    RSVPExtensionConsumerContext delegate() {
-        return delegate;
+    public RSVPTeObjectRegistry getRsvpRegistry() {
+        return delegate.getRsvpRegistry();
+    }
+
+    @Override
+    public XROSubobjectRegistry getXROSubobjectHandlerRegistry() {
+        return delegate.getXROSubobjectHandlerRegistry();
+    }
+
+    @Override
+    public EROSubobjectRegistry getEROSubobjectHandlerRegistry() {
+        return delegate.getEROSubobjectHandlerRegistry();
+    }
+
+    @Override
+    public RROSubobjectRegistry getRROSubobjectHandlerRegistry() {
+        return delegate.getRROSubobjectHandlerRegistry();
+    }
+
+    @Override
+    public LabelRegistry getLabelHandlerRegistry() {
+        return delegate.getLabelHandlerRegistry();
     }
 }
