@@ -5,8 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
+
+import static java.util.Objects.requireNonNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -14,8 +15,8 @@ import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnParser;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnSerializer;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.MulticastSourceRdGrouping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.s.pmsi.a.d.grouping.SPmsiADBuilder;
 
@@ -25,17 +26,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  * @author Claudio D. Gasparini
  */
 abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSerializer<T>, MvpnParser<T> {
-    static MulticastSourceRdGrouping parseRDMulticastSource(final ByteBuf buffer) {
-        final SPmsiADBuilder builder = new SPmsiADBuilder();
-        builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer));
-        final IpAddressNoZone address = IpAddressUtil.addressForByteBuf(buffer);
-        builder.setMulticastSource(address);
-        return builder.build();
+    private final Class<T> choice;
+    private final int type;
+
+    AbstractMvpnNlri(final Class<T> choice, final NlriType type) {
+        this.choice = requireNonNull(choice);
+        this.type = type.getIntValue();
     }
 
-    static void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
-        RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), output);
-        output.writeBytes(IpAddressUtil.bytesFor(route.getMulticastSource()));
+    @Override
+    public final Class<T> getClazz() {
+        return choice;
+    }
+
+    @Override
+    public final int getType() {
+        return type;
     }
 
     @Override
@@ -49,4 +55,16 @@ abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSerializer<
     }
 
     protected abstract ByteBuf serializeBody(T mvpn);
+
+    static final MulticastSourceRdGrouping parseRDMulticastSource(final ByteBuf buffer) {
+        return new SPmsiADBuilder()
+            .setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer))
+            .setMulticastSource(IpAddressUtil.addressForByteBuf(buffer))
+            .build();
+    }
+
+    static final void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
+        RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), output);
+        output.writeBytes(IpAddressUtil.bytesFor(route.getMulticastSource()));
+    }
 }

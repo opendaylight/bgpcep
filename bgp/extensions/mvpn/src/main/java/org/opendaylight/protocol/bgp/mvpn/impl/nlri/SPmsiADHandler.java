@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.SPmsiADCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.SPmsiADCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.s.pmsi.a.d.grouping.SPmsiAD;
@@ -24,18 +22,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
  * @author Claudio D. Gasparini
  */
 public final class SPmsiADHandler extends AbstractMvpnNlri<SPmsiADCase> {
-
-    @Override
-    public int getType() {
-        return NlriType.SPmsiAD.getIntValue();
+    public SPmsiADHandler() {
+        super(SPmsiADCase.class, NlriType.SPmsiAD);
     }
 
     @Override
     public SPmsiADCase parseMvpn(final ByteBuf buffer) {
-        final SPmsiADBuilder builder = new SPmsiADBuilder(parseRDMulticastSource(buffer));
-        builder.setMulticastGroup(MulticastGroupOpaqueUtil.multicastGroupForByteBuf(buffer));
-        builder.setOrigRouteIp(IpAddressUtil.addressForByteBufWOLength(buffer));
-        return new SPmsiADCaseBuilder().setSPmsiAD(builder.build()).build();
+        return new SPmsiADCaseBuilder()
+            .setSPmsiAD(new SPmsiADBuilder(parseRDMulticastSource(buffer))
+                .setMulticastGroup(MulticastGroupOpaqueUtil.multicastGroupForByteBuf(buffer))
+                .setOrigRouteIp(IpAddressUtil.addressForByteBufWOLength(buffer))
+                .build())
+            .build();
     }
 
     @Override
@@ -46,10 +44,5 @@ public final class SPmsiADHandler extends AbstractMvpnNlri<SPmsiADCase> {
         MulticastGroupOpaqueUtil.bytesForMulticastGroup(route.getMulticastGroup(), nlriByteBuf);
         nlriByteBuf.writeBytes(IpAddressUtil.bytesWOLengthFor(route.getOrigRouteIp()));
         return nlriByteBuf;
-    }
-
-    @Override
-    public Class<? extends MvpnChoice> getClazz() {
-        return SPmsiADCase.class;
     }
 }
