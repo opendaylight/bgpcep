@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
@@ -15,7 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.inter.as.i.pmsi.a.d.grouping.InterAsIPmsiAD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.inter.as.i.pmsi.a.d.grouping.InterAsIPmsiADBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.InterAsIPmsiADCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.mvpn.choice.InterAsIPmsiADCaseBuilder;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -28,21 +28,19 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 public final class InterASIPmsiADHandler extends AbstractMvpnNlri<InterAsIPmsiADCase> {
     private static final int CONTENT_LENGTH = 12;
 
-    @Override
-    public int getType() {
-        return NlriType.InterAsIPmsiAD.getIntValue();
+    public InterASIPmsiADHandler() {
+        super(InterAsIPmsiADCase.class, NlriType.InterAsIPmsiAD);
     }
 
     @Override
     public InterAsIPmsiADCase parseMvpn(final ByteBuf buffer) {
-        Preconditions.checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
-                "Wrong length of array of bytes. Passed: %s ;", buffer);
+        checkArgument(buffer.readableBytes() == CONTENT_LENGTH, "Wrong length of array of bytes. Passed: %s ;", buffer);
         return new InterAsIPmsiADCaseBuilder()
-                .setInterAsIPmsiAD(new InterAsIPmsiADBuilder()
-                        .setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer))
-                        .setSourceAs(new AsNumber(ByteBufUtils.readUint32(buffer)))
-                        .build())
-                .build();
+            .setInterAsIPmsiAD(new InterAsIPmsiADBuilder()
+                .setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer))
+                .setSourceAs(new AsNumber(ByteBufUtils.readUint32(buffer)))
+                .build())
+            .build();
     }
 
     @Override
@@ -52,10 +50,5 @@ public final class InterASIPmsiADHandler extends AbstractMvpnNlri<InterAsIPmsiAD
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), nlriByteBuf);
         nlriByteBuf.writeInt(route.getSourceAs().getValue().intValue());
         return nlriByteBuf;
-    }
-
-    @Override
-    public Class<? extends MvpnChoice> getClazz() {
-        return InterAsIPmsiADCase.class;
     }
 }

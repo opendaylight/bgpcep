@@ -64,7 +64,7 @@ public final class SharedTreeJoinHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.SharedTreeJoin.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.SharedTreeJoin, this.handler.getType());
     }
 
     @Test

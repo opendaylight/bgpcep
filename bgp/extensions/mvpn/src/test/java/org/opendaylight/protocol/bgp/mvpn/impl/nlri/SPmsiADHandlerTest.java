@@ -60,7 +60,7 @@ public final class SPmsiADHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.SPmsiAD.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.SPmsiAD, this.handler.getType());
     }
 
     @Test

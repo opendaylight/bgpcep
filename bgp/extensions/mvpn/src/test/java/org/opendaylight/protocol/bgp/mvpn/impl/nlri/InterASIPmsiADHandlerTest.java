@@ -57,7 +57,7 @@ public final class InterASIPmsiADHandlerTest {
 
     @Test
     public void testGetType() {
-        assertEquals(NlriType.InterAsIPmsiAD.getIntValue(), this.handler.getType());
+        assertEquals(NlriType.InterAsIPmsiAD, this.handler.getType());
     }
 
     @Test
