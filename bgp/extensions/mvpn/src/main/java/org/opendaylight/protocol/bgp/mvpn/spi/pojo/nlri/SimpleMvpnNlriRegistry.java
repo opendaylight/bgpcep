@@ -36,6 +36,7 @@ import org.opendaylight.yangtools.yang.binding.DataContainer;
 public final class SimpleMvpnNlriRegistry implements MvpnRegistry {
     private static final @NonNull SimpleMvpnNlriRegistry INSTANCE = new SimpleMvpnNlriRegistry();
 
+    // FIXME: there are only 7 possibilities here, open-code the registry here!
     private final HandlerRegistry<DataContainer, MvpnParser, MvpnSerializer> handlers = new HandlerRegistry<>();
 
     private SimpleMvpnNlriRegistry() {

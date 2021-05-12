@@ -31,7 +31,6 @@ public class ActivatorTest {
             .classForFamily(FLOWSPEC_SAFI));
         assertEquals(FlowspecL3vpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
             .classForFamily(FLOWSPEC_VPN_SAFI));
-        act.close();
     }
 }
 

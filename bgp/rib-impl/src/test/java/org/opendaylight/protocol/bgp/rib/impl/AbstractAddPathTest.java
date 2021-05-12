@@ -122,13 +122,14 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final List<BgpTableType> TABLES_TYPE = ImmutableList.of(new BgpTableTypeImpl(TABLES_KEY.getAfi(),
         TABLES_KEY.getSafi()));
     static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
-    private BGPExtensionProviderContext context;
+
     static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     static final int GRACEFUL_RESTART_TIME = 5;
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;
     BGPDispatcherImpl serverDispatcher;
     final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
+    private final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
     private final RIBActivator ribActivator = new RIBActivator();
     private BGPActivator bgpActivator;
     private NioEventLoopGroup worker;
@@ -148,7 +149,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
         this.bgpActivator = new BGPActivator();
         this.inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
-        this.context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(this.context);
         this.inetActivator.start(this.context);
         if (!Epoll.isAvailable()) {
@@ -173,7 +173,6 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
             this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
-        this.bgpActivator.close();
         this.clientDispatchers.forEach(BGPDispatcherImpl::close);
         this.clientDispatchers = null;
 

@@ -21,9 +21,9 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvParser;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvSerializer;
@@ -62,7 +62,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
+public class BgpTestActivator implements BGPExtensionProviderActivator {
 
     protected static final int TYPE = 0;
     private static final String EMPTY = "";
@@ -105,7 +105,7 @@ public class BgpTestActivator extends AbstractBGPExtensionProviderActivator {
     protected BgpPrefixSidTlvSerializer sidTlvSerializer;
 
     @Override
-    protected List<? extends Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<? extends Registration> start(final BGPExtensionProviderContext context) {
         initMock();
         final List<Registration> regs = new ArrayList<>();
         regs.add(context.registerAttributeParser(TYPE, this.attrParser));

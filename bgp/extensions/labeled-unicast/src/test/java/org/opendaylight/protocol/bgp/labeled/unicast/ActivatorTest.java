@@ -16,7 +16,6 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
 
 public class ActivatorTest {
-
     @Test
     public void testActivator() throws Exception {
         final BGPActivator act = new BGPActivator();
@@ -25,6 +24,5 @@ public class ActivatorTest {
         act.start(context);
         assertEquals(LabeledUnicastSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
             .classForFamily(4));
-        act.close();
     }
 }
