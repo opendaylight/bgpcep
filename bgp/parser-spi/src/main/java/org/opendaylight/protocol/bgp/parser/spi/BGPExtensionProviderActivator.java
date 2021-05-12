@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-public interface BGPExtensionProviderActivator {
-    void start(BGPExtensionProviderContext context);
+import java.util.List;
+import org.opendaylight.yangtools.concepts.Registration;
 
-    void stop();
+public interface BGPExtensionProviderActivator {
+    List<? extends Registration> start(BGPExtensionProviderContext context);
 }

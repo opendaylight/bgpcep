@@ -36,8 +36,6 @@ public class ActivatorTest extends AbstractRIBActivatorTest {
         assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
         assertEquals(LinkstateSubsequentAddressFamily.class,
                 context.getSubsequentAddressFamilyRegistry().classForFamily(71));
-
-        act.close();
     }
 
     @Test

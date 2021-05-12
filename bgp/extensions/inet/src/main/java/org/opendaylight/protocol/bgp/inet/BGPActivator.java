@@ -16,7 +16,6 @@ import org.opendaylight.protocol.bgp.inet.codec.Ipv6BgpPrefixSidParser;
 import org.opendaylight.protocol.bgp.inet.codec.Ipv6NlriParser;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4Routes;
@@ -31,17 +30,16 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.inet.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.inet.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     @Inject
     public BGPActivator() {
         // Exposed for DI
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final Ipv4NlriParser ipv4Codec = new Ipv4NlriParser();
         final Ipv6NlriParser ipv6Codec = new Ipv6NlriParser();
         final Ipv6BgpPrefixSidParser tlvHandler = new Ipv6BgpPrefixSidParser();

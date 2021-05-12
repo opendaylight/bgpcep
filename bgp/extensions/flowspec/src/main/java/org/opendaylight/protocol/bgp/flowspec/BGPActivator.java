@@ -25,7 +25,6 @@ import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv4.FlowspecL3vpnIpv4NlriPa
 import org.opendaylight.protocol.bgp.flowspec.l3vpn.ipv6.FlowspecL3vpnIpv6NlriParser;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecL3vpnSubsequentAddressFamily;
@@ -50,10 +49,9 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.flowspec.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.flowspec.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     private static final int FLOWSPEC_SAFI = 133;
     private static final int FLOWSPEC_L3VPN_SAFI = 134;
 
@@ -63,7 +61,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
         regs.add(context.registerSubsequentAddressFamily(FlowspecSubsequentAddressFamily.class, FLOWSPEC_SAFI));
         regs.add(context.registerSubsequentAddressFamily(FlowspecL3vpnSubsequentAddressFamily.class,

@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSerializer;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.RouteTargetConstrainNlriHandler;
@@ -31,10 +30,10 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
+@Component(immediate = true,
            property = "type=org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     @VisibleForTesting
     static final int RT_SAFI = 132;
 
@@ -44,7 +43,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final RouteTargetConstrainNlriHandler routeTargetNlriHandler = new RouteTargetConstrainNlriHandler();
         return List.of(
             context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.class, RT_SAFI),

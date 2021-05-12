@@ -17,9 +17,16 @@ import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv4NextHopParserSeriali
 import org.opendaylight.protocol.bgp.inet.codec.nexthop.Ipv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PEDistinguisherLabelsAttributeHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandler;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.BidirPimTreeParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.IngressReplicationParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.MldpMp2mpLspParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.MldpP2mpLspParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PimSmTreeParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.PimSsmTreeParser;
+import org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier.RsvpTeP2MpLspParser;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv4NlriHandler;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.MvpnIpv6NlriHandler;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
+import org.opendaylight.protocol.bgp.mvpn.spi.pojo.attributes.tunnel.identifier.SimpleTunnelIdentifierRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.routes.ipv4.MvpnRoutesIpv4;
@@ -38,10 +45,9 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MVPN_SAFI = 5;
 
@@ -50,44 +56,62 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
         // Exposed for DI
     }
 
-    private static void registerAttributesHandler(final BGPExtensionProviderContext context,
-            final List<Registration> regs) {
-        final PEDistinguisherLabelsAttributeHandler peDistHandler =
-                new PEDistinguisherLabelsAttributeHandler();
-        regs.add(context.registerAttributeParser(peDistHandler.getType(), peDistHandler));
-        regs.add(context.registerAttributeSerializer(peDistHandler.getClazz(), peDistHandler));
+    @Override
+    public List<Registration> start(final BGPExtensionProviderContext context) {
+        final List<Registration> regs = new ArrayList<>();
 
-        final PMSITunnelAttributeHandler pmsiParser = new PMSITunnelAttributeHandler();
-        regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
-        regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
-    }
+        final SimpleTunnelIdentifierRegistry tunnelIdentifierReg = SimpleTunnelIdentifierRegistry.getInstance();
 
-    private static void registerNlri(final BGPExtensionProviderContext context, final List<Registration> regs) {
+        final RsvpTeP2MpLspParser rsvpTeP2MpLspParser = new RsvpTeP2MpLspParser();
+        regs.add(tunnelIdentifierReg.registerParser(rsvpTeP2MpLspParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(rsvpTeP2MpLspParser));
+
+        final MldpP2mpLspParser mldpP2mpLspParser = new MldpP2mpLspParser(context.getAddressFamilyRegistry());
+        regs.add(tunnelIdentifierReg.registerParser(mldpP2mpLspParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(mldpP2mpLspParser));
+
+        final PimSsmTreeParser pimSsmTreeParser = new PimSsmTreeParser();
+        regs.add(tunnelIdentifierReg.registerParser(pimSsmTreeParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(pimSsmTreeParser));
+
+        final PimSmTreeParser pimSmTreeParser = new PimSmTreeParser();
+        regs.add(tunnelIdentifierReg.registerParser(pimSmTreeParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(pimSmTreeParser));
+
+        final BidirPimTreeParser bidirPimTreeParser = new BidirPimTreeParser();
+        regs.add(tunnelIdentifierReg.registerParser(bidirPimTreeParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(bidirPimTreeParser));
+
+        final IngressReplicationParser ingressReplicationParser = new IngressReplicationParser();
+        regs.add(tunnelIdentifierReg.registerParser(ingressReplicationParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(ingressReplicationParser));
+
+        final MldpMp2mpLspParser mldpMp2mpLspParser = new MldpMp2mpLspParser();
+        regs.add(tunnelIdentifierReg.registerParser(mldpMp2mpLspParser));
+        regs.add(tunnelIdentifierReg.registerSerializer(mldpMp2mpLspParser));
+
+        regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
+
         final MvpnIpv4NlriHandler mvpnIpv4NlriHandler = new MvpnIpv4NlriHandler();
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
                 mvpnIpv4NlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv4.class, mvpnIpv4NlriHandler));
 
-
         final MvpnIpv6NlriHandler mvpnIpv6NlriHandler = new MvpnIpv6NlriHandler();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
         regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
                 mvpnIpv6NlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv6.class, mvpnIpv6NlriHandler));
-    }
 
-    private static void registerAfiSafi(final BGPExtensionProviderContext context, final List<Registration> regs) {
-        regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
-    }
+        final PEDistinguisherLabelsAttributeHandler peDistHandler = new PEDistinguisherLabelsAttributeHandler();
+        regs.add(context.registerAttributeParser(peDistHandler.getType(), peDistHandler));
+        regs.add(context.registerAttributeSerializer(peDistHandler.getClazz(), peDistHandler));
 
-    @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-        TunnelIdentifierActivator.registerTunnelIdentifierHandlers(context, regs);
-        registerAfiSafi(context, regs);
-        registerNlri(context, regs);
-        registerAttributesHandler(context, regs);
+        final PMSITunnelAttributeHandler pmsiParser = new PMSITunnelAttributeHandler();
+        regs.add(context.registerAttributeParser(pmsiParser.getType(), pmsiParser));
+        regs.add(context.registerAttributeSerializer(pmsiParser.getClazz(), pmsiParser));
+
         return regs;
     }
 }

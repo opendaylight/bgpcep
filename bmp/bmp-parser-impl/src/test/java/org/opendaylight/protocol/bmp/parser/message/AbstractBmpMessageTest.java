@@ -5,10 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.message;
 
-import org.junit.After;
 import org.junit.Before;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -18,7 +16,6 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 
 public abstract class AbstractBmpMessageTest {
-
     private BmpMessageRegistry messageRegistry;
     private BGPActivator bgpActivator;
     private BmpActivator bmpActivator;
@@ -34,14 +31,7 @@ public abstract class AbstractBmpMessageTest {
         this.messageRegistry = ctx.getBmpMessageRegistry();
     }
 
-    @After
-    public final void tearDown() {
-        this.bgpActivator.close();
-        this.bmpActivator.close();
-    }
-
     protected final BmpMessageRegistry getBmpMessageRegistry() {
         return this.messageRegistry;
     }
-
 }

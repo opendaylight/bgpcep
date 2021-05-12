@@ -18,6 +18,7 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleRegistryTest {
@@ -67,18 +69,19 @@ public class SimpleRegistryTest {
     }
 
     protected BGPExtensionProviderContext ctx;
-    private BgpTestActivator activator;
+
+    private final BgpTestActivator activator = new BgpTestActivator();
+    private List<? extends Registration> regs;
 
     @Before
     public void setUp() {
         this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        this.activator = new BgpTestActivator();
-        this.activator.start(this.ctx);
+        regs = this.activator.start(this.ctx);
     }
 
     @After
     public void tearDown() {
-        this.activator.close();
+        regs.forEach(Registration::close);
     }
 
     @Test

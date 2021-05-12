@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +25,5 @@ public final class BGPActivatorTest {
         act.start(context);
         assertEquals(McastVpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
                 .classForFamily(MVPN_SAFI));
-        act.close();
     }
 }

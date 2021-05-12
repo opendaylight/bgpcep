@@ -20,7 +20,6 @@ import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NextHopParserSeri
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4NlriParser;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NextHopParserSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6NlriParser;
-import org.opendaylight.protocol.bgp.parser.spi.AbstractBGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
@@ -42,10 +41,9 @@ import org.osgi.service.component.annotations.Component;
  * @author Claudio D. Gasparini
  */
 @Singleton
-@Component(immediate = true, service = BGPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.l3vpn.BGPActivator")
-@MetaInfServices(value = BGPExtensionProviderActivator.class)
-public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
+@Component(immediate = true, property = "type=org.opendaylight.protocol.bgp.l3vpn.BGPActivator")
+@MetaInfServices
+public final class BGPActivator implements BGPExtensionProviderActivator {
     @VisibleForTesting
     static final int MCAST_L3VPN_SAFI = 129;
 
@@ -55,7 +53,7 @@ public final class BGPActivator extends AbstractBGPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final BGPExtensionProviderContext context) {
+    public List<Registration> start(final BGPExtensionProviderContext context) {
         final VpnIpv4NlriParser vpnIpv4NlriParser = new VpnIpv4NlriParser();
         final VpnIpv6NlriParser vpnIpv6NlriParser = new VpnIpv6NlriParser();
         final L3vpnMcastIpv4NlriHandler l3vpnMcastIpv4NlriHandler = new L3vpnMcastIpv4NlriHandler();
