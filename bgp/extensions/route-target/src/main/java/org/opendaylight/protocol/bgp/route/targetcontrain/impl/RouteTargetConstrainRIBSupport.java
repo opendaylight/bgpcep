@@ -44,7 +44,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -117,17 +116,17 @@ public final class RouteTargetConstrainRIBSupport
         return routes.stream().map(this::extractDestination).collect(Collectors.toList());
     }
 
-    private RouteTargetConstrainDestination extractDestination(final DataContainerNode<? extends PathArgument> rtDest) {
+    private RouteTargetConstrainDestination extractDestination(final DataContainerNode rtDest) {
         final RouteTargetConstrainDestinationBuilder builder = new RouteTargetConstrainDestinationBuilder()
                 .setPathId(PathIdUtil.buildPathId(rtDest, routePathIdNid()))
                 .setRouteTargetConstrainChoice(extractRouteTargetChoice(rtDest));
         final Optional<Object> originAs = NormalizedNodes
-                .findNode(rtDest, this.originAsNid).map(NormalizedNode::getValue);
+                .findNode(rtDest, this.originAsNid).map(NormalizedNode::body);
         originAs.ifPresent(o -> builder.setOriginAs(new AsNumber((Uint32) o)));
         return builder.build();
     }
 
-    private RouteTargetConstrainChoice extractRouteTargetChoice(final DataContainerNode<? extends PathArgument> route) {
+    private RouteTargetConstrainChoice extractRouteTargetChoice(final DataContainerNode route) {
         final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
         return ((RouteTargetConstrainRoute) nn).getRouteTargetConstrainChoice();
     }
@@ -140,13 +139,11 @@ public final class RouteTargetConstrainRIBSupport
             final ContainerNode attributes,
             final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
-                    .getChild(NLRI_ROUTES_LIST);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode rtDest : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(rtDest);
@@ -166,9 +163,7 @@ public final class RouteTargetConstrainRIBSupport
         final RouteTargetConstrainDestination dest = extractDestination(routeTarget);
         buffer.writeBytes(ImmutableRouteTargetConstrainNlriRegistry.getInstance()
                 .serializeRouteTargetConstrain(dest.getRouteTargetConstrainChoice()));
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                routeTarget.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), routeTarget.findChildByArg(routePathIdNid()));
     }
 }

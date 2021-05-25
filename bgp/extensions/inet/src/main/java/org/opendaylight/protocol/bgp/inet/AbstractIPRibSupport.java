@@ -7,14 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.inet;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -33,7 +32,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
@@ -85,26 +83,22 @@ abstract class AbstractIPRibSupport<
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
-                    destination.getChild(this.nlriRoutesList);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
-                if (routes instanceof UnkeyedListNode) {
-                    // Instance identifier to table/(choice routes)/(map of route)
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode ipDest : routesList) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(ipDest);
-                        function.apply(tx, base, routeKey, ipDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
+            final DataContainerChild routes = destination.childByArg(this.nlriRoutesList);
+            if (routes instanceof UnkeyedListNode) {
+                // Instance identifier to table/(choice routes)/(map of route)
+                final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
+                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
+                final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
+                for (final UnkeyedListEntryNode ipDest : routesList) {
+                    final NodeIdentifierWithPredicates routeKey = createRouteKey(ipDest);
+                    function.apply(tx, base, routeKey, ipDest, attributes);
+                    keys.add(routeKey);
                 }
-                LOG.warn("Routes {} are not a map", routes);
+                return keys;
             }
+            LOG.warn("Routes {} are not a map", routes);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     /**
@@ -114,12 +108,9 @@ abstract class AbstractIPRibSupport<
      * @return Nid with Route Key
      */
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode prefixes) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePrefixLeaf =
-                prefixes.getChild(routePrefixIdentifier());
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                prefixes.getChild(routePathIdNid());
-        Preconditions.checkState(maybePrefixLeaf.isPresent());
-        final Object prefixValue = maybePrefixLeaf.get().getValue();
-        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), prefixValue, maybePathIdLeaf);
+        final DataContainerChild prefixLeaf = prefixes.childByArg(routePrefixIdentifier());
+        checkState(prefixLeaf != null);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), prefixLeaf.body(),
+            prefixes.findChildByArg(routePathIdNid()));
     }
 }

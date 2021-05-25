@@ -306,7 +306,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                         entry = createEntry(routeKey);
                     }
 
-                    final NormalizedNode<?, ?> routeAfter = route.getDataAfter().get();
+                    final NormalizedNode routeAfter = route.getDataAfter().get();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
                     entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
                     this.totalPathsCounter.increment();

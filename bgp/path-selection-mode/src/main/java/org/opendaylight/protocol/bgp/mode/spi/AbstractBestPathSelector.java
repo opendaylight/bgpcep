@@ -42,7 +42,7 @@ public class AbstractBestPathSelector {
      */
     protected RouterId replaceOriginator(final RouterId routerId, final ContainerNode attrs) {
         return NormalizedNodes.findNode(attrs, ORIGINATOR_ID)
-            .map(originatorId -> RouterId.forAddress((String) originatorId.getValue()))
+            .map(originatorId -> RouterId.forAddress((String) originatorId.body()))
             .orElse(routerId);
     }
 

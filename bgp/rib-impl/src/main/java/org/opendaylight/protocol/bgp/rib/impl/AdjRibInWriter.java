@@ -50,8 +50,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
@@ -349,9 +349,9 @@ final class AdjRibInWriter {
                 }
 
                 tx.read(LogicalDatastoreType.OPERATIONAL, ctx.routesPath()).addCallback(
-                    new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
+                    new FutureCallback<Optional<NormalizedNode>>() {
                         @Override
-                        public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
+                        public void onSuccess(final Optional<NormalizedNode> routesOptional) {
                             try {
                                 if (routesOptional.isPresent()) {
                                     synchronized (AdjRibInWriter.this.staleRoutesRegistry) {

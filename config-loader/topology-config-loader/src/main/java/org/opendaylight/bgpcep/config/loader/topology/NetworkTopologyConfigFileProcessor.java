@@ -57,7 +57,7 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
 
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
-            final NormalizedNode<?, ?> dto) {
+            final NormalizedNode dto) {
         final ContainerNode networkTopology = (ContainerNode) dto;
         final MapNode topologies = (MapNode) networkTopology.getChild(new NodeIdentifier(Topology.QNAME)).orElse(null);
         if (networkTopology == null) {

@@ -30,5 +30,5 @@ public interface ConfigFileProcessor {
      *
      * @param dto normalizedNode
      */
-    void loadConfiguration(@NonNull NormalizedNode<?, ?> dto);
+    void loadConfiguration(@NonNull NormalizedNode dto);
 }
