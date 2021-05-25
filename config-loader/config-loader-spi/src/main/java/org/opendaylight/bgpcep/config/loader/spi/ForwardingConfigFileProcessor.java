@@ -22,7 +22,7 @@ public abstract class ForwardingConfigFileProcessor extends ForwardingObject imp
     }
 
     @Override
-    public void loadConfiguration(final NormalizedNode<?, ?> dto) {
+    public void loadConfiguration(final NormalizedNode dto) {
         delegate().loadConfiguration(dto);
     }
 

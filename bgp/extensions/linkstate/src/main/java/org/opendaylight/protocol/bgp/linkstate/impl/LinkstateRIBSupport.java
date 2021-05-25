@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -64,10 +63,8 @@ public final class LinkstateRIBSupport
         final ByteBuf buffer = Unpooled.buffer();
         final CLinkstateDestination cLinkstateDestination = LinkstateNlriParser.extractLinkstateDestination(linkstate);
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(cLinkstateDestination, buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                linkstate.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), linkstate.findChildByArg(routePathIdNid()));
     }
 
     private static List<CLinkstateDestination> extractRoutes(final Collection<MapEntryNode> routes) {
@@ -81,22 +78,20 @@ public final class LinkstateRIBSupport
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
-                    = destination.getChild(LinkstateRIBSupport.NLRI_ROUTES_LIST);
-            return processRoute(maybeRoutes, routesPath, attributes, function, tx);
+            return processRoute(destination.findChildByArg(LinkstateRIBSupport.NLRI_ROUTES_LIST), routesPath,
+                attributes, function, tx);
         }
         return Collections.emptyList();
     }
 
-    private List<NodeIdentifierWithPredicates> processRoute(
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes,
-            final YangInstanceIdentifier routesPath,
-            final ContainerNode attributes, final ApplyRoute function, final DOMDataTreeWriteTransaction tx) {
+    private List<NodeIdentifierWithPredicates> processRoute(final Optional<DataContainerChild> maybeRoutes,
+            final YangInstanceIdentifier routesPath, final ContainerNode attributes, final ApplyRoute function,
+            final DOMDataTreeWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
-            final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = maybeRoutes.get();
             if (routes instanceof UnkeyedListNode) {
                 final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                 final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                 for (final UnkeyedListEntryNode linkstateDest : routesList) {
                     final NodeIdentifierWithPredicates routeKey = createRouteKey(linkstateDest);

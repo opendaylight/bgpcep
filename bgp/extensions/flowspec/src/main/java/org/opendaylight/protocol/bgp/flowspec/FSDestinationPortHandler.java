@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.DestinationPortCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.destination.port._case.DestinationPortsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public final class FSDestinationPortHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
     public static final int DESTINATION_PORT_VALUE = 5;
@@ -52,7 +53,7 @@ public final class FSDestinationPortHandler implements FlowspecTypeParser, Flows
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
+            builder.setValue(Uint16.valueOf(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length))));
             end = op.getEndOfList();
             ports.add(builder.build());
         }

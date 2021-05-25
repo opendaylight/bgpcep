@@ -35,6 +35,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 
 public final class LinkNlriParser extends AbstractNlriTypeCodec {
 
@@ -64,9 +65,9 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
     static LinkDescriptors serializeLinkDescriptors(final ContainerNode descriptors) {
         final LinkDescriptorsBuilder linkDescBuilder = new LinkDescriptorsBuilder();
 
-        if (descriptors.getChild(LINK_LOCAL_NID).isPresent() && descriptors.getChild(LINK_REMOTE_NID).isPresent()) {
-            linkDescBuilder.setLinkLocalIdentifier((Uint32) descriptors.getChild(LINK_LOCAL_NID).get().getValue());
-            linkDescBuilder.setLinkRemoteIdentifier((Uint32) descriptors.getChild(LINK_REMOTE_NID).get().getValue());
+        if (descriptors.childByArg(LINK_LOCAL_NID) != null && descriptors.childByArg(LINK_REMOTE_NID) != null) {
+            linkDescBuilder.setLinkLocalIdentifier((Uint32) descriptors.findChildByArg(LINK_LOCAL_NID).get().body());
+            linkDescBuilder.setLinkRemoteIdentifier((Uint32) descriptors.findChildByArg(LINK_REMOTE_NID).get().body());
         }
         ifPresentApply(descriptors, IPV4_IFACE_NID,
             value -> linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String) value)));
@@ -83,8 +84,9 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
 
     private static void ifPresentApply(final ContainerNode descriptors, final NodeIdentifier nid,
             final SerializerInterface serializer) {
-        if (descriptors.getChild(nid).isPresent()) {
-            serializer.check(descriptors.getChild(nid).get().getValue());
+        final DataContainerChild child = descriptors.childByArg(nid);
+        if (child != null) {
+            serializer.check(child.body());
         }
     }
 

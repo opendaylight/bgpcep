@@ -16,7 +16,7 @@
 
   <bean id="segmentRoutingActivator" class="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator">
     <argument>
-      <bean factory-ref="segmentRoutingConfig" factory-method="isIanaSrSubobjectsType"/>
+      <bean factory-ref="segmentRoutingConfig" factory-method="getIanaSrSubobjectsType"/>
     </argument>
   </bean>
 
@@ -27,7 +27,7 @@
 
   <bean id="segmentRoutingCapability" class="org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability">
     <argument>
-      <bean factory-ref="segmentRoutingConfig" factory-method="isSrCapable"/>
+      <bean factory-ref="segmentRoutingConfig" factory-method="getSrCapable"/>
     </argument>
   </bean>
 

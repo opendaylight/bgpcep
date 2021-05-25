@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -38,7 +38,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -92,13 +91,11 @@ abstract class AbstractLabeledUnicastRIBSupport<
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes
-                    = destination.getChild(NLRI_ROUTES_LIST);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode labeledUcastDest : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(labeledUcastDest);
@@ -124,9 +121,8 @@ abstract class AbstractLabeledUnicastRIBSupport<
         final CLabeledUnicastDestination dest = extractCLabeledUnicastDestination(labeledUnicast);
         LUNlriParser.serializeNlri(Collections.singletonList(dest), false, buffer);
         final String routeKeyValue = ByteArray.encodeBase64(buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
-                = labeledUnicast.getChild(routePathIdNid());
-        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), routeKeyValue, maybePathIdLeaf);
+        return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), routeKeyValue,
+            labeledUnicast.findChildByArg(routePathIdNid()));
     }
 
     /**
@@ -135,30 +131,29 @@ abstract class AbstractLabeledUnicastRIBSupport<
      * @param route DataContainer
      * @return LabeledUnicastDestination Object
      */
-    private CLabeledUnicastDestination extractCLabeledUnicastDestination(
-            final DataContainerNode<? extends PathArgument> route) {
-        final CLabeledUnicastDestinationBuilder builder = new CLabeledUnicastDestinationBuilder();
-        builder.setPrefix(extractPrefix(route, prefixNid()));
-        builder.setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID));
-        builder.setPathId(PathIdUtil.buildPathId(route, routePathIdNid()));
-        return builder.build();
+    private CLabeledUnicastDestination extractCLabeledUnicastDestination(final DataContainerNode route) {
+        final DataContainerChild child = route.childByArg(prefixNid());
+
+        return new CLabeledUnicastDestinationBuilder()
+            .setPrefix(child == null ? null : createIpPrefix((String) child.body()))
+            .setLabelStack(extractLabel(route, LABEL_STACK_NID, LV_NID))
+            .setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
+            .build();
     }
 
-    protected abstract IpPrefix extractPrefix(DataContainerNode<? extends PathArgument> route,
-            NodeIdentifier prefixTypeNid);
+    protected abstract @NonNull IpPrefix createIpPrefix(@NonNull String prefixString);
 
-    public static List<LabelStack> extractLabel(final DataContainerNode<? extends PathArgument> route,
-            final NodeIdentifier labelStackNid, final NodeIdentifier labelValueNid) {
+    public static List<LabelStack> extractLabel(final DataContainerNode route, final NodeIdentifier labelStackNid,
+            final NodeIdentifier labelValueNid) {
         final List<LabelStack> labels = new ArrayList<>();
-        final Optional<DataContainerChild<? extends PathArgument, ?>> labelStacks = route.getChild(labelStackNid);
-        if (labelStacks.isPresent()) {
-            for (final UnkeyedListEntryNode label : ((UnkeyedListNode) labelStacks.get()).getValue()) {
-                final Optional<DataContainerChild<? extends PathArgument, ?>> labelStack
-                        = label.getChild(labelValueNid);
-                if (labelStack.isPresent()) {
-                    final LabelStackBuilder labelStackbuilder = new LabelStackBuilder();
-                    labelStackbuilder.setLabelValue(new MplsLabel((Uint32) labelStack.get().getValue()));
-                    labels.add(labelStackbuilder.build());
+        final DataContainerChild labelStacks = route.childByArg(labelStackNid);
+        if (labelStacks != null) {
+            for (final UnkeyedListEntryNode label : ((UnkeyedListNode) labelStacks).body()) {
+                final DataContainerChild labelStack = label.childByArg(labelValueNid);
+                if (labelStack != null) {
+                    labels.add(new LabelStackBuilder()
+                        .setLabelValue(new MplsLabel((Uint32) labelStack.body()))
+                        .build());
                 }
             }
         }

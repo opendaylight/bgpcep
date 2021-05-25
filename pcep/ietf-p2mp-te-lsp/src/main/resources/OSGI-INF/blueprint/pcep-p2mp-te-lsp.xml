@@ -14,7 +14,7 @@
     <!-- Capabilities -->
     <bean id="p2mpTeLspCapability" class="org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability">
         <argument>
-            <bean factory-ref="p2mpTeLspConfig" factory-method="isPathComputationCapable"/>
+            <bean factory-ref="p2mpTeLspConfig" factory-method="getPathComputationCapable"/>
         </argument>
     </bean>
 
