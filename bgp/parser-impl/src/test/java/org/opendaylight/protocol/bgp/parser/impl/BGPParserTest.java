@@ -64,7 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
@@ -539,10 +539,10 @@ public class BGPParserTest {
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes().augmentation(Attributes2.class)
-                .getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().augmentation(Attributes2.class)
-                .getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes()
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
 
         assertEquals(Ipv6AddressFamily.class, afi);
         assertEquals(UnicastSubsequentAddressFamily.class, safi);
@@ -574,10 +574,10 @@ public class BGPParserTest {
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes().augmentation(Attributes2.class)
-                .getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes().augmentation(Attributes2.class)
-                .getMpUnreachNlri().getSafi();
+        final Class<? extends AddressFamily> afi = message.getAttributes()
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
+        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
 
         assertEquals(Ipv6AddressFamily.class, afi);
         assertEquals(UnicastSubsequentAddressFamily.class, safi);

@@ -35,7 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,7 +100,7 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
     private static CLinkstateDestination getNlriType(final AttributesBuilder pab) {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329
             .Attributes1 mpr = pab.augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
-                .multiprotocol.rev180329.Attributes1.class);
+                .multiprotocol.rev180329.AttributesReach.class);
         if (mpr != null && mpr.getMpReachNlri() != null) {
             final DestinationType dt = mpr.getMpReachNlri().getAdvertizedRoutes().getDestinationType();
             if (dt instanceof DestinationLinkstateCase) {

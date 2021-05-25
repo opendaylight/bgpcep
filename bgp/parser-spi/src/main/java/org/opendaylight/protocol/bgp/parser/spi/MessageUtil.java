@@ -15,8 +15,8 @@ import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.Nlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 
@@ -73,7 +73,7 @@ public final class MessageUtil {
      */
     public static MpReachNlri getMpReachNlri(final Attributes attrs) {
         if (attrs != null) {
-            final Attributes1 aug = attrs.augmentation(Attributes1.class);
+            final AttributesReach aug = attrs.augmentation(AttributesReach.class);
             if (aug != null) {
                 return aug.getMpReachNlri();
             }
@@ -90,7 +90,7 @@ public final class MessageUtil {
      */
     public static MpUnreachNlri getMpUnreachNlri(final Attributes attrs) {
         if (attrs != null) {
-            final Attributes2 aug =  attrs.augmentation(Attributes2.class);
+            final AttributesUnreach aug =  attrs.augmentation(AttributesUnreach.class);
             if (aug != null) {
                 return aug.getMpUnreachNlri();
             }
