@@ -158,10 +158,10 @@ public final class RouteDistinguisherUtil {
         }
     }
 
-    public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode<?> route,
+    public static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route,
             final NodeIdentifier rdNid) {
-        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
-        return rdNode == null ? null : parseRouteDistinguisher(rdNode.getValue());
+        final NormalizedNode rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
+        return rdNode == null ? null : parseRouteDistinguisher(rdNode.body());
     }
 
     private enum RDType {
