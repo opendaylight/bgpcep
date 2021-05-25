@@ -36,15 +36,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -89,7 +89,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private DataTreeCandidateNode subTree;
     private DOMDataTreeWriteTransaction tx;
     private ContainerNode nlri;
-    private final Map<YangInstanceIdentifier, NormalizedNode<?, ?>> routesMap = new HashMap<>();
+    private final Map<YangInstanceIdentifier, NormalizedNode> routesMap = new HashMap<>();
     private ContainerNode attributes;
     private MapEntryNode mapEntryNode;
     private AdapterContext context;
@@ -122,15 +122,12 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         final ContainerNode destination = Mockito.mock(ContainerNode.class);
         final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
         final ContainerNode route = Mockito.mock(ContainerNode.class);
-        final Optional<?> optional = Optional.of(destination);
-        final Optional<?> destinationOptional = Optional.of(destinations);
-        final Optional<?> destinationsOptional = Optional.of(route);
 
-        doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(WithdrawnRoutes.QNAME));
-        doReturn(optional).when(this.nlri).getChild(new NodeIdentifier(AdvertizedRoutes.QNAME));
-        doReturn(destinationOptional).when(destination).getChild(new NodeIdentifier(DestinationType.QNAME));
-        doReturn(destinationsOptional).when(destinations).getChild(new NodeIdentifier(Ipv4Prefixes.QNAME));
-        doReturn(emptyCollection).when(route).getValue();
+        doReturn(destination).when(this.nlri).childByArg(new NodeIdentifier(WithdrawnRoutes.QNAME));
+        doReturn(destination).when(this.nlri).childByArg(new NodeIdentifier(AdvertizedRoutes.QNAME));
+        doReturn(destinations).when(destination).childByArg(new NodeIdentifier(DestinationType.QNAME));
+        doReturn(route).when(destinations).childByArg(new NodeIdentifier(Ipv4Prefixes.QNAME));
+        doReturn(emptyCollection).when(route).body();
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
@@ -139,7 +136,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         }).when(this.tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            final NormalizedNode<?, ?> node1 = (NormalizedNode<?, ?>) args[2];
+            final NormalizedNode node1 = (NormalizedNode) args[2];
             this.routesMap.put((YangInstanceIdentifier) args[1], node1);
             return args[1];
         }).when(this.tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),

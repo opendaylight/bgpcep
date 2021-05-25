@@ -22,9 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRoute;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class SimpleEsiTypeRegistryTest {
     private static final int ESI_TYPE_LENGTH = 10;
@@ -61,11 +59,9 @@ public class SimpleEsiTypeRegistryTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void registryNullModelTest() {
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> noRegister =
-                Builders.choiceBuilder();
-        noRegister.withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME,
-                "no-register").intern()));
-        assertNull(SimpleEsiTypeRegistry.getInstance().parseEsiModel(noRegister.build()));
+        assertNull(SimpleEsiTypeRegistry.getInstance().parseEsiModel(Builders.choiceBuilder()
+            .withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME, "no-register").intern()))
+            .build()));
     }
 
     @Test(expected = IllegalArgumentException.class)

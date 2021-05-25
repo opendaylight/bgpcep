@@ -86,7 +86,7 @@ public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsu
 
     @Override
     public Registration registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
-        .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
+        .opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType> subobjectClass,
         final RROSubobjectSerializer serializer) {
         return this.getRROSubobjectHandlerRegistry().registerSubobjectSerializer(subobjectClass, serializer);
     }

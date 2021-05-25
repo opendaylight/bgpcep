@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import com.google.common.base.Preconditions;
@@ -17,10 +16,10 @@ import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.subobjects.RROSubobjectListParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainerBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.SecondaryRecordRouteObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record.route.object.SecondaryRecordRouteObjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainerBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary._record.route.object.SecondaryRecordRouteObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary._record.route.object.SecondaryRecordRouteObjectBuilder;
 
 public final class SecondaryRecordRouteObjectParser extends RROSubobjectListParser {
     public static final short CLASS_NUM = 201;
@@ -35,10 +34,10 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
         final SecondaryRecordRouteObjectBuilder srro = new SecondaryRecordRouteObjectBuilder();
 
         final List<SubobjectContainer> sbo = parseList(byteBuf);
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.record
-            .route.object.secondary.record.route.object.SubobjectContainer> srroSbo = sbo.stream()
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary._record
+            .route.object.secondary._record.route.object.SubobjectContainer> srroSbo = sbo.stream()
             .map(so -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary
-                .record.route.object.secondary.record.route.object.SubobjectContainerBuilder()
+                ._record.route.object.secondary._record.route.object.SubobjectContainerBuilder()
                 .setProtectionAvailable(so.getProtectionAvailable())
                 .setProtectionInUse(so.getProtectionInUse())
                 .setSubobjectType(so.getSubobjectType())
@@ -53,8 +52,8 @@ public final class SecondaryRecordRouteObjectParser extends RROSubobjectListPars
             "RecordRouteObject is mandatory.");
         final SecondaryRecordRouteObject srro = (SecondaryRecordRouteObject) teLspObject;
         final ByteBuf bufferAux = Unpooled.buffer();
-        final List<SubobjectContainer> srroSbo = srro.getSubobjectContainer()
-            .stream().map(so -> new SubobjectContainerBuilder()
+        final List<SubobjectContainer> srroSbo = srro.nonnullSubobjectContainer().stream()
+                .map(so -> new SubobjectContainerBuilder()
                 .setProtectionAvailable(so.getProtectionAvailable())
                 .setProtectionInUse(so.getProtectionInUse())
                 .setSubobjectType(so.getSubobjectType())

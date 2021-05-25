@@ -10,8 +10,7 @@ package org.opendaylight.protocol.bgp.l3vpn.mcast;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.mcast.nlri.L3vpnMcastNlriSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -29,8 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationL3vpnMcastIpv6WithdrawnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 
@@ -74,10 +71,8 @@ public final class L3VpnMcastIpv6RIBSupport
     public NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {
         final ByteBuf buffer = Unpooled.buffer();
         final L3vpnMcastDestination dest = extractDestinations(l3vpn);
-        L3vpnMcastNlriSerializer.serializeNlri(Collections.singletonList(dest), buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                l3vpn.getChild(routePathIdNid());
+        L3vpnMcastNlriSerializer.serializeNlri(List.of(dest), buffer);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), l3vpn.findChildByArg(routePathIdNid()));
     }
 }

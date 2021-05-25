@@ -21,7 +21,6 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -180,7 +179,7 @@ public final class ProgrammingServiceImpl implements ClusterSingletonService, In
 
         final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
-                .withKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Collections.emptyList()).build());
+                .withKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Map.of()).build());
         wt.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
