@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
@@ -46,46 +47,46 @@ final class EsiModelUtil {
     }
 
     static Uint32 extractLD(final ContainerNode cont) {
-        return (Uint32) cont.getChild(LD_NID).get().getValue();
+        return (Uint32) cont.findChildByArg(LD_NID).get().body();
     }
 
     static Arbitrary extractArbitrary(final ContainerNode esi) {
-        final byte[] arbitrary = (byte[]) esi.getChild(ARB_NID).get().getValue();
-        Preconditions.checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH,
+        final byte[] arbitrary = (byte[]) esi.findChildByArg(ARB_NID).get().body();
+        checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH,
                 "Wrong length of array of bytes. Expected: %s Passed: %s "
                         + ";", ArbitraryParser.ARBITRARY_LENGTH, arbitrary.length);
         return new ArbitraryBuilder().setArbitrary(arbitrary).build();
     }
 
     static AsNumber extractAS(final ContainerNode asGen) {
-        return new AsNumber((Uint32) asGen.getChild(AS_NID).get().getValue());
+        return new AsNumber((Uint32) asGen.findChildByArg(AS_NID).get().body());
     }
 
     static Uint16 extractPK(final ContainerNode t1) {
-        return (Uint16) t1.getChild(PK_NID).get().getValue();
+        return (Uint16) t1.findChildByArg(PK_NID).get().body();
     }
 
     static MacAddress extractLacpMac(final ContainerNode t1) {
-        return new MacAddress((String) t1.getChild(LACP_MAC_NID).get().getValue());
+        return new MacAddress((String) t1.findChildByArg(LACP_MAC_NID).get().body());
     }
 
     static MacAddress extractBrigeMac(final ContainerNode lan) {
-        return new MacAddress((String) lan.getChild(BRIDGE_MAC_NID).get().getValue());
+        return new MacAddress((String) lan.findChildByArg(BRIDGE_MAC_NID).get().body());
     }
 
     static Uint16 extractBP(final ContainerNode lan) {
-        return (Uint16) lan.getChild(RBP_NID).get().getValue();
+        return (Uint16) lan.findChildByArg(RBP_NID).get().body();
     }
 
     static Uint24 extractUint24LD(final ContainerNode esiVal) {
-        return new Uint24((Uint32) esiVal.getChild(LD_NID).get().getValue());
+        return new Uint24((Uint32) esiVal.findChildByArg(LD_NID).get().body());
     }
 
     static MacAddress extractSystmeMac(final ContainerNode macGEn) {
-        return new MacAddress((String) macGEn.getChild(SYSTEM_MAC_NID).get().getValue());
+        return new MacAddress((String) macGEn.findChildByArg(SYSTEM_MAC_NID).get().body());
     }
 
     static Ipv4AddressNoZone extractRD(final ContainerNode t4) {
-        return new Ipv4AddressNoZone((String) t4.getChild(RD_NID).get().getValue());
+        return new Ipv4AddressNoZone((String) t4.findChildByArg(RD_NID).get().body());
     }
 }

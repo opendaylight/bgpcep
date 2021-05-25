@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
+import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class EthSegRParserTest {
     private static final byte[] VALUE = {
@@ -78,9 +78,6 @@ public class EthSegRParserTest {
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders
-                .choiceBuilder();
-        choice.withNodeIdentifier(EthSegRParser.ES_ROUTE_NID);
         final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID)
                 .addChild(LanParserTest.createLanChoice())
                 .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();

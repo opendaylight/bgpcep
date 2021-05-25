@@ -27,11 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.IncMultiEthernetTagResCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.IncMultiEthernetTagResCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.inc.multi.ethernet.tag.res.IncMultiEthernetTagResBuilder;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class IncMultEthTagRParserTest {
     static final byte[] RESULT = {
@@ -55,8 +51,6 @@ public class IncMultEthTagRParserTest {
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
-        choice.withNodeIdentifier(IncMultEthTagRParser.INC_MULT_ROUTE_NID);
         final ContainerNode incMult = createContBuilder(IncMultEthTagRParser.INC_MULT_ROUTE_NID).addChild(createEti())
             .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();
         final EvpnChoice modelResult = this.parser.serializeEvpnModel(incMult);

@@ -20,9 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.subobject.type.PathKeyCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.subobject.type.PathKeyCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.subobject.type.path.key._case.PathKeyBuilder;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubobjectSerializer {
@@ -57,7 +57,7 @@ public class RROPathKey32SubobjectParser implements RROSubobjectParser, RROSubob
         checkArgument(subobject.getSubobjectType() instanceof PathKeyCase,
             "Unknown subobject instance. Passed %s. Needed PathKey.", subobject.getSubobjectType().getClass());
         final PathKeyCase pkcase = (PathKeyCase) subobject.getSubobjectType();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
             .subobjects.subobject.type.path.key._case.PathKey pk = pkcase.getPathKey();
         final ByteBuf body = Unpooled.buffer();
 

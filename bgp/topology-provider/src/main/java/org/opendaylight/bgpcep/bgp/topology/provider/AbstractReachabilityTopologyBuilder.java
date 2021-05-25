@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -115,7 +114,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
 
         trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().withKey(nii.getKey()).setNodeId(ni)
             .addAugmentation(new Node1Builder().setIgpNodeAttributes(
-                new IgpNodeAttributesBuilder().setPrefix(Collections.emptyList()).build()).build()).build());
+                new IgpNodeAttributesBuilder().setPrefix(Map.of()).build()).build()).build());
 
         this.nodes.put(ni, new NodeUsage(ret));
         return ret;

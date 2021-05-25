@@ -41,11 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.MacIpAdvRouteCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.MacIpAdvRouteCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.mac.ip.adv.route.MacIpAdvRouteBuilder;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class MACIpAdvRParserTest {
     private static final byte[] VALUE = {
@@ -146,8 +142,6 @@ public class MACIpAdvRParserTest {
         final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
-        choice.withNodeIdentifier(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID);
         final ContainerNode macIp = createContBuilder(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID)
                 .addChild(LanParserTest.createLanChoice()).addChild(createEti())
             .addChild(createValueBuilder(MAC_MODEL, MAC_NID).build())

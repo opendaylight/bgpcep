@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.NodeFlagBits;
@@ -32,14 +33,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoNetId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoPseudonodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.IsoSystemId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.IsisLinkAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.IsisNodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.isis.topology.rev131021.isis.node.attributes.isis.node.attributes.IsoBuilder;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.srlg.attributes.SrlgValues;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.srlg.attributes.SrlgValuesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.SrlgBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.ted.rev131021.ted.link.attributes.UnreservedBandwidth;
@@ -55,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.InternalBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -241,11 +241,11 @@ public final class ProtocolUtil {
                 tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
             }
             if (la.getSharedRiskLinkGroups() != null) {
-                final List<SrlgValues> srlgs = new ArrayList<>();
-                for (final SrlgId id : la.getSharedRiskLinkGroups()) {
-                    srlgs.add(new SrlgValuesBuilder().setSrlgValue(id.getValue()).build());
-                }
-                tb.setSrlg(new SrlgBuilder().setSrlgValues(srlgs).build());
+                tb.setSrlg(new SrlgBuilder()
+                    .setSrlgValues(la.getSharedRiskLinkGroups().stream()
+                        .map(id -> new SrlgValuesBuilder().setSrlgValue(id.getValue()).build())
+                        .collect(BindingMap.toOrderedMap()))
+                    .build());
             }
         }
 
@@ -284,11 +284,11 @@ public final class ProtocolUtil {
                 tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
             }
             if (la.getSharedRiskLinkGroups() != null) {
-                final List<SrlgValues> srlgs = new ArrayList<>();
-                for (final SrlgId id : la.getSharedRiskLinkGroups()) {
-                    srlgs.add(new SrlgValuesBuilder().setSrlgValue(id.getValue()).build());
-                }
-                tb.setSrlg(new SrlgBuilder().setSrlgValues(srlgs).build());
+                tb.setSrlg(new SrlgBuilder()
+                    .setSrlgValues(la.getSharedRiskLinkGroups().stream()
+                        .map(id -> new SrlgValuesBuilder().setSrlgValue(id.getValue()).build())
+                        .collect(BindingMap.toOrderedMap()))
+                    .build());
             }
         }
 
@@ -310,17 +310,14 @@ public final class ProtocolUtil {
         return BigDecimal.valueOf(bandwidthToFloat(bandwidth));
     }
 
-    private static List<UnreservedBandwidth> unreservedBandwidthList(
+    private static Map<UnreservedBandwidthKey, UnreservedBandwidth> unreservedBandwidthList(
             final Collection<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bgp.linkstate.rev200120.UnreservedBandwidth> input) {
-        final List<UnreservedBandwidth> ret = new ArrayList<>(input.size());
-
-        for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
-                .UnreservedBandwidth bandwidth : input) {
-            ret.add(new UnreservedBandwidthBuilder().setBandwidth(bandwidthToBigDecimal(bandwidth.getBandwidth()))
-                    .withKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
-        }
-
-        return ret;
+        return input.stream()
+            .map(bandwidth -> new UnreservedBandwidthBuilder()
+                .setBandwidth(bandwidthToBigDecimal(bandwidth.getBandwidth()))
+                .withKey(new UnreservedBandwidthKey(bandwidth.getPriority()))
+                .build())
+            .collect(BindingMap.toOrderedMap());
     }
 }

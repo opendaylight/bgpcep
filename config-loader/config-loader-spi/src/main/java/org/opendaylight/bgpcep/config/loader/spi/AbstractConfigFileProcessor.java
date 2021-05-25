@@ -42,7 +42,7 @@ public abstract class AbstractConfigFileProcessor implements ConfigFileProcessor
     }
 
     @Override
-    public final void loadConfiguration(final NormalizedNode<?, ?> dto) {
+    public final void loadConfiguration(final NormalizedNode dto) {
         final FluentFuture<? extends CommitInfo> future = loadConfiguration(dataBroker, dto);
         try {
             future.get();
@@ -59,7 +59,7 @@ public abstract class AbstractConfigFileProcessor implements ConfigFileProcessor
      * @return Transaction commit future
      */
     protected abstract @NonNull FluentFuture<? extends CommitInfo> loadConfiguration(@NonNull DOMDataBroker dataBroker,
-        @NonNull NormalizedNode<?, ?> dto);
+        @NonNull NormalizedNode dto);
 
     /**
      * Start this processor by registering it with the config loader.
