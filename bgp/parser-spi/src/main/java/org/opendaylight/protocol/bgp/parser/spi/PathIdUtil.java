@@ -17,7 +17,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -64,8 +63,8 @@ public final class PathIdUtil {
      * @param pathNii Path Id NodeIdentifier specific per each Rib support
      * @return The path identifier from data change
      */
-    public static Uint32 extractPathId(final NormalizedNode<?, ?> data, final NodeIdentifier pathNii) {
-        return (Uint32) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::getValue).orElse(null);
+    public static Uint32 extractPathId(final NormalizedNode data, final NodeIdentifier pathNii) {
+        return (Uint32) NormalizedNodes.findNode(data, pathNii).map(NormalizedNode::body).orElse(null);
     }
 
     /**
@@ -75,8 +74,7 @@ public final class PathIdUtil {
      * @param pathIdNii  path Id node Identifier
      * @return PathId or null in case is not the container
      */
-    public static PathId buildPathId(final DataContainerNode<? extends PathArgument> routesCont,
-            final NodeIdentifier pathIdNii) {
+    public static PathId buildPathId(final DataContainerNode routesCont, final NodeIdentifier pathIdNii) {
         final Uint32 pathIdVal = PathIdUtil.extractPathId(routesCont, pathIdNii);
         return pathIdVal == null ? null : new PathId(pathIdVal);
     }
@@ -94,9 +92,9 @@ public final class PathIdUtil {
      */
     public static NodeIdentifierWithPredicates createNidKey(final QName routeQName,
             final ImmutableOffsetMapTemplate<QName> routeKeyTemplate, final Object routeKeyValue,
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf) {
+            final Optional<DataContainerChild> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
-        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().getValue() : NON_PATH_ID_VALUE;
+        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().body() : NON_PATH_ID_VALUE;
         return NodeIdentifierWithPredicates.of(routeQName,
             routeKeyTemplate.instantiateWithValues(pathId, routeKeyValue));
     }

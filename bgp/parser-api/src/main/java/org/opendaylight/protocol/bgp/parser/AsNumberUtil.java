@@ -59,10 +59,10 @@ public final class AsNumberUtil {
      * @param nid as node identifier
      * @return as number
      */
-    public static AsNumber extractAS(final DataContainerNode<?> dtc, final NodeIdentifier nid) {
-        final NormalizedNode<?, ?> as = NormalizedNodes.findNode(dtc, nid).orElse(null);
+    public static AsNumber extractAS(final DataContainerNode dtc, final NodeIdentifier nid) {
+        final NormalizedNode as = NormalizedNodes.findNode(dtc, nid).orElse(null);
         if (as != null) {
-            return new AsNumber((Uint32) as.getValue());
+            return new AsNumber((Uint32) as.body());
         }
         return null;
     }
