@@ -50,8 +50,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RibSupportUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
@@ -66,9 +66,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableMapNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -349,14 +349,14 @@ final class AdjRibInWriter {
                 }
 
                 tx.read(LogicalDatastoreType.OPERATIONAL, ctx.routesPath()).addCallback(
-                    new FutureCallback<Optional<NormalizedNode<?, ?>>>() {
+                    new FutureCallback<Optional<NormalizedNode>>() {
                         @Override
-                        public void onSuccess(final Optional<NormalizedNode<?, ?>> routesOptional) {
+                        public void onSuccess(final Optional<NormalizedNode> routesOptional) {
                             try {
                                 if (routesOptional.isPresent()) {
                                     synchronized (AdjRibInWriter.this.staleRoutesRegistry) {
                                         final MapNode routesNode = (MapNode) routesOptional.get();
-                                        final List<NodeIdentifierWithPredicates> routes = routesNode.getValue().stream()
+                                        final List<NodeIdentifierWithPredicates> routes = routesNode.body().stream()
                                                 .map(MapEntryNode::getIdentifier)
                                                 .collect(Collectors.toList());
                                         if (!routes.isEmpty()) {

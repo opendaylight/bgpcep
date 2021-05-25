@@ -49,7 +49,7 @@ public final class OpenconfigRoutingConfigFileProcessor extends AbstractConfigFi
 
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
-            final NormalizedNode<?, ?> dto) {
+            final NormalizedNode dto) {
         final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
         wtx.put(LogicalDatastoreType.CONFIGURATION,
             YangInstanceIdentifier.create(new NodeIdentifier(RoutingPolicy.QNAME)), dto);

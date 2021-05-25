@@ -78,20 +78,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -245,7 +244,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         buffer.writeBytes(nlriByteBuf);
     }
 
-    public String stringNlri(final DataContainerNode<?> flowspec) {
+    public String stringNlri(final DataContainerNode flowspec) {
         return stringNlri(extractFlowspec(flowspec));
     }
 
@@ -256,14 +255,14 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return buffer.toString().replace("  ", " ");
     }
 
-    public final List<Flowspec> extractFlowspec(final DataContainerNode<?> route) {
-        requireNonNull(route, "Cannot extract flowspec from null route.");
+    public final List<Flowspec> extractFlowspec(final DataContainerNode route) {
+        requireNonNull(route, "Cannot extract flowspec from null route.d");
         final List<Flowspec> fsList = new ArrayList<>();
-        final Optional<DataContainerChild<? extends PathArgument, ?>> flowspecs = route.getChild(FLOWSPEC_NID);
+        final Optional<DataContainerChild> flowspecs = route.findChildByArg(FLOWSPEC_NID);
         if (flowspecs.isPresent()) {
-            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode) flowspecs.get()).getValue()) {
+            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode) flowspecs.get()).body()) {
                 final FlowspecBuilder fsBuilder = new FlowspecBuilder();
-                final Optional<DataContainerChild<?, ?>> flowspecType = flowspec.getChild(FLOWSPEC_TYPE_NID);
+                final Optional<DataContainerChild> flowspecType = flowspec.findChildByArg(FLOWSPEC_TYPE_NID);
                 if (flowspecType.isPresent()) {
                     final ChoiceNode fsType = (ChoiceNode) flowspecType.get();
                     processFlowspecType(fsType, fsBuilder);
@@ -275,36 +274,39 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     private void processFlowspecType(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.getChild(PORTS_NID).isPresent()) {
+        if (fsType.findChildByArg(PORTS_NID).isPresent()) {
             fsBuilder.setFlowspecType(new PortCaseBuilder()
-                    .setPorts(createPorts((UnkeyedListNode) fsType.getChild(PORTS_NID).get())).build());
-        } else if (fsType.getChild(DEST_PORT_NID).isPresent()) {
+                    .setPorts(createPorts((UnkeyedListNode) fsType.findChildByArg(PORTS_NID).get())).build());
+        } else if (fsType.findChildByArg(DEST_PORT_NID).isPresent()) {
             fsBuilder.setFlowspecType(new DestinationPortCaseBuilder()
-                    .setDestinationPorts(createDestinationPorts((UnkeyedListNode) fsType.getChild(DEST_PORT_NID).get()))
+                    .setDestinationPorts(createDestinationPorts(
+                        (UnkeyedListNode) fsType.findChildByArg(DEST_PORT_NID).get()))
                     .build());
-        } else if (fsType.getChild(SOURCE_PORT_NID).isPresent()) {
+        } else if (fsType.findChildByArg(SOURCE_PORT_NID).isPresent()) {
             fsBuilder.setFlowspecType(new SourcePortCaseBuilder()
-                    .setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.getChild(SOURCE_PORT_NID).get()))
+                    .setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.findChildByArg(SOURCE_PORT_NID).get()))
                     .build());
-        } else if (fsType.getChild(ICMP_TYPE_NID).isPresent()) {
+        } else if (fsType.findChildByArg(ICMP_TYPE_NID).isPresent()) {
             fsBuilder.setFlowspecType(new IcmpTypeCaseBuilder()
-                    .setTypes(createTypes((UnkeyedListNode) fsType.getChild(ICMP_TYPE_NID).get())).build());
-        } else if (fsType.getChild(ICMP_CODE_NID).isPresent()) {
+                    .setTypes(createTypes((UnkeyedListNode) fsType.findChildByArg(ICMP_TYPE_NID).get())).build());
+        } else if (fsType.findChildByArg(ICMP_CODE_NID).isPresent()) {
             fsBuilder.setFlowspecType(new IcmpCodeCaseBuilder()
-                    .setCodes(createCodes((UnkeyedListNode) fsType.getChild(ICMP_CODE_NID).get())).build());
-        } else if (fsType.getChild(TCP_FLAGS_NID).isPresent()) {
+                    .setCodes(createCodes((UnkeyedListNode) fsType.findChildByArg(ICMP_CODE_NID).get())).build());
+        } else if (fsType.findChildByArg(TCP_FLAGS_NID).isPresent()) {
             fsBuilder.setFlowspecType(new TcpFlagsCaseBuilder()
-                    .setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.getChild(TCP_FLAGS_NID).get())).build());
-        } else if (fsType.getChild(PACKET_LENGTHS_NID).isPresent()) {
+                    .setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.findChildByArg(TCP_FLAGS_NID).get())).build());
+        } else if (fsType.findChildByArg(PACKET_LENGTHS_NID).isPresent()) {
             fsBuilder.setFlowspecType(new PacketLengthCaseBuilder()
-                    .setPacketLengths(createPacketLengths((UnkeyedListNode) fsType.getChild(PACKET_LENGTHS_NID).get()))
+                    .setPacketLengths(createPacketLengths(
+                        (UnkeyedListNode) fsType.findChildByArg(PACKET_LENGTHS_NID).get()))
                     .build());
-        } else if (fsType.getChild(DSCP_NID).isPresent()) {
+        } else if (fsType.findChildByArg(DSCP_NID).isPresent()) {
             fsBuilder.setFlowspecType(new DscpCaseBuilder()
-                    .setDscps(createDscpsLengths((UnkeyedListNode) fsType.getChild(DSCP_NID).get())).build());
-        } else if (fsType.getChild(FRAGMENT_NID).isPresent()) {
+                    .setDscps(createDscpsLengths((UnkeyedListNode) fsType.findChildByArg(DSCP_NID).get())).build());
+        } else if (fsType.findChildByArg(FRAGMENT_NID).isPresent()) {
             fsBuilder.setFlowspecType(new FragmentCaseBuilder()
-                    .setFragments(createFragments((UnkeyedListNode) fsType.getChild(FRAGMENT_NID).get())).build());
+                    .setFragments(createFragments(
+                        (UnkeyedListNode) fsType.findChildByArg(FRAGMENT_NID).get())).build());
         } else {
             extractSpecificFlowspec(fsType, fsBuilder);
         }
@@ -313,13 +315,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<Ports> createPorts(final UnkeyedListNode portsData) {
         final List<Ports> ports = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : portsData.getValue()) {
+        for (final UnkeyedListEntryNode node : portsData.body()) {
             final PortsBuilder portsBuilder = new PortsBuilder();
-            node.getChild(OP_NID).ifPresent(
+            node.findChildByArg(OP_NID).ifPresent(
                 dataContainerChild -> portsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create(
-                    (Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> portsBuilder.setValue((Uint16) dataContainerChild.getValue()));
+                    (Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> portsBuilder.setValue((Uint16) dataContainerChild.body()));
             ports.add(portsBuilder.build());
         }
 
@@ -329,12 +331,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<DestinationPorts> createDestinationPorts(final UnkeyedListNode destinationPortsData) {
         final List<DestinationPorts> destinationPorts = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : destinationPortsData.getValue()) {
+        for (final UnkeyedListEntryNode node : destinationPortsData.body()) {
             final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> destPortsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> destPortsBuilder.setValue((Uint16) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> destPortsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> destPortsBuilder.setValue((Uint16) dataContainerChild.body()));
             destinationPorts.add(destPortsBuilder.build());
         }
 
@@ -344,12 +346,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<SourcePorts> createSourcePorts(final UnkeyedListNode sourcePortsData) {
         final List<SourcePorts> sourcePorts = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : sourcePortsData.getValue()) {
+        for (final UnkeyedListEntryNode node : sourcePortsData.body()) {
             final SourcePortsBuilder sourcePortsBuilder = new SourcePortsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> sourcePortsBuilder.setValue((Uint16) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> sourcePortsBuilder.setValue((Uint16) dataContainerChild.body()));
             sourcePorts.add(sourcePortsBuilder.build());
         }
 
@@ -359,12 +361,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<Types> createTypes(final UnkeyedListNode typesData) {
         final List<Types> types = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : typesData.getValue()) {
+        for (final UnkeyedListEntryNode node : typesData.body()) {
             final TypesBuilder typesBuilder = new TypesBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> typesBuilder.setOp(
-                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> typesBuilder.setValue((Uint8) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> typesBuilder.setOp(
+                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> typesBuilder.setValue((Uint8) dataContainerChild.body()));
             types.add(typesBuilder.build());
         }
 
@@ -374,13 +376,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<Codes> createCodes(final UnkeyedListNode codesData) {
         final List<Codes> codes = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : codesData.getValue()) {
+        for (final UnkeyedListEntryNode node : codesData.body()) {
             final CodesBuilder codesBuilder = new CodesBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue = node.getChild(OP_NID);
-            opValue.ifPresent(dataContainerChild -> codesBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode = node.getChild(VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> codesBuilder.setValue((Uint8) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(
+                dataContainerChild -> codesBuilder.setOp(NumericOneByteOperandParser
+                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> codesBuilder.setValue((Uint8) dataContainerChild.body()));
             codes.add(codesBuilder.build());
         }
 
@@ -390,12 +392,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<TcpFlags> createTcpFlags(final UnkeyedListNode tcpFlagsData) {
         final List<TcpFlags> tcpFlags = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : tcpFlagsData.getValue()) {
+        for (final UnkeyedListEntryNode node : tcpFlagsData.body()) {
             final TcpFlagsBuilder tcpFlagsBuilder = new TcpFlagsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> tcpFlagsBuilder
-                    .setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> tcpFlagsBuilder.setValue((Uint16) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> tcpFlagsBuilder
+                    .setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> tcpFlagsBuilder.setValue((Uint16) dataContainerChild.body()));
             tcpFlags.add(tcpFlagsBuilder.build());
         }
 
@@ -405,12 +407,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<PacketLengths> createPacketLengths(final UnkeyedListNode packetLengthsData) {
         final List<PacketLengths> packetLengths = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : packetLengthsData.getValue()) {
+        for (final UnkeyedListEntryNode node : packetLengthsData.body()) {
             final PacketLengthsBuilder packetLengthsBuilder = new PacketLengthsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> packetLengthsBuilder.setValue((Uint16) dataContainerChild.getValue()));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(
+                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> packetLengthsBuilder.setValue((Uint16) dataContainerChild.body()));
             packetLengths.add(packetLengthsBuilder.build());
         }
 
@@ -420,12 +422,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<Dscps> createDscpsLengths(final UnkeyedListNode dscpLengthsData) {
         final List<Dscps> dscpsLengths = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : dscpLengthsData.getValue()) {
+        for (final UnkeyedListEntryNode node : dscpLengthsData.body()) {
             final DscpsBuilder dscpsLengthsBuilder = new DscpsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(
-                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(
-                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Uint8) dataContainerChild.getValue())));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(
+                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(
+                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Uint8) dataContainerChild.body())));
             dscpsLengths.add(dscpsLengthsBuilder.build());
         }
 
@@ -435,12 +437,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     private static List<Fragments> createFragments(final UnkeyedListNode fragmentsData) {
         final List<Fragments> fragments = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : fragmentsData.getValue()) {
+        for (final UnkeyedListEntryNode node : fragmentsData.body()) {
             final FragmentsBuilder fragmentsBuilder = new FragmentsBuilder();
-            node.getChild(OP_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setOp(
-                BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            node.getChild(VALUE_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setValue(
-                createFragment((Set<String>) dataContainerChild.getValue())));
+            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setOp(
+                BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(VALUE_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setValue(
+                createFragment((Set<String>) dataContainerChild.body())));
             fragments.add(fragmentsBuilder.build());
         }
 

@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collections;
+import java.util.Map;
 import org.junit.Before;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
@@ -38,7 +38,7 @@ public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentData
     private void createEmptyTopology() {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
-            new NetworkTopologyBuilder().setTopology(Collections.emptyList()).build());
+            new NetworkTopologyBuilder().setTopology(Map.of()).build());
         wTx.commit();
     }
 }

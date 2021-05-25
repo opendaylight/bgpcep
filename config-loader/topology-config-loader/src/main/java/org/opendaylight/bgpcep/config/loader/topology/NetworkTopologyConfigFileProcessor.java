@@ -57,16 +57,16 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
 
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
-            final NormalizedNode<?, ?> dto) {
+            final NormalizedNode dto) {
         final ContainerNode networkTopology = (ContainerNode) dto;
-        final MapNode topologies = (MapNode) networkTopology.getChild(new NodeIdentifier(Topology.QNAME)).orElse(null);
+        final MapNode topologies = (MapNode) networkTopology.childByArg(new NodeIdentifier(Topology.QNAME));
         if (networkTopology == null) {
             return CommitInfo.emptyFluentFuture();
         }
 
         final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
 
-        LOG.info("Storing Topologies {}", topologies.getValue().stream()
+        LOG.info("Storing Topologies {}", topologies.body().stream()
             .map(topo -> topo.getIdentifier().asMap()).collect(Collectors.toList()));
         wtx.merge(LogicalDatastoreType.CONFIGURATION,
             YangInstanceIdentifier.create(new NodeIdentifier(NetworkTopology.QNAME), topologies.getIdentifier()),

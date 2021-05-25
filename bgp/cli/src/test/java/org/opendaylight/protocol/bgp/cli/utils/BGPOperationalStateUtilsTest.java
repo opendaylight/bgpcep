@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -30,6 +29,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 
 public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     static final String RIB_ID = "test-rib";
@@ -57,7 +57,7 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
         final Bgp bgp = new BgpBuilder()
                 .setGlobal(GlobalStateCliUtilsTest.buildGlobal(true).build())
                 .setNeighbors(new NeighborsBuilder().setNeighbor(
-                        Collections.singletonList(NeighborStateCliUtilsTest.createBasicNeighbor())).build())
+                        BindingMap.of(NeighborStateCliUtilsTest.createBasicNeighbor())).build())
                 .build();
         GlobalStateCliUtilsTest.buildGlobal(true);
         final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID

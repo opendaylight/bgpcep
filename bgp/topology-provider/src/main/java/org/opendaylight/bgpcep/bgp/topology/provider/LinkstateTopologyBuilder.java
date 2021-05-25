@@ -100,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,15 +195,15 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             }
 
             // Re-generate termination points
-            this.nb.setTerminationPoint(Lists.newArrayList(Collections2.transform(this.tps.values(), TpHolder::getTp)));
+            this.nb.setTerminationPoint(BindingMap.ordered(Collections2.transform(this.tps.values(), TpHolder::getTp)));
 
             // Re-generate prefixes
-            this.inab.setPrefix(Lists.newArrayList(this.prefixes.values()));
+            this.inab.setPrefix(BindingMap.ordered(this.prefixes.values()));
 
             // Write the node out
             if (this.sr != null && this.sr.getSegmentCount() > 0) {
                 this.nb.addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr
-                    .rev130819.Node1Builder().setSegments(this.sr.getSegments()).build());
+                    .rev130819.Node1Builder().setSegments(BindingMap.ordered(this.sr.getSegments())).build());
             }
             final Node n = this.nb
                     .addAugmentation(new Node1Builder().setIgpNodeAttributes(this.inab.build()).build())

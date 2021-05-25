@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
@@ -105,28 +106,28 @@ public final class BestPathStateImpl implements BestPathState {
             return;
         }
 
-        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.getNodeType().getModule());
+        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.getIdentifier().getNodeType().getModule());
         localPref = (Uint32) NormalizedNodes.findNode(attributes, ids.locPref)
-            .map(NormalizedNode::getValue)
+            .map(NormalizedNode::body)
             .orElse(null);
 
-        final Optional<NormalizedNode<?, ?>> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
+        final Optional<NormalizedNode> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
         if (maybeMultiExitDisc.isPresent()) {
-            multiExitDisc = ((Uint32) maybeMultiExitDisc.get().getValue()).toJava();
+            multiExitDisc = ((Uint32) maybeMultiExitDisc.get().body()).toJava();
         } else {
             multiExitDisc = 0L;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
+        final Optional<NormalizedNode> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
         if (maybeOrigin.isPresent()) {
-            final String originStr = (String) maybeOrigin.get().getValue();
+            final String originStr = (String) maybeOrigin.get().body();
             origin = BgpOrigin.forName(originStr)
                 .orElseThrow(() -> new IllegalArgumentException("Unhandled origin value " + originStr));
         } else {
             origin = null;
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
+        final Optional<NormalizedNode> maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
         if (maybeSegments.isPresent()) {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
             final List<Segments> segs = extractSegments(segments, ids);
@@ -136,9 +137,9 @@ public final class BestPathStateImpl implements BestPathState {
             }
         }
 
-        final Optional<NormalizedNode<?, ?>> maybeCommunities = NormalizedNodes.findNode(attributes, ids.communities);
+        final Optional<NormalizedNode> maybeCommunities = NormalizedNodes.findNode(attributes, ids.communities);
         if (maybeCommunities.isPresent()) {
-            depreferenced = ((UnkeyedListNode) maybeCommunities.orElseThrow()).getValue().stream()
+            depreferenced = ((UnkeyedListNode) maybeCommunities.orElseThrow()).body().stream()
                 .anyMatch(community -> isStale(ids, community));
         } else {
             depreferenced = false;
@@ -148,8 +149,8 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     private static boolean isStale(final NamespaceSpecificIds ids, final UnkeyedListEntryNode community) {
-        return LLGR_STALE_AS_NUMBER.equals(community.getChild(ids.asNumber).orElseThrow().getValue())
-            && LLGR_STALE_SEMANTICS.equals(community.getChild(ids.semantics).orElseThrow().getValue());
+        return LLGR_STALE_AS_NUMBER.equals(verifyNotNull(community.childByArg(ids.asNumber)).body())
+            && LLGR_STALE_SEMANTICS.equals(verifyNotNull(community.childByArg(ids.semantics)).body());
     }
 
     @Override
@@ -247,7 +248,7 @@ public final class BestPathStateImpl implements BestPathState {
     private List<Segments> extractSegments(final UnkeyedListNode segments, final NamespaceSpecificIds ids) {
         // list segments
         final List<Segments> extracted = new ArrayList<>();
-        for (final UnkeyedListEntryNode segment : segments.getValue()) {
+        for (final UnkeyedListEntryNode segment : segments.body()) {
             final SegmentsBuilder sb = new SegmentsBuilder();
             // We are expecting that segment contains either as-sequence or as-set,
             // so just one of them will be set, other would be null
@@ -260,11 +261,11 @@ public final class BestPathStateImpl implements BestPathState {
 
     private static List<AsNumber> extractAsList(final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
         final List<AsNumber> ases = new ArrayList<>();
-        final Optional<NormalizedNode<?, ?>> maybeAsList = NormalizedNodes.findNode(segment, nid);
+        final Optional<NormalizedNode> maybeAsList = NormalizedNodes.findNode(segment, nid);
         if (maybeAsList.isPresent()) {
             final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.get();
-            for (final LeafSetEntryNode<?> as : list.getValue())  {
-                ases.add(new AsNumber((Uint32) as.getValue()));
+            for (final LeafSetEntryNode<?> as : list.body())  {
+                ases.add(new AsNumber((Uint32) as.body()));
             }
             return ases;
         }

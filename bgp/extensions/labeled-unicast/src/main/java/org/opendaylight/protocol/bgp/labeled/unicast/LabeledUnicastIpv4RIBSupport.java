@@ -18,9 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public final class LabeledUnicastIpv4RIBSupport
@@ -51,13 +48,7 @@ public final class LabeledUnicastIpv4RIBSupport
     }
 
     @Override
-    public IpPrefix extractPrefix(
-            final DataContainerNode<? extends PathArgument> route,
-            final NodeIdentifier prefixTypeNid) {
-        if (route.getChild(prefixTypeNid).isPresent()) {
-            final String prefixType = (String) route.getChild(prefixTypeNid).get().getValue();
-            return new IpPrefix(new Ipv4Prefix(prefixType));
-        }
-        return null;
+    protected IpPrefix createIpPrefix(final String prefixString) {
+        return new IpPrefix(new Ipv4Prefix(prefixString));
     }
 }

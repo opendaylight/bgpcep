@@ -15,7 +15,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
@@ -249,7 +249,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
         trans.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.topology,
                 new TopologyBuilder().withKey(this.topologyKey).setServerProvided(Boolean.TRUE)
                         .setTopologyTypes(this.topologyTypes)
-                        .setLink(Collections.emptyList()).setNode(Collections.emptyList()).build());
+                        .setLink(Map.of()).setNode(Map.of()).build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

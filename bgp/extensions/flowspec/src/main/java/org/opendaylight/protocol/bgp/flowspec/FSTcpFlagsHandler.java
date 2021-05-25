@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.TcpFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.tcp.flags._case.TcpFlagsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
     static final int TCP_FLAGS_VALUE = 9;
@@ -65,7 +66,7 @@ public final class FSTcpFlagsHandler implements FlowspecTypeParser, FlowspecType
             final BitmaskOperand op = BitmaskOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
+            builder.setValue(Uint16.valueOf(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length))));
             end = op.getEndOfList();
             flags.add(builder.build());
         }

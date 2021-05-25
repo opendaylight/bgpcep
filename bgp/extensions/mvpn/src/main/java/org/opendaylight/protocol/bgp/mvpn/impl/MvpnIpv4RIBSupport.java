@@ -10,9 +10,7 @@ package org.opendaylight.protocol.bgp.mvpn.impl;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.mvpn.impl.nlri.Ipv4NlriHandler;
@@ -29,8 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationMvpnIpv4WithdrawnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
@@ -56,7 +52,7 @@ final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case
     }
 
     private org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn
-            .destination.MvpnDestination extractDestinations(final DataContainerNode<? extends PathArgument> mvpnDest) {
+            .destination.MvpnDestination extractDestinations(final DataContainerNode mvpnDest) {
         return new MvpnDestinationBuilder()
                 .setMvpnChoice(extractMvpnChoice(mvpnDest))
                 .setPathId(PathIdUtil.buildPathId(mvpnDest, routePathIdNid()))
@@ -82,10 +78,8 @@ final class MvpnIpv4RIBSupport extends AbstractMvpnRIBSupport<MvpnRoutesIpv4Case
         final ByteBuf buffer = Unpooled.buffer();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv4.rev180417.mvpn.destination
                 .MvpnDestination dest = extractDestinations(mvpn);
-        Ipv4NlriHandler.serializeNlri(Collections.singletonList(dest), buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                mvpn.getChild(routePathIdNid());
+        Ipv4NlriHandler.serializeNlri(List.of(dest), buffer);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), mvpn.findChildByArg(routePathIdNid()));
     }
 }
