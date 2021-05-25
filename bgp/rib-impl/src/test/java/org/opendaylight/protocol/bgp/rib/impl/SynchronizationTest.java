@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
@@ -61,7 +61,7 @@ public class SynchronizationTest {
         mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
 
         AttributesBuilder paBuilder = new AttributesBuilder()
-                .addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+                .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpBuilder.build()).build());
 
         this.ipv6m = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 
@@ -70,7 +70,7 @@ public class SynchronizationTest {
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
 
         paBuilder = new AttributesBuilder()
-                .addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
+                .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpBuilder.build()).build());
 
         this.lsm = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 

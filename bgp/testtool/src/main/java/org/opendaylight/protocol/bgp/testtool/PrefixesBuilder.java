@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
@@ -77,7 +77,7 @@ final class PrefixesBuilder {
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build())
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100L)).build())
                 .setExtendedCommunities(createExtComm(extCom))
-                .addAugmentation(new Attributes1Builder()
+                .addAugmentation(new AttributesReachBuilder()
                     .setMpReachNlri(new MpReachNlriBuilder()
                         .setCNextHop(NEXT_HOP)
                         .setAfi(Ipv4AddressFamily.class)
@@ -93,5 +93,4 @@ final class PrefixesBuilder {
                     .build())
                 .build();
     }
-
 }

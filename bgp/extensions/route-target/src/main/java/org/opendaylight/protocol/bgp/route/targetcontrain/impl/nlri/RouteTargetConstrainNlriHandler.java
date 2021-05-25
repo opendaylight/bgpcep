@@ -20,8 +20,8 @@ import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
@@ -127,8 +127,8 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
 
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
-        final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
-        final Attributes2 pathAttributes2 = pathAttributes.augmentation(Attributes2.class);
+        final AttributesReach pathAttributes1 = pathAttributes.augmentation(AttributesReach.class);
+        final AttributesUnreach pathAttributes2 = pathAttributes.augmentation(AttributesUnreach.class);
         if (pathAttributes1 != null) {
             final AdvertizedRoutes routes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
             if (routes != null && routes.getDestinationType()

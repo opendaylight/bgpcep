@@ -74,7 +74,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginatorIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -348,7 +348,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix,
         final PathId pathId) {
         attBuilder.setUnrecognizedAttributes(Collections.emptyMap());
-        attBuilder.addAugmentation(new Attributes1Builder()
+        attBuilder.addAugmentation(new AttributesReachBuilder()
             .setMpReachNlri(new MpReachNlriBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder()
                     .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1).build())

@@ -59,8 +59,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.ipv6.DestinationFlowspecIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -168,7 +168,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         this.fsParser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder()
+            .addAugmentation(new AttributesReachBuilder()
                 .setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build())
                 .build())
             .build(), buffer);
@@ -229,7 +229,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         this.fsParser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder()
+            .addAugmentation(new AttributesReachBuilder()
                 .setMpReachNlri(mp.setAfi(Ipv6AddressFamily.class).build())
                 .build())
             .build(), buffer);
@@ -280,7 +280,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         this.fsParser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mp.build()).build())
             .build(), buffer);
 
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
@@ -346,7 +346,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
         final ByteBuf buffer = Unpooled.buffer();
         this.fsParser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mp.build()).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mp.build()).build())
             .build(), buffer);
 
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));

@@ -30,8 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -100,8 +100,8 @@ final class BmpRibInWriter {
             MpReachNlri mpReach = null;
             if (message.getNlri() != null) {
                 mpReach = prefixesToMpReach(message);
-            } else if (attrs != null && attrs.augmentation(Attributes1.class) != null) {
-                mpReach = attrs.augmentation(Attributes1.class).getMpReachNlri();
+            } else if (attrs != null && attrs.augmentation(AttributesReach.class) != null) {
+                mpReach = attrs.augmentation(AttributesReach.class).getMpReachNlri();
             }
             if (mpReach != null) {
                 addRoutes(mpReach, attrs);
@@ -111,8 +111,8 @@ final class BmpRibInWriter {
             MpUnreachNlri mpUnreach = null;
             if (message.getWithdrawnRoutes() != null) {
                 mpUnreach = prefixesToMpUnreach(message);
-            } else if (attrs != null && attrs.augmentation(Attributes2.class) != null) {
-                mpUnreach = attrs.augmentation(Attributes2.class).getMpUnreachNlri();
+            } else if (attrs != null && attrs.augmentation(AttributesUnreach.class) != null) {
+                mpUnreach = attrs.augmentation(AttributesUnreach.class).getMpUnreachNlri();
             }
             if (mpUnreach != null) {
                 removeRoutes(mpUnreach);
@@ -248,13 +248,13 @@ final class BmpRibInWriter {
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             if (msg.getAttributes() != null) {
-                if (msg.getAttributes().augmentation(Attributes1.class) != null) {
-                    final Attributes1 pa = msg.getAttributes().augmentation(Attributes1.class);
+                if (msg.getAttributes().augmentation(AttributesReach.class) != null) {
+                    final AttributesReach pa = msg.getAttributes().augmentation(AttributesReach.class);
                     if (pa.getMpReachNlri() != null) {
                         type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
                     }
-                } else if (msg.getAttributes().augmentation(Attributes2.class) != null) {
-                    final Attributes2 pa = msg.getAttributes().augmentation(Attributes2.class);
+                } else if (msg.getAttributes().augmentation(AttributesUnreach.class) != null) {
+                    final AttributesUnreach pa = msg.getAttributes().augmentation(AttributesUnreach.class);
                     if (pa.getMpUnreachNlri() != null) {
                         type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
                     }

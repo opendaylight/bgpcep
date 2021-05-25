@@ -38,8 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdTwoOctetAs;
@@ -113,9 +113,9 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
         final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(
             new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()),
             ATTRIBUTES);
-        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(Attributes2.class)
+        assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
-        assertNull(update.getAttributes().augmentation(Attributes1.class));
+        assertNull(update.getAttributes().augmentation(AttributesReach.class));
     }
 
     @Test
@@ -123,10 +123,10 @@ public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<Flow
         final Update update = this.ribSupport.buildUpdate(createRoutes(
             new FlowspecL3vpnIpv4RoutesBuilder().setFlowspecL3vpnRoute(Map.of(ROUTE.key(), ROUTE)).build()),
             Collections.emptyList(), ATTRIBUTES);
-        final AdvertizedRoutes advertised = update.getAttributes().augmentation(Attributes1.class).getMpReachNlri()
+        final AdvertizedRoutes advertised = update.getAttributes().augmentation(AttributesReach.class).getMpReachNlri()
                 .getAdvertizedRoutes();
         assertEquals(REACH_NLRI, advertised.getDestinationType());
-        assertNull(update.getAttributes().augmentation(Attributes2.class));
+        assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
     }
 
     @Test

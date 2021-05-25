@@ -46,9 +46,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.graceful.restart.capability.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -292,7 +292,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final MpReachNlri mpReachNlri = getMpReach(parsed);
         if (mpReachNlri == null) {
             // No MP_REACH attribute, just reuse MP_UNREACH if it is present.
-            final Attributes2 attrs2 = parsed.augmentation(Attributes2.class);
+            final AttributesUnreach attrs2 = parsed.augmentation(AttributesUnreach.class);
             if (attrs2 != null) {
                 builder.addAugmentation(attrs2);
             }
@@ -316,17 +316,17 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                     return new BGPDocumentedException(withdrawCause);
                 });
 
-        builder.addAugmentation(new Attributes2Builder().setMpUnreachNlri(converted).build());
+        builder.addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(converted).build());
         return builder.build();
     }
 
     private static MpReachNlri getMpReach(final Attributes attrs) {
-        final Attributes1 reachAttr = attrs.augmentation(Attributes1.class);
+        final AttributesReach reachAttr = attrs.augmentation(AttributesReach.class);
         return reachAttr == null ? null : reachAttr.getMpReachNlri();
     }
 
     private static MpUnreachNlri getMpUnreach(final Attributes attrs) {
-        final Attributes2 unreachAttr = attrs.augmentation(Attributes2.class);
+        final AttributesUnreach unreachAttr = attrs.augmentation(AttributesUnreach.class);
         return unreachAttr == null ? null : unreachAttr.getMpUnreachNlri();
     }
 }

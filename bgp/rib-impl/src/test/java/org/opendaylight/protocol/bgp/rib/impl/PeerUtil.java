@@ -38,8 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
@@ -124,11 +124,11 @@ final class PeerUtil {
                 .setOrigin(origin).setAsPath(asPath).setLocalPref(localPref);
 
         if (mpReach != null) {
-            attributeBuilder.addAugmentation(new Attributes1Builder().setMpReachNlri(mpReach).build());
+            attributeBuilder.addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReach).build());
         }
 
         if (mpUnreach != null) {
-            attributeBuilder.addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreach).build());
+            attributeBuilder.addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreach).build());
         }
 
         return new UpdateBuilder()
@@ -136,7 +136,7 @@ final class PeerUtil {
                         .setOrigin(origin)
                         .setAsPath(asPath)
                         .setLocalPref(localPref)
-                        .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReach).build())
+                        .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReach).build())
                         .build()).build();
     }
 

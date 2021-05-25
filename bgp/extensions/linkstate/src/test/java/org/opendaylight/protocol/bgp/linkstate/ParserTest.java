@@ -70,9 +70,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
@@ -159,9 +159,9 @@ public class ParserTest {
             null);
 
         final Class<? extends AddressFamily> afi = message.getAttributes()
-            .augmentation(Attributes2.class).getMpUnreachNlri().getAfi();
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
         final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
-            .augmentation(Attributes2.class).getMpUnreachNlri().getSafi();
+            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
 
         assertEquals(LinkstateAddressFamily.class, afi);
         assertEquals(LinkstateSubsequentAddressFamily.class, safi);
@@ -349,7 +349,7 @@ public class ParserTest {
         clBuilder.setIdentifier(new Identifier(Uint64.ONE));
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
-        final Attributes1Builder lsBuilder = new Attributes1Builder();
+        final AttributesReachBuilder lsBuilder = new AttributesReachBuilder();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
@@ -401,7 +401,7 @@ public class ParserTest {
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
-        final MpReachNlri mp = attrs.augmentation(Attributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.augmentation(AttributesReach.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());
@@ -576,7 +576,7 @@ public class ParserTest {
                 .setOspfRouterId(Uint32.valueOf(0x01010102L)).build()).build()).build());
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
-        final Attributes1Builder lsBuilder = new Attributes1Builder();
+        final AttributesReachBuilder lsBuilder = new AttributesReachBuilder();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
         mpBuilder.setAfi(LinkstateAddressFamily.class);
         mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
@@ -606,7 +606,7 @@ public class ParserTest {
         paBuilder.addAugmentation(lsBuilder.build());
         paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
 
-        final MpReachNlri mp = attrs.augmentation(Attributes1.class).getMpReachNlri();
+        final MpReachNlri mp = attrs.augmentation(AttributesReach.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());
         assertEquals(mpBuilder.getSafi(), mp.getSafi());
         assertEquals(mpBuilder.getCNextHop(), mp.getCNextHop());

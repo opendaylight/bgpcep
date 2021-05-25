@@ -38,8 +38,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.labeled.unicast._case.DestinationLabeledUnicastBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
@@ -256,7 +256,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachExpected).build())
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
             .build(), output);
         assertArrayEquals(LU_REACH_NLRI_IPV4, ByteArray.readAllBytes(output));
     }
@@ -285,7 +285,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachExpected).build())
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
             .build(), output);
         assertArrayEquals(LU_REACH_NLRI_IPV4_ADD_PATH, ByteArray.readAllBytes(output));
     }
@@ -330,13 +330,13 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected2).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(LU_UNREACH_NLRI_IPV4, ByteArray.readAllBytes(output));
 
         final ByteBuf output1 = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected1).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected1).build())
             .build(), output1);
         assertArrayEquals(LU_UNREACH_NLRI_IPV4, ByteArray.readAllBytes(output1));
     }
@@ -382,13 +382,13 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected2).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(LU_UNREACH_NLRI_IPV4_ADD_PATH, ByteArray.readAllBytes(output));
 
         final ByteBuf output1 = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected1).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected1).build())
             .build(), output1);
         assertArrayEquals(LU_UNREACH_NLRI_IPV4_ADD_PATH, ByteArray.readAllBytes(output1));
     }
@@ -418,7 +418,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachExpected).build())
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
             .build(), output);
         assertArrayEquals(LU_REACH_NLRI_IPV6, ByteArray.readAllBytes(output));
     }
@@ -448,7 +448,7 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes1Builder().setMpReachNlri(mpReachExpected).build())
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
             .build(), output);
         assertArrayEquals(LU_REACH_NLRI_IPV6_ADD_PATH, ByteArray.readAllBytes(output));
     }
@@ -491,13 +491,13 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected2).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(LU_UNREACH_NLRI_IPV6, ByteArray.readAllBytes(output));
 
         final ByteBuf output1 = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected1).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected1).build())
             .build(), output1);
         assertArrayEquals(LU_UNREACH_NLRI_IPV6, ByteArray.readAllBytes(output1));
     }
@@ -542,13 +542,13 @@ public class LUNlriParserTest {
         //test serializer
         final ByteBuf output = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected2).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(LU_UNREACH_NLRI_IPV6_ADD_PATH, ByteArray.readAllBytes(output));
 
         final ByteBuf output1 = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
-            .addAugmentation(new Attributes2Builder().setMpUnreachNlri(mpUnreachExpected1).build())
+            .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected1).build())
             .build(), output1);
         assertArrayEquals(LU_UNREACH_NLRI_IPV6_ADD_PATH, ByteArray.readAllBytes(output1));
     }

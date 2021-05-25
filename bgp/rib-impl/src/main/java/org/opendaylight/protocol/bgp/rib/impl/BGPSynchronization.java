@@ -16,8 +16,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
@@ -81,14 +82,15 @@ public class BGPSynchronization {
         TablesKey type = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
-            if (msg.getAttributes() != null) {
-                if (msg.getAttributes().augmentation(Attributes1.class) != null) {
-                    final Attributes1 pa = msg.getAttributes().augmentation(Attributes1.class);
+            final Attributes attrs = msg.getAttributes();
+            if (attrs != null) {
+                if (attrs.augmentation(AttributesReach.class) != null) {
+                    final AttributesReach pa = attrs.augmentation(AttributesReach.class);
                     if (pa.getMpReachNlri() != null) {
                         type = new TablesKey(pa.getMpReachNlri().getAfi(), pa.getMpReachNlri().getSafi());
                     }
-                } else if (msg.getAttributes().augmentation(Attributes2.class) != null) {
-                    final Attributes2 pa = msg.getAttributes().augmentation(Attributes2.class);
+                } else if (attrs.augmentation(AttributesUnreach.class) != null) {
+                    final AttributesUnreach pa = attrs.augmentation(AttributesUnreach.class);
                     if (pa.getMpUnreachNlri() != null) {
                         type = new TablesKey(pa.getMpUnreachNlri().getAfi(), pa.getMpUnreachNlri().getSafi());
                     }
