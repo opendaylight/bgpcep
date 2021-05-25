@@ -21,8 +21,8 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 
 public final class MPReachAttributeParser extends ReachAttributeParser {
     public static final int TYPE = 14;
@@ -38,7 +38,7 @@ public final class MPReachAttributeParser extends ReachAttributeParser {
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException {
         try {
-            builder.addAugmentation(new Attributes1Builder()
+            builder.addAugmentation(new AttributesReachBuilder()
                 .setMpReachNlri(reg.parseMpReach(buffer, constraint))
                 .build());
         } catch (final BGPParsingException e) {
@@ -48,7 +48,7 @@ public final class MPReachAttributeParser extends ReachAttributeParser {
 
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
-        final Attributes1 pathAttributes1 = pathAttributes.augmentation(Attributes1.class);
+        final AttributesReach pathAttributes1 = pathAttributes.augmentation(AttributesReach.class);
         if (pathAttributes1 != null) {
             final ByteBuf reachBuffer = Unpooled.buffer();
             reg.serializeMpReach(pathAttributes1.getMpReachNlri(), reachBuffer);

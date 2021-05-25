@@ -50,9 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
@@ -214,9 +214,9 @@ public class BGPParserTest {
                         .build())
                     .build());
 
-        paBuilder.addAugmentation(new Attributes1Builder().setMpReachNlri(mpBuilder.build()).build());
-        assertEquals(paBuilder.augmentation(Attributes1.class).getMpReachNlri(),
-                attrs.augmentation(Attributes1.class).getMpReachNlri());
+        paBuilder.addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpBuilder.build()).build());
+        assertEquals(paBuilder.augmentation(AttributesReach.class).getMpReachNlri(),
+                attrs.augmentation(AttributesReach.class).getMpReachNlri());
         paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
         // check API message
 
@@ -271,10 +271,10 @@ public class BGPParserTest {
         assertEquals(1, withdrawnRoutes.size());
         final Attributes attributes = message.getAttributes();
         assertNotNull(attributes);
-        assertNull(attributes.augmentation(Attributes1.class));
-        final Attributes2 attributes2 = attributes.augmentation(Attributes2.class);
-        assertNotNull(attributes2);
-        final MpUnreachNlri mpUnreachNlri = attributes2.getMpUnreachNlri();
+        assertNull(attributes.augmentation(AttributesReach.class));
+        final AttributesUnreach AttributesUnreach = attributes.augmentation(AttributesUnreach.class);
+        assertNotNull(AttributesUnreach);
+        final MpUnreachNlri mpUnreachNlri = AttributesUnreach.getMpUnreachNlri();
         assertNotNull(mpUnreachNlri);
     }
 }

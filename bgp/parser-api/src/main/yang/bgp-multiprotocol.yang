@@ -156,7 +156,7 @@ module bgp-multiprotocol {
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {
-        ext:augment-identifier attributes-1;
+        ext:augment-identifier attributes-reach;
         container mp-reach-nlri {
             reference "http://tools.ietf.org/html/rfc4760#section-3";
 
@@ -170,7 +170,7 @@ module bgp-multiprotocol {
     }
 
     augment "/bgp-msg:update/bgp-msg:attributes" {
-        ext:augment-identifier attributes-2;
+        ext:augment-identifier attributes-unreach;
         container mp-unreach-nlri {
             reference "http://tools.ietf.org/html/rfc4760#section-4";
 

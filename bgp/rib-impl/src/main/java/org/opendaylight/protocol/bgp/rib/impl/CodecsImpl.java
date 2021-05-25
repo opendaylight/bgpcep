@@ -31,8 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDisc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -61,11 +61,11 @@ public final class CodecsImpl implements Codecs {
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_NLRI_II = InstanceIdentifier.create(Update.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
                         .attributes.Attributes.class)
-                .augmentation(Attributes1.class)
+                .augmentation(AttributesReach.class)
                 .child(MpReachNlri.class);
     private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
+                    .attributes.Attributes.class).augmentation(AttributesUnreach.class).child(MpUnreachNlri.class);
 
     static {
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
@@ -142,8 +142,8 @@ public final class CodecsImpl implements Codecs {
     public ContainerNode serializeAttributes(final Attributes pathAttr) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
-        a.removeAugmentation(Attributes1.class);
-        a.removeAugmentation(Attributes2.class);
+        a.removeAugmentation(AttributesReach.class);
+        a.removeAugmentation(AttributesUnreach.class);
         return (ContainerNode) this.attributesCodec.serialize(a.build());
     }
 }

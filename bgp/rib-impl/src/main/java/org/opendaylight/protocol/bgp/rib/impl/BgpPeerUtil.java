@@ -13,9 +13,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
@@ -36,7 +36,7 @@ public final class BgpPeerUtil {
         return key.getAfi() == Ipv4AddressFamily.class && key.getSafi() == UnicastSubsequentAddressFamily.class
                 ? new UpdateBuilder().build() : new UpdateBuilder()
                         .setAttributes(new AttributesBuilder()
-                            .addAugmentation(new Attributes2Builder()
+                            .addAugmentation(new AttributesUnreachBuilder()
                                 .setMpUnreachNlri(new MpUnreachNlriBuilder()
                                     .setAfi(key.getAfi())
                                     .setSafi(key.getSafi())
@@ -55,8 +55,8 @@ public final class BgpPeerUtil {
     public static boolean isEndOfRib(final UpdateMessage msg) {
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             if (msg.getAttributes() != null) {
-                final Attributes2 pa = msg.getAttributes().augmentation(Attributes2.class);
-                if (pa != null && msg.getAttributes().augmentation(Attributes1.class) == null) {
+                final AttributesUnreach pa = msg.getAttributes().augmentation(AttributesUnreach.class);
+                if (pa != null && msg.getAttributes().augmentation(AttributesReach.class) == null) {
                     //only MP_UNREACH_NLRI allowed in EOR
                     if (pa.getMpUnreachNlri() != null && pa.getMpUnreachNlri().getWithdrawnRoutes() == null) {
                         // EOR message contains only MPUnreach attribute and no NLRI

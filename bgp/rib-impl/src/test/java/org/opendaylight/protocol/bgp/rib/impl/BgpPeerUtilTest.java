@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
@@ -53,7 +53,7 @@ public class BgpPeerUtilTest {
         assertNull(endOfRib.getWithdrawnRoutes());
         final Attributes attributes = endOfRib.getAttributes();
         assertNotNull(attributes);
-        final Attributes2 augmentation = attributes.augmentation(Attributes2.class);
+        final AttributesUnreach augmentation = attributes.augmentation(AttributesUnreach.class);
         assertNotNull(augmentation);
         final MpUnreachNlri mpUnreachNlri = augmentation.getMpUnreachNlri();
         assertNotNull(mpUnreachNlri);
@@ -71,7 +71,7 @@ public class BgpPeerUtilTest {
                 .build();
         final Update ipv6EOT = new UpdateBuilder()
                 .setAttributes(new AttributesBuilder()
-                    .addAugmentation(new Attributes2Builder().setMpUnreachNlri(ipv6EOTnlri).build())
+                    .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(ipv6EOTnlri).build())
                     .build())
                 .build();
 
@@ -86,7 +86,7 @@ public class BgpPeerUtilTest {
                 .build();
         final Update ipv6NonEOT = new UpdateBuilder()
                 .setAttributes(new AttributesBuilder()
-                    .addAugmentation(new Attributes2Builder().setMpUnreachNlri(ipv6NonEOTnlri).build())
+                    .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(ipv6NonEOTnlri).build())
                     .build())
                 .build();
 

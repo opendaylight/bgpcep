@@ -23,8 +23,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -46,10 +46,10 @@ final class TableContext {
 
     private static final InstanceIdentifier<MpReachNlri> MP_REACH_NLRI_II = InstanceIdentifier.create(Update.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.Attributes.class).augmentation(Attributes1.class).child(MpReachNlri.class);
+                    .attributes.Attributes.class).augmentation(AttributesReach.class).child(MpReachNlri.class);
     private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.Attributes.class).augmentation(Attributes2.class).child(MpUnreachNlri.class);
+                    .attributes.Attributes.class).augmentation(AttributesUnreach.class).child(MpUnreachNlri.class);
     private static final NodeIdentifier BGP_ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
 
     private final YangInstanceIdentifier tableId;
@@ -123,8 +123,8 @@ final class TableContext {
     private ContainerNode serializeAttributes(final Attributes pathAttr) {
         Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
-        a.removeAugmentation(Attributes1.class);
-        a.removeAugmentation(Attributes2.class);
+        a.removeAugmentation(AttributesReach.class);
+        a.removeAugmentation(AttributesUnreach.class);
         return (ContainerNode) this.attributesCodec.serialize(a.build());
     }
 }
