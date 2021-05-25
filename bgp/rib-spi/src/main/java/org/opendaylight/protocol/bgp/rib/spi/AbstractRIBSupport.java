@@ -26,7 +26,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -37,15 +36,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
@@ -79,10 +78,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
+import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -338,32 +337,22 @@ public abstract class AbstractRIBSupport<
             YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
             ApplyRoute applyFunction);
 
-    private static ContainerNode getDestination(final DataContainerChild<? extends PathArgument, ?> routes,
-            final NodeIdentifier destinationId) {
+    private static ContainerNode getDestination(final DataContainerChild routes, final NodeIdentifier destinationId) {
         if (routes instanceof ContainerNode) {
-            final java.util.Optional<DataContainerChild<? extends PathArgument, ?>> maybeDestination =
-                    ((ContainerNode) routes).getChild(DESTINATION_TYPE);
-            if (maybeDestination.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> destination = maybeDestination.get();
-                if (destination instanceof ChoiceNode) {
-                    final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRet =
-                            ((ChoiceNode) destination).getChild(destinationId);
-                    if (maybeRet.isPresent()) {
-                        final DataContainerChild<? extends PathArgument, ?> ret = maybeRet.get();
-                        if (ret instanceof ContainerNode) {
-                            return (ContainerNode) ret;
-                        }
-
-                        LOG.debug("Specified node {} is not a container, ignoring it", ret);
-                    } else {
-                        LOG.debug("Specified container {} is not present in destination {}",
-                                destinationId, destination);
+            final DataContainerChild destination = ((ContainerNode) routes).childByArg(DESTINATION_TYPE);
+            if (destination instanceof ChoiceNode) {
+                final DataContainerChild ret = ((ChoiceNode) destination).childByArg(destinationId);
+                if (ret != null) {
+                    if (ret instanceof ContainerNode) {
+                        return (ContainerNode) ret;
                     }
+
+                    LOG.debug("Specified node {} is not a container, ignoring it", ret);
                 } else {
-                    LOG.warn("Destination {} is not a choice, ignoring it", destination);
+                    LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
                 }
             } else {
-                LOG.debug("Destination is not present in routes {}", routes);
+                LOG.warn("Destination {} is not a choice, ignoring it", destination);
             }
         } else {
             LOG.warn("Advertized routes {} are not a container, ignoring it", routes);
@@ -433,6 +422,21 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
+    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
+            final ContainerNode nlri, final NodeIdentifier routesNodeId) {
+        final DataContainerChild routes = nlri.childByArg(WITHDRAWN_ROUTES);
+        if (routes != null) {
+            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
+            if (destination != null) {
+                deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
+            }
+        } else {
+            LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
+        }
+    }
+
+    @Override
     public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
                                                                     final YangInstanceIdentifier tablePath,
                                                                     final ContainerNode nlri,
@@ -446,16 +450,16 @@ public abstract class AbstractRIBSupport<
                                                                     final ContainerNode nlri,
                                                                     final ContainerNode attributes,
                                                                     final NodeIdentifier routesNodeId) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(ADVERTISED_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
+        final DataContainerChild routes = nlri.childByArg(ADVERTISED_ROUTES);
+        if (routes != null) {
+            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
             if (destination != null) {
                 return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
             }
         } else {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
@@ -485,25 +489,10 @@ public abstract class AbstractRIBSupport<
         return ub.build();
     }
 
-    @Override
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode nlri, final NodeIdentifier routesNodeId) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = nlri.getChild(WITHDRAWN_ROUTES);
-        if (maybeRoutes.isPresent()) {
-            final ContainerNode destination = getDestination(maybeRoutes.get(), destinationContainerIdentifier());
-            if (destination != null) {
-                deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
-            }
-        } else {
-            LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
-        }
-    }
-
     private static final class DeleteRoute implements ApplyRoute {
         @Override
         public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
-                final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
+                final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
         }
@@ -512,14 +501,14 @@ public abstract class AbstractRIBSupport<
     private final class PutRoute implements ApplyRoute {
         @Override
         public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
-                final NodeIdentifierWithPredicates routeKey, final DataContainerNode<?> route,
+                final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             // Build the DataContainer data
             final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
                     ImmutableNodes.mapEntryBuilder();
             b.withNodeIdentifier(routeKey);
 
-            route.getValue().forEach(b::withChild);
+            route.body().forEach(b::withChild);
             // Add attributes
             final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> cb =
                     Builders.containerBuilder(attributes);
@@ -537,17 +526,13 @@ public abstract class AbstractRIBSupport<
         return routeKeyTemplate;
     }
 
-    protected final String extractPrefix(final DataContainerNode<? extends PathArgument> route) {
-        return (String) route.getChild(prefixTypeNid).get().getValue();
+    protected final String extractPrefix(final DataContainerNode route) {
+        return (String) verifyNotNull(route.childByArg(prefixTypeNid)).body();
     }
 
-    protected final RouteDistinguisher extractRouteDistinguisher(
-            // FIXME: remove ? extends
-            final DataContainerNode<? extends PathArgument> route) {
-        final Optional<DataContainerChild<?, ?>> child = route.getChild(rdNid);
-        return child.isPresent() ? RouteDistinguisherBuilder.getDefaultInstance((String) child.orElseThrow().getValue())
-            : null;
-
+    protected final RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route) {
+        final DataContainerChild child = route.childByArg(rdNid);
+        return child == null ? null : RouteDistinguisherBuilder.getDefaultInstance((String) child.body());
     }
 
     protected final YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {
@@ -555,7 +540,7 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode<?, ?> normalizedNode) {
+    public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode normalizedNode) {
         final DataObject node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
         verify(node instanceof Route, "node %s is not a Route", node);
         return (R) node;

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -31,13 +32,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -95,7 +96,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
             AbstractRIBSupportTest.this.insertedRoutes.add(adapter.currentSerializer()
-                    .fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode<?, ?>) args[2]));
+                    .fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode) args[2]));
             return args[1];
         }).when(this.tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
@@ -120,7 +121,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
         final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
                 .setDestinationType(destUnreach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.adapter.currentSerializer()
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode> result = this.adapter.currentSerializer()
                 .toNormalizedNode(MP_UNREACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
@@ -128,7 +129,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
         final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                 .setDestinationType(destReach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> result = this.adapter.currentSerializer()
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode> result = this.adapter.currentSerializer()
                 .toNormalizedNode(MP_REACH_IID, mpReach);
         return (ContainerNode) result.getValue();
     }
@@ -146,19 +147,20 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     protected final ChoiceNode createRoutes(final Routes routes) {
         final Tables tables = new TablesBuilder().withKey(getTablesKey()).setRoutes(routes).build();
-        return (ChoiceNode) ((MapEntryNode) this.adapter.currentSerializer().toNormalizedNode(tablesIId(), tables)
-                .getValue()).getChild(new NodeIdentifier(BindingReflections.findQName(Routes.class))).get();
+        return (ChoiceNode) verifyNotNull(((MapEntryNode) this.adapter.currentSerializer()
+            .toNormalizedNode(tablesIId(), tables).getValue())
+            .childByArg(new NodeIdentifier(BindingReflections.findQName(Routes.class))));
     }
 
     protected final Collection<MapEntryNode> createRoutes(final S routes) {
         Preconditions.checkArgument(routes.implementedInterface()
                 .equals(this.abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<S> routesIId = routesIId();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode<?, ?>> normalizedNode = this.adapter.currentSerializer()
+        final Map.Entry<YangInstanceIdentifier, NormalizedNode> normalizedNode = this.adapter.currentSerializer()
                 .toNormalizedNode(routesIId, routes);
         final ContainerNode container = (ContainerNode) normalizedNode.getValue();
         final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
-        return ((MapNode) container.getChild(routeNid).get()).getValue();
+        return ((MapNode) verifyNotNull(container.childByArg(routeNid))).body();
     }
 
     private TablesKey getTablesKey() {

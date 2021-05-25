@@ -43,8 +43,8 @@ public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteTyp
     }
 
     public static OspfRouteType serializeModel(final ContainerNode prefixDesc) {
-        return prefixDesc.getChild(OSPF_ROUTE_NID).map(
-            dataContainerChild -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.getValue())))
+        return prefixDesc.findChildByArg(OSPF_ROUTE_NID).map(
+            dataContainerChild -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.body())))
             .orElse(null);
     }
 

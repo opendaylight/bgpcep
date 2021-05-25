@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.rsvp.parser.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

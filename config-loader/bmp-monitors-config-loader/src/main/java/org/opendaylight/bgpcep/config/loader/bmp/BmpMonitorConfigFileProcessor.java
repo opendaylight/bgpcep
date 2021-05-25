@@ -52,7 +52,7 @@ public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProce
 
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
-            final NormalizedNode<?, ?> dto) {
+            final NormalizedNode dto) {
         final ContainerNode odlBmpMonitors = (ContainerNode) dto;
         final MapNode monitorsList = (MapNode) odlBmpMonitors.getChild(new NodeIdentifier(BmpMonitorConfig.QNAME))
             .orElse(null);

@@ -57,9 +57,9 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     }
 
     public static IpPrefix serializeModel(final ContainerNode prefixDesc) {
-        return prefixDesc.getChild(IP_REACH_NID)
+        return prefixDesc.findChildByArg(IP_REACH_NID)
                 .map(child -> {
-                    final String prefix = (String) child.getValue();
+                    final String prefix = (String) child.body();
                     try {
                         final ByteBuf buffer = Unpooled.buffer(5);
                         Ipv4Util.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
