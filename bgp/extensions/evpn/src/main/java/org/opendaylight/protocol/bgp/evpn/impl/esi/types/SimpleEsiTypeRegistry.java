@@ -110,7 +110,7 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
     @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public Esi parseEsiModel(final ChoiceNode esiChoice) {
         checkArgument(esiChoice != null, "ESI cannot be null");
-        final Collection<DataContainerChild<?, ?>> value = esiChoice.getValue();
+        final Collection<DataContainerChild> value = esiChoice.body();
         checkArgument(!value.isEmpty(), "ESI may not be empty");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(value);
         final EsiSerializer serializer = this.modelHandlers.get(cont.getIdentifier());

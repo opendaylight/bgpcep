@@ -228,7 +228,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     private static void processWrite(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId,
             final DOMDataTreeWriteTransaction tx) {
         if (child.getDataAfter().isPresent()) {
-            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+            final NormalizedNode dataAfter = child.getDataAfter().get();
             LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
@@ -269,7 +269,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     private static void processRouteWrite(final DataTreeCandidateNode child,
             final YangInstanceIdentifier childIdentifier, final DOMDataTreeWriteTransaction tx) {
         if (child.getDataAfter().isPresent()) {
-            final NormalizedNode<?, ?> dataAfter = child.getDataAfter().get();
+            final NormalizedNode dataAfter = child.getDataAfter().get();
             LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);

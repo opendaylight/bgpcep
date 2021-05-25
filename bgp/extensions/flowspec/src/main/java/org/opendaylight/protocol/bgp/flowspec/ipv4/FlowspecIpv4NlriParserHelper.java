@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.ipv4;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
@@ -26,9 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.group.ipv4.flowspec.flowspec.type.protocol.ip._case.ProtocolIpsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
@@ -45,16 +42,16 @@ public final class FlowspecIpv4NlriParserHelper {
     }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
+        if (fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(
-                    new Ipv4Prefix((String) fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get()
-                            .getValue())).build());
-        } else if (fsType.getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
+                    new Ipv4Prefix((String) fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get()
+                            .body())).build());
+        } else if (fsType.findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String) fsType
-                    .getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().getValue())).build());
-        } else if (fsType.getChild(PROTOCOL_IP_NID).isPresent()) {
+                    .findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().body())).build());
+        } else if (fsType.findChildByArg(PROTOCOL_IP_NID).isPresent()) {
             fsBuilder.setFlowspecType(new ProtocolIpCaseBuilder()
-                    .setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.getChild(PROTOCOL_IP_NID).get()))
+                    .setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.findChildByArg(PROTOCOL_IP_NID).get()))
                     .build());
         }
     }
@@ -75,20 +72,17 @@ public final class FlowspecIpv4NlriParserHelper {
     private static List<ProtocolIps> createProtocolsIps(final UnkeyedListNode protocolIpsData) {
         final List<ProtocolIps> protocolIps = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : protocolIpsData.getValue()) {
+        for (final UnkeyedListEntryNode node : protocolIpsData.body()) {
             final ProtocolIpsBuilder ipsBuilder = new ProtocolIpsBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue
-                    = node.getChild(AbstractFlowspecNlriParser.OP_NID);
-            opValue.ifPresent(dataContainerChild -> ipsBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
-                    = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(dataContainerChild -> ipsBuilder.setValue((Uint8) dataContainerChild.getValue()));
+            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
+                dataContainerChild -> ipsBuilder.setOp(NumericOneByteOperandParser
+                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
+                dataContainerChild -> ipsBuilder.setValue((Uint8) dataContainerChild.body()));
             protocolIps.add(ipsBuilder.build());
         }
 
         return protocolIps;
     }
-
 }
 

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -32,7 +31,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -83,7 +81,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
         return this.cacheableNlriObjects;
     }
 
-    final MvpnChoice extractMvpnChoice(final DataContainerNode<? extends PathArgument> route) {
+    final MvpnChoice extractMvpnChoice(final DataContainerNode route) {
         final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
         return ((MvpnRoute) nn).getMvpnChoice();
     }
@@ -96,13 +94,11 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final ContainerNode attributes,
             final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
-                    .getChild(this.nlriRoutesList);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(this.nlriRoutesList);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode mvpnDest : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);

@@ -43,8 +43,8 @@ public final class MultiTopoIdTlvParser implements LinkstateTlvParser<TopologyId
     }
 
     public static TopologyIdentifier serializeModel(final ContainerNode prefixDesc) {
-        return prefixDesc.getChild(TlvUtil.MULTI_TOPOLOGY_NID)
-                .map(child -> new TopologyIdentifier((Uint16) child.getValue()))
+        return prefixDesc.findChildByArg(TlvUtil.MULTI_TOPOLOGY_NID)
+                .map(child -> new TopologyIdentifier((Uint16) child.body()))
                 .orElse(null);
     }
 }

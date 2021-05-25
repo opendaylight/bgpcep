@@ -37,7 +37,7 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
     Registration registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);
 
     Registration registerRROSubobjectSerializer(Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass,
+            .xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType> subobjectClass,
             RROSubobjectSerializer serializer);
 
     Registration registerTlvSerializer(Class<? extends Tlv> tlvClass, TlvSerializer serializer);

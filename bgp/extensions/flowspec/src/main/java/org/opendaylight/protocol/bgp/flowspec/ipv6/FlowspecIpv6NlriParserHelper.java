@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.flowspec.ipv6;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
@@ -31,9 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
@@ -46,20 +43,20 @@ public final class FlowspecIpv6NlriParserHelper {
     }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
+        if (fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(new DestinationIpv6PrefixCaseBuilder()
-                    .setDestinationPrefix(new Ipv6Prefix((String) fsType
-                            .getChild(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get().getValue())).build());
-        } else if (fsType.getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
+                .setDestinationPrefix(new Ipv6Prefix((String) fsType
+                    .findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get().body())).build());
+        } else if (fsType.findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
             fsBuilder.setFlowspecType(new SourceIpv6PrefixCaseBuilder().setSourcePrefix(new Ipv6Prefix((String) fsType
-                    .getChild(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().getValue())).build());
-        } else if (fsType.getChild(NEXT_HEADER_NID).isPresent()) {
+                .findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().body())).build());
+        } else if (fsType.findChildByArg(NEXT_HEADER_NID).isPresent()) {
             fsBuilder.setFlowspecType(new NextHeaderCaseBuilder()
-                    .setNextHeaders(createNextHeaders((UnkeyedListNode) fsType.getChild(NEXT_HEADER_NID).get()))
-                    .build());
-        } else if (fsType.getChild(FLOW_LABEL_NID).isPresent()) {
+                .setNextHeaders(createNextHeaders((UnkeyedListNode) fsType.findChildByArg(NEXT_HEADER_NID).get()))
+                .build());
+        } else if (fsType.findChildByArg(FLOW_LABEL_NID).isPresent()) {
             fsBuilder.setFlowspecType(new FlowLabelCaseBuilder()
-                    .setFlowLabel(createFlowLabels((UnkeyedListNode) fsType.getChild(FLOW_LABEL_NID).get())).build());
+                .setFlowLabel(createFlowLabels((UnkeyedListNode) fsType.findChildByArg(FLOW_LABEL_NID).get())).build());
         }
     }
 
@@ -82,16 +79,13 @@ public final class FlowspecIpv6NlriParserHelper {
     private static List<NextHeaders> createNextHeaders(final UnkeyedListNode nextHeadersData) {
         final List<NextHeaders> nextHeaders = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : nextHeadersData.getValue()) {
+        for (final UnkeyedListEntryNode node : nextHeadersData.body()) {
             final NextHeadersBuilder nextHeadersBuilder = new NextHeadersBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue
-                    = node.getChild(AbstractFlowspecNlriParser.OP_NID);
-            opValue.ifPresent(dataContainerChild -> nextHeadersBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
-                    = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(
-                dataContainerChild -> nextHeadersBuilder.setValue((Uint8) dataContainerChild.getValue()));
+            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
+                dataContainerChild -> nextHeadersBuilder.setOp(NumericOneByteOperandParser
+                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
+                dataContainerChild -> nextHeadersBuilder.setValue((Uint8) dataContainerChild.body()));
             nextHeaders.add(nextHeadersBuilder.build());
         }
 
@@ -101,16 +95,13 @@ public final class FlowspecIpv6NlriParserHelper {
     private static List<FlowLabel> createFlowLabels(final UnkeyedListNode flowLabelsData) {
         final List<FlowLabel> flowLabels = new ArrayList<>();
 
-        for (final UnkeyedListEntryNode node : flowLabelsData.getValue()) {
+        for (final UnkeyedListEntryNode node : flowLabelsData.body()) {
             final FlowLabelBuilder flowLabelsBuilder = new FlowLabelBuilder();
-            final Optional<DataContainerChild<? extends PathArgument, ?>> opValue
-                    = node.getChild(AbstractFlowspecNlriParser.OP_NID);
-            opValue.ifPresent(dataContainerChild -> flowLabelsBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.getValue())));
-            final Optional<DataContainerChild<? extends PathArgument, ?>> valueNode
-                    = node.getChild(AbstractFlowspecNlriParser.VALUE_NID);
-            valueNode.ifPresent(
-                dataContainerChild -> flowLabelsBuilder.setValue((Uint32) dataContainerChild.getValue()));
+            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
+                dataContainerChild -> flowLabelsBuilder.setOp(NumericOneByteOperandParser
+                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
+            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
+                dataContainerChild -> flowLabelsBuilder.setValue((Uint32) dataContainerChild.body()));
             flowLabels.add(flowLabelsBuilder.build());
         }
 

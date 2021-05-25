@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
@@ -108,7 +107,7 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
 
     private EvpnChoice getEvpnCase(final ChoiceNode evpnChoice, final SerializerInterface serializerInterface) {
         checkArgument(evpnChoice != null, "Evpn case is mandatory, cannot be null");
-        final Collection<DataContainerChild<? extends PathArgument, ?>> value = evpnChoice.getValue();
+        final Collection<DataContainerChild> value = evpnChoice.body();
         checkArgument(!value.isEmpty(), "Evpn case is mandatyr, cannot be empty");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(value);
         final EvpnSerializer serializer = this.modelHandlers.get(cont.getIdentifier());

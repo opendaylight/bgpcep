@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -302,15 +301,18 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     private static GetStatsInput createGetStatsInput(final String topologyId, final List<String> nodeIds) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
-                    .get.stats.input.topology.Node> nodes;
+        final Map<
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                .get.stats.input.topology.NodeKey,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                .get.stats.input.topology.Node> nodes;
         if (nodeIds != null) {
             nodes = nodeIds.stream()
                     .map(nodeId -> new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
                         .stats.rpc.rev190321.get.stats.input.topology.NodeBuilder()
                             .setNodeId(new NodeId(nodeId))
                             .build())
-                .collect(Collectors.toList());
+                .collect(BindingMap.toOrderedMap());
         } else {
             nodes = null;
         }
@@ -330,7 +332,10 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
 
     private static GetStatsOutput createGetStatsOutput(final String topologyId, final List<String> nodeIds,
             final PcepSessionState state) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+        final Map<
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
+                .get.stats.output.topology.NodeKey,
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
                     .get.stats.output.topology.Node> nodes;
         if (nodeIds != null) {
             nodes = nodeIds.stream()
@@ -339,7 +344,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
                             .setNodeId(new NodeId(nodeId))
                             .setPcepSessionState(state)
                             .build())
-                .collect(Collectors.toList());
+                .collect(BindingMap.toOrderedMap());
         } else {
             nodes = null;
         }
@@ -354,8 +359,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         } else {
             topology = null;
         }
-        return new GetStatsOutputBuilder().setTopology(topology != null ? Collections.singletonList(topology) : null)
-                .build();
+        return new GetStatsOutputBuilder().setTopology(topology != null ? BindingMap.of(topology) : null).build();
     }
 
     @After

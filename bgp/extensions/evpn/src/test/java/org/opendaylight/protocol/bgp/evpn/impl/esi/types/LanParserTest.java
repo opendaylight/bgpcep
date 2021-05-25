@@ -33,7 +33,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public class LanParserTest {
     private static final Uint16 PRIORITY = Uint16.valueOf(514);
@@ -70,9 +69,10 @@ public class LanParserTest {
     }
 
     public static ChoiceNode createLanChoice() {
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
-        choice.withNodeIdentifier(NodeIdentifier.create(Esi.QNAME));
-        return choice.addChild(createLanCont()).build();
+        return Builders.choiceBuilder()
+            .withNodeIdentifier(NodeIdentifier.create(Esi.QNAME))
+            .addChild(createLanCont())
+            .build();
     }
 
     private static ContainerNode createLanCont() {

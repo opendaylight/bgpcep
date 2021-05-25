@@ -394,26 +394,26 @@ public final class BaseParserExtensionActivator extends AbstractPCEPExtensionPro
         final RROIpv4PrefixSubobjectParser ipv4prefixParser = new RROIpv4PrefixSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROIpv4PrefixSubobjectParser.TYPE, ipv4prefixParser));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.record.route.subobjects.subobject.type.IpPrefixCase.class, ipv4prefixParser));
+            .rsvp.rev150820._record.route.subobjects.subobject.type.IpPrefixCase.class, ipv4prefixParser));
         regs.add(context.registerRROSubobjectParser(RROIpv6PrefixSubobjectParser.TYPE,
             new RROIpv6PrefixSubobjectParser()));
 
         final RROUnnumberedInterfaceSubobjectParser unnumberedParser = new RROUnnumberedInterfaceSubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROUnnumberedInterfaceSubobjectParser.TYPE, unnumberedParser));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.record.route.subobjects.subobject.type.UnnumberedCase.class, unnumberedParser));
+            .rsvp.rev150820._record.route.subobjects.subobject.type.UnnumberedCase.class, unnumberedParser));
 
         final RROPathKey32SubobjectParser pathKeyParser =  new RROPathKey32SubobjectParser();
         regs.add(context.registerRROSubobjectParser(RROPathKey32SubobjectParser.TYPE, pathKeyParser));
         regs.add(context.registerRROSubobjectParser(RROPathKey128SubobjectParser.TYPE,
             new RROPathKey128SubobjectParser()));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.record.route.subobjects.subobject.type.PathKeyCase.class, pathKeyParser));
+            .rsvp.rev150820._record.route.subobjects.subobject.type.PathKeyCase.class, pathKeyParser));
 
         final RROLabelSubobjectParser labelParser = new RROLabelSubobjectParser(labelReg);
         regs.add(context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, labelParser));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.record.route.subobjects.subobject.type.LabelCase.class, labelParser));
+            .rsvp.rev150820._record.route.subobjects.subobject.type.LabelCase.class, labelParser));
     }
 
     private static void registerXROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context) {

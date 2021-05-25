@@ -24,7 +24,7 @@ public interface RSVPExtensionProviderContext extends RSVPExtensionConsumerConte
     Registration registerXROSubobjectParser(int subobjectType, XROSubobjectParser parser);
 
     Registration registerRROSubobjectSerializer(Class<? extends org.opendaylight.yang.gen.v1.urn.opendaylight.params
-        .xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType> subobjectClass, RROSubobjectSerializer
+        .xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType> subobjectClass, RROSubobjectSerializer
         serializer);
 
     Registration registerRROSubobjectParser(int subobjectType, RROSubobjectParser parser);

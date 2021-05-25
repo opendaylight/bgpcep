@@ -328,7 +328,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         table.getModifiedChild(ATTRIBUTES_NID).ifPresent(modifiedAttrs -> {
             final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
-            final Optional<NormalizedNode<?, ?>> optAttrsAfter = modifiedAttrs.getDataAfter();
+            final Optional<NormalizedNode> optAttrsAfter = modifiedAttrs.getDataAfter();
             if (optAttrsAfter.isPresent()) {
                 tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, effectiveAttributes(
                     NormalizedNodes.findNode(optAttrsAfter.get(), UPTODATE_NID)));
@@ -372,18 +372,18 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         LOG.debug("Write Effective Table {}", effectiveTablePath);
         onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.getDataBefore());
 
-        final Optional<NormalizedNode<?, ?>> maybeTableAfter = table.getDataAfter();
+        final Optional<NormalizedNode> maybeTableAfter = table.getDataAfter();
         if (maybeTableAfter.isPresent()) {
             final MapEntryNode tableAfter = extractMapEntry(maybeTableAfter);
             ribContext.createEmptyTableStructure(tx, effectiveTablePath);
 
-            final Optional<DataContainerChild<?, ?>> maybeAttrsAfter = tableAfter.getChild(ATTRIBUTES_NID);
+            final Optional<DataContainerChild> maybeAttrsAfter = tableAfter.findChildByArg(ATTRIBUTES_NID);
             final boolean longLivedStale;
             if (maybeAttrsAfter.isPresent()) {
                 final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
                 longLivedStale = isLongLivedStale(attrsAfter);
                 tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES_NID),
-                    effectiveAttributes(attrsAfter.getChild(UPTODATE_NID)));
+                    effectiveAttributes(attrsAfter.findChildByArg(UPTODATE_NID)));
             } else {
                 longLivedStale = false;
             }
@@ -395,32 +395,32 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     // Performs house-keeping when the contents of a table is deleted
     private void onDeleteTable(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
-            final Optional<NormalizedNode<?, ?>> tableBefore) {
+            final Optional<NormalizedNode> tableBefore) {
         // Routes are special in that we need to process the to keep our counters accurate
-        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = findRoutesMap(ribSupport,
+        final Optional<NormalizedNode> maybeRoutesBefore = findRoutesMap(ribSupport,
                 NormalizedNodes.findNode(tableBefore, ROUTES_NID));
         if (maybeRoutesBefore.isPresent()) {
-            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).getValue());
+            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).body());
         }
     }
 
     private void deleteRoutesBefore(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode modifiedRoutes) {
-        final Optional<NormalizedNode<?, ?>> maybeRoutesBefore = NormalizedNodes.findNode(
+        final Optional<NormalizedNode> maybeRoutesBefore = NormalizedNodes.findNode(
             modifiedRoutes.getDataBefore(), ribSupport.relativeRoutesPath());
         if (maybeRoutesBefore.isPresent()) {
-            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).getValue());
+            onRoutesDeleted(ribSupport, effectiveTablePath, extractMap(maybeRoutesBefore).body());
         }
     }
 
     private void writeRoutesAfter(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
-            final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode<?, ?>> routesAfter,
+            final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode> routesAfter,
             final boolean longLivedStale) {
-        final Optional<NormalizedNode<?, ?>> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
+        final Optional<NormalizedNode> maybeRoutesAfter = NormalizedNodes.findNode(routesAfter,
             ribSupport.relativeRoutesPath());
         if (maybeRoutesAfter.isPresent()) {
             final YangInstanceIdentifier routesPath = routeMapPath(ribSupport, effectiveTablePath);
-            for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).getValue()) {
+            for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).body()) {
                 writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), Optional.empty(), routeAfter,
                     longLivedStale);
             }
@@ -466,7 +466,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void deleteRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
-            final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route) {
+            final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
         handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
         LOG.debug("Route deleted. routeId={}", routeIdPath);
@@ -475,8 +475,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
-            final YangInstanceIdentifier routePath, final Optional<NormalizedNode<?, ?>> routeBefore,
-            final NormalizedNode<?, ?> routeAfter, final boolean longLivedStale) {
+            final YangInstanceIdentifier routePath, final Optional<NormalizedNode> routeBefore,
+            final NormalizedNode routeAfter, final boolean longLivedStale) {
         final TablesKey tablesKey = ribSupport.getTablesKey();
         CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
         // Lookup per-table attributes from RIBSupport
@@ -523,7 +523,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void deleteRouteTarget(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier routeIdPath,
-            final NormalizedNode<?, ?> route) {
+            final NormalizedNode route) {
         deleteRouteTarget((RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route));
     }
 
@@ -536,7 +536,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?> ribSupport,
-            final YangInstanceIdentifier routeIdPath, final NormalizedNode<?, ?> route) {
+            final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
         if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
             final RouteTargetConstrainRoute rtc =
                 (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
@@ -588,25 +588,25 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return concat(tablePath.node(ROUTES_NID), ribSupport.relativeRoutesPath());
     }
 
-    private static Optional<NormalizedNode<?, ?>> findRoutesMap(final RIBSupport<?, ?> ribSupport,
-            final Optional<NormalizedNode<?, ?>> optRoutes) {
+    private static Optional<NormalizedNode> findRoutesMap(final RIBSupport<?, ?> ribSupport,
+            final Optional<NormalizedNode> optRoutes) {
         return NormalizedNodes.findNode(optRoutes, ribSupport.relativeRoutesPath());
     }
 
-    private static ContainerNode extractContainer(final Optional<? extends NormalizedNode<?, ?>> optNode) {
-        final NormalizedNode<?, ?> node = optNode.get();
+    private static ContainerNode extractContainer(final Optional<? extends NormalizedNode> optNode) {
+        final NormalizedNode node = optNode.get();
         verify(node instanceof ContainerNode, "Expected ContainerNode, got %s", node);
         return (ContainerNode) node;
     }
 
-    private static MapNode extractMap(final Optional<? extends NormalizedNode<?, ?>> optNode) {
-        final NormalizedNode<?, ?> node = optNode.get();
+    private static MapNode extractMap(final Optional<? extends NormalizedNode> optNode) {
+        final NormalizedNode node = optNode.get();
         verify(node instanceof MapNode, "Expected MapNode, got %s", node);
         return (MapNode) node;
     }
 
-    private static MapEntryNode extractMapEntry(final Optional<? extends NormalizedNode<?, ?>> optNode) {
-        final NormalizedNode<?, ?> node = optNode.get();
+    private static MapEntryNode extractMapEntry(final Optional<? extends NormalizedNode> optNode) {
+        final NormalizedNode node = optNode.get();
         verify(node instanceof MapEntryNode, "Expected MapEntryNode, got %s", node);
         return (MapEntryNode) node;
     }
@@ -615,14 +615,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return NormalizedNodes.findNode(attributes, ADJRIBIN_ATTRIBUTES_AID, LLGR_STALE_NID).isPresent();
     }
 
-    private static boolean isLongLivedStaleTable(final Optional<NormalizedNode<?, ?>> optTable) {
-        final Optional<NormalizedNode<?, ?>> optAttributes = NormalizedNodes.findNode(optTable, ATTRIBUTES_NID);
+    private static boolean isLongLivedStaleTable(final Optional<NormalizedNode> optTable) {
+        final Optional<NormalizedNode> optAttributes = NormalizedNodes.findNode(optTable, ATTRIBUTES_NID);
         return optAttributes.isPresent() && isLongLivedStale(extractContainer(optAttributes));
     }
 
-    private static ContainerNode effectiveAttributes(final Optional<? extends NormalizedNode<?, ?>> optUptodate) {
+    private static ContainerNode effectiveAttributes(final Optional<? extends NormalizedNode> optUptodate) {
         return optUptodate.map(leaf -> {
-            final Object value = leaf.getValue();
+            final Object value = leaf.body();
             verify(value instanceof Boolean, "Expected boolean uptodate, got %s", value);
             return (Boolean) value ? RIBNormalizedNodes.UPTODATE_ATTRIBUTES
                     : RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
