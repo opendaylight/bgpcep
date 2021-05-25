@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
@@ -224,7 +225,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(Uint64.valueOf(current.getValue().toJava().add(deadlineOffset)));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
@@ -244,7 +245,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(Uint64.valueOf(current.getValue().toJava().add(deadlineOffset)));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
@@ -269,7 +270,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final BigInteger deadlineOffset = BigInteger.valueOf(
                 1000L * 1000 * 1000 * INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS /* seconds */);
         final Nanotime current = NanotimeUtil.currentTime();
-        final Nanotime deadlineNano = new Nanotime(current.getValue().toJava().add(deadlineOffset));
+        final Nanotime deadlineNano = new Nanotime(Uint64.valueOf(current.getValue().toJava().add(deadlineOffset)));
 
         final Optional<Nanotime> deadline = Optional.of(deadlineNano);
         final SubmitInstructionInput mockedSubmit1 = getMockedSubmitInstructionInput("mockedSubmit1", deadline);
@@ -350,7 +351,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
         doReturn(dependencies).when(mockedSubmitInstruction).getPreconditions();
         doReturn(new InstructionId(id)).when(mockedSubmitInstruction).getId();
-        doReturn(deadline.orElseGet(() -> new Nanotime(BigInteger.valueOf(Long.MAX_VALUE))))
+        doReturn(deadline.orElseGet(() -> new Nanotime(Uint64.valueOf(Long.MAX_VALUE))))
                 .when(mockedSubmitInstruction).getDeadline();
         return mockedSubmitInstruction;
     }

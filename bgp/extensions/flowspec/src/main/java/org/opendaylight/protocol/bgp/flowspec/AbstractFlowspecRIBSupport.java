@@ -30,7 +30,6 @@ import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -90,8 +89,7 @@ public abstract class AbstractFlowspecRIBSupport<
         }
         final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
 
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf
-                = destination.getChild(routePathIdNid());
+        final Optional<DataContainerChild> maybePathIdLeaf = destination.findChildByArg(routePathIdNid());
         final String routeKeyValue = this.nlriParser.stringNlri(destination);
         final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
                 routeKeyValue, maybePathIdLeaf);

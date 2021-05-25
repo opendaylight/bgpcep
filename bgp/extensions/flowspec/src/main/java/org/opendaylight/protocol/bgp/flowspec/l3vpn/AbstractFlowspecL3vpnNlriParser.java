@@ -35,7 +35,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    public String stringNlri(final DataContainerNode<?> flowspec) {
+    public String stringNlri(final DataContainerNode flowspec) {
         final StringBuilder buffer = new StringBuilder();
         final RouteDistinguisher rd = extractRouteDistinguisher(flowspec, RD_NID);
         if (rd != null) {

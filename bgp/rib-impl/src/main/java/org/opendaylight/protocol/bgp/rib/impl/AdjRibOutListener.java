@@ -15,7 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -45,9 +44,7 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
@@ -206,13 +203,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private String extractPrefix(final MapEntryNode ipv4Route) {
-        return (String) ipv4Route.getChild(this.routeKeyPrefixLeaf).get().getValue();
+        return (String) ipv4Route.findChildByArg(this.routeKeyPrefixLeaf).get().body();
     }
 
     private PathId extractPathId(final MapEntryNode ipv4Route) {
-        final Optional<DataContainerChild<? extends PathArgument, ?>> pathId = ipv4Route
-                .getChild(this.routeKeyPathIdLeaf);
-        return pathId.map(dataContainerChild -> new PathId((Uint32) dataContainerChild.getValue())).orElse(null);
+        return ipv4Route.findChildByArg(this.routeKeyPathIdLeaf)
+            .map(dataContainerChild -> new PathId((Uint32) dataContainerChild.body()))
+            .orElse(null);
     }
 
     public void close() {

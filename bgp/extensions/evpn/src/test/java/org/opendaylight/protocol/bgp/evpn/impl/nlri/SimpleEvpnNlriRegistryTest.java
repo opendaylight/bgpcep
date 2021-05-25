@@ -25,9 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
 
 public final class SimpleEvpnNlriRegistryTest {
     public static final NodeIdentifier EVPN_NID = new NodeIdentifier(EvpnChoice.QNAME);
@@ -65,10 +63,9 @@ public final class SimpleEvpnNlriRegistryTest {
 
     @Test
     public void registryNullModelTest() {
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder()
-                .withNodeIdentifier(EVPN_NID);
-        choice.addChild(createContBuilder(new NodeIdentifier(QName.create(Evpn.QNAME, "test").intern()))
-                .build()).build();
-        assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(choice.build()));
+        assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(Builders.choiceBuilder()
+            .withNodeIdentifier(EVPN_NID)
+            .addChild(createContBuilder(new NodeIdentifier(QName.create(Evpn.QNAME, "test").intern())).build())
+            .build()));
     }
 }

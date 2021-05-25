@@ -39,9 +39,8 @@ import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.impl.schema.NormalizedNodeResult;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
-import org.opendaylight.yangtools.yang.model.api.SchemaNode;
-import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
-import org.opendaylight.yangtools.yang.model.util.SchemaContextUtil;
+import org.opendaylight.yangtools.yang.model.api.EffectiveStatementInference;
+import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -61,7 +60,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         private final ConfigFileProcessor processor;
         private final Pattern pattern;
 
-        private SchemaNode schemaNode;
+        private EffectiveStatementInference schema;
 
         ProcessorContext(final ConfigFileProcessor processor, final Pattern pattern) {
             this.processor = processor;
@@ -74,11 +73,9 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
         void updateSchemaNode(final EffectiveModelContext newContext) {
             if (newContext != null) {
-                final Absolute path = processor.fileRootSchema();
-                // FIXME: do not use SchemaPath here, use a more direct lookup
-                schemaNode = SchemaContextUtil.findDataSchemaNode(newContext, path.asSchemaPath());
+                schema = SchemaInferenceStack.of(newContext, processor.fileRootSchema()).toInference();
             } else {
-                schemaNode = null;
+                schema = null;
             }
         }
     }
@@ -146,15 +143,15 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
     @Holding("this")
     private void handleConfigFile(final ProcessorContext context, final String filename) {
-        final SchemaNode schemaNode = context.schemaNode;
-        if (schemaNode == null) {
+        final EffectiveStatementInference schema = context.schema;
+        if (schema == null) {
             LOG.info("No schema present for {}, ignoring file {}", context.processor.fileRootSchema(), filename);
             return;
         }
 
-        final NormalizedNode<?, ?> dto;
+        final NormalizedNode dto;
         try {
-            dto = parseDefaultConfigFile(schemaNode, filename);
+            dto = parseDefaultConfigFile(schema, filename);
         } catch (final IOException | XMLStreamException e) {
             LOG.warn("Failed to parse config file {}", filename, e);
             return;
@@ -164,7 +161,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
     }
 
     @Holding("this")
-    private NormalizedNode<?, ?> parseDefaultConfigFile(final SchemaNode schemaNode, final String filename)
+    private NormalizedNode parseDefaultConfigFile(final EffectiveStatementInference schema, final String filename)
             throws IOException, XMLStreamException {
         final NormalizedNodeResult result = new NormalizedNodeResult();
         final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
@@ -193,7 +190,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
             try (InputStream resourceAsStream = new FileInputStream(newFile)) {
                 final XMLStreamReader reader = UntrustedXML.createXMLStreamReader(resourceAsStream);
 
-                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, currentContext, schemaNode)) {
+                try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
                     xmlParser.parse(reader);
                 } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
                     LOG.warn("Failed to parse xml", e);

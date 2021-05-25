@@ -16,8 +16,7 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -71,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -85,9 +85,9 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     private static final Origin ORIGIN = new OriginBuilder().setValue(BgpOrigin.Igp).build();
     private static final MultiExitDisc MED = new MultiExitDiscBuilder().setMed(Uint32.ZERO).build();
     private static final LocalPref LOC_PREF = new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build();
-    private static final List<Tables> EMPTY_TABLES = Collections.singletonList(new TablesBuilder()
+    private static final Map<TablesKey, Tables> EMPTY_TABLES = BindingMap.of(new TablesBuilder()
         .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setRoutes(
-            new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().setIpv4Route(Collections.emptyList())
+            new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().setIpv4Route(Map.of())
                 .build()).build()).build());
 
     private static final String SLASH = "/";

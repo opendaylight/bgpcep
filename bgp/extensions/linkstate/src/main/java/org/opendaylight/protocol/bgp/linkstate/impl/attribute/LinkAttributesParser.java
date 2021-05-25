@@ -55,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -262,14 +263,16 @@ public final class LinkAttributesParser {
     }
 
     private static void parseUnreservedBandwidth(final ByteBuf value, final LinkAttributesBuilder builder) {
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate
-            .attribute.UnreservedBandwidth> unreservedBandwidth = new ArrayList<>(UNRESERVED_BW_COUNT);
+        final var unreservedBandwidth =
+            BindingMap.<UnreservedBandwidthKey, UnreservedBandwidth>orderedBuilder(UNRESERVED_BW_COUNT);
         for (int i = 0; i < UNRESERVED_BW_COUNT; i++) {
             final ByteBuf v = value.readSlice(BANDWIDTH_LENGTH);
-            unreservedBandwidth.add(new UnreservedBandwidthBuilder().setBandwidth(
-                new Bandwidth(ByteArray.readAllBytes(v))).setPriority(Uint8.valueOf(i)).build());
+            unreservedBandwidth.add(new UnreservedBandwidthBuilder()
+                .setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)))
+                .setPriority(Uint8.valueOf(i))
+                .build());
         }
-        builder.setUnreservedBandwidth(unreservedBandwidth);
+        builder.setUnreservedBandwidth(unreservedBandwidth.build());
         LOG.debug("Parsed Unreserved Bandwidth {}", builder.getUnreservedBandwidth());
     }
 
