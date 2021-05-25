@@ -423,7 +423,7 @@ module openconfig-bgp {
 
     leaf peer-group {
       type leafref {
-        path "/bgp/peer-groups/peer-group/peer-group-name";
+        path "/bgp:bgp/bgp:peer-groups/bgp:peer-group/bgp:peer-group-name";
         require-instance true;
       }
       description
