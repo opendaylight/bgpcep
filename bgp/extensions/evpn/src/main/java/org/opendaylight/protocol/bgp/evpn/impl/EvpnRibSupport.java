@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -34,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -84,13 +82,11 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
-                    .getChild(NLRI_ROUTES_LIST);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode evpnDest : routesList) {
                         final NodeIdentifierWithPredicates routeKey = createRouteKey(evpnDest);
@@ -108,10 +104,8 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode evpn) {
         final ByteBuf buffer = Unpooled.buffer();
         final EvpnDestination dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
-        EvpnNlriParser.serializeNlri(Collections.singletonList(dest), buffer);
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                evpn.getChild(routePathIdNid());
+        EvpnNlriParser.serializeNlri(List.of(dest), buffer);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), evpn.findChildByArg(routePathIdNid()));
     }
 }

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -39,7 +38,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -79,7 +77,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         this.lvNid = NodeIdentifier.create(QName.create(containerQName, "label-value").intern());
     }
 
-    private VpnDestination extractVpnDestination(final DataContainerNode<? extends PathArgument> route) {
+    private VpnDestination extractVpnDestination(final DataContainerNode route) {
         return new VpnDestinationBuilder()
                 .setPrefix(createPrefix(extractPrefix(route)))
                 .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, this.labelStackNid, this.lvNid))
@@ -115,15 +113,13 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes =
-                    destination.getChild(this.nlriRoutesListNid);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(this.nlriRoutesListNid);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
-                    LOG.debug("{} routes are found", routeListNode.getSize());
+                    LOG.debug("{} routes are found", routeListNode.size());
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode vpnDest : routesList) {
                         final NodeIdentifierWithPredicates key = createRouteKey(vpnDest);
@@ -158,9 +154,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         }
         buffer.writeBytes(nlriByteBuf);
 
-        final Optional<DataContainerChild<? extends PathArgument, ?>> maybePathIdLeaf =
-                l3vpn.getChild(routePathIdNid());
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                ByteArray.encodeBase64(buffer), maybePathIdLeaf);
+                ByteArray.encodeBase64(buffer), l3vpn.findChildByArg(routePathIdNid()));
     }
 }

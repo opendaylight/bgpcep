@@ -242,7 +242,7 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      * @param normalizedNode NormalizedNode representing Route
      * @return Route
      */
-    Route fromNormalizedNode(YangInstanceIdentifier routerId, NormalizedNode<?, ?> normalizedNode);
+    Route fromNormalizedNode(YangInstanceIdentifier routerId, NormalizedNode normalizedNode);
 
     /**
      * Translates supplied YANG Instance Identifier and NormalizedNode into Binding data Attribute.
@@ -261,7 +261,7 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
 
     interface ApplyRoute {
         void apply(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier base,
-                @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode<?> route,
+                @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode route,
                 ContainerNode attributes);
     }
 

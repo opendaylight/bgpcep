@@ -19,8 +19,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.api.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
+import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
 
 public final class EvpnTestUtil {
@@ -48,9 +48,8 @@ public final class EvpnTestUtil {
         // Hidden on purpose
     }
 
-    public static DataContainerNodeBuilder<NodeIdentifier, ContainerNode> createContBuilder(
-            final NodeIdentifier nid) {
-        return ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(nid);
+    public static DataContainerNodeBuilder<NodeIdentifier, ContainerNode> createContBuilder(final NodeIdentifier nid) {
+        return Builders.containerBuilder().withNodeIdentifier(nid);
     }
 
     public static <T> ImmutableLeafNodeBuilder<T> createValueBuilder(final T value, final NodeIdentifier nid) {

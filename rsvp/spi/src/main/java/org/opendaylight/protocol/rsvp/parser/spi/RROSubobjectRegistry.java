@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.rsvp.parser.spi;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer;
 
 public interface RROSubobjectRegistry {
     /**

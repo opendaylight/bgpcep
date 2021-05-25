@@ -32,12 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpUnreachNlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.reach.nlri.AdvertizedRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.mp.unreach.nlri.WithdrawnRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
@@ -49,13 +49,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class BmpRibInWriter {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpRibInWriter.class);
 
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE =
-            ImmutableNodes.leafNode(QName.create(BMP_ATTRIBUTES_QNAME, "uptodate"), Boolean.FALSE);
+            ImmutableNodes.leafNode(QName.create(BMP_ATTRIBUTES_QNAME, "uptodate").intern(), Boolean.FALSE);
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE =
-            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getNodeType(), Boolean.TRUE);
+            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getIdentifier(), Boolean.TRUE);
 
     private final DOMTransactionChain chain;
     private final Map<TablesKey, TableContext> tables;
@@ -139,7 +138,7 @@ final class BmpRibInWriter {
             ctx.createTable(tx);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(BMP_ATTRIBUTES_QNAME)
-                    .node(ATTRIBUTES_UPTODATE_FALSE.getNodeType()), ATTRIBUTES_UPTODATE_FALSE);
+                    .node(ATTRIBUTES_UPTODATE_FALSE.getIdentifier()), ATTRIBUTES_UPTODATE_FALSE);
             LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(k, ctx);
         }
@@ -281,7 +280,7 @@ final class BmpRibInWriter {
         final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
         final TableContext ctxPre = this.tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
-                .node(ATTRIBUTES_UPTODATE_TRUE.getNodeType()), ATTRIBUTES_UPTODATE_TRUE);
+                .node(ATTRIBUTES_UPTODATE_TRUE.getIdentifier()), ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

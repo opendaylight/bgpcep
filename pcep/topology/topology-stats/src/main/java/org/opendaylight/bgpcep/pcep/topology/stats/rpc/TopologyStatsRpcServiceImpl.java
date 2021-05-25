@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +109,7 @@ public class TopologyStatsRpcServiceImpl
     @Override
     public ListenableFuture<RpcResult<GetStatsOutput>> getStats(final GetStatsInput input) {
         final var iTopologies = input.getTopology();
-        final Collection<TopologyId> iTopologyIds;
+        final List<TopologyId> iTopologyIds;
         if (iTopologies != null) {
             iTopologyIds = iTopologies.values().stream()
                     .map(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
@@ -119,55 +119,58 @@ public class TopologyStatsRpcServiceImpl
             iTopologyIds = getAvailableTopologyIds();
         }
 
-        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321
-                    .get.stats.output.Topology> oTopologies = new ArrayList<>();
-        iTopologyIds.forEach(iTopologyId -> {
-            final Collection<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
-                    .rev190321.get.stats.input.topology.Node> iNodes;
-            if (iTopologies != null) {
-                final var nodes = iTopologies.values().stream()
-                        .filter(t -> iTopologyId.equals(t.getTopologyId()))
-                        .findFirst()
-                        .get().getNode();
-                iNodes = nodes != null ? nodes.values() : null;
-            } else {
-                iNodes = null;
-            }
+        return Futures.immediateFuture(SuccessfulRpcResult.create(new GetStatsOutputBuilder()
+            .setTopology(iTopologyIds.stream()
+                .map(iTopologyId -> {
+                    final Collection<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology
+                        .stats.rpc.rev190321.get.stats.input.topology.Node> iNodes;
+                    if (iTopologies != null) {
+                        final var nodes = iTopologies.values().stream()
+                            .filter(t -> iTopologyId.equals(t.getTopologyId()))
+                            .findFirst()
+                            .get().getNode();
+                        iNodes = nodes != null ? nodes.values() : null;
+                    } else {
+                        iNodes = null;
+                    }
 
-            final List<NodeId> iNodeIds;
-            if (iNodes != null) {
-                iNodeIds = iNodes.stream()
-                        .map(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
-                            .rev190321.get.stats.input.topology.Node::getNodeId)
-                        .collect(Collectors.toList());
-            } else {
-                iNodeIds = getAvailableNodeIds(iTopologyId);
-            }
+                    final List<NodeId> iNodeIds;
+                    if (iNodes != null) {
+                        iNodeIds = iNodes.stream()
+                            .map(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats
+                                .rpc.rev190321.get.stats.input.topology.Node::getNodeId)
+                            .collect(Collectors.toList());
+                    } else {
+                        iNodeIds = getAvailableNodeIds(iTopologyId);
+                    }
 
-            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
-                        .rev190321.get.stats.output.topology.Node> oNodes = new ArrayList<>();
-            iNodeIds.forEach(iNodeId -> {
-                final InstanceIdentifier<PcepSessionState> iid = InstanceIdentifier.builder(NetworkTopology.class)
-                        .child(Topology.class, new TopologyKey(iTopologyId)).child(Node.class, new NodeKey(iNodeId))
-                        .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build();
-                final PcepSessionState state = sessionStateMap.get(iid);
-                if (state == null) {
-                    LOG.debug("Pcep session stats not available for node {} in topology {}", iNodeId.getValue(),
-                            iTopologyId.getValue());
-                }
-                oNodes.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
-                    .rev190321.get.stats.output.topology.NodeBuilder()
-                    .setNodeId(iNodeId)
-                    .setPcepSessionState(transformStatefulAugmentation(state)).build());
-            });
-
-            oTopologies.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
-                .rev190321.get.stats.output.TopologyBuilder().setTopologyId(iTopologyId).setNode(oNodes).build());
-        });
-
-        final RpcResult<GetStatsOutput> res =
-                SuccessfulRpcResult.create(new GetStatsOutputBuilder().setTopology(oTopologies).build());
-        return Futures.immediateFuture(res);
+                    return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc
+                        .rev190321.get.stats.output.TopologyBuilder()
+                        .setTopologyId(iTopologyId)
+                        .setNode(iNodeIds.stream()
+                            .map(iNodeId -> {
+                                final PcepSessionState state = sessionStateMap.get(
+                                    InstanceIdentifier.builder(NetworkTopology.class)
+                                        .child(Topology.class, new TopologyKey(iTopologyId))
+                                        .child(Node.class, new NodeKey(iNodeId))
+                                        .augmentation(PcepTopologyNodeStatsAug.class)
+                                        .child(PcepSessionState.class)
+                                        .build());
+                                if (state == null) {
+                                    LOG.debug("Pcep session stats not available for node {} in topology {}",
+                                        iNodeId.getValue(), iTopologyId.getValue());
+                                }
+                                return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+                                    .topology.stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
+                                    .setNodeId(iNodeId)
+                                    .setPcepSessionState(transformStatefulAugmentation(state))
+                                    .build();
+                            })
+                            .collect(BindingMap.toOrderedMap()))
+                        .build();
+                })
+                .collect(BindingMap.toOrderedMap()))
+            .build()));
     }
 
     /*

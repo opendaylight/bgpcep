@@ -41,6 +41,7 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,7 +179,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                 }
             }
         }
-        builder.setUnrecognizedAttributes(this.unrecognizedAttributes);
+        builder.setUnrecognizedAttributes(BindingMap.ordered(this.unrecognizedAttributes));
         return new ParsedAttributes(builder.build(), withdrawCause);
     }
 

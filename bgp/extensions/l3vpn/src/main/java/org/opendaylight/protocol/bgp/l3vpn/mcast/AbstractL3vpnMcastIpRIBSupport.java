@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
@@ -37,7 +36,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
@@ -102,13 +100,11 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
             final ContainerNode attributes,
             final ApplyRoute function) {
         if (destination != null) {
-            final Optional<DataContainerChild<? extends PathArgument, ?>> maybeRoutes = destination
-                    .getChild(nlriRoutesList);
-            if (maybeRoutes.isPresent()) {
-                final DataContainerChild<? extends PathArgument, ?> routes = maybeRoutes.get();
+            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
+            if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).getValue();
+                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
                     final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
                     for (final UnkeyedListEntryNode l3vpnDest : routesList) {
                         final YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey = createRouteKey(l3vpnDest);
@@ -127,8 +123,7 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
         return routes.stream().map(this::extractDestinations).collect(Collectors.toList());
     }
 
-    final L3vpnMcastDestination extractDestinations(
-            final DataContainerNode<? extends PathArgument> destination) {
+    final L3vpnMcastDestination extractDestinations(final DataContainerNode destination) {
         return new L3vpnMcastDestinationBuilder()
                 .setRouteDistinguisher(RouteDistinguisherUtil.extractRouteDistinguisher(destination, rdNid))
                 .setPrefix(createPrefix(extractPrefix(destination)))

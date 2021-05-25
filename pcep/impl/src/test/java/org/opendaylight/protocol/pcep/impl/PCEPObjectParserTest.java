@@ -411,25 +411,25 @@ public class PCEPObjectParserTest {
                 .route.object.rro.Subobject> subs = new ArrayList<>();
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported
             .route.object.rro.SubobjectBuilder().setSubobjectType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                 .route.subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                     .route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
                         new IpPrefix(new Ipv4Prefix("255.255.255.255/32"))).build()).build())
             .setProtectionAvailable(false).setProtectionInUse(false).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported
             .route.object.rro.SubobjectBuilder().setSubobjectType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
                 .subobjects.subobject.type.IpPrefixCaseBuilder().setIpPrefix(
-                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                     .route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder().setIpPrefix(
                         new IpPrefix(Ipv6Util.prefixForBytes(ip6PrefixBytes, 22))).build()).build())
                         .setProtectionAvailable(false).setProtectionInUse(false).build());
         subs.add(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported
             .route.object.rro.SubobjectBuilder().setSubobjectType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                     .route.subobjects.subobject.type.UnnumberedCaseBuilder().setUnnumbered(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                             .route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder()
                             .setRouterId(Uint32.valueOf(0x1245678L)).setInterfaceId(Uint32.valueOf(0x9abcdef0L))
                             .build())

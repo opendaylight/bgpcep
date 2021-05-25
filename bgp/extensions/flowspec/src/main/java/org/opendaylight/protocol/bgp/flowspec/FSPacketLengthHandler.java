@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.PacketLengthCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.packet.length._case.PacketLengths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.packet.length._case.PacketLengthsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 public final class FSPacketLengthHandler implements FlowspecTypeParser, FlowspecTypeSerializer {
     public static final int PACKET_LENGTH_VALUE = 10;
@@ -52,7 +53,7 @@ public final class FSPacketLengthHandler implements FlowspecTypeParser, Flowspec
             final NumericOperand op = NumericOneByteOperandParser.INSTANCE.parse(b);
             builder.setOp(op);
             final short length = AbstractOperandParser.parseLength(b);
-            builder.setValue(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length)));
+            builder.setValue(Uint16.valueOf(ByteArray.bytesToInt(ByteArray.readBytes(nlri, length))));
             end = op.getEndOfList();
             packetLengths.add(builder.build());
         }
