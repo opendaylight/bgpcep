@@ -117,7 +117,7 @@
         <!-- FIXME: remove this -->
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
+            <artifactId>osgi.core</artifactId>
         </dependency>
 
         <!-- Test dependencies -->
