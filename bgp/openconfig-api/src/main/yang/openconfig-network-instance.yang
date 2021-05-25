@@ -503,21 +503,17 @@ module openconfig-network-instance {
       instance";
 
     leaf src-table {
-//      FIXME: BUG-4625: DTO generation cannot handle this case in Binding Spec v1
-//      type leafref {
-//        path "../../../../tables/table/table-name";
-//      }
-      type string;
+      type leafref {
+        path "../../../../tables/table/table-name";
+      }
       description
         "The source protocol for the table connection";
     }
 
     leaf dst-table {
-//      FIXME: BUG-4625: DTO generation cannot handle this case in Binding Spec v1
-//      type leafref {
-//        path "../../../../tables/table/table-name";
-//      }
-      type string;
+      type leafref {
+        path "../../../../tables/table/table-name";
+      }
       description
         "The destination protocol for the table connection";
     }
@@ -616,11 +612,9 @@ module openconfig-network-instance {
     }
 
     leaf target-table {
-//      FIXME: BUG-4625: DTO generation cannot handle this case in Binding Spec v1
-//      type leafref {
-//        path "../../../../tables/table/table-name";
-//      }
-     type string;
+      type leafref {
+        path "../../../../tables/table/table-name";
+      }
      description
       "The table (RIB, FIB, or LFIB) that the protocol should
       populate its entries in.";
