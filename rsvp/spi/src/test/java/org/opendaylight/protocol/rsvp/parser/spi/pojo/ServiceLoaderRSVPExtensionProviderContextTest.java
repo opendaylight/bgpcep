@@ -47,12 +47,12 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
 
     private final RROSubobjectParser rroParser = Mockito.mock(RROSubobjectParser.class);
     private final RROSubobjectSerializer rroSerializer = Mockito.mock(RROSubobjectSerializer.class);
-    private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+    private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
         .subobjects.list.SubobjectContainer rroSubObj = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight
-        .params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer.class);
-    private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+        .params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer.class);
+    private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
         .subobjects.SubobjectType rroSubObjType = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight.params
-        .xml.ns.yang.rsvp.rev150820.record.route.subobjects.SubobjectType.class);
+        .xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType.class);
 
     private final EROSubobjectParser eroParser = Mockito.mock(EROSubobjectParser.class);
     private final EROSubobjectSerializer eroSerializer = Mockito.mock(EROSubobjectSerializer.class);
@@ -83,10 +83,10 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
         Mockito.doReturn(this.rroSubObj).when(this.rroParser).parseSubobject(Mockito.any(ByteBuf.class));
         Mockito.doReturn(this.rroSubObjType).when(this.rroSubObj).getSubobjectType();
         Mockito.doReturn("SubobjectContainer").when(this.rroSubObj).toString();
-        Mockito.doReturn(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route
+        Mockito.doReturn(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
             .subobjects.SubobjectType.class).when(this.rroSubObjType).implementedInterface();
         Mockito.doNothing().when(this.rroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn
-                .opendaylight.params.xml.ns.yang.rsvp.rev150820.record.route.subobjects.list.SubobjectContainer.class),
+                .opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer.class),
             Mockito.any(ByteBuf.class));
 
         Mockito.doReturn(this.eroSubObj).when(this.eroParser).parseSubobject(Mockito.any(ByteBuf.class),
@@ -137,7 +137,7 @@ public class ServiceLoaderRSVPExtensionProviderContextTest {
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.rroSubObj, this.context.getRROSubobjectHandlerRegistry().parseSubobject(3, buffer));
         this.context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.record.route.subobjects.SubobjectType.class, this.rroSerializer);
+            .rsvp.rev150820._record.route.subobjects.SubobjectType.class, this.rroSerializer);
         this.context.getRROSubobjectHandlerRegistry().serializeSubobject(this.rroSubObj, buffer);
         Mockito.verify(this.rroSerializer).serializeSubobject(this.rroSubObj, buffer);
     }

@@ -19,8 +19,8 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeSchemaAwareBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class PathIdUtilTest {
 
@@ -60,8 +60,10 @@ public class PathIdUtilTest {
     public void testExtractPathId() {
         final NodeIdentifier NII = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
             "2015-03-05", "path-id").intern());
-        final ContainerNode cont = ImmutableContainerNodeSchemaAwareBuilder.create().withNodeIdentifier(NII).addChild(
-            new ImmutableLeafNodeBuilder<>().withNodeIdentifier(NII).withValue(Uint32.ZERO).build()).build();
+        final ContainerNode cont = Builders.containerBuilder()
+            .withNodeIdentifier(NII)
+            .addChild(ImmutableNodes.leafNode(NII, Uint32.ZERO))
+            .build();
         Assert.assertEquals(0L, PathIdUtil.extractPathId(cont, NII).longValue());
     }
 

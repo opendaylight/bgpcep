@@ -71,7 +71,7 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
 
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
-            final NormalizedNode<?, ?> dto) {
+            final NormalizedNode dto) {
         final ContainerNode protocolsContainer = (ContainerNode) dto;
         final MapNode protocols = (MapNode) protocolsContainer.getChild(new NodeIdentifier(Protocol.QNAME))
             .orElse(null);
