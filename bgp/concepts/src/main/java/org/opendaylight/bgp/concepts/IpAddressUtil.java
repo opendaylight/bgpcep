@@ -99,10 +99,10 @@ public final class IpAddressUtil {
         return body;
     }
 
-    public static IpAddressNoZone extractIpAddress(final DataContainerNode<?> route, final NodeIdentifier rdNid) {
-        final NormalizedNode<?, ?> rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
+    public static IpAddressNoZone extractIpAddress(final DataContainerNode route, final NodeIdentifier rdNid) {
+        final NormalizedNode rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
         if (rdNode != null) {
-            return IpAddressNoZoneBuilder.getDefaultInstance((String) rdNode.getValue());
+            return IpAddressNoZoneBuilder.getDefaultInstance((String) rdNode.body());
         }
         return null;
     }
