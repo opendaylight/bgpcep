@@ -34,8 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.update.attributes.MpReachNlriBuilder;
@@ -245,7 +245,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 .setCNextHop(nextHop).setAdvertizedRoutes(new AdvertizedRoutesBuilder().build()).build();
 
         final Attributes attMpR = new AttributesBuilder().addAugmentation(
-            new Attributes1Builder().setMpReachNlri(mpReach).build()).build();
+            new AttributesReachBuilder().setMpReachNlri(mpReach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpR).build(),
                this.ribSupportTestImp.buildUpdate(routes, Collections.emptySet(), attr));
 
@@ -254,7 +254,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().build()).build();
 
         final Attributes attMpU = new AttributesBuilder().addAugmentation(
-                new Attributes2Builder().setMpUnreachNlri(mpUnreach).build()).build();
+                new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpU).build(),
                this.ribSupportTestImp.buildUpdate(Collections.emptySet(), routes, attr));
     }

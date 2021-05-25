@@ -21,8 +21,8 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.Attributes2Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreachBuilder;
 
 public final class MPUnreachAttributeParser extends ReachAttributeParser {
     public static final int TYPE = 15;
@@ -38,7 +38,7 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException {
         try {
-            builder.addAugmentation(new Attributes2Builder()
+            builder.addAugmentation(new AttributesUnreachBuilder()
                 .setMpUnreachNlri(reg.parseMpUnreach(buffer, constraint))
                 .build());
         } catch (final BGPParsingException e) {
@@ -48,7 +48,7 @@ public final class MPUnreachAttributeParser extends ReachAttributeParser {
 
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
-        final Attributes2 pathAttributes2 = attribute.augmentation(Attributes2.class);
+        final AttributesUnreach pathAttributes2 = attribute.augmentation(AttributesUnreach.class);
         if (pathAttributes2 != null) {
             final ByteBuf unreachBuffer = Unpooled.buffer();
             reg.serializeMpUnReach(pathAttributes2.getMpUnreachNlri(), unreachBuffer);
