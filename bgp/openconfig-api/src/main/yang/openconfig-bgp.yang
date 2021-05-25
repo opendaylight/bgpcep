@@ -588,11 +588,9 @@ module openconfig-bgp {
         uniquely identified by peer IPv[46] address";
 
       leaf neighbor-address {
-// FIXME: BUG-4625: DTO generation cannot handle this case in Binding Spec v1
-//        type leafref {
-//          path "../config/neighbor-address";
-//        }
-        type inet:ip-address;
+        type leafref {
+          path "../config/neighbor-address";
+        }
 
         description
           "Reference to the address of the BGP neighbor used as
@@ -613,11 +611,9 @@ module openconfig-bgp {
         uniquely identified by peer-group name";
 
     leaf peer-group-name {
-// FIXME: BUG-4625: DTO generation cannot handle this case in Binding Spec v1
-//      type leafref {
-//        path "../config/peer-group-name";
-//      }
-      type string;
+      type leafref {
+        path "../config/peer-group-name";
+      }
       description
         "Reference to the name of the BGP peer-group used as a
         key in the peer-group list";
