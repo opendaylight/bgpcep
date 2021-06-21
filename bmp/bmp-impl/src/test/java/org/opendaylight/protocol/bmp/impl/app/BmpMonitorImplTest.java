@@ -116,7 +116,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private AdapterContext mappingService;
     private final RIBActivator ribActivator = new RIBActivator();
-    private BGPActivator bgpActivator;
+    private final BGPActivator bgpActivator = new BGPActivator();
     private BmpActivator bmpActivator;
     private BmpDispatcher dispatcher;
     private BmpMonitoringStation bmpApp;
@@ -159,7 +159,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
         this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
 
-        this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(context);
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
@@ -203,7 +202,6 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @After
     public void tearDown() throws Exception {
-        this.bmpActivator.close();
         this.dispatcher.close();
         this.bmpApp.close();
 
