@@ -55,7 +55,6 @@ public class BmpMockTest {
 
     @After
     public void tearDown() throws Exception {
-        this.bmpActivator.stop();
         this.bmpDispatcher.close();
     }
 

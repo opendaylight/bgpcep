@@ -77,7 +77,6 @@ public class BmpDispatcherImplTest {
 
     @After
     public void tearDown() throws Exception {
-        this.bmpActivator.close();
         this.dispatcher.close();
     }
 

@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bmp.spi.registry;
 
+import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @NonNullByDefault
 public interface BmpExtensionProviderActivator {
 
-    void start(BmpExtensionProviderContext context);
-
-    void stop();
+    List<Registration> start(BmpExtensionProviderContext context);
 }

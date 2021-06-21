@@ -9,7 +9,9 @@ package org.opendaylight.protocol.bmp.spi.registry;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,8 @@ public class SimpleBmpExtensionProviderContextActivator implements AutoCloseable
     private final BmpExtensionProviderContext providerContext;
     private final List<BmpExtensionProviderActivator> extensionActivators;
 
+    private List<Registration> regs;
+
     public SimpleBmpExtensionProviderContextActivator(final BmpExtensionProviderContext providerContext,
             final List<BmpExtensionProviderActivator> extensionActivators) {
         this.providerContext = requireNonNull(providerContext);
@@ -31,14 +35,19 @@ public class SimpleBmpExtensionProviderContextActivator implements AutoCloseable
     }
 
     public void start() {
-        LOG.debug("Starting {} BmpExtensionProviderActivator instances", this.extensionActivators.size());
-        this.extensionActivators.forEach(e -> e.start(this.providerContext));
+        LOG.debug("Starting {} BmpExtensionProviderActivator instances", extensionActivators.size());
+
+        final List<Registration> tmp = new ArrayList<>();
+        for (BmpExtensionProviderActivator act : extensionActivators) {
+            tmp.addAll(act.start(providerContext));
+        }
+        regs = List.copyOf(tmp);
     }
 
     @Override
     public void close() {
         LOG.debug("Stopping {} BmpExtensionProviderActivator instances", this.extensionActivators.size());
-        this.extensionActivators.forEach(BmpExtensionProviderActivator::stop);
+        regs.forEach(Registration::close);
+        regs = null;
     }
-
 }
