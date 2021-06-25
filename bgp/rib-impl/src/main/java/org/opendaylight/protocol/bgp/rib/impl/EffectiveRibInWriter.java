@@ -172,6 +172,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
+    public void onInitialData() {
+        // FIXME: update as if root was deleted
+    }
+
+    @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed. Ignoring Changes : {}", changes);
