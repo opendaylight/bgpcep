@@ -161,7 +161,25 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     @Override
     public synchronized void onInitialData() {
-        // FIXME: delete adj-rib-in
+        final DOMTransactionChain chain = getDomChain();
+        if (chain == null) {
+            LOG.trace("Ignoring initial convergence");
+            return;
+        }
+
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, adjRibsInId);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful commit");
+            }
+
+            @Override
+            public void onFailure(final Throwable cause) {
+                LOG.error("Failed commit", cause);
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     /**
