@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
@@ -14,7 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
-import com.google.common.base.Verify;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -159,6 +159,11 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
     }
 
+    @Override
+    public synchronized void onInitialData() {
+        // FIXME: delete adj-rib-in
+    }
+
     /**
      * Routes come from application RIB that is identified by (configurable) name.
      * Each route is pushed into AdjRibsInWriter with it's whole context. In this
@@ -167,17 +172,18 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
      */
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-        if (getDomChain() == null) {
+        final DOMTransactionChain chain = getDomChain();
+        if (chain == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;
         }
-        final DOMDataTreeWriteTransaction tx = getDomChain().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.debug("Modification Type {}", tc.getRootNode().getModificationType());
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument lastArg = path.getLastPathArgument();
-            Verify.verify(lastArg instanceof NodeIdentifierWithPredicates,
+            verify(lastArg instanceof NodeIdentifierWithPredicates,
                     "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
             if (!this.supportedTables.contains(tableKey)) {

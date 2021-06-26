@@ -109,6 +109,11 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     @Override
+    public void onInitialData() {
+        // FIXME: flush initial state
+    }
+
+    @Override
     public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (final DataTreeCandidate tc : changes) {

@@ -190,6 +190,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         return ret;
     }
 
+    @Override
+    public synchronized void onInitialData() {
+        // FIXME: we need to do something
+    }
+
     /**
      * We use two-stage processing here in hopes that we avoid duplicate
      * calculations when multiple peers have changed a particular entry.
