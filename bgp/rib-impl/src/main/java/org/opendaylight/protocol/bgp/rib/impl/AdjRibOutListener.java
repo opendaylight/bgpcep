@@ -110,7 +110,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     @Override
     public void onInitialData() {
-        // FIXME: flush initial state
+        flushSession();
     }
 
     @Override
@@ -122,12 +122,15 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
                 processSupportedFamilyRoutes(child);
             }
         }
+        flushSession();
+    }
+
+    private void flushSession() {
         if (initalState) {
-            final Update endOfRib = BgpPeerUtil.createEndOfRib(this.tablesKey);
-            this.session.write(endOfRib);
-            this.initalState = false;
+            session.write(BgpPeerUtil.createEndOfRib(tablesKey));
+            initalState = false;
         }
-        this.session.flush();
+        session.flush();
     }
 
     private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
