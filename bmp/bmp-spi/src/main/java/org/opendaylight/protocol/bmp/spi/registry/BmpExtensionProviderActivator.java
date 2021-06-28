@@ -14,5 +14,5 @@ import org.opendaylight.yangtools.concepts.Registration;
 @NonNullByDefault
 public interface BmpExtensionProviderActivator {
 
-    List<Registration> start(BmpExtensionProviderContext context);
+    List<? extends Registration> start(BmpExtensionProviderContext context);
 }
