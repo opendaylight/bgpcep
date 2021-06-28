@@ -172,12 +172,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.trace("Successful commit");
+                LOG.trace("Successful commit of empty convergence");
             }
 
             @Override
             public void onFailure(final Throwable cause) {
-                LOG.error("Failed commit", cause);
+                LOG.error("Failed commit of empty convergence", cause);
             }
         }, MoreExecutors.directExecutor());
     }
