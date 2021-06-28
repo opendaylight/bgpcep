@@ -5,10 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.server.provider;
 
-import com.google.common.base.Preconditions;
+import static java.util.Objects.requireNonNull;
+
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -52,9 +52,8 @@ public class PathComputationImpl implements PathComputation {
     private final PathComputationProvider algoProvider;
 
     public PathComputationImpl(final ConnectedGraph tedGraph, final PathComputationProvider algoProvider) {
-        Preconditions.checkArgument(tedGraph != null);
-        this.tedGraph = tedGraph;
-        this.algoProvider = algoProvider;
+        this.tedGraph = requireNonNull(tedGraph);
+        this.algoProvider = requireNonNull(algoProvider);
     }
 
     @Override
