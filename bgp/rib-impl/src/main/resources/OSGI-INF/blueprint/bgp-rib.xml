@@ -9,22 +9,8 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-  <reference id="BGPExtensionContext" interface="org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext"/>
-  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
-  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
-  <reference id="bgpPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"/>
-
-  <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
-    <argument>
-      <bean factory-ref="BGPExtensionContext" factory-method="getMessageRegistry"/>
-    </argument>
-    <argument ref="globalBossGroup"/>
-    <argument ref="globalWorkerGroup"/>
-    <argument ref="bgpPeerRegistry"/>
-  </bean>
-
-  <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
+  <reference id="bgpDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>
 
   <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
   <reference id="globalBgpExtensions" interface="org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext"/>
@@ -48,7 +34,7 @@
 
   <bean id="ribImpl" class="org.opendaylight.protocol.bgp.rib.impl.config.RibImpl" scope="prototype">
     <argument ref="globalBgpExtensions"/>
-    <argument ref="BGPDispatcher"/>
+    <argument ref="bgpDispatcher"/>
     <argument ref="policiesProvider"/>
     <argument ref="codecRegistry"/>
     <argument ref="domDataBroker"/>
