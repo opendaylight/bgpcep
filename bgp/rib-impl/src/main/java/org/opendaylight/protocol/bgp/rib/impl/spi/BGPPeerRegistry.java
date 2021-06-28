@@ -17,10 +17,10 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Registry that contains configured bgp peers ready for when a bgp session is established with remote peer.
- * IP address is uses as a key for configured peers. TODO Is IP sufficient ID for peers ?
+ * IP address is uses as a key for configured peers.
  */
-public interface BGPPeerRegistry extends AutoCloseable {
-
+// TODO: Is IP sufficient ID for peers?
+public interface BGPPeerRegistry {
     /**
      * Add configured peer, its IP address and preferences. To be used when a BGP session is established.
      *

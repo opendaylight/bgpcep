@@ -25,7 +25,6 @@ import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -54,7 +53,7 @@ public class AbstractBGPDispatcherTest {
         UnicastSubsequentAddressFamily.class);
     private static final short HOLD_TIMER = 30;
     protected BGPDispatcherImpl clientDispatcher;
-    protected BGPPeerRegistry registry;
+    protected StrictBGPPeerRegistry registry;
     protected SimpleSessionListener clientListener;
     protected BGPDispatcherImpl serverDispatcher;
     protected SimpleSessionListener serverListener;
