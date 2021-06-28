@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng
+Code-Review+2: Claudio David Gasparini <claudio.gasparini@intl.att.com>
+Code-Review+1: Guillaume Lambert <guillaume.lambert@orange.com>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Mon, 28 Jun 2021 12:29:26 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/96685
+Project: bgpcep
+Branch: refs/heads/master
