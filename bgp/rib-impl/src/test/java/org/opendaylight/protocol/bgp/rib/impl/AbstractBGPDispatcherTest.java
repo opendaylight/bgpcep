@@ -71,13 +71,13 @@ public class AbstractBGPDispatcherTest {
         this.clientListener = new SimpleSessionListener();
         this.serverListener = new SimpleSessionListener();
         final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        this.serverDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
+        this.serverDispatcher = new BGPDispatcherImpl(ctx, this.boss, this.worker, this.registry);
 
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddressNoZone clientPeerIp = new IpAddressNoZone(new Ipv4AddressNoZone(
             this.clientAddress.getAddress().getHostAddress()));
         this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(this.clientAddress));
-        this.clientDispatcher = new BGPDispatcherImpl(ctx.getMessageRegistry(), this.boss, this.worker, this.registry);
+        this.clientDispatcher = new BGPDispatcherImpl(ctx, this.boss, this.worker, this.registry);
     }
 
     @After

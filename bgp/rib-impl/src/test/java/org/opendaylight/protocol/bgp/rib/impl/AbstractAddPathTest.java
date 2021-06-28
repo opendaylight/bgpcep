@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
@@ -26,7 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -156,8 +156,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             this.boss = new NioEventLoopGroup();
         }
         this.serverRegistry = new StrictBGPPeerRegistry();
-        this.serverDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss, this.worker,
-            this.serverRegistry);
+        this.serverDispatcher = new BGPDispatcherImpl(this.context, this.boss, this.worker, this.serverRegistry);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
 
@@ -208,7 +207,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         Thread.sleep(100);
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
             final Ipv4RoutesCase routes = (Ipv4RoutesCase) bgpRib.getRib().values().iterator().next().getLocRib()
-                    .getTables().values().iterator().next().getRoutes();
+                    .nonnullTables().values().iterator().next().getRoutes();
             final int size;
             if (routes != null) {
                 final Ipv4Routes routesCase = routes.getIpv4Routes();
@@ -222,14 +221,14 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                 size = 0;
             }
 
-            Assert.assertEquals(expectedRoutesOnDS, size);
+            assertEquals(expectedRoutesOnDS, size);
             return bgpRib;
         });
     }
 
     void checkPeersPresentOnDataStore(final int numberOfPeers) throws Exception {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            Assert.assertEquals(numberOfPeers, bgpRib.getRib().values().iterator().next().getPeer().size());
+            assertEquals(numberOfPeers, bgpRib.getRib().values().iterator().next().nonnullPeer().size());
             return bgpRib;
         });
     }
@@ -243,8 +242,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                                      final SimpleSessionListener sessionListener,
                                      final AsNumber remoteAsNumber) throws InterruptedException {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
-        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context.getMessageRegistry(), this.boss,
-                this.worker, clientRegistry);
+        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context, this.boss, this.worker,
+                clientRegistry);
 
         clientDispatchers.add(clientDispatcher);
         clientRegistry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(RIB_ID)), sessionListener,
