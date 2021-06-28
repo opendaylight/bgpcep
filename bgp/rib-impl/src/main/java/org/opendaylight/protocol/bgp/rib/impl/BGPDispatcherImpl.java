@@ -36,7 +36,10 @@ import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPProtocolSessionPromise;
 import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -45,13 +48,19 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.ChannelPipelineInitializer;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of BGPDispatcher.
  */
-public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
+@Singleton
+@Component(immediate = true, service = BGPDispatcher.class)
+public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
     private static final int SOCKET_BACKLOG_SIZE = 128;
     private static final long TIMEOUT = 10;
@@ -69,8 +78,12 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private final EventLoopGroup workerGroup;
     private final BGPPeerRegistry bgpPeerRegistry;
 
-    public BGPDispatcherImpl(final MessageRegistry messageRegistry, final EventLoopGroup bossGroup,
-            final EventLoopGroup workerGroup, final BGPPeerRegistry bgpPeerRegistry) {
+    @Inject
+    @Activate
+    public BGPDispatcherImpl(@Reference final BGPExtensionConsumerContext extensions,
+            @Reference(target = "(type=global-boss-group)") final EventLoopGroup bossGroup,
+            @Reference(target = "(type=global-worker-group)") final EventLoopGroup workerGroup,
+            @Reference final BGPPeerRegistry bgpPeerRegistry) {
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
@@ -79,7 +92,7 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
             this.workerGroup = requireNonNull(workerGroup);
         }
         this.bgpPeerRegistry = requireNonNull(bgpPeerRegistry);
-        this.handlerFactory = new BGPHandlerFactory(messageRegistry);
+        this.handlerFactory = new BGPHandlerFactory(extensions.getMessageRegistry());
     }
 
     @VisibleForTesting
@@ -129,6 +142,8 @@ public class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
         return bootstrap;
     }
 
+    @Deactivate
+    @PreDestroy
     @Override
     public synchronized void close() {
         if (Epoll.isAvailable()) {
