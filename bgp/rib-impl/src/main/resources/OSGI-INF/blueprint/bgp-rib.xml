@@ -13,11 +13,7 @@
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
   <reference id="clusterSingletonServiceProvider" interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
-
-  <bean id="BGPPeerRegistry" class="org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry"
-          factory-method="instance" destroy-method="close"/>
-
-  <service ref="BGPPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"/>
+  <reference id="bgpPeerRegistry" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry"/>
 
   <bean id="BGPDispatcher" class="org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl"  destroy-method="close">
     <argument>
@@ -25,7 +21,7 @@
     </argument>
     <argument ref="globalBossGroup"/>
     <argument ref="globalWorkerGroup"/>
-    <argument ref="BGPPeerRegistry"/>
+    <argument ref="bgpPeerRegistry"/>
   </bean>
 
   <service ref="BGPDispatcher" interface="org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher"/>

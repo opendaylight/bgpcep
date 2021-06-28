@@ -26,8 +26,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -52,6 +56,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +65,10 @@ import org.slf4j.LoggerFactory;
  * BGP peer registry that allows only 1 session per BGP peer. If a second session with peer is established, one of
  * the sessions will be dropped. The session with lower source BGP id will be dropped. This class is thread-safe.
  */
-public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
+@Singleton
+@MetaInfServices
+@Component(immediate = true, service = BGPPeerRegistry.class)
+public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     @GuardedBy("this")
@@ -71,8 +80,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
     private final Set<PeerRegistryListener> listeners = ConcurrentHashMap.newKeySet();
     private final Set<PeerRegistrySessionListener> sessionListeners = ConcurrentHashMap.newKeySet();
 
-    public static BGPPeerRegistry instance() {
-        return new StrictBGPPeerRegistry();
+    @Inject
+    public StrictBGPPeerRegistry() {
+        // Exposed for DI
     }
 
     @Override
@@ -267,6 +277,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry {
         return IetfInetUtil.INSTANCE.ipAddressNoZoneFor(inetAddress);
     }
 
+    @Deactivate
+    @PreDestroy
     @Override
     public synchronized void close() {
         this.peers.clear();
