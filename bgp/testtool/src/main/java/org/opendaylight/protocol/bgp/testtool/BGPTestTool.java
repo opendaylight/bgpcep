@@ -115,7 +115,7 @@ final class BGPTestTool {
                 = new org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator();
         rtBGPActivator.start(ctx);
 
-        return new BGPDispatcherImpl(ctx.getMessageRegistry(), new NioEventLoopGroup(), new NioEventLoopGroup(),
+        return new BGPDispatcherImpl(ctx, new NioEventLoopGroup(), new NioEventLoopGroup(),
             new StrictBGPPeerRegistry());
     }
 
