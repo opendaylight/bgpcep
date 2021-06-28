@@ -7,51 +7,52 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 
+@Singleton
 // This class is thread-safe
-public class BGPStateCollectorImpl implements BGPStateProvider, BGPStateConsumer {
+public final class BGPStateCollectorImpl extends AbstractBGPStateConsumer implements BGPStateProvider {
     private final List<BGPRibStateConsumer> bgpRibStates = new CopyOnWriteArrayList<>();
     private final List<BGPPeerStateConsumer> bgpPeerStates = new CopyOnWriteArrayList<>();
 
-    @Override
-    public List<BGPRibState> getRibStats() {
-        return this.bgpRibStates.stream().map(BGPRibStateConsumer::getRIBState).filter(Objects::nonNull)
-                .collect(ImmutableList.toImmutableList());
-    }
-
-    @Override
-    public List<BGPPeerState> getPeerStats() {
-        return this.bgpPeerStates.stream().map(BGPPeerStateConsumer::getPeerState).filter(Objects::nonNull)
-                .collect(ImmutableList.toImmutableList());
+    @Inject
+    public BGPStateCollectorImpl() {
+        // Exposed for DI
     }
 
     @Override
     public void bind(final BGPRibStateConsumer bgpState) {
-        this.bgpRibStates.add(bgpState);
+        bgpRibStates.add(bgpState);
     }
 
     @Override
     public void bind(final BGPPeerStateConsumer bgpState) {
-        this.bgpPeerStates.add(bgpState);
+        bgpPeerStates.add(bgpState);
     }
 
     @Override
     public void unbind(final BGPRibStateConsumer bgpState) {
-        this.bgpRibStates.remove(bgpState);
+        bgpRibStates.remove(bgpState);
     }
 
     @Override
     public void unbind(final BGPPeerStateConsumer bgpState) {
-        this.bgpPeerStates.remove(bgpState);
+        bgpPeerStates.remove(bgpState);
+    }
+
+    @Override
+    List<BGPRibStateConsumer> bgpRibStates() {
+        return bgpRibStates;
+    }
+
+    @Override
+    List<BGPPeerStateConsumer> bgpPeerStates() {
+        return bgpPeerStates;
     }
 }

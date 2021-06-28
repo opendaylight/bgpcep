@@ -59,21 +59,4 @@
   </bean>
 
   <bean id="appPeer" class="org.opendaylight.protocol.bgp.rib.impl.config.AppPeer" scope="prototype"/>
-
-  <bean id="bgpStateCollector" class="org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollectorImpl"/>
-  <service ref="bgpStateCollector" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer"/>
-
-  <reference-list id="ribStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer"
-    availability="optional">
-      <reference-listener bind-method="bind" unbind-method="unbind">
-          <ref component-id="bgpStateCollector"/>
-      </reference-listener>
-  </reference-list>
-
-  <reference-list id="peersStatsListener" interface="org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer"
-                  availability="optional">
-      <reference-listener bind-method="bind" unbind-method="unbind">
-          <ref component-id="bgpStateCollector"/>
-      </reference-listener>
-  </reference-list>
 </blueprint>
