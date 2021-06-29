@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.ietf.stateful;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
@@ -29,9 +30,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
 @MetaInfServices(value = PCEPExtensionProviderActivator.class)
+@Component(immediate = true, service = PCEPExtensionProviderActivator.class)
 public final class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
+    @Inject
+    public StatefulActivator() {
+
+    }
+
     @Override
     protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
