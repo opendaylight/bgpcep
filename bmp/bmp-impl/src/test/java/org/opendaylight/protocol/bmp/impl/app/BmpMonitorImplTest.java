@@ -54,7 +54,6 @@ import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
 import org.opendaylight.protocol.bmp.impl.config.BmpDeployerDependencies;
@@ -118,7 +117,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private final RIBActivator ribActivator = new RIBActivator();
     private final BGPActivator bgpActivator = new BGPActivator();
     private BmpActivator bmpActivator;
-    private BmpDispatcher dispatcher;
+    private BmpDispatcherImpl dispatcher;
     private BmpMonitoringStation bmpApp;
     private BmpMessageRegistry msgRegistry;
     private final RIBExtensionProviderContext ribExtension = new SimpleRIBExtensionProviderContext();
@@ -166,8 +165,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         this.bmpActivator.start(ctx);
         this.msgRegistry = ctx.getBmpMessageRegistry();
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-            ctx.getBmpMessageRegistry(), new DefaultBmpSessionFactory());
+        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
+            new DefaultBmpSessionFactory());
 
         final InetSocketAddress inetAddress = new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS),
             MONITOR_LOCAL_PORT);

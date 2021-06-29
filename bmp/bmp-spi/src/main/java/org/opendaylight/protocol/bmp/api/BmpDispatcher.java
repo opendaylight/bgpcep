@@ -16,7 +16,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
  * Dispatcher class for creating servers and clients.
  */
 @NonNullByDefault
-public interface BmpDispatcher extends AutoCloseable {
+public interface BmpDispatcher {
     /**
      * Creates server. Each server needs three factories to pass their instances to client sessions.
      *

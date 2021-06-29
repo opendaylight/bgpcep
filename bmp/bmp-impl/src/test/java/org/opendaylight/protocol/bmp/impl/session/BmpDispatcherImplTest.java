@@ -28,12 +28,10 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
-import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
@@ -43,7 +41,7 @@ public class BmpDispatcherImplTest {
     private static final InetSocketAddress CLIENT_REMOTE = new InetSocketAddress("127.0.0.10", PORT);
     private static final InetSocketAddress SERVER = new InetSocketAddress("0.0.0.0", PORT);
 
-    private BmpDispatcher dispatcher;
+    private BmpDispatcherImpl dispatcher;
     private BGPActivator bgpActivator;
     private BmpActivator bmpActivator;
 
@@ -69,10 +67,9 @@ public class BmpDispatcherImplTest {
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         this.bmpActivator = new BmpActivator(context);
         this.bmpActivator.start(ctx);
-        final BmpMessageRegistry messageRegistry = ctx.getBmpMessageRegistry();
 
         this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                messageRegistry, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
+                ctx, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After

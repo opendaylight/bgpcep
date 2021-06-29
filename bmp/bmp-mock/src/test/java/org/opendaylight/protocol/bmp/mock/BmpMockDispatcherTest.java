@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import static org.junit.Assert.assertFalse;
@@ -27,6 +26,7 @@ import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
+import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -39,12 +39,16 @@ public class BmpMockDispatcherTest {
     private BmpMessageRegistry registry;
     @Mock
     private BmpSessionListenerFactory slf;
+    @Mock
+    private BmpExtensionProviderContext ctx;
+
     private BmpMockDispatcher bmpMockDispatcher;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         doReturn(this.sl).when(this.slf).getSessionListener();
+        doReturn(this.registry).when(this.ctx).getBmpMessageRegistry();
         this.bmpMockDispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
     }
 
@@ -54,7 +58,7 @@ public class BmpMockDispatcherTest {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.registry, this.sessionFactory);
+                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
         final ChannelFuture futureServer = bmpDispatcher
                 .createServer(serverAddr, this.slf, KeyMapping.getKeyMapping());
         waitFutureSuccess(futureServer);
@@ -70,7 +74,7 @@ public class BmpMockDispatcherTest {
         checkEquals(() -> assertFalse(this.sl.getStatus()));
 
         final BmpDispatcherImpl bmpDispatcher2 = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.registry, this.sessionFactory);
+                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
         final ChannelFuture futureServer2 = bmpDispatcher2
                 .createServer(serverAddr, this.slf, KeyMapping.getKeyMapping());
         futureServer2.sync();
@@ -85,7 +89,7 @@ public class BmpMockDispatcherTest {
     public void testCreateServer() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.registry, this.sessionFactory);
+                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
         final ChannelFuture futureServer = this.bmpMockDispatcher.createServer(
                 new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
         futureServer.sync();

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
 import static org.mockito.Mockito.verify;
@@ -22,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
-import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -40,7 +38,7 @@ public class BmpMockTest {
 
     private final BmpSessionListener sessionListener = Mockito.mock(BmpSessionListener.class);
     private BmpExtensionProviderActivator bmpActivator;
-    private BmpDispatcher bmpDispatcher;
+    private BmpDispatcherImpl bmpDispatcher;
 
     @Before
     public void setUp() {
@@ -48,8 +46,7 @@ public class BmpMockTest {
         this.bmpActivator = new BmpActivator(
             ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
         this.bmpActivator.start(ctx);
-        this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-            ctx.getBmpMessageRegistry(),
+        this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
             new DefaultBmpSessionFactory());
     }
 

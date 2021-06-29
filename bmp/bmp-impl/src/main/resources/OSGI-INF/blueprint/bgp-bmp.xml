@@ -8,21 +8,7 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
-  <reference id="bmpExtensionContext" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext"/>
-  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
-  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
-  <reference id="bmpSessionFactory" interface="org.opendaylight.protocol.bmp.api.BmpSessionFactory"/>
-
-  <bean id="bmpDispatcher" class="org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl">
-    <argument ref="globalBossGroup"/>
-    <argument ref="globalWorkerGroup"/>
-    <argument>
-      <bean factory-ref="bmpExtensionContext" factory-method="getBmpMessageRegistry"/>
-    </argument>
-    <argument ref="bmpSessionFactory"/>
-  </bean>
-
-  <service ref="bmpDispatcher" interface="org.opendaylight.protocol.bmp.api.BmpDispatcher"/>
+  <reference id="bmpDispatcher" interface="org.opendaylight.protocol.bmp.api.BmpDispatcher"/>
 
   <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
   <reference id="domDataBroker" interface="org.opendaylight.mdsal.dom.api.DOMDataBroker"/>

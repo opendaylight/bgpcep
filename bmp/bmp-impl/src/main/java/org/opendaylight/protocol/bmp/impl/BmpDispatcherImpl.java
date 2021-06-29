@@ -23,17 +23,22 @@ import java.net.InetSocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
-import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
+import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BmpDispatcherImpl implements BmpDispatcher {
-
+@Component(immediate = true, service = BmpDispatcher.class)
+public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BmpDispatcherImpl.class);
 
     private static final int CONNECT_TIMEOUT = 5000;
@@ -48,8 +53,11 @@ public class BmpDispatcherImpl implements BmpDispatcher {
     @GuardedBy("this")
     private boolean close;
 
-    public BmpDispatcherImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup,
-            final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
+    @Activate
+    public BmpDispatcherImpl(
+            @Reference(target = "(type=global-boss-group)") final EventLoopGroup bossGroup,
+            @Reference(target = "(type=global-worker-group)") final EventLoopGroup workerGroup,
+            @Reference final BmpExtensionConsumerContext ctx, @Reference final BmpSessionFactory sessionFactory) {
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
@@ -57,7 +65,7 @@ public class BmpDispatcherImpl implements BmpDispatcher {
             this.bossGroup = requireNonNull(bossGroup);
             this.workerGroup = requireNonNull(workerGroup);
         }
-        this.hf = new BmpHandlerFactory(requireNonNull(registry));
+        this.hf = new BmpHandlerFactory(ctx.getBmpMessageRegistry());
         this.sessionFactory = requireNonNull(sessionFactory);
     }
 
@@ -83,6 +91,8 @@ public class BmpDispatcherImpl implements BmpDispatcher {
         return channelFuture;
     }
 
+    @Deactivate
+    @PreDestroy
     @Override
     public synchronized void close() {
         this.close = true;
