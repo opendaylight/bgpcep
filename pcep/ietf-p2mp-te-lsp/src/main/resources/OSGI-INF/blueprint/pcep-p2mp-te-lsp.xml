@@ -20,9 +20,4 @@
 
     <service ref="p2mpTeLspCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
              odl:type="org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability"/>
-
-    <bean id="p2mpTeLspActivator" class="org.opendaylight.protocol.pcep.p2mp.te.lsp.Activator"/>
-
-    <service ref="p2mpTeLspActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
-             odl:type="org.opendaylight.protocol.pcep.p2mp.te.lsp.Activator"/>
 </blueprint>

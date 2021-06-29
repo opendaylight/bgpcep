@@ -8,14 +8,24 @@
 package org.opendaylight.protocol.pcep.p2mp.te.lsp;
 
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181109.p2mp.pce.capability.tlv.P2mpPceCapability;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Component;
 
+@Singleton
 @MetaInfServices
+@Component(immediate = true)
 public final class Activator implements PCEPExtensionProviderActivator {
+    @Inject
+    public Activator() {
+        // Exposed for DI
+    }
+
     @Override
     public List<Registration> start(final PCEPExtensionProviderContext context) {
         final P2MPTeLspCapabilityParser p2mpCapabilityParser = new P2MPTeLspCapabilityParser();
