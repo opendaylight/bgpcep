@@ -209,8 +209,7 @@ final class OpenConfigMappingUtil {
         if (config != null) {
             final NeighborPeerGroupConfig config1 = config.augmentation(NeighborPeerGroupConfig.class);
             if (config1 != null) {
-                final String peerGroup = config1.getPeerGroup();
-                return peerGroup != null && peerGroup.equals(APPLICATION_PEER_GROUP_NAME);
+                return APPLICATION_PEER_GROUP_NAME.equals(config1.getPeerGroup());
             }
         }
         return false;
