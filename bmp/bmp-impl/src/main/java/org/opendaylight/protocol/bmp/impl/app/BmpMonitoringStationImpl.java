@@ -20,15 +20,17 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
-import org.opendaylight.protocol.bmp.impl.config.BmpDeployerDependencies;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -62,10 +64,11 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private Channel channel;
     private ClusterSingletonServiceRegistration singletonServiceRegistration;
 
-    public BmpMonitoringStationImpl(final BmpDeployerDependencies bmpDeployerDependencies,
-            final BmpDispatcher dispatcher, final MonitorId monitorId, final InetSocketAddress address,
-            final Collection<MonitoredRouter> mrs) {
-        this.domDataBroker = requireNonNull(bmpDeployerDependencies.getDomDataBroker());
+    public BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final BmpDispatcher dispatcher,
+            final RIBExtensionConsumerContext extensions, final BindingCodecTree codecTree,
+            final ClusterSingletonServiceProvider singletonProvider, final MonitorId monitorId,
+            final InetSocketAddress address, final Collection<MonitoredRouter> mrs) {
+        this.domDataBroker = requireNonNull(domDataBroker);
         this.dispatcher = requireNonNull(dispatcher);
         this.monitorId = monitorId;
         this.monitoredRouters = mrs;
@@ -75,13 +78,11 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
                 .node(BmpMonitor.QNAME).node(Monitor.QNAME)
                 .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build();
 
-        this.sessionManager = new RouterSessionManager(this.yangMonitorId, this.domDataBroker,
-                bmpDeployerDependencies.getExtensions(), bmpDeployerDependencies.getTree());
+        this.sessionManager = new RouterSessionManager(this.yangMonitorId, this.domDataBroker, extensions, codecTree);
 
         LOG.info("BMP Monitor Singleton Service {} registered, Monitor Id {}",
                 getIdentifier().getName(), this.monitorId.getValue());
-        this.singletonServiceRegistration = bmpDeployerDependencies.getClusterSingletonProvider()
-                .registerClusterSingletonService(this);
+        this.singletonServiceRegistration = singletonProvider.registerClusterSingletonService(this);
     }
 
     @Override

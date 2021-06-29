@@ -19,13 +19,18 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
@@ -44,6 +49,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,26 +59,38 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
     private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
             InstanceIdentifier.create(OdlBmpMonitors.class);
-    private static final YangInstanceIdentifier BMP_MONITOR_YII =
-            YangInstanceIdentifier.of(BmpMonitor.QNAME);
-    private static final ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder().withNodeIdentifier(
-            new NodeIdentifier(BmpMonitor.QNAME)).addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME)
-            .build()).build();
+    private static final YangInstanceIdentifier BMP_MONITOR_YII = YangInstanceIdentifier.of(BmpMonitor.QNAME);
+    private static final ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder()
+        .withNodeIdentifier(new NodeIdentifier(BmpMonitor.QNAME))
+        .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build())
+        .build();
+
     private final BmpDispatcher dispatcher;
+    private final DataBroker dataBroker;
+    private final DOMDataBroker domDataBroker;
+    private final RIBExtensionConsumerContext extensions;
+    private final BindingCodecTree codecTree;
+    private final ClusterSingletonServiceProvider singletonProvider;
+
     @GuardedBy("this")
     private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
-    private final BmpDeployerDependencies bmpDeployerDependencies;
     @GuardedBy("this")
     private ListenerRegistration<BmpDeployerImpl> registration;
 
-    public BmpDeployerImpl(final BmpDispatcher dispatcher, final BmpDeployerDependencies bmpDeployerDependencies) {
+    public BmpDeployerImpl(@Reference final BmpDispatcher dispatcher, @Reference final DataBroker dataBroker,
+            @Reference final DOMDataBroker domDataBroker, @Reference final RIBExtensionConsumerContext extensions,
+            @Reference final BindingCodecTree codecTree,
+            @Reference final ClusterSingletonServiceProvider singletonProvider) {
         this.dispatcher = requireNonNull(dispatcher);
-        this.bmpDeployerDependencies = requireNonNull(bmpDeployerDependencies);
+        this.dataBroker = requireNonNull(dataBroker);
+        this.domDataBroker = requireNonNull(domDataBroker);
+        this.extensions = requireNonNull(extensions);
+        this.codecTree = requireNonNull(codecTree);
+        this.singletonProvider = requireNonNull(singletonProvider);
     }
 
     public synchronized void init() {
-        final DOMDataTreeWriteTransaction wTx = this.bmpDeployerDependencies
-            .getDomDataBroker().newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -85,7 +103,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
-        this.registration = this.bmpDeployerDependencies.getDataBroker().registerDataTreeChangeListener(
+        this.registration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
@@ -129,8 +147,9 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
             final Server server = bmpConfig.getServer();
             final InetSocketAddress inetAddress =
                     Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
-            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.bmpDeployerDependencies,
-                    this.dispatcher, monitorId, inetAddress, bmpConfig.nonnullMonitoredRouter().values());
+            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.domDataBroker, this.dispatcher,
+                this.extensions, this.codecTree, this.singletonProvider, monitorId, inetAddress,
+                bmpConfig.nonnullMonitoredRouter().values());
             this.bmpMonitorServices.put(monitorId, monitor);
         } catch (final Exception e) {
             LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);

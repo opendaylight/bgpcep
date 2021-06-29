@@ -56,7 +56,6 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
-import org.opendaylight.protocol.bmp.impl.config.BmpDeployerDependencies;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
@@ -178,9 +177,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         wTx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BmpMonitor.QNAME), parentNode);
         wTx.commit().get();
 
-        final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv);
-        this.bmpApp = new BmpMonitoringStationImpl(bmpDependecies, this.dispatcher, MONITOR_ID, inetAddress, null);
+        this.bmpApp = new BmpMonitoringStationImpl(getDomBroker(), this.dispatcher, this.ribExtension,
+            this.mappingService.currentSerializer(), this.clusterSSProv, MONITOR_ID, inetAddress, null);
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertEquals(1, monitor.nonnullMonitor().size());
             final Monitor bmpMonitor = monitor.nonnullMonitor().values().iterator().next();
@@ -424,12 +422,9 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void deploySecondInstance() throws Exception {
-        final BmpDeployerDependencies bmpDependecies = new BmpDeployerDependencies(getDataBroker(), getDomBroker(),
-            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv2);
-
-        final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(bmpDependecies,
-            this.dispatcher, new MonitorId("monitor2"),
-                new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
+        final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(getDomBroker(), this.dispatcher,
+            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv2, new MonitorId("monitor2"),
+            new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertEquals(2, monitor.nonnullMonitor().size());
