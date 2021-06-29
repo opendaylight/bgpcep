@@ -11,8 +11,7 @@
   <reference id="bmpExtensionContext" interface="org.opendaylight.protocol.bmp.spi.registry.BmpExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
-
-  <bean id="bmpSessionFactory" class="org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory"/>
+  <reference id="bmpSessionFactory" interface="org.opendaylight.protocol.bmp.api.BmpSessionFactory"/>
 
   <bean id="bmpDispatcher" class="org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl">
     <argument ref="globalBossGroup"/>

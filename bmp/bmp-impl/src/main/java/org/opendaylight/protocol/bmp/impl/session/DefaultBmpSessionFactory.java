@@ -5,19 +5,28 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl.session;
 
 import io.netty.channel.Channel;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
+import org.osgi.service.component.annotations.Component;
 
+@MetaInfServices
+@Singleton
+@Component(immediate = true)
 public final class DefaultBmpSessionFactory implements BmpSessionFactory {
+    @Inject
+    public DefaultBmpSessionFactory() {
+        // Exposed for DI
+    }
 
     @Override
     public BmpSession getSession(final Channel channel, final BmpSessionListenerFactory sessionListenerFactory) {
         return new BmpSessionImpl(sessionListenerFactory.getSessionListener());
     }
-
 }
