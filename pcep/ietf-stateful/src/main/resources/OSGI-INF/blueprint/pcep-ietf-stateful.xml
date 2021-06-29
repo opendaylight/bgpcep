@@ -8,21 +8,6 @@
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
-
-  <!-- Protocal extension providers -->
-
-  <bean id="ietfStatefulActivator" class="org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator"/>
-  <service ref="ietfStatefulActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator"/>
-
-  <bean id="ietfInitiatedActivator" class="org.opendaylight.protocol.pcep.ietf.initiated.InitiatedActivator"/>
-  <service ref="ietfInitiatedActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.pcep.ietf.initiated.InitiatedActivator"/>
-
-  <bean id="syncOptimizationsActivator" class="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
-  <service ref="syncOptimizationsActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
-          odl:type="org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator"/>
-
   <!-- Capabilities -->
 
   <odl:clustered-app-config id="statefulCapabilityConfig"
