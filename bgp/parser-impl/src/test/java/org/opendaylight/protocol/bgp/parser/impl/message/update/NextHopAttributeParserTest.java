@@ -9,12 +9,17 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -49,15 +54,16 @@ public class NextHopAttributeParserTest {
                     .setLinkLocal(new Ipv6AddressNoZone("ffff::2"))
                     .build()).build()).build();
 
+    private final AttributeRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class)
+        .findFirst().orElseThrow().getAttributeRegistry();
+
     @Test
     public void testIpv4AttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(IPV4_RESULT, actual);
+        registry.serializeAttribute(IPV4_RESULT, actual);
         assertArrayEquals(IPV4_NEXT_HOP_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = registry.parseAttributes(actual, null).getAttributes();
         assertEquals(IPV4_RESULT.getCNextHop(), attributeOut.getCNextHop());
     }
 
@@ -68,24 +74,25 @@ public class NextHopAttributeParserTest {
                 .serializeAttribute(IPV6_RESULT, actual);
         assertArrayEquals(IPV6_NEXT_HOP_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = registry.parseAttributes(actual, null).getAttributes();
         assertEquals(IPV6_RESULT.getCNextHop(), attributeOut.getCNextHop());
     }
 
-    @Test (expected = NullPointerException.class)
+    @Test
     public void testParseEmptyIpv4Attribute() {
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(new AttributesBuilder()
-                        .setCNextHop(new Ipv4NextHopCaseBuilder().build())
-                        .build(), Unpooled.buffer());
+        final NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> registry.serializeAttribute(new AttributesBuilder()
+                .setCNextHop(new Ipv4NextHopCaseBuilder().build())
+                .build(), Unpooled.buffer()));
+        assertNull(ex.getMessage());
     }
 
-    @Test (expected = NullPointerException.class)
+    @Test
     public void testParseEmptyIpv6Attribute() {
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(new AttributesBuilder()
-                        .setCNextHop(new Ipv6NextHopCaseBuilder().build())
-                        .build(), Unpooled.buffer());
+        final NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> registry.serializeAttribute(new AttributesBuilder()
+                .setCNextHop(new Ipv6NextHopCaseBuilder().build())
+                .build(), Unpooled.buffer()));
+        assertNull(ex.getMessage());
     }
 }
