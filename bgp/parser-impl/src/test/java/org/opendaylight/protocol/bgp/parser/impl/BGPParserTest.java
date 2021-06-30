@@ -11,24 +11,26 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
@@ -36,7 +38,6 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstraintImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.util.HexDumpBGPFileParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.NoopReferenceCache;
@@ -99,8 +100,8 @@ public class BGPParserTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-            .getAttributeRegistry(), mock(NlriRegistry.class));
+        updateParser = new BGPUpdateMessageParser(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+            .orElseThrow().getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (InputStream is = BGPParserTest.class.getResourceAsStream(name)) {
@@ -123,9 +124,9 @@ public class BGPParserTest {
             MULTIPATH_HEX_FILE));
         mpConstraint = mock(PeerSpecificParserConstraint.class);
         mpSupport = mock(MultiPathSupport.class);
-        Mockito.doReturn(Optional.empty()).when(mpConstraint).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(Optional.of(mpSupport)).when(mpConstraint).getPeerConstraint(MultiPathSupport.class);
-        Mockito.doReturn(true).when(mpSupport).isTableTypeSupported(Mockito.any());
+        doReturn(Optional.empty()).when(mpConstraint).getPeerConstraint(any());
+        doReturn(Optional.of(mpSupport)).when(mpConstraint).getPeerConstraint(MultiPathSupport.class);
+        doReturn(true).when(mpSupport).isTableTypeSupported(any());
     }
 
     @Test
@@ -185,15 +186,9 @@ public class BGPParserTest {
             null);
 
         // check fields
-
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(Uint32.valueOf(65002)));
-        final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.2")).build()).build();
 
@@ -207,10 +202,10 @@ public class BGPParserTest {
 
         // check nlri
 
-        final List<Nlri> nlris = new ArrayList<>();
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.2.0/24")).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).build());
+        final List<Nlri> nlris = List.of(
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.2.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).build());
 
         assertEquals(nlris, message.getNlri());
 
@@ -225,7 +220,10 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
+        paBuilder.setAsPath(new AsPathBuilder()
+            .setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(new AsNumber(Uint32.valueOf(65002)))).build()))
+            .build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setCNextHop(nextHop);
@@ -240,7 +238,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
 
         builder.setAttributes(paBuilder.build());
 
@@ -301,8 +299,7 @@ public class BGPParserTest {
         final UpdateBuilder builder = new UpdateBuilder();
 
         // check nlri
-        final List<Nlri> nlris = Lists.newArrayList(new NlriBuilder().setPrefix(new Ipv4Prefix("172.16.0.0/21"))
-            .build());
+        final List<Nlri> nlris = List.of(new NlriBuilder().setPrefix(new Ipv4Prefix("172.16.0.0/21")).build());
         builder.setNlri(nlris);
         assertEquals(builder.getNlri(), message.getNlri());
 
@@ -314,7 +311,7 @@ public class BGPParserTest {
         asNumbers.add(new AsNumber(Uint32.valueOf(30)));
         final List<Segments> asPath = new ArrayList<>();
         asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-        final List<AsNumber> asSet = Lists.newArrayList(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)));
+        final List<AsNumber> asSet = List.of(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)));
         asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
@@ -341,7 +338,7 @@ public class BGPParserTest {
 
         paBuilder.setAggregator(aggregator);
         assertEquals(paBuilder.getAggregator(), attrs.getAggregator());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
         builder.setAttributes(paBuilder.build());
 
         assertEquals(builder.build(), message);
@@ -436,7 +433,7 @@ public class BGPParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(List.of()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setCNextHop(nextHop);
@@ -451,7 +448,7 @@ public class BGPParserTest {
         paBuilder.setExtendedCommunities(comms);
         assertEquals(paBuilder.getExtendedCommunities(), attrs.getExtendedCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
         // check API message
         builder.setAttributes(paBuilder.build());
         assertEquals(builder.build(), message);
@@ -480,7 +477,7 @@ public class BGPParserTest {
             null);
 
         // attributes
-        final List<WithdrawnRoutes> withdrawnRoutes = Lists.newArrayList(new WithdrawnRoutesBuilder()
+        final List<WithdrawnRoutes> withdrawnRoutes = List.of(new WithdrawnRoutesBuilder()
             .setPrefix(new Ipv4Prefix("172.16.0.4/30")).build());
 
         // check API message
@@ -699,7 +696,7 @@ public class BGPParserTest {
         paBuilder.setCommunities(comms);
         assertEquals(paBuilder.getCommunities(), attrs.getCommunities());
 
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
 
         builder.setAttributes(paBuilder.build());
 
