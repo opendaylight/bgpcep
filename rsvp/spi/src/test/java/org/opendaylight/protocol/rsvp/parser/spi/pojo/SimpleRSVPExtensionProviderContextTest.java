@@ -31,10 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
-public class ServiceLoaderRSVPExtensionProviderContextTest {
+public class SimpleRSVPExtensionProviderContextTest {
 
-    private final SimpleRSVPExtensionProviderContext context = (SimpleRSVPExtensionProviderContext)
-        ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance();
+    private final SimpleRSVPExtensionProviderContext context = new SimpleRSVPExtensionProviderContext();
 
     private final RSVPTeObjectParser rsvpTeParser = Mockito.mock(RSVPTeObjectParser.class);
     private final RSVPTeObjectSerializer rsvpTeSerializer = Mockito.mock(RSVPTeObjectSerializer.class);

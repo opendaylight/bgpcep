@@ -28,7 +28,7 @@ import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -160,7 +160,7 @@ public class LinkstateNlriParserTest {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
         this.registry = SimpleNlriTypeRegistry.getInstance();
-        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
+        final BGPActivator act = new BGPActivator(new SimpleRSVPExtensionProviderContext());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
 

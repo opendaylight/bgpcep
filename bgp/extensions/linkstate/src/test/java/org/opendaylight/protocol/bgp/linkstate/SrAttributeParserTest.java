@@ -27,7 +27,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttribute
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -152,7 +152,7 @@ public class SrAttributeParserTest {
 
     @Before
     public void setUp() throws Exception {
-        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
+        final BGPActivator act = new BGPActivator(new SimpleRSVPExtensionProviderContext());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
     }
