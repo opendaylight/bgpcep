@@ -8,16 +8,16 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.net.UnknownHostException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -26,7 +26,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.NextHopAttributeParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.OriginAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.DefaultBGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -127,26 +127,19 @@ public class ParserTest {
 
     @BeforeClass
     public static void setupClass() throws Exception {
-        reg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        reg = new DefaultBGPExtensionConsumerContext().getMessageRegistry();
     }
 
     @Test
     public void testHeaderErrors() throws BGPParsingException, BGPDocumentedException {
-        byte[] wrong = new byte[] {
+        byte[] wrong = ByteArray.cutBytes(new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00
-        };
-        wrong = ByteArray.cutBytes(wrong, 16);
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(wrong), null);
-            fail("Exception should have occcured.");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= 19.",
-                e.getMessage());
-            return;
-        }
-        fail();
+        }, 16);
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> ParserTest.reg.parseMessage(Unpooled.copiedBuffer(wrong), null));
+        assertEquals("Too few bytes in passed array. Passed: " + wrong.length + ". Expected: >= 19.", ex.getMessage());
     }
 
     @Test
@@ -156,14 +149,10 @@ public class ParserTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x13, (byte) 0x08
         };
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals(BGPError.BAD_MSG_TYPE, e.getError());
-            return;
-        }
-        fail();
+
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
+        assertEquals(BGPError.BAD_MSG_TYPE, ex.getError());
     }
 
     @Test
@@ -174,7 +163,7 @@ public class ParserTest {
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
         final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
-        assertTrue(m instanceof Keepalive);
+        assertThat(m, instanceOf(Keepalive.class));
     }
 
     @Test
@@ -185,19 +174,14 @@ public class ParserTest {
             (byte) 0x00, (byte) 0x14, (byte) 0x04, (byte) 0x05
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertThat(e.getMessage(), containsString("Message length field not within valid range."));
-            assertEquals(BGPError.BAD_MSG_LENGTH, e.getError());
-            return;
-        }
-        fail();
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
+        assertThat(ex.getMessage(), containsString("Message length field not within valid range."));
+        assertEquals(BGPError.BAD_MSG_LENGTH, ex.getError());
     }
 
     @Test
-    public void testOpenMessage() throws UnknownHostException, BGPParsingException, BGPDocumentedException {
+    public void testOpenMessage() throws BGPParsingException, BGPDocumentedException {
         final Notification open = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(100))
                 .setHoldTimer(Uint16.valueOf(180))
@@ -209,7 +193,7 @@ public class ParserTest {
         assertArrayEquals(OPEN_BMSG, ByteArray.getAllBytes(bytes));
 
         final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-        assertTrue(m instanceof Open);
+        assertThat(m, instanceOf(Open.class));
 
         final Open mo = (Open) m;
         assertEquals(100, mo.getMyAsNumber().intValue());
@@ -219,7 +203,7 @@ public class ParserTest {
     }
 
     @Test
-    public void testBadHoldTimeError() throws BGPParsingException {
+    public void testBadHoldTimeError() {
         final byte[] bMsg = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -227,19 +211,14 @@ public class ParserTest {
             (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bMsg), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("Hold time value not acceptable.", e.getMessage());
-            assertEquals(BGPError.HOLD_TIME_NOT_ACC, e.getError());
-            return;
-        }
-        fail();
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bMsg), null));
+        assertEquals("Hold time value not acceptable.", ex.getMessage());
+        assertEquals(BGPError.HOLD_TIME_NOT_ACC, ex.getError());
     }
 
     @Test
-    public void testBadMsgLength() throws BGPParsingException {
+    public void testBadMsgLength() {
         final byte[] bMsg = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -247,17 +226,14 @@ public class ParserTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bMsg), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("Open message too small.", e.getMessage());
-            assertEquals(BGPError.BAD_MSG_LENGTH, e.getError());
-        }
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bMsg), null));
+        assertEquals("Open message too small.", ex.getMessage());
+        assertEquals(BGPError.BAD_MSG_LENGTH, ex.getError());
     }
 
     @Test
-    public void testBadVersion() throws BGPParsingException {
+    public void testBadVersion() {
         final byte[] bMsg = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -265,15 +241,10 @@ public class ParserTest {
             (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x14, (byte) 0x00
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bMsg), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("BGP Protocol version 8 not supported.", e.getMessage());
-            assertEquals(BGPError.VERSION_NOT_SUPPORTED, e.getError());
-            return;
-        }
-        fail();
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bMsg), null));
+        assertEquals("BGP Protocol version 8 not supported.", ex.getMessage());
+        assertEquals(BGPError.VERSION_NOT_SUPPORTED, ex.getError());
     }
 
     @Test
@@ -307,94 +278,64 @@ public class ParserTest {
     }
 
     @Test
-    public void testWrongLength() throws BGPParsingException {
+    public void testWrongLength() {
         final byte[] bMsg = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x14, (byte) 0x03, (byte) 0x02
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bMsg), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("Notification message too small.", e.getMessage());
-            assertEquals(BGPError.BAD_MSG_LENGTH, e.getError());
-            return;
-        }
-        fail();
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bMsg), null));
+        assertEquals("Notification message too small.", ex.getMessage());
+        assertEquals(BGPError.BAD_MSG_LENGTH, ex.getError());
     }
 
     @Test
-    public void testUnrecognizedError() throws BGPParsingException, BGPDocumentedException {
+    public void testUnrecognizedError() {
         final byte[] bMsg = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x15, (byte) 0x03, (byte) 0x02, (byte) 0xaa
         };
 
-        try {
-            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bMsg), null);
-            fail("Exception should have occured.");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("BGP Error code 2 and subcode 170 not recognized.", e.getMessage());
-            return;
-        }
-        fail();
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(bMsg), null));
+        assertEquals("BGP Error code 2 and subcode 170 not recognized.", ex.getMessage());
     }
 
     @Test
-    public void testParseUpdMsgWithUnrecognizedAttribute() throws BGPDocumentedException, BGPParsingException {
-        try {
-            reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_UNRECOGNIZED_ATTRIBUTE), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("Well known attribute not recognized.", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED, e.getError());
-            return;
-        }
-        fail();
+    public void testParseUpdMsgWithUnrecognizedAttribute() {
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_UNRECOGNIZED_ATTRIBUTE), null));
+        assertEquals("Well known attribute not recognized.", ex.getMessage());
+        assertEquals(BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED, ex.getError());
     }
 
     @Test
     public void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
-        try {
-            final Notification msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
-                null);
-            assertTrue(msg instanceof Update);
-        } catch (final BGPDocumentedException e) {
-            fail("Exception should not have occured.");
-        }
+        final Notification msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
+            null);
+        assertThat(msg, instanceOf(Update.class));
     }
 
     @Test
-    public void testParseUpdMsgWithOneMandatoryAttributeNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
-        try {
-            reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_ONE_MANDATORY_ATTRIBUTE_NOT_PRESENT), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            assertArrayEquals(new byte[] { OriginAttributeParser.TYPE }, e.getData());
-            return;
-        }
-        fail();
+    public void testParseUpdMsgWithOneMandatoryAttributeNotPresent() {
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_ONE_MANDATORY_ATTRIBUTE_NOT_PRESENT), null));
+        assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "ORIGIN", ex.getMessage());
+        assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, ex.getError());
+        assertArrayEquals(new byte[] { OriginAttributeParser.TYPE }, ex.getData());
     }
 
     @Test
-    public void testParseUpdMsgWithMultipleMandatoryAttributesNotPresent()
-        throws BGPDocumentedException, BGPParsingException {
-        try {
-            reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MULTIPLE_MANDATORY_ATTRIBUTES_NOT_PRESENT), null);
-            fail("Exception should have occured.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP", e.getMessage());
-            assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, e.getError());
-            assertArrayEquals(new byte[] { NextHopAttributeParser.TYPE }, e.getData());
-            return;
-        }
-        fail();
+    public void testParseUpdMsgWithMultipleMandatoryAttributesNotPresent() {
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MULTIPLE_MANDATORY_ATTRIBUTES_NOT_PRESENT),
+                null));
+        assertEquals(BGPError.MANDATORY_ATTR_MISSING_MSG + "NEXT_HOP", ex.getMessage());
+        assertEquals(BGPError.WELL_KNOWN_ATTR_MISSING, ex.getError());
+        assertArrayEquals(new byte[] { NextHopAttributeParser.TYPE }, ex.getData());
     }
 
     @Test
@@ -408,6 +349,6 @@ public class ParserTest {
         final Notification m = ParserTest.reg.parseMessage(
             Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
 
-        assertTrue(m instanceof RouteRefresh);
+        assertThat(m, instanceOf(RouteRefresh.class));
     }
 }
