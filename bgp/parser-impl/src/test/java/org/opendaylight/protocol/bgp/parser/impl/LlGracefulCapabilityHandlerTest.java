@@ -7,21 +7,24 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
+import java.util.ServiceLoader;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.LlGracefulCapabilityHandler;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.SubsequentAddressFamilyRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
@@ -38,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class LlGracefulCapabilityHandlerTest {
     private static final Uint24 TEN = new Uint24(Uint32.TEN);
 
@@ -48,17 +52,16 @@ public class LlGracefulCapabilityHandlerTest {
     @Mock
     private SubsequentAddressFamilyRegistry safir;
 
-
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Ipv4AddressFamily.class).when(this.afir).classForFamily(1);
-        Mockito.doReturn(Ipv6AddressFamily.class).when(this.afir).classForFamily(2);
-        Mockito.doReturn(null).when(this.afir).classForFamily(256);
-        Mockito.doReturn(UnicastSubsequentAddressFamily.class).when(this.safir).classForFamily(1);
-        Mockito.doReturn(null).when(this.safir).classForFamily(-123);
+        doReturn(Ipv4AddressFamily.class).when(this.afir).classForFamily(1);
+        doReturn(Ipv6AddressFamily.class).when(this.afir).classForFamily(2);
+        doReturn(null).when(this.afir).classForFamily(256);
+        doReturn(UnicastSubsequentAddressFamily.class).when(this.safir).classForFamily(1);
+        doReturn(null).when(this.safir).classForFamily(-123);
 
-        final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
+        final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+            .orElseThrow();
         this.handler = new LlGracefulCapabilityHandler(
                 ctx.getAddressFamilyRegistry(), ctx.getSubsequentAddressFamilyRegistry());
     }
@@ -98,8 +101,8 @@ public class LlGracefulCapabilityHandlerTest {
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
         this.handler.serializeCapability(cParameters, buffer);
 
-        Assert.assertArrayEquals(capaBytes, buffer.array());
-        Assert.assertEquals(cParameters, this.handler.parseCapability(Unpooled.wrappedBuffer(capaBytes)
+        assertArrayEquals(capaBytes, buffer.array());
+        assertEquals(cParameters, this.handler.parseCapability(Unpooled.wrappedBuffer(capaBytes)
                 .slice(2, capaBytes.length - 2)));
     }
 
@@ -154,7 +157,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .build();
         LlGracefulCapabilityHandler handler1 = new LlGracefulCapabilityHandler(
                 afir, safir);
-        Assert.assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)
+        assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)
                 .slice(2, capaBytes.length - 2)));
     }
 
@@ -210,7 +213,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .build();
         LlGracefulCapabilityHandler handler1 = new LlGracefulCapabilityHandler(
                 afir, safir);
-        Assert.assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)
+        assertEquals(cParameters, handler1.parseCapability(Unpooled.wrappedBuffer(capaBytes)
                 .slice(2, capaBytes.length - 2)));
     }
 }

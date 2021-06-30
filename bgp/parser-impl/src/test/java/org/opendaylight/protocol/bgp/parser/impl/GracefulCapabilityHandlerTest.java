@@ -12,14 +12,13 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Collections;
-import org.junit.Before;
+import java.util.Map;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability.RestartFlags;
@@ -34,13 +33,8 @@ import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class GracefulCapabilityHandlerTest {
-
-    private BGPExtensionProviderContext ctx;
-
-    @Before
-    public void setUp() {
-        this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-    }
+    private final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+        .orElseThrow();
 
     @Test
     public void testGracefulCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
@@ -104,7 +98,7 @@ public class GracefulCapabilityHandlerTest {
         };
         capaBuilder.setRestartFlags(new RestartFlags(false));
         capaBuilder.setRestartTime(Uint16.ZERO);
-        capaBuilder.setTables(Collections.emptyMap());
+        capaBuilder.setTables(Map.of());
         assertEquals(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
             .build(), handler.parseCapability(Unpooled.wrappedBuffer(capaBytes3).slice(2, capaBytes3.length - 2)));
