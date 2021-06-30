@@ -9,13 +9,17 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
@@ -44,47 +48,45 @@ public class OriginAttributeParserTest {
                     .build())
             .build();
 
+    private final AttributeRegistry attributeRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class)
+        .findFirst().orElseThrow().getAttributeRegistry();
+
     @Test
     public void testIGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(IGP_RESULT, actual);
+        attributeRegistry.serializeAttribute(IGP_RESULT, actual);
         assertArrayEquals(IGP_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = attributeRegistry.parseAttributes(actual, null).getAttributes();
         assertEquals(IGP_RESULT.getOrigin(), attributeOut.getOrigin());
     }
 
     @Test
     public void testEGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(EGP_RESULT, actual);
+        attributeRegistry.serializeAttribute(EGP_RESULT, actual);
         assertArrayEquals(EGP_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = attributeRegistry.parseAttributes(actual, null).getAttributes();
         assertEquals(EGP_RESULT.getOrigin(), attributeOut.getOrigin());
     }
 
     @Test
     public void testIncompleeteAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(INCOMPLETE_RESULT, actual);
+        attributeRegistry.serializeAttribute(INCOMPLETE_RESULT, actual);
         assertArrayEquals(INCOMPLETE_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = attributeRegistry.parseAttributes(actual, null).getAttributes();
         assertEquals(INCOMPLETE_RESULT.getOrigin(), attributeOut.getOrigin());
     }
 
-    @Test (expected = NullPointerException.class)
+    @Test
     public void testParseEmptyAttribute() {
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(new AttributesBuilder()
-                        .setOrigin(new OriginBuilder().build())
-                        .build(), Unpooled.buffer());
+        final NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> attributeRegistry.serializeAttribute(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().build())
+                .build(), Unpooled.buffer()));
+        assertNull(ex.getMessage());
     }
 }
