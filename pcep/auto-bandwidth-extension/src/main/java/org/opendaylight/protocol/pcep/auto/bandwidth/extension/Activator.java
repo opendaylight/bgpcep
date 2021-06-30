@@ -8,18 +8,16 @@
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
 import com.google.common.base.MoreObjects;
-import java.util.ArrayList;
 import java.util.List;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcrpt;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-public class Activator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+public class Activator implements PCEPExtensionProviderActivator {
     private final int bandwidthUsageObjectType;
 
     public Activator() {
@@ -31,19 +29,16 @@ public class Activator extends AbstractPCEPExtensionProviderActivator {
     }
 
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final BandwidthUsageObjectCodec bandwidthUsageObjectCodec =
                 new BandwidthUsageObjectCodec(bandwidthUsageObjectType);
-        regs.add(context.registerObjectParser(bandwidthUsageObjectCodec));
-        regs.add(context.registerObjectSerializer(BandwidthUsage.class, bandwidthUsageObjectCodec));
-
         final PcRptMessageCodec pcRptMessageCodec = new PcRptMessageCodec(context.getObjectHandlerRegistry());
-        regs.add(context.registerMessageParser(PcRptMessageCodec.TYPE, pcRptMessageCodec));
-        regs.add(context.registerMessageSerializer(Pcrpt.class, pcRptMessageCodec));
 
-        return regs;
+        return List.of(
+            context.registerObjectParser(bandwidthUsageObjectCodec),
+            context.registerObjectSerializer(BandwidthUsage.class, bandwidthUsageObjectCodec),
+            context.registerMessageParser(PcRptMessageCodec.TYPE, pcRptMessageCodec),
+            context.registerMessageSerializer(Pcrpt.class, pcRptMessageCodec));
     }
 
     @Override

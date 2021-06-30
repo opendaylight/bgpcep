@@ -7,17 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class PCCActivator extends AbstractPCEPExtensionProviderActivator {
+public class PCCActivator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-        regs.add(context.registerObjectParser(new PCCEndPointIpv4ObjectParser()));
-        return regs;
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
+        return List.of(context.registerObjectParser(new PCCEndPointIpv4ObjectParser()));
     }
 }

@@ -7,42 +7,38 @@
  */
 package org.opendaylight.protocol.pcep.ietf.initiated;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-public final class InitiatedActivator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+public final class InitiatedActivator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
-
-        regs.add(context.registerMessageParser(InitiatedPCInitiateMessageParser.TYPE,
-                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())));
-        regs.add(context.registerMessageSerializer(Pcinitiate.class,
-                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())));
-
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
         final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(new InitiatedLspObjectParser(tlvReg, viTlvReg)));
-        regs.add(context.registerObjectSerializer(Lsp.class, new InitiatedLspObjectParser(tlvReg, viTlvReg)));
-        regs.add(context.registerObjectParser(new InitiatedSrpObjectParser(tlvReg, viTlvReg)));
-        regs.add(context.registerObjectSerializer(Srp.class, new InitiatedSrpObjectParser(tlvReg, viTlvReg)));
 
-        regs.add(context.registerTlvParser(InitiatedStatefulCapabilityTlvParser.TYPE,
-            new InitiatedStatefulCapabilityTlvParser()));
-        regs.add(context.registerTlvSerializer(Stateful.class, new InitiatedStatefulCapabilityTlvParser()));
+        return List.of(
+            context.registerMessageParser(InitiatedPCInitiateMessageParser.TYPE,
+                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())),
+            context.registerMessageSerializer(Pcinitiate.class,
+                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())),
 
-        return regs;
+            context.registerObjectParser(new InitiatedLspObjectParser(tlvReg, viTlvReg)),
+            context.registerObjectSerializer(Lsp.class, new InitiatedLspObjectParser(tlvReg, viTlvReg)),
+            context.registerObjectParser(new InitiatedSrpObjectParser(tlvReg, viTlvReg)),
+            context.registerObjectSerializer(Srp.class, new InitiatedSrpObjectParser(tlvReg, viTlvReg)),
+
+            context.registerTlvParser(InitiatedStatefulCapabilityTlvParser.TYPE,
+                new InitiatedStatefulCapabilityTlvParser()),
+            context.registerTlvSerializer(Stateful.class, new InitiatedStatefulCapabilityTlvParser()));
     }
 }

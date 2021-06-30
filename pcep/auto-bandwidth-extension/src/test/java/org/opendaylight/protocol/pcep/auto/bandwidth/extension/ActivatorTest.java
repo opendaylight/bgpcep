@@ -11,17 +11,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 
 public class ActivatorTest {
-
     @Test
     public void testStartImplPCEPExtensionProviderContext() {
-        final Activator activator = new Activator(1);
-        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.create();
-        final List<?> registrations = activator.startImpl(ctx);
+        final List<?> registrations = new Activator().start(new SimplePCEPExtensionProviderContext());
         assertEquals(4, registrations.size());
-        activator.close();
     }
 }

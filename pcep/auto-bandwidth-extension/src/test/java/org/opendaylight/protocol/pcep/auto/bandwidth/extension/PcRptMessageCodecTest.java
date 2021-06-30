@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.DatatypeConverter;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
@@ -53,30 +52,15 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PcRptMessageCodecTest {
+    private static final List<Bandwidth> BW = List.of(new Bandwidth(new byte[]{0, 0, 0, 1}));
 
-    private static final List<Bandwidth> BW = Collections.singletonList(new Bandwidth(new byte[]{0, 0, 0, 1}));
-    private SimplePCEPExtensionProviderContext ctx;
-    private BaseParserExtensionActivator act;
-    private StatefulActivator statefulAct;
-    private org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator autoBwActivator;
+    private final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new BaseParserExtensionActivator();
-        this.act.start(this.ctx);
-        this.statefulAct = new StatefulActivator();
-        this.statefulAct.start(this.ctx);
-        this.autoBwActivator = new org.opendaylight.protocol.pcep.auto.bandwidth.extension
-                .Activator(5);
-        this.autoBwActivator.start(this.ctx);
-    }
-
-    @After
-    public void tearDown() {
-        this.act.stop();
-        this.statefulAct.stop();
-        this.autoBwActivator.stop();
+        new BaseParserExtensionActivator().start(this.ctx);
+        new StatefulActivator().start(this.ctx);
+        new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator().start(this.ctx);
     }
 
     @Test
