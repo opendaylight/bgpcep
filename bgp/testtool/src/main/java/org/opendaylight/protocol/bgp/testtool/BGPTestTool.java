@@ -18,9 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import java.util.ServiceLoader;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -87,36 +86,8 @@ final class BGPTestTool {
     }
 
     private static BGPDispatcher initializeActivator() {
-        final BGPActivator activator = new BGPActivator();
-        final BGPExtensionProviderContext ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        activator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator
-                = new org.opendaylight.protocol.bgp.inet.BGPActivator();
-        inetActivator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.evpn.impl.BGPActivator evpnActivator = new org.opendaylight.protocol.bgp
-                .evpn.impl.BGPActivator();
-        evpnActivator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.flowspec.BGPActivator flowspecBGPActivator
-                = new org.opendaylight.protocol.bgp.flowspec.BGPActivator();
-        flowspecBGPActivator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator labeledActivator
-                = new org.opendaylight.protocol.bgp.labeled.unicast.BGPActivator();
-        labeledActivator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.l3vpn.BGPActivator l3vpnBGPActivator
-                = new org.opendaylight.protocol.bgp.l3vpn.BGPActivator();
-        l3vpnBGPActivator.start(ctx);
-
-        final org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator rtBGPActivator
-                = new org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator();
-        rtBGPActivator.start(ctx);
-
-        return new BGPDispatcherImpl(ctx, new NioEventLoopGroup(), new NioEventLoopGroup(),
-            new StrictBGPPeerRegistry());
+        return new BGPDispatcherImpl(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow(),
+            new NioEventLoopGroup(), new NioEventLoopGroup(), new StrictBGPPeerRegistry());
     }
 
     private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi,
