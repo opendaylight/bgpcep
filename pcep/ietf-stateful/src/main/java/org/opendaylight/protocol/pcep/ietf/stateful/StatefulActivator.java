@@ -15,7 +15,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.error.code.tlv.LspErrorCode;
@@ -30,10 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-public final class StatefulActivator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+public final class StatefulActivator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
         final ObjectRegistry objReg = context.getObjectHandlerRegistry();

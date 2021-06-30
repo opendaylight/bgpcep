@@ -14,7 +14,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
@@ -22,10 +21,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-public class SyncOptimizationsActivator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+public class SyncOptimizationsActivator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
         final TlvRegistry tlvReg = context.getTlvHandlerRegistry();

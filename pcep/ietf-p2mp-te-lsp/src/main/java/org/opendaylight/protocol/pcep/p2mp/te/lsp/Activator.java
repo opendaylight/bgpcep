@@ -7,24 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.p2mp.te.lsp;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181109.p2mp.pce.capability.tlv.P2mpPceCapability;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-public final class Activator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+public final class Activator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>(2);
-
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final P2MPTeLspCapabilityParser p2mpCapabilityParser = new P2MPTeLspCapabilityParser();
-        regs.add(context.registerTlvParser(P2MPTeLspCapabilityParser.TYPE, p2mpCapabilityParser));
-        regs.add(context.registerTlvSerializer(P2mpPceCapability.class, p2mpCapabilityParser));
-        return regs;
+
+        return List.of(
+            context.registerTlvParser(P2MPTeLspCapabilityParser.TYPE, p2mpCapabilityParser),
+            context.registerTlvSerializer(P2mpPceCapability.class, p2mpCapabilityParser));
     }
 }

@@ -13,15 +13,16 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
-import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public final class Main {
     }
 
     public static void main(final String[] args) throws UnknownHostException, InterruptedException, ExecutionException {
-        if (args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("--help"))) {
+        if (args.length == 0 || args.length == 1 && args[0].equalsIgnoreCase("--help")) {
             LOG.info(Main.USAGE);
             return;
         }
@@ -124,14 +125,12 @@ public final class Main {
         caps.add(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false));
         final PCEPSessionProposalFactory spf = new BasePCEPSessionProposalFactory(deadTimerValue, keepAliveValue, caps);
 
-        try (StatefulActivator activator07 = new StatefulActivator()) {
-            activator07.start(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance());
-
-            final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(
-                    ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry(),
-                    new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES),
-                    new NioEventLoopGroup(), new NioEventLoopGroup());
-            dispatcher.createServer(new TestToolPCEPDispatcherDependencies(address)).get();
-        }
+        final MessageRegistry handlerRegistry = ServiceLoader.load(PCEPExtensionConsumerContext.class).findFirst()
+            .orElseThrow()
+            .getMessageHandlerRegistry();
+        final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(handlerRegistry,
+            new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES),
+            new NioEventLoopGroup(), new NioEventLoopGroup());
+        dispatcher.createServer(new TestToolPCEPDispatcherDependencies(address)).get();
     }
 }

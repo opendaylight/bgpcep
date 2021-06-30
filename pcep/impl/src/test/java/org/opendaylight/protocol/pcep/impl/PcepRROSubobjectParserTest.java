@@ -225,34 +225,34 @@ public class PcepRROSubobjectParserTest {
     @Test
     public void testRROLabelSubobject() throws Exception {
         final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
-        try (BaseParserExtensionActivator a = new BaseParserExtensionActivator()) {
-            a.start(ctx);
-            final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
-            final SubobjectBuilder subs = new SubobjectBuilder()
-                .setSubobjectType(new LabelCaseBuilder().setLabel(
-                    new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
-                        new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
-                            new GeneralizedLabelBuilder().setGeneralizedLabel(
-                                new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF })
-                            .build()).build()).build()).build());
-            assertEquals(
-                subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(LABEL_BYTES, 2))));
-            final ByteBuf buff = Unpooled.buffer();
-            parser.serializeSubobject(subs.build(), buff);
-            assertArrayEquals(LABEL_BYTES, ByteArray.getAllBytes(buff));
+        final BaseParserExtensionActivator act = new BaseParserExtensionActivator();
+        act.start(ctx);
 
-            try {
-                parser.parseSubobject(null);
-                fail();
-            } catch (final IllegalArgumentException e) {
-                assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-            }
-            try {
-                parser.parseSubobject(Unpooled.EMPTY_BUFFER);
-                fail();
-            } catch (final IllegalArgumentException e) {
-                assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-            }
+        final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
+        final SubobjectBuilder subs = new SubobjectBuilder()
+            .setSubobjectType(new LabelCaseBuilder().setLabel(
+                new LabelBuilder().setUniDirectional(true).setGlobal(false).setLabelType(
+                    new GeneralizedLabelCaseBuilder().setGeneralizedLabel(
+                        new GeneralizedLabelBuilder().setGeneralizedLabel(
+                            new byte[] { (byte) 0x12, (byte) 0x00, (byte) 0x25, (byte) 0xFF })
+                        .build()).build()).build()).build());
+        assertEquals(
+            subs.build(), parser.parseSubobject(Unpooled.wrappedBuffer(ByteArray.cutBytes(LABEL_BYTES, 2))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeSubobject(subs.build(), buff);
+        assertArrayEquals(LABEL_BYTES, ByteArray.getAllBytes(buff));
+
+        try {
+            parser.parseSubobject(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+        try {
+            parser.parseSubobject(Unpooled.EMPTY_BUFFER);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
     }
 }
