@@ -33,7 +33,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  * Starts and stops {@link RSVPExtensionProviderActivator} instances for an {@link RSVPExtensionProviderContext}.
  */
 @Singleton
-@Component(immediate = true, service = RSVPExtensionConsumerContext.class)
+@Component(immediate = true)
 @MetaInfServices
 public final class DefaultRSVPExtensionConsumerContext implements RSVPExtensionConsumerContext {
     private final @NonNull SimpleRSVPExtensionProviderContext delegate = new SimpleRSVPExtensionProviderContext();
