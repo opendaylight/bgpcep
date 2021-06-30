@@ -19,14 +19,14 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBActivatorTest;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.ServiceLoaderRSVPExtensionProviderContext;
+import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 
 public class ActivatorTest extends AbstractRIBActivatorTest {
     @Test
     public void testActivator() {
-        final BGPActivator act = new BGPActivator(ServiceLoaderRSVPExtensionProviderContext.getSingletonInstance());
+        final BGPActivator act = new BGPActivator(new SimpleRSVPExtensionProviderContext());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getAddressFamilyRegistry().classForFamily(16388));
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(71));

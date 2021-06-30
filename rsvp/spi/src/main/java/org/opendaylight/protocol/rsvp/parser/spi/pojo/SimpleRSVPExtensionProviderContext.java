@@ -27,9 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext implements
-    RSVPExtensionProviderContext {
-
+public final class SimpleRSVPExtensionProviderContext extends SimpleRSVPExtensionConsumerContext
+        implements RSVPExtensionProviderContext {
     private static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
 
     private final AtomicReference<Cache<Object, Object>> cacheRef;
