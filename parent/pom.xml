@@ -30,6 +30,8 @@
         </license>
     </licenses>
 
+    <odlparent.dependency.enforce>true</odlparent.dependency.enforce>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -140,22 +142,6 @@
                     <runOrder>alphabetical</runOrder>
                     <threadCount>1</threadCount>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>analyze</id>
-                        <goals>
-                            <goal>analyze-only</goal>
-                        </goals>
-                        <configuration>
-                            <failOnWarning>true</failOnWarning>
-                            <ignoreNonCompile>true</ignoreNonCompile>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
