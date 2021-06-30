@@ -7,18 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.DefaultBGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.KeepaliveBuilder;
@@ -33,7 +34,6 @@ public class AbstractMessageRegistryTest {
     };
 
     private final AbstractMessageRegistry registry = new AbstractMessageRegistry() {
-
         @Override
         protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
             buffer.writeBytes(KEEPALIVE_BMSG);
@@ -54,7 +54,7 @@ public class AbstractMessageRegistryTest {
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
         final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
-        assertTrue(not instanceof Keepalive);
+        assertThat(not, instanceOf(Keepalive.class));
     }
 
     @Test
@@ -64,13 +64,10 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x13, (byte) 0x04
         };
-        try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPDocumentedException);
-            Assert.assertEquals("Marker not set to ones.", e.getMessage());
-        }
+
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+        assertEquals("Marker not set to ones.", ex.getMessage());
     }
 
     @Test
@@ -80,13 +77,9 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x12, (byte) 0x04
         };
-        try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPDocumentedException);
-            Assert.assertEquals("Message length field not within valid range.", e.getMessage());
-        }
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+        assertEquals("Message length field not within valid range.", ex.getMessage());
     }
 
     @Test
@@ -96,37 +89,24 @@ public class AbstractMessageRegistryTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04
         };
-        try {
-            this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null);
-            Assert.fail();
-        } catch (BGPDocumentedException | BGPParsingException e) {
-            assertTrue(e instanceof BGPParsingException);
-            Assert.assertTrue(e.getMessage().startsWith("Size doesn't match size specified in header."));
-        }
+        final BGPParsingException ex = assertThrows(BGPParsingException.class,
+            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+        assertThat(ex.getMessage(), startsWith("Size doesn't match size specified in header."));
     }
 
     @Test
-    public void testBGPHeaderParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getMessageRegistry();
-        try {
-            msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null);
-            fail("Exception should have occured.");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", e.getMessage());
-        }
+    public void testBGPHeaderParser() {
+        final MessageRegistry msgReg = new DefaultBGPExtensionConsumerContext().getMessageRegistry();
+        final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null));
+        assertEquals("Too few bytes in passed array. Passed: 2. Expected: >= 19.", ex.getMessage());
     }
 
     @Test
-    public void testMessageParser() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getMessageRegistry();
-        String ex = "";
-        try {
-            msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER);
-        } catch (final NullPointerException e) {
-            ex = e.getMessage();
-        }
-        assertEquals("BGPMessage is mandatory.", ex);
+    public void testMessageParser() {
+        final MessageRegistry msgReg = new DefaultBGPExtensionConsumerContext().getMessageRegistry();
+        final NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER));
+        assertEquals("BGPMessage is mandatory.", ex.getMessage());
     }
 }
