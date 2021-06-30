@@ -75,7 +75,7 @@ public class SimpleRegistryTest {
 
     @Before
     public void setUp() {
-        this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
+        this.ctx = new SimpleBGPExtensionProviderContext();
         regs = this.activator.start(this.ctx);
     }
 
