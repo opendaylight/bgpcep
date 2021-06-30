@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import io.netty.channel.Channel;
@@ -14,13 +17,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -35,8 +38,7 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BmpMockTest {
-
-    private final BmpSessionListener sessionListener = Mockito.mock(BmpSessionListener.class);
+    private final BmpSessionListener sessionListener = mock(BmpSessionListener.class);
     private BmpExtensionProviderActivator bmpActivator;
     private BmpDispatcherImpl bmpDispatcher;
 
@@ -44,7 +46,7 @@ public class BmpMockTest {
     public void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         this.bmpActivator = new BmpActivator(
-            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance());
+            ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow());
         this.bmpActivator.start(ctx);
         this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
             new DefaultBmpSessionFactory());
@@ -79,12 +81,12 @@ public class BmpMockTest {
             "--pre_policy_routes",
             "3"});
 
-        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
-                .onSessionUp(Mockito.any(BmpSession.class));
+        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+                .onSessionUp(any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
             .times(13))
-            .onMessage(Mockito.any(Notification.class));
+            .onMessage(any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();
@@ -116,12 +118,12 @@ public class BmpMockTest {
             sessionUpWait = 40;
         }
 
-        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
-            .onSessionUp(Mockito.any(BmpSession.class));
+        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+            .onSessionUp(any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        verify(this.sessionListener, Mockito.timeout(TimeUnit.SECONDS.toMillis(10))
+        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
             .times(13))
-            .onMessage(Mockito.any(Notification.class));
+            .onMessage(any(Notification.class));
 
         if (serverChannel != null) {
             serverChannel.close().sync();

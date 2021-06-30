@@ -13,11 +13,11 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -38,7 +38,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class AbstractBmpPerPeerMessageParserTest {
     private static final String RD = "5:3";
-    private BGPExtensionProviderContext ctx;
+    private MessageRegistry msgRegistry;
     private AbstractBmpPerPeerMessageParser<?> parser;
     private final byte[] ipv6MsgWithDistinguishergBytes = {
         (byte) 0x01, (byte) 0xc0,
@@ -56,8 +56,8 @@ public class AbstractBmpPerPeerMessageParserTest {
 
     @Before
     public void setUp() {
-        this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        final MessageRegistry msgRegistry = this.ctx.getMessageRegistry();
+        msgRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow()
+            .getMessageRegistry();
         this.parser = new AbstractBmpPerPeerMessageParser<>(msgRegistry) {
             @Override
             public Notification parseMessageBody(final ByteBuf bytes) {
@@ -135,7 +135,6 @@ public class AbstractBmpPerPeerMessageParserTest {
 
     @Test
     public void testBgpMessageRegistry() {
-        final MessageRegistry msgRegistry = this.ctx.getMessageRegistry();
         assertEquals(msgRegistry, this.parser.getBgpMessageRegistry());
     }
 

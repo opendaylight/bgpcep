@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bmp.spi.registry;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Keepalive;
@@ -20,6 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.description.tlv.DescriptionTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.reason.tlv.ReasonTlv;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleBmpExtensionProviderContextTest {
 
     private static final SimpleBmpMessageRegistry MESSAGE_REGISTRY = new SimpleBmpMessageRegistry();
@@ -29,11 +30,6 @@ public class SimpleBmpExtensionProviderContextTest {
     private BmpTlvParser tlvParser;
     @Mock
     private BmpTlvSerializer tlvSerializer;
-
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
 
     @Test
     public void testRegisterBmpMessageParser() {
