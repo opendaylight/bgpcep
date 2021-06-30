@@ -15,17 +15,18 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 
 public class BGPParserTest {
-    private final MessageRegistry registry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance(
-        ).getMessageRegistry();
+    private final MessageRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+        .orElseThrow().getMessageRegistry();
 
     @Test
     public void testMessageToByteEncoding() {

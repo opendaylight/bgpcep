@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,7 +36,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.mock.BGPMock;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
@@ -82,8 +83,9 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final String hexMessages = "/bgp_hex.txt";
         final List<byte[]> bgpMessages = HexDumpBGPFileParser
                 .parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
-        this.mock = new BGPMock(new EventBus("test"), ServiceLoaderBGPExtensionProviderContext
-                .getSingletonInstance().getMessageRegistry(), Lists.newArrayList(fixMessages(bgpMessages)));
+        this.mock = new BGPMock(new EventBus("test"),
+            ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow().getMessageRegistry(),
+            Lists.newArrayList(fixMessages(bgpMessages)));
 
         doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
                 .createReconnectingClient(any(InetSocketAddress.class), any(InetSocketAddress.class),
@@ -143,7 +145,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
     private void assertTablesExists(final List<BgpTableType> expectedTables) throws InterruptedException,
             ExecutionException {
         readDataOperational(getDataBroker(), BGP_IID, bgpRib -> {
-            final var tables = bgpRib.getRib().values().iterator().next().getLocRib().getTables();
+            final var tables = bgpRib.nonnullRib().values().iterator().next().getLocRib().getTables();
             assertNotNull(tables);
 
             for (final BgpTableType tableType : expectedTables) {
