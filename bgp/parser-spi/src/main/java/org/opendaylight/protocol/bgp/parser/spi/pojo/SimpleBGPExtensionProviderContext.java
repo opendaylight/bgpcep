@@ -37,7 +37,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
-public class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext
+public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionConsumerContext
         implements BGPExtensionProviderContext {
 
     public static final int DEFAULT_MAXIMUM_CACHED_OBJECTS = 100000;
