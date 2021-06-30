@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 import org.opendaylight.protocol.bgp.parser.spi.AddressFamilyRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.BgpPrefixSidTlvRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.CapabilityRegistry;
@@ -68,15 +69,16 @@ public class SimpleRegistryTest {
         CONSTRAINT = peerConstraint;
     }
 
-    protected BGPExtensionProviderContext ctx;
+    protected BGPExtensionConsumerContext ctx;
 
     private final BgpTestActivator activator = new BgpTestActivator();
     private List<? extends Registration> regs;
 
     @Before
     public void setUp() {
-        this.ctx = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance();
-        regs = this.activator.start(this.ctx);
+        final BGPExtensionProviderContext provider = new SimpleBGPExtensionProviderContext();
+        this.ctx = provider;
+        regs = this.activator.start(provider);
     }
 
     @After
