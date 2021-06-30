@@ -12,8 +12,9 @@ import static org.junit.Assert.assertArrayEquals;
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
@@ -22,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class UnrecognizedAttributesSerializerTest {
-
     @Test
     public void testUnrecognizedAttributesSerializer() {
         final byte[] unrecognizedValue1 = {
@@ -45,8 +45,8 @@ public class UnrecognizedAttributesSerializerTest {
                     unrecognizedAttribute2.key(), unrecognizedAttribute2)).build();
 
         final ByteBuf buffer = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().serializeAttribute(attrs,
-            buffer);
+        ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow().getAttributeRegistry()
+            .serializeAttribute(attrs, buffer);
         assertArrayEquals(unrecognizedBytes, ByteArray.readAllBytes(buffer));
     }
 }

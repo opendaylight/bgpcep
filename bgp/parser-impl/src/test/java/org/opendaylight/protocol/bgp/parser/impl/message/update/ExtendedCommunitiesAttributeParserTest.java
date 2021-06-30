@@ -16,12 +16,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.extended.community.ExtendedCommunityRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
@@ -46,9 +46,8 @@ public class ExtendedCommunitiesAttributeParserTest {
 
     @Before
     public void setUp() {
-        final ExtendedCommunityRegistry exReg = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getExtendedCommunityRegistry();
-        this.handler = new ExtendedCommunitiesAttributeParser(exReg);
+        this.handler = new ExtendedCommunitiesAttributeParser(ServiceLoader.load(BGPExtensionConsumerContext.class)
+            .findFirst().orElseThrow().getExtendedCommunityRegistry());
     }
 
     @Test
