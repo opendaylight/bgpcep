@@ -98,7 +98,6 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
@@ -155,17 +154,16 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
 @Singleton
-@MetaInfServices(value = PCEPExtensionProviderActivator.class)
-@Component(immediate = true, service = PCEPExtensionProviderActivator.class,
-           property = "type=org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator")
-public final class BaseParserExtensionActivator extends AbstractPCEPExtensionProviderActivator {
+@MetaInfServices
+@Component(immediate = true, property = "type=org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator")
+public final class BaseParserExtensionActivator implements PCEPExtensionProviderActivator {
     @Inject
     public BaseParserExtensionActivator() {
         // Exposed for DI
     }
 
     @Override
-    protected List<Registration> startImpl(final PCEPExtensionProviderContext context) {
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
         registerLabelParsers(regs, context);

@@ -22,8 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.KeepaliveBuilder;
@@ -101,15 +100,7 @@ public class RegistryTest {
 
     public final List<Registration> regs = new ArrayList<>();
 
-    final AbstractPCEPExtensionProviderActivator activator = new AbstractPCEPExtensionProviderActivator() {
-
-        @Override
-        protected List<? extends Registration> startImpl(final PCEPExtensionProviderContext context) {
-            return RegistryTest.this.regs;
-        }
-    };
-
-    final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+    final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
     @SuppressWarnings("unchecked")
     @Before
@@ -206,8 +197,5 @@ public class RegistryTest {
         this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(
             new EnterpriseNumber(Uint32.valueOf(12)), buffer);
         this.ctx.getVendorInformationTlvRegistry().serializeVendorInformationTlv(this.viTlv, buffer);
-
-        this.activator.start(this.ctx);
-        this.activator.close();
     }
 }

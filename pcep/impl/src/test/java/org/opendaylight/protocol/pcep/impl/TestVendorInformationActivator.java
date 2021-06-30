@@ -7,25 +7,23 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.AbstractPCEPExtensionProviderActivator;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class TestVendorInformationActivator extends AbstractPCEPExtensionProviderActivator {
+public class TestVendorInformationActivator implements PCEPExtensionProviderActivator {
     @Override
-    protected List<Registration> startImpl(PCEPExtensionProviderContext context) {
-        final List<Registration> regs = new ArrayList<>();
+    public List<Registration> start(final PCEPExtensionProviderContext context) {
         final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
-        regs.add(context.registerVendorInformationTlvParser(parser.getEnterpriseNumber(), parser));
-        regs.add(context.registerVendorInformationTlvSerializer(TestEnterpriseSpecificInformation.class, parser));
-
-        // Vendor-information object registration
         final TestVendorInformationObjectParser objParser = new TestVendorInformationObjectParser();
-        regs.add(context.registerVendorInformationObjectParser(parser.getEnterpriseNumber(), objParser));
-        regs.add(context.registerVendorInformationObjectSerializer(TestEnterpriseSpecificInformation.class, objParser));
-        return regs;
+
+        return List.of(
+            context.registerVendorInformationTlvParser(parser.getEnterpriseNumber(), parser),
+            context.registerVendorInformationTlvSerializer(TestEnterpriseSpecificInformation.class, parser),
+            // Vendor-information object registration
+            context.registerVendorInformationObjectParser(parser.getEnterpriseNumber(), objParser),
+            context.registerVendorInformationObjectSerializer(TestEnterpriseSpecificInformation.class, objParser));
     }
 }

@@ -7,8 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-public interface PCEPExtensionProviderActivator {
-    void start(PCEPExtensionProviderContext context);
+import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.yangtools.concepts.Registration;
 
-    void stop();
+@NonNullByDefault
+public interface PCEPExtensionProviderActivator {
+    List<Registration> start(PCEPExtensionProviderContext context);
 }
