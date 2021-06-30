@@ -7,21 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AigpAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
-import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.DefaultBGPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Aigp;
@@ -31,16 +29,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * This class is aimed to test parsing and serializing path attributes.
  */
 public class PathAttributeParserTest {
+    private final DefaultBGPExtensionConsumerContext ctx = new DefaultBGPExtensionConsumerContext();
 
     @Test
-    public void testOriginParser() throws BGPParsingException {
-        try {
-            ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry().parseAttributes(
-                    Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }), null);
-            fail("This needs to fail.");
-        } catch (final BGPDocumentedException e) {
-            assertEquals("Unknown ORIGIN type 4", e.getMessage());
-        }
+    public void testOriginParser() {
+        final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
+            () -> ctx.getAttributeRegistry().parseAttributes(
+                Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }), null));
+        assertEquals("Unknown ORIGIN type 4", ex.getMessage());
     }
 
     @Test
@@ -48,19 +44,15 @@ public class PathAttributeParserTest {
         final byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
         final ByteBuf buffer = Unpooled.buffer();
 
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE,
-            Unpooled.copiedBuffer(value), buffer);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value),
+            buffer);
 
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance();
-        final Attributes pathAttributes = providerContext.getAttributeRegistry()
-            .parseAttributes(buffer, null).getAttributes();
+        final Attributes pathAttributes = ctx.getAttributeRegistry().parseAttributes(buffer, null).getAttributes();
         final Aigp aigp = pathAttributes.getAigp();
         final AigpTlv tlv = aigp.getAigpTlv();
 
         assertNotNull("Tlv should not be null.", tlv);
-        assertEquals("Aigp tlv should have metric with value 8.", 8,
-            tlv.getMetric().getValue().intValue());
+        assertEquals("Aigp tlv should have metric with value 8.", 8, tlv.getMetric().getValue().intValue());
     }
 
     @Test
@@ -69,13 +61,10 @@ public class PathAttributeParserTest {
         final ByteBuf inputData = Unpooled.buffer();
         final ByteBuf testBuffer = Unpooled.buffer();
 
-        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE,
-            Unpooled.copiedBuffer(value), inputData);
+        AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, AigpAttributeParser.TYPE, Unpooled.copiedBuffer(value),
+            inputData);
 
-        final BGPExtensionProviderContext providerContext = ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance();
-        final Attributes pathAttributes = providerContext.getAttributeRegistry()
-            .parseAttributes(inputData, null).getAttributes();
+        final Attributes pathAttributes = ctx.getAttributeRegistry().parseAttributes(inputData, null).getAttributes();
         final Aigp aigp = pathAttributes.getAigp();
 
         final AttributesBuilder pathAttributesBuilder = new AttributesBuilder();
@@ -87,6 +76,6 @@ public class PathAttributeParserTest {
         final byte[] unparserData = inputData.copy(0, inputData.writerIndex()).array();
         final byte[] serializedData = testBuffer.copy(0, inputData.writerIndex()).array();
 
-        assertTrue("Buffers should be the same.", Arrays.equals(unparserData, serializedData));
+        assertArrayEquals(unparserData, serializedData);
     }
 }
