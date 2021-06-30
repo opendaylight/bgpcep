@@ -22,15 +22,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriRegistry;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -106,10 +107,15 @@ public class ParserTest {
 
     private static final int LENGTH_FIELD_LENGTH = 2;
 
+    private MessageRegistry msgReg;
+
     @Before
     public void setUp() throws Exception {
-        updateParser = new BGPUpdateMessageParser(ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance().getAttributeRegistry(), mock(NlriRegistry.class));
+        final BGPExtensionConsumerContext context = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+            .orElseThrow();
+
+        msgReg = context.getMessageRegistry();
+        updateParser = new BGPUpdateMessageParser(context.getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
             final String name = "/up" + i + ".bin";
             try (InputStream is = ParserTest.class.getResourceAsStream(name)) {
@@ -659,8 +665,6 @@ public class ParserTest {
      */
     @Test
     public void testOpenMessage() throws Exception {
-        final MessageRegistry msgReg = ServiceLoaderBGPExtensionProviderContext
-            .getSingletonInstance().getMessageRegistry();
         final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
         final Open open = (Open) o;
         final Set<BgpTableType> types = new HashSet<>();

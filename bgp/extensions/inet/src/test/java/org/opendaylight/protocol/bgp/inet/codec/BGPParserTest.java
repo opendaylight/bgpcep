@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.inet.codec;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -22,13 +21,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.PeerSpecificParserConstraintImpl;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -77,7 +77,8 @@ public class BGPParserTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        messageRegistry = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getMessageRegistry();
+        messageRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow()
+            .getMessageRegistry();
         input = new ArrayList<>(MESSAGE_COUNT);
         for (int i = 1; i <= MESSAGE_COUNT; i++) {
 
