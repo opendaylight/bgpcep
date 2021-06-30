@@ -16,17 +16,18 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Tlv;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleBmpTlvRegistryTest {
-
     private final SimpleBmpTlvRegistry bmpTlvRegistry = new SimpleBmpTlvRegistry();
     private final byte[] bytes = new byte[]{1, 2, 3};
     private final ByteBuf input = Unpooled.wrappedBuffer(this.bytes);
@@ -39,7 +40,6 @@ public class SimpleBmpTlvRegistryTest {
 
     @Before
     public void setUp() throws BmpDeserializationException {
-        MockitoAnnotations.initMocks(this);
         this.bmpTlvRegistry.registerBmpTlvParser(DESCRIPTION_TLV_TYPE, this.descriptionTlvParser);
         this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class, this.descriptionTlvSerializer);
         Mockito.doReturn(new MockDescriptionTlv()).when(this.descriptionTlvParser).parseTlv(this.input);
