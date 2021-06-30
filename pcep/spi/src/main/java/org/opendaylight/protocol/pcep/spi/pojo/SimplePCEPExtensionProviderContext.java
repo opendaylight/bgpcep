@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.concepts.Registration;
 
 // This class is thread-safe
-public class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
+public final class SimplePCEPExtensionProviderContext implements PCEPExtensionProviderContext {
     private final SimpleLabelRegistry labelReg = new SimpleLabelRegistry();
     private final SimpleMessageRegistry msgReg = new SimpleMessageRegistry();
     private final SimpleVendorInformationObjectRegistry viObjReg = new SimpleVendorInformationObjectRegistry();
@@ -53,37 +53,37 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     private final SimpleVendorInformationTlvRegistry viTlvReg = new SimpleVendorInformationTlvRegistry();
 
     @Override
-    public final LabelRegistry getLabelHandlerRegistry() {
+    public LabelRegistry getLabelHandlerRegistry() {
         return this.labelReg;
     }
 
     @Override
-    public final MessageRegistry getMessageHandlerRegistry() {
+    public MessageRegistry getMessageHandlerRegistry() {
         return this.msgReg;
     }
 
     @Override
-    public final ObjectRegistry getObjectHandlerRegistry() {
+    public ObjectRegistry getObjectHandlerRegistry() {
         return this.objReg;
     }
 
     @Override
-    public final EROSubobjectRegistry getEROSubobjectHandlerRegistry() {
+    public EROSubobjectRegistry getEROSubobjectHandlerRegistry() {
         return this.eroSubReg;
     }
 
     @Override
-    public final RROSubobjectRegistry getRROSubobjectHandlerRegistry() {
+    public RROSubobjectRegistry getRROSubobjectHandlerRegistry() {
         return this.rroSubReg;
     }
 
     @Override
-    public final XROSubobjectRegistry getXROSubobjectHandlerRegistry() {
+    public XROSubobjectRegistry getXROSubobjectHandlerRegistry() {
         return this.xroSubReg;
     }
 
     @Override
-    public final TlvRegistry getTlvHandlerRegistry() {
+    public TlvRegistry getTlvHandlerRegistry() {
         return this.tlvReg;
     }
 
@@ -93,56 +93,56 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     }
 
     @Override
-    public final Registration registerLabelSerializer(final Class<? extends LabelType> labelClass,
+    public Registration registerLabelSerializer(final Class<? extends LabelType> labelClass,
             final LabelSerializer serializer) {
         return this.labelReg.registerLabelSerializer(labelClass, serializer);
     }
 
     @Override
-    public final Registration registerLabelParser(final int ctype, final LabelParser parser) {
+    public Registration registerLabelParser(final int ctype, final LabelParser parser) {
         return this.labelReg.registerLabelParser(ctype, parser);
     }
 
     @Override
-    public final Registration registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
+    public Registration registerEROSubobjectParser(final int subobjectType, final EROSubobjectParser parser) {
         return this.eroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final Registration registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+    public Registration registerEROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
             final EROSubobjectSerializer serializer) {
         return this.eroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
     }
 
     @Override
-    public final Registration registerMessageParser(final int messageType, final MessageParser parser) {
+    public Registration registerMessageParser(final int messageType, final MessageParser parser) {
         return this.msgReg.registerMessageParser(messageType, parser);
     }
 
     @Override
-    public final Registration registerMessageSerializer(final Class<? extends Message> msgClass,
+    public Registration registerMessageSerializer(final Class<? extends Message> msgClass,
             final MessageSerializer serializer) {
         return this.msgReg.registerMessageSerializer(msgClass, serializer);
     }
 
     @Override
-    public final Registration registerObjectParser(final ObjectParser parser) {
+    public Registration registerObjectParser(final ObjectParser parser) {
         return this.objReg.registerObjectParser(parser.getObjectClass(), parser.getObjectType(), parser);
     }
 
     @Override
-    public final Registration registerObjectSerializer(final Class<? extends Object> objClass,
+    public Registration registerObjectSerializer(final Class<? extends Object> objClass,
             final ObjectSerializer serializer) {
         return this.objReg.registerObjectSerializer(objClass, serializer);
     }
 
     @Override
-    public final Registration registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
+    public Registration registerRROSubobjectParser(final int subobjectType, final RROSubobjectParser parser) {
         return this.rroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final Registration registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
+    public Registration registerRROSubobjectSerializer(final Class<? extends org.opendaylight.yang.gen.v1.urn
             .opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType> subobjectClass,
             final RROSubobjectSerializer serializer) {
         return this.rroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
@@ -154,18 +154,18 @@ public class SimplePCEPExtensionProviderContext implements PCEPExtensionProvider
     }
 
     @Override
-    public final Registration registerTlvSerializer(final Class<? extends Tlv> tlvClass,
+    public Registration registerTlvSerializer(final Class<? extends Tlv> tlvClass,
             final TlvSerializer serializer) {
         return this.tlvReg.registerTlvSerializer(tlvClass, serializer);
     }
 
     @Override
-    public final Registration registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
+    public Registration registerXROSubobjectParser(final int subobjectType, final XROSubobjectParser parser) {
         return this.xroSubReg.registerSubobjectParser(subobjectType, parser);
     }
 
     @Override
-    public final Registration registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
+    public Registration registerXROSubobjectSerializer(final Class<? extends SubobjectType> subobjectClass,
             final XROSubobjectSerializer serializer) {
         return this.xroSubReg.registerSubobjectSerializer(subobjectClass, serializer);
     }

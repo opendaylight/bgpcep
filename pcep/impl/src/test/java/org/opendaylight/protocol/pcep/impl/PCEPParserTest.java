@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
@@ -27,8 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 
 public class PCEPParserTest {
 
-    private final MessageRegistry registry =
-        ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance().getMessageHandlerRegistry();
+    private final MessageRegistry registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
 
     @Test
     public void testMessageToByteEncoding() {

@@ -20,17 +20,14 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.ietf.initiated.InitiatedActivator;
-import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
-import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 final class PCCsBuilder {
@@ -47,6 +44,8 @@ final class PCCsBuilder {
     private final int stateTimeout;
     private final PCEPCapability pcepCapabilities;
     private final Timer timer = new HashedWheelTimer();
+    private final MessageRegistry registry;
+
     private PCCDispatcherImpl pccDispatcher;
 
     PCCsBuilder(final int lsps, final boolean pcError, final int pccCount,
@@ -65,13 +64,19 @@ final class PCCsBuilder {
         this.redelegationTimeout = redelegationTimeout;
         this.stateTimeout = stateTimeout;
         this.pcepCapabilities = pcepCapabilities;
-        startActivators();
+
+//        final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+//        new PCCActivator().start(ctx);
+//        new StatefulActivator().start(ctx);
+//        new SyncOptimizationsActivator().start(ctx);
+//        new InitiatedActivator().start(ctx);
+
+        this.registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
     }
 
     void createPCCs(final Uint64 initialDBVersion, final Optional<TimerHandler> timerHandler) {
         InetAddress currentAddress = this.localAddress.getAddress();
-        this.pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getMessageHandlerRegistry());
+        this.pccDispatcher = new PCCDispatcherImpl(registry);
         if (timerHandler.isPresent()) {
             timerHandler.get().setPCCDispatcher(this.pccDispatcher);
         }
@@ -98,17 +103,5 @@ final class PCCsBuilder {
         final List<PCEPCapability> capabilities = Lists.newArrayList(this.pcepCapabilities);
         return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(this.deadTimer,
             this.keepAlive, capabilities), 0);
-    }
-
-    private static void startActivators() {
-        final PCCActivator pccActivator = new PCCActivator();
-        final StatefulActivator stateful = new StatefulActivator();
-        final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
-        final InitiatedActivator activator = new InitiatedActivator();
-        final PCEPExtensionProviderContext ctx = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
-        pccActivator.start(ctx);
-        stateful.start(ctx);
-        optimizationsActivator.start(ctx);
-        activator.start(ctx);
     }
 }

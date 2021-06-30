@@ -21,7 +21,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public final class PCCMock {
@@ -40,8 +40,8 @@ public final class PCCMock {
                 .getPortOrDefault(12345));
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
-        try (PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext
-                .getSingletonInstance().getMessageHandlerRegistry())) {
+        try (PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(
+                new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry())) {
             pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf,
                     KeyMapping.getKeyMapping(), clientAddr).get();
         }

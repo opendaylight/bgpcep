@@ -5,13 +5,14 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -28,26 +29,25 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.nio.channels.Channel;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCEPDispatcherImplTest {
     private static final short DEAD_TIMER = 120;
     private static final short KEEP_ALIVE = 30;
@@ -68,18 +68,15 @@ public class PCEPDispatcherImplTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        final List<PCEPCapability> capList = new ArrayList<>();
         final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
-                capList);
+                List.of());
         final EventLoopGroup eventLoopGroup;
         if (Epoll.isAvailable()) {
             eventLoopGroup = new EpollEventLoopGroup();
         } else {
             eventLoopGroup = new NioEventLoopGroup();
         }
-        final MessageRegistry msgReg = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getMessageHandlerRegistry();
+        final MessageRegistry msgReg = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
         this.dispatcher = new PCEPDispatcherImpl(msgReg,
                 new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 eventLoopGroup, eventLoopGroup);
@@ -87,11 +84,10 @@ public class PCEPDispatcherImplTest {
         doReturn(KeyMapping.getKeyMapping()).when(this.dispatcherDependencies).getKeys();
         doReturn(null).when(this.dispatcherDependencies).getPeerProposal();
 
-        doReturn("mockChannel").when(this.mockChannel).toString();
         final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg,
                 new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 eventLoopGroup, eventLoopGroup);
-        this.disp2Spy = Mockito.spy(dispatcher2);
+        this.disp2Spy = spy(dispatcher2);
 
         this.pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
                 new PCEPHandlerFactory(msgReg));
@@ -189,12 +185,10 @@ public class PCEPDispatcherImplTest {
         keys.put(clientAddr2.getAddress(), "CLIENT2_ADDRESS".getBytes());
 
         doReturn(new InetSocketAddress("0.0.0.0", port)).when(this.dispatcherDependencies).getAddress();
-        doReturn(this.listenerFactory).when(this.dispatcherDependencies).getListenerFactory();
-        doReturn(new SimpleSessionListener()).when(this.listenerFactory).getSessionListener();
 
         final ChannelFuture futureChannel = this.disp2Spy.createServer(this.dispatcherDependencies);
         futureChannel.sync();
-        Mockito.verify(this.disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class));
+        verify(this.disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class));
     }
 
     @After
@@ -245,11 +239,11 @@ public class PCEPDispatcherImplTest {
             return p;
         }
 
-        @SuppressWarnings("checkstyle:EmptyBlock")
         private static void setChannelFactory(final Bootstrap bootstrap) {
             try {
                 bootstrap.channel(NioSocketChannel.class);
             } catch (final IllegalStateException ignored) {
+                // Ignored
             }
         }
 

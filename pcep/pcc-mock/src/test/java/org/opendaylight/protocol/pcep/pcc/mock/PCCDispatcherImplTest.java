@@ -18,7 +18,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,7 +26,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -36,14 +34,14 @@ import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
 public class PCCDispatcherImplTest {
 
-    private static final List<PCEPCapability> CAPS = new ArrayList<>();
     private static final PCEPSessionProposalFactory PROPOSAL
-            = new BasePCEPSessionProposalFactory(10, 40, CAPS);
+            = new BasePCEPSessionProposalFactory(10, 40, new ArrayList<>());
     private final DefaultPCEPSessionNegotiatorFactory nf
             = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
     private PCCDispatcherImpl dispatcher;
@@ -52,6 +50,7 @@ public class PCCDispatcherImplTest {
     private InetSocketAddress clientAddress;
     private EventLoopGroup workerGroup;
     private EventLoopGroup bossGroup;
+    private MessageRegistry registry;
 
     @Mock
     PCEPDispatcherDependencies dispatcherDependencies;
@@ -61,11 +60,11 @@ public class PCCDispatcherImplTest {
         MockitoAnnotations.initMocks(this);
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.dispatcher = new PCCDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getMessageHandlerRegistry());
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getMessageHandlerRegistry(),
-            this.nf, this.bossGroup, this.workerGroup);
+
+        registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
+
+        this.dispatcher = new PCCDispatcherImpl(this.registry);
+        this.pcepDispatcher = new PCEPDispatcherImpl(this.registry, this.nf, this.bossGroup, this.workerGroup);
         this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
         doReturn(KeyMapping.getKeyMapping()).when(this.dispatcherDependencies).getKeys();
@@ -106,9 +105,7 @@ public class PCCDispatcherImplTest {
 
         this.workerGroup = new NioEventLoopGroup();
         this.bossGroup = new NioEventLoopGroup();
-        this.pcepDispatcher = new PCEPDispatcherImpl(ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getMessageHandlerRegistry(),
-            this.nf, this.bossGroup, this.workerGroup);
+        this.pcepDispatcher = new PCEPDispatcherImpl(this.registry, this.nf, this.bossGroup, this.workerGroup);
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         doReturn(slf2).when(this.dispatcherDependencies).getListenerFactory();

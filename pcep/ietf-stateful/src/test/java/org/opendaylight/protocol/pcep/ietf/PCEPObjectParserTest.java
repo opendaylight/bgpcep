@@ -23,7 +23,6 @@ import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsLspObjectParser;
@@ -70,24 +69,16 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPObjectParserTest {
-
-    private SimplePCEPExtensionProviderContext ctx;
-    private BaseParserExtensionActivator act;
-
-    private TlvRegistry tlvRegistry;
-    private VendorInformationTlvRegistry viTlvRegistry;
-
     private static final Uint64 DB_VERSION = Uint64.valueOf("0102030405060708", 16);
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
 
+    private final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+    private final TlvRegistry tlvRegistry = ctx.getTlvHandlerRegistry();
+    private final VendorInformationTlvRegistry viTlvRegistry = ctx.getVendorInformationTlvRegistry();
+
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new BaseParserExtensionActivator();
-        this.act.start(this.ctx);
-        this.tlvRegistry = ServiceLoaderPCEPExtensionProviderContext.create().getTlvHandlerRegistry();
-        this.viTlvRegistry = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance()
-                .getVendorInformationTlvRegistry();
+        new BaseParserExtensionActivator().start(this.ctx);
     }
 
     @Test
@@ -172,6 +163,8 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testStatefulLspObjectWithTlv() throws IOException, PCEPDeserializerException {
+        new StatefulActivator().start(ctx);
+
         final StatefulLspObjectParser parser = new StatefulLspObjectParser(this.tlvRegistry, this.viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
             "src/test/resources/PCEPLspObject2WithTLV.bin"));

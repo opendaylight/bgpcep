@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -47,8 +48,9 @@ import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.pojo.ServiceLoaderPCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
@@ -71,7 +73,7 @@ public abstract class PCCMockCommon {
             .getRandomLoopbackInetSocketAddress(this.port);
     PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
-    private PCEPExtensionProviderContext extensionProvider;
+    private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
     private MessageRegistry messageRegistry;
 
     protected abstract List<PCEPCapability> getCapabilities();
@@ -81,16 +83,16 @@ public abstract class PCCMockCommon {
         final BasePCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
                 getCapabilities());
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
-        this.extensionProvider = ServiceLoaderPCEPExtensionProviderContext.getSingletonInstance();
+
+        ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
+
         this.messageRegistry = this.extensionProvider.getMessageHandlerRegistry();
         this.pceDispatcher = new PCEPDispatcherImpl(this.messageRegistry, nf, new NioEventLoopGroup(),
                 new NioEventLoopGroup());
     }
 
     static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel,
-            final TestingSessionListenerFactory factory,
-            final String localAddress) throws
-            Exception {
+            final TestingSessionListenerFactory factory, final String localAddress) throws Exception {
         final TestingSessionListener sessionListener = checkSessionListenerNotNull(factory, localAddress);
         assertTrue(sessionListener.isUp());
         checkReceivedMessages(sessionListener, numMessages);
