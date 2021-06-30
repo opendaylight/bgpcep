@@ -12,10 +12,12 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -38,26 +40,24 @@ public class AggregatorAttributeParserTest {
                     .build())
             .build();
 
+    private final AttributeRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+        .orElseThrow().getAttributeRegistry();
+
     @Test
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(RESULT, actual);
+        registry.serializeAttribute(RESULT, actual);
         assertArrayEquals(ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = registry.parseAttributes(actual, null).getAttributes();
         assertEquals(RESULT.getAggregator(), attributeOut.getAggregator());
     }
 
     @Test
     public void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(new AttributesBuilder()
-                        .setAggregator(new AggregatorBuilder()
-                                .build())
-                        .build(), actual);
+        registry.serializeAttribute(new AttributesBuilder().setAggregator(new AggregatorBuilder().build()).build(),
+            actual);
         assertEquals(Unpooled.buffer(), actual);
     }
 }

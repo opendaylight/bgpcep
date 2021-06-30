@@ -12,10 +12,12 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ServiceLoader;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
@@ -28,27 +30,28 @@ public class MultiExitDiscriminatorAttributeParserTest {
     };
 
     private static final Attributes RESULT = new AttributesBuilder()
-            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ONE).build()).build();
+            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ONE).build())
+            .build();
+
+    private final AttributeRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+        .orElseThrow().getAttributeRegistry();
 
     @Test
     public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(RESULT, actual);
+        registry.serializeAttribute(RESULT, actual);
         assertArrayEquals(ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
 
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-                .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = registry.parseAttributes(actual, null).getAttributes();
         assertEquals(RESULT.getMultiExitDisc(), attributeOut.getMultiExitDisc());
     }
 
     @Test
     public void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-                .serializeAttribute(new AttributesBuilder()
-                        .setMultiExitDisc(new MultiExitDiscBuilder().build())
-                        .build(), actual);
+        registry.serializeAttribute(new AttributesBuilder()
+            .setMultiExitDisc(new MultiExitDiscBuilder().build())
+            .build(), actual);
         assertEquals(Unpooled.buffer(), actual);
     }
 }

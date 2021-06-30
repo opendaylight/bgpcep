@@ -14,8 +14,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.ServiceLoaderBGPExtensionProviderContext;
+import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -33,6 +35,9 @@ public class CommunitiesAttributeParserTest {
         (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 0x07
     };
 
+    private final AttributeRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+        .orElseThrow().getAttributeRegistry();
+
     @Test
     public void testCommunitiesAttributeParser() throws Exception {
         final List<Communities> comms = new ArrayList<>();
@@ -47,11 +52,9 @@ public class CommunitiesAttributeParserTest {
         paBuilder.setCommunities(comms);
 
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-            .serializeAttribute(paBuilder.build(), actual);
+        registry.serializeAttribute(paBuilder.build(), actual);
         assertArrayEquals(COMMUNITIES_BYTES, ByteArray.getAllBytes(actual));
-        final Attributes attributeOut = ServiceLoaderBGPExtensionProviderContext.getSingletonInstance()
-            .getAttributeRegistry().parseAttributes(actual, null).getAttributes();
+        final Attributes attributeOut = registry.parseAttributes(actual, null).getAttributes();
         assertEquals(comms, attributeOut.getCommunities());
     }
 
@@ -59,16 +62,14 @@ public class CommunitiesAttributeParserTest {
     public void testParseEmptyListAttribute() {
         final List<Communities> comms = new ArrayList<>();
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-            .serializeAttribute(new AttributesBuilder().setCommunities(comms).build(), actual);
+        registry.serializeAttribute(new AttributesBuilder().setCommunities(comms).build(), actual);
         assertEquals(Unpooled.buffer(), actual);
     }
 
     @Test
     public void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
-        ServiceLoaderBGPExtensionProviderContext.getSingletonInstance().getAttributeRegistry()
-            .serializeAttribute(new AttributesBuilder().build(), actual);
+        registry.serializeAttribute(new AttributesBuilder().build(), actual);
         assertEquals(Unpooled.buffer(), actual);
     }
 }
