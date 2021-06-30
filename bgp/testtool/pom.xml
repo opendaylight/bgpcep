@@ -31,6 +31,9 @@
     <description>BGP Interop Testing Tool</description>
     <name>${project.artifactId}</name>
 
+    <!-- We are shading things, override defaults -->
+    <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
