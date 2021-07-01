@@ -10,25 +10,26 @@ package org.opendaylight.protocol.bgp.state;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PeerGroupUtilTest {
     @Mock
     private BGPPeerState bgpPeerState;
 
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        doReturn(null).when(this.bgpPeerState).getGroupId();
+    public void setUp() {
+        doReturn(null).when(bgpPeerState).getGroupId();
     }
 
     @Test
     public void testNoneGroup() {
-        assertNull(PeerGroupUtil.buildPeerGroups(Collections.singletonList(this.bgpPeerState)));
+        assertNull(PeerGroupUtil.buildPeerGroups(List.of(bgpPeerState)));
     }
 }
