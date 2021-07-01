@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.state;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -22,14 +22,19 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.mdsal.binding.api.WriteOperations;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -54,34 +59,65 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
+@Singleton
+@Component(service = {})
+@Designate(ocd = StateProviderImpl.Configuration.class)
+@RequireServiceComponentRuntime
 public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
+    @ObjectClassDefinition
+    public static @interface Configuration {
+        @AttributeDefinition(description = "Name of the OpenConfig network instance to which to bind")
+        String networkInstanceName() default "global-bgp";
+
+        @AttributeDefinition(description = "Statistics update interval, in seconds", min = "1")
+        int updateIntervalSeconds() default 5;
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(StateProviderImpl.class);
+
     private final BGPStateConsumer stateCollector;
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
     private final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
-    private final int timeout;
     private final DataBroker dataBroker;
     @GuardedBy("this")
     private final Map<String, InstanceIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
     @GuardedBy("this")
     private TransactionChain transactionChain;
     @GuardedBy("this")
-    private ScheduledFuture<?> scheduleTask;
+    private final ScheduledFuture<?> scheduleTask;
     private final ScheduledExecutorService scheduler;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
+    @Activate
+    public StateProviderImpl(@Reference final @NonNull DataBroker dataBroker,
+            @Reference final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
+            @Reference final @NonNull BGPStateConsumer stateCollector, final @NonNull Configuration configuration) {
+        this(dataBroker, configuration.updateIntervalSeconds(), bgpTableTypeRegistry, stateCollector,
+            configuration.networkInstanceName());
+    }
+
+    @Inject
     public StateProviderImpl(final @NonNull DataBroker dataBroker, final int timeout,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
             final @NonNull BGPStateConsumer stateCollector, final @NonNull String networkInstanceName) {
-        this(dataBroker, timeout, bgpTableTypeRegistry, stateCollector, networkInstanceName,
+        this(dataBroker, timeout, TimeUnit.SECONDS, bgpTableTypeRegistry, stateCollector, networkInstanceName,
                 Executors.newScheduledThreadPool(1));
     }
 
-    public StateProviderImpl(final @NonNull DataBroker dataBroker, final int timeout,
+    @VisibleForTesting
+    StateProviderImpl(final @NonNull DataBroker dataBroker, final long period, final TimeUnit timeUnit,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
             final @NonNull BGPStateConsumer stateCollector,
             final @NonNull String networkInstanceName, final @NonNull ScheduledExecutorService scheduler) {
@@ -90,46 +126,44 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
-        this.timeout = timeout;
         this.scheduler = scheduler;
-    }
 
-    public synchronized void init() {
         this.transactionChain = this.dataBroker.createMergingTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
             @SuppressWarnings("checkstyle:IllegalCatch")
             public void run() {
                 synchronized (StateProviderImpl.this) {
-                    final WriteTransaction wTx = StateProviderImpl.this.transactionChain.newWriteOnlyTransaction();
+                    final WriteTransaction wTx = transactionChain.newWriteOnlyTransaction();
                     try {
                         updateBGPStats(wTx);
-
-                        wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
-                            @Override
-                            public void onSuccess(final CommitInfo result) {
-                                LOG.debug("Successfully committed BGP stats update");
-                            }
-
-                            @Override
-                            public void onFailure(final Throwable ex) {
-                                LOG.error("Failed to commit BGP stats update", ex);
-                            }
-                        }, MoreExecutors.directExecutor());
                     } catch (final Exception e) {
                         LOG.warn("Failed to prepare Tx for BGP stats update", e);
                         wTx.cancel();
+                        return;
                     }
+
+                    wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                        @Override
+                        public void onSuccess(final CommitInfo result) {
+                            LOG.debug("Successfully committed BGP stats update");
+                        }
+
+                        @Override
+                        public void onFailure(final Throwable ex) {
+                            LOG.error("Failed to commit BGP stats update", ex);
+                        }
+                    }, MoreExecutors.directExecutor());
                 }
             }
         };
 
-        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, this.timeout, SECONDS);
+        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, period, timeUnit);
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private synchronized void updateBGPStats(final WriteTransaction wtx) {
+    private synchronized void updateBGPStats(final WriteOperations wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
         this.stateCollector.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
             final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
@@ -142,13 +176,13 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wtx));
     }
 
-    private synchronized void removeStoredOperationalState(final String ribId, final WriteTransaction wtx) {
+    private synchronized void removeStoredOperationalState(final String ribId, final WriteOperations wtx) {
         final InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.remove(ribId);
         wtx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
     }
 
     private synchronized void storeOperationalState(final BGPRibState bgpStateConsumer,
-            final List<BGPPeerState> peerStats, final String ribId, final WriteTransaction wtx) {
+            final List<BGPPeerState> peerStats, final String ribId, final WriteOperations wtx) {
         final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, this.bgpTableTypeRegistry);
         final PeerGroups peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);
         final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, this.bgpTableTypeRegistry);
@@ -166,11 +200,13 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         wtx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp);
     }
 
+    @Deactivate
+    @PreDestroy
     @Override
     public synchronized void close() {
         if (closed.compareAndSet(false, true)) {
             this.scheduleTask.cancel(true);
-            if (!this.instanceIdentifiersCache.keySet().isEmpty()) {
+            if (!this.instanceIdentifiersCache.isEmpty()) {
                 final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
                 this.instanceIdentifiersCache.values()
                         .forEach(bgpIID -> wTx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID));
