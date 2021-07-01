@@ -9,6 +9,8 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -17,9 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -51,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class LUNlriParserTest {
 
     /*
@@ -227,9 +230,8 @@ public class LUNlriParserTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
+        doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(any());
+        doReturn(true).when(this.muliPathSupport).isTableTypeSupported(any());
     }
 
     @Test

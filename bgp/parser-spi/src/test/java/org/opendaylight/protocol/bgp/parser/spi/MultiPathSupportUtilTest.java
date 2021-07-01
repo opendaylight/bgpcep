@@ -7,22 +7,26 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+
 import java.util.Optional;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class MultiPathSupportUtilTest {
-
-    private static final BgpTableType AFI_SAFI = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType AFI_SAFI =
+        new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
 
     @Mock
     private PeerSpecificParserConstraint constraints;
@@ -30,38 +34,33 @@ public class MultiPathSupportUtilTest {
     @Mock
     private MultiPathSupport mpSupport;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-    }
-
     @Test
     public void testIsTableTypeSupportedPossitive() {
-        Mockito.doReturn(Optional.of(this.mpSupport)).when(this.constraints).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(true).when(this.mpSupport).isTableTypeSupported(Mockito.any());
-        Assert.assertTrue(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
+        doReturn(Optional.of(this.mpSupport)).when(this.constraints).getPeerConstraint(any());
+        doReturn(true).when(this.mpSupport).isTableTypeSupported(any());
+        assertTrue(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
     }
 
     @Test
     public void testIsTableTypeSupportedNegativeTableTypeNotSupported() {
-        Mockito.doReturn(Optional.of(this.mpSupport)).when(this.constraints).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(false).when(this.mpSupport).isTableTypeSupported(Mockito.any());
-        Assert.assertFalse(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
+        doReturn(Optional.of(this.mpSupport)).when(this.constraints).getPeerConstraint(any());
+        doReturn(false).when(this.mpSupport).isTableTypeSupported(any());
+        assertFalse(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
     }
 
     @Test
     public void testIsTableTypeSupportedNegativeMpSupportAbsent() {
-        Mockito.doReturn(Optional.empty()).when(this.constraints).getPeerConstraint(Mockito.any());
-        Assert.assertFalse(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
+        doReturn(Optional.empty()).when(this.constraints).getPeerConstraint(any());
+        assertFalse(MultiPathSupportUtil.isTableTypeSupported(this.constraints, AFI_SAFI));
     }
 
     @Test
     public void testIsTableTypeSupportedNegativeNull() {
-        Assert.assertFalse(MultiPathSupportUtil.isTableTypeSupported(null, AFI_SAFI));
+        assertFalse(MultiPathSupportUtil.isTableTypeSupported(null, AFI_SAFI));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testIsTableTypeSupportedNPE() {
-        MultiPathSupportUtil.isTableTypeSupported(null, null);
+        assertThrows(NullPointerException.class, () -> MultiPathSupportUtil.isTableTypeSupported(null, null));
     }
 }
