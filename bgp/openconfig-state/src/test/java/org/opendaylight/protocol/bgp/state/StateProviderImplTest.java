@@ -23,16 +23,14 @@ import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -40,9 +38,10 @@ import java.util.concurrent.atomic.LongAdder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.infrautils.testutils.LogCapture;
 import org.opendaylight.infrautils.testutils.internal.RememberingLogger;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTest;
@@ -142,6 +141,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.LoggerFactory;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
@@ -157,7 +157,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final AsNumber as = new AsNumber(Uint32.valueOf(72));
     private final BgpId bgpId = new BgpId("127.0.0.1");
     private final IpAddressNoZone neighborAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2"));
-    private final List<Class<? extends BgpCapability>> supportedCap = Arrays.asList(ASN32.class, ROUTEREFRESH.class,
+    private final List<Class<? extends BgpCapability>> supportedCap = List.of(ASN32.class, ROUTEREFRESH.class,
             MPBGP.class, ADDPATHS.class, GRACEFULRESTART.class);
     @Mock
     private BGPStateConsumer stateCollector;
@@ -190,8 +190,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-
         doReturn(IPV4UNICAST.class).when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
         doReturn(this.bgpRibStates).when(this.stateCollector).getRibStats();
@@ -211,9 +209,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
         doAnswer(invocation -> this.totalPrefixesCounter.longValue())
                 .when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
-        doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
-            this.totalPrefixesCounter.longValue())).when(this.bgpRibState).getTablesPrefixesCount();
-        doAnswer(invocation -> Collections.singletonMap(TABLES_KEY,
+        doAnswer(invocation -> Map.of(TABLES_KEY,
             this.totalPathsCounter.longValue())).when(this.bgpRibState).getPathsCount();
 
         // Mock Peer
@@ -249,16 +245,14 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(1L).when(this.bgpErrorHandlingState).getErroneousUpdateReceivedCount();
 
         doReturn(this.bgpGracelfulRestartState).when(this.bgpPeerState).getBGPGracelfulRestart();
-        doReturn(true).when(this.bgpGracelfulRestartState).isGracefulRestartAdvertized(any());
-        doReturn(true).when(this.bgpGracelfulRestartState).isGracefulRestartReceived(any());
         doReturn(true).when(this.bgpGracelfulRestartState).isLocalRestarting();
         doReturn(true).when(this.bgpGracelfulRestartState).isPeerRestarting();
         doReturn(this.restartTime.toJava()).when(this.bgpGracelfulRestartState).getPeerRestartTime();
         doReturn(BgpAfiSafiGracefulRestartState.Mode.BILATERAL).when(this.bgpGracelfulRestartState).getMode();
 
         doReturn(this.bgpAfiSafiState).when(this.bgpPeerState).getBGPAfiSafiState();
-        doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
-        doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
+        doReturn(Set.of(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
+        doReturn(Set.of(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
         doReturn(1L).when(this.bgpAfiSafiState).getPrefixesInstalledCount(any());
         doReturn(2L).when(this.bgpAfiSafiState).getPrefixesReceivedCount(any());
         doReturn(1L).when(this.bgpAfiSafiState).getPrefixesSentCount(any());
@@ -295,7 +289,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
         final StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), 1, this.tableTypeRegistry,
             this.stateCollector, "global-bgp");
-        stateProvider.init();
 
         final Global globalExpected = buildGlobalExpected(0);
         this.bgpRibStates.add(this.bgpRibState);
@@ -358,7 +351,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     .augmentation(NeighborStateAugmentation.class).getSessionState());
             final List<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
                     .augmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
-            Assert.assertTrue(supportedCapabilitiesResult.containsAll(this.supportedCap));
+            assertTrue(supportedCapabilitiesResult.containsAll(this.supportedCap));
             return bgpRib;
         });
 
@@ -371,11 +364,9 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     @Test
     public void testInactiveStateProvider() throws Exception {
         doReturn(false).when(this.bgpRibState).isActive();
-        doReturn(false).when(this.bgpPeerState).isActive();
 
         final StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), 1, this.tableTypeRegistry,
             this.stateCollector, "global-bgp");
-        stateProvider.init();
 
         this.bgpRibStates.add(this.bgpRibState);
         checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
@@ -409,7 +400,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doNothing().when(mockScheduler).shutdown();
 
         DOMStoreTransactionChain mockTxChain = mock(DOMStoreTransactionChain.class);
-        doNothing().when(mockTxChain).close();
 
         Throwable mockCommitEx = new Exception("mock commit failure");
         doAnswer(invocation -> {
@@ -421,7 +411,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 DOMStoreWriteTransaction mockWriteTx = mock(DOMStoreReadWriteTransaction .class);
                 doNothing().when(mockWriteTx).write(any(), any());
                 doNothing().when(mockWriteTx).merge(any(), any());
-                doNothing().when(mockWriteTx).delete(any());
                 doReturn(mockCohort).when(mockWriteTx).ready();
                 return mockWriteTx;
             }).when(mockTxChain).newReadWriteTransaction();
@@ -432,7 +421,6 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         int timerInterval = 1;
         try (StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), timerInterval, tableTypeRegistry,
                 stateCollector, "global-bgp", mockScheduler)) {
-            stateProvider.init();
 
             ArgumentCaptor<Runnable> timerTask = ArgumentCaptor.forClass(Runnable.class);
             verify(mockScheduler).scheduleAtFixedRate(timerTask.capture(), eq(0L), eq((long)timerInterval),
@@ -449,7 +437,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
             timerTask.getValue().run();
 
-            ImmutableList<LogCapture> loggedErrors = RememberingLogger.getErrorLogCaptures();
+            List<LogCapture> loggedErrors = RememberingLogger.getErrorLogCaptures();
             assertTrue("Expected no logged ERRORs: " + loggedErrors, loggedErrors.isEmpty());
 
             verify(spiedOperStore, times(2)).createTransactionChain();
