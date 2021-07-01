@@ -28,6 +28,8 @@ import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
@@ -45,12 +47,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.DetailsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnelInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
@@ -343,7 +345,6 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
             final Optional<Nanotime> deadline, final String... dependencyIds) {
         final SubmitInstructionInput mockedSubmitInstruction = mock(SubmitInstructionInput.class);
 
-        doReturn(PcepUpdateTunnelInput.class).when(mockedSubmitInstruction).implementedInterface();
         final List<InstructionId> dependencies = new ArrayList<>();
         for (final String dependencyId : dependencyIds) {
             dependencies.add(new InstructionId(dependencyId));

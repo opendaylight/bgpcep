@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 import org.junit.Before;
 import org.mockito.Mock;
@@ -40,7 +39,6 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
         doAnswer(invocationOnMock -> {
             this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
             return this.singletonServiceRegistration;
