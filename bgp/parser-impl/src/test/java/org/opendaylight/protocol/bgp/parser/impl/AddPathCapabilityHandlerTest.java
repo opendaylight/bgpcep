@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.AddPathCapabilityHandler;
@@ -35,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AddPathCapabilityHandlerTest {
     private static final Class<Ipv6AddressFamily> AFI = Ipv6AddressFamily.class;
     private static final Class<UnicastSubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
@@ -53,18 +55,17 @@ public class AddPathCapabilityHandlerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(260).when(this.afiRegistry).numberForClass(AFI);
-        Mockito.doReturn(AddPathCapabilityHandlerTest.AFI).when(this.afiRegistry).classForFamily(260);
+        doReturn(260).when(this.afiRegistry).numberForClass(AFI);
+        doReturn(AddPathCapabilityHandlerTest.AFI).when(this.afiRegistry).classForFamily(260);
 
-        Mockito.doReturn(null).when(this.afirExpection).numberForClass(AFI);
-        Mockito.doReturn(null).when(this.afirExpection).classForFamily(260);
+        doReturn(null).when(this.afirExpection).numberForClass(AFI);
+        doReturn(null).when(this.afirExpection).classForFamily(260);
 
-        Mockito.doReturn(4).when(this.safiRegistry).numberForClass(SAFI);
-        Mockito.doReturn(AddPathCapabilityHandlerTest.SAFI).when(this.safiRegistry).classForFamily(4);
+        doReturn(4).when(this.safiRegistry).numberForClass(SAFI);
+        doReturn(AddPathCapabilityHandlerTest.SAFI).when(this.safiRegistry).classForFamily(4);
 
-        Mockito.doReturn(null).when(this.safirException).numberForClass(SAFI);
-        Mockito.doReturn(null).when(this.safirException).classForFamily(4);
+        doReturn(null).when(this.safirException).numberForClass(SAFI);
+        doReturn(null).when(this.safirException).classForFamily(4);
     }
 
     @Test

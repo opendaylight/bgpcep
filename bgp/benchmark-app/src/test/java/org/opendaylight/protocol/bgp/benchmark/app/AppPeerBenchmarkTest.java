@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.benchmark.app;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
@@ -17,9 +18,9 @@ import static org.opendaylight.protocol.util.CheckTestUtil.readDataConfiguration
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -38,6 +39,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String PREFIX = "1.1.1.1/32";
@@ -51,9 +53,8 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementation(Mockito.any(),
-                Mockito.any(OdlBgpAppPeerBenchmarkService.class));
+        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementation(any(),
+                any(OdlBgpAppPeerBenchmarkService.class));
         doNothing().when(this.registration).close();
     }
 

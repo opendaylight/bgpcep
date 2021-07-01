@@ -8,14 +8,15 @@
 package org.opendaylight.protocol.bgp.parser.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
@@ -29,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class MultiProtocolCapabilityHandlerTest {
     private static final Class<Ipv6AddressFamily> AFI = Ipv6AddressFamily.class;
     private static final Class<UnicastSubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
@@ -44,18 +46,15 @@ public class MultiProtocolCapabilityHandlerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Mockito.doReturn(260).when(this.afir).numberForClass(AFI);
-        Mockito.doReturn(MultiProtocolCapabilityHandlerTest.AFI).when(this.afir).classForFamily(260);
+        doReturn(260).when(this.afir).numberForClass(AFI);
+        doReturn(MultiProtocolCapabilityHandlerTest.AFI).when(this.afir).classForFamily(260);
 
-        Mockito.doReturn(null).when(this.afirExpection).numberForClass(AFI);
-        Mockito.doReturn(null).when(this.afirExpection).classForFamily(260);
+        doReturn(null).when(this.afirExpection).numberForClass(AFI);
 
-        Mockito.doReturn(4).when(this.safir).numberForClass(SAFI);
-        Mockito.doReturn(MultiProtocolCapabilityHandlerTest.SAFI).when(this.safir).classForFamily(4);
+        doReturn(4).when(this.safir).numberForClass(SAFI);
+        doReturn(MultiProtocolCapabilityHandlerTest.SAFI).when(this.safir).classForFamily(4);
 
-        Mockito.doReturn(null).when(this.safirException).numberForClass(SAFI);
-        Mockito.doReturn(null).when(this.safirException).classForFamily(4);
+        doReturn(null).when(this.safirException).numberForClass(SAFI);
     }
 
     @Test
