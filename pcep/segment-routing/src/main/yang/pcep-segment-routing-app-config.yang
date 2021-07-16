@@ -27,9 +27,9 @@ module pcep-segment-routing-app-config {
         }
 
         leaf sr-capable {
-            description "Advertize segment-routing capability with historical type values (SR-ERO = 5 & SR-RRO = 6)";
+            description "Advertize segment-routing capability";
             type boolean;
-            default false;
+            default true;
         }
     }
 }
