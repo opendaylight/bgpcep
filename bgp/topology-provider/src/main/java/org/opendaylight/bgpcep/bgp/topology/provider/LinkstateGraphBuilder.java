@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.isis.adj.flags._case.IsisAdjFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.DecimalBandwidth;
@@ -435,11 +436,18 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
-            builder.setSrgb(new SrgbBuilder()
-                    .setLowerBound(
-                            ((LocalLabelCase) na.getSrCapabilities().getSidLabelIndex()).getLocalLabel().getValue())
-                    .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
-                    .build());
+            final SidLabelIndex labelIndex = na.getSrCapabilities().getSidLabelIndex();
+            if (labelIndex instanceof LocalLabelCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(((LocalLabelCase) labelIndex).getLocalLabel().getValue())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            } else if (labelIndex instanceof SidCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(((SidCase) labelIndex).getSid())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            }
         }
         if (na.getNodeFlags() != null) {
             if (na.getNodeFlags().getAbr()) {
