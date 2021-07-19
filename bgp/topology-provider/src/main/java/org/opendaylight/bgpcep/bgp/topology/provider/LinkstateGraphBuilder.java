@@ -439,11 +439,20 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
-            builder.setSrgb(new SrgbBuilder()
-                    .setLowerBound(
-                            ((LocalLabelCase) na.getSrCapabilities().getSidLabelIndex()).getLocalLabel().getValue())
-                    .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
-                    .build());
+            if (na.getSrCapabilities().getSidLabelIndex() instanceof LocalLabelCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(
+                                ((LocalLabelCase) na.getSrCapabilities().getSidLabelIndex()).getLocalLabel().getValue())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            }
+            if (na.getSrCapabilities().getSidLabelIndex() instanceof SidCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(
+                                ((SidCase) na.getSrCapabilities().getSidLabelIndex()).getSid())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            }
         }
         if (na.getNodeFlags() != null) {
             if (na.getNodeFlags().getAbr()) {
@@ -653,7 +662,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         } catch (UnknownHostException e) {
             return 0;
         }
-        return (0xFF & ip[0]) << 24 | (0xFF & ip[1]) << 16 | (0xFF & ip[2]) << 8 | 0xFF & ip[3];
+        byte[] address = {ip[0], ip[1], ip[2], ip[3]};
+        return ByteBuffer.wrap(address).getLong();
     }
 
     private static Long ipv6ToKey(final String str) {
