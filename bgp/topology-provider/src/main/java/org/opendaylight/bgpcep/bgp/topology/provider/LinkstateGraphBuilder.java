@@ -12,9 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.math.BigDecimal;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +20,15 @@ import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv4InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
@@ -99,9 +99,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  * @author Philippe Niger
- *
  */
-
 public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
     private static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder().addAugmentation(
             new TopologyTypes1Builder().setBgpLinkstateTopology(new BgpLinkstateTopologyBuilder().build()).build())
@@ -211,17 +209,18 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * @return Unique key
      */
     private static Uint64 getEdgeId(final LinkCase linkCase) {
-        long key = 0;
-        if (linkCase.getLinkDescriptors().getIpv4InterfaceAddress() != null) {
-            key = ipv4ToKey(linkCase.getLinkDescriptors().getIpv4InterfaceAddress().getValue());
+        Uint64 key = Uint64.ZERO;
+        final LinkDescriptors linkDescriptors = linkCase.getLinkDescriptors();
+        if (linkDescriptors.getIpv4InterfaceAddress() != null) {
+            key = ipv4ToKey(linkDescriptors.getIpv4InterfaceAddress());
         }
-        if (linkCase.getLinkDescriptors().getIpv6InterfaceAddress() != null) {
-            key = ipv6ToKey(linkCase.getLinkDescriptors().getIpv6InterfaceAddress().getValue());
+        if (linkDescriptors.getIpv6InterfaceAddress() != null) {
+            key = ipv6ToKey(linkDescriptors.getIpv6InterfaceAddress());
         }
-        if (linkCase.getLinkDescriptors().getLinkLocalIdentifier() != null) {
-            key = linkCase.getLinkDescriptors().getLinkLocalIdentifier().longValue();
+        if (linkDescriptors.getLinkLocalIdentifier() != null) {
+            key = linkDescriptors.getLinkLocalIdentifier().toUint64();
         }
-        return Uint64.valueOf(key);
+        return key;
     }
 
     /**
@@ -646,26 +645,15 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         return new DecimalBandwidth(BigDecimal.valueOf(ByteBuffer.wrap(bw.getValue()).getFloat()));
     }
 
-    private static long ipv4ToKey(final String str) {
-        byte[] ip;
-        try {
-            ip = ((Inet4Address) Inet4Address.getByName(str)).getAddress();
-        } catch (UnknownHostException e) {
-            return 0;
-        }
-        return (0xFF & ip[0]) << 24 | (0xFF & ip[1]) << 16 | (0xFF & ip[2]) << 8 | 0xFF & ip[3];
+    private static Uint64 ipv4ToKey(final Ipv4InterfaceIdentifier ifId) {
+        return Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBits(ifId)).toUint64();
     }
 
-    private static Long ipv6ToKey(final String str) {
-        byte[] ip;
-        try {
-            ip = ((Inet6Address) Inet6Address.getByName(str)).getAddress();
-        } catch (UnknownHostException e) {
-            return 0L;
-        }
+    private static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
+        final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ifId);
         /* Keep only the lower 64bits from the IP address */
-        byte[] lowerIP = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
-        return ByteBuffer.wrap(lowerIP).getLong();
+        final byte[] key = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
+        return Uint64.fromLongBits(ByteBuffer.wrap(key).getLong());
     }
 
     @Override
