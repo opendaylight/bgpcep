@@ -651,9 +651,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         try {
             ip = ((Inet4Address) Inet4Address.getByName(str)).getAddress();
         } catch (UnknownHostException e) {
-            return 0;
+            return 0L;
         }
-        return (0xFF & ip[0]) << 24 | (0xFF & ip[1]) << 16 | (0xFF & ip[2]) << 8 | 0xFF & ip[3];
+        final byte[] key = {0, 0, 0, 0, ip[0], ip[1], ip[2], ip[3]};
+        return ByteBuffer.wrap(key).getLong();
     }
 
     private static Long ipv6ToKey(final String str) {
@@ -664,8 +665,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             return 0L;
         }
         /* Keep only the lower 64bits from the IP address */
-        byte[] lowerIP = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
-        return ByteBuffer.wrap(lowerIP).getLong();
+        final byte[] key = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
+        return ByteBuffer.wrap(key).getLong();
     }
 
     @Override
