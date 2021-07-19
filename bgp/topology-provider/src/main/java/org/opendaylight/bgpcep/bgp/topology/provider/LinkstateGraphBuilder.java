@@ -439,11 +439,19 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
-            builder.setSrgb(new SrgbBuilder()
-                    .setLowerBound(
-                            ((LocalLabelCase) na.getSrCapabilities().getSidLabelIndex()).getLocalLabel().getValue())
-                    .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
-                    .build());
+            if (na.getSrCapabilities().getSidLabelIndex() instanceof LocalLabelCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(
+                                ((LocalLabelCase) na.getSrCapabilities().getSidLabelIndex()).getLocalLabel().getValue())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            }
+            if (na.getSrCapabilities().getSidLabelIndex() instanceof SidCase) {
+                builder.setSrgb(new SrgbBuilder()
+                        .setLowerBound(((SidCase) na.getSrCapabilities().getSidLabelIndex()).getSid())
+                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .build());
+            }
         }
         if (na.getNodeFlags() != null) {
             if (na.getNodeFlags().getAbr()) {
