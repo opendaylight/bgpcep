@@ -53,7 +53,7 @@ public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<Tlv
     @Override
     public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Cannot be null or empty.");
-        buffer.readBytes(RESERVED);
+        buffer.skipBytes(RESERVED);
         final BitArray flagBits = BitArray.valueOf(buffer, FLAGS_SIZE);
         final Flags flags = new Flags(flagBits.get(G_FLAG_POS), flagBits.get(I_FLAG_POS), flagBits.get(L_FLAG_POS),
                 flagBits.get(C_FLAG_POS), flagBits.get(P_FLAG_POS));

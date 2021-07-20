@@ -44,7 +44,7 @@ public final class PCEPObjectiveFunctionObjectParser extends AbstractObjectWithT
     public Of parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final Uint16 ofId = ByteBufUtils.readUint16(bytes);
-        bytes.readBytes(RESERVED);
+        bytes.skipBytes(RESERVED);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parseTlvs(tlvsBuilder, bytes.slice());
         return new OfBuilder()
