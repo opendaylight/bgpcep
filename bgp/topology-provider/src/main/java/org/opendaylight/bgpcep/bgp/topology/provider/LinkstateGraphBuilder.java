@@ -416,13 +416,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      *
      * @return New Vertex
      */
-    private static Vertex getVertex(final NodeAttributes na, final Uint64 id, final int as) {
-        VertexBuilder builder = new VertexBuilder().setVertexId(id).setAsn(Uint32.valueOf(as));
+    private static Vertex getVertex(final NodeAttributes na, final Uint64 id, final Uint32 as) {
+        VertexBuilder builder = new VertexBuilder().setVertexId(id).setAsn(as);
         if (na.getIpv4RouterId() != null) {
-            builder.setRouterId(new IpAddress(new Ipv4Address(na.getIpv4RouterId().getValue())));
+            builder.setRouterId(new IpAddress(na.getIpv4RouterId()));
         }
         if (na.getIpv6RouterId() != null) {
-            builder.setRouterId(new IpAddress(new Ipv6Address(na.getIpv6RouterId().getValue())));
+            builder.setRouterId(new IpAddress(na.getIpv6RouterId()));
         }
         /*
          * Set Router Name with dynamic hostname (IS-IS) or IPv4 address in dot decimal format (OSPF)
@@ -477,9 +477,9 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             return;
         }
 
-        int asNumber = 0;
+        Uint32 asNumber = Uint32.ZERO;
         if (nodeCase.getNodeDescriptors() != null) {
-            asNumber = nodeCase.getNodeDescriptors().getAsNumber().getValue().intValue();
+            asNumber = nodeCase.getNodeDescriptors().getAsNumber().getValue();
         }
         Vertex vertex = getVertex(na, vertexId, asNumber);
 
