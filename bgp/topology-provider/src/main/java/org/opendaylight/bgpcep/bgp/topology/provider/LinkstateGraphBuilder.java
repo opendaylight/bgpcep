@@ -23,8 +23,6 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
@@ -283,16 +281,16 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         EdgeAttributesBuilder builder = new EdgeAttributesBuilder();
 
         if (linkDesc.getIpv4InterfaceAddress() != null) {
-            builder.setLocalAddress(new IpAddress(new Ipv4Address(linkDesc.getIpv4InterfaceAddress())));
+            builder.setLocalAddress(new IpAddress(linkDesc.getIpv4InterfaceAddress()));
         }
         if (linkDesc.getIpv6InterfaceAddress() != null) {
-            builder.setLocalAddress(new IpAddress(new Ipv6Address(linkDesc.getIpv6InterfaceAddress())));
+            builder.setLocalAddress(new IpAddress(linkDesc.getIpv6InterfaceAddress()));
         }
         if (linkDesc.getIpv4NeighborAddress() != null) {
-            builder.setRemoteAddress(new IpAddress(new Ipv4Address(linkDesc.getIpv4NeighborAddress())));
+            builder.setRemoteAddress(new IpAddress(linkDesc.getIpv4NeighborAddress()));
         }
         if (linkDesc.getIpv6NeighborAddress() != null) {
-            builder.setRemoteAddress(new IpAddress(new Ipv6Address(linkDesc.getIpv6NeighborAddress())));
+            builder.setRemoteAddress(new IpAddress(linkDesc.getIpv6NeighborAddress()));
         }
         if (linkDesc.getLinkLocalIdentifier() != null) {
             builder.setLocalIdentifier(linkDesc.getLinkLocalIdentifier());
