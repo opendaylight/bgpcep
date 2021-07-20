@@ -35,7 +35,7 @@ public final class Ipv6BgpPrefixSidParser implements BgpPrefixSidTlvParser, BgpP
 
     @Override
     public Ipv6SidTlv parseBgpPrefixSidTlv(final ByteBuf buffer) {
-        buffer.readBytes(RESERVED);
+        buffer.skipBytes(RESERVED);
         final boolean canProcessIpv6Header = BitArray.valueOf(buffer, FLAGS_SIZE).get(PROCESS_IPV6_HEADER_FLAG);
         return new Ipv6SidTlvBuilder().setProcessIpv6HeadAbility(canProcessIpv6Header).build();
     }
