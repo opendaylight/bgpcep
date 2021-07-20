@@ -24,9 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv6InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
@@ -255,14 +253,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
         /*
          * Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
+        final var localAddress = edge.getEdgeAttributes().getLocalAddress();
         PrefixBuilder prefBuilder = new PrefixBuilder().setVertexId(srcId);
-        if (edge.getEdgeAttributes().getLocalAddress().getIpv4Address() != null) {
-            prefBuilder.setPrefix(new IpPrefix(
-                    new Ipv4Prefix(edge.getEdgeAttributes().getLocalAddress().getIpv4Address().getValue() + "/32")));
+        if (localAddress.getIpv4Address() != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv4PrefixFor(localAddress.getIpv4Address())));
         }
-        if (edge.getEdgeAttributes().getLocalAddress().getIpv6Address() != null) {
-            prefBuilder.setPrefix(new IpPrefix(
-                    new Ipv6Prefix(edge.getEdgeAttributes().getLocalAddress().getIpv6Address().getValue() + "/128")));
+        if (localAddress.getIpv6Address() != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv6PrefixFor(localAddress.getIpv6Address())));
         }
         Prefix prefix = prefBuilder.build();
 
