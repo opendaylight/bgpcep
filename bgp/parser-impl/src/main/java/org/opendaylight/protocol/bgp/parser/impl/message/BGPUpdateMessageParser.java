@@ -134,7 +134,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         final int withdrawnRoutesLength = buffer.readUnsignedShort();
         if (withdrawnRoutesLength > 0) {
             final List<WithdrawnRoutes> withdrawnRoutes = new ArrayList<>();
-            final ByteBuf withdrawnRoutesBuffer = buffer.readBytes(withdrawnRoutesLength);
+            final ByteBuf withdrawnRoutesBuffer = buffer.readSlice(withdrawnRoutesLength);
             while (withdrawnRoutesBuffer.isReadable()) {
                 final WithdrawnRoutesBuilder withdrawnRoutesBuilder = new WithdrawnRoutesBuilder();
                 if (isMultiPathSupported) {
@@ -143,7 +143,6 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
                 withdrawnRoutesBuilder.setPrefix(readPrefix(withdrawnRoutesBuffer, errorHandling, "Withdrawn Routes"));
                 withdrawnRoutes.add(withdrawnRoutesBuilder.build());
             }
-            withdrawnRoutesBuffer.release();
             builder.setWithdrawnRoutes(withdrawnRoutes);
         }
         final int totalPathAttrLength = buffer.readUnsignedShort();
