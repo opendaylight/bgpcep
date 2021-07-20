@@ -39,7 +39,7 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
     public LeafADCase parseMvpn(final ByteBuf buffer) {
         final NlriType type = NlriType.forValue(buffer.readUnsignedByte());
         final short length = buffer.readUnsignedByte();
-        final MvpnChoice key = SimpleMvpnNlriRegistry.getInstance().parseMvpn(type, buffer.readBytes(length));
+        final MvpnChoice key = SimpleMvpnNlriRegistry.getInstance().parseMvpn(type, buffer.readSlice(length));
         final LeafADRouteKey routeKey;
         if (type == NlriType.InterAsIPmsiAD) {
             routeKey = new InterAsIPmsiADCaseBuilder((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
