@@ -7,10 +7,10 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -109,15 +109,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphBuilder.class);
 
-    private final ConnectedGraphProvider graphProvider;
     private final ConnectedGraph cgraph;
 
     public LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final ConnectedGraphProvider provider) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class);
-        this.graphProvider = requireNonNull(provider);
-        this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(),
+        this.cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
@@ -131,8 +129,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final int listenerResetEnforceCounter) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class, listenerResetLimitInMillsec, listenerResetEnforceCounter);
-        this.graphProvider = requireNonNull(provider);
-        this.cgraph = provider.createConnectedGraph("ted://" + topologyId.getValue(),
+        this.cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
@@ -144,7 +141,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     protected void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<LinkstateRoute> id,
             final LinkstateRoute value) {
         final ObjectType t = value.getObjectType();
-        Preconditions.checkArgument(t != null, "Route %s value %s has null object type", id, value);
+        checkArgument(t != null, "Route %s value %s has null object type", id, value);
 
         if (t instanceof LinkCase) {
             createEdge(value, (LinkCase) t, value.getAttributes());
@@ -232,7 +229,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      *
      */
     private void createEdge(final LinkstateRoute value, final LinkCase linkCase, final Attributes attributes) {
-        Preconditions.checkArgument(checkLinkState(linkCase), "Missing mandatory information in link {}", linkCase);
+        checkArgument(checkLinkState(linkCase), "Missing mandatory information in link {}", linkCase);
 
         final LinkAttributes la = getLinkAttributes(attributes);
         if (la == null) {
@@ -465,8 +462,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * @param attributes  The node attributes
      */
     private void createVertex(final LinkstateRoute value, final NodeCase nodeCase, final Attributes attributes) {
-        Preconditions.checkArgument(nodeCase != null, "Missing Node Case. Skip this Node");
-        Preconditions.checkArgument(nodeCase.getNodeDescriptors() != null, "Missing Node Descriptors. Skip this Node");
+        checkArgument(nodeCase != null, "Missing Node Case. Skip this Node");
+        checkArgument(nodeCase.getNodeDescriptors() != null, "Missing Node Descriptors. Skip this Node");
 
         Uint64 vertexId = getVertexId(nodeCase.getNodeDescriptors().getCRouterIdentifier());
         if (vertexId == Uint64.ZERO) {
