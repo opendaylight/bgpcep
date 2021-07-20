@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.readUint24;
 import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.writeUint24;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +32,13 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
 
     @Override
     public LuOriginatorSrgbTlv parseBgpPrefixSidTlv(final ByteBuf buffer) {
-        buffer.readBytes(ORIGINATOR_FLAGS_BYTES);
+        buffer.skipBytes(ORIGINATOR_FLAGS_BYTES);
         final List<SrgbValue> srgbList = parseSrgbs(buffer);
         return new LuOriginatorSrgbTlvBuilder().setSrgbValue(srgbList).build();
     }
 
     private static List<SrgbValue> parseSrgbs(final ByteBuf buffer) {
-        Preconditions.checkState(buffer.readableBytes() % SRGB_LENGTH == 0,
-                "Number of SRGBs does not fit available bytes.");
+        checkState(buffer.readableBytes() % SRGB_LENGTH == 0, "Number of SRGBs does not fit available bytes.");
         final List<SrgbValue> ret = new ArrayList<>();
         while (buffer.isReadable()) {
             ret.add(new SrgbValueBuilder()
@@ -51,7 +51,7 @@ final class OriginatorSrgbTlvParser implements BgpPrefixSidTlvParser, BgpPrefixS
 
     @Override
     public void serializeBgpPrefixSidTlv(final BgpPrefixSidTlv tlv, final ByteBuf valueBuf) {
-        Preconditions.checkArgument(tlv instanceof LuOriginatorSrgbTlv, "Incoming TLV is not LuOriginatorSrgbTlv");
+        checkArgument(tlv instanceof LuOriginatorSrgbTlv, "Incoming TLV is not LuOriginatorSrgbTlv");
         final LuOriginatorSrgbTlv luTlv = (LuOriginatorSrgbTlv) tlv;
         valueBuf.writeZero(ORIGINATOR_FLAGS_BYTES);
         for (final SrgbValue val : luTlv.nonnullSrgbValue()) {
