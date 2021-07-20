@@ -626,19 +626,19 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * @return Vertex in the Connected Graph that corresponds to this Router ID. Vertex is created if not found.
      */
     private static Uint64 getVertexId(final CRouterIdentifier routerID) {
-        Long rid = 0L;
+        Uint64 rid = Uint64.ZERO;
 
         if (routerID instanceof IsisNodeCase) {
-            byte[] isoId = ((IsisNodeCase) routerID).getIsisNode().getIsoSystemId().getValue();
-            final byte[] convert =  {0, 0, isoId[0], isoId[1], isoId[2], isoId[3], isoId[4], isoId[5]};
-            rid = ByteBuffer.wrap(convert).getLong();
+            final byte[] isoId = ((IsisNodeCase) routerID).getIsisNode().getIsoSystemId().getValue();
+            final byte[] convert = {0, 0, isoId[0], isoId[1], isoId[2], isoId[3], isoId[4], isoId[5]};
+            rid = Uint64.fromLongBits(ByteBuffer.wrap(convert).getLong());
         }
         if (routerID instanceof OspfNodeCase) {
-            rid = ((OspfNodeCase) routerID).getOspfNode().getOspfRouterId().longValue();
+            rid = ((OspfNodeCase) routerID).getOspfNode().getOspfRouterId().toUint64();
         }
 
         LOG.debug("Get Vertex Identifier {}", rid);
-        return Uint64.valueOf(rid);
+        return rid;
     }
 
     private static DecimalBandwidth bandwithToDecimalBandwidth(final Bandwidth bw) {
