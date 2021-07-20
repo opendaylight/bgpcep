@@ -530,7 +530,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         }
 
         /* Create Prefix */
-        PrefixBuilder builder = new PrefixBuilder().setVertexId(vertexId);
+        PrefixBuilder builder = new PrefixBuilder().setVertexId(vertexId).setPrefix(ippfx);
         if (pa.getSrPrefix() != null && pa.getSrPrefix().getSidLabelIndex() instanceof SidCase) {
             builder.setPrefixSid(((SidCase) pa.getSrPrefix().getSidLabelIndex()).getSid());
             if (pa.getSrPrefix().getFlags() instanceof IsisPrefixFlagsCase) {
@@ -543,12 +543,6 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                  */
                 builder.setNodeSid(true);
             }
-        }
-        if (ippfx.getIpv4Prefix() != null) {
-            builder.setPrefix(new IpPrefix(ippfx.getIpv4Prefix()));
-        }
-        if (ippfx.getIpv6Prefix() != null) {
-            builder.setPrefix(new IpPrefix(ippfx.getIpv6Prefix()));
         }
         Prefix prefix = builder.build();
 
