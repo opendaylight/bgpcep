@@ -183,19 +183,14 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * @return Link Attributes
      */
     private static LinkAttributes getLinkAttributes(final Attributes attributes) {
-        final LinkAttributes la;
         final Attributes1 attr = attributes.augmentation(Attributes1.class);
         if (attr != null) {
             final LinkStateAttribute attrType = attr.getLinkStateAttribute();
-            if (attrType != null) {
-                la = ((LinkAttributesCase) attrType).getLinkAttributes();
-            } else {
-                return null;
+            if (attrType instanceof LinkAttributesCase) {
+                return ((LinkAttributesCase) attrType).getLinkAttributes();
             }
-        } else {
-            return null;
         }
-        return la;
+        return null;
     }
 
     /**
