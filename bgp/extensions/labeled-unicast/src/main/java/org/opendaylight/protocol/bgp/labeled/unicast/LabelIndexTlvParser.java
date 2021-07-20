@@ -24,15 +24,13 @@ final class LabelIndexTlvParser implements BgpPrefixSidTlvParser, BgpPrefixSidTl
     @Override
     public void serializeBgpPrefixSidTlv(final BgpPrefixSidTlv tlv, final ByteBuf valueBuf) {
         Preconditions.checkArgument(tlv instanceof LuLabelIndexTlv, "Incoming TLV is not LuLabelIndexTlv");
-        valueBuf.writeZero(RESERVED);
-        valueBuf.writeZero(LABEL_INDEX_FLAGS_BYTES);
+        valueBuf.writeZero(RESERVED + LABEL_INDEX_FLAGS_BYTES);
         valueBuf.writeInt(((LuLabelIndexTlv) tlv).getLabelIndexTlv().intValue());
     }
 
     @Override
     public LuLabelIndexTlv parseBgpPrefixSidTlv(final ByteBuf buffer) {
-        buffer.readBytes(RESERVED);
-        buffer.readBytes(LABEL_INDEX_FLAGS_BYTES);
+        buffer.skipBytes(RESERVED + LABEL_INDEX_FLAGS_BYTES);
         return new LuLabelIndexTlvBuilder().setLabelIndexTlv(ByteBufUtils.readUint32(buffer)).build();
     }
 
