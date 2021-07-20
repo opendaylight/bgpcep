@@ -507,7 +507,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         final Attributes1 attr = attributes.augmentation(Attributes1.class);
         if (attr != null) {
             final LinkStateAttribute attrType = attr.getLinkStateAttribute();
-            if (attrType != null) {
+            if (attrType instanceof PrefixAttributesCase) {
                 pa = ((PrefixAttributesCase) attrType).getPrefixAttributes();
             } else {
                 LOG.warn("Missing attribute type in IP {} prefix {} route {}, skipping it", ippfx, prefixCase, value);
