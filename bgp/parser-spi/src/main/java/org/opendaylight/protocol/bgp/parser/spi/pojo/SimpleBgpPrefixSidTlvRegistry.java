@@ -46,7 +46,7 @@ public final class SimpleBgpPrefixSidTlvRegistry implements BgpPrefixSidTlvRegis
         final int length = buffer.readUnsignedShort();
         checkState(length <= buffer.readableBytes(),
                 "Length of BGP prefix SID TLV exceeds readable bytes of income.");
-        return parser.parseBgpPrefixSidTlv(buffer.readBytes(length));
+        return parser.parseBgpPrefixSidTlv(buffer.readSlice(length));
     }
 
     @Override
