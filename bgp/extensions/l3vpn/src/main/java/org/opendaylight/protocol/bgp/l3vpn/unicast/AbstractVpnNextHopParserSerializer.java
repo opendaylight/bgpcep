@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.unicast;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.bgp.concepts.NextHopUtil;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
@@ -26,17 +27,17 @@ public abstract class AbstractVpnNextHopParserSerializer implements NextHopParse
 
     @Override
     public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
-        Preconditions.checkArgument(buffer.readableBytes() == (this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH),
+        checkArgument(buffer.readableBytes() == this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH,
                 "Length of byte array for NEXT_HOP should be %s, but is %s",
                 this.ipAddrLength + RouteDistinguisherUtil.RD_LENGTH, buffer.readableBytes());
-        buffer.readBytes(RouteDistinguisherUtil.RD_LENGTH);
-        return NextHopUtil.parseNextHop(buffer.readBytes(this.ipAddrLength));
+        buffer.skipBytes(RouteDistinguisherUtil.RD_LENGTH);
+        return NextHopUtil.parseNextHop(buffer.readSlice(this.ipAddrLength));
     }
 
     @Override
     public void serializeNextHop(final CNextHop nextHop, final ByteBuf byteAggregator) {
-        Preconditions.checkArgument(this.ipNextHopCaseClazz.isInstance(nextHop),
-                "cNextHop is not a VPN %s NextHop object.", this.ipNextHopCaseClazz.getSimpleName());
+        checkArgument(this.ipNextHopCaseClazz.isInstance(nextHop), "cNextHop is not a VPN %s NextHop object.",
+            this.ipNextHopCaseClazz.getSimpleName());
         byteAggregator.writeZero(RouteDistinguisherUtil.RD_LENGTH);
         NextHopUtil.serializeNextHop(nextHop, byteAggregator);
     }
