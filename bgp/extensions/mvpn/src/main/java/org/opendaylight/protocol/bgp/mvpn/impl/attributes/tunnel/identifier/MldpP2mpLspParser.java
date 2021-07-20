@@ -92,9 +92,9 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
         }
         mldpP2mpLsp.setAddressFamily(addressFamily);
         final short rootNodeLength = buffer.readUnsignedByte();
-        mldpP2mpLsp.setRootNodeAddress(parseIpAddress(rootNodeLength, buffer.readBytes(rootNodeLength)));
+        mldpP2mpLsp.setRootNodeAddress(parseIpAddress(rootNodeLength, buffer.readSlice(rootNodeLength)));
         final int opaqueValueLength = buffer.readUnsignedShort();
-        mldpP2mpLsp.setOpaqueValue(OpaqueUtil.parseOpaqueList(buffer.readBytes(opaqueValueLength)));
+        mldpP2mpLsp.setOpaqueValue(OpaqueUtil.parseOpaqueList(buffer.readSlice(opaqueValueLength)));
         return new MldpP2mpLspBuilder().setMldpP2mpLsp(mldpP2mpLsp.build()).build();
     }
 }
