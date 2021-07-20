@@ -644,11 +644,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         return Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBits(ifId)).toUint64();
     }
 
-    private static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
+    @VisibleForTesting
+    static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
         final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ifId);
-        /* Keep only the lower 64bits from the IP address */
-        final byte[] key = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
-        return Uint64.fromLongBits(ByteBuffer.wrap(key).getLong());
+        // Keep only the lower 64bits from the IP address, i.e. we skip first Long.BYTES bytes
+        return Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
     }
 
     @Override
