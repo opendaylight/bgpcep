@@ -14,6 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
@@ -638,11 +639,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         return Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBits(ifId)).toUint64();
     }
 
-    private static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
-        final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ifId);
-        /* Keep only the lower 64bits from the IP address */
-        final byte[] key = {ip[0], ip[1], ip[2], ip[3], ip[4], ip[5], ip[6], ip[7]};
-        return Uint64.fromLongBits(ByteBuffer.wrap(key).getLong());
+    @VisibleForTesting
+    static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
+        return Uint64.fromLongBits(ByteBuffer.wrap(
+            // Keep only the lower 64bits from the IP address
+            Arrays.copyOfRange(IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ifId), 8, 16)).getLong());
     }
 
     @Override
