@@ -16,6 +16,24 @@
       "revId": "5d3825f545a15b19ef8d0f20730f2c4e3528dfa7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea436a3f_fd4d02d7",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-21T09:18:44Z",
+      "side": 1,
+      "message": "Perf gains are a bonus. Given it is a very small private static method, C2 will readily inline it itself.\nI think keeping it a separate method is simpler from flow perspective. I\u0027ll spin a separate demonstrator patch to show the difference.",
+      "parentUuid": "228d7c30_ca710671",
+      "revId": "5d3825f545a15b19ef8d0f20730f2c4e3528dfa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
