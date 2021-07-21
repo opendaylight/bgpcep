@@ -33,6 +33,24 @@
       "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "303ba220_6a763c82",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-21T08:33:52Z",
+      "side": 1,
+      "message": "ah, so this was broken by the previous patch here, let me circle back",
+      "parentUuid": "bd2203b3_1e8e82e2",
+      "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
