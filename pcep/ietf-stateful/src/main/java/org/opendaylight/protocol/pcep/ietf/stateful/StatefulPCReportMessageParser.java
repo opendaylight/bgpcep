@@ -185,6 +185,26 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
         }
     }
 
+    /**
+     * Determine the type of Object and insert it in the PathBuilder.
+     *
+     * <p>This method uses a state machine to check that Objects are seen only once and to speed up the browsing.
+     * However, the order of Object in the PcReport has changed between old draft version and final RFC8231.
+     * Indeed, as per RFC8231, the PcReport is composed of: ["SRP"], "LSP", "path"
+     * where "path" = "intended-path", ["actual-attribute-list", "actual-path"], "intended-attribute-list"
+     * and where "intended-path" = ERO, "actual-attribute-list" = BANDWIDTH, METRICS, "actual-path" = RRO
+     * and "intended-attribute-list" = LSPA, BANDWIDTH, METRICS, IRO
+     * In old draft version, "intended-attribute-list" was placed just right after the "intended-path".
+     * Thus, the state machine should be flexible enough to accommodate to PCCs that continue to use old draft and
+     * PCCs that are compliant to the RFC8231.</p>
+     *
+     * @param state         Current State of the state machine
+     * @param obj           Object to be identify and added to Path Builder
+     * @param builder       Path Builder to be fill with the Object
+     * @param pathMetrics   List of Metrics to be fill with Object when it is a Metrics
+     *
+     * @return              New State of the state machine
+     */
     private static State insertObject(final State state, final Object obj, final PathBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
@@ -195,6 +215,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
                 }
                 // fall through
             case LSPA_IN:
+                // Check presence for <intended-attribute-list> i.e LSPA, Bandwidth, Metrics, IRO ... as per old draft
                 if (obj instanceof Bandwidth) {
                     builder.setBandwidth((Bandwidth) obj);
                     return State.LSPA_IN;
@@ -225,6 +246,12 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
                 }
                 // fall through
             case RRO_IN:
+                // Check presence for <intended-attribute-list> i.e LSPA, Bandwidth, Metrics, IRO ... as per RFC8231
+                if (obj instanceof Lspa) {
+                    builder.setLspa((Lspa) obj);
+                    return State.LSPA_IN;
+                }
+                // fall through
             case END:
                 return State.END;
             default:
