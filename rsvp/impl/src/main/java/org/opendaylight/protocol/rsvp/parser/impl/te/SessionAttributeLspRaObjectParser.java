@@ -8,6 +8,9 @@
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -20,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.session.attribute.object.with.resources.affinities._case.SessionAttributeObjectWithResourcesAffinitiesBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;
@@ -31,11 +33,11 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final SessionAttributeObjectWithResourcesAffinitiesBuilder builder =
                 new SessionAttributeObjectWithResourcesAffinitiesBuilder()
-                    .setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)))
-                    .setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)))
-                    .setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)))
-                    .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
-                    .setHoldPriority(ByteBufUtils.readUint8(byteBuf));
+                    .setIncludeAny(new AttributeFilter(readUint32(byteBuf)))
+                    .setExcludeAny(new AttributeFilter(readUint32(byteBuf)))
+                    .setIncludeAll(new AttributeFilter(readUint32(byteBuf)))
+                    .setSetupPriority(readUint8(byteBuf))
+                    .setHoldPriority(readUint8(byteBuf));
 
         final BitArray bs = BitArray.valueOf(byteBuf.readByte());
         builder.setLocalProtectionDesired(bs.get(SessionAttributeLspObjectParser.LOCAL_PROTECTION));
@@ -63,8 +65,8 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         writeAttributeFilter(sessionObject.getIncludeAny(), output);
         writeAttributeFilter(sessionObject.getExcludeAny(), output);
         writeAttributeFilter(sessionObject.getIncludeAll(), output);
-        output.writeByte(sessionObject.getSetupPriority().toJava());
-        output.writeByte(sessionObject.getHoldPriority().toJava());
+        writeUint8(output, sessionObject.getSetupPriority());
+        writeUint8(output, sessionObject.getHoldPriority());
         final BitArray bs = new BitArray(FLAGS_SIZE);
         bs.set(SessionAttributeLspObjectParser.LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired());
         bs.set(SessionAttributeLspObjectParser.LABEL_RECORDING, sessionObject.getLabelRecordingDesired());

@@ -9,6 +9,8 @@ package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -19,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.metric.object.MetricObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.metric.object.MetricObjectBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class MetricObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 6;
@@ -37,7 +38,7 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         return new MetricObjectBuilder()
                 .setBound(flags.get(BOUND))
                 .setComputed(flags.get(COMPUTED))
-                .setMetricType(ByteBufUtils.readUint8(byteBuf))
+                .setMetricType(readUint8(byteBuf))
                 .setValue(new Float32(ByteArray.readBytes(byteBuf, METRIC_VALUE_F_LENGTH)))
                 .build();
     }
@@ -52,7 +53,7 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         reflect.set(BOUND, metric.getBound());
         reflect.set(COMPUTED, metric.getComputed());
         reflect.toByteBuf(output);
-        output.writeByte(metric.getMetricType().toJava());
+        writeUint8(output, metric.getMetricType());
         writeFloat32(metric.getValue(), output);
     }
 }
