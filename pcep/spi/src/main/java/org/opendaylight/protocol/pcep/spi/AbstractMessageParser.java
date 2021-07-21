@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.Nullable;
@@ -90,11 +89,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
                 final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(bytesToPass));
-                final Optional<? extends Object> obj = this.registry.parseVendorInformationObject(enterpriseNumber,
-                    header, bytesToPass);
-                if (obj.isPresent()) {
-                    objs.add(obj.get());
-                }
+                this.registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass).ifPresent(objs::add);
             } else {
                 // parseObject is required to return null for P=0 errored objects
                 final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
@@ -107,16 +102,22 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         return objs;
     }
 
-    public static Message createErrorMsg(final PCEPErrors err, final Optional<Rp> rp) {
+    public static Message createErrorMsg(final PCEPErrors err, final Optional<Rp> optRp) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
-        if (rp.isPresent()) {
-            msgBuilder.setErrorType(new RequestCaseBuilder().setRequest(new RequestBuilder().setRps(
-                Collections.singletonList(new RpsBuilder().setRp(rp.get()).build())).build()).build());
-        }
-        return new PcerrBuilder().setPcerrMessage(
-                msgBuilder.setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(
-                    new ErrorObjectBuilder().setType(err.getErrorType()).setValue(
-                        err.getErrorValue()).build()).build())).build()).build();
+        optRp.ifPresent(rp -> {
+            msgBuilder.setErrorType(new RequestCaseBuilder()
+                .setRequest(new RequestBuilder().setRps(List.of(new RpsBuilder().setRp(rp).build())).build())
+                .build());
+        });
+        return new PcerrBuilder()
+            .setPcerrMessage(msgBuilder.setErrors(List.of(new ErrorsBuilder()
+                .setErrorObject(new ErrorObjectBuilder()
+                    .setType(err.getErrorType())
+                    .setValue(err.getErrorValue())
+                    .build())
+                .build()))
+                .build())
+            .build();
     }
 
     protected abstract Message validate(List<Object> objects, List<Message> errors) throws PCEPDeserializerException;
@@ -124,10 +125,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     @Override
     public final Message parseMessage(final ByteBuf buffer, final List<Message> errors)
             throws PCEPDeserializerException {
-        requireNonNull(buffer, "Buffer may not be null");
-
         // Parse objects first
-        final List<Object> objs = parseObjects(buffer);
+        final List<Object> objs = parseObjects(requireNonNull(buffer, "Buffer may not be null"));
 
         // Run validation
         return validate(objs, errors);
