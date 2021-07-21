@@ -14,6 +14,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -79,7 +80,7 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
@@ -100,17 +101,13 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
         return new PcupdBuilder().setPcupdMessage(new PcupdMessageBuilder().setUpdates(updateRequests).build()).build();
     }
 
-    protected Updates getValidUpdates(final List<Object> objects, final List<Message> errors) {
+    protected Updates getValidUpdates(final Queue<Object> objects, final List<Message> errors) {
         final UpdatesBuilder builder = new UpdatesBuilder();
 
-        Object object = objects.remove(0);
+        Object object = objects.remove();
         if (object instanceof Srp) {
             builder.setSrp((Srp) object);
-            if (objects.isEmpty()) {
-                object = null;
-            } else {
-                object = objects.remove(0);
-            }
+            object = objects.poll();
         } else {
             errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.empty()));
         }
@@ -137,10 +134,10 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
         return true;
     }
 
-    private static boolean validatePath(final List<Object> objects, final List<Message> errors,
+    private static boolean validatePath(final Queue<Object> objects, final List<Message> errors,
             final UpdatesBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
-        Object object = objects.remove(0);
+        Object object = objects.remove();
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
@@ -152,17 +149,18 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
         return true;
     }
 
-    private static void parsePath(final List<Object> objects, final PathBuilder pathBuilder) {
+    private static void parsePath(final Queue<Object> objects, final PathBuilder pathBuilder) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-        Object obj;
         State state = State.INIT;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
-            state = insertObject(state,obj, pathBuilder, pathMetrics);
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
+            state = insertObject(state, obj, pathBuilder, pathMetrics);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
+
         if (!pathMetrics.isEmpty()) {
             pathBuilder.setMetrics(pathMetrics);
         }
