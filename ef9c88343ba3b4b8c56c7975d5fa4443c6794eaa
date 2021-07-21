@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "51f6bfb3_26b44bb1",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-21T09:00:32Z",
+      "side": 1,
+      "message": "Okay, I figured this out. The original code was wrong, note that InetAddress.getAddress():\n\n     * Returns the raw IP address of this {@code InetAddress} object. The result\n     * is in network byte order: the highest order byte of the address is in\n     * {@code getAddress()[0]}.\n\nI have fixed it up",
+      "parentUuid": "be7568e7_5d1b30b9",
+      "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bd2203b3_1e8e82e2",
         "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilderTest.java",
         "patchSetId": 1
@@ -51,6 +69,24 @@
       "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1bf6ec8_fd5bf330",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-21T09:00:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "303ba220_6a763c82",
+      "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
