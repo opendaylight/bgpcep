@@ -13,6 +13,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -214,7 +215,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
@@ -237,7 +238,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
     }
 
-    protected List<Svec> getSvecs(final List<Object> objects) {
+    protected List<Svec> getSvecs(final Queue<Object> objects) {
         final List<Svec> svecList = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SvecBuilder sBuilder = new SvecBuilder();
@@ -250,7 +251,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return svecList;
     }
 
-    protected List<Requests> getRequests(final List<Object> objects, final List<Message> errors) {
+    protected List<Requests> getRequests(final Queue<Object> objects, final List<Message> errors) {
         final List<Requests> requests = new ArrayList<>();
         while (!objects.isEmpty()) {
             final RequestsBuilder rBuilder = new RequestsBuilder();
@@ -310,7 +311,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     protected SegmentComputation getP2PSegmentComputation(final P2pBuilder builder,
-                                                          final List<Object> objects,
+                                                          final Queue<Object> objects,
                                                           final List<Message> errors,
                                                           final Rp rp) {
         final List<Metrics> metrics = new ArrayList<>();
@@ -342,7 +343,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     private static P2PState insertP2PObject(final P2PState p2PState,
-                                            final List<Object> objects,
+                                            final Queue<Object> objects,
                                             final List<VendorInformationObject> viObjects,
                                             final P2pBuilder builder,
                                             final List<Metrics> metrics,
@@ -493,7 +494,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         END
     }
 
-    protected SegmentComputation getP2MPSegmentComputation(final List<Object> objects, final List<Message> errors,
+    protected SegmentComputation getP2MPSegmentComputation(final Queue<Object> objects, final List<Message> errors,
             final Rp rp) {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message
             .pcreq.message.requests.segment.computation.p2mp.Metric> metrics = new ArrayList<>();
@@ -541,7 +542,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final List<Object> objects,
+    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final Queue<Object> objects,
             final P2mpBuilder builder, final List<EndpointRroPair> epRros,
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
                 .message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
@@ -655,7 +656,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         RP, ENDPOINT, RRO_SRRO, BANDWIDTH, OF_IN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_BNC_IN, LOAD_BIN, END
     }
 
-    private static Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
+    private static Svec getValidSvec(final SvecBuilder builder, final Queue<Object> objects) {
         Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
 
         if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
@@ -689,7 +690,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         INIT, OF_IN, GC_IN, XRO_IN, METRIC_IN, VENDOR_INFO, END
     }
 
-    protected MonitoringRequest getMonitoring(final List<Object> objects) {
+    protected MonitoringRequest getMonitoring(final Queue<Object> objects) {
         final MonitoringRequestBuilder builder = new MonitoringRequestBuilder();
         if (!objects.isEmpty() && objects.get(0) instanceof Monitoring) {
             builder.setMonitoring((Monitoring) objects.get(0));

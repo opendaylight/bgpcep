@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -41,7 +42,7 @@ public class PCEPKeepAliveMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected KeepaliveMessage validate(final List<Object> objects, final List<Message> errors)
+    protected KeepaliveMessage validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         if (objects != null && !objects.isEmpty()) {
             throw new PCEPDeserializerException("Keepalive message should not contain any objects.");

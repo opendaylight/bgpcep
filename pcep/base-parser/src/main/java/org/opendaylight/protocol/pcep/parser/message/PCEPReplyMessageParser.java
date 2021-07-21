@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -64,14 +66,15 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcrep,
+        checkArgument(message instanceof Pcrep,
                 "Wrong instance of Message. Passed instance of %s. Need Pcrep.", message.getClass());
         final PcrepMessage repMsg = ((Pcrep) message).getPcrepMessage();
-        Preconditions.checkArgument(repMsg.getReplies() != null && !repMsg.getReplies().isEmpty(),
-                "Replies cannot be null or empty.");
+        final List<Replies> replies = repMsg.nonnullReplies();
+
+        checkArgument(!replies.isEmpty(), "Replies cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
-        for (final Replies reply : repMsg.getReplies()) {
-            Preconditions.checkArgument(reply.getRp() != null, "Reply must contain RP object.");
+        for (final Replies reply : replies) {
+            checkArgument(reply.getRp() != null, "Reply must contain RP object.");
             serializeReply(reply, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
@@ -136,15 +139,15 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     protected void serializeMetricPce(final MetricPce metricPce, final ByteBuf buffer) {
-        Preconditions.checkArgument(metricPce.getPceId() != null, "PCE-ID must be present.");
+        checkArgument(metricPce.getPceId() != null, "PCE-ID must be present.");
         serializeObject(metricPce.getPceId(), buffer);
         serializeObject(metricPce.getProcTime(), buffer);
         serializeObject(metricPce.getOverload(), buffer);
     }
 
     @Override
-    protected Pcrep validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+    protected Pcrep validate(final Queue<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
         }
@@ -161,9 +164,9 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
     }
 
-    protected Replies getValidReply(final List<Object> objects, final List<Message> errors)
+    protected Replies getValidReply(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
-        Object object = objects.remove(0);
+        Object object = objects.remove();
         if (!(object instanceof Rp)) {
             errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
             return null;
@@ -202,22 +205,24 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return repliesBuilder.setRp(rp).setResult(res).build();
     }
 
-    private Result handleNoPath(final NoPath noPath, final List<Object> objects) {
-        objects.remove(0);
+    private Result handleNoPath(final NoPath noPath, final Queue<Object> objects) {
+        objects.remove();
         final FailureCaseBuilder builder = new FailureCaseBuilder().setNoPath(noPath);
-        while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
+        for (Object first = objects.peek(); first != null && !(first instanceof PceId); first = objects.peek()) {
             this.parseAttributes(builder, objects);
         }
         return builder.build();
     }
 
-    private Result handleEros(final List<Object> objects) {
+    private Result handleEros(final Queue<Object> objects) {
         final SuccessBuilder builder = new SuccessBuilder();
         final List<Paths> paths = new ArrayList<>();
-        while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
+
+        for (Object first = objects.peek(); first != null && !(first instanceof PceId); first = objects.peek()) {
             final PathsBuilder pBuilder = new PathsBuilder();
-            if (objects.get(0) instanceof Ero) {
-                pBuilder.setEro((Ero ) objects.remove(0));
+            if (first instanceof Ero) {
+                pBuilder.setEro((Ero) first);
+                objects.remove();
             }
             final List<VendorInformationObject> vendorInfoObjects = addVendorInformationObjects(objects);
             if (!vendorInfoObjects.isEmpty()) {
@@ -230,17 +235,17 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new SuccessCaseBuilder().setSuccess(builder.build()).build();
     }
 
-    protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
+    protected void parseAttributes(final FailureCaseBuilder builder, final Queue<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
-        Object obj;
         State state = State.INIT;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertObject(state, obj, builder, pathMetrics);
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);
@@ -323,18 +328,19 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
+    protected void parsePath(final PathsBuilder builder, final Queue<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
-        Object obj;
         State state = State.INIT;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertObject(state, obj, builder, pathMetrics);
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
+
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);
         }
