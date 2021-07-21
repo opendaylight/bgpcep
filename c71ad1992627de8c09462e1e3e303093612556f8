@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5319fc85_379a5723",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-21T07:56:20Z",
+      "side": 1,
+      "message": "Are we sure that the prefix end with \"/32\" with this function?",
+      "revId": "c71ad1992627de8c09462e1e3e303093612556f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c5611d1_74eb3866",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-21T07:56:20Z",
+      "side": 1,
+      "message": "Same here for \"/128\"?",
+      "revId": "c71ad1992627de8c09462e1e3e303093612556f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
