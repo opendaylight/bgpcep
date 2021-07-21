@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.Rro;
 
 /**
@@ -168,69 +169,31 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
 
     private static void parsePath(final Queue<Object> objects, final PathBuilder builder) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-        State state = State.INIT;
 
         for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
-            state = insertObject(state, obj, builder, pathMetrics);
-            if (state == State.END) {
+            /*
+             * Object could be inserted in various order depending if PCC is conform to RFC8231 or not. Try to be
+             * flexible enough to handle all cases.
+             */
+            if (obj instanceof Srp) {
                 break;
+            } else if (obj instanceof Lspa) {
+                builder.setLspa((Lspa) obj);
+            } else if (obj instanceof Bandwidth) {
+                builder.setBandwidth((Bandwidth) obj);
+            } else if (obj instanceof ReoptimizationBandwidth) {
+                builder.setReoptimizationBandwidth((ReoptimizationBandwidth) obj);
+            } else if (obj instanceof Metric) {
+                pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+            } else if (obj instanceof Iro) {
+                builder.setIro((Iro) obj);
+            } else if (obj instanceof Rro) {
+                builder.setRro((Rro) obj);
             }
-
             objects.remove();
         }
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);
         }
-    }
-
-    private static State insertObject(final State state, final Object obj, final PathBuilder builder,
-            final List<Metrics> pathMetrics) {
-        switch (state) {
-            case INIT:
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
-                    return State.LSPA_IN;
-                }
-                // fall through
-            case LSPA_IN:
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
-                    return State.LSPA_IN;
-                }
-                if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                        .reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                    builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                            .pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
-                    return State.LSPA_IN;
-                }
-                // fall through
-            case BANDWIDTH_IN:
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
-                    return State.BANDWIDTH_IN;
-                }
-                // fall through
-            case METRIC_IN:
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
-                    return State.IRO_IN;
-                }
-                // fall through
-            case IRO_IN:
-                if (obj instanceof Rro) {
-                    builder.setRro((Rro) obj);
-                    return State.RRO_IN;
-                }
-                // fall through
-            case RRO_IN:
-            case END:
-                return State.END;
-            default:
-                return state;
-        }
-    }
-
-    private enum State {
-        INIT, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_IN, RRO_IN, END
     }
 }
