@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,14 +21,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.EroMetricCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.EroMetricCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class EroMetricParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int ERO_METRIC = 1162;
 
     @Override
     public BindingSubTlv parseSubTlv(final ByteBuf slice, final ProtocolId protocolId) {
-        return new EroMetricCaseBuilder().setEroMetric(new TeMetric(ByteBufUtils.readUint32(slice))).build();
+        return new EroMetricCaseBuilder().setEroMetric(new TeMetric(readUint32(slice))).build();
     }
 
     @Override
@@ -38,8 +39,8 @@ public final class EroMetricParser implements BindingSubTlvsParser, BindingSubTl
     public void serializeSubTlv(final BindingSubTlv bindingSubTlv, final ByteBuf aggregator) {
         checkArgument(bindingSubTlv instanceof EroMetricCase, "Wrong BindingSubTlv instance expected",
             bindingSubTlv);
-        final ByteBuf buffer = Unpooled.buffer();
-        buffer.writeInt(((EroMetricCase) bindingSubTlv).getEroMetric().getValue().intValue());
+        final ByteBuf buffer = Unpooled.buffer(4);
+        writeUint32(buffer, ((EroMetricCase) bindingSubTlv).getEroMetric().getValue());
         TlvUtil.writeTLV(getType(), buffer, aggregator);
     }
 }

@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -25,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.ero._case.UnnumberedInterfaceIdEro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sub.tlvs.binding.sub.tlv.unnumbered._interface.id.ero._case.UnnumberedInterfaceIdEroBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingSubTlvsSerializer {
     private static final int UNNUMBERED_ERO = 1165;
@@ -55,8 +56,8 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
         final BitArray flags = BitArray.valueOf(buffer, Ipv4EroParser.FLAGS_SIZE);
         builder.setLoose(flags.get(Ipv4EroParser.LOOSE));
         buffer.skipBytes(Ipv4EroParser.RESERVED_ERO);
-        builder.setRouterId(ByteBufUtils.readUint32(buffer));
-        builder.setInterfaceId(ByteBufUtils.readUint32(buffer));
+        builder.setRouterId(readUint32(buffer));
+        builder.setInterfaceId(readUint32(buffer));
         return new UnnumberedInterfaceIdEroCaseBuilder().setUnnumberedInterfaceIdEro(builder.build()).build();
     }
 
@@ -65,8 +66,8 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
         final BitArray flags = BitArray.valueOf(buffer, Ipv4EroParser.FLAGS_SIZE);
         builder.setLoose(flags.get(Ipv4EroParser.LOOSE));
         buffer.skipBytes(Ipv4EroParser.RESERVED_ERO);
-        builder.setRouterId(ByteBufUtils.readUint32(buffer));
-        builder.setInterfaceId(ByteBufUtils.readUint32(buffer));
+        builder.setRouterId(readUint32(buffer));
+        builder.setInterfaceId(readUint32(buffer));
         return new UnnumberedInterfaceIdBackupEroCaseBuilder().setUnnumberedInterfaceIdBackupEro(builder.build())
                 .build();
     }
@@ -74,8 +75,8 @@ public final class UnnumberedEroParser implements BindingSubTlvsParser, BindingS
     static ByteBuf serializeUnnumberedIdEro(final Boolean loose, final Uint32 routerId, final Uint32 interfaceId) {
         final ByteBuf buffer = Unpooled.buffer();
         Ipv4EroParser.serializeEroFlags(buffer, loose);
-        buffer.writeInt(routerId.intValue());
-        buffer.writeInt(interfaceId.intValue());
+        writeUint32(buffer, routerId);
+        writeUint32(buffer, interfaceId);
         return buffer;
     }
 }

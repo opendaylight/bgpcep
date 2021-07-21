@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkAttributesParser.SR_LAN_ADJ_ID;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SrLinkAttributesParser {
     private static final int ISO_SYSTEM_ID_SIZE = 6;
@@ -81,7 +82,7 @@ public final class SrLinkAttributesParser {
         if (buffer.isReadable()) {
             final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
             adjFlags = parseFlags(flags, protocolId);
-            weight = new Weight(ByteBufUtils.readUint8(buffer));
+            weight = new Weight(readUint8(buffer));
             buffer.skipBytes(RESERVED);
             final boolean isValue;
             final boolean isLocal;
@@ -114,7 +115,7 @@ public final class SrLinkAttributesParser {
         final SidLabelIndex sidValue;
         if (buffer.isReadable()) {
             final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
-            weight = new Weight(ByteBufUtils.readUint8(buffer));
+            weight = new Weight(readUint8(buffer));
             buffer.skipBytes(RESERVED);
             sidValue = SidLabelIndexParser.parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()), buffer,
                     flags.get(VALUE_EPE), flags.get(LOCAL_EPE));
@@ -147,7 +148,7 @@ public final class SrLinkAttributesParser {
         final SrLanAdjIdsBuilder srLanAdjIdBuilder = new SrLanAdjIdsBuilder();
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_BITS_SIZE);
         srLanAdjIdBuilder.setFlags(parseFlags(flags, protocolId));
-        srLanAdjIdBuilder.setWeight(new Weight(ByteBufUtils.readUint8(buffer)));
+        srLanAdjIdBuilder.setWeight(new Weight(readUint8(buffer)));
         buffer.skipBytes(RESERVED);
         final boolean isValue;
         final boolean isLocal;
@@ -214,7 +215,7 @@ public final class SrLinkAttributesParser {
         } else {
             value.writeZero(FLAGS_BYTE_SIZE);
         }
-        value.writeByte(adjSid.getWeight().getValue().toJava());
+        writeUint8(value, adjSid.getWeight().getValue());
         value.writeZero(RESERVED);
         value.writeBytes(SidLabelIndexParser.serializeSidValue(adjSid.getSidLabelIndex()));
         return value;
@@ -231,7 +232,7 @@ public final class SrLinkAttributesParser {
         final ByteBuf value = Unpooled.buffer();
         final BitArray flags = serializeAdjFlags(srLanAdjId.getFlags(), srLanAdjId.getSidLabelIndex());
         flags.toByteBuf(value);
-        value.writeByte(srLanAdjId.getWeight().getValue().toJava());
+        writeUint8(value, srLanAdjId.getWeight().getValue());
         value.writeZero(RESERVED);
         if (srLanAdjId.getIsoSystemId() != null) {
             value.writeBytes(srLanAdjId.getIsoSystemId().getValue());
