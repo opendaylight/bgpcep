@@ -160,26 +160,10 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     }
 
     @Override
-    public synchronized void onInitialData() {
-        final DOMTransactionChain chain = getDomChain();
-        if (chain == null) {
-            LOG.trace("Ignoring initial convergence");
-            return;
-        }
-
-        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
-        tx.delete(LogicalDatastoreType.OPERATIONAL, adjRibsInId);
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.trace("Successful commit of empty convergence");
-            }
-
-            @Override
-            public void onFailure(final Throwable cause) {
-                LOG.error("Failed commit of empty convergence", cause);
-            }
-        }, MoreExecutors.directExecutor());
+    public void onInitialData() {
+        // FIXME: we really want to (under a synchronized block) to ensure adj-rib-in is completely empty here.
+        //        Unfortunately that bit is already being done somewhere else. The entire the tables are being created
+        //        elsewhere and therefore we need to reign in lifecycle first
     }
 
     /**
