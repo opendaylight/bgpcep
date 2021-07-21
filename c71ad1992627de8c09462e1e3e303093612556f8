@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b3b085fc_734fd89b",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-21T09:24:53Z",
+      "side": 1,
+      "message": "Yes, guaranteed by UT here: https://github.com/opendaylight/mdsal/blob/master/model/ietf/ietf-type-util/src/test/java/org/opendaylight/mdsal/model/ietf/util/AbstractIetfInetUtilTest.java#L106",
+      "parentUuid": "5319fc85_379a5723",
+      "revId": "c71ad1992627de8c09462e1e3e303093612556f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7c5611d1_74eb3866",
         "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
         "patchSetId": 1
