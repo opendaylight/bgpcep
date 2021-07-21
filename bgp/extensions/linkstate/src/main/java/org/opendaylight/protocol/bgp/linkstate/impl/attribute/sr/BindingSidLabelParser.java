@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
+
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleBindingSubTlvsRegistry;
@@ -21,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sid.tlv.flags.IsisBindingFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sid.tlv.flags.OspfBindingFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.binding.sid.tlv.flags.OspfBindingFlagsCaseBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class BindingSidLabelParser {
     /* Flags */
@@ -42,7 +44,7 @@ public final class BindingSidLabelParser {
 
     public static SrBindingSidLabels parseBindingSidLabel(final ByteBuf buffer, final ProtocolId protocolId) {
         final SrBindingSidLabelsBuilder bindingSid = new SrBindingSidLabelsBuilder();
-        bindingSid.setWeight(new Weight(ByteBufUtils.readUint8(buffer)));
+        bindingSid.setWeight(new Weight(readUint8(buffer)));
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         bindingSid.setFlags(parseBindingSidFlags(flags, protocolId));
         buffer.skipBytes(RESERVED_BINDING_SID);
@@ -69,7 +71,7 @@ public final class BindingSidLabelParser {
 
     public static void serializeBindingSidAttributes(final Weight weight, final Flags flags,
             final List<BindingSubTlvs> bindingSubTlvs, final ByteBuf aggregator) {
-        aggregator.writeByte(weight.getValue().toJava());
+        writeUint8(aggregator, weight.getValue());
         final BitArray bitFlags = serializeBindingSidFlags(flags);
         bitFlags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED_BINDING_SID);

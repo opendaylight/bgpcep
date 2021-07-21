@@ -11,6 +11,8 @@ import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.PrefixAttri
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv4PrefixSidParser.PREFIX_SID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv6PrefixSidParser.IPV6_PREFIX_SID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.SIDParser.SID_TYPE;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint16;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -37,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.range.sub.tlvs.range.sub.tlv.prefix.sid.tlv._case.PrefixSidTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.range.tlv.SubTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.range.tlv.SubTlvsBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +62,7 @@ public final class RangeTlvParser {
             range.setInterArea(Boolean.FALSE);
         }
         buffer.skipBytes(RESERVED);
-        range.setRangeSize(ByteBufUtils.readUint16(buffer));
+        range.setRangeSize(readUint16(buffer));
         range.setSubTlvs(parseRangeSubTlvs(buffer, protocolId));
         return range.build();
     }
@@ -105,7 +106,7 @@ public final class RangeTlvParser {
         flags.set(INNER_AREA, srRange.getInterArea());
         flags.toByteBuf(aggregator);
         aggregator.writeZero(RESERVED);
-        aggregator.writeShort(srRange.getRangeSize().toJava());
+        writeUint16(aggregator, srRange.getRangeSize());
         serializeSubTlvs(aggregator, srRange.getSubTlvs());
     }
 

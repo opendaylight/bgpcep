@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -189,7 +191,7 @@ public final class NodeAttributesParser {
         if (topList != null) {
             final ByteBuf mpIdBuf = Unpooled.buffer();
             for (final TopologyIdentifier topologyIdentifier : topList) {
-                mpIdBuf.writeShort(topologyIdentifier.getValue().toJava());
+                writeUint16(mpIdBuf, topologyIdentifier.getValue());
             }
             TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
         }

@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -58,7 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,7 +150,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed IPv6 Router-ID of remote node: {}", builder.getRemoteIpv6RouterId());
                     break;
                 case ADMIN_GROUP:
-                    builder.setAdminGroup(new AdministrativeGroup(ByteBufUtils.readUint32(value)));
+                    builder.setAdminGroup(new AdministrativeGroup(readUint32(value)));
                     LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
                     break;
                 case MAX_BANDWIDTH:
@@ -163,7 +165,7 @@ public final class LinkAttributesParser {
                     parseUnreservedBandwidth(value, builder);
                     break;
                 case TE_METRIC:
-                    builder.setTeMetric(new TeMetric(ByteBufUtils.readUint32(value)));
+                    builder.setTeMetric(new TeMetric(readUint32(value)));
                     LOG.debug("Parsed Metric {}", builder.getTeMetric());
                     break;
                 case LINK_PROTECTION_TYPE:
@@ -184,7 +186,9 @@ public final class LinkAttributesParser {
                     parseSrlg(value, builder);
                     break;
                 case LINK_OPAQUE:
-                    LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Parsed Opaque value : {}", ByteBufUtil.hexDump(value));
+                    }
                     break;
                 case LINK_NAME:
                     builder.setLinkName(new String(ByteArray.readAllBytes(value), StandardCharsets.US_ASCII));
@@ -215,22 +219,22 @@ public final class LinkAttributesParser {
                     break;
                     // Performance Metrics
                 case LINK_DELAY:
-                    builder.setLinkDelay(new Delay(ByteBufUtils.readUint32(value)));
+                    builder.setLinkDelay(new Delay(readUint32(value)));
                     LOG.debug("Parsed Link Delay {}", builder.getLinkDelay());
                     break;
                 case LINK_MIN_MAX_DELAY:
                     builder.setLinkMinMaxDelay(new LinkMinMaxDelayBuilder()
-                        .setMinDelay(new Delay(ByteBufUtils.readUint32(value)))
-                        .setMaxDelay(new Delay(ByteBufUtils.readUint32(value)))
+                        .setMinDelay(new Delay(readUint32(value)))
+                        .setMaxDelay(new Delay(readUint32(value)))
                         .build());
                     LOG.debug("Parsed Link Min/Max Delay {}", builder.getLinkMinMaxDelay());
                     break;
                 case DELAY_VARIATION:
-                    builder.setDelayVariation(new Delay(ByteBufUtils.readUint32(value)));
+                    builder.setDelayVariation(new Delay(readUint32(value)));
                     LOG.debug("Parsed Delay Variation {}", builder.getDelayVariation());
                     break;
                 case LINK_LOSS:
-                    builder.setLinkLoss(new Loss(ByteBufUtils.readUint32(value)));
+                    builder.setLinkLoss(new Loss(readUint32(value)));
                     LOG.debug("Parsed Link Loss {}", builder.getLinkLoss());
                     break;
                 case RESIDUAL_BANDWIDTH:
@@ -279,7 +283,7 @@ public final class LinkAttributesParser {
     private static void parseSrlg(final ByteBuf value, final LinkAttributesBuilder builder) {
         final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
         while (value.isReadable()) {
-            sharedRiskLinkGroups.add(new SrlgId(ByteBufUtils.readUint32(value)));
+            sharedRiskLinkGroups.add(new SrlgId(readUint32(value)));
         }
         builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
         LOG.debug("Parsed Shared Risk Link Groups {}", builder.getSharedRiskLinkGroups());
@@ -365,7 +369,7 @@ public final class LinkAttributesParser {
         if (srlgList != null) {
             final ByteBuf sharedRLGBuf = Unpooled.buffer();
             for (final SrlgId srlgId : srlgList) {
-                sharedRLGBuf.writeInt(srlgId.getValue().intValue());
+                writeUint32(sharedRLGBuf, srlgId.getValue());
             }
             TlvUtil.writeTLV(SHARED_RISK_LINK_GROUP, sharedRLGBuf, byteAggregator);
         }
@@ -385,9 +389,9 @@ public final class LinkAttributesParser {
 
     private static void serializeLinkMinMaxDelay(final LinkMinMaxDelay linkMinMaxDelay, final ByteBuf byteAggregator) {
         if (linkMinMaxDelay != null) {
-            final ByteBuf linkMinMaxDelayBuf = Unpooled.buffer();
-            linkMinMaxDelayBuf.writeInt(linkMinMaxDelay.getMinDelay().getValue().intValue());
-            linkMinMaxDelayBuf.writeInt(linkMinMaxDelay.getMaxDelay().getValue().intValue());
+            final ByteBuf linkMinMaxDelayBuf = Unpooled.buffer(8);
+            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMinDelay().getValue());
+            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMaxDelay().getValue());
             TlvUtil.writeTLV(LINK_MIN_MAX_DELAY, linkMinMaxDelayBuf, byteAggregator);
         }
     }
