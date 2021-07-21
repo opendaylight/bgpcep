@@ -440,6 +440,11 @@ public class PCEPValidatorTest {
         parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
+        result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.4.bin"));
+
+        assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
+                parser.parseMessage(result.slice(4, result.readableBytes() - 4), List.of()));
+
         result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCRpt.5.bin"));
 
         final List<Reports> reports3 = new ArrayList<>();
