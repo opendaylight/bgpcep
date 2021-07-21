@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "be7568e7_5d1b30b9",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-21T08:03:27Z",
+      "side": 1,
+      "message": "That\u0027s not good. I would return the 64 lowest bits of IPv6 address, not the 64 upper bits (See remark on test)",
+      "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd2203b3_1e8e82e2",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-21T08:03:27Z",
+      "side": 1,
+      "message": "Test is wrong. I would capture 08090A0B0C0D0E0F i.e. the 64 lowest bits of IPv6 address. The 64 upper part are the same in a network, so it will be impossible to discriminate the Edge if they got the same key.",
+      "revId": "ef9c88343ba3b4b8c56c7975d5fa4443c6794eaa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
