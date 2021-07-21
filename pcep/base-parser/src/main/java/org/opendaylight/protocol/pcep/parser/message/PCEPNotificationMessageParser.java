@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -43,29 +45,25 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof PcntfMessage,
+        checkArgument(message instanceof PcntfMessage,
                 "Wrong instance of Message. Passed instance of %s. Need PcntfMessage.", message.getClass());
         final ByteBuf buffer = Unpooled.buffer();
-        for (final Notifications n : ((PcntfMessage) message).getPcntfMessage().getNotifications()) {
-            if (n.getRps() != null) {
-                for (final Rps rps : n.getRps()) {
-                    serializeObject(rps.getRp(), buffer);
-                }
+        for (final Notifications n : ((PcntfMessage) message).getPcntfMessage().nonnullNotifications()) {
+            for (final Rps rps : n.nonnullRps()) {
+                serializeObject(rps.getRp(), buffer);
             }
-            Preconditions.checkArgument(n.getNotifications() != null && !n.getNotifications().isEmpty(),
-                    "Message must contain at least one notification object");
-            for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcntf
-                    .message.pcntf.message.notifications.Notifications not : n.getNotifications()) {
-                serializeObject(not.getCNotification(), buffer);
-            }
+
+            final var notifs = n.nonnullNotifications();
+            checkArgument(!notifs.isEmpty(), "Message must contain at least one notification object");
+            notifs.forEach(not -> serializeObject(not.getCNotification(), buffer));
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Notification message cannot be empty.");
         }
@@ -86,24 +84,26 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }
         return new PcntfBuilder()
-                .setPcntfMessage(new PcntfMessageBuilder().setNotifications(compositeNotifications).build()).build();
+                .setPcntfMessage(new PcntfMessageBuilder().setNotifications(compositeNotifications).build())
+                .build();
     }
 
-    private static Notifications getValidNotificationComposite(final List<Object> objects, final List<Message> errors) {
+    private static Notifications getValidNotificationComposite(final Queue<Object> objects,
+            final List<Message> errors) {
         final List<Rps> requestParameters = new ArrayList<>();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcntf
             .message.pcntf.message.notifications.Notifications> notifications = new ArrayList<>();
-        Object obj;
 
         State state = State.INIT;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             if ((state = insertObject(state, obj, errors, requestParameters, notifications)) == null) {
                 return null;
             }
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
 
         if (notifications.isEmpty()) {

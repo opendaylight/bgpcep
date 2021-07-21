@@ -15,13 +15,13 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,16 +65,17 @@ public class AbstractMessageParserTest {
         }
 
         @Override
-        protected Message validate(final List<Object> objects, final List<Message> errors) {
-            if (objects.get(0) instanceof VendorInformationObject) {
+        protected Message validate(final Queue<Object> objects, final List<Message> errors) {
+            final Object obj = objects.element();
+            if (obj instanceof VendorInformationObject) {
                 final RepliesBuilder repsBuilder = new RepliesBuilder();
                 repsBuilder.setVendorInformationObject(addVendorInformationObjects(objects));
                 return new PcrepBuilder().setPcrepMessage(
                     new PcrepMessageBuilder().setReplies(Arrays.asList(repsBuilder.build())).build())
                         .build();
-            } else if (objects.get(0) instanceof ErrorObject) {
-                final Uint8 errorType = ((ErrorObject) objects.get(0)).getType();
-                final Uint8 errorValue = ((ErrorObject) objects.get(0)).getValue();
+            } else if (obj instanceof ErrorObject) {
+                final Uint8 errorType = ((ErrorObject) obj).getType();
+                final Uint8 errorValue = ((ErrorObject) obj).getValue();
                 return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.empty());
             }
             return null;
@@ -113,7 +114,7 @@ public class AbstractMessageParserTest {
         final Abs parser = new Abs(this.registry);
         final ByteBuf buffer = Unpooled.buffer();
 
-        parser.serializeVendorInformationObjects(Lists.newArrayList(this.viObject), buffer);
+        parser.serializeVendorInformationObjects(List.of(this.viObject), buffer);
         verify(this.registry, only()).serializeVendorInformationObject(any(VendorInformationObject.class),
             any(ByteBuf.class));
 

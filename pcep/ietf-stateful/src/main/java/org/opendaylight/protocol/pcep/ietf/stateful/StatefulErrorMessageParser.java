@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -69,48 +70,50 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
     }
 
     @Override
-    protected PcerrMessage validate(final List<Object> objects, final List<Message> errors)
+    protected PcerrMessage validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
-        if (objects.isEmpty()) {
+
+        final Object first = objects.peek();
+        if (first == null) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
         final List<Rps> requestParameters = new ArrayList<>();
         final List<Srps> srps = new ArrayList<>();
         final List<Errors> errorObjects = new ArrayList<>();
         final PcerrMessageBuilder b = new PcerrMessageBuilder();
-        Object obj = objects.get(0);
         State state = State.INIT;
-        if (obj instanceof ErrorObject) {
-            final ErrorObject o = (ErrorObject) obj;
-            errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
+        if (first instanceof ErrorObject) {
+            errorObjects.add(new ErrorsBuilder().setErrorObject((ErrorObject) first).build());
             state = State.ERROR_IN;
-        } else if (obj instanceof Rp) {
-            final Rp o = (Rp) obj;
-            if (o.getProcessingRule()) {
+        } else if (first instanceof Rp) {
+            final Rp rp = (Rp) first;
+            if (rp.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
             }
-            requestParameters.add(new RpsBuilder().setRp(o).build());
+            requestParameters.add(new RpsBuilder().setRp(rp).build());
             state = State.RP_IN;
-        } else if (obj instanceof Srp) {
-            final Srp s = (Srp) obj;
-            srps.add(new SrpsBuilder().setSrp(s).build());
+        } else if (first instanceof Srp) {
+            srps.add(new SrpsBuilder().setSrp((Srp) first).build());
             state = State.SRP_IN;
         }
-        if (!state.equals(State.INIT)) {
-            objects.remove(0);
+        if (state != State.INIT) {
+            objects.remove();
         }
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             if (obj instanceof UnknownObject) {
-                return new PcerrBuilder().setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build())
-                        .build();
+                return new PcerrBuilder()
+                    .setPcerrMessage(b.setErrors(((UnknownObject) obj).getErrors()).build())
+                    .build();
             }
             state = insertObject(state, obj, errorObjects, requestParameters, srps, b);
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
         if (errorObjects.isEmpty()) {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");

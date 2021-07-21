@@ -11,12 +11,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,8 +80,8 @@ public class PcRptMessageCodecTest {
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.ONE))
                 .setTlvs(new TlvsBuilder().setLspIdentifiers(identifier).build()).build();
         final Ero ero = new EroBuilder().build();
-        final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
-        final Reports validReports = codec.getValidReports(objects, Collections.emptyList());
+        final Queue<Object> objects = new ArrayDeque<>(List.of(lsp, ero, bw));
+        final Reports validReports = codec.getValidReports(objects, List.of());
         assertNotNull(validReports.getPath().getBandwidth().augmentation(Bandwidth1.class));
         assertTrue(objects.isEmpty());
     }
@@ -95,7 +96,7 @@ public class PcRptMessageCodecTest {
         builder.setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone("127.0.1.3"));
         final Lsp lsp = new LspBuilder().setPlspId(new PlspId(Uint32.ONE)).build();
         final Ero ero = new EroBuilder().build();
-        final List<Object> objects = Lists.newArrayList(lsp, ero, bw);
+        final Queue<Object> objects = new ArrayDeque<>(List.of(lsp, ero, bw));
         final Reports validReports = codec.getValidReports(objects, new ArrayList<>());
         assertNull(validReports);
     }
