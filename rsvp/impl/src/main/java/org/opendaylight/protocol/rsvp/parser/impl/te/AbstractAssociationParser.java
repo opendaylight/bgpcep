@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint16;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
@@ -19,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObjectBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 199;
@@ -35,17 +36,17 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
     protected final void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
         checkArgument(teLspObject instanceof AssociationObject, "AssociationObject is mandatory.");
         final AssociationObject assObject = (AssociationObject) teLspObject;
-
-        if (assObject.getIpAddress().getIpv4AddressNoZone() != null) {
+        final IpAddressNoZone ipAddress = assObject.getIpAddress();
+        if (ipAddress.getIpv4AddressNoZone() != null) {
             serializeAttributeHeader(BODY_SIZE_IPV4, CLASS_NUM, CTYPE_IPV4, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
-            output.writeShort(assObject.getAssociationId().toJava());
-            output.writeBytes(Ipv4Util.byteBufForAddress(assObject.getIpAddress().getIpv4AddressNoZone()));
+            writeUint16(output, assObject.getAssociationId());
+            output.writeBytes(Ipv4Util.byteBufForAddress(ipAddress.getIpv4AddressNoZone()));
         } else {
             serializeAttributeHeader(BODY_SIZE_IPV6, CLASS_NUM, CTYPE_IPV6, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
-            output.writeShort(assObject.getAssociationId().toJava());
-            output.writeBytes(Ipv6Util.byteBufForAddress(assObject.getIpAddress().getIpv6AddressNoZone()));
+            writeUint16(output, assObject.getAssociationId());
+            output.writeBytes(Ipv6Util.byteBufForAddress(ipAddress.getIpv6AddressNoZone()));
         }
     }
 
@@ -53,7 +54,7 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
     protected final RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         return new AssociationObjectBuilder()
                 .setAssociationType(AssociationType.forValue(byteBuf.readUnsignedShort()))
-                .setAssociationId(ByteBufUtils.readUint16(byteBuf))
+                .setAssociationId(readUint16(byteBuf))
                 .setIpAddress(parseAssociationIpAddress(byteBuf))
                 .build();
     }

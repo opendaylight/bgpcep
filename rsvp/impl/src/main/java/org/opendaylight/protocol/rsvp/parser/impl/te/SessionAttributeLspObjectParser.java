@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,7 +21,6 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.session.attribute.object.session.attribute.object.basic.session.attribute.object._case.BasicSessionAttributeObjectBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 207;
@@ -39,8 +40,8 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final BasicSessionAttributeObjectBuilder builder = new BasicSessionAttributeObjectBuilder()
-                .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
-                .setHoldPriority(ByteBufUtils.readUint8(byteBuf));
+                .setSetupPriority(readUint8(byteBuf))
+                .setHoldPriority(readUint8(byteBuf));
         final BitArray bs = BitArray.valueOf(byteBuf.readByte());
         builder.setLocalProtectionDesired(bs.get(LOCAL_PROTECTION));
         builder.setLabelRecordingDesired(bs.get(LABEL_RECORDING));
@@ -61,8 +62,8 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
             .getSessionName()));
         final int pad = getPadding(sessionName.readableBytes());
         serializeAttributeHeader(BODY_SIZE_C7 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
-        output.writeByte(sessionObject.getSetupPriority().toJava());
-        output.writeByte(sessionObject.getHoldPriority().toJava());
+        writeUint8(output, sessionObject.getSetupPriority());
+        writeUint8(output, sessionObject.getHoldPriority());
         final BitArray bs = new BitArray(FLAGS_SIZE);
         bs.set(LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired());
         bs.set(LABEL_RECORDING, sessionObject.getLabelRecordingDesired());

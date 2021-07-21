@@ -8,6 +8,9 @@
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -19,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.RsvpTeObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.legacy.fast.reroute.object._case.LegacyFastRerouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.fast.reroute.object.fast.reroute.object.legacy.fast.reroute.object._case.LegacyFastRerouteObjectBuilder;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class InformationalFastRerouteObjectParser extends AbstractRSVPObjectParser {
     public static final short CLASS_NUM = 205;
@@ -30,16 +32,16 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
         final LegacyFastRerouteObjectBuilder builder = new LegacyFastRerouteObjectBuilder()
-                .setSetupPriority(ByteBufUtils.readUint8(byteBuf))
-                .setHoldPriority(ByteBufUtils.readUint8(byteBuf))
-                .setHopLimit(ByteBufUtils.readUint8(byteBuf));
+                .setSetupPriority(readUint8(byteBuf))
+                .setHoldPriority(readUint8(byteBuf))
+                .setHopLimit(readUint8(byteBuf));
 
         //skip reserved
         byteBuf.skipBytes(Byte.BYTES);
         final ByteBuf v = byteBuf.readSlice(METRIC_VALUE_F_LENGTH);
         builder.setBandwidth(new Bandwidth(ByteArray.readAllBytes(v)));
-        builder.setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
-        builder.setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(byteBuf)));
+        builder.setIncludeAny(new AttributeFilter(readUint32(byteBuf)));
+        builder.setExcludeAny(new AttributeFilter(readUint32(byteBuf)));
         return builder.build();
     }
 
@@ -49,9 +51,9 @@ public final class InformationalFastRerouteObjectParser extends AbstractRSVPObje
         final LegacyFastRerouteObject fastRerouteObject = (LegacyFastRerouteObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE_C7, CLASS_NUM, CTYPE, byteAggregator);
 
-        byteAggregator.writeByte(fastRerouteObject.getSetupPriority().toJava());
-        byteAggregator.writeByte(fastRerouteObject.getHoldPriority().toJava());
-        byteAggregator.writeByte(fastRerouteObject.getHopLimit().toJava());
+        writeUint8(byteAggregator, fastRerouteObject.getSetupPriority());
+        writeUint8(byteAggregator, fastRerouteObject.getHoldPriority());
+        writeUint8(byteAggregator, fastRerouteObject.getHopLimit());
         byteAggregator.writeByte(0);
         byteAggregator.writeBytes(Unpooled.wrappedBuffer(fastRerouteObject.getBandwidth().getValue()));
         writeAttributeFilter(fastRerouteObject.getIncludeAny(), byteAggregator);
