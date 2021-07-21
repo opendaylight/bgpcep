@@ -14,6 +14,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -85,7 +86,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    public Message validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    public Message validate(final Queue<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
@@ -102,11 +103,11 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
         return new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build()).build();
     }
 
-    protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
+    protected Reports getValidReports(final Queue<Object> objects, final List<Message> errors) {
         final ReportsBuilder builder = new ReportsBuilder();
 
         boolean lspViaSR = false;
-        Object object = objects.remove(0);
+        Object object = objects.remove();
         if (object instanceof Srp) {
             final Srp srp = (Srp) object;
             final Tlvs tlvs = srp.getTlvs();
@@ -114,11 +115,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
                 lspViaSR = PSTUtil.isDefaultPST(tlvs.getPathSetupType());
             }
             builder.setSrp(srp);
-            if (objects.isEmpty()) {
-                object = null;
-            } else {
-                object = objects.remove(0);
-            }
+            object = objects.poll();
         }
 
         if (validateLsp(object, lspViaSR, errors, builder)) {
@@ -154,10 +151,10 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
         return false;
     }
 
-    private static boolean validatePath(final List<Object> objects, final List<Message> errors,
+    private static boolean validatePath(final Queue<Object> objects, final List<Message> errors,
             final ReportsBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
-        Object object = objects.remove(0);
+        Object object = objects.remove();
         if (object instanceof Ero) {
             pBuilder.setEro((Ero) object);
         } else {
@@ -169,16 +166,17 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private static void parsePath(final List<Object> objects, final PathBuilder builder) {
+    private static void parsePath(final Queue<Object> objects, final PathBuilder builder) {
         final List<Metrics> pathMetrics = new ArrayList<>();
-        Object obj;
         State state = State.INIT;
-        while (!objects.isEmpty() && !state.equals(State.END)) {
-            obj = objects.get(0);
+
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertObject(state, obj, builder, pathMetrics);
-            if (!state.equals(State.END)) {
-                objects.remove(0);
+            if (state == State.END) {
+                break;
             }
+
+            objects.remove();
         }
         if (!pathMetrics.isEmpty()) {
             builder.setMetrics(pathMetrics);

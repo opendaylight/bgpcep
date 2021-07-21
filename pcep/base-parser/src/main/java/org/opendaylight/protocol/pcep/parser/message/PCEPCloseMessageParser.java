@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -37,24 +39,23 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof CloseMessage,
+        checkArgument(message instanceof CloseMessage,
                 "Wrong instance of Message. Passed instance of %s. Need CloseMessage.", message.getClass());
         final CCloseMessage close = ((CloseMessage) message).getCCloseMessage();
-        Preconditions.checkArgument(close.getCClose() != null, "Close Object must be present in Close Message.");
+        checkArgument(close.getCClose() != null, "Close Object must be present in Close Message.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeObject(close.getCClose(), buffer);
         MessageUtil.formatMessage(TYPE, buffer, out);
     }
 
     @Override
-    protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
-        if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
+    protected Close validate(final Queue<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+        checkArgument(objects != null, "Passed list can't be null.");
+        final Object o = objects.poll();
+        if (!(o instanceof CClose)) {
             throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");
         }
-        final Object o = objects.get(0);
         final CCloseMessage msg = new CCloseMessageBuilder().setCClose((CClose) o).build();
-        objects.remove(0);
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
         }

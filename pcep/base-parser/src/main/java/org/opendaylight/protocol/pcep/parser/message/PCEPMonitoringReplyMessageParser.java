@@ -5,15 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.message;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -52,10 +53,10 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf buffer) {
-        Preconditions.checkArgument(message instanceof Pcmonrep,
+        checkArgument(message instanceof Pcmonrep,
                 "Wrong instance of Message. Passed instance of %s. Need Pcmonrep.", message.getClass());
         final PcmonrepMessage monRepMsg = ((Pcmonrep) message).getPcmonrepMessage();
-        Preconditions.checkArgument(monRepMsg.getMonitoring() != null, "MONITORING object is mandatory.");
+        checkArgument(monRepMsg.getMonitoring() != null, "MONITORING object is mandatory.");
         final ByteBuf body = Unpooled.buffer();
         serializeObject(monRepMsg.getMonitoring(), body);
         serializeObject(monRepMsg.getPccIdReq(), body);
@@ -78,29 +79,34 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
     }
 
     private void serializeMetricPce(final MetricPce metricPce, final ByteBuf buffer) {
-        Preconditions.checkArgument(metricPce.getPceId() != null, "PCE-ID must be present.");
+        checkArgument(metricPce.getPceId() != null, "PCE-ID must be present.");
         serializeObject(metricPce.getPceId(), buffer);
         serializeObject(metricPce.getProcTime(), buffer);
         serializeObject(metricPce.getOverload(), buffer);
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
-        if (objects.isEmpty()) {
+        checkArgument(objects != null, "Passed list can't be null.");
+
+        final Object monitoring = objects.poll();
+        if (monitoring == null) {
             throw new PCEPDeserializerException("Pcmonrep message cannot be empty.");
         }
-        if (!(objects.get(0) instanceof Monitoring)) {
+        if (!(monitoring instanceof Monitoring)) {
             errors.add(createErrorMsg(PCEPErrors.MONITORING_OBJECT_MISSING, Optional.empty()));
             return null;
         }
-        final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder().setMonitoring((Monitoring) objects.get(0));
-        objects.remove(0);
-        if (!objects.isEmpty() && objects.get(0) instanceof PccIdReq) {
-            builder.setPccIdReq((PccIdReq) objects.get(0));
-            objects.remove(0);
+
+        final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder().setMonitoring((Monitoring) monitoring);
+
+        final Object obj = objects.peek();
+        if (obj instanceof PccIdReq) {
+            builder.setPccIdReq((PccIdReq)obj);
+            objects.remove();
         }
+
         validateSpecificMetrics(objects, builder);
         if (!objects.isEmpty()) {
             throw new PCEPDeserializerException("Unprocessed Objects: " + objects);
@@ -108,26 +114,29 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
     }
 
-    private static void validateSpecificMetrics(final List<Object> objects, final PcmonrepMessageBuilder builder)
+    private static void validateSpecificMetrics(final Queue<Object> objects, final PcmonrepMessageBuilder builder)
             throws PCEPDeserializerException {
         final List<SpecificMetrics> specificMetrics = new ArrayList<>();
-        while (!objects.isEmpty()) {
+
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             final SpecificMetricsBuilder smb = new SpecificMetricsBuilder();
-            final List<MetricPce> metricPceList = new ArrayList<>();
-            if (objects.get(0) instanceof Rp) {
-                smb.setRp((Rp) objects.get(0));
-                objects.remove(0);
+            if (obj instanceof Rp) {
+                smb.setRp((Rp) obj);
+                objects.remove();
             }
-            while (!objects.isEmpty() && !(objects.get(0) instanceof Rp)) {
+
+            final List<MetricPce> metricPceList = new ArrayList<>();
+            for (obj = objects.peek(); obj != null && !(obj instanceof Rp); obj = objects.peek()) {
                 metricPceList.add(Util.validateMonitoringMetrics(objects));
             }
+
             if (smb.getRp() != null) {
-                smb.setMetricPce(metricPceList);
-                specificMetrics.add(smb.build());
+                specificMetrics.add(smb.setMetricPce(metricPceList).build());
             } else if (!metricPceList.isEmpty()) {
                 builder.setMonitoringMetricsList(new GeneralMetricsListBuilder().setMetricPce(metricPceList).build());
             }
         }
+
         if (!specificMetrics.isEmpty()) {
             builder.setMonitoringMetricsList(
                     new SpecificMetricsListBuilder().setSpecificMetrics(specificMetrics).build());

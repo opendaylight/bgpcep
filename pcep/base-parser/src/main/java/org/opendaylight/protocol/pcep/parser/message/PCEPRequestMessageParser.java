@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.parser.message;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -95,11 +98,10 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcreq,
+        checkArgument(message instanceof Pcreq,
                 "Wrong instance of Message. Passed instance of %s. Need Pcreq.", message.getClass());
         final PcreqMessage msg = ((Pcreq) message).getPcreqMessage();
-        Preconditions.checkArgument(msg.getRequests() != null && !msg.getRequests().isEmpty(),
-                "Requests cannot be null or empty.");
+        checkArgument(!msg.nonnullRequests().isEmpty(), "Requests cannot be null or empty.");
         final ByteBuf buffer = Unpooled.buffer();
         if (msg.getMonitoringRequest() != null) {
             serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
@@ -112,7 +114,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     protected void serializeRequest(final PcreqMessage msg, final ByteBuf buffer) {
-        for (final Requests req : msg.getRequests()) {
+        for (final Requests req : msg.nonnullRequests()) {
             serializeObject(req.getRp(), buffer);
             serializeVendorInformationObjects(req.getVendorInformationObject(), buffer);
             if (req.getPathKeyExpansion() != null) {
@@ -176,7 +178,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
         endpointRroPairList.forEach(pair -> {
             serializeObject(pair.getEndpointsObj(), buffer);
-            pair.getRros().forEach(rro -> {
+            pair.nonnullRros().forEach(rro -> {
                 if (rro.getRouteObject() instanceof ReportedRouteObjectCase) {
                     serializeObject(((ReportedRouteObjectCase) rro.getRouteObject()).getRro(), buffer);
                 } else if (rro.getRouteObject() instanceof SecondaryReportedRouteObjectCase) {
@@ -214,7 +216,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
@@ -237,7 +239,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new PcreqBuilder().setPcreqMessage(mBuilder.build()).build();
     }
 
-    protected List<Svec> getSvecs(final List<Object> objects) {
+    protected List<Svec> getSvecs(final Queue<Object> objects) {
         final List<Svec> svecList = new ArrayList<>();
         while (!objects.isEmpty()) {
             final SvecBuilder sBuilder = new SvecBuilder();
@@ -250,43 +252,53 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return svecList;
     }
 
-    protected List<Requests> getRequests(final List<Object> objects, final List<Message> errors) {
+    protected List<Requests> getRequests(final Queue<Object> objects, final List<Message> errors) {
         final List<Requests> requests = new ArrayList<>();
-        while (!objects.isEmpty()) {
-            final RequestsBuilder rBuilder = new RequestsBuilder();
-            Rp rpObj = null;
-            if (!(objects.get(0) instanceof Rp)) {
+
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
+            if (!(obj instanceof Rp)) {
                 // if RP obj is missing return error only
                 errors.add(createErrorMsg(PCEPErrors.RP_MISSING, Optional.empty()));
                 return null;
             }
-            rpObj = (Rp) objects.get(0);
-            objects.remove(0);
-            if (!rpObj.getProcessingRule()) {
-                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
-            } else {
+
+            final RequestsBuilder rBuilder = new RequestsBuilder();
+            final Rp rpObj = (Rp) obj;
+            objects.remove();
+
+            if (rpObj.getProcessingRule()) {
                 rBuilder.setRp(rpObj);
+            } else {
+                errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
             }
+
             final List<VendorInformationObject> vendorInfo = addVendorInformationObjects(objects);
             if (!vendorInfo.isEmpty()) {
                 rBuilder.setVendorInformationObject(vendorInfo);
             }
+
             // expansion
-            if (rpObj.getPathKey() && objects.get(0) instanceof PathKey) {
-                rBuilder.setPathKeyExpansion(
-                        new PathKeyExpansionBuilder().setPathKey((PathKey) objects.get(0)).build());
+            if (rpObj.getPathKey()) {
+                // FIXME: this can fail on malformed messages (i.e. objects.isEmpty()), add an explicit check/error
+                obj = objects.element();
+                if (obj instanceof PathKey) {
+                    // FIXME: shouldn't we be also removing the object?
+                    rBuilder.setPathKeyExpansion(new PathKeyExpansionBuilder().setPathKey((PathKey) obj).build());
+                }
             }
 
-            if (objects.isEmpty() || !(objects.get(0) instanceof EndpointsObj)) {
+            obj = objects.peek();
+            if (!(obj instanceof EndpointsObj)) {
                 errors.add(createErrorMsg(PCEPErrors.END_POINTS_MISSING, Optional.of(rpObj)));
                 return null;
             }
 
             if (!rpObj.getP2mp()) {
                 // p2p
+                // FIXME: explicit check for empty/type?
+                final EndpointsObj ep = (EndpointsObj) objects.remove();
+
                 final P2pBuilder p2pBuilder = new P2pBuilder();
-                final EndpointsObj ep = (EndpointsObj) objects.get(0);
-                objects.remove(0);
                 if (!ep.getProcessingRule()) {
                     errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rpObj)));
                 } else {
@@ -310,7 +322,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     protected SegmentComputation getP2PSegmentComputation(final P2pBuilder builder,
-                                                          final List<Object> objects,
+                                                          final Queue<Object> objects,
                                                           final List<Message> errors,
                                                           final Rp rp) {
         final List<Metrics> metrics = new ArrayList<>();
@@ -341,20 +353,23 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return new SegmentComputationBuilder().setP2p(builder.build()).build();
     }
 
+    // Note: objects is expected to be non-empty and caller will remove the first object if non-empty
     private static P2PState insertP2PObject(final P2PState p2PState,
-                                            final List<Object> objects,
+                                            final Queue<Object> objects,
                                             final List<VendorInformationObject> viObjects,
                                             final P2pBuilder builder,
                                             final List<Metrics> metrics,
                                             final List<Message> errors,
                                             final Rp rp) {
-        final Object obj = objects.get(0);
+        final Object obj = objects.element();
         switch (p2PState) {
             case INIT:
                 if (obj instanceof Rro) {
                     builder.setRro((Rro) obj);
-                    objects.remove(0);
-                    final Object nextObj = objects.get(0);
+                    objects.remove();
+
+                    // FIXME: should we guard against empty objects?
+                    final Object nextObj = objects.element();
                     if (nextObj instanceof ReoptimizationBandwidth) {
                         builder.setReoptimizationBandwidth((ReoptimizationBandwidth) nextObj);
                     }
@@ -490,7 +505,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         END
     }
 
-    protected SegmentComputation getP2MPSegmentComputation(final List<Object> objects, final List<Message> errors,
+    protected SegmentComputation getP2MPSegmentComputation(final Queue<Object> objects, final List<Message> errors,
             final Rp rp) {
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message
             .pcreq.message.requests.segment.computation.p2mp.Metric> metrics = new ArrayList<>();
@@ -522,7 +537,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
 
     private static boolean isValidReoptimizationRro(final List<EndpointRroPair> epRros) {
         for (EndpointRroPair epRro : epRros) {
-            if (epRro.getRros() == null || epRro.getRros().isEmpty()) {
+            if (epRro.nonnullRros().isEmpty()) {
                 return false;
             }
         }
@@ -538,12 +553,12 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
-    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final List<Object> objects,
+    private static P2MPState insertP2MPObject(final P2MPState p2MPState, final Queue<Object> objects,
             final P2mpBuilder builder, final List<EndpointRroPair> epRros,
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq
                 .message.pcreq.message.requests.segment.computation.p2mp.Metric> metrics,
             final List<Message> errors, final Rp rp) {
-        final Object obj = objects.get(0);
+        final Object obj = objects.element();
         switch (p2MPState) {
             case RP:
                 if (obj instanceof EndpointsObj) {
@@ -652,30 +667,32 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         RP, ENDPOINT, RRO_SRRO, BANDWIDTH, OF_IN, LSPA_IN, BANDWIDTH_IN, METRIC_IN, IRO_BNC_IN, LOAD_BIN, END
     }
 
-    private static Svec getValidSvec(final SvecBuilder builder, final List<Object> objects) {
-        Preconditions.checkArgument(objects != null && !objects.isEmpty(), "Passed list can't be null or empty.");
-
-        if (objects.get(0) instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
-                .rev181109.svec.object.Svec) {
-            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                                .svec.object.Svec) objects.get(0));
-            objects.remove(0);
+    // Note: objects is expected to be non-empty
+    private static Svec getValidSvec(final SvecBuilder builder, final Queue<Object> objects) {
+        final Object svec = objects.element();
+        if (svec instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec
+                .object.Svec) {
+            builder.setSvec((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.svec
+                .object.Svec) svec);
+            objects.remove();
         } else {
             return null;
         }
 
+        // FIXME: this list is not retained anywhere
         final List<Metrics> metrics = new ArrayList<>();
         final List<VendorInformationObject> viObjects = new ArrayList<>();
 
-        Object obj = null;
         SvecState state = SvecState.INIT;
-        while (!objects.isEmpty() && !state.equals(SvecState.END)) {
-            obj = objects.get(0);
+        for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertP2PObject(state, obj, builder, metrics, viObjects);
-            if (!state.equals(SvecState.END)) {
-                objects.remove(0);
+            if (state == SvecState.END) {
+                break;
             }
+
+            objects.remove(0);
         }
+
         if (!viObjects.isEmpty()) {
             builder.setVendorInformationObject(viObjects);
         }
@@ -686,23 +703,31 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         INIT, OF_IN, GC_IN, XRO_IN, METRIC_IN, VENDOR_INFO, END
     }
 
-    protected MonitoringRequest getMonitoring(final List<Object> objects) {
+    protected MonitoringRequest getMonitoring(final Queue<Object> objects) {
         final MonitoringRequestBuilder builder = new MonitoringRequestBuilder();
-        if (!objects.isEmpty() && objects.get(0) instanceof Monitoring) {
-            builder.setMonitoring((Monitoring) objects.get(0));
-            objects.remove(0);
+
+        Object obj = objects.peek();
+        if (obj instanceof Monitoring) {
+            builder.setMonitoring((Monitoring) obj);
+            objects.remove();
         } else {
             return null;
         }
-        if (!objects.isEmpty() && objects.get(0) instanceof PccIdReq) {
-            builder.setPccIdReq((PccIdReq) objects.get(0));
-            objects.remove(0);
+
+        obj = objects.peek();
+        if (obj instanceof PccIdReq) {
+            builder.setPccIdReq((PccIdReq) obj);
+            objects.remove();
+            obj = objects.peek();
         }
+
         final List<PceIdList> pceIdList = new ArrayList<>();
-        while (!objects.isEmpty() && objects.get(0) instanceof PceId) {
-            pceIdList.add(new PceIdListBuilder().setPceId((PceId) objects.get(0)).build());
-            objects.remove(0);
+        while (obj instanceof PceId) {
+            pceIdList.add(new PceIdListBuilder().setPceId((PceId) obj).build());
+            objects.remove();
+            obj = objects.peek();
         }
+
         if (!pceIdList.isEmpty()) {
             builder.setPceIdList(pceIdList);
         }

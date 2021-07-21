@@ -13,6 +13,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulPCReportMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.Bandwidth1;
@@ -35,7 +36,7 @@ public class PcRptMessageCodec extends StatefulPCReportMessageParser {
     }
 
     @Override
-    protected Reports getValidReports(final List<Object> objects, final List<Message> errors) {
+    protected Reports getValidReports(final Queue<Object> objects, final List<Message> errors) {
         final Optional<Object> find = Iterables.tryFind(objects, Predicates.instanceOf(BandwidthUsage.class));
         final Object object;
         if (find.isPresent()) {
