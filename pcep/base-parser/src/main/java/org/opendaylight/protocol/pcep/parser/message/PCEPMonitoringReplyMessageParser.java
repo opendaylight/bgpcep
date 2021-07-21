@@ -14,6 +14,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -85,7 +86,7 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors)
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
@@ -108,7 +109,7 @@ public class PCEPMonitoringReplyMessageParser extends AbstractMessageParser {
         return new PcmonrepBuilder().setPcmonrepMessage(builder.build()).build();
     }
 
-    private static void validateSpecificMetrics(final List<Object> objects, final PcmonrepMessageBuilder builder)
+    private static void validateSpecificMetrics(final Queue<Object> objects, final PcmonrepMessageBuilder builder)
             throws PCEPDeserializerException {
         final List<SpecificMetrics> specificMetrics = new ArrayList<>();
         while (!objects.isEmpty()) {

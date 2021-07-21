@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.parser.util;
 
-import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.metrics.MetricPce;
@@ -46,12 +46,12 @@ public final class Util {
         }
     }
 
-    public static MetricPce validateMonitoringMetrics(final List<Object> objects) throws PCEPDeserializerException {
+    public static MetricPce validateMonitoringMetrics(final Queue<Object> objects) throws PCEPDeserializerException {
         final MetricPceBuilder metricPceBuilder = new MetricPceBuilder();
         if (!(objects.get(0) instanceof PceId)) {
             throw new PCEPDeserializerException("metric-pce-list must start with PCE-ID object.");
         }
-        metricPceBuilder.setPceId((PceId) (objects.get(0)));
+        metricPceBuilder.setPceId((PceId) objects.get(0));
         objects.remove(0);
         State state = State.START;
         while (!objects.isEmpty() && !state.equals(State.END)) {

@@ -11,6 +11,7 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -47,7 +48,7 @@ public class PCEPCloseMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Close validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Close validate(final Queue<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty() || !(objects.get(0) instanceof CClose)) {
             throw new PCEPDeserializerException("Close message doesn't contain CLOSE object.");

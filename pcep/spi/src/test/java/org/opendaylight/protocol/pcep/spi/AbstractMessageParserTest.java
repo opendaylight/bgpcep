@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +66,7 @@ public class AbstractMessageParserTest {
         }
 
         @Override
-        protected Message validate(final List<Object> objects, final List<Message> errors) {
+        protected Message validate(final Queue<Object> objects, final List<Message> errors) {
             if (objects.get(0) instanceof VendorInformationObject) {
                 final RepliesBuilder repsBuilder = new RepliesBuilder();
                 repsBuilder.setVendorInformationObject(addVendorInformationObjects(objects));

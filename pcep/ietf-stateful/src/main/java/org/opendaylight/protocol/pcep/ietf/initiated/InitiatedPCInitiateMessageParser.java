@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -72,7 +73,7 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final List<Object> objects, final List<Message> errors) {
+    protected Message validate(final Queue<Object> objects, final List<Message> errors) {
         checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = new ArrayList<>();
@@ -83,7 +84,7 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
     }
 
-    protected Requests getValidRequest(final List<Object> objects) {
+    protected Requests getValidRequest(final Queue<Object> objects) {
         final RequestsBuilder builder = new RequestsBuilder();
         builder.setSrp((Srp) objects.get(0));
         objects.remove(0);

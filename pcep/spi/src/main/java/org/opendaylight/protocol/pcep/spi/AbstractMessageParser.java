@@ -11,9 +11,12 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
@@ -64,8 +67,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         }
     }
 
-    private List<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {
-        final List<Object> objs = new ArrayList<>();
+    private Queue<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {
+        final Queue<Object> objs = new ArrayDeque<>();
         while (bytes.isReadable()) {
             if (bytes.readableBytes() < COMMON_OBJECT_HEADER_LENGTH) {
                 throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes()
@@ -120,19 +123,20 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             .build();
     }
 
-    protected abstract Message validate(List<Object> objects, List<Message> errors) throws PCEPDeserializerException;
+    protected abstract Message validate(Queue<Object> objects, List<Message> errors)
+        throws PCEPDeserializerException;
 
     @Override
     public final Message parseMessage(final ByteBuf buffer, final List<Message> errors)
             throws PCEPDeserializerException {
         // Parse objects first
-        final List<Object> objs = parseObjects(requireNonNull(buffer, "Buffer may not be null"));
+        final Queue<Object> objs = parseObjects(requireNonNull(buffer, "Buffer may not be null"));
 
         // Run validation
         return validate(objs, errors);
     }
 
-    protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects,
+    protected final void serializeVendorInformationObjects(final Collection<VendorInformationObject> viObjects,
             final ByteBuf buffer) {
         if (viObjects != null) {
             for (final VendorInformationObject viObject : viObjects) {
@@ -141,12 +145,13 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
         }
     }
 
-    protected static List<VendorInformationObject> addVendorInformationObjects(final List<Object> objects) {
+    protected static List<VendorInformationObject> addVendorInformationObjects(final Queue<Object> objects) {
         final List<VendorInformationObject> vendorInfo = new ArrayList<>();
-        while (!objects.isEmpty() && objects.get(0) instanceof VendorInformationObject) {
-            final VendorInformationObject viObject = (VendorInformationObject) objects.get(0);
-            vendorInfo.add(viObject);
-            objects.remove(0);
+        Object first = objects.peek();
+        while (first instanceof VendorInformationObject) {
+            vendorInfo.add((VendorInformationObject) first);
+            objects.remove();
+            first = objects.peek();
         }
         return vendorInfo;
     }

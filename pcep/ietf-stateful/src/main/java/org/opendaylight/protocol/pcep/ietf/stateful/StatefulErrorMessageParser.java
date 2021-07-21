@@ -13,6 +13,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -69,7 +70,7 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
     }
 
     @Override
-    protected PcerrMessage validate(final List<Object> objects, final List<Message> errors)
+    protected PcerrMessage validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {

@@ -13,6 +13,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
@@ -143,7 +144,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Pcrep validate(final List<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
+    protected Pcrep validate(final Queue<Object> objects, final List<Message> errors) throws PCEPDeserializerException {
         Preconditions.checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
@@ -161,7 +162,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().setReplies(replies).build()).build();
     }
 
-    protected Replies getValidReply(final List<Object> objects, final List<Message> errors)
+    protected Replies getValidReply(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
         Object object = objects.remove(0);
         if (!(object instanceof Rp)) {
@@ -202,7 +203,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return repliesBuilder.setRp(rp).setResult(res).build();
     }
 
-    private Result handleNoPath(final NoPath noPath, final List<Object> objects) {
+    private Result handleNoPath(final NoPath noPath, final Queue<Object> objects) {
         objects.remove(0);
         final FailureCaseBuilder builder = new FailureCaseBuilder().setNoPath(noPath);
         while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
@@ -211,7 +212,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return builder.build();
     }
 
-    private Result handleEros(final List<Object> objects) {
+    private Result handleEros(final Queue<Object> objects) {
         final SuccessBuilder builder = new SuccessBuilder();
         final List<Paths> paths = new ArrayList<>();
         while (!objects.isEmpty() && !(objects.get(0) instanceof PceId)) {
@@ -230,7 +231,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         return new SuccessCaseBuilder().setSuccess(builder.build()).build();
     }
 
-    protected void parseAttributes(final FailureCaseBuilder builder, final List<Object> objects) {
+    protected void parseAttributes(final FailureCaseBuilder builder, final Queue<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;
@@ -323,7 +324,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
-    protected void parsePath(final PathsBuilder builder, final List<Object> objects) {
+    protected void parsePath(final PathsBuilder builder, final Queue<Object> objects) {
         final List<Metrics> pathMetrics = new ArrayList<>();
 
         Object obj;
