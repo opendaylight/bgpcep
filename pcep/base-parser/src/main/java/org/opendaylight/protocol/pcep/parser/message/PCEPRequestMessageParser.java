@@ -377,6 +377,14 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 }
                 // fallthrough
             case LOAD_BIN:
+                if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+                        .rev200720.lsp.object.Lsp) {
+                    builder.addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
+                        .ietf.stateful.rev200720.P2p1Builder().setLsp((Lsp) obj).build());
+                    return P2PState.LSP_IN;
+                }
+                // fallthrough
+            case LSP_IN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2PState.LSPA_IN;
@@ -482,7 +490,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         INIT,
         REPORTED_IN,
         VENDOR_INFO_LIST,
-        LOAD_BIN, LSPA_IN,
+        LOAD_BIN,
+        LSP_IN,
+        LSPA_IN,
         BANDWIDTH_IN,
         METRIC_IN,
         IRO_IN,
