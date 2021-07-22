@@ -213,15 +213,21 @@ public class PathComputationImpl implements PathComputation {
         if (metrics != null) {
             for (Metrics metric : metrics) {
                 convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
+                final long value = convert.longValue();
+                /* Skip Metric with value equal to 0 */
+                if (value == 0) {
+                    continue;
+                }
+
                 switch (metric.getMetric().getMetricType().intValue()) {
                     case MessagesUtil.IGP_METRIC:
-                        ctsBuilder.setMetric(Uint32.valueOf(convert.longValue()));
+                        ctsBuilder.setMetric(Uint32.valueOf(value));
                         break;
                     case MessagesUtil.TE_METRIC:
-                        ctsBuilder.setTeMetric(Uint32.valueOf(convert.longValue()));
+                        ctsBuilder.setTeMetric(Uint32.valueOf(value));
                         break;
                     case MessagesUtil.PATH_DELAY:
-                        ctsBuilder.setDelay(new Delay(Uint32.valueOf(convert.longValue())));
+                        ctsBuilder.setDelay(new Delay(Uint32.valueOf(value)));
                         break;
                     default:
                         LOG.warn("Metric {} is not handle by Path Computation Constraints", metric);
@@ -233,11 +239,15 @@ public class PathComputationImpl implements PathComputation {
         /* Set Bandwidth and Class Type */
         if (bandwidth != null) {
             convert = ByteBuffer.wrap(bandwidth.getBandwidth().getValue()).getFloat();
-            ctsBuilder.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(convert.longValue())));
-            if (classType != null) {
-                ctsBuilder.setClassType(classType.getClassType().getValue());
-            } else {
-                ctsBuilder.setClassType(Uint8.ZERO);
+            final long value = convert.longValue();
+            /* Skip Bandwidth with value equal to 0 */
+            if (value != 0) {
+                ctsBuilder.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(value)));
+                if (classType != null) {
+                    ctsBuilder.setClassType(classType.getClassType().getValue());
+                } else {
+                    ctsBuilder.setClassType(Uint8.ZERO);
+                }
             }
         }
 
