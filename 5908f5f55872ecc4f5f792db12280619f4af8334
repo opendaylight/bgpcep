@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5dcd5379_e9203211",
+        "filename": "pcep/ietf-stateful/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful/StatefulPCReportMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-22T07:39:14Z",
+      "side": 1,
+      "message": "If PCC is conform to RFC (and you could suppose it is), there is no duplicate. Only Metrics which is handle.",
+      "parentUuid": "d782de2d_e40db713",
+      "range": {
+        "startLine": 193,
+        "startChar": 24,
+        "endLine": 193,
+        "endChar": 36
+      },
+      "revId": "5908f5f55872ecc4f5f792db12280619f4af8334",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd8cfa88_9cb88763",
         "filename": "pcep/ietf-stateful/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful/StatefulPCReportMessageParser.java",
         "patchSetId": 1
