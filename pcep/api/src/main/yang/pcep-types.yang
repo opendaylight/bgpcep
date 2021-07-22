@@ -1074,6 +1074,246 @@ module pcep-types {
         }
     }
 
+    // LSP Object & co
+    typedef operational-status {
+        type enumeration {
+            enum down {
+                value 0;
+            }
+            enum up {
+                value 1;
+            }
+            enum active {
+                value 2;
+            }
+            enum going-down {
+                value 3;
+            }
+            enum going-up {
+                value 4;
+            }
+        }
+    }
+
+    typedef plsp-id {
+        type uint32 {
+            range 0..1048576;
+        }
+    }
+
+    typedef srp-id-number {
+        type uint32 {
+            range 0..4294967294;
+        }
+    }
+
+    typedef symbolic-path-name {
+        type binary {
+            length 1..65535;
+        }
+    }
+
+    grouping lsp-error-code-tlv {
+        description "LSP Error Code TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.3";
+        container lsp-error-code {
+            uses tlv;
+            leaf error-code {
+                type uint32;
+            }
+        }
+    }
+
+    grouping lsp-identifiers-tlv {
+        description "LSP Identifiers TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.1";
+        container lsp-identifiers {
+            uses tlv;
+            leaf lsp-id {
+                type rsvp:lsp-id;
+            }
+
+            leaf tunnel-id {
+                type rsvp:tunnel-id;
+            }
+
+            choice address-family {
+                case ipv4-case {
+                    container ipv4 {
+                        leaf ipv4-tunnel-sender-address {
+                            type inet:ipv4-address-no-zone;
+                            mandatory true;
+                        }
+                        leaf ipv4-extended-tunnel-id {
+                            type rsvp:ipv4-extended-tunnel-id;
+                            mandatory true;
+                        }
+                        leaf ipv4-tunnel-endpoint-address {
+                            type inet:ipv4-address-no-zone;
+                            mandatory true;
+                        }
+                    }
+                }
+                case ipv6-case {
+                    container ipv6 {
+                        leaf ipv6-tunnel-sender-address {
+                            type inet:ipv6-address-no-zone;
+                            mandatory true;
+                        }
+                        leaf ipv6-extended-tunnel-id {
+                            type rsvp:ipv6-extended-tunnel-id;
+                            mandatory true;
+                        }
+                        leaf ipv6-tunnel-endpoint-address {
+                            type inet:ipv6-address-no-zone;
+                            mandatory true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping rsvp-error-spec-tlv {
+        description "RSVP Error Spec TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.4";
+        container rsvp-error-spec {
+            uses tlv;
+            choice error-type {
+                case rsvp-case {
+                    container rsvp-error {
+                        uses rsvp:error-spec;
+                    }
+                }
+                case user-case {
+                    container user-error {
+                        uses rsvp:user-error-spec;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping symbolic-path-name-tlv {
+        description "Symbolic Path Name TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.2";
+        container symbolic-path-name {
+            uses tlv;
+            leaf path-name {
+                type symbolic-path-name;
+            }
+        }
+    }
+
+    grouping path-binding-tlv {
+        reference "https://tools.ietf.org/html/draft-ietf-pce-binding-label-sid-03#section-3";
+        container path-binding {
+            uses tlv;
+            choice binding-type-value {
+                case mpls-label {
+                    leaf mpls-label {
+                        type netc:mpls-label;
+                    }
+                }
+                case mpls-label-entry {
+                    leaf label {
+                        type netc:mpls-label;
+                    }
+                    leaf traffic-class {
+                        type uint8 {
+                            range 0..7;
+                        }
+                    }
+                    leaf bottom-of-stack {
+                        type boolean;
+                    }
+                    leaf time-to-live {
+                        type uint8;
+                    }
+                }
+                case srv6 {
+                    leaf srv6-address {
+                        type inet:ipv6-address-no-zone;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping lsp-object {
+        description "LSP Object";
+        reference "https://tools.ietf.org/html/rfc8321#section-7.3";
+
+        container lsp {
+            uses object;
+            container "tlvs" {
+                uses lsp-error-code-tlv;
+
+                uses lsp-identifiers-tlv;
+
+                uses rsvp-error-spec-tlv;
+
+                uses symbolic-path-name-tlv;
+
+                uses vs-tlv;
+
+                uses vendor-information-tlvs;
+
+                uses path-binding-tlv;
+            }
+
+            leaf plsp-id {
+                type plsp-id;
+            }
+
+            leaf delegate {
+                type boolean;
+                default false;
+            }
+
+            leaf sync {
+                type boolean;
+                default false;
+            }
+
+            leaf remove {
+                type boolean;
+                default false;
+            }
+
+            leaf administrative {
+                type boolean;
+                default false;
+            }
+
+            leaf operational {
+                type operational-status;
+            }
+        }
+    }
+
+    grouping srp-object {
+        description "SRP Object";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.2";
+
+        container srp {
+            uses object;
+
+            container "tlvs" {
+                uses symbolic-path-name-tlv;
+
+                uses vendor-information-tlvs;
+
+                uses path-setup-type-tlv;
+            }
+
+            leaf operation-id {
+                type srp-id-number;
+                mandatory true;
+            }
+        }
+    }
+
     // Messages
     grouping message {
         description "Marker grouping for message groupings.";
@@ -1169,6 +1409,8 @@ module pcep-types {
                         uses load-balancing-object;
 
                         uses lsp-attributes;
+
+                        uses lsp-object;
                     }
 
                     container p2mp {
@@ -1198,6 +1440,8 @@ module pcep-types {
                         uses of-object;
 
                         uses lspa-object;
+
+                        uses lsp-object;
 
                         uses bandwidth-object;
 
@@ -1307,6 +1551,7 @@ module pcep-types {
                 uses vendor-information-objects;
                 uses monitoring;
                 uses monitoring-metrics;
+                uses lsp-object;
 
                 choice result {
                     case success-case {
@@ -1380,6 +1625,14 @@ module pcep-types {
                 case session-case {
                     container session {
                         uses open-object;
+                    }
+                }
+
+                case stateful-case {
+                    container stateful {
+                        list srps {
+                            uses srp-object;
+                        }
                     }
                 }
             }

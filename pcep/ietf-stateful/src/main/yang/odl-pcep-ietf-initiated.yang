@@ -55,9 +55,9 @@ module odl-pcep-ietf-initiated {
             uses pcep:message-header;
 
             list requests {
-                uses stateful:srp-object;
+                uses pcep:srp-object;
 
-                uses stateful:lsp-object;
+                uses pcep:lsp-object;
 
                 uses pcep:endpoints-object;
 
