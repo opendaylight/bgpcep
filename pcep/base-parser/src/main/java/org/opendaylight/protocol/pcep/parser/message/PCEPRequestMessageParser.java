@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.load.balancing.object.LoadBalancing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.Monitoring;
@@ -84,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.secondary.reported.route.object.Srro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.objects.VendorInformationObject;
+
 
 /**
  * Parser for {@link Pcreq}.
@@ -159,6 +161,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
             }
         }
         serializeObject(p2p.getLoadBalancing(), buffer);
+        serializeObject(p2p.getLsp(), buffer);
         serializeObject(p2p.getLspa(), buffer);
         serializeObject(p2p.getBandwidth(), buffer);
         for (final Metrics m : p2p.nonnullMetrics()) {
@@ -389,6 +392,12 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 }
                 // fallthrough
             case LOAD_BIN:
+                if (obj instanceof Lsp) {
+                    builder.setLsp((Lsp) obj);
+                    return P2PState.LSP_IN;
+                }
+                // fallthrough
+            case LSP_IN:
                 if (obj instanceof Lspa) {
                     builder.setLspa((Lspa) obj);
                     return P2PState.LSPA_IN;
@@ -494,7 +503,9 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         INIT,
         REPORTED_IN,
         VENDOR_INFO_LIST,
-        LOAD_BIN, LSPA_IN,
+        LOAD_BIN,
+        LSP_IN,
+        LSPA_IN,
         BANDWIDTH_IN,
         METRIC_IN,
         IRO_IN,
