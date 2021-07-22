@@ -213,6 +213,10 @@ public class PathComputationImpl implements PathComputation {
         if (metrics != null) {
             for (Metrics metric : metrics) {
                 convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
+                /* Skip Metric with value equal to 0 */
+                if (convert.longValue() == 0) {
+                    break;
+                }
                 switch (metric.getMetric().getMetricType().intValue()) {
                     case MessagesUtil.IGP_METRIC:
                         ctsBuilder.setMetric(Uint32.valueOf(convert.longValue()));
