@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7358c814_2921ed55",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-07-24T20:34:02Z",
+      "side": 1,
+      "message": "This does not quite match the commit message: now if the peer sends a zero metric, we also ignore anything else they send: the \u0027break\u0027 terminates the \u0027for\u0027 -- unlike the \u0027break\u0027 in \u0027switch\u0027. is that the intent?",
+      "range": {
+        "startLine": 218,
+        "startChar": 20,
+        "endLine": 218,
+        "endChar": 26
+      },
+      "revId": "24eb11073df52baf737f797930ee347e91543137",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
