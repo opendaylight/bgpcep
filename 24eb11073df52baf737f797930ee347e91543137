@@ -22,6 +22,30 @@
       "revId": "24eb11073df52baf737f797930ee347e91543137",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9aabbdb_e205f820",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-26T07:39:39Z",
+      "side": 1,
+      "message": "Oups! You are right. I would mean \u0027continue\u0027 and not \u0027break\u0027 to skip the 0 metric. I updated the patch set accordingly.",
+      "parentUuid": "7358c814_2921ed55",
+      "range": {
+        "startLine": 218,
+        "startChar": 20,
+        "endLine": 218,
+        "endChar": 26
+      },
+      "revId": "24eb11073df52baf737f797930ee347e91543137",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
