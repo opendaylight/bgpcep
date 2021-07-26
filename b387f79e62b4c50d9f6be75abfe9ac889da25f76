@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fd541c1_e3918221",
+        "filename": "pcep/ietf-stateful/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful/StatefulPCReportMessageParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-07-26T12:48:52Z",
+      "side": 1,
+      "message": "We could perhaps add a comment here to mention that we must stop once reach the next report",
+      "revId": "b387f79e62b4c50d9f6be75abfe9ac889da25f76",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
