@@ -1,0 +1,152 @@
+module pcep-server {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:server";
+    prefix "server";
+
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import path-computation { prefix algo; revision-date 2020-01-20; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
+
+    organization "Orange";
+    contact "Olivier Dugeon <olivier.dugeon@orange.com>";
+
+    description
+        "This module contains the model of the Managed Path which
+         allows the tunnels management by the PCE server.
+
+        Copyright (c)2021 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2021-07-20" {
+        description
+             "Initial revision.";
+        reference "";
+    }
+
+    typedef path-type {
+        description "Type of Path";
+        type enumeration {
+            enum stateless {
+                description "Path is not managed";
+                value 0;
+            }
+            enum pcc {
+                description "Path is managed by the PCC";
+                value 1;
+            }
+            enum delegated {
+                description "Path management is delegated to PCE";
+                value 2;
+            }
+            enum initiated {
+                description "Path is fully managed by the PCE";
+                value 3;
+            }
+        }
+    }
+
+    typedef routing-type {
+        description "Various objectives for the Path Computation Algorithm";
+        type enumeration {
+            enum none {
+                value 0;
+            }
+            enum metric {
+                value 1;
+            }
+            enum te-metric {
+                value 2;
+            }
+            enum delay {
+                value 3;
+            }
+        }
+        default "none";
+    }
+
+    typedef path-status {
+        description "Status of the TE Path";
+        type enumeration {
+            enum reported {
+                description "TE Path is reported by the PCC";
+                value 0;
+            }
+            enum configured {
+                description "TE Path is configured but not setup";
+                value 1;
+            }
+            enum updated {
+                description "TE Path has been updated and need to be synchronized";
+                value 2;
+            }
+            enum sync {
+                description "TE Path is setup and synchronized";
+                value 3;
+            }
+            enum failed {
+                description "Attempt to configure TE Path on PCC failed";
+                value 4;
+            }
+        }
+        default "reported";
+    }
+
+    container managed-path {
+        description "List of Managed Path per PCC node";
+        list managed-node {
+            description "List of PCC";
+            key "node-id";
+            leaf node-id {
+                type nt:node-id;
+                mandatory true;
+            }
+            list te-path {
+                description "List of Managed Path per PCC";
+                key "name";
+                leaf "name" {
+                    type string;
+                    mandatory true;
+                }
+                leaf path-type {
+                    description "Type of the TE Path";
+                    type path-type;
+                    config false;
+                }
+                leaf path-status {
+                    description "Status of TE Path";
+                    type path-status;
+                    config false;
+                }
+                container intended-path {
+                    description "Intended Path constraints";
+                    leaf source {
+                        type inet:ip-address;
+                    }
+                    leaf destination {
+                        type inet:ip-address;
+                    }
+                    leaf routing-method {
+                         type routing-type;
+                    }
+                    container constraints {
+                        uses algo:path-constraints;
+                    }
+                }
+                container actual-path {
+                    leaf status {
+                        description "Status of the TE Path";
+                        type stateful:operational-status;
+                    }
+                    uses algo:path-descriptions;
+                    config false;
+                }
+            }
+        }
+    }
+}
+

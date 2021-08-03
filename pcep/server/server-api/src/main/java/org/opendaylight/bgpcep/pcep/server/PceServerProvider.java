@@ -8,11 +8,29 @@
 
 package org.opendaylight.bgpcep.pcep.server;
 
-import org.opendaylight.graph.ConnectedGraph;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public interface PceServerProvider {
 
+    /**
+     * Return the instance of the Path Computation server.
+     *
+     * @return  Path Computation Object
+     */
     PathComputation getPathComputation();
 
-    ConnectedGraph getTedGraph();
+    /**
+     * Register PCEP Topology into PCE Server to manage LSP.
+     *
+     * @param topology    Configured PCEP Topology
+     */
+    void registerPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology);
+
+    /**
+     * Un Register current PCEP Topology into PCE Server.
+     *
+     */
+    void unRegisterPcepTopology();
 }
