@@ -15,4 +15,6 @@ public interface PceServerProvider {
     PathComputation getPathComputation();
 
     ConnectedGraph getTedGraph();
+
+    PathManager getPathManager();
 }

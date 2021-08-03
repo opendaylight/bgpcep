@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.bgpcep.pcep.server.PathManager;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
@@ -153,6 +154,11 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             LOG.debug("Created topology node {} for id {} at {}", ret, id, ret.getNodeId());
             this.state.put(id, ret);
         }
+
+        // Add this new Node ID to PathManager
+        final PathManager pathMan = this.getPCEPTopologyProviderDependencies().getPceServerProvider().getPathManager();
+        pathMan.createManagedNode(id);
+
         // if another listener requests the same session, close it
         final TopologySessionListener existingSessionListener = this.nodes.get(id);
         if (existingSessionListener != null && !sessionListener.equals(existingSessionListener)) {
