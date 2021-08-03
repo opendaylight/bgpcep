@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -110,6 +111,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     @GuardedBy("this")
     private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
     private final ServerSessionManager serverSessionManager;
+    protected final PceServerProvider pceServer;
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
     private TopologyNodeState nodeState;
@@ -123,6 +125,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
         this.serverSessionManager = requireNonNull(serverSessionManager);
+        this.pceServer = this.serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     @Override
@@ -458,6 +461,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
 
+        // Register this report into the PCE Server
+        // TODO: Adjust Junit Test to avoid this test
+        if (this.pceServer != null) {
+            this.pceServer.registerReportedLSP(this.nodeState.getNodeId().getKey().getNodeId(), rl);
+        }
+
         this.lspData.put(name, rl);
     }
 
@@ -526,6 +535,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         // The node has completed synchronization, cleanup metadata no longer reported back
         this.nodeState.cleanupExcept(this.lsps.values());
+
+        // Mark this PCC as synchronous for the Path Manager
+        // TODO: Adjust Junit Test to avoid this test
+        if (this.pceServer != null) {
+            this.pceServer.syncPCC(this.nodeState.getNodeId().getKey().getNodeId());
+        }
+
         LOG.debug("Session {} achieved synchronized state", this.session);
     }
 
@@ -548,6 +564,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         LOG.debug("LSP {} removed", name);
         ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
         this.lspData.remove(name);
+        // Remove the corresponding TE Path in PCE server
+        // TODO: Adjust Junit Test to avoid this test
+        if (this.pceServer != null) {
+            this.pceServer.unRegisterLSP(this.nodeState.getNodeId().getKey().getNodeId(), name);
+        }
     }
 
     @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
