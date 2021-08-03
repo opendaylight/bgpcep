@@ -29,6 +29,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathConstraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathConstraints.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.get.constrained.path.input.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.RoutingType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.managed.path.managed.node.te.path.ActualPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.managed.path.managed.node.te.path.ActualPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.managed.path.managed.node.te.path.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
@@ -91,12 +96,12 @@ public class PathComputationImpl implements PathComputation {
 
         /* Determine Path Computation Algorithm according to Input choice */
         AlgorithmType algoType;
-        if (cts.getTeMetric() == null && cts.getDelay() == null) {
-            algoType = AlgorithmType.Spf;
-        } else if (cts.getDelay() == null) {
+        if (cts.getDelay() != null) {
+            algoType = AlgorithmType.Samcra;
+        } else if (cts.getTeMetric() != null) {
             algoType = AlgorithmType.Cspf;
         } else {
-            algoType = AlgorithmType.Samcra;
+            algoType = AlgorithmType.Spf;
         }
         PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
@@ -118,14 +123,60 @@ public class PathComputationImpl implements PathComputation {
         }
     }
 
+    public ActualPath computeTePath(final IntendedPath intend) {
+        final ActualPathBuilder apb = new ActualPathBuilder();
+        ConnectedVertex source = tedGraph.getConnectedVertex(intend.getSource());
+        ConnectedVertex destination = tedGraph.getConnectedVertex(intend.getDestination());
+
+        if ((source == null) || (destination == null)) {
+            return apb.setStatus(OperationalStatus.Down).build();
+        }
+
+        /* Determine Path Computation Algorithm according to parameters */
+        AlgorithmType algoType;
+        final RoutingType rt = intend.getRoutingMethod();
+        switch (rt) {
+            case Metric:
+                algoType = AlgorithmType.Spf;
+                break;
+            case TeMetric:
+                algoType = AlgorithmType.Cspf;
+                break;
+            case Delay:
+                algoType = AlgorithmType.Samcra;
+                break;
+            default:
+                algoType = AlgorithmType.Spf;
+                break;
+        }
+        PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
+        if (algo == null) {
+            return apb.setStatus(OperationalStatus.Down).build();
+        }
+
+        /* Request Path Computation for given source, destination and constraints */
+        final ConstrainedPath cpath = algo.computeP2pPath(source.getVertex().key(), destination.getVertex().key(),
+                intend.getConstraints());
+
+        LOG.info("Computed path: {}", cpath.getPathDescription());
+
+        /* Check if we got a valid Path and return appropriate Path Description */
+        if (cpath.getStatus() == ComputationStatus.Completed) {
+            return apb.setPathDescription(cpath.getPathDescription()).setStatus(OperationalStatus.Active).build();
+        } else {
+            return apb.setStatus(OperationalStatus.Down).build();
+        }
+    }
+
     @Override
     public Ero computeEro(final EndpointsObj endpoints, final Bandwidth bandwidth, final ClassType classType,
             final List<Metrics> metrics, final boolean segmentRouting) {
+        /* Get source and destination Vertex and verify there are valid */
         VertexKey source = getSourceVertexKey(endpoints);
-        VertexKey destination = getDestinationVertexKey(endpoints);
         if (source == null) {
             return null;
         }
+        VertexKey destination = getDestinationVertexKey(endpoints);
         if (destination == null) {
             return null;
         }
@@ -134,12 +185,12 @@ public class PathComputationImpl implements PathComputation {
 
         /* Determine Path Computation Algorithm according to parameters */
         AlgorithmType algoType;
-        if (cts.getTeMetric() == null && cts.getDelay() == null && cts.getBandwidth() == null) {
-            algoType = AlgorithmType.Spf;
-        } else if (cts.getDelay() == null) {
+        if (cts.getDelay() != null) {
+            algoType = AlgorithmType.Samcra;
+        } else if (cts.getTeMetric() != null) {
             algoType = AlgorithmType.Cspf;
         } else {
-            algoType = AlgorithmType.Samcra;
+            algoType = AlgorithmType.Spf;
         }
         PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
@@ -152,7 +203,7 @@ public class PathComputationImpl implements PathComputation {
          */
         final ConstrainedPath cpath = algo.computeP2pPath(source, destination, cts);
 
-        LOG.info("Computed ERO: {}", cpath.getPathDescription());
+        LOG.info("Computed path: {}", cpath.getPathDescription());
 
         /* Check if we got a valid Path and return appropriate ERO */
         if (cpath.getStatus() == ComputationStatus.Completed) {
