@@ -388,10 +388,16 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     private boolean handlePcreqMessage(final PcreqMessage message) {
 
         LOG.info("Start PcRequest Message handler");
+        Message rep = null;
 
         /* Get a Path Computation to compute the Path from the Request */
+        // TODO: Adjust Junit Test to avoid this test
+        if (pceServerProvider == null) {
+            rep = createErrorMsg(PCEPErrors.RESOURCE_LIMIT_EXCEEDED, Uint32.ZERO);
+            sendMessage(rep, new SrpIdNumber(Uint32.ZERO), null);
+            return false;
+        }
         PathComputation pathComputation = pceServerProvider.getPathComputation();
-        Message rep = null;
         /* Reply with Error Message if no valid Path Computation is available */
         if (pathComputation == null) {
             rep = createErrorMsg(PCEPErrors.RESOURCE_LIMIT_EXCEEDED, Uint32.ZERO);
@@ -775,19 +781,24 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
             rb.fieldsFrom(input.getArguments());
 
-            /* Call Path Computation if an ERO was not provided */
             boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
+
+            /* Call Path Computation if an ERO was not provided */
             if (rb.getEro() == null
                     || rb.getEro().getSubobject() == null
                     || rb.getEro().getSubobject().size() == 0) {
 
                 /* Get a Path Computation to compute the Path from the Arguments */
+                // TODO: Adjust Junit Test to avoid this test
+                if (pceServerProvider == null) {
+                    return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
+                }
                 PathComputation pathComputation = pceServerProvider.getPathComputation();
                 if (pathComputation == null) {
                     return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
                 }
-                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(), args.getClassType(),
-                        args.getMetrics(), segmentRouting));
+                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(),
+                        args.getClassType(), args.getMetrics(), segmentRouting));
             }
 
             final TlvsBuilder tlvsBuilder;
