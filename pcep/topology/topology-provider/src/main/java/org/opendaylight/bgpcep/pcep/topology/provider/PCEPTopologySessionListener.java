@@ -31,7 +31,6 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
-import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -124,14 +123,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
     private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
-    private final PceServerProvider pceServerProvider;
-
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
     PCEPTopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
-        this.pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
@@ -387,10 +383,16 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     private boolean handlePcreqMessage(final PcreqMessage message) {
 
         LOG.info("Start PcRequest Message handler");
+        Message rep = null;
 
         /* Get a Path Computation to compute the Path from the Request */
-        PathComputation pathComputation = this.pceServerProvider.getPathComputation();
-        Message rep = null;
+        // TODO: Adjust Junit Test to avoid this test
+        if (pceServer == null) {
+            rep = createErrorMsg(PCEPErrors.RESOURCE_LIMIT_EXCEEDED, Uint32.ZERO);
+            sendMessage(rep, new SrpIdNumber(Uint32.ZERO), null);
+            return false;
+        }
+        PathComputation pathComputation = this.pceServer.getPathComputation();
         /* Reply with Error Message if no valid Path Computation is available */
         if (pathComputation == null) {
             rep = createErrorMsg(PCEPErrors.RESOURCE_LIMIT_EXCEEDED, Uint32.ZERO);
@@ -775,19 +777,25 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
             rb.fieldsFrom(this.input.getArguments());
 
-            /* Call Path Computation if an ERO was not provided */
             boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
+
+            /* Call Path Computation if an ERO was not provided */
             if (rb.getEro() == null
                     || rb.getEro().getSubobject() == null
                     || rb.getEro().getSubobject().size() == 0) {
 
                 /* Get a Path Computation to compute the Path from the Arguments */
-                PathComputation pathComputation = pceServerProvider.getPathComputation();
-                if (pathComputation == null) {
+                // TODO: Adjust Junit Test to avoid this test
+                if (pceServer != null) {
+                    PathComputation pathComputation = pceServer.getPathComputation();
+                    if (pathComputation == null) {
+                        return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
+                    }
+                    rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(),
+                            args.getClassType(), args.getMetrics(), segmentRouting));
+                } else {
                     return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
                 }
-                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(), args.getClassType(),
-                        args.getMetrics(), segmentRouting));
             }
 
             final TlvsBuilder tlvsBuilder;

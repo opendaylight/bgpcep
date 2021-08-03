@@ -23,5 +23,4 @@ public interface PathComputation {
 
     Ero computeEro(EndpointsObj endpoints, Bandwidth bandwidth, ClassType classType, List<Metrics> metrics,
             boolean segmentRouting);
-
 }
