@@ -31,7 +31,6 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
-import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
@@ -124,14 +123,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
     private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
-    private final PceServerProvider pceServerProvider;
-
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
     PCEPTopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
-        this.pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
@@ -389,7 +385,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         LOG.info("Start PcRequest Message handler");
 
         /* Get a Path Computation to compute the Path from the Request */
-        PathComputation pathComputation = this.pceServerProvider.getPathComputation();
+        PathComputation pathComputation = this.pceServer.getPathComputation();
         Message rep = null;
         /* Reply with Error Message if no valid Path Computation is available */
         if (pathComputation == null) {
@@ -775,14 +771,15 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
             rb.fieldsFrom(this.input.getArguments());
 
-            /* Call Path Computation if an ERO was not provided */
             boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
+
+            /* Call Path Computation if an ERO was not provided */
             if (rb.getEro() == null
                     || rb.getEro().getSubobject() == null
                     || rb.getEro().getSubobject().size() == 0) {
 
                 /* Get a Path Computation to compute the Path from the Arguments */
-                PathComputation pathComputation = pceServerProvider.getPathComputation();
+                PathComputation pathComputation = pceServer.getPathComputation();
                 if (pathComputation == null) {
                     return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
                 }
