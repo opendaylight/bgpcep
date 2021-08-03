@@ -29,6 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathConstraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathConstraints.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.get.constrained.path.input.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.manager.rev210720.RoutingType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.manager.rev210720.managed.path.managed.node.TePath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.manager.rev210720.managed.path.managed.node.te.path.ComputedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.manager.rev210720.managed.path.managed.node.te.path.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
@@ -120,13 +124,65 @@ public class PathComputationImpl implements PathComputation {
     }
 
     @Override
-    public Ero computeEro(final EndpointsObj endpoints, final Bandwidth bandwidth, final ClassType classType,
-            final List<Metrics> metrics, final boolean segmentRouting) {
-        VertexKey source = getSourceVertexKey(endpoints);
-        VertexKey destination = getDestinationVertexKey(endpoints);
+    public ComputedPath computePath(final TePath tePath) {
+        ConnectedVertex source = tedGraph.getConnectedVertex(tePath.getSource());
         if (source == null) {
             return null;
         }
+        ConnectedVertex destination = tedGraph.getConnectedVertex(tePath.getDestination());
+        if (destination == null) {
+            return null;
+        }
+
+        /* Determine Path Computation Algorithm according to parameters */
+        AlgorithmType algoType;
+        final RoutingType rt = tePath.getRoutingMethod();
+        switch (rt) {
+            case Metric:
+                algoType = AlgorithmType.Spf;
+                break;
+            case TeMetric:
+                algoType = AlgorithmType.Cspf;
+                break;
+            case Delay:
+                algoType = AlgorithmType.Samcra;
+                break;
+            default:
+                algoType = AlgorithmType.Spf;
+                break;
+        }
+        PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
+        if (algo == null) {
+            return null;
+        }
+
+        /*
+         * Request Path Computation for given source, destination and
+         * constraints
+         */
+        final ConstrainedPath cpath = algo.computeP2pPath(source.getVertex().key(), destination.getVertex().key(),
+                tePath.getConstraints());
+
+        LOG.info("Computed path: {}", cpath.getPathDescription());
+
+        /* Check if we got a valid Path and return appropriate ERO */
+        if (cpath.getStatus() == ComputationStatus.Completed) {
+            final Ero ero = MessagesUtil.getEro(cpath.getPathDescription());
+            return new ComputedPathBuilder().setEro(ero).build();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public Ero computeEro(final EndpointsObj endpoints, final Bandwidth bandwidth, final ClassType classType,
+            final List<Metrics> metrics, final boolean segmentRouting) {
+        /* Get source and destination Vertex and verify there are valid */
+        VertexKey source = getSourceVertexKey(endpoints);
+        if (source == null) {
+            return null;
+        }
+        VertexKey destination = getDestinationVertexKey(endpoints);
         if (destination == null) {
             return null;
         }
@@ -153,7 +209,7 @@ public class PathComputationImpl implements PathComputation {
          */
         final ConstrainedPath cpath = algo.computeP2pPath(source, destination, cts);
 
-        LOG.info("Computed ERO: {}", cpath.getPathDescription());
+        LOG.info("Computed path: {}", cpath.getPathDescription());
 
         /* Check if we got a valid Path and return appropriate ERO */
         if (cpath.getStatus() == ComputationStatus.Completed) {

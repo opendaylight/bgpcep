@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -457,6 +458,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         final ReportedLsp rl = rlb.build();
         ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
+
+        // Register this report into the PCE Server
+        final PceServerProvider pceServer = this.serverSessionManager.getPCEPTopologyProviderDependencies()
+                .getPceServerProvider();
+        if (pceServer != null) {
+            pceServer.registerReportedLSP(this.nodeState.getNodeId().getKey().getNodeId(), rl);
+        }
 
         this.lspData.put(name, rl);
     }

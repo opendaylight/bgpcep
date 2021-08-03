@@ -1,0 +1,117 @@
+module path-manager {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:path:manager";
+    prefix "pathman";
+
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import pcep-types { prefix pcep; revision-date 2018-11-09; }
+    import path-computation { prefix algo; revision-date 2020-01-20; }
+
+    organization "Orange";
+    contact "Olivier Dugeon <olivier.dugeon@orange.com>";
+
+    description
+        "This module contains the model of Path Manager which
+         allows the tunnels management for the PCE server.
+
+        Copyright (c)2021 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2021-07-20" {
+        description
+             "Initial revision.";
+        reference "";
+    }
+
+    typedef path-status {
+        description "Status of the Path regaring current tunnel enforcement";
+        type enumeration {
+            enum down {
+                description "Path is down i.e. no traffic goes through it";
+                value 0;
+            }
+            enum setup {
+                description "Path has been configured on the PCC";
+                value 1;
+            }
+            enum active {
+                description
+                    "Path is active i.e. up and traffic goes through it";
+                value 2;
+            }
+            enum no-route {
+                description "No valid route has been found for this path";
+                value 3;
+            }
+        }
+    }
+
+    typedef routing-type {
+        description "Various objectives for the Path Computation Algorithm";
+        type enumeration {
+            enum metric {
+                value 0;
+            }
+            enum te-metric {
+                value 1;
+            }
+            enum delay {
+                value 2;
+            }
+        }
+        default "metric";
+    }
+
+    grouping path-arguments {
+        description "Path arguments";
+        leaf name {
+            type string;
+            mandatory true;
+        }
+        leaf source {
+            type inet:ip-address;
+            mandatory true;
+        }
+        leaf destination {
+            type inet:ip-address;
+            mandatory true;
+        }
+        container constraints {
+            uses algo:path-constraints;
+        }
+        leaf routing-method {
+            type routing-type;
+        }
+    }
+
+    container managed-path {
+        description "List of Managed Path per PCC node";
+        list managed-node {
+            description "List of PCC";
+            key "node-id";
+            leaf node-id {
+                type nt:node-id;
+                mandatory true;
+            }
+            list te-path {
+                description "List of Managed Path per PCC";
+                key "name";
+                uses path-arguments;
+                container computed-path {
+                    uses pcep:explicit-route-object;
+                    config false;
+                }
+                leaf status {
+                    type path-status;
+                    config false;
+                }
+            }
+        }
+    }
+}
+
