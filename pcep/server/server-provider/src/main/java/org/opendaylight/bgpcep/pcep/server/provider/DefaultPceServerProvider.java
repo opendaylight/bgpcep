@@ -13,39 +13,72 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.algo.PathComputationProvider;
+import org.opendaylight.bgpcep.pcep.server.PathComputation;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+
 @Singleton
 @Component(immediate = true)
-public final class DefaultPceServerProvider implements PceServerProvider {
+public final class DefaultPceServerProvider implements PceServerProvider, AutoCloseable {
     private final ConnectedGraphProvider graphProvider;
     private final PathComputationProvider algoProvider;
-
+    private final DataBroker dataBroker;
+    private PathManagerProvider pathManager;
+    private PathManagerListener pathListener;
+    private PcepTopologyListener pcepListener = null;
     private volatile ConnectedGraph tedGraph;
 
     @Inject
     @Activate
     public DefaultPceServerProvider(@Reference final ConnectedGraphProvider graphProvider,
-            @Reference final PathComputationProvider pathComputationProvider) {
+            @Reference final PathComputationProvider pathComputationProvider,
+            @Reference final DataBroker dataBroker,
+            @Reference final RpcConsumerRegistry rpcConsumerRegistry) {
         this.graphProvider = requireNonNull(graphProvider);
         this.algoProvider = requireNonNull(pathComputationProvider);
-        setTedGraph();
+        this.dataBroker = requireNonNull(dataBroker);
+        /* Create Path Manager */
+        final NetworkTopologyPcepService ntps = rpcConsumerRegistry.getRpcService(NetworkTopologyPcepService.class);
+        this.pathManager = new PathManagerProvider(this.dataBroker, ntps, this);
+        /* Create Path Manager Listener */
+        this.pathListener = new PathManagerListener(this.dataBroker, this.pathManager);
     }
 
     @Override
-    public @Nullable PathComputationImpl getPathComputation() {
+    public void close() {
+        if (pathListener != null) {
+            pathListener.close();
+            pathListener = null;
+        }
+        if (pathManager != null) {
+            pathManager.close();
+            pathManager = null;
+        }
+        if (pcepListener != null) {
+            pcepListener.close();
+            pcepListener = null;
+        }
+    }
+
+    @Override
+    public @Nullable PathComputation getPathComputation() {
         /* Check that we have a valid graph */
         final ConnectedGraph graph = getTedGraph();
         return graph == null ? null : new PathComputationImpl(tedGraph, algoProvider);
     }
 
-    @Override
-    public @Nullable ConnectedGraph getTedGraph() {
+    private ConnectedGraph getTedGraph() {
         /* Leave a chance to get a valid Graph in case of late fulfillment */
         if (tedGraph == null) {
             setTedGraph();
@@ -63,5 +96,23 @@ public final class DefaultPceServerProvider implements PceServerProvider {
             .filter(graph -> graph.getGraph().getName().startsWith("ted://"))
             .findFirst()
             .orElse(null);
+    }
+
+    @Override
+    public void registerPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
+        /* First close current Listener if it is active */
+        if (pcepListener != null) {
+            pcepListener.close();
+            pcepListener = null;
+        }
+        pcepListener = new PcepTopologyListener(dataBroker, topology, pathManager);
+    }
+
+    @Override
+    public void unRegisterPcepTopology() {
+        if (pcepListener != null) {
+            pcepListener.close();
+            pcepListener = null;
+        }
     }
 }
