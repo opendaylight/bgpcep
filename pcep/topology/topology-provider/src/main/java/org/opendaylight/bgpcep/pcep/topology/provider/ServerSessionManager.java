@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -108,6 +109,11 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             }
         }, MoreExecutors.directExecutor());
 
+        // Register this new topology to PCE Server
+        final PceServerProvider server = dependencies.getPceServerProvider();
+        if (server != null) {
+            server.registerPcepTopology(topology);
+        }
         return future;
     }
 
@@ -124,6 +130,12 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             topologyNodeState.close();
         }
         state.clear();
+
+        // Un-Register Pcep Topology into PCE Server
+        final PceServerProvider server = dependencies.getPceServerProvider();
+        if (server != null) {
+            server.unRegisterPcepTopology(topology);
+        }
 
         final WriteTransaction t = dependencies.getDataBroker().newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, topology);
