@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2021 PANTHEON.tech s.r.o. All Rights Reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -31,11 +33,17 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
+import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
+import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -53,22 +61,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bgp>, PeerGroupConfigLoader,
-        AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(BgpDeployerImpl.class);
+public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
+        PeerGroupConfigLoader, AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultBgpDeployer.class);
+
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
-    private final BlueprintContainer container;
-    private final BundleContext bundleContext;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ClusterSingletonServiceProvider provider;
+    private final RpcProviderService rpcRegistry;
+    private final RIBExtensionConsumerContext ribExtensionConsumerContext;
+    private final BGPDispatcher bgpDispatcher;
+    private final BGPRibRoutingPolicyFactory routingPolicyFactory;
+    private final CodecsRegistry codecsRegistry;
+    private final DOMDataBroker domDataBroker;
+    private final DataBroker dataBroker;
+
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
-    private final DataBroker dataBroker;
     private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups
             = CacheBuilder.newBuilder()
             .build(new CacheLoader<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>>() {
@@ -79,24 +92,33 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                 }
             });
     private final String networkInstanceName;
-    private ListenerRegistration<BgpDeployerImpl> registration;
+    private ListenerRegistration<DefaultBgpDeployer> registration;
     @GuardedBy("this")
     private boolean closed;
 
-    public BgpDeployerImpl(final String networkInstanceName,
-                           final ClusterSingletonServiceProvider provider,
-                           final BlueprintContainer container,
-                           final BundleContext bundleContext,
-                           final DataBroker dataBroker,
-                           final BGPTableTypeRegistryConsumer mappingService) {
+    @Inject
+    public DefaultBgpDeployer(final String networkInstanceName,
+                              final ClusterSingletonServiceProvider provider,
+                              final RpcProviderService rpcRegistry,
+                              final RIBExtensionConsumerContext ribExtensionContext,
+                              final BGPDispatcher bgpDispatcher,
+                              final BGPRibRoutingPolicyFactory routingPolicyFactory,
+                              final CodecsRegistry codecsRegistry,
+                              final DOMDataBroker domDataBroker,
+                              final DataBroker dataBroker,
+                              final BGPTableTypeRegistryConsumer mappingService) {
         this.dataBroker = requireNonNull(dataBroker);
         this.provider = requireNonNull(provider);
         this.networkInstanceName = requireNonNull(networkInstanceName);
-        this.container = requireNonNull(container);
-        this.bundleContext = requireNonNull(bundleContext);
         this.tableTypeRegistry = requireNonNull(mappingService);
+        this.rpcRegistry = rpcRegistry;
+        this.ribExtensionConsumerContext = ribExtensionContext;
+        this.bgpDispatcher = bgpDispatcher;
+        this.routingPolicyFactory = routingPolicyFactory;
+        this.codecsRegistry = codecsRegistry;
+        this.domDataBroker = domDataBroker;
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
-                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
+                .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
         initializeNetworkInstance(dataBroker, this.networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -150,7 +172,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     }
 
     private void handleModifications(final List<DataObjectModification<? extends DataObject>> changedConfig,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
+                                     final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = changedConfig.stream()
                 .filter(mod -> mod.getDataType().equals(Global.class))
                 .collect(Collectors.toList());
@@ -166,7 +188,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     }
 
     private void handleDeletions(final List<DataObjectModification<? extends DataObject>> deletedConfig,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
+                                 final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = deletedConfig.stream()
                 .filter(mod -> mod.getDataType().equals(Global.class))
                 .collect(Collectors.toList());
@@ -215,6 +237,7 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     }
 
     @Override
+    @PreDestroy
     @SuppressWarnings("checkstyle:illegalCatch")
     public synchronized void close() {
         LOG.info("Closing BGP Deployer.");
@@ -242,33 +265,27 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
         return wTx.commit();
     }
 
-    @VisibleForTesting
     synchronized void onGlobalChanged(final DataObjectModification<Global> dataObjectModification,
-            final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
-        BGPClusterSingletonService old = this.bgpCss.get(bgpInstanceIdentifier);
-        if (old == null) {
-            old = new BGPClusterSingletonService(this, this.provider, this.tableTypeRegistry,
-                    this.container, this.bundleContext, bgpInstanceIdentifier);
-            this.bgpCss.put(bgpInstanceIdentifier, old);
-        }
-        old.onGlobalChanged(dataObjectModification);
+                                      final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
+        getBgpClusterSingleton(bgpInstanceIdentifier).onGlobalChanged(dataObjectModification);
     }
 
-    @VisibleForTesting
     synchronized void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
+                                         final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
+        getBgpClusterSingleton(bgpInstanceIdentifier).onNeighborsChanged(dataObjectModification);
+    }
+
+    @VisibleForTesting
+    synchronized BGPClusterSingletonService getBgpClusterSingleton(
             final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
         BGPClusterSingletonService old = this.bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, this.provider, this.tableTypeRegistry,
-                    this.container, this.bundleContext, bgpInstanceIdentifier);
+                    this.rpcRegistry, this.ribExtensionConsumerContext, this.bgpDispatcher, this.routingPolicyFactory,
+                    this.codecsRegistry, this.domDataBroker, bgpInstanceIdentifier);
             this.bgpCss.put(bgpInstanceIdentifier, old);
         }
-        old.onNeighborsChanged(dataObjectModification);
-    }
-
-    @VisibleForTesting
-    BGPTableTypeRegistryConsumer getTableTypeRegistry() {
-        return this.tableTypeRegistry;
+        return old;
     }
 
     @Override
@@ -277,4 +294,5 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
                 .child(PeerGroup.class, new PeerGroupKey(peerGroupName));
         return this.peerGroups.getUnchecked(peerGroupsIid).orElse(null);
     }
+
 }
