@@ -170,14 +170,14 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>osgi.cmpn</artifactId>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
-
-        <!-- OSGi, FIXME: remove this -->
         <dependency>
             <groupId>org.osgi</groupId>
-            <artifactId>osgi.core</artifactId>
+            <artifactId>osgi.cmpn</artifactId>
         </dependency>
 
         <!-- Testing dependencies -->
