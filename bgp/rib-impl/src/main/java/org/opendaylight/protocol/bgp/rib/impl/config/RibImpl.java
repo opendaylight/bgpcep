@@ -52,7 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +65,6 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private final DOMDataBroker domBroker;
     private final BGPRibRoutingPolicyFactory policyProvider;
     private RIBImpl ribImpl;
-    private ServiceRegistration<?> serviceRegistration;
     private Collection<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4AddressNoZone routerId;
@@ -173,19 +171,8 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             this.ribImpl.close();
             this.ribImpl = null;
         }
-        if (this.serviceRegistration != null) {
-            try {
-                this.serviceRegistration.unregister();
-            } catch (final IllegalStateException e) {
-                LOG.warn("Failed to unregister {} service instance", this, e);
-            }
-            this.serviceRegistration = null;
-        }
     }
 
-    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
-        this.serviceRegistration = serviceRegistration;
-    }
 
     @Override
     public Set<TablesKey> getLocalTablesKeys() {
