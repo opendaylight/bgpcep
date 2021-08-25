@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.vendor.information.EnterpriseSpecificInformation;
 
 public interface EnterpriseSpecificInformationParser {
 
