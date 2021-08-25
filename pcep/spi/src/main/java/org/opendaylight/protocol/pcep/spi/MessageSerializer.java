@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.Message;
 
 public interface MessageSerializer {
     /**

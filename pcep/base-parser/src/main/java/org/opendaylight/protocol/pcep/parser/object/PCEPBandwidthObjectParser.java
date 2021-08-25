@@ -17,9 +17,9 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.bandwidth.object.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.bandwidth.object.BandwidthBuilder;
 
 /**
  * Parser for Bandwidth.
@@ -55,7 +55,7 @@ public final class PCEPBandwidthObjectParser extends CommonObjectParser implemen
 
     @Override
     public void serializeObject(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
-        .rev181109.Object object, final ByteBuf buffer) {
+        .rev210825.Object object, final ByteBuf buffer) {
         Preconditions.checkArgument(object instanceof Bandwidth,
             "Wrong instance of PCEPObject. Passed %s. Needed BandwidthObject.", object.getClass());
         final ByteBuf body = Unpooled.buffer();

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.open.object.open.TlvsBuilder;
 
 /**
  * Stores usability for available capabilities.

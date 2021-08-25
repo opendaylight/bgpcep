@@ -10,8 +10,8 @@ package org.opendaylight.protocol.pcep.parser.object.bnc;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bnc.Subobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bnc.SubobjectBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.bnc.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.bnc.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
@@ -23,7 +23,7 @@ public final class BNCUtil {
     }
 
     public static List<Subobject> toBncSubobject(final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml
-        .ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject> subobject) {
+        .ns.yang.pcep.types.rev210825.explicit.route.object.ero.Subobject> subobject) {
         return subobject.stream()
             .map(sob -> {
                 final SubobjectType type = sob.getSubobjectType();
@@ -34,7 +34,7 @@ public final class BNCUtil {
             }).collect(Collectors.toList());
     }
 
-    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
+    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.explicit
         .route.object.ero.Subobject> toIroSubject(final List<Subobject> subobject) {
         return subobject.stream()
             .map(sob -> {
@@ -42,7 +42,7 @@ public final class BNCUtil {
                     .route.subobjects.subobject.type.ip.prefix._case.IpPrefix prefix = new IpPrefixBuilder()
                     .setIpPrefix(sob.getIpPrefix()).build();
                 final IpPrefixCase subObjType = new IpPrefixCaseBuilder().setIpPrefix(prefix).build();
-                return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825
                     .explicit.route.object.ero.SubobjectBuilder()
                     .setSubobjectType(subObjType)
                     .setLoose(sob.getLoose())
