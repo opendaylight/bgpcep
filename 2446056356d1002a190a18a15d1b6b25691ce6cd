@@ -113,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "d712ebee_febe25e6",
+        "filename": "pcep/api/src/main/yang/pcep-types.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-08-25T09:17:01Z",
+      "side": 1,
+      "message": "I will update revision date for both modified yang model in a separate patch-set to ease the review.\nI will add you for review too once published.",
+      "parentUuid": "42ee418c_8bf52bb5",
+      "revId": "2446056356d1002a190a18a15d1b6b25691ce6cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f3b5d15_6d7bf18b",
         "filename": "pcep/ietf-stateful/src/test/java/org/opendaylight/protocol/pcep/ietf/PCEPValidatorTest.java",
         "patchSetId": 3
