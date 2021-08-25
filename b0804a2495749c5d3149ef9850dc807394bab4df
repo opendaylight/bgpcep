@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55cca5f2_27d179f4",
+        "filename": "pcep/ietf-stateful/src/main/java/org/opendaylight/protocol/pcep/ietf/initiated/InitiatedPCInitiateMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:15:00Z",
+      "side": 1,
+      "message": "I think it would make sense to put this object directly into imports above since there is no name conflict.",
+      "revId": "b0804a2495749c5d3149ef9850dc807394bab4df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da077bb7_32b29d36",
+        "filename": "pcep/segment-routing/src/test/java/org/opendaylight/protocol/pcep/segment/routing/SrObjectParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:15:00Z",
+      "side": 1,
+      "message": "revision should better stay sticked to the NS",
+      "revId": "b0804a2495749c5d3149ef9850dc807394bab4df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cffabda_7461fe33",
+        "filename": "pcep/tunnel/tunnel-provider/src/main/java/org/opendaylight/bgpcep/pcep/tunnel/provider/NodeChangedListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:15:00Z",
+      "side": 1,
+      "message": "revision should better stay sticked to NS",
+      "range": {
+        "startLine": 266,
+        "startChar": 26,
+        "endLine": 266,
+        "endChar": 35
+      },
+      "revId": "b0804a2495749c5d3149ef9850dc807394bab4df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
