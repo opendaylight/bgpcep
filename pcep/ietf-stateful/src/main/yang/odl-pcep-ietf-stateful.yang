@@ -30,6 +30,13 @@ module odl-pcep-ietf-stateful {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2021-08-25" {
+        description
+            "Move LSP and SRP Object definition in pcep-types to be able
+             to handle LSP Object in PcRequest message";
+        reference "RFC 8231";
+    }
+
     revision "2020-07-20" {
         description "Update to PCEP Stateful RFC & PCE binding label sid draft";
         reference "https://tools.ietf.org/html/rfc8231

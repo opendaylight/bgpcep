@@ -30,8 +30,8 @@ import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev210825.AdministrativeStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev210825.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev210825.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
@@ -261,9 +261,9 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni,
                 rl.getLsp().getDelegate());
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
-                .Link1Builder slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
-                .stateful.rev200720.Link1Builder();
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev210825
+                .Link1Builder slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                .pcep.ietf.stateful.rev210825.Link1Builder();
         slab.setOperationalStatus(rl.getLsp().getOperational());
         slab.setAdministrativeStatus(rl.getLsp().getAdministrative() ? AdministrativeStatus.Active :
                 AdministrativeStatus.Inactive);
