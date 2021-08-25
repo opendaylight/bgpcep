@@ -24,6 +24,12 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2021-08-25" {
+        description
+            "Add LSP and SRP Objects to handle LSP in PcReq Message";
+       reference "RFC8231";
+    }
+
     revision "2018-11-09" {
         description
             "P2MP extension.";
