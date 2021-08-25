@@ -87,8 +87,8 @@ public class SrObjectParserTest {
                 .setSessionId(Uint8.ONE);
 
         builder.setTlvs(new TlvsBuilder()
-                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                    .rev200720.Tlvs1Builder().build())
+                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+                    .pcep.ietf.stateful.rev210825.Tlvs1Builder().build())
                 .addAugmentation(new Tlvs1Builder()
                     .setSrPceCapability(new SrPceCapabilityBuilder().setNFlag(Boolean.TRUE).setXFlag(Boolean.TRUE)
                         .setMsd(Uint8.ONE).build())
