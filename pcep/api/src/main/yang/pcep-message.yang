@@ -3,7 +3,7 @@ module pcep-message {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:message";
     prefix "pcep-msg";
 
-    import pcep-types { prefix pcep; revision-date 2018-11-09; }
+    import pcep-types { prefix pcep; revision-date 2021-08-25; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
