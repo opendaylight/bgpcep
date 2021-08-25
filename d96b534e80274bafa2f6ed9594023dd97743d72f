@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87dfb591_72e7da8d",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "rev should better stay sticked to NS root (pcep.types)",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03786e13_da77503c",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPBandwidthObjectParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2985ca86_6479a8cf",
+        "filename": "pcep/ietf-stateful/src/main/java/org/opendaylight/protocol/pcep/ietf/stateful/StatefulErrorMessageParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd710a55_6efd850b",
+        "filename": "pcep/ietf-stateful/src/test/java/org/opendaylight/protocol/pcep/ietf/PCEPValidatorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33428fde_6da537b4",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6273300_685a98dc",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPValidatorTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-08-25T14:28:51Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "d96b534e80274bafa2f6ed9594023dd97743d72f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
