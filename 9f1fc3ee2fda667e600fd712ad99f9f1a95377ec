@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "a12317c2_5cf06e50",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-08-26T17:15:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec7badc5_8ff48e75",
+      "range": {
+        "startLine": 319,
+        "startChar": 4,
+        "endLine": 319,
+        "endChar": 8
+      },
+      "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ce0b113_7889e68d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
         "patchSetId": 1
