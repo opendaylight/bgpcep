@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d109ac14_caeface6",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-09-06T18:55:51Z",
+      "side": 1,
+      "message": "missing dot here\n\n[ERROR] /w/workspace/bgpcep-maven-javadoc-verify-master-openjdk11/pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java:[331,115] \u0027)\u0027 expected\n[ERROR] /w/workspace/bgpcep-maven-javadoc-verify-master-openjdk11/pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java:[332,57] not a statement\n[ERROR] /w/workspace/bgpcep-maven-javadoc-verify-master-openjdk11/pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java:[332,63] \u0027;\u0027 expected\n[ERROR] /w/workspace/bgpcep-maven-javadoc-verify-master-openjdk11/pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java:[332,65] not a statement\n[ERROR] /w/workspace/bgpcep-maven-javadoc-verify-master-openjdk11/pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/BaseParserExtensionActivator.java:[332,78] \u0027;\u0027 expected",
+      "revId": "e299214c09bc862839431250c58a78d6831e5e96",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
