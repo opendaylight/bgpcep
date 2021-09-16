@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
@@ -52,6 +53,9 @@ public final class StatefulActivator implements PCEPExtensionProviderActivator {
         regs.add(context.registerMessageParser(StatefulPCReportMessageParser.TYPE,
             new StatefulPCReportMessageParser(objReg)));
         regs.add(context.registerMessageSerializer(Pcrpt.class, new StatefulPCReportMessageParser(objReg)));
+        regs.add(context.registerMessageParser(StatefulPCRequestMessageParser.TYPE,
+                new StatefulPCRequestMessageParser(objReg)));
+        regs.add(context.registerMessageSerializer(Pcreq.class, new StatefulPCRequestMessageParser(objReg)));
         regs.add(context.registerMessageParser(StatefulErrorMessageParser.TYPE,
             new StatefulErrorMessageParser(objReg)));
         regs.add(context.registerMessageSerializer(Pcerr.class, new StatefulErrorMessageParser(objReg)));

@@ -16,6 +16,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.opendaylight.protocol.pcep.ietf.initiated.InitiatedPCInitiateMessageP
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulErrorMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulPCReportMessageParser;
+import org.opendaylight.protocol.pcep.ietf.stateful.StatefulPCRequestMessageParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulPCUpdateRequestMessageParser;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
@@ -40,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.pcinitiate.message.RequestsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.P2p1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PcrptBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PlspId;
@@ -64,6 +67,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcreqBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
@@ -89,8 +94,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.PcreqMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.SegmentComputationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2pBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.RroBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.rp.object.RpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
@@ -345,6 +354,84 @@ public class PCEPValidatorTest {
     @Test
     public void testSyncOptActivator() {
         new SyncOptimizationsActivator().start(ctx);
+    }
+
+    @Test
+    public void testReqMesgWithLSP() throws IOException, PCEPDeserializerException {
+        // Test PcRequest message with an LSP Object as per RFC8231
+        new StatefulActivator().start(ctx);
+
+        final Rp rp = new RpBuilder()
+                .setProcessingRule(true)
+                .setIgnore(false)
+                .setReoptimization(false)
+                .setBiDirectional(false)
+                .setLoose(true)
+                .setMakeBeforeBreak(false)
+                .setOrder(false)
+                .setPathKey(false)
+                .setSupplyOf(false)
+                .setFragmentation(false)
+                .setP2mp(false)
+                .setEroCompression(false)
+                .setPriority(Uint8.ONE)
+                .setRequestId(new RequestId(Uint32.TEN))
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                    .rp.object.rp.TlvsBuilder().build())
+                .build();
+
+        final Lsp lspReq = new LspBuilder()
+                .setIgnore(false)
+                .setProcessingRule(false)
+                .setAdministrative(false)
+                .setDelegate(false)
+                .setPlspId(new PlspId(Uint32.ZERO))
+                .setOperational(OperationalStatus.Down)
+                .setSync(false)
+                .setRemove(false)
+                .setTlvs(new TlvsBuilder().build())
+                .build();
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+            .endpoints.object.EndpointsObjBuilder epBuilder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                    .endpoints.object.EndpointsObjBuilder()
+                .setIgnore(false)
+                .setProcessingRule(true)
+                .setAddressFamily(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
+                        .rev181109.endpoints.address.family.Ipv4CaseBuilder()
+                    .setIpv4(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                            .endpoints.address.family.ipv4._case.Ipv4Builder()
+                        .setSourceIpv4Address(new Ipv4AddressNoZone("255.255.255.255"))
+                        .setDestinationIpv4Address(new Ipv4AddressNoZone("255.255.255.255"))
+                        .build())
+                    .build());
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+            .pcreq.message.pcreq.message.RequestsBuilder rBuilder =
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                    .pcreq.message.pcreq.message.RequestsBuilder()
+                .setRp(rp)
+                .setSegmentComputation(new SegmentComputationBuilder().setP2p(new P2pBuilder()
+                .setEndpointsObj(epBuilder.build()).addAugmentation(new P2p1Builder().setLsp(lspReq).build())
+                .build()).build());
+
+        final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+            .pcreq.message.pcreq.message.Requests> reqs = new ArrayList<>();
+        reqs.add(rBuilder.build());
+
+        final Pcreq pcReq = new PcreqBuilder()
+            .setPcreqMessage(new PcreqMessageBuilder().setRequests(reqs).build())
+            .build();
+
+        final StatefulPCRequestMessageParser parser = new StatefulPCRequestMessageParser(
+                this.ctx.getObjectHandlerRegistry());
+        ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCReq.1.bin"));
+        assertEquals(pcReq, parser.parseMessage(result.slice(4, result.readableBytes() - 4), Collections.emptyList()));
+
+        ByteBuf buf = Unpooled.buffer(result.readableBytes());
+        parser.serializeMessage(pcReq, buf);
+        assertArrayEquals(result.array(), buf.array());
     }
 
     @Test
