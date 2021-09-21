@@ -17,6 +17,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -49,10 +52,15 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@Component(service = {})
 public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
 
@@ -66,7 +74,6 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
         .build();
 
     private final BmpDispatcher dispatcher;
-    private final DataBroker dataBroker;
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
     private final BindingCodecTree codecTree;
@@ -77,20 +84,19 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     @GuardedBy("this")
     private ListenerRegistration<BmpDeployerImpl> registration;
 
+    @Activate
+    @Inject
     public BmpDeployerImpl(@Reference final BmpDispatcher dispatcher, @Reference final DataBroker dataBroker,
             @Reference final DOMDataBroker domDataBroker, @Reference final RIBExtensionConsumerContext extensions,
             @Reference final BindingCodecTree codecTree,
             @Reference final ClusterSingletonServiceProvider singletonProvider) {
         this.dispatcher = requireNonNull(dispatcher);
-        this.dataBroker = requireNonNull(dataBroker);
         this.domDataBroker = requireNonNull(domDataBroker);
         this.extensions = requireNonNull(extensions);
         this.codecTree = requireNonNull(codecTree);
         this.singletonProvider = requireNonNull(singletonProvider);
-    }
 
-    public synchronized void init() {
-        final DOMDataTreeWriteTransaction wTx = this.domDataBroker.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction wTx = domDataBroker.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, BMP_MONITOR_YII, EMPTY_PARENT_NODE);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -103,7 +109,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
-        this.registration = dataBroker.registerDataTreeChangeListener(
+        registration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
@@ -137,7 +143,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void updateBmpMonitor(final BmpMonitorConfig bmpConfig) {
         final MonitorId monitorId = bmpConfig.getMonitorId();
-        final BmpMonitoringStationImpl oldService = this.bmpMonitorServices.remove(monitorId);
+        final BmpMonitoringStationImpl oldService = bmpMonitorServices.remove(monitorId);
         try {
             if (oldService != null) {
                 oldService.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
@@ -147,10 +153,10 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
             final Server server = bmpConfig.getServer();
             final InetSocketAddress inetAddress =
                     Ipv4Util.toInetSocketAddress(server.getBindingAddress(), server.getBindingPort());
-            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(this.domDataBroker, this.dispatcher,
-                this.extensions, this.codecTree, this.singletonProvider, monitorId, inetAddress,
+            final BmpMonitoringStationImpl monitor = new BmpMonitoringStationImpl(domDataBroker, dispatcher,
+                extensions, codecTree, singletonProvider, monitorId, inetAddress,
                 bmpConfig.nonnullMonitoredRouter().values());
-            this.bmpMonitorServices.put(monitorId, monitor);
+            bmpMonitorServices.put(monitorId, monitor);
         } catch (final Exception e) {
             LOG.error("Failed to create Bmp Monitor {}.", monitorId, e);
         }
@@ -159,7 +165,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void removeBmpMonitor(final MonitorId monitorId) {
-        final BmpMonitoringStation service = this.bmpMonitorServices.remove(monitorId);
+        final BmpMonitoringStation service = bmpMonitorServices.remove(monitorId);
         if (service != null) {
             LOG.debug("Closing Bmp Monitor {}.", monitorId);
             try {
@@ -171,10 +177,12 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     }
 
     @Override
+    @Deactivate
+    @PreDestroy
     public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
+        if (registration != null) {
+            registration.close();
+            registration = null;
         }
     }
 }
