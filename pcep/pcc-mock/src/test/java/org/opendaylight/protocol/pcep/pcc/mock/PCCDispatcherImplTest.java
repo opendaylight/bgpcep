@@ -5,9 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 
@@ -20,11 +21,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
@@ -38,12 +39,13 @@ import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
 
-    private static final PCEPSessionProposalFactory PROPOSAL
-            = new BasePCEPSessionProposalFactory(10, 40, new ArrayList<>());
-    private final DefaultPCEPSessionNegotiatorFactory nf
-            = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
+    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(10, 40,
+        new ArrayList<>());
+    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
+
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcher pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -57,65 +59,62 @@ public class PCCDispatcherImplTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        this.workerGroup = new NioEventLoopGroup();
-        this.bossGroup = new NioEventLoopGroup();
+        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup();
 
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
 
-        this.dispatcher = new PCCDispatcherImpl(this.registry);
-        this.pcepDispatcher = new PCEPDispatcherImpl(this.registry, this.nf, this.bossGroup, this.workerGroup);
-        this.serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
-        doReturn(KeyMapping.getKeyMapping()).when(this.dispatcherDependencies).getKeys();
-        doReturn(this.serverAddress).when(this.dispatcherDependencies).getAddress();
-        doReturn(null).when(this.dispatcherDependencies).getPeerProposal();
+        dispatcher = new PCCDispatcherImpl(registry);
+        pcepDispatcher = new PCEPDispatcherImpl(registry, nf, bossGroup, workerGroup);
+        serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
+        doReturn(KeyMapping.getKeyMapping()).when(dispatcherDependencies).getKeys();
+        doReturn(serverAddress).when(dispatcherDependencies).getAddress();
+        doReturn(null).when(dispatcherDependencies).getPeerProposal();
     }
 
     @After
     public void tearDown() {
-        this.dispatcher.close();
+        dispatcher.close();
         closeEventLoopGroups();
     }
 
     private void closeEventLoopGroups() {
-        this.workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-        this.bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+        workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+        bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
     }
 
     @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = this.dispatcher
-                .createClient(this.serverAddress, 1, new TestingSessionListenerFactory(), this.nf,
-                        KeyMapping.getKeyMapping(), this.clientAddress);
+        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1,
+            new TestingSessionListenerFactory(), nf, KeyMapping.getKeyMapping(), clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
-        doReturn(slf).when(this.dispatcherDependencies).getListenerFactory();
+        doReturn(slf).when(dispatcherDependencies).getListenerFactory();
 
-        final ChannelFuture futureServer = this.pcepDispatcher.createServer(this.dispatcherDependencies);
+        final ChannelFuture futureServer = pcepDispatcher.createServer(dispatcherDependencies);
         futureServer.sync();
         final Channel channel = futureServer.channel();
-        Assert.assertNotNull(futureSession.get());
-        checkSessionListenerNotNull(slf, this.clientAddress.getHostString());
-        final TestingSessionListener sl
-                = checkSessionListenerNotNull(slf, this.clientAddress.getAddress().getHostAddress());
-        Assert.assertNotNull(sl.getSession());
-        Assert.assertTrue(sl.isUp());
+        assertNotNull(futureSession.get());
+        checkSessionListenerNotNull(slf, clientAddress.getHostString());
+        final TestingSessionListener sl = checkSessionListenerNotNull(slf, clientAddress.getAddress().getHostAddress());
+        assertNotNull(sl.getSession());
+        assertTrue(sl.isUp());
         channel.close().get();
         closeEventLoopGroups();
 
-        this.workerGroup = new NioEventLoopGroup();
-        this.bossGroup = new NioEventLoopGroup();
-        this.pcepDispatcher = new PCEPDispatcherImpl(this.registry, this.nf, this.bossGroup, this.workerGroup);
+        workerGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup();
+        pcepDispatcher = new PCEPDispatcherImpl(registry, nf, bossGroup, workerGroup);
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        doReturn(slf2).when(this.dispatcherDependencies).getListenerFactory();
-        final ChannelFuture future2 = this.pcepDispatcher.createServer(this.dispatcherDependencies);
+        doReturn(slf2).when(dispatcherDependencies).getListenerFactory();
+        final ChannelFuture future2 = pcepDispatcher.createServer(dispatcherDependencies);
         future2.sync();
         final Channel channel2 = future2.channel();
-        final TestingSessionListener sl2
-                = checkSessionListenerNotNull(slf2, this.clientAddress.getAddress().getHostAddress());
-        Assert.assertNotNull(sl2.getSession());
-        Assert.assertTrue(sl2.isUp());
+        final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2,
+            clientAddress.getAddress().getHostAddress());
+        assertNotNull(sl2.getSession());
+        assertTrue(sl2.isUp());
         channel2.close();
     }
 }
