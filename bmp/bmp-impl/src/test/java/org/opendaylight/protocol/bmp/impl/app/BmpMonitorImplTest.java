@@ -38,8 +38,9 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
@@ -98,6 +99,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     // the local port and address where the monitor (ODL) will listen for incoming BMP request
     private static final int MONITOR_LOCAL_PORT = 12345;
@@ -135,36 +137,34 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     public void setUp() throws Exception {
         super.setup();
 
-        MockitoAnnotations.initMocks(this);
-
         doAnswer(invocationOnMock -> {
             BmpMonitorImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            this.singletonService.instantiateServiceInstance();
+            singletonService.instantiateServiceInstance();
             return BmpMonitorImplTest.this.singletonServiceRegistration;
-        }).when(this.clusterSSProv).registerClusterSingletonService(any(ClusterSingletonService.class));
+        }).when(clusterSSProv).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService.closeServiceInstance())
-            .when(this.singletonServiceRegistration).close();
+            .when(singletonServiceRegistration).close();
 
         doAnswer(invocationOnMock -> {
-            this.singletonService2 = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            this.singletonService2.instantiateServiceInstance();
+            singletonService2 = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            singletonService2.instantiateServiceInstance();
             return BmpMonitorImplTest.this.singletonServiceRegistration2;
-        }).when(this.clusterSSProv2).registerClusterSingletonService(any(ClusterSingletonService.class));
+        }).when(clusterSSProv2).registerClusterSingletonService(any(ClusterSingletonService.class));
 
         doAnswer(invocationOnMock -> BmpMonitorImplTest.this.singletonService2.closeServiceInstance())
-            .when(this.singletonServiceRegistration2).close();
+            .when(singletonServiceRegistration2).close();
 
-        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
+        ribActivator.startRIBExtensionProvider(ribExtension, mappingService.currentSerializer());
 
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        this.bgpActivator.start(context);
+        bgpActivator.start(context);
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        this.bmpActivator = new BmpActivator(context);
-        this.bmpActivator.start(ctx);
-        this.msgRegistry = ctx.getBmpMessageRegistry();
+        bmpActivator = new BmpActivator(context);
+        bmpActivator.start(ctx);
+        msgRegistry = ctx.getBmpMessageRegistry();
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
+        dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
             new DefaultBmpSessionFactory());
 
         final InetSocketAddress inetAddress = new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS),
@@ -177,8 +177,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         wTx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BmpMonitor.QNAME), parentNode);
         wTx.commit().get();
 
-        this.bmpApp = new BmpMonitoringStationImpl(getDomBroker(), this.dispatcher, this.ribExtension,
-            this.mappingService.currentSerializer(), this.clusterSSProv, MONITOR_ID, inetAddress, null);
+        bmpApp = new BmpMonitoringStationImpl(getDomBroker(), dispatcher, ribExtension,
+            mappingService.currentSerializer(), clusterSSProv, MONITOR_ID, inetAddress, null);
         readDataOperational(getDataBroker(), BMP_II, monitor -> {
             assertEquals(1, monitor.nonnullMonitor().size());
             final Monitor bmpMonitor = monitor.nonnullMonitor().values().iterator().next();
@@ -193,14 +193,14 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getAdapterContext();
+        mappingService = customizer.getAdapterContext();
         return customizer;
     }
 
     @After
     public void tearDown() throws Exception {
-        this.dispatcher.close();
-        this.bmpApp.close();
+        dispatcher.close();
+        bmpApp.close();
 
         checkNotPresentOperational(getDataBroker(), BMP_II);
     }
@@ -222,7 +222,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
         // initiate another BMP request from router 1, create a redundant connection
         // we expect the connection to be closed
-        final Channel channel3 = connectTestClient(REMOTE_ROUTER_ADDRESS_1, this.msgRegistry);
+        final Channel channel3 = connectTestClient(REMOTE_ROUTER_ADDRESS_1, msgRegistry);
 
 
         // channel 1 should still be open, while channel3 should be closed
@@ -263,7 +263,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     private Channel testMonitoringStation(final String remoteRouterIpAddr) throws InterruptedException,
             ExecutionException {
-        final Channel channel = connectTestClient(remoteRouterIpAddr, this.msgRegistry);
+        final Channel channel = connectTestClient(remoteRouterIpAddr, msgRegistry);
         final RouterId routerId = getRouterId(remoteRouterIpAddr);
 
         readDataOperational(getDataBroker(), MONITOR_IID, monitor -> {
@@ -422,8 +422,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void deploySecondInstance() throws Exception {
-        final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(getDomBroker(), this.dispatcher,
-            this.ribExtension, this.mappingService.currentSerializer(), this.clusterSSProv2, new MonitorId("monitor2"),
+        final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(getDomBroker(), dispatcher,
+            ribExtension, mappingService.currentSerializer(), clusterSSProv2, new MonitorId("monitor2"),
             new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
 
         readDataOperational(getDataBroker(), BMP_II, monitor -> {

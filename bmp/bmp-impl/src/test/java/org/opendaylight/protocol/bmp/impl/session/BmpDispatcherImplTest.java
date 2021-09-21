@@ -23,8 +23,9 @@ import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -35,8 +36,8 @@ import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BmpDispatcherImplTest {
-
     private static final int PORT = 45678;
     private static final InetSocketAddress CLIENT_REMOTE = new InetSocketAddress("127.0.0.10", PORT);
     private static final InetSocketAddress SERVER = new InetSocketAddress("0.0.0.0", PORT);
@@ -52,49 +53,48 @@ public class BmpDispatcherImplTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        doNothing().when(this.mockedSession).handlerRemoved(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).handlerAdded(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).channelRegistered(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).channelActive(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).channelInactive(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).channelUnregistered(any(ChannelHandlerContext.class));
-        doNothing().when(this.mockedSession).channelReadComplete(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).handlerRemoved(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).handlerAdded(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelRegistered(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelActive(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelInactive(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelUnregistered(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelReadComplete(any(ChannelHandlerContext.class));
 
-        this.bgpActivator = new BGPActivator();
+        bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
-        this.bgpActivator.start(context);
+        bgpActivator.start(context);
         final SimpleBmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        this.bmpActivator = new BmpActivator(context);
-        this.bmpActivator.start(ctx);
+        bmpActivator = new BmpActivator(context);
+        bmpActivator.start(ctx);
 
-        this.dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(),
-                ctx, (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
+        dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
+            (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.dispatcher.close();
+        dispatcher.close();
     }
 
     @Test
     public void testCreateServer() throws Exception {
-        final ChannelFuture futureServer = this.dispatcher.createServer(SERVER,
-                this.mockedListenerFactory, KeyMapping.getKeyMapping());
+        final ChannelFuture futureServer = dispatcher.createServer(SERVER, mockedListenerFactory,
+            KeyMapping.getKeyMapping());
         waitFutureSuccess(futureServer);
         final Channel serverChannel = futureServer.channel();
         checkEquals(() -> assertTrue(serverChannel.isActive()));
 
 
-        final ChannelFuture futureClient = this.dispatcher.createClient(CLIENT_REMOTE,
-                this.mockedListenerFactory, KeyMapping.getKeyMapping());
+        final ChannelFuture futureClient = dispatcher.createClient(CLIENT_REMOTE, mockedListenerFactory,
+            KeyMapping.getKeyMapping());
         waitFutureSuccess(futureClient);
 
         final Channel clientChannel = futureClient.channel();
         checkEquals(() -> assertTrue(clientChannel.isActive()));
-        verify(this.mockedSession, timeout(500).times(2)).handlerAdded(any(ChannelHandlerContext.class));
-        verify(this.mockedSession, timeout(500).times(2)).channelRegistered(any(ChannelHandlerContext.class));
-        verify(this.mockedSession, timeout(500).times(2)).channelActive(any(ChannelHandlerContext.class));
+        verify(mockedSession, timeout(500).times(2)).handlerAdded(any(ChannelHandlerContext.class));
+        verify(mockedSession, timeout(500).times(2)).channelRegistered(any(ChannelHandlerContext.class));
+        verify(mockedSession, timeout(500).times(2)).channelActive(any(ChannelHandlerContext.class));
         waitFutureSuccess(clientChannel.close());
         waitFutureSuccess(serverChannel.close());
     }
