@@ -1,1 +1,1 @@
-/restconf/config/bgp-rib:application-rib/$IP/tables/bgp-types:ipv4-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes-ipv4
+/rests/data/bgp-rib:application-rib=$IP/tables=bgp-types%3Aipv4-address-family,bgp-mvpn%3Amcast-vpn-subsequent-address-family/bgp-mvpn-ipv4:mvpn-routes-ipv4

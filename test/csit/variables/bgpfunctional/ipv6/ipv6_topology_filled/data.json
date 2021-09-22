@@ -1,5 +1,5 @@
 {
-    "topology": [
+    "network-topology:topology": [
         {
             "node": [
                 {
@@ -13,6 +13,7 @@
                     "node-id": "2607:f0d0:1002:11::2"
                 }
             ],
+            "odl-bgp-topology-config:rib-id": "example-bgp-rib",
             "server-provided": true,
             "topology-id": "example-ipv6-topology",
             "topology-types": {

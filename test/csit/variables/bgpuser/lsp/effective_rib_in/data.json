@@ -28,7 +28,7 @@
                         "pref": 100
                     }
                 },
-                "identifier": 1,
+                "identifier": "1",
                 "protocol-id": "bgp-epe"
             }
         ]

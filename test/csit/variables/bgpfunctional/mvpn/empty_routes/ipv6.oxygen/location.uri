@@ -1,1 +1,0 @@
-restconf/operational/bgp-rib:bgp-rib/rib/$BGP_RIB/$PATH/tables/bgp-types:ipv6-address-family/bgp-mvpn:mcast-vpn-subsequent-address-family/bgp-mvpn-ipv6:mvpn-routes-ipv6

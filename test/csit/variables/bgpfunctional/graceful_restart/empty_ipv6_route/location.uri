@@ -1,1 +1,1 @@
-restconf/operational/bgp-rib:bgp-rib/rib/example-bgp-rib/loc-rib/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/
+rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/tables=bgp-types%3Aipv6-address-family,bgp-types%3Aunicast-subsequent-address-family/

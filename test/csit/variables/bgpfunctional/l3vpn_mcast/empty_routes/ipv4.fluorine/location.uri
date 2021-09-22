@@ -1,1 +1,1 @@
-restconf/operational/bgp-rib:bgp-rib/rib/$BGP_RIB/$PATH/tables/bgp-types:ipv4-address-family/bgp-l3vpn-mcast:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes-ipv4
+rests/data/bgp-rib:bgp-rib/rib=$BGP_RIB/$PATH/tables=bgp-types%3Aipv4-address-family,bgp-l3vpn-mcast%3Amcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes-ipv4

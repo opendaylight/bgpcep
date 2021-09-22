@@ -25,8 +25,8 @@
             },
             "timers": {
                 "config": {
-                    "hold-time": 180,
-                    "connect-retry": 5
+                    "hold-time": "180",
+                    "connect-retry": "5"
                 }
             },
             "route-reflector": {

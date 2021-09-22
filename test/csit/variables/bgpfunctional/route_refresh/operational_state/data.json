@@ -2,12 +2,12 @@
     "bgp-openconfig-extensions:state": {
         "messages": {
             "received": {
-                "NOTIFICATION": $NOT_COUNT,
-                "UPDATE": $RECV_COUNT
+                "NOTIFICATION": "$NOT_COUNT",
+                "UPDATE": "$RECV_COUNT"
             },
             "sent": {
-                "NOTIFICATION": 0,
-                "UPDATE": $SEND_COUNT
+                "NOTIFICATION": "0",
+                "UPDATE": "$SEND_COUNT"
             }
         },
         "session-state": "ESTABLISHED",

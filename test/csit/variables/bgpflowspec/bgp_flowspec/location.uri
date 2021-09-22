@@ -1,1 +1,1 @@
-/restconf/operational/bgp-rib:bgp-rib/rib/example-bgp-rib/loc-rib/tables/bgp-types:ipv4-address-family/bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes
+rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/tables=bgp-types%3Aipv4-address-family,bgp-flowspec%3Aflowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig

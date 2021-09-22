@@ -1,5 +1,5 @@
 {
-  "tables": [
+  "bgp-rib:tables": [
     {
       "afi": "bgp-types:ipv4-address-family",
       "safi": "bgp-l3vpn-mcast:mcast-mpls-labeled-vpn-subsequent-address-family",

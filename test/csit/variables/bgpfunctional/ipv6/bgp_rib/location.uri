@@ -1,1 +1,1 @@
-restconf/operational/bgp-rib:bgp-rib/rib/$BGP_RIB_OPENCONFIG
+rests/data/bgp-rib:bgp-rib/rib=$BGP_RIB_OPENCONFIG

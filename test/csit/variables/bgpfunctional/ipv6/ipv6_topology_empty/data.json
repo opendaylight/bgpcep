@@ -1,6 +1,7 @@
 {
-    "topology": [
+    "network-topology:topology": [
         {
+            "odl-bgp-topology-config:rib-id": "example-bgp-rib",
             "server-provided": true,
             "topology-id": "example-ipv6-topology",
             "topology-types": {

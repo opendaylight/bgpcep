@@ -1,7 +1,8 @@
 {
-    "topology": [
+    "network-topology:topology": [
         {
             "topology-id": "example-ipv4-topology",
+            "odl-bgp-topology-config:rib-id": "example-bgp-rib",
             "server-provided": true,
             "topology-types": {
                 "odl-bgp-topology-types:bgp-ipv4-reachability-topology": {}

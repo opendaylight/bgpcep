@@ -1,1 +1,0 @@
-restconf/operational/bgp-rib:bgp-rib/rib/$BGP_RIB/$PATH/tables/bgp-types:ipv4-address-family/bgp-route-target-constrain:route-target-constrain-subsequent-address-family/bgp-route-target-constrain:route-target-constrain-routes

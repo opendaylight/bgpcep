@@ -1,5 +1,5 @@
 {
-    "tables": [
+    "bgp-rib:tables": [
         {
             "afi": "bgp-types:ipv4-address-family",
             "safi": "bgp-flowspec:flowspec-subsequent-address-family",
