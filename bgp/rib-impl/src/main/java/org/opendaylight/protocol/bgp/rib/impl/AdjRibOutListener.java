@@ -14,7 +14,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -34,9 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -78,7 +75,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             final ChannelOutputLimiter session, final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
-        this.codecs = registry.getCodecs(this.support);
+        codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
         this.tablesKey = requireNonNull(tablesKey);
         final YangInstanceIdentifier adjRibOutId = ribId.node(PEER_NID).node(IdentifierUtils.domPeerId(peerId))
@@ -88,8 +85,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
          *  in data store. Within this first ODTC execution we should advertise present routes and than
          *  send EOR marker. initialState flag is distinguishing between first ODTC execution and the rest.
          */
-        this.initalState = true;
-        this.registerDataTreeChangeListener = service.registerDataTreeChangeListener(
+        initalState = true;
+        registerDataTreeChangeListener = service.registerDataTreeChangeListener(
                 new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
@@ -116,22 +113,17 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                processSupportedFamilyRoutes(child);
+                for (final DataTreeCandidateNode route : support.changedRoutes(child)) {
+                    processRouteChange(route);
+                }
             }
         }
         if (initalState) {
-            final Update endOfRib = BgpPeerUtil.createEndOfRib(this.tablesKey);
-            this.session.write(endOfRib);
-            this.initalState = false;
+            final Update endOfRib = BgpPeerUtil.createEndOfRib(tablesKey);
+            session.write(endOfRib);
+            initalState = false;
         }
-        this.session.flush();
-    }
-
-    private void processSupportedFamilyRoutes(final DataTreeCandidateNode child) {
-        final Collection<DataTreeCandidateNode> changedRoutes = this.support.changedRoutes(child);
-        for (final DataTreeCandidateNode route : changedRoutes) {
-            processRouteChange(route);
-        }
+        session.flush();
     }
 
     private void processRouteChange(final DataTreeCandidateNode route) {
@@ -156,7 +148,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
                 LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
                 return;
         }
-        this.session.write(update);
+        session.write(update);
     }
 
     private Attributes routeAttributes(final MapEntryNode route) {
@@ -164,48 +156,46 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
-                this.support.routeAttributesIdentifier()).orElse(null);
-        return this.codecs.deserializeAttributes(advertisedAttrs);
+                support.routeAttributesIdentifier()).orElse(null);
+        return codecs.deserializeAttributes(advertisedAttrs);
     }
 
     private Update withdraw(final MapEntryNode route) {
-        if (!this.mpSupport) {
+        if (!mpSupport) {
             return buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
+        return support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
-        this.prefixesSentCounter.increment();
-        if (!this.mpSupport) {
+        prefixesSentCounter.increment();
+        if (!mpSupport) {
             return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
         }
-        return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
+        return support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
     private static Update buildUpdate(
             final @NonNull Collection<MapEntryNode> advertised,
             final @NonNull Collection<MapEntryNode> withdrawn,
             final @NonNull Attributes attr) {
-        final UpdateBuilder ub = new UpdateBuilder().setWithdrawnRoutes(extractWithdrawnRoutes(withdrawn))
-                .setNlri(extractNlris(advertised));
-        ub.setAttributes(attr);
-        return ub.build();
+        return new UpdateBuilder()
+            .setWithdrawnRoutes(withdrawn.stream()
+                .map(ipv4Route -> new WithdrawnRoutesBuilder()
+                    .setPrefix(extractPrefix(ipv4Route))
+                    .setPathId(extractPathId(ipv4Route))
+                    .build())
+                .collect(Collectors.toList()))
+            .setNlri(advertised.stream()
+                .map(ipv4Route -> new NlriBuilder()
+                    .setPrefix(extractPrefix(ipv4Route))
+                    .setPathId(extractPathId(ipv4Route)).build())
+                .collect(Collectors.toList()))
+            .setAttributes(attr).build();
     }
 
-    private static List<Nlri> extractNlris(final Collection<MapEntryNode> routes) {
-        return routes.stream().map(ipv4Route -> new NlriBuilder().setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route)))
-                .setPathId(extractPathId(ipv4Route)).build()).collect(Collectors.toList());
-    }
-
-    private static List<WithdrawnRoutes> extractWithdrawnRoutes(final Collection<MapEntryNode> routes) {
-        return routes.stream().map(ipv4Route -> new WithdrawnRoutesBuilder()
-                .setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route))).setPathId(extractPathId(ipv4Route)).build())
-                .collect(Collectors.toList());
-    }
-
-    private static String extractPrefix(final MapEntryNode ipv4Route) {
-        return (String) ipv4Route.findChildByArg(ROUTE_KEY_PREFIX_LEAF).get().body();
+    private static Ipv4Prefix extractPrefix(final MapEntryNode ipv4Route) {
+        return new Ipv4Prefix((String) ipv4Route.findChildByArg(ROUTE_KEY_PREFIX_LEAF).get().body());
     }
 
     private static PathId extractPathId(final MapEntryNode ipv4Route) {
@@ -215,15 +205,15 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     public void close() {
-        this.registerDataTreeChangeListener.close();
+        registerDataTreeChangeListener.close();
     }
 
     boolean isMpSupported() {
-        return this.mpSupport;
+        return mpSupport;
     }
 
     @Override
     public long getPrefixesSentCount() {
-        return this.prefixesSentCounter.longValue();
+        return prefixesSentCounter.longValue();
     }
 }
