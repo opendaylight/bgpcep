@@ -44,6 +44,7 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
@@ -57,15 +58,11 @@ import org.slf4j.LoggerFactory;
  * (message) and sends it down the channel. This class is NOT thread-safe.
  */
 final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, PrefixesSentCounters {
-
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
-
     private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyPrefixLeaf = new YangInstanceIdentifier
-            .NodeIdentifier(PREFIX_QNAME);
-    private final YangInstanceIdentifier.NodeIdentifier routeKeyPathIdLeaf = new YangInstanceIdentifier
-            .NodeIdentifier(PATHID_QNAME);
+    private static final NodeIdentifier ROUTE_KEY_PREFIX_LEAF = NodeIdentifier.create(PREFIX_QNAME);
+    private static final NodeIdentifier ROUTE_KEY_PATHID_LEAF = NodeIdentifier.create(PATHID_QNAME);
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
@@ -186,7 +183,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         return this.support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
-    private Update buildUpdate(
+    private static Update buildUpdate(
             final @NonNull Collection<MapEntryNode> advertised,
             final @NonNull Collection<MapEntryNode> withdrawn,
             final @NonNull Attributes attr) {
@@ -196,23 +193,23 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         return ub.build();
     }
 
-    private List<Nlri> extractNlris(final Collection<MapEntryNode> routes) {
+    private static List<Nlri> extractNlris(final Collection<MapEntryNode> routes) {
         return routes.stream().map(ipv4Route -> new NlriBuilder().setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route)))
                 .setPathId(extractPathId(ipv4Route)).build()).collect(Collectors.toList());
     }
 
-    private List<WithdrawnRoutes> extractWithdrawnRoutes(final Collection<MapEntryNode> routes) {
+    private static List<WithdrawnRoutes> extractWithdrawnRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(ipv4Route -> new WithdrawnRoutesBuilder()
                 .setPrefix(new Ipv4Prefix(extractPrefix(ipv4Route))).setPathId(extractPathId(ipv4Route)).build())
                 .collect(Collectors.toList());
     }
 
-    private String extractPrefix(final MapEntryNode ipv4Route) {
-        return (String) ipv4Route.findChildByArg(this.routeKeyPrefixLeaf).get().body();
+    private static String extractPrefix(final MapEntryNode ipv4Route) {
+        return (String) ipv4Route.findChildByArg(ROUTE_KEY_PREFIX_LEAF).get().body();
     }
 
-    private PathId extractPathId(final MapEntryNode ipv4Route) {
-        return ipv4Route.findChildByArg(this.routeKeyPathIdLeaf)
+    private static PathId extractPathId(final MapEntryNode ipv4Route) {
+        return ipv4Route.findChildByArg(ROUTE_KEY_PATHID_LEAF)
             .map(dataContainerChild -> new PathId((Uint32) dataContainerChild.body()))
             .orElse(null);
     }
