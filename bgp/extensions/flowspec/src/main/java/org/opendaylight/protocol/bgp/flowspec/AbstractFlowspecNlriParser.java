@@ -106,10 +106,10 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     static final NodeIdentifier FLOWSPEC_NID = new NodeIdentifier(Flowspec.QNAME);
     @VisibleForTesting
     static final NodeIdentifier FLOWSPEC_TYPE_NID = new NodeIdentifier(FlowspecType.QNAME);
-    public static final NodeIdentifier DEST_PREFIX_NID
-            = new NodeIdentifier(QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
-    public static final NodeIdentifier SOURCE_PREFIX_NID
-            = new NodeIdentifier(QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
+    public static final NodeIdentifier DEST_PREFIX_NID = new NodeIdentifier(
+        QName.create(DestinationPrefixCase.QNAME, "destination-prefix").intern());
+    public static final NodeIdentifier SOURCE_PREFIX_NID = new NodeIdentifier(
+        QName.create(SourcePrefixCase.QNAME, "source-prefix").intern());
     @VisibleForTesting
     static final NodeIdentifier PORTS_NID = new NodeIdentifier(Ports.QNAME);
     @VisibleForTesting
@@ -129,11 +129,11 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     @VisibleForTesting
     static final NodeIdentifier FRAGMENT_NID = new NodeIdentifier(Fragments.QNAME);
     @VisibleForTesting
-    public static final NodeIdentifier OP_NID
-            = new NodeIdentifier(QName.create(Flowspec.QNAME.getModule(), "op"));
+    public static final NodeIdentifier OP_NID = new NodeIdentifier(
+        QName.create(Flowspec.QNAME.getModule(), "op").intern());
     @VisibleForTesting
-    public static final NodeIdentifier VALUE_NID
-            = new NodeIdentifier(QName.create(Flowspec.QNAME.getModule(), "value"));
+    public static final NodeIdentifier VALUE_NID = new NodeIdentifier(
+        QName.create(Flowspec.QNAME.getModule(), "value").intern());
 
     protected final FlowspecTypeRegistry flowspecTypeRegistry;
 
@@ -215,7 +215,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     protected final void serializeNlri(final List<Flowspec> flowspecList, final @NonNull ByteBuf buffer) {
         if (flowspecList != null) {
             for (final Flowspec flow : flowspecList) {
-                this.flowspecTypeRegistry.serializeFlowspecType(flow.getFlowspecType(), buffer);
+                flowspecTypeRegistry.serializeFlowspecType(flow.getFlowspecType(), buffer);
             }
         }
     }
@@ -580,7 +580,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
             while (nlriLength > 0) {
                 final int readableLength = nlri.readableBytes();
                 final FlowspecBuilder builder = new FlowspecBuilder();
-                builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
+                builder.setFlowspecType(flowspecTypeRegistry.parseFlowspecType(nlri));
                 fss.add(builder.build());
                 final int flowspecTypeLength = readableLength - nlri.readableBytes();
                 nlriLength -= flowspecTypeLength;
