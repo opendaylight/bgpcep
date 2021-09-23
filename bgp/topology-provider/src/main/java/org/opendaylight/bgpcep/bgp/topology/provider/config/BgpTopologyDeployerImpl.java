@@ -15,6 +15,9 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
@@ -38,9 +41,17 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.RequireServiceComponentRuntime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@Component(service = BgpTopologyDeployer.class, immediate = true)
+@RequireServiceComponentRuntime
 public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoCloseable,
         ClusteredDataTreeChangeListener<Topology> {
 
@@ -59,22 +70,21 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @GuardedBy("this")
     private boolean closed;
 
-    public BgpTopologyDeployerImpl(final BundleContext context, final DataBroker dataBroker,
-            final ClusterSingletonServiceProvider singletonProvider) {
+    @Inject
+    @Activate
+    public BgpTopologyDeployerImpl(final BundleContext context, @Reference final DataBroker dataBroker,
+            @Reference final ClusterSingletonServiceProvider singletonProvider) {
         this.context = requireNonNull(context);
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonProvider = requireNonNull(singletonProvider);
-    }
-
-    public void init() {
-        this.registration = this.dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, TOPOLOGY_IID), this);
+        registration = dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, TOPOLOGY_IID), this);
         LOG.info("BGP topology deployer started.");
     }
 
     @Override
     public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
-        if (this.closed) {
+        if (closed) {
             LOG.trace("BGP Topology Provider Deployer was already closed, skipping changes.");
             return;
         }
@@ -88,20 +98,20 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                 case DELETE:
                     filterTopologyBuilders(dataBefore)
                             .forEach(provider -> provider.onTopologyBuilderRemoved(dataBefore));
-                    this.topologies.remove(dataBefore);
+                    topologies.remove(dataBefore);
                     break;
                 case SUBTREE_MODIFIED:
                     filterTopologyBuilders(dataBefore).forEach(provider
                         -> provider.onTopologyBuilderRemoved(dataBefore));
-                    this.topologies.remove(dataBefore);
+                    topologies.remove(dataBefore);
                     filterTopologyBuilders(dataAfter).forEach(provider
                         -> provider.onTopologyBuilderCreated(dataAfter));
-                    this.topologies.add(dataAfter);
+                    topologies.add(dataAfter);
                     break;
                 case WRITE:
                     filterTopologyBuilders(dataAfter).forEach(provider
                         -> provider.onTopologyBuilderCreated(dataAfter));
-                    this.topologies.add(dataAfter);
+                    topologies.add(dataAfter);
                     break;
                 default:
                     break;
@@ -112,14 +122,14 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @Override
     public synchronized AbstractRegistration registerTopologyProvider(final BgpTopologyProvider topologyBuilder) {
         filterTopologies(topologyBuilder).forEach(topology -> topologyBuilder.onTopologyBuilderCreated(topology));
-        this.topologyProviders.add(topologyBuilder);
+        topologyProviders.add(topologyBuilder);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BgpTopologyDeployerImpl.this) {
                     filterTopologies(topologyBuilder)
                             .forEach(topology -> topologyBuilder.onTopologyBuilderRemoved(topology));
-                    BgpTopologyDeployerImpl.this.topologyProviders.remove(topologyBuilder);
+                    topologyProviders.remove(topologyBuilder);
                 }
             }
         };
@@ -127,7 +137,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @Override
     public DataBroker getDataBroker() {
-        return this.dataBroker;
+        return dataBroker;
     }
 
     @Override
@@ -137,7 +147,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
                 .firstKeyOf(Topology.class).getTopologyId().getValue());
-        final ServiceRegistration<?> registerService = this.context
+        final ServiceRegistration<?> registerService = context
                 .registerService(new String[]{TopologyReference.class.getName()},
                         topologyProviderService, properties);
         final ClusterSingletonServiceRegistration registerClusterSingletonService =
@@ -157,31 +167,33 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         };
     }
 
+    @Deactivate
+    @PreDestroy
     @Override
     public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
+        if (registration != null) {
+            registration.close();
+            registration = null;
         }
 
         LOG.info("BGP topology deployer stopped.");
-        this.closed = true;
+        closed = true;
     }
 
     private Iterable<BgpTopologyProvider> filterTopologyBuilders(final Topology topology) {
-        return this.topologyProviders.stream().filter(input -> input.topologyTypeFilter(topology))
+        return topologyProviders.stream().filter(input -> input.topologyTypeFilter(topology))
                 .collect(Collectors.toList());
     }
 
     private Iterable<Topology> filterTopologies(final BgpTopologyProvider topologyBuilder) {
-        return this.topologies.stream().filter(topology -> topologyBuilder.topologyTypeFilter(topology))
+        return topologies.stream().filter(topology -> topologyBuilder.topologyTypeFilter(topology))
                 .collect(Collectors.toList());
     }
 
     private ClusterSingletonServiceRegistration registerSingletonService(
             final ClusterSingletonService clusterSingletonService) {
         return ClusterSingletonServiceRegistrationHelper
-                .registerSingletonService(this.singletonProvider, clusterSingletonService);
+                .registerSingletonService(singletonProvider, clusterSingletonService);
     }
 
 }
