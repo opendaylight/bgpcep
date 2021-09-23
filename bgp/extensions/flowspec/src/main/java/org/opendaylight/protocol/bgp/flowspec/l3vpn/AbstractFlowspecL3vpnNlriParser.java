@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNlriParser {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractFlowspecL3vpnNlriParser.class);
-    public static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getModule(),
-            "route-distinguisher"));
+    public static final NodeIdentifier RD_NID =
+        new NodeIdentifier(QName.create(Flowspec.QNAME, "route-distinguisher").intern());
 
     protected AbstractFlowspecL3vpnNlriParser(final FlowspecTypeRegistry flowspecTypeRegistry) {
         super(flowspecTypeRegistry);
@@ -79,7 +79,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
 
         while (nlri.isReadable()) {
             final FlowspecBuilder builder = new FlowspecBuilder();
-            builder.setFlowspecType(this.flowspecTypeRegistry.parseFlowspecType(nlri));
+            builder.setFlowspecType(flowspecTypeRegistry.parseFlowspecType(nlri));
             fss.add(builder.build());
         }
 
