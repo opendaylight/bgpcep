@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBgpTopologyProvider.class);
 
     private final Map<TopologyId, TopologyReferenceSingletonService> topologyBuilders = new HashMap<>();
@@ -52,16 +51,23 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     }
 
     final void register() {
-        this.registration = deployer.registerTopologyProvider(this);
+        registration = deployer.registerTopologyProvider(this);
+    }
+
+    final void unregister() {
+        if (registration != null) {
+            registration.close();
+            registration = null;
+        }
     }
 
     @Override
     public final void onTopologyBuilderCreated(final Topology topology) {
         LOG.debug("Creating topology builder instance {}", topology);
-        final TopologyReferenceSingletonService currentInstance = this.topologyBuilders.get(topology.getTopologyId());
+        final TopologyReferenceSingletonService currentInstance = topologyBuilders.get(topology.getTopologyId());
         if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
             final TopologyReferenceSingletonService topologyBuilder = createInstance(topology);
-            this.topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
+            topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
             LOG.debug("Topology builder instance created {}", topologyBuilder);
         }
     }
@@ -70,24 +76,19 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     public final void onTopologyBuilderRemoved(final Topology topology) {
         LOG.debug("Removing topology builder instance {}", topology);
         final TopologyReferenceSingletonService topologyBuilder =
-                this.topologyBuilders.remove(topology.getTopologyId());
+                topologyBuilders.remove(topology.getTopologyId());
         if (topologyBuilder != null) {
             topologyBuilder.close();
             LOG.debug("Topology builder instance removed {}", topologyBuilder);
         }
     }
 
-    @Override
-    public void close() {
-        this.registration.close();
-    }
-
     private TopologyReferenceSingletonService createInstance(final Topology topology) {
         final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
                 .child(Rib.class, new RibKey(topology.augmentation(Topology1.class).getRibId())));
-        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(this.dataBroker,
+        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(dataBroker,
                 ribReference, topology.getTopologyId());
-        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, this.deployer, topology);
+        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, deployer, topology);
     }
 
     abstract AbstractTopologyBuilder<?> createTopologyBuilder(DataBroker dataProvider, RibReference locRibReference,
@@ -95,10 +96,6 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     static final TopologyTypes1 getTopologyAug(final Topology topology) {
         final TopologyTypes topologyTypes = topology.getTopologyTypes();
-        if (topologyTypes == null) {
-            return null;
-        }
-
-        return topologyTypes.augmentation(TopologyTypes1.class);
+        return topologyTypes == null ? null : topologyTypes.augmentation(TopologyTypes1.class);
     }
 }

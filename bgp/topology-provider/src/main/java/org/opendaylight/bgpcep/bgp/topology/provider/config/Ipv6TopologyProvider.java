@@ -7,6 +7,9 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.Ipv6ReachabilityTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
@@ -15,11 +18,25 @@ import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
+@Singleton
+@Component(service = {})
 public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
-
-    public Ipv6TopologyProvider(final BgpTopologyDeployer deployer) {
+    @Inject
+    @Activate
+    public Ipv6TopologyProvider(@Reference final BgpTopologyDeployer deployer) {
         super(deployer);
+    }
+
+    @Override
+    @Deactivate
+    @PreDestroy
+    public void close() {
+        unregister();
     }
 
     @Override
@@ -33,5 +50,4 @@ public final class Ipv6TopologyProvider extends AbstractBgpTopologyProvider {
         final TopologyTypes1 topoAug = getTopologyAug(topology);
         return topoAug != null && topoAug.getBgpIpv6ReachabilityTopology() != null;
     }
-
 }
