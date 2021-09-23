@@ -195,13 +195,12 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private static Ipv4Prefix extractPrefix(final MapEntryNode ipv4Route) {
-        return new Ipv4Prefix((String) ipv4Route.findChildByArg(ROUTE_KEY_PREFIX_LEAF).get().body());
+        return new Ipv4Prefix((String) ipv4Route.getChildByArg(ROUTE_KEY_PREFIX_LEAF).body());
     }
 
     private static PathId extractPathId(final MapEntryNode ipv4Route) {
-        return ipv4Route.findChildByArg(ROUTE_KEY_PATHID_LEAF)
-            .map(dataContainerChild -> new PathId((Uint32) dataContainerChild.body()))
-            .orElse(null);
+        final var pathId = ipv4Route.childByArg(ROUTE_KEY_PATHID_LEAF);
+        return pathId == null ? null : new PathId((Uint32) pathId.body());
     }
 
     public void close() {
