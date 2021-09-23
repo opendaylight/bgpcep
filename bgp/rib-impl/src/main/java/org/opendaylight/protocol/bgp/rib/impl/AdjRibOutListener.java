@@ -64,6 +64,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
     private final RIBSupport<?, ?> support;
+    // FIXME: this field needs to be eliminated: either subclass this class or create a filtering ribsupport
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
@@ -161,18 +162,16 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     private Update withdraw(final MapEntryNode route) {
-        if (!mpSupport) {
-            return buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
-        }
-        return support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
+        return mpSupport
+            ? support.buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route))
+                : buildUpdate(Collections.emptyList(), Collections.singleton(route), routeAttributes(route));
     }
 
     private Update advertise(final MapEntryNode route) {
         prefixesSentCounter.increment();
-        if (!mpSupport) {
-            return buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
-        }
-        return support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
+        return mpSupport
+            ? support.buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route))
+                : buildUpdate(Collections.singleton(route), Collections.emptyList(), routeAttributes(route));
     }
 
     private static Update buildUpdate(
