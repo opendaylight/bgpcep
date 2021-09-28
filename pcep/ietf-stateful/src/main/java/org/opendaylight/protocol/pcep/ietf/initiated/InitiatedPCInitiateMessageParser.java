@@ -13,10 +13,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Queue;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
+import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.PcinitiateMessageBuilder;
@@ -73,7 +75,8 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
     }
 
     @Override
-    protected Message validate(final Queue<Object> objects, final List<Message> errors) {
+    protected Message validate(final Queue<Object> objects, final List<Message> errors)
+            throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
         final List<Requests> reqs = new ArrayList<>();
@@ -84,10 +87,10 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
     }
 
-    protected Requests getValidRequest(final Queue<Object> objects) {
+    protected Requests getValidRequest(final Queue<Object> objects) throws PCEPDeserializerException {
         final RequestsBuilder builder = new RequestsBuilder()
-            .setSrp((Srp) objects.remove())
-            .setLsp((Lsp) objects.remove());
+            .setSrp(consumeObject(objects, Srp.class))
+            .setLsp(consumeObject(objects, Lsp.class));
 
         final List<Metrics> metrics = new ArrayList<>();
         State state = State.INIT;
@@ -102,6 +105,21 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
 
         builder.setMetrics(metrics);
         return builder.build();
+    }
+
+    private static <T extends Object> T consumeObject(final Queue<Object> objects, final Class<T> expectedClass)
+            throws PCEPDeserializerException {
+        final Object obj;
+        try {
+            obj = objects.remove();
+        } catch (NoSuchElementException e) {
+            throw new PCEPDeserializerException("No objects left when expecting " + expectedClass.getSimpleName(), e);
+        }
+        try {
+            return expectedClass.cast(obj);
+        } catch (ClassCastException e) {
+            throw new PCEPDeserializerException("Cannot interpret " + obj, e);
+        }
     }
 
     private static State insertObject(final State state, final Object obj, final RequestsBuilder builder,
