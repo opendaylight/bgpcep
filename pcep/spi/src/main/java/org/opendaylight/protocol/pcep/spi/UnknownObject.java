@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.base.MoreObjects;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
@@ -30,24 +31,23 @@ public final class UnknownObject implements Object {
     }
 
     public UnknownObject(final PCEPErrors error, final Object invalidObject) {
-        this.err = requireNonNull(error);
-
-        this.error = new ErrorsBuilder().setErrorObject(
-                new ErrorObjectBuilder().setType(error.getErrorType()).setValue(
-                        error.getErrorValue()).build()).build();
+        err = requireNonNull(error);
         this.invalidObject = invalidObject;
+        this.error = new ErrorsBuilder()
+            .setErrorObject(new ErrorObjectBuilder().setType(err.getErrorType()).setValue(err.getErrorValue()).build())
+            .build();
     }
 
     public List<Errors> getErrors() {
-        return Collections.singletonList(this.error);
+        return Collections.singletonList(error);
     }
 
     public PCEPErrors getError() {
-        return this.err;
+        return err;
     }
 
     public Object getInvalidObject() {
-        return this.invalidObject;
+        return invalidObject;
     }
 
     @Override
@@ -63,5 +63,13 @@ public final class UnknownObject implements Object {
     @Override
     public Boolean getProcessingRule() {
         return Boolean.FALSE;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(UnknownObject.class).omitNullValues()
+            .add("error", error)
+            .add("object", invalidObject)
+            .toString();
     }
 }
