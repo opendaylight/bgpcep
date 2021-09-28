@@ -68,7 +68,7 @@ public final class UnknownObject implements Object {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(UnknownObject.class).omitNullValues()
-            .add("error", error)
+            .add("error", err)
             .add("object", invalidObject)
             .toString();
     }
