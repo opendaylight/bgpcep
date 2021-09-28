@@ -8,11 +8,13 @@
 package org.opendaylight.protocol.pcep.pcc.mock;
 
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class PCCActivator implements PCEPExtensionProviderActivator {
+@MetaInfServices
+public final class PCCActivator implements PCEPExtensionProviderActivator {
     @Override
     public List<Registration> start(final PCEPExtensionProviderContext context) {
         return List.of(context.registerObjectParser(new PCCEndPointIpv4ObjectParser()));

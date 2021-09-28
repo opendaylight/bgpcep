@@ -65,12 +65,6 @@ final class PCCsBuilder {
         this.stateTimeout = stateTimeout;
         this.pcepCapabilities = pcepCapabilities;
 
-//        final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
-//        new PCCActivator().start(ctx);
-//        new StatefulActivator().start(ctx);
-//        new SyncOptimizationsActivator().start(ctx);
-//        new InitiatedActivator().start(ctx);
-
         this.registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
     }
 
