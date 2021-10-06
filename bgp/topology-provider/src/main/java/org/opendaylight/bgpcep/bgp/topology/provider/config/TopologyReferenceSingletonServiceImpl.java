@@ -17,7 +17,7 @@ import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingle
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,36 +25,36 @@ import org.slf4j.LoggerFactory;
 final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSingletonService {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyReferenceSingletonServiceImpl.class);
     private final AbstractTopologyBuilder<?> topologyBuilder;
-    private final AbstractRegistration serviceRegistration;
+    private final Registration serviceRegistration;
     private final Topology configuration;
 
     TopologyReferenceSingletonServiceImpl(final AbstractTopologyBuilder<?> topologyBuilder,
             final BgpTopologyDeployer deployer, final Topology configuration) {
         this.configuration = requireNonNull(configuration);
         this.topologyBuilder = requireNonNull(topologyBuilder);
-        this.serviceRegistration = deployer.registerService(this);
+        serviceRegistration = deployer.registerService(this);
     }
 
     @Override
     public InstanceIdentifier<Topology> getInstanceIdentifier() {
-        return this.topologyBuilder.getInstanceIdentifier();
+        return topologyBuilder.getInstanceIdentifier();
     }
 
     @Override
     public void close() {
-        this.serviceRegistration.close();
+        serviceRegistration.close();
     }
 
     @Override
     public void instantiateServiceInstance() {
         LOG.info("Topology Singleton Service {} instantiated", getIdentifier());
-        this.topologyBuilder.start();
+        topologyBuilder.start();
     }
 
     @Override
     public FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Topology Singleton Service {}", getIdentifier());
-        return this.topologyBuilder.close();
+        return topologyBuilder.close();
     }
 
     @Override
@@ -65,7 +65,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
 
     @Override
     public Topology getConfiguration() {
-        return this.configuration;
+        return configuration;
     }
 
 }

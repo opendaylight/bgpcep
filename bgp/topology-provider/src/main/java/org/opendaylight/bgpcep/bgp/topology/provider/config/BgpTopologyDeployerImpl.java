@@ -10,20 +10,16 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
-import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
-import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -35,8 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -60,7 +56,6 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @GuardedBy("this")
     private final Set<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
-    private final BundleContext context;
     private final ClusterSingletonServiceProvider singletonProvider;
     private ListenerRegistration<BgpTopologyDeployerImpl> registration;
     @GuardedBy("this")
@@ -68,9 +63,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @Inject
     @Activate
-    public BgpTopologyDeployerImpl(final BundleContext context, @Reference final DataBroker dataBroker,
+    public BgpTopologyDeployerImpl(@Reference final DataBroker dataBroker,
             @Reference final ClusterSingletonServiceProvider singletonProvider) {
-        this.context = requireNonNull(context);
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonProvider = requireNonNull(singletonProvider);
         registration = dataBroker.registerDataTreeChangeListener(
@@ -137,20 +131,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     }
 
     @Override
-    @SuppressModernizer
-    public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
-        final Dictionary<String, String> properties = new Hashtable<>(2);
-        properties.put("topology-id", topologyProviderService.getInstanceIdentifier().firstKeyOf(Topology.class)
-            .getTopologyId().getValue());
-        final var topRefReg = context.registerService(TopologyReference.class, topologyProviderService, properties);
-        final var singletonReg = singletonProvider.registerClusterSingletonService(topologyProviderService);
-        return new AbstractRegistration() {
-            @Override
-            protected void removeRegistration() {
-                topRefReg.unregister();
-                singletonReg.close();
-            }
-        };
+    public Registration registerService(final TopologyReferenceSingletonService topologyProviderService) {
+        return singletonProvider.registerClusterSingletonService(topologyProviderService);
     }
 
     @Deactivate

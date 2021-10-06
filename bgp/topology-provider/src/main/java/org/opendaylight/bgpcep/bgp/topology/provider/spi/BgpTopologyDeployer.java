@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider.spi;
 import com.google.common.annotations.Beta;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 
 @Beta
 public interface BgpTopologyDeployer {
@@ -18,5 +19,5 @@ public interface BgpTopologyDeployer {
 
     DataBroker getDataBroker();
 
-    AbstractRegistration registerService(TopologyReferenceSingletonService topologyProviderService);
+    Registration registerService(TopologyReferenceSingletonService topologyProviderService);
 }

@@ -74,6 +74,7 @@ final class AppPeer extends PeerBean {
         bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
             IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(neighbor.getNeighborAddress().getIpv4Address()),
             tableTypeRegistry);
+        LOG.info("Registering AppPeer state provider for peer {}", neighbor.getNeighborAddress());
         stateProviderRegistration = stateProviderRegistry.register(this);
     }
 

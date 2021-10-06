@@ -25,11 +25,15 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 @MetaInfServices
 @Component(immediate = true, service = {BGPStateProvider.class, BGPStateProviderRegistry.class})
 public final class BGPStateCollector implements BGPStateProviderRegistry, BGPStateProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPStateCollector.class);
+
     private final class BGPPeerStateProviderRegistration extends AbstractObjectRegistration<BGPPeerStateProvider> {
         BGPPeerStateProviderRegistration(final @NonNull BGPPeerStateProvider instance) {
             super(instance);
@@ -62,6 +66,7 @@ public final class BGPStateCollector implements BGPStateProviderRegistry, BGPSta
 
     @Override
     public Registration register(final BGPRibStateProvider ribStateProvider) {
+        LOG.info("Registering BGPRibStateProvider");
         final var reg = new BGPRibStateProviderRegistration(ribStateProvider);
         bgpRibStates.add(reg);
         return reg;
@@ -69,6 +74,7 @@ public final class BGPStateCollector implements BGPStateProviderRegistry, BGPSta
 
     @Override
     public Registration register(final BGPPeerStateProvider peerStateProvider) {
+        LOG.info("Registering BGPPeerStateProvider");
         final var reg = new BGPPeerStateProviderRegistration(peerStateProvider);
         bgpPeerStates.add(reg);
         return reg;

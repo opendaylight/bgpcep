@@ -143,6 +143,7 @@ public class BgpPeer extends PeerBean {
         bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         currentConfiguration = neighbor;
+        LOG.info("Registering BgpPeer state provider for peer {}", neighbor.getNeighborAddress());
         stateProviderRegistration = stateProviderRegistry.register(this);
     }
 

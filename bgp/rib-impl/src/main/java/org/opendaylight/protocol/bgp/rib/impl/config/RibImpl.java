@@ -107,6 +107,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
         LOG.info("Starting BGP instance {}", instanceName);
         ribId = new RibId(instanceName);
         ribImpl = createRib(global, tableTypeRegistry);
+        LOG.info("Registering RIB state provider for RIB {}", instanceName);
         stateProviderRegistration =  stateProviderRegistry.register(this);
     }
 
