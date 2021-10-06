@@ -94,6 +94,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
+        LOG.info("Registering RIB state provider for RIB {}", instanceName);
         this.stateProviderRegistration =  this.stateProviderRegistry.register(this);
     }
 

@@ -152,6 +152,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         this.currentConfiguration = neighbor;
+        LOG.info("Registering BgpPeer state provider for peer {}", neighbor.getNeighborAddress());
         this.stateProviderRegistration = this.stateProviderRegistry.register(this);
     }
 
