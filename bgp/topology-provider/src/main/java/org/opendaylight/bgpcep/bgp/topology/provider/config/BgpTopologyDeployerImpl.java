@@ -147,9 +147,6 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         final Dictionary<String, String> properties = new Hashtable<>();
         properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
                 .firstKeyOf(Topology.class).getTopologyId().getValue());
-        final ServiceRegistration<?> registerService = context
-                .registerService(new String[]{TopologyReference.class.getName()},
-                        topologyProviderService, properties);
         final ClusterSingletonServiceRegistration registerClusterSingletonService =
                 registerSingletonService(topologyProviderService);
         return new AbstractRegistration() {
@@ -160,8 +157,6 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                 } catch (final Exception e) {
                     LOG.warn("Failed to close ClusterSingletonServiceRegistration {} for TopologyBuilder {}",
                             registerClusterSingletonService, topologyProviderService.getInstanceIdentifier(), e);
-                } finally {
-                    registerService.unregister();
                 }
             }
         };
