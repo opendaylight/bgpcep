@@ -158,9 +158,9 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
         @SuppressModernizer
         private static Dictionary<String, String> props(final PCEPTopologyConfiguration configDependencies) {
-            final Dictionary<String, String> properties = new Hashtable<>();
-            properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
-            return properties;
+            final Dictionary<String, String> props = new Hashtable<>();
+            props.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
+            return props;
         }
 
         @Override
