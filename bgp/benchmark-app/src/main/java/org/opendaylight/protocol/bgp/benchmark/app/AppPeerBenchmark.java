@@ -19,6 +19,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.Transaction;
@@ -74,10 +77,25 @@ import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@Component(service = {}, immediate = true)
+@Designate(ocd = AppPeerBenchmark.Configuration.class)
 public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, TransactionChainListener, AutoCloseable {
+    @ObjectClassDefinition
+    public @interface Configuration {
+        @AttributeDefinition(description = "ID of Application peer to run benchmark on")
+        String appPeerId() default "192.0.2.6";
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AppPeerBenchmark.class);
 
@@ -99,6 +117,15 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     private final InstanceIdentifier<Ipv4Routes> routesIId;
     private final String appRibId;
 
+    @Activate
+    public AppPeerBenchmark(@Reference final DataBroker bindingDataBroker,
+                            @Reference final RpcProviderService rpcProviderRegistry,
+                            final Configuration configuration) {
+        this(bindingDataBroker, rpcProviderRegistry, configuration.appPeerId());
+        start();
+    }
+
+    @Inject
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
             final String appRibId) {
         this.appRibId = requireNonNull(appRibId);
@@ -170,6 +197,8 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     }
 
     @Override
+    @Deactivate
+    @PreDestroy
     public void close() {
         this.rpcRegistration.close();
         final WriteTransaction dTx = this.txChain.newWriteOnlyTransaction();
