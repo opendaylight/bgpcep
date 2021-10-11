@@ -21,17 +21,41 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.AccessControlException;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yangtools.yang.common.Uint16;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@Component(service = {})
+@Designate(ocd = BGPPeerAcceptorImpl.Configuration.class)
 public final class BGPPeerAcceptorImpl implements AutoCloseable {
+    @ObjectClassDefinition
+    public @interface Configuration {
+        @AttributeDefinition(description = "IP address to bind BGPPeerAcceptor to")
+        String bindingAddress() default "0.0.0.0";
+
+        @AttributeDefinition(description = "Port to bind BGPPeerAcceptor to")
+        int portNumber() default 1790;
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorImpl.class);
     private static final int PRIVILEGED_PORTS = 1024;
     private final BGPDispatcher bgpDispatcher;
@@ -39,6 +63,14 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private ChannelFuture futureChannel;
     private AutoCloseable listenerRegistration;
 
+    @Activate
+    public BGPPeerAcceptorImpl(@Reference final BGPDispatcher bgpDispatcher, final Configuration configuration) {
+        this(IpAddressNoZoneBuilder.getDefaultInstance(configuration.bindingAddress()),
+                new PortNumber(Uint16.valueOf(configuration.portNumber())), bgpDispatcher);
+        start();
+    }
+
+    @Inject
     public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
@@ -82,6 +114,8 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
      * Connections already established will be preserved.
      **/
     @Override
+    @Deactivate
+    @PreDestroy
     public void close() throws Exception {
         this.futureChannel.cancel(true);
         this.futureChannel.channel().close();
