@@ -245,7 +245,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed Utilized Bandwidth {}", builder.getUtilizedBandwidth());
                     break;
                 default:
-                    LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
+                    LOG.debug("TLV {} is not a valid link attribute, ignoring it", key);
             }
         }
         if (!srAdjIds.isEmpty()) {
