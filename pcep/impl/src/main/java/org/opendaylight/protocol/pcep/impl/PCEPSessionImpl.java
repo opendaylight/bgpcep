@@ -415,7 +415,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     protected final synchronized void channelRead0(final ChannelHandlerContext ctx, final Message msg) {
-        LOG.debug("Message was received: {}", msg);
+        LOG.debug("Message was received: {} from {}", msg, channel.remoteAddress());
         handleMessage(msg);
     }
 
