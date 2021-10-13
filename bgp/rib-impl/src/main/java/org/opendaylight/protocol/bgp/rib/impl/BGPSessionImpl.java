@@ -549,7 +549,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
-        LOG.trace("Message was received: {}", msg);
+        LOG.trace("Message was received: {} from {}", msg, channel.remoteAddress());
         this.handleMessage(msg);
     }
 
