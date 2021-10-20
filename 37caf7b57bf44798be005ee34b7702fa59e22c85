@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57e14f07_6f46d8ca",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-10-20T12:07:33Z",
+      "side": 1,
+      "message": "debug is certainly not appropriate: we are ignoring data, possibly causing unexpected behaviour somewhere.\n\nThis info is very much intended for whoever is deploying it!",
+      "range": {
+        "startLine": 253,
+        "startChar": 24,
+        "endLine": 253,
+        "endChar": 29
+      },
+      "revId": "37caf7b57bf44798be005ee34b7702fa59e22c85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
