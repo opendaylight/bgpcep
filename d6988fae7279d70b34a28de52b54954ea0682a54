@@ -22,6 +22,30 @@
       "revId": "d6988fae7279d70b34a28de52b54954ea0682a54",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe82714f_07392533",
+        "filename": "pcep/server/server-api/src/main/yang/path-manager.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-10-21T15:52:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a5960da_dd11dddd",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "d6988fae7279d70b34a28de52b54954ea0682a54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
