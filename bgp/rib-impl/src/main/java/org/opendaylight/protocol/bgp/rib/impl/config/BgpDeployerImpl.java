@@ -69,15 +69,14 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
     @GuardedBy("this")
     private final Map<InstanceIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
     private final DataBroker dataBroker;
-    private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups
-            = CacheBuilder.newBuilder()
-            .build(new CacheLoader<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>>() {
-                @Override
-                public Optional<PeerGroup> load(final InstanceIdentifier<PeerGroup> key)
-                        throws ExecutionException, InterruptedException {
-                    return loadPeerGroup(key);
-                }
-            });
+    private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups =
+        CacheBuilder.newBuilder().build(new CacheLoader<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>>() {
+            @Override
+            public Optional<PeerGroup> load(final InstanceIdentifier<PeerGroup> key)
+                    throws ExecutionException, InterruptedException {
+                return loadPeerGroup(key);
+            }
+        });
     private final String networkInstanceName;
     private ListenerRegistration<BgpDeployerImpl> registration;
     @GuardedBy("this")
@@ -122,8 +121,11 @@ public final class BgpDeployerImpl implements ClusteredDataTreeChangeListener<Bg
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = this.dataBroker.newReadOnlyTransaction();
-        return tr.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid).get();
+        final FluentFuture<Optional<PeerGroup>> future;
+        try (ReadTransaction tx = this.dataBroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid);
+        }
+        return future.get();
     }
 
     @Override
