@@ -79,7 +79,7 @@ public final class LinkAttributesParser {
     private static final int LDP_BIT = 0;
     private static final int RSVP_BIT = 1;
 
-    /* Link Attribute TLVs */
+    // Link Attribute TLVs
     private static final int REMOTE_IPV4_ROUTER_ID = 1030;
     private static final int REMOTE_IPV6_ROUTER_ID = 1031;
     private static final int ADMIN_GROUP = 1088;
@@ -97,6 +97,10 @@ public final class LinkAttributesParser {
     private static final int PEER_NODE_SID_CODE = 1101;
     private static final int PEER_ADJ_SID_CODE = 1102;
     private static final int PEER_SET_SID_CODE = 1103;
+
+    // RFC9104 Traffic Engineering Extended Administrative Groups
+    private static final int EXTENDED_ADMIN_GROUP = 1173;
+
     // Performance Metrics
     private static final int LINK_DELAY = 1114;
     private static final int LINK_MIN_MAX_DELAY = 1115;
@@ -106,8 +110,9 @@ public final class LinkAttributesParser {
     private static final int AVAILABLE_BANDWIDTH = 1119;
     private static final int UTILIZED_BANDWIDTH = 1120;
 
-    private LinkAttributesParser() {
 
+    private LinkAttributesParser() {
+        // Hidden on purpose
     }
 
     @FunctionalInterface
@@ -152,6 +157,10 @@ public final class LinkAttributesParser {
                 case ADMIN_GROUP:
                     builder.setAdminGroup(new AdministrativeGroup(readUint32(value)));
                     LOG.debug("Parsed Administrative Group {}", builder.getAdminGroup());
+                    break;
+                case EXTENDED_ADMIN_GROUP:
+                    // FIXME: BGPCEP-895: add proper implementation
+                    LOG.info("Support for Extended Administrative Group not implemented, ignoring it");
                     break;
                 case MAX_BANDWIDTH:
                     builder.setMaxLinkBandwidth(new Bandwidth(ByteArray.readAllBytes(value)));
@@ -250,7 +259,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed Utilized Bandwidth {}", builder.getUtilizedBandwidth());
                     break;
                 default:
-                    LOG.warn("TLV {} is not a valid link attribute, ignoring it", key);
+                    LOG.warn("TLV {} is not a recognized link attribute, ignoring it", key);
             }
         }
         if (!srAdjIds.isEmpty()) {
