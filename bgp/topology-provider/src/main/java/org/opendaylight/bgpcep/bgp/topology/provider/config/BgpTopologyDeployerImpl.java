@@ -150,6 +150,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         final ServiceRegistration<?> registerService = context
                 .registerService(new String[]{TopologyReference.class.getName()},
                         topologyProviderService, properties);
+        LOG.info("Registering {} TopologyReferenceSingletonService", topologyProviderService.getInstanceIdentifier());
         final ClusterSingletonServiceRegistration registerClusterSingletonService =
                 registerSingletonService(topologyProviderService);
         return new AbstractRegistration() {
