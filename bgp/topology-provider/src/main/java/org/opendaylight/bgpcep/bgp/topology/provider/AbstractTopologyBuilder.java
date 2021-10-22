@@ -102,7 +102,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     public final synchronized void start() {
-        LOG.debug("Initiating topology builder from {} at {}. AFI={}, SAFI={}", this.locRibReference, this.topology,
+        LOG.info("Initiating topology builder from {} at {}. AFI={}, SAFI={}", this.locRibReference, this.topology,
                 this.afi, this.safi);
         initTransactionChain();
         initOperationalTopology();
