@@ -23,7 +23,6 @@ import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
-import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -39,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -64,7 +61,6 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @GuardedBy("this")
     private final Set<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
-    private final BundleContext context;
     private final ClusterSingletonServiceProvider singletonProvider;
     private ListenerRegistration<BgpTopologyDeployerImpl> registration;
     @GuardedBy("this")
@@ -72,9 +68,8 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @Inject
     @Activate
-    public BgpTopologyDeployerImpl(final BundleContext context, @Reference final DataBroker dataBroker,
+    public BgpTopologyDeployerImpl(@Reference final DataBroker dataBroker,
             @Reference final ClusterSingletonServiceProvider singletonProvider) {
-        this.context = requireNonNull(context);
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonProvider = requireNonNull(singletonProvider);
         registration = dataBroker.registerDataTreeChangeListener(
@@ -143,15 +138,12 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     @Override
     @SuppressModernizer
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
+    public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyReferenceService) {
         final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
+        properties.put("topology-id", topologyReferenceService.getInstanceIdentifier()
                 .firstKeyOf(Topology.class).getTopologyId().getValue());
-        final ServiceRegistration<?> registerService = context
-                .registerService(new String[]{TopologyReference.class.getName()},
-                        topologyProviderService, properties);
         final ClusterSingletonServiceRegistration registerClusterSingletonService =
-                registerSingletonService(topologyProviderService);
+                registerSingletonService(topologyReferenceService);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
@@ -159,9 +151,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
                     registerClusterSingletonService.close();
                 } catch (final Exception e) {
                     LOG.warn("Failed to close ClusterSingletonServiceRegistration {} for TopologyBuilder {}",
-                            registerClusterSingletonService, topologyProviderService.getInstanceIdentifier(), e);
-                } finally {
-                    registerService.unregister();
+                            registerClusterSingletonService, topologyReferenceService.getInstanceIdentifier(), e);
                 }
             }
         };
