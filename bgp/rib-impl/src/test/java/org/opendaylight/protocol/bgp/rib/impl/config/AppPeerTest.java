@@ -24,7 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfigBuilder;
 
 public class AppPeerTest extends AbstractConfig {
-    private static final AppPeer APP_PEER = new AppPeer();
+    private final AppPeer appPeer = new AppPeer(stateConsumer);
+
     private final Neighbor neighbor = new NeighborBuilder()
             .setConfig(new ConfigBuilder()
                 .addAugmentation(new NeighborPeerGroupConfigBuilder()
@@ -41,40 +42,40 @@ public class AppPeerTest extends AbstractConfig {
 
     @Test
     public void testAppPeer() {
-        APP_PEER.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
+        appPeer.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
         Mockito.verify(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.rib, times(1)).getLocalTablesKeys();
 
-        APP_PEER.instantiateServiceInstance();
+        appPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(3)).getYangRibId();
         Mockito.verify(this.rib, times(2)).getRibSupportContext();
         Mockito.verify(this.rib, times(2)).getLocalTablesKeys();
         Mockito.verify(this.rib, times(2)).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.domTx).newWriteOnlyTransaction();
 
-        APP_PEER.closeServiceInstance();
+        appPeer.closeServiceInstance();
         Mockito.verify(this.domTx, times(2)).close();
-        APP_PEER.close();
+        appPeer.close();
 
-        APP_PEER.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
-        APP_PEER.instantiateServiceInstance();
+        appPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
+        appPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(6)).getYangRibId();
         Mockito.verify(this.rib, times(4)).getService();
         Mockito.verify(this.rib, times(4)).createPeerDOMChain(any(DOMTransactionChainListener.class));
         Mockito.verify(this.listener, times(2)).close();
 
-        assertTrue(APP_PEER.containsEqualConfiguration(this.neighbor));
-        assertFalse(APP_PEER.containsEqualConfiguration(new NeighborBuilder()
+        assertTrue(appPeer.containsEqualConfiguration(this.neighbor));
+        assertFalse(appPeer.containsEqualConfiguration(new NeighborBuilder()
                 .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.2"))).build()));
-        APP_PEER.closeServiceInstance();
+        appPeer.closeServiceInstance();
         Mockito.verify(this.domTx, times(4)).close();
 
-        APP_PEER.instantiateServiceInstance();
+        appPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(6)).createPeerDOMChain(any(DOMTransactionChainListener.class));
-        APP_PEER.closeServiceInstance();
+        appPeer.closeServiceInstance();
         Mockito.verify(this.domTx, times(6)).close();
-        APP_PEER.close();
+        appPeer.close();
     }
 }

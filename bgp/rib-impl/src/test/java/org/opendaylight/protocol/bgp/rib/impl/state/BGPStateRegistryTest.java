@@ -18,15 +18,15 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
 
-public class BGPStateCollectorImplTest {
+public class BGPStateRegistryTest {
     @Mock
-    private BGPRibStateConsumer bgpribStateConsumer;
+    private BGPRibStateProvider bgpribStateProvider;
     @Mock
-    private BGPPeerStateConsumer bgpPeerStateConsumer;
+    private BGPPeerStateProvider bgpPeerStateProvider;
 
     @Before
     public void setUp() {
@@ -35,43 +35,43 @@ public class BGPStateCollectorImplTest {
 
     @Test
     public void getRibStatsTest() {
-        doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateConsumer).getPeerState();
-        doReturn(mock(BGPRibState.class)).when(this.bgpribStateConsumer).getRIBState();
-        final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
+        doReturn(mock(BGPPeerState.class)).when(this.bgpPeerStateProvider).getPeerState();
+        doReturn(mock(BGPRibState.class)).when(this.bgpribStateProvider).getRIBState();
+        final BGPStateRegistry collector = new BGPStateRegistry();
 
-        collector.bind(this.bgpribStateConsumer);
-        collector.bind(this.bgpPeerStateConsumer);
+        collector.bind(this.bgpribStateProvider);
+        collector.bind(this.bgpPeerStateProvider);
         assertFalse(collector.getRibStats().isEmpty());
         assertFalse(collector.getPeerStats().isEmpty());
 
-        collector.unbind(this.bgpribStateConsumer);
-        collector.unbind(this.bgpPeerStateConsumer);
+        collector.unbind(this.bgpribStateProvider);
+        collector.unbind(this.bgpPeerStateProvider);
         assertTrue(collector.getRibStats().isEmpty());
         assertTrue(collector.getPeerStats().isEmpty());
     }
 
     @Test
     public void getRibStatsEmptyPeerTest() {
-        doReturn(mock(BGPRibState.class)).when(this.bgpribStateConsumer).getRIBState();
-        doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
-        final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
+        doReturn(mock(BGPRibState.class)).when(this.bgpribStateProvider).getRIBState();
+        doReturn(null).when(this.bgpPeerStateProvider).getPeerState();
+        final BGPStateRegistry collector = new BGPStateRegistry();
 
-        collector.bind(this.bgpribStateConsumer);
-        collector.bind(this.bgpPeerStateConsumer);
+        collector.bind(this.bgpribStateProvider);
+        collector.bind(this.bgpPeerStateProvider);
         assertFalse(collector.getRibStats().isEmpty());
         assertTrue(collector.getPeerStats().isEmpty());
     }
 
     @Test
     public void getRibStatsEmptyRibTest() {
-        doReturn(null).when(this.bgpribStateConsumer).getRIBState();
-        doReturn(null).when(this.bgpPeerStateConsumer).getPeerState();
-        final BGPStateCollectorImpl collector = new BGPStateCollectorImpl();
+        doReturn(null).when(this.bgpribStateProvider).getRIBState();
+        doReturn(null).when(this.bgpPeerStateProvider).getPeerState();
+        final BGPStateRegistry collector = new BGPStateRegistry();
         assertTrue(collector.getRibStats().isEmpty());
         assertTrue(collector.getPeerStats().isEmpty());
 
-        collector.bind(this.bgpribStateConsumer);
-        collector.bind(this.bgpPeerStateConsumer);
+        collector.bind(this.bgpribStateProvider);
+        collector.bind(this.bgpPeerStateProvider);
         assertTrue(collector.getRibStats().isEmpty());
         assertTrue(collector.getPeerStats().isEmpty());
     }

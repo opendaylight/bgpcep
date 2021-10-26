@@ -36,6 +36,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -63,6 +64,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected RIB rib;
     @Mock
     protected BGPTableTypeRegistryConsumer tableTypeRegistry;
+    @Mock
+    protected BGPStateProviderConsumer stateConsumer;
     @Mock
     protected DOMTransactionChain domTx;
     @Mock

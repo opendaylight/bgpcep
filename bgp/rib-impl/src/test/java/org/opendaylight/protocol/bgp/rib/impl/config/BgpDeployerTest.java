@@ -45,6 +45,7 @@ import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -88,6 +89,8 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     private RpcProviderService rpcRegistry;
     @Mock
     private RIBExtensionConsumerContext extensionContext;
+    @Mock
+    private BGPStateProviderConsumer stateConsumer;
 
     @Mock
     private ClusterSingletonServiceProvider singletonServiceProvider;
@@ -116,7 +119,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         this.deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
                 this.rpcRegistry, this.extensionContext, this.dispatcher,
                 new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry));
+                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry, stateConsumer));
         this.bgpSingletonObtainedLatch = new CountDownLatch(1);
         doAnswer(invocationOnMock -> {
                 final BGPClusterSingletonService real =

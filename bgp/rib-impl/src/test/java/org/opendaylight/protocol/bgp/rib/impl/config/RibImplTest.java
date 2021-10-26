@@ -97,6 +97,7 @@ public class RibImplTest extends AbstractConfig {
                 this.dispatcher,
                 this.policyProvider,
                 this.codecsRegistry,
+                this.stateConsumer,
                 this.domDataBroker);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.domDataBroker).getExtensions();
