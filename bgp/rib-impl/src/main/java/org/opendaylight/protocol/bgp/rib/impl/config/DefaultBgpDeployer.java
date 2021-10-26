@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -29,6 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -46,6 +45,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -78,6 +78,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     private final RIBExtensionConsumerContext ribExtensionConsumerContext;
     private final BGPDispatcher bgpDispatcher;
     private final BGPRibRoutingPolicyFactory routingPolicyFactory;
+    private final BGPStateProviderConsumer stateConsumer;
     private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domDataBroker;
     private final DataBroker dataBroker;
@@ -98,22 +99,24 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     private boolean closed;
 
     @Inject
-    public DefaultBgpDeployer(final String networkInstanceName,
-                              final ClusterSingletonServiceProvider provider,
-                              final RpcProviderService rpcRegistry,
-                              final RIBExtensionConsumerContext ribExtensionContext,
-                              final BGPDispatcher bgpDispatcher,
-                              final BGPRibRoutingPolicyFactory routingPolicyFactory,
-                              final CodecsRegistry codecsRegistry,
-                              final DOMDataBroker domDataBroker,
-                              final DataBroker dataBroker,
-                              final BGPTableTypeRegistryConsumer mappingService) {
-        this.dataBroker = requireNonNull(dataBroker);
-        this.provider = requireNonNull(provider);
-        this.networkInstanceName = requireNonNull(networkInstanceName);
-        tableTypeRegistry = requireNonNull(mappingService);
+    public DefaultBgpDeployer(final @NonNull String networkInstanceName,
+                              final @NonNull ClusterSingletonServiceProvider provider,
+                              final @NonNull RpcProviderService rpcRegistry,
+                              final @NonNull RIBExtensionConsumerContext ribExtensionConsumerContext,
+                              final @NonNull BGPDispatcher bgpDispatcher,
+                              final @NonNull BGPRibRoutingPolicyFactory routingPolicyFactory,
+                              final @NonNull CodecsRegistry codecsRegistry,
+                              final @NonNull DOMDataBroker domDataBroker,
+                              final @NonNull DataBroker dataBroker,
+                              final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry,
+                              final @NonNull BGPStateProviderConsumer stateConsumer) {
+        this.dataBroker = dataBroker;
+        this.provider = provider;
+        this.networkInstanceName = networkInstanceName;
+        this.tableTypeRegistry = tableTypeRegistry;
+        this.stateConsumer = stateConsumer;
         this.rpcRegistry = rpcRegistry;
-        ribExtensionConsumerContext = ribExtensionContext;
+        this.ribExtensionConsumerContext = ribExtensionConsumerContext;
         this.bgpDispatcher = bgpDispatcher;
         this.routingPolicyFactory = routingPolicyFactory;
         this.codecsRegistry = codecsRegistry;
@@ -288,7 +291,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
         if (old == null) {
             old = new BGPClusterSingletonService(this, provider, tableTypeRegistry,
                     rpcRegistry, ribExtensionConsumerContext, bgpDispatcher, routingPolicyFactory,
-                    codecsRegistry, domDataBroker, bgpInstanceIdentifier);
+                    codecsRegistry, stateConsumer, domDataBroker, bgpInstanceIdentifier);
             bgpCss.put(bgpInstanceIdentifier, old);
         }
         return old;
