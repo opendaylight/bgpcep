@@ -7,16 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * Interface for acquiring BGP Peer State.
  */
-public interface BGPPeerStateConsumer {
+@NonNullByDefault
+public interface BGPPeerStateProvider {
     /**
      * Returns Peer Operational State.
      *
      * @return BGP Peer State
      */
-    @Nullable BGPPeerState getPeerState();
+    BGPPeerState getPeerState();
 }

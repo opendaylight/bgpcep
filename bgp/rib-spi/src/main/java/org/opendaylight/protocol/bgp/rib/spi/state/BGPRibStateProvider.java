@@ -13,7 +13,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
  * Interface for acquiring BGP RIB State.
  */
 @NonNullByDefault
-public interface BGPRibStateConsumer {
+public interface BGPRibStateProvider {
     /**
      * Returns RIB Operational State.
      *

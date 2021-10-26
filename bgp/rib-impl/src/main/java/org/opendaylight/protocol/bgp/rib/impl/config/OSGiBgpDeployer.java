@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,9 +44,10 @@ public final class OSGiBgpDeployer extends DefaultBgpDeployer {
                            @Reference final DOMDataBroker domDataBroker,
                            @Reference final DataBroker dataBroker,
                            @Reference final BGPTableTypeRegistryConsumer mappingService,
+                           @Reference final BGPStateProviderRegistry stateProviderRegistry,
                            final Configuration configuration) {
         super(configuration.networkInstanceName(), provider, rpcRegistry, ribExtensionContext, bgpDispatcher,
-                routingPolicyFactory, codecsRegistry, domDataBroker, dataBroker, mappingService);
+                routingPolicyFactory, codecsRegistry, domDataBroker, dataBroker, mappingService, stateProviderRegistry);
         init();
     }
 

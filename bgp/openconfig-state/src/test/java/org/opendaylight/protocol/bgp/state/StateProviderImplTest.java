@@ -65,7 +65,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -163,7 +163,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final List<Class<? extends BgpCapability>> supportedCap = List.of(ASN32.class, ROUTEREFRESH.class,
             MPBGP.class, ADDPATHS.class, GRACEFULRESTART.class);
     @Mock
-    private BGPStateConsumer stateCollector;
+    private BGPStateProvider stateProvider;
     @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
@@ -195,8 +195,8 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     public void setUp() {
         doReturn(IPV4UNICAST.class).when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
-        doReturn(this.bgpRibStates).when(this.stateCollector).getRibStats();
-        doReturn(this.bgpPeerStates).when(this.stateCollector).getPeerStats();
+        doReturn(this.bgpRibStates).when(this.stateProvider).getRibStats();
+        doReturn(this.bgpPeerStates).when(this.stateProvider).getPeerStats();
 
         final KeyedInstanceIdentifier<Rib, RibKey> iid = InstanceIdentifier.create(BgpRib.class)
             .child(Rib.class, new RibKey(new RibId(this.ribId)));
@@ -292,7 +292,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
         try (StateProviderImpl stateProvider =
                 // FIXME: use a properly-controlled executor service
-                new StateProviderImpl(getDataBroker(), 1, tableTypeRegistry, stateCollector, "global-bgp")) {
+                new StateProviderImpl(getDataBroker(), 1, tableTypeRegistry, this.stateProvider, "global-bgp")) {
 
             final Global globalExpected = buildGlobalExpected(0);
             this.bgpRibStates.add(this.bgpRibState);
@@ -370,7 +370,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(false).when(this.bgpRibState).isActive();
 
         try (StateProviderImpl stateProvider =
-                new StateProviderImpl(getDataBroker(), 100, TimeUnit.MILLISECONDS, tableTypeRegistry, stateCollector,
+                new StateProviderImpl(getDataBroker(), 100, TimeUnit.MILLISECONDS, tableTypeRegistry, this.stateProvider,
                     // FIXME: use a properly-controlled executor service ...
                     "global-bgp", Executors.newScheduledThreadPool(1))) {
 
@@ -432,7 +432,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         final int period = 100;
         final TimeUnit unit = TimeUnit.MILLISECONDS;
         try (StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), period, unit, tableTypeRegistry,
-                stateCollector, "global-bgp", mockScheduler)) {
+                this.stateProvider, "global-bgp", mockScheduler)) {
 
             ArgumentCaptor<Runnable> timerTask = ArgumentCaptor.forClass(Runnable.class);
             verify(mockScheduler).scheduleAtFixedRate(timerTask.capture(), eq(0L), eq((long)period), eq(unit));
