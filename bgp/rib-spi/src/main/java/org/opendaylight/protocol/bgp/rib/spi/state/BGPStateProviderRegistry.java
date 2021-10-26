@@ -7,25 +7,26 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
-import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
- * Provides operational state of BGP ({@link BGPRibState}s /{@link BGPPeerState}s).
+ * Registers BGP operational state providers.
  */
 @NonNullByDefault
-public interface BGPStateProvider {
+public interface BGPStateProviderRegistry {
     /**
-     * List of Registered BGP Rib States.
+     * Register rib state provider.
      *
-     * @return ribs stats
+     * @param ribStateProvider rib state provider
      */
-    List<BGPRibState> getRibStats();
+    Registration register(BGPRibStateProvider ribStateProvider);
 
     /**
-     * List of Registered BGP Peer States.
+     * Register peer state provider.
      *
-     * @return peers stats
+     * @param peerStateProvider peer state provider
      */
-    List<BGPPeerState> getPeerStats();
+    Registration register(BGPPeerStateProvider peerStateProvider);
+
 }

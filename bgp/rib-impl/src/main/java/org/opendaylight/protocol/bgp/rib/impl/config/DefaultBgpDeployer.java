@@ -46,6 +46,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroupKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -78,6 +79,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     private final RIBExtensionConsumerContext ribExtensionConsumerContext;
     private final BGPDispatcher bgpDispatcher;
     private final BGPRibRoutingPolicyFactory routingPolicyFactory;
+    private final BGPStateProviderRegistry stateProviderRegistry;
     private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domDataBroker;
     private final DataBroker dataBroker;
@@ -101,23 +103,25 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     public DefaultBgpDeployer(final String networkInstanceName,
                               final ClusterSingletonServiceProvider provider,
                               final RpcProviderService rpcRegistry,
-                              final RIBExtensionConsumerContext ribExtensionContext,
+                              final RIBExtensionConsumerContext ribExtensionConsumerContext,
                               final BGPDispatcher bgpDispatcher,
                               final BGPRibRoutingPolicyFactory routingPolicyFactory,
                               final CodecsRegistry codecsRegistry,
                               final DOMDataBroker domDataBroker,
                               final DataBroker dataBroker,
-                              final BGPTableTypeRegistryConsumer mappingService) {
+                              final BGPTableTypeRegistryConsumer tableTypeRegistry,
+                              final BGPStateProviderRegistry stateProviderRegistry) {
         this.dataBroker = requireNonNull(dataBroker);
         this.provider = requireNonNull(provider);
         this.networkInstanceName = requireNonNull(networkInstanceName);
-        tableTypeRegistry = requireNonNull(mappingService);
-        this.rpcRegistry = rpcRegistry;
-        ribExtensionConsumerContext = ribExtensionContext;
-        this.bgpDispatcher = bgpDispatcher;
-        this.routingPolicyFactory = routingPolicyFactory;
-        this.codecsRegistry = codecsRegistry;
-        this.domDataBroker = domDataBroker;
+        this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
+        this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
+        this.rpcRegistry = requireNonNull(rpcRegistry);
+        this.ribExtensionConsumerContext = requireNonNull(ribExtensionConsumerContext);
+        this.bgpDispatcher = requireNonNull(bgpDispatcher);
+        this.routingPolicyFactory = requireNonNull(routingPolicyFactory);
+        this.codecsRegistry = requireNonNull(codecsRegistry);
+        this.domDataBroker = requireNonNull(domDataBroker);
         networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
         initializeNetworkInstance(dataBroker, networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
@@ -288,7 +292,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
         if (old == null) {
             old = new BGPClusterSingletonService(this, provider, tableTypeRegistry,
                     rpcRegistry, ribExtensionConsumerContext, bgpDispatcher, routingPolicyFactory,
-                    codecsRegistry, domDataBroker, bgpInstanceIdentifier);
+                    codecsRegistry, stateProviderRegistry, domDataBroker, bgpInstanceIdentifier);
             bgpCss.put(bgpInstanceIdentifier, old);
         }
         return old;
