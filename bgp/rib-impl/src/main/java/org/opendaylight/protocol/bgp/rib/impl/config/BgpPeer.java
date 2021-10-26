@@ -39,7 +39,8 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -69,18 +70,20 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
+public class BgpPeer implements PeerBean, BGPPeerStateProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderService rpcRegistry;
+    private final BGPStateProviderConsumer stateConsumer;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpPeerSingletonService bgpPeerSingletonService;
 
-    public BgpPeer(final RpcProviderService rpcRegistry) {
+    public BgpPeer(final RpcProviderService rpcRegistry, final BGPStateProviderConsumer stateConsumer) {
         this.rpcRegistry = rpcRegistry;
+        this.stateConsumer = stateConsumer;
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
@@ -147,6 +150,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         this.currentConfiguration = neighbor;
+        this.stateConsumer.bind(this);
     }
 
     @Override
@@ -164,6 +168,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
     public void close() {
         if (this.bgpPeerSingletonService != null) {
             this.bgpPeerSingletonService.closeServiceInstance();
+            this.stateConsumer.unbind(this);
             this.bgpPeerSingletonService = null;
         }
     }
@@ -225,7 +230,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
         }
     }
 
-    private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
+    private final class BgpPeerSingletonService implements BGPPeerStateProvider {
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
