@@ -65,7 +65,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -163,7 +163,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final List<Class<? extends BgpCapability>> supportedCap = List.of(ASN32.class, ROUTEREFRESH.class,
             MPBGP.class, ADDPATHS.class, GRACEFULRESTART.class);
     @Mock
-    private BGPStateConsumer stateCollector;
+    private BGPStateProvider stateCollector;
     @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock

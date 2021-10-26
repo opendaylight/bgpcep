@@ -22,7 +22,8 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -37,14 +38,19 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
+public final class AppPeer implements PeerBean, BGPPeerStateProvider {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final NodeIdentifier APPRIB = NodeIdentifier.create(ApplicationRib.QNAME);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
+    private final BGPStateProviderConsumer stateConsumer;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
+
+    public AppPeer(final BGPStateProviderConsumer stateConsumer) {
+        this.stateConsumer = stateConsumer;
+    }
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {
         final Config config = neighbor.getConfig();
@@ -63,6 +69,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
             IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(neighbor.getNeighborAddress().getIpv4Address()),
             tableTypeRegistry);
+        this.stateConsumer.bind(this);
     }
 
     @Override
@@ -75,6 +82,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     @Override
     public synchronized void close() {
         if (this.bgpAppPeerSingletonService != null) {
+            this.stateConsumer.unbind(this);
             this.bgpAppPeerSingletonService = null;
         }
     }
@@ -106,7 +114,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
         return this.bgpAppPeerSingletonService.getPeerState();
     }
 
-    private static final class BgpAppPeerSingletonService implements BGPPeerStateConsumer {
+    private static final class BgpAppPeerSingletonService implements BGPPeerStateProvider {
         private final ApplicationPeer applicationPeer;
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;
