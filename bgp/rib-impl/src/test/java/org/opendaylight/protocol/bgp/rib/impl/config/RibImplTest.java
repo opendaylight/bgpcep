@@ -25,6 +25,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -97,6 +98,7 @@ public class RibImplTest extends AbstractConfig {
                 this.dispatcher,
                 this.policyProvider,
                 this.codecsRegistry,
+                new BGPStateRegistry(),
                 this.domDataBroker);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.domDataBroker).getExtensions();

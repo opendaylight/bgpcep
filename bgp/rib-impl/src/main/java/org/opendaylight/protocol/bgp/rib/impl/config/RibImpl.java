@@ -34,7 +34,8 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -55,7 +56,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
+public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RibImpl.class);
 
@@ -64,6 +65,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domBroker;
     private final BGPRibRoutingPolicyFactory policyProvider;
+    private final BGPStateProviderConsumer stateConsumer;
     private RIBImpl ribImpl;
     private Collection<AfiSafi> afiSafi;
     private AsNumber asNumber;
@@ -76,6 +78,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
             final BGPDispatcher dispatcher,
             final BGPRibRoutingPolicyFactory policyProvider,
             final CodecsRegistry codecsRegistry,
+            final BGPStateProviderConsumer stateConsumer,
             final DOMDataBroker domBroker
     ) {
         this.extensions = contextProvider;
@@ -83,12 +86,14 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
         this.codecsRegistry = codecsRegistry;
         this.domBroker = domBroker;
         this.policyProvider = policyProvider;
+        this.stateConsumer = stateConsumer;
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
+        stateConsumer.bind(this);
     }
 
     Boolean isGlobalEqual(final Global global) {
@@ -169,6 +174,7 @@ public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
     public void close() {
         if (this.ribImpl != null) {
             this.ribImpl.close();
+            this.stateConsumer.unbind(this);
             this.ribImpl = null;
         }
     }

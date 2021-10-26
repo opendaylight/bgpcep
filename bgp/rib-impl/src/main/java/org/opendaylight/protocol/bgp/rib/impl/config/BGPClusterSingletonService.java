@@ -42,6 +42,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -74,6 +75,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     private final BGPDispatcher bgpDispatcher;
     private final BGPRibRoutingPolicyFactory routingPolicyFactory;
     private final CodecsRegistry codecsRegistry;
+    private final BGPStateProviderConsumer stateConsumer;
     private final DOMDataBroker domDataBroker;
     @GuardedBy("this")
     private RibImpl ribImpl;
@@ -88,6 +90,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             final @NonNull BGPDispatcher bgpDispatcher,
             final @NonNull BGPRibRoutingPolicyFactory routingPolicyFactory,
             final @NonNull CodecsRegistry codecsRegistry,
+            final @NonNull BGPStateProviderConsumer stateConsumer,
             final @NonNull DOMDataBroker domDataBroker,
             final @NonNull InstanceIdentifier<Bgp> bgpIid) {
         this.peerGroupLoader = peerGroupLoader;
@@ -97,6 +100,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         this.bgpDispatcher = bgpDispatcher;
         this.routingPolicyFactory = routingPolicyFactory;
         this.codecsRegistry = codecsRegistry;
+        this.stateConsumer = stateConsumer;
         this.domDataBroker = domDataBroker;
         this.bgpIid = bgpIid;
         final String ribInstanceName = getRibInstanceName(bgpIid);
@@ -181,7 +185,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     private synchronized void onGlobalCreated(final Global global) {
         LOG.debug("Creating RIB instance with configuration: {}", global);
         this.ribImpl = new RibImpl(this.ribExtensionContext, this.bgpDispatcher, this.routingPolicyFactory,
-                this.codecsRegistry, this.domDataBroker);
+                this.codecsRegistry, this.stateConsumer, this.domDataBroker);
         initiateRibInstance(global);
         LOG.debug("RIB instance created: {}", this.ribImpl);
     }
@@ -278,9 +282,9 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
         final PeerBean bgpPeer;
         if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
-            bgpPeer = new AppPeer();
+            bgpPeer = new AppPeer(this.stateConsumer);
         } else {
-            bgpPeer = new BgpPeer(this.rpcRegistry);
+            bgpPeer = new BgpPeer(this.rpcRegistry, this.stateConsumer);
         }
         final InstanceIdentifier<Neighbor> neighborInstanceIdentifier =
                 getNeighborInstanceIdentifier(this.bgpIid, neighbor.key());

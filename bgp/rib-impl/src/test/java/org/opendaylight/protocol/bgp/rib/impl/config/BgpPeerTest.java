@@ -24,6 +24,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -127,7 +129,7 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.bgpPeer = new BgpPeer(mock(RpcProviderService.class));
+        this.bgpPeer = new BgpPeer(mock(RpcProviderService.class), new BGPStateRegistry());
     }
 
     @Test
