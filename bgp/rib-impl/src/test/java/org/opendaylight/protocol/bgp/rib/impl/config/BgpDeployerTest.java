@@ -44,7 +44,9 @@ import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
 import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -92,6 +94,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     @Mock
     private ClusterSingletonServiceProvider singletonServiceProvider;
 
+    private BGPStateProviderConsumer stateConsumer;
     private DefaultBgpDeployer deployer;
     private BGPClusterSingletonService spiedBgpSingletonService;
     private CountDownLatch bgpSingletonObtainedLatch;
@@ -112,11 +115,11 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         final Future future = mock(BGPReconnectPromise.class);
         doReturn(true).when(future).cancel(true);
         doReturn(future).when(this.dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
-
+        this.stateConsumer = new BGPStateRegistry();
         this.deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
                 this.rpcRegistry, this.extensionContext, this.dispatcher,
                 new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry));
+                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry, stateConsumer));
         this.bgpSingletonObtainedLatch = new CountDownLatch(1);
         doAnswer(invocationOnMock -> {
                 final BGPClusterSingletonService real =
