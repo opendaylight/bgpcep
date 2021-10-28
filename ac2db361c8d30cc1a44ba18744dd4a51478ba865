@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "844967ed_f8513996",
+        "filename": "bgp/openconfig-state/src/test/java/org/opendaylight/protocol/bgp/state/StateProviderImplTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Renamed back to BGPStateCollector, since it registers+provides.",
+      "parentUuid": "78f611e7_70a755a0",
+      "range": {
+        "startLine": 166,
+        "startChar": 34,
+        "endLine": 166,
+        "endChar": 43
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "214f1ad2_0a70a05e",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7e5952b9_9a29750e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/AppPeer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "214f1ad2_0a70a05e",
+      "range": {
+        "startLine": 52,
+        "startChar": 26,
+        "endLine": 52,
+        "endChar": 43
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9097947_1305e9f0",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2021-10-27T20:31:51Z",
       "side": 1,
       "message": "callback invocation while holding this object\u0027s monitor.\nNever ever do that.\nIf you have to, there needs to be at least 5 lines of comments why it is explicitly safe to do so.",
+      "range": {
+        "startLine": 153,
+        "startChar": 8,
+        "endLine": 153,
+        "endChar": 38
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6715436_e706b73e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpPeer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Renamed bind to register. But I don\u0027t think there is a problem, it simply puts new entry to provider list which is checked by scheduled task, since this is list is never null I don\u0027t think there is a problem. But please elaborate if I\u0027m wrong.",
+      "parentUuid": "f9097947_1305e9f0",
       "range": {
         "startLine": 153,
         "startChar": 8,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "5babb212_c696ab29",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/DefaultBgpDeployer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5fc6669c_2f1064c9",
+      "range": {
+        "startLine": 102,
+        "startChar": 36,
+        "endLine": 102,
+        "endChar": 45
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e66082eb_361a61de",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/DefaultBgpDeployer.java",
         "patchSetId": 7
@@ -114,6 +210,30 @@
       "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b10fbb0_aea7fa83",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/DefaultBgpDeployer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e66082eb_361a61de",
+      "range": {
+        "startLine": 113,
+        "startChar": 24,
+        "endLine": 113,
+        "endChar": 37
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "f1b44fcc_09d7fc25",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/RibImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9f9fbd6_809aef54",
+      "range": {
+        "startLine": 177,
+        "startChar": 12,
+        "endLine": 177,
+        "endChar": 44
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "270c8306_138e6f77",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerTest.java",
         "patchSetId": 7
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "07239a4b_5fbb7b9a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "270c8306_138e6f77",
+      "range": {
+        "startLine": 118,
+        "startChar": 8,
+        "endLine": 118,
+        "endChar": 52
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a20e5524_a4dec4b0",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateRegistryTest.java",
         "patchSetId": 7
@@ -177,6 +345,24 @@
       "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "482a1d45_00ae6a4e",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateRegistryTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a20e5524_a4dec4b0",
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "a30fe3a7_c3114f7f",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateRegistryTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e53cb9cd_e189b024",
+      "range": {
+        "startLine": 33,
+        "startChar": 7,
+        "endLine": 33,
+        "endChar": 43
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "16372caf_04c999a4",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateRegistryTest.java",
         "patchSetId": 7
@@ -223,6 +433,30 @@
       "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f326581_402d3562",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/state/BGPStateRegistryTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16372caf_04c999a4",
+      "range": {
+        "startLine": 49,
+        "startChar": 8,
+        "endLine": 49,
+        "endChar": 54
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
@@ -249,6 +483,30 @@
     },
     {
       "key": {
+        "uuid": "df467f2d_d672383e",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPStateProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "776c6d36_ea9dbc3a",
+      "range": {
+        "startLine": 14,
+        "startChar": 33,
+        "endLine": 14,
+        "endChar": 37
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c2e4c3c5_f8cc1450",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPStateProviderConsumer.java",
         "patchSetId": 7
@@ -269,6 +527,30 @@
       "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bddb0ac_95fcfb88",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/state/BGPStateProviderConsumer.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-10-28T12:45:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2e4c3c5_f8cc1450",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 52
+      },
+      "revId": "ac2db361c8d30cc1a44ba18744dd4a51478ba865",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     },
     {
       "key": {
