@@ -90,7 +90,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
 
-    static final String END_OF_INPUT = "End of input detected. Close the session.";
+    static final String END_OF_INPUT = "Endd of input detected. Close the session.";
 
     /**
      * System.nanoTime value about when was sent the last message.
