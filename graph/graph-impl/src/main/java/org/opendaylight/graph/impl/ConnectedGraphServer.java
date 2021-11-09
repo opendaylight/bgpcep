@@ -278,6 +278,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
     public void clearGraph(final Graph graph) {
         Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
         removeFromDataStore(getGraphInstanceIdentifier(graph.getName()), "Graph(" + graph.getName() + ")");
+        graphs.remove(graph.key());
     }
 
     /**
@@ -436,7 +437,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
     @Override
     public void deleteGraph(final GraphKey key) {
         Preconditions.checkArgument(key != null, "Provided Graph Key is a null object");
-        ConnectedGraphImpl cgraph = graphs.remove(key);
+        ConnectedGraphImpl cgraph = graphs.get(key);
         /*
          * Remove the corresponding Connected Graph which will delete the graph
          * by calling clearGraph() method (see above)
