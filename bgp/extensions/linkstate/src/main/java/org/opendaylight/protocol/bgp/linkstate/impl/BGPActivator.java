@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,7 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     private final boolean ianaLinkstateAttributeType;
     private final RSVPTeObjectRegistry rsvpTeObjectRegistry;
 
+    @VisibleForTesting
     public BGPActivator() {
         this(ServiceLoader.load(RSVPExtensionConsumerContext.class).findFirst().orElseThrow(
             () -> new IllegalStateException("Cannot find an RSVPExtensionConsumerContext implementation")));
