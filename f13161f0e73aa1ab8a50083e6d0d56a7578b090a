@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "835bd3fa_8dc1bd2c",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/DefaultBGPExtensionConsumerContext.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-11-10T12:12:06Z",
+      "side": 1,
+      "message": "just List.copyOf()",
+      "range": {
+        "startLine": 46,
+        "startChar": 13,
+        "endLine": 46,
+        "endChar": 33
+      },
+      "revId": "f13161f0e73aa1ab8a50083e6d0d56a7578b090a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "654b7b4d_56bac699",
+        "filename": "rsvp/spi/src/main/java/org/opendaylight/protocol/rsvp/parser/spi/pojo/DefaultRSVPExtensionConsumerContext.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-11-10T12:12:06Z",
+      "side": 1,
+      "message": "this is no longer true, right?",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 22
+      },
+      "revId": "f13161f0e73aa1ab8a50083e6d0d56a7578b090a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
