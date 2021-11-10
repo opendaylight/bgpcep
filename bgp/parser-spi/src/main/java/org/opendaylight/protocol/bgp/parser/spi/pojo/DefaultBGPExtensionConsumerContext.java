@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
@@ -41,20 +41,12 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 public final class DefaultBGPExtensionConsumerContext implements BGPExtensionConsumerContext {
     private final @NonNull SimpleBGPExtensionProviderContext delegate = new SimpleBGPExtensionProviderContext();
 
-    public DefaultBGPExtensionConsumerContext() {
-        this(ServiceLoader.load(BGPExtensionProviderActivator.class));
-    }
-
     @VisibleForTesting
-    public DefaultBGPExtensionConsumerContext(final BGPExtensionProviderActivator... extensionActivators) {
-        this(Arrays.asList(extensionActivators));
+    public DefaultBGPExtensionConsumerContext() {
+        this(ImmutableList.copyOf(ServiceLoader.load(BGPExtensionProviderActivator.class)));
     }
 
     @Inject
-    public DefaultBGPExtensionConsumerContext(final Iterable<BGPExtensionProviderActivator> extensionActivators) {
-        extensionActivators.forEach(activator -> activator.start(delegate));
-    }
-
     @Activate
     public DefaultBGPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
             List<BGPExtensionProviderActivator> extensionActivators) {
