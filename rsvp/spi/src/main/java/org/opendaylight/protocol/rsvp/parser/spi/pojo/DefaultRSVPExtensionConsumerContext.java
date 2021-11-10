@@ -9,7 +9,7 @@
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
@@ -38,20 +38,12 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 public final class DefaultRSVPExtensionConsumerContext implements RSVPExtensionConsumerContext {
     private final @NonNull SimpleRSVPExtensionProviderContext delegate = new SimpleRSVPExtensionProviderContext();
 
-    public DefaultRSVPExtensionConsumerContext() {
-        this(ServiceLoader.load(RSVPExtensionProviderActivator.class));
-    }
-
     @VisibleForTesting
-    public DefaultRSVPExtensionConsumerContext(final RSVPExtensionProviderActivator... extensionActivators) {
-        this(Arrays.asList(extensionActivators));
+    public DefaultRSVPExtensionConsumerContext() {
+        this(ImmutableList.copyOf(ServiceLoader.load(RSVPExtensionProviderActivator.class)));
     }
 
     @Inject
-    public DefaultRSVPExtensionConsumerContext(final Iterable<RSVPExtensionProviderActivator> extensionActivators) {
-        extensionActivators.forEach(activator -> activator.start(delegate));
-    }
-
     @Activate
     public DefaultRSVPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
             List<RSVPExtensionProviderActivator> extensionActivators) {

@@ -13,6 +13,7 @@ import static org.junit.Assert.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.rro.RROIpv6PrefixSubobjectParser;
@@ -211,7 +212,7 @@ public class RROSubobjectParserTest {
 
     @Test
     public void testRROLabelSubobject() throws Exception {
-        final RSVPExtensionConsumerContext ctx = new DefaultRSVPExtensionConsumerContext(new RSVPActivator());
+        final RSVPExtensionConsumerContext ctx = new DefaultRSVPExtensionConsumerContext(List.of(new RSVPActivator()));
         final RROLabelSubobjectParser parser = new RROLabelSubobjectParser(ctx.getLabelHandlerRegistry());
         final SubobjectContainerBuilder subs = new SubobjectContainerBuilder();
         subs.setSubobjectType(new LabelCaseBuilder().setLabel(
