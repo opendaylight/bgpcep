@@ -7,8 +7,7 @@
  */
 package org.opendaylight.protocol.bmp.spi.registry;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
@@ -28,19 +27,10 @@ public final class DefaultBmpExtensionConsumerContext implements BmpExtensionCon
     private final @NonNull SimpleBmpExtensionProviderContext delegate = new SimpleBmpExtensionProviderContext();
 
     public DefaultBmpExtensionConsumerContext() {
-        this(ServiceLoader.load(BmpExtensionProviderActivator.class));
-    }
-
-    @VisibleForTesting
-    public DefaultBmpExtensionConsumerContext(final BmpExtensionProviderActivator... extensionActivators) {
-        this(Arrays.asList(extensionActivators));
+        this(ImmutableList.copyOf(ServiceLoader.load(BmpExtensionProviderActivator.class)));
     }
 
     @Inject
-    public DefaultBmpExtensionConsumerContext(final Iterable<BmpExtensionProviderActivator> extensionActivators) {
-        extensionActivators.forEach(activator -> activator.start(delegate));
-    }
-
     @Activate
     public DefaultBmpExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
             List<BmpExtensionProviderActivator> extensionActivators) {

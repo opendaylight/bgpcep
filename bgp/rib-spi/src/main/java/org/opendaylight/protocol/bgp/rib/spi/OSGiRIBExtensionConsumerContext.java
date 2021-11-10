@@ -18,19 +18,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 @Component(immediate = true, service = RIBExtensionConsumerContext.class)
-public final class OSGiRIBExtensionConsumerContext extends ForwardingRIBExtensionConsumerContext  {
-    @Reference(policyOption = ReferencePolicyOption.GREEDY)
-    List<RIBExtensionProviderActivator> extensionActivators;
-    @Reference
-    BindingNormalizedNodeSerializer mappingCodec;
-
-    private SimpleRIBExtensionProviderContext delegate = null;
+public final class OSGiRIBExtensionConsumerContext extends ForwardingRIBExtensionConsumerContext {
+    private SimpleRIBExtensionProviderContext delegate;
 
     @Activate
-    void activate() {
-        final SimpleRIBExtensionProviderContext local = new SimpleRIBExtensionProviderContext();
-        extensionActivators.forEach(activator -> activator.startRIBExtensionProvider(local, mappingCodec));
-        delegate = local;
+    public OSGiRIBExtensionConsumerContext(final @Reference BindingNormalizedNodeSerializer mappingCodec,
+            final @Reference(policyOption = ReferencePolicyOption.GREEDY)
+                List<RIBExtensionProviderActivator> extensionActivators) {
+        delegate = new SimpleRIBExtensionProviderContext();
+        extensionActivators.forEach(activator -> activator.startRIBExtensionProvider(delegate, mappingCodec));
     }
 
     @Deactivate
@@ -40,6 +36,6 @@ public final class OSGiRIBExtensionConsumerContext extends ForwardingRIBExtensio
 
     @Override
     RIBExtensionProviderContext delegate() {
-        return verifyNotNull(delegate);
+        return verifyNotNull(delegate, "Attempted to access deactived component");
     }
 }
