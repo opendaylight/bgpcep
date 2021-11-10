@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7356f458_a73bbca3",
+        "filename": "bgp/parser-spi/src/main/java/org/opendaylight/protocol/bgp/parser/spi/pojo/DefaultBGPExtensionConsumerContext.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-10T16:04:34Z",
+      "side": 1,
+      "message": "List.copyOf() does not accept Iterable, changed to Lists.newArrayList",
+      "parentUuid": "835bd3fa_8dc1bd2c",
+      "range": {
+        "startLine": 46,
+        "startChar": 13,
+        "endLine": 46,
+        "endChar": 33
+      },
+      "revId": "f13161f0e73aa1ab8a50083e6d0d56a7578b090a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "387ce0ec_ad87f33f",
         "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/OSGiRIBExtensionConsumerContext.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "00bedad8_3d482af8",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/OSGiRIBExtensionConsumerContext.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-10T16:04:34Z",
+      "side": 1,
+      "message": "got it, removed",
+      "parentUuid": "387ce0ec_ad87f33f",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 11
+      },
+      "revId": "f13161f0e73aa1ab8a50083e6d0d56a7578b090a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "654b7b4d_56bac699",
         "filename": "rsvp/spi/src/main/java/org/opendaylight/protocol/rsvp/parser/spi/pojo/DefaultRSVPExtensionConsumerContext.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2021-11-10T12:12:06Z",
       "side": 1,
       "message": "this is no longer true, right?",
+      "range": {
+        "startLine": 41,
+        "startChar": 4,
+        "endLine": 41,
+        "endChar": 22
+      },
+      "revId": "f13161f0e73aa1ab8a50083e6d0d56a7578b090a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e00a8412_9914bfee",
+        "filename": "rsvp/spi/src/main/java/org/opendaylight/protocol/rsvp/parser/spi/pojo/DefaultRSVPExtensionConsumerContext.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-10T16:04:34Z",
+      "side": 1,
+      "message": "This constructor is still used by linkstate.impl.RibActivator\u0027s constructor which gets called from tests LinkstateRIBSupportTest. So I think the annotation is valid, also adding it to RibActivator.",
+      "parentUuid": "654b7b4d_56bac699",
       "range": {
         "startLine": 41,
         "startChar": 4,
