@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import java.util.List;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,19 +19,17 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 @Component(immediate = true, service = RIBExtensionConsumerContext.class)
+@MetaInfServices
 public final class OSGiRIBExtensionConsumerContext extends ForwardingRIBExtensionConsumerContext  {
-    @Reference(policyOption = ReferencePolicyOption.GREEDY)
-    List<RIBExtensionProviderActivator> extensionActivators;
-    @Reference
-    BindingNormalizedNodeSerializer mappingCodec;
 
-    private SimpleRIBExtensionProviderContext delegate = null;
+    private SimpleRIBExtensionProviderContext delegate;
 
     @Activate
-    void activate() {
-        final SimpleRIBExtensionProviderContext local = new SimpleRIBExtensionProviderContext();
-        extensionActivators.forEach(activator -> activator.startRIBExtensionProvider(local, mappingCodec));
-        delegate = local;
+    public OSGiRIBExtensionConsumerContext(final @Reference BindingNormalizedNodeSerializer mappingCodec,
+            final @Reference(policyOption = ReferencePolicyOption.GREEDY)
+                    List<RIBExtensionProviderActivator> extensionActivators) {
+        delegate = new SimpleRIBExtensionProviderContext();
+        extensionActivators.forEach(activator -> activator.startRIBExtensionProvider(delegate, mappingCodec));
     }
 
     @Deactivate
