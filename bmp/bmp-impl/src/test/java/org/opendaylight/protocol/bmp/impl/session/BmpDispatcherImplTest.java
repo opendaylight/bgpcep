@@ -59,6 +59,7 @@ public class BmpDispatcherImplTest {
         doNothing().when(mockedSession).channelActive(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelInactive(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelUnregistered(any(ChannelHandlerContext.class));
+        doNothing().when(mockedSession).channelReadComplete(any(ChannelHandlerContext.class));
 
         bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();

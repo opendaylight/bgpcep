@@ -8,14 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.impl.config.AbstractConfig.TABLES_KEY;
 import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createGlobalIpv4;
@@ -24,29 +22,24 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createN
 import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createNeighborsNoRR;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
-import io.netty.util.concurrent.Future;
-import java.util.concurrent.CountDownLatch;
+import java.util.Dictionary;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.DefaultBGPRibRoutingPolicyFactory;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.DefaultRibPoliciesMockTest;
-import org.opendaylight.protocol.bgp.rib.impl.protocol.BGPReconnectPromise;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
+import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
@@ -63,9 +56,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.blueprint.container.BlueprintContainer;
 
-public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
-
+public class BgpDeployerImplTest extends DefaultRibPoliciesMockTest {
     private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class,
             UnicastSubsequentAddressFamily.class);
     private static final String NETWORK_INSTANCE_NAME = "network-test";
@@ -81,23 +76,18 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     private static final int VERIFY_TIMEOUT_MILIS = 5000;
 
     @Mock
+    private BlueprintContainer blueprintContainer;
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
     @Mock
-    private BGPDispatcher dispatcher;
+    private DataTreeModification<Bgp> modification;
     @Mock
-    private CodecsRegistry codecsRegistry;
-    @Mock
-    private RpcProviderService rpcRegistry;
-    @Mock
-    private RIBExtensionConsumerContext extensionContext;
-
+    private ServiceRegistration<?> registration;
     @Mock
     private ClusterSingletonServiceProvider singletonServiceProvider;
-
-    private final BGPStateProviderRegistry stateProviderRegistry = new BGPStateCollector();
-    private DefaultBgpDeployer deployer;
-    private BGPClusterSingletonService spiedBgpSingletonService;
-    private CountDownLatch bgpSingletonObtainedLatch;
+    private BgpDeployerImpl deployer;
 
     @Override
     @Before
@@ -107,97 +97,95 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         doReturn("mapping").when(this.tableTypeRegistry).toString();
         doReturn(TABLE_TYPE).when(this.tableTypeRegistry).getTableType(any());
         doReturn(TABLES_KEY).when(this.tableTypeRegistry).getTableKey(any());
+        doNothing().when(this.registration).unregister();
+        doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()),
+                any(), any(Dictionary.class));
+        doReturn(this.registration).when(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()),
+                any(), any(Dictionary.class));
+
+        doReturn("bgpPeer").when(this.modification).toString();
+        final RIBExtensionConsumerContext extension = mock(RIBExtensionConsumerContext.class);
 
         final ClusterSingletonServiceRegistration serviceRegistration = mock(ClusterSingletonServiceRegistration.class);
         doReturn(serviceRegistration).when(this.singletonServiceProvider).registerClusterSingletonService(any());
         doNothing().when(serviceRegistration).close();
 
-        final Future future = mock(BGPReconnectPromise.class);
-        doReturn(true).when(future).cancel(true);
-        doReturn(future).when(this.dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
-        this.deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
-                this.rpcRegistry, this.extensionContext, this.dispatcher,
-                new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry, stateProviderRegistry));
-        this.bgpSingletonObtainedLatch = new CountDownLatch(1);
-        doAnswer(invocationOnMock -> {
-                final BGPClusterSingletonService real =
-                        (BGPClusterSingletonService) invocationOnMock.callRealMethod();
-                if (this.spiedBgpSingletonService == null) {
-                    this.spiedBgpSingletonService = spy(real);
-                }
-                this.bgpSingletonObtainedLatch.countDown();
-                return this.spiedBgpSingletonService;
-            }
-        ).when(this.deployer).getBgpClusterSingleton(any());
+        final RibImpl ribImpl = new RibImpl(extension, mock(BGPDispatcher.class), this.policyProvider,
+            mock(CodecsRegistry.class), getDomBroker());
+        doReturn(ribImpl).when(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
+
+        doReturn(new BgpPeer(mock(RpcProviderService.class))).when(this.blueprintContainer)
+            .getComponentInstance(eq("bgpPeer"));
+
+        this.deployer = new BgpDeployerImpl(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
+            this.blueprintContainer, this.bundleContext, getDataBroker(), this.tableTypeRegistry);
     }
 
     @Test
     public void testDeployerRib() throws Exception {
-        this.deployer.init();
+        deployer.init();
         checkPresentConfiguration(getDataBroker(), NETWORK_II);
         createRib(createGlobalIpv4());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .initiateRibInstance(any());
+
+        verify(this.blueprintContainer, timeout(VERIFY_TIMEOUT_MILIS)).getComponentInstance(eq("ribImpl"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.RIB.getServices()),
+            any(), any(Dictionary.class));
 
         //change with same rib already existing
         createRib(createGlobalIpv4());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .initiateRibInstance(any());
+        verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
+        verify(this.bundleContext).registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
 
         //Update for existing rib
         createRib(createGlobalIpv6());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .initiateRibInstance(any());
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .closeRibService();
+
+        verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2)).registerService(
+            eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        verify(this.registration).unregister();
 
         //Delete for existing rib
         deleteRib();
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .initiateRibInstance(any());
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .closeRibService();
 
-        this.deployer.close();
+        verify(this.blueprintContainer).getComponentInstance(eq("ribImpl"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2))
+                .registerService(eq(InstanceType.RIB.getServices()), any(), any(Dictionary.class));
+        verify(this.registration, timeout(VERIFY_TIMEOUT_MILIS).times(2)).unregister();
+
+        deployer.close();
     }
 
     @Test
     public void testDeployerCreateNeighbor() throws Exception {
-        this.deployer.init();
+        deployer.init();
         checkPresentConfiguration(getDataBroker(), NETWORK_II);
 
         createRib(createGlobalIpv4());
         createNeighbor(createNeighbors());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
+        verify(this.blueprintContainer, timeout(VERIFY_TIMEOUT_MILIS)).getComponentInstance(eq("bgpPeer"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS)).registerService(eq(InstanceType.PEER.getServices()),
+                any(BgpPeer.class), any(Dictionary.class));
 
         //change with same peer already existing
         createNeighbor(createNeighbors());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
-        verify(this.spiedBgpSingletonService, never()).onNeighborRemoved(any());
-        verify(this.spiedBgpSingletonService, never()).onNeighborUpdated(any(), any());
+        verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
+        verify(this.bundleContext).registerService(eq(InstanceType.PEER.getServices()),
+                any(BgpPeer.class), any(Dictionary.class));
 
         //Update for peer
         createNeighbor(createNeighborsNoRR());
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborUpdated(any(), any());
+        verify(this.blueprintContainer).getComponentInstance(eq("bgpPeer"));
+        verify(this.bundleContext, timeout(VERIFY_TIMEOUT_MILIS).times(2))
+                .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
+        verify(this.registration).unregister();
 
         deleteNeighbors();
         //Delete existing Peer
-        awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborRemoved(any());
-        this.deployer.close();
-    }
+        verify(this.bundleContext, times(2))
+                .registerService(eq(InstanceType.PEER.getServices()), any(BgpPeer.class), any(Dictionary.class));
+        verify(this.registration, timeout(VERIFY_TIMEOUT_MILIS).times(2)).unregister();
 
-    private void awaitForObtainedSingleton() throws InterruptedException {
-        this.bgpSingletonObtainedLatch = new CountDownLatch(1);
-        this.bgpSingletonObtainedLatch.await(VERIFY_TIMEOUT_MILIS, TimeUnit.MILLISECONDS);
+        deployer.close();
     }
 
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
@@ -223,5 +211,4 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         wr.delete(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II);
         wr.commit().get();
     }
-
 }

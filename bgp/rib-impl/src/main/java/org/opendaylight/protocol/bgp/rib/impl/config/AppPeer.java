@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.base.Preconditions;
@@ -23,8 +22,7 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -32,28 +30,24 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.ApplicationRibId;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeer implements PeerBean, BGPPeerStateProvider {
+public final class AppPeer implements PeerBean, BGPPeerStateConsumer {
     private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
     private static final NodeIdentifier APPRIB = NodeIdentifier.create(ApplicationRib.QNAME);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
-    private final BGPStateProviderRegistry stateProviderRegistry;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpAppPeerSingletonService bgpAppPeerSingletonService;
-    private Registration stateProviderRegistration;
-
-    public AppPeer(final BGPStateProviderRegistry stateProviderRegistry) {
-        this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
-    }
+    @GuardedBy("this")
+    private ServiceRegistration<?> serviceRegistration;
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {
         final Config config = neighbor.getConfig();
@@ -72,7 +66,6 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
             IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(neighbor.getNeighborAddress().getIpv4Address()),
             tableTypeRegistry);
-        this.stateProviderRegistration = this.stateProviderRegistry.register(this);
     }
 
     @Override
@@ -85,9 +78,11 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
     @Override
     public synchronized void close() {
         if (this.bgpAppPeerSingletonService != null) {
-            this.stateProviderRegistration.close();
-            this.stateProviderRegistration = null;
             this.bgpAppPeerSingletonService = null;
+        }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
         }
     }
 
@@ -118,7 +113,11 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
         return this.bgpAppPeerSingletonService.getPeerState();
     }
 
-    private static final class BgpAppPeerSingletonService implements BGPPeerStateProvider {
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
+    }
+
+    private static final class BgpAppPeerSingletonService implements BGPPeerStateConsumer {
         private final ApplicationPeer applicationPeer;
         private final DOMDataTreeChangeService dataTreeChangeService;
         private final ApplicationRibId appRibId;
