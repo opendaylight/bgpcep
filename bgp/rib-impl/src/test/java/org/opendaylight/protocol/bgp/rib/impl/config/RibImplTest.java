@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -25,7 +26,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -50,6 +50,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.osgi.framework.ServiceRegistration;
 
 public class RibImplTest extends AbstractConfig {
     private static final Map<AfiSafiKey, AfiSafi> AFISAFIS = BindingMap.of(new AfiSafiBuilder()
@@ -68,6 +69,8 @@ public class RibImplTest extends AbstractConfig {
     private DOMDataBroker domDataBroker;
     @Mock
     private RIBSupport<?, ?> ribSupport;
+    @Mock
+    private ServiceRegistration<?> serviceRegistration;
 
     @Override
     @Before
@@ -89,6 +92,7 @@ public class RibImplTest extends AbstractConfig {
                 .when(this.domDataBroker).getExtensions();
         doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
                 .registerDataTreeChangeListener(any(), any());
+        doNothing().when(this.serviceRegistration).unregister();
     }
 
     @Test
@@ -98,8 +102,8 @@ public class RibImplTest extends AbstractConfig {
                 this.dispatcher,
                 this.policyProvider,
                 this.codecsRegistry,
-                new BGPStateCollector(),
                 this.domDataBroker);
+        ribImpl.setServiceRegistration(this.serviceRegistration);
         ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
         verify(this.domDataBroker).getExtensions();
         assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
@@ -120,6 +124,7 @@ public class RibImplTest extends AbstractConfig {
         assertNotNull(ribImpl.getCodecsRegistry());
 
         ribImpl.close();
+        verify(this.serviceRegistration).unregister();
     }
 
     private static Global createGlobal() {
