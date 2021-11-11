@@ -10,16 +10,18 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME_OPT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
+import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceName;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getRibInstanceName;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,19 +32,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
-import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
+import org.opendaylight.protocol.bgp.rib.impl.spi.InstanceType;
 import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -52,11 +49,13 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfig;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.blueprint.container.BlueprintContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@VisibleForTesting
-public class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
+public final class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPClusterSingletonService.class);
 
@@ -67,16 +66,11 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     @GuardedBy("this")
     private final Map<String, List<PeerBean>> peersGroups = new HashMap<>();
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    private final BlueprintContainer container;
+    private final BundleContext bundleContext;
     private final ServiceGroupIdentifier serviceGroupIdentifier;
     private final AtomicBoolean instantiated = new AtomicBoolean(false);
     private final PeerGroupConfigLoader peerGroupLoader;
-    private final RpcProviderService rpcRegistry;
-    private final RIBExtensionConsumerContext ribExtensionContext;
-    private final BGPDispatcher bgpDispatcher;
-    private final BGPRibRoutingPolicyFactory routingPolicyFactory;
-    private final CodecsRegistry codecsRegistry;
-    private final BGPStateProviderRegistry stateProviderRegistry;
-    private final DOMDataBroker domDataBroker;
     @GuardedBy("this")
     private RibImpl ribImpl;
 
@@ -85,29 +79,19 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             final @NonNull PeerGroupConfigLoader peerGroupLoader,
             final @NonNull ClusterSingletonServiceProvider provider,
             final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry,
-            final @NonNull RpcProviderService rpcRegistry,
-            final @NonNull RIBExtensionConsumerContext ribExtensionContext,
-            final @NonNull BGPDispatcher bgpDispatcher,
-            final @NonNull BGPRibRoutingPolicyFactory routingPolicyFactory,
-            final @NonNull CodecsRegistry codecsRegistry,
-            final @NonNull BGPStateProviderRegistry stateProviderRegistry,
-            final @NonNull DOMDataBroker domDataBroker,
+            final @NonNull BlueprintContainer container,
+            final @NonNull BundleContext bundleContext,
             final @NonNull InstanceIdentifier<Bgp> bgpIid) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
-        this.rpcRegistry = rpcRegistry;
-        this.ribExtensionContext = ribExtensionContext;
-        this.bgpDispatcher = bgpDispatcher;
-        this.routingPolicyFactory = routingPolicyFactory;
-        this.codecsRegistry = codecsRegistry;
-        this.stateProviderRegistry = stateProviderRegistry;
-        this.domDataBroker = domDataBroker;
+        this.container = container;
+        this.bundleContext = bundleContext;
         this.bgpIid = bgpIid;
         final String ribInstanceName = getRibInstanceName(bgpIid);
         this.serviceGroupIdentifier = ServiceGroupIdentifier.create(ribInstanceName + "-service-group");
+        LOG.info("BGPClusterSingletonService {} registered", this.serviceGroupIdentifier.getName());
         ClusterSingletonServiceRegistrationHelper
                 .registerSingletonService(provider, this);
-        LOG.info("BGPClusterSingletonService {} registered", this.serviceGroupIdentifier.getName());
     }
 
     @Override
@@ -184,8 +168,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
 
     private synchronized void onGlobalCreated(final Global global) {
         LOG.debug("Creating RIB instance with configuration: {}", global);
-        this.ribImpl = new RibImpl(this.ribExtensionContext, this.bgpDispatcher, this.routingPolicyFactory,
-                this.codecsRegistry, this.stateProviderRegistry, this.domDataBroker);
+        this.ribImpl = (RibImpl) this.container.getComponentInstance(InstanceType.RIB.getBeanName());
         initiateRibInstance(global);
         LOG.debug("RIB instance created: {}", this.ribImpl);
     }
@@ -205,9 +188,8 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     }
 
     @Holding("this")
-    @VisibleForTesting
     @SuppressWarnings("checkstyle:illegalCatch")
-    void closeRibService() {
+    private void closeRibService() {
         try {
             this.ribImpl.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
         } catch (final Exception e) {
@@ -217,10 +199,10 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     }
 
     @Holding("this")
-    @VisibleForTesting
-    void initiateRibInstance(final Global global) {
+    private void initiateRibInstance(final Global global) {
         final String ribInstanceName = getRibInstanceName(this.bgpIid);
         ribImpl.start(global, ribInstanceName, this.tableTypeRegistry);
+        registerRibInstance(ribImpl, ribInstanceName);
         if (this.instantiated.get()) {
             this.ribImpl.instantiateServiceInstance();
         }
@@ -239,6 +221,12 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             filtered.add(peer);
         });
         return filtered;
+    }
+
+    private synchronized void registerRibInstance(final RibImpl rib, final String ribInstanceName) {
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+                InstanceType.RIB.getServices(), rib, dictionaryOf(InstanceType.RIB.getBeanName(), ribInstanceName));
+        rib.setServiceRegistration(serviceRegistration);
     }
 
     @Override
@@ -277,18 +265,17 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         }
     }
 
-    @VisibleForTesting
-    synchronized void onNeighborCreated(final Neighbor neighbor) {
+    private synchronized void onNeighborCreated(final Neighbor neighbor) {
         LOG.debug("Creating Peer instance with configuration: {}", neighbor);
         final PeerBean bgpPeer;
         if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
-            bgpPeer = new AppPeer(this.stateProviderRegistry);
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.APP_PEER.getBeanName());
         } else {
-            bgpPeer = new BgpPeer(this.rpcRegistry, this.stateProviderRegistry);
+            bgpPeer = (PeerBean) this.container.getComponentInstance(InstanceType.PEER.getBeanName());
         }
         final InstanceIdentifier<Neighbor> neighborInstanceIdentifier =
                 getNeighborInstanceIdentifier(this.bgpIid, neighbor.key());
-        initiatePeerInstance(neighbor, bgpPeer);
+        initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
         this.peers.put(neighborInstanceIdentifier, bgpPeer);
 
         final Optional<String> peerGroupName = getPeerGroupName(neighbor.getConfig());
@@ -311,12 +298,14 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         return Optional.of(StringUtils.substringBetween(peerGroupName, "=\"", "\""));
     }
 
-    @VisibleForTesting
-    synchronized void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
-        LOG.info("Updating Peer instance with configuration: {}", neighbor);
+    private synchronized void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
+        LOG.debug("Updating Peer instance with configuration: {}", neighbor);
         closePeer(bgpPeer);
-        initiatePeerInstance(neighbor, bgpPeer);
-        LOG.info("Peer instance updated {}", bgpPeer);
+
+        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier
+                = getNeighborInstanceIdentifier(this.bgpIid, neighbor.key());
+        initiatePeerInstance(neighborInstanceIdentifier, neighbor, bgpPeer);
+        LOG.debug("Peer instance updated {}", bgpPeer);
     }
 
     @SuppressWarnings("checkstyle:illegalCatch")
@@ -325,15 +314,14 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             try {
                 bgpPeer.closeServiceInstance().get();
                 bgpPeer.close();
-                LOG.info("Peer instance closed {}", bgpPeer);
+                LOG.debug("Peer instance closed {}", bgpPeer);
             } catch (final Exception e) {
                 LOG.error("Peer instance failed to close service instance", e);
             }
         }
     }
 
-    @VisibleForTesting
-    public synchronized void onNeighborRemoved(final Neighbor neighbor) {
+    private synchronized void onNeighborRemoved(final Neighbor neighbor) {
         LOG.debug("Removing Peer instance: {}", neighbor);
         final PeerBean bgpPeer = this.peers.remove(getNeighborInstanceIdentifier(this.bgpIid, neighbor.key()));
 
@@ -345,10 +333,36 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         closePeer(bgpPeer);
     }
 
-    @VisibleForTesting
-    synchronized void initiatePeerInstance(final Neighbor neighbor, final PeerBean bgpPeer) {
+    private synchronized void registerPeerInstance(final BgpPeer bgpPeer, final String peerInstanceName) {
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.PEER.getServices(), bgpPeer, dictionaryOf(InstanceType.PEER.getBeanName(), peerInstanceName));
+        bgpPeer.setServiceRegistration(serviceRegistration);
+    }
+
+    @SuppressModernizer
+    private static Dictionary<String, String> dictionaryOf(final String key, final String value) {
+        final Dictionary<String, String> properties = new Hashtable<>();
+        properties.put(key, value);
+        return properties;
+    }
+
+    private synchronized void registerAppPeerInstance(final AppPeer appPeer, final String peerInstanceName) {
+        final ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(
+            InstanceType.APP_PEER.getServices(), appPeer,
+            dictionaryOf(InstanceType.PEER.getBeanName(), peerInstanceName));
+        appPeer.setServiceRegistration(serviceRegistration);
+    }
+
+    private synchronized void initiatePeerInstance(final InstanceIdentifier<Neighbor> neighborIdentifier,
+            final Neighbor neighbor, final PeerBean bgpPeer) {
+        final String peerInstanceName = getNeighborInstanceName(neighborIdentifier);
         if (this.ribImpl != null) {
             bgpPeer.start(this.ribImpl, neighbor, this.bgpIid, this.peerGroupLoader, this.tableTypeRegistry);
+            if (bgpPeer instanceof BgpPeer) {
+                registerPeerInstance((BgpPeer) bgpPeer, peerInstanceName);
+            } else if (bgpPeer instanceof AppPeer) {
+                registerAppPeerInstance((AppPeer) bgpPeer, peerInstanceName);
+            }
         }
         if (this.instantiated.get()) {
             bgpPeer.instantiateServiceInstance();
