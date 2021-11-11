@@ -53,6 +53,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.osgi.framework.ServiceRegistration;
 
 class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
@@ -67,6 +68,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected DOMTransactionChain domTx;
     @Mock
     protected BGPDispatcher dispatcher;
+    @Mock
+    protected ServiceRegistration<?> serviceRegistration;
     @Mock
     protected BGPPeerRegistry bgpPeerRegistry;
     @Mock
