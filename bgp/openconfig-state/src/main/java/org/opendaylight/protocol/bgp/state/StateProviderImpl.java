@@ -41,7 +41,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -87,7 +87,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
 
     private static final Logger LOG = LoggerFactory.getLogger(StateProviderImpl.class);
 
-    private final BGPStateProvider stateProvider;
+    private final BGPStateConsumer stateCollector;
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
     private final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final DataBroker dataBroker;
@@ -103,28 +103,27 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     @Activate
     public StateProviderImpl(@Reference final @NonNull DataBroker dataBroker,
             @Reference final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-            @Reference final @NonNull BGPStateProvider stateProvider, final @NonNull Configuration configuration) {
-        this(dataBroker, configuration.updateIntervalSeconds(), bgpTableTypeRegistry, stateProvider,
-                configuration.networkInstanceName());
+            @Reference final @NonNull BGPStateConsumer stateCollector, final @NonNull Configuration configuration) {
+        this(dataBroker, configuration.updateIntervalSeconds(), bgpTableTypeRegistry, stateCollector,
+            configuration.networkInstanceName());
     }
 
     @Inject
     public StateProviderImpl(final @NonNull DataBroker dataBroker, final int timeout,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-            final @NonNull BGPStateProvider stateProvider,
-            final @NonNull String networkInstanceName) {
-        this(dataBroker, timeout, TimeUnit.SECONDS, bgpTableTypeRegistry, stateProvider, networkInstanceName,
+            final @NonNull BGPStateConsumer stateCollector, final @NonNull String networkInstanceName) {
+        this(dataBroker, timeout, TimeUnit.SECONDS, bgpTableTypeRegistry, stateCollector, networkInstanceName,
                 Executors.newScheduledThreadPool(1));
     }
 
     @VisibleForTesting
     StateProviderImpl(final @NonNull DataBroker dataBroker, final long period, final TimeUnit timeUnit,
             final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry,
-            final @NonNull BGPStateProvider stateProvider,
+            final @NonNull BGPStateConsumer stateCollector,
             final @NonNull String networkInstanceName, final @NonNull ScheduledExecutorService scheduler) {
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
-        this.stateProvider = requireNonNull(stateProvider);
+        this.stateCollector = requireNonNull(stateCollector);
         this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.scheduler = scheduler;
@@ -166,14 +165,18 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void updateBGPStats(final WriteOperations wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
-            final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
-            final List<BGPPeerState> peerStats = this.stateProvider.getPeerStats().stream()
-                    .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
-                    .collect(Collectors.toList());
-            storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
-            oldStats.remove(ribId.getKey().getId().getValue());
-        });
+        this.stateCollector.getRibStats().stream().filter(BGPRibState::isActive)
+                .peek(bgpRibState -> LOG.info("Updating RibState {}", bgpRibState.getInstanceIdentifier().getKey()))
+                .forEach(bgpStateConsumer -> {
+                    final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
+                    final List<BGPPeerState> peerStats = this.stateCollector.getPeerStats().stream()
+                            .filter(BGPPeerState::isActive)
+                            .filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
+                            .peek(bgpPeerState -> LOG.info("Updating PeerState {}", bgpPeerState.getNeighborAddress()))
+                            .collect(Collectors.toList());
+                    storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
+                    oldStats.remove(ribId.getKey().getId().getValue());
+                });
         oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wtx));
     }
 

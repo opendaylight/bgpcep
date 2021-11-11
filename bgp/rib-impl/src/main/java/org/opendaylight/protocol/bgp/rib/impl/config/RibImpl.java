@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getGlobalClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
@@ -35,8 +34,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
@@ -52,13 +50,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
+public final class RibImpl implements RIB, BGPRibStateConsumer, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RibImpl.class);
 
@@ -67,34 +65,33 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
     private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domBroker;
     private final BGPRibRoutingPolicyFactory policyProvider;
-    private final BGPStateProviderRegistry stateProviderRegistry;
     private RIBImpl ribImpl;
+    private ServiceRegistration<?> serviceRegistration;
     private Collection<AfiSafi> afiSafi;
     private AsNumber asNumber;
     private Ipv4AddressNoZone routerId;
+
     private ClusterIdentifier clusterId;
-    private Registration stateProviderRegistration;
 
     public RibImpl(
             final RIBExtensionConsumerContext contextProvider,
             final BGPDispatcher dispatcher,
             final BGPRibRoutingPolicyFactory policyProvider,
             final CodecsRegistry codecsRegistry,
-            final BGPStateProviderRegistry stateProviderRegistry,
-            final DOMDataBroker domBroker) {
-        this.extensions = requireNonNull(contextProvider);
-        this.dispatcher = requireNonNull(dispatcher);
-        this.codecsRegistry = requireNonNull(codecsRegistry);
-        this.domBroker = requireNonNull(domBroker);
-        this.policyProvider = requireNonNull(policyProvider);
-        this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
+            final DOMDataBroker domBroker
+    ) {
+        this.extensions = contextProvider;
+        this.dispatcher = dispatcher;
+        this.codecsRegistry = codecsRegistry;
+        this.domBroker = domBroker;
+        this.policyProvider = policyProvider;
     }
 
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
+        LOG.info("Starting BGP instance {}", instanceName);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
-        this.stateProviderRegistration =  this.stateProviderRegistry.register(this);
     }
 
     Boolean isGlobalEqual(final Global global) {
@@ -174,13 +171,22 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
     @Override
     public void close() {
         if (this.ribImpl != null) {
-            this.stateProviderRegistration.close();
             this.ribImpl.close();
-            this.stateProviderRegistration = null;
             this.ribImpl = null;
+        }
+        if (this.serviceRegistration != null) {
+            try {
+                this.serviceRegistration.unregister();
+            } catch (final IllegalStateException e) {
+                LOG.warn("Failed to unregister {} service instance", this, e);
+            }
+            this.serviceRegistration = null;
         }
     }
 
+    void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
+    }
 
     @Override
     public Set<TablesKey> getLocalTablesKeys() {

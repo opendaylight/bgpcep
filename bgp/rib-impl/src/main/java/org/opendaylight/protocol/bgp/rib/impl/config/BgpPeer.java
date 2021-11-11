@@ -39,8 +39,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateConsumer;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -66,26 +65,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeer implements PeerBean, BGPPeerStateProvider {
+public class BgpPeer implements PeerBean, BGPPeerStateConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderService rpcRegistry;
-    private final BGPStateProviderRegistry stateProviderRegistry;
+    @GuardedBy("this")
+    private ServiceRegistration<?> serviceRegistration;
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpPeerSingletonService bgpPeerSingletonService;
-    private Registration stateProviderRegistration;
 
-    public BgpPeer(final RpcProviderService rpcRegistry, final BGPStateProviderRegistry stateProviderRegistry) {
-        this.rpcRegistry = requireNonNull(rpcRegistry);
-        this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
+    public BgpPeer(final RpcProviderService rpcRegistry) {
+        this.rpcRegistry = rpcRegistry;
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
@@ -148,11 +146,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.bgpPeerSingletonService == null,
                 "Previous peer instance was not closed.");
-
+        LOG.info("Starting BgPeer instance {}", neighbor.getNeighborAddress());
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         this.currentConfiguration = neighbor;
-        this.stateProviderRegistration = this.stateProviderRegistry.register(this);
     }
 
     @Override
@@ -169,10 +166,12 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     @Override
     public void close() {
         if (this.bgpPeerSingletonService != null) {
-            this.stateProviderRegistration.close();
             this.bgpPeerSingletonService.closeServiceInstance();
-            this.stateProviderRegistration = null;
             this.bgpPeerSingletonService = null;
+        }
+        if (this.serviceRegistration != null) {
+            this.serviceRegistration.unregister();
+            this.serviceRegistration = null;
         }
     }
 
@@ -226,6 +225,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
         return this.bgpPeerSingletonService.getPeerState();
     }
 
+    synchronized void setServiceRegistration(final ServiceRegistration<?> serviceRegistration) {
+        this.serviceRegistration = serviceRegistration;
+    }
+
     synchronized void removePeer(final BGPPeerRegistry bgpPeerRegistry) {
         if (this.currentConfiguration != null) {
             bgpPeerRegistry.removePeer(OpenConfigMappingUtil.convertIpAddress(
@@ -233,7 +236,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
         }
     }
 
-    private final class BgpPeerSingletonService implements BGPPeerStateProvider {
+    private final class BgpPeerSingletonService implements BGPPeerStateConsumer {
         private final boolean activeConnection;
         private final BGPDispatcher dispatcher;
         private final InetSocketAddress inetAddress;
