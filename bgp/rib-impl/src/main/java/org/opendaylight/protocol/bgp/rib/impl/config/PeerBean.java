@@ -27,9 +27,6 @@ public interface PeerBean extends AutoCloseable {
     void restart(RIB rib, InstanceIdentifier<Bgp> bgpIid, PeerGroupConfigLoader peerGroupLoader,
             BGPTableTypeRegistryConsumer tableTypeRegistry);
 
-    @Override
-    void close();
-
     void instantiateServiceInstance();
 
     FluentFuture<? extends CommitInfo> closeServiceInstance();
