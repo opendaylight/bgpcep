@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -92,7 +93,7 @@ public class RibImplTest extends AbstractConfig {
     }
 
     @Test
-    public void testRibImpl() {
+    public void testRibImpl() throws ExecutionException, InterruptedException {
         final RibImpl ribImpl = new RibImpl(
                 this.extension,
                 this.dispatcher,
@@ -119,7 +120,7 @@ public class RibImplTest extends AbstractConfig {
         assertNotNull(ribImpl.getRibSupportContext());
         assertNotNull(ribImpl.getCodecsRegistry());
 
-        ribImpl.close();
+        ribImpl.stop();
     }
 
     private static Global createGlobal() {

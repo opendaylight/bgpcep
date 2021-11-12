@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -132,7 +133,7 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     @Test
-    public void testBgpPeer() {
+    public void testBgpPeer() throws ExecutionException, InterruptedException {
         final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig())
                 .setNeighborAddress(NEIGHBOR_ADDRESS).setRouteReflector(createRR()).setTimers(createTimers())
                 .setTransport(createTransport()).setAddPaths(createAddPath()).build();
@@ -156,13 +157,13 @@ public class BgpPeerTest extends AbstractConfig {
         this.bgpPeer.closeServiceInstance();
         verify(this.bgpPeerRegistry).removePeer(any());
         verify(this.future).cancel(true);
-        this.bgpPeer.close();
-
-        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
+        this.bgpPeer.stop();
+        this.bgpPeer.start(this.rib, bgpPeer.getCurrentConfiguration(), null, this.peerGroupLoader,
+                this.tableTypeRegistry);
+        this.bgpPeer.instantiateServiceInstance();
         verify(this.rib, times(2)).createPeerDOMChain(any());
         verify(this.rib, times(4)).getLocalAs();
         verify(this.rib, times(2)).getLocalTables();
-        this.bgpPeer.instantiateServiceInstance();
         verify(this.bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
         verify(this.dispatcher, times(2)).createReconnectingClient(any(InetSocketAddress.class),
                 any(), anyInt(), any(KeyMapping.class));
@@ -186,23 +187,25 @@ public class BgpPeerTest extends AbstractConfig {
         verify(this.future, times(3)).cancel(true);
         verify(this.rib, times(3)).createPeerDOMChain(any());
 
-        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
+        this.bgpPeer.stop();
+        this.bgpPeer.start(this.rib, bgpPeer.getCurrentConfiguration(), null, this.peerGroupLoader,
+                this.tableTypeRegistry);
+        this.bgpPeer.instantiateServiceInstance();
         verify(this.rib, times(4)).createPeerDOMChain(any());
         verify(this.rib, times(6)).getLocalAs();
         verify(this.rib, times(3)).getLocalTables();
-        this.bgpPeer.instantiateServiceInstance();
         verify(this.bgpPeerRegistry, times(4)).addPeer(any(), any(), any());
         verify(this.dispatcher, times(4)).createReconnectingClient(any(InetSocketAddress.class),
                 any(), anyInt(), any(KeyMapping.class));
         this.bgpPeer.closeServiceInstance();
         verify(this.bgpPeerRegistry, times(4)).removePeer(any());
         verify(this.future, times(4)).cancel(true);
-        this.bgpPeer.close();
+        this.bgpPeer.stop();
 
         final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setAfiSafis(createAfiSafi()).build();
         this.bgpPeer.start(this.rib, neighborDiffConfig, null, this.peerGroupLoader, this.tableTypeRegistry);
         assertTrue(this.bgpPeer.containsEqualConfiguration(neighborDiffConfig));
-        this.bgpPeer.close();
+        this.bgpPeer.stop();
     }
 }
