@@ -68,6 +68,7 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.bgpAppPeerSingletonService == null,
                 "Previous peer instance was not closed.");
+        LOG.info("Starting AppPeer instance {}", neighbor.getNeighborAddress());
         this.currentConfiguration = neighbor;
         this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
             IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(neighbor.getNeighborAddress().getIpv4Address()),
