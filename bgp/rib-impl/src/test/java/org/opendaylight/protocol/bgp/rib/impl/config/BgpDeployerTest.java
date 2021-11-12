@@ -153,7 +153,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
                 .initiateRibInstance(any());
         verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .closeRibService();
+                .closeRibInstance();
 
         //Delete for existing rib
         deleteRib();
@@ -161,7 +161,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
                 .initiateRibInstance(any());
         verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .closeRibService();
+                .closeRibInstance();
 
         this.deployer.close();
     }
