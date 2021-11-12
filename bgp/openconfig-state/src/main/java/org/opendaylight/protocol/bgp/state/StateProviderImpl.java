@@ -147,7 +147,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                     wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                         @Override
                         public void onSuccess(final CommitInfo result) {
-                            LOG.debug("Successfully committed BGP stats update");
+                            LOG.info("Successfully committed BGP stats update");
                         }
 
                         @Override
@@ -166,14 +166,18 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void updateBGPStats(final WriteOperations wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
-            final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
-            final List<BGPPeerState> peerStats = this.stateProvider.getPeerStats().stream()
-                    .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
-                    .collect(Collectors.toList());
-            storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
-            oldStats.remove(ribId.getKey().getId().getValue());
-        });
+        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive)
+                .peek(bgpRibState -> LOG.info("Updating RibState {}", bgpRibState.getInstanceIdentifier().getKey()))
+                .forEach(bgpStateConsumer -> {
+                    final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
+                    final List<BGPPeerState> peerStats = this.stateProvider.getPeerStats().stream()
+                            .filter(BGPPeerState::isActive)
+                            .filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
+                            .peek(bgpPeerState -> LOG.info("Updating PeerState {}", bgpPeerState.getNeighborAddress()))
+                            .collect(Collectors.toList());
+                    storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
+                    oldStats.remove(ribId.getKey().getId().getValue());
+                });
         oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wtx));
     }
 
