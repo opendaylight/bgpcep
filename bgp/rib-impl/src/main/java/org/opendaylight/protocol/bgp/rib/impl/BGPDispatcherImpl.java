@@ -163,6 +163,7 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     synchronized Future<Void> createReconnectingClient(final InetSocketAddress remoteAddress,
             final int retryTimer, final KeyMapping keys, final InetSocketAddress localAddress,
             final boolean reuseAddress) {
+        LOG.info("Creating reconnecting client session with {}", remoteAddress);
         final BGPClientSessionNegotiatorFactory snf = new BGPClientSessionNegotiatorFactory(bgpPeerRegistry);
         final Bootstrap bootstrap = createClientBootStrap(keys, reuseAddress, localAddress);
         final BGPReconnectPromise<?> reconnectPromise = new BGPReconnectPromise<>(GlobalEventExecutor.INSTANCE,
