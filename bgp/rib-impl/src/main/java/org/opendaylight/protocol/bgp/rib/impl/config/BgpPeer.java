@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
-import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -71,16 +71,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeer implements PeerBean, BGPPeerStateProvider {
-
+public class BgpPeer extends PeerBean {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
 
     private final RpcProviderService rpcRegistry;
     private final BGPStateProviderRegistry stateProviderRegistry;
+
     @GuardedBy("this")
     private Neighbor currentConfiguration;
     @GuardedBy("this")
     private BgpPeerSingletonService bgpPeerSingletonService;
+    @GuardedBy("this")
     private Registration stateProviderRegistration;
 
     public BgpPeer(final RpcProviderService rpcRegistry, final BGPStateProviderRegistry stateProviderRegistry) {
@@ -135,11 +136,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     }
 
     @Override
-    public synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
+    synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(bgpPeerSingletonService == null,
-                "Previous peer instance was not closed.");
-
+        checkState(bgpPeerSingletonService == null, "Previous peer instance was not closed.");
+        LOG.info("Starting BgPeer instance {}", neighbor.getNeighborAddress());
         bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         currentConfiguration = neighbor;
@@ -147,45 +147,37 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     }
 
     @Override
-    public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
-            final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(currentConfiguration != null);
-        if (bgpPeerSingletonService != null) {
-            bgpPeerSingletonService.closeServiceInstance();
-            bgpPeerSingletonService = null;
+    synchronized ListenableFuture<?> stop() {
+        if (bgpPeerSingletonService == null) {
+            LOG.info("BGP Peer {} already closed, skipping", currentConfiguration.getNeighborAddress());
+            return Futures.immediateVoidFuture();
         }
-        start(rib, currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
-    }
-
-    @Override
-    public synchronized void close() {
-        if (bgpPeerSingletonService != null) {
-            bgpPeerSingletonService.closeServiceInstance();
-            bgpPeerSingletonService = null;
-        }
+        LOG.info("Closing BGP Peer {}", currentConfiguration.getNeighborAddress());
         if (stateProviderRegistration != null) {
             stateProviderRegistration.close();
             stateProviderRegistration = null;
         }
+
+        final var future = bgpPeerSingletonService.closeServiceInstance();
+        bgpPeerSingletonService = null;
+        return future;
     }
 
     @Override
-    public synchronized void instantiateServiceInstance() {
+    synchronized void instantiateServiceInstance() {
         if (bgpPeerSingletonService != null) {
             bgpPeerSingletonService.instantiateServiceInstance();
         }
     }
 
     @Override
-    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (bgpPeerSingletonService != null) {
-            return bgpPeerSingletonService.closeServiceInstance();
-        }
-        return CommitInfo.emptyFluentFuture();
+    synchronized ListenableFuture<?> closeServiceInstance() {
+        return bgpPeerSingletonService != null ? bgpPeerSingletonService.closeServiceInstance()
+            : Futures.immediateVoidFuture();
     }
 
     @Override
-    public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
+    synchronized boolean containsEqualConfiguration(final Neighbor neighbor) {
         if (currentConfiguration == null) {
             return false;
         }
@@ -209,6 +201,11 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                 && Objects.equals(currentConfiguration.getState(), neighbor.getState())
                 && Objects.equals(currentConfiguration.getTimers(), neighbor.getTimers())
                 && Objects.equals(currentConfiguration.getTransport(), neighbor.getTransport());
+    }
+
+    @Override
+    synchronized Neighbor getCurrentConfiguration() {
+        return currentConfiguration;
     }
 
     @Override
@@ -310,6 +307,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                 localAddress = null;
             }
             keys = keyMapping;
+            LOG.info("New BGP Peer {}:{} AS {} instance for BGP id {} created with activeConnection: {}",
+                    inetAddress, localAddress, neighborRemoteAs, prefs.getBgpId(), activeConnection);
         }
 
         private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
@@ -336,10 +335,10 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
             }
         }
 
-        synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
+        synchronized ListenableFuture<?> closeServiceInstance() {
             if (!isServiceInstantiated) {
                 LOG.info("Peer {} already closed", neighborAddress);
-                return CommitInfo.emptyFluentFuture();
+                return Futures.immediateVoidFuture();
             }
             LOG.info("Close Peer {}", neighborAddress);
             isServiceInstantiated = false;
@@ -347,7 +346,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                 connection.cancel(true);
                 connection = null;
             }
-            final FluentFuture<? extends CommitInfo> future = bgpPeer.close();
+            final var future = bgpPeer.close();
             removePeer(dispatcher.getBGPPeerRegistry());
             return future;
         }

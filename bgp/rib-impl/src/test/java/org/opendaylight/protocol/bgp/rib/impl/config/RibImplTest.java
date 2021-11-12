@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -74,34 +75,29 @@ public class RibImplTest extends AbstractConfig {
     public void setUp() throws Exception {
         super.setUp();
 
-        doReturn(this.ribSupport).when(this.extension).getRIBSupport(any(TablesKey.class));
+        doReturn(ribSupport).when(extension).getRIBSupport(any(TablesKey.class));
         final NodeIdentifier nii = new NodeIdentifier(QName.create("", "test").intern());
-        doReturn(nii).when(this.ribSupport).routeAttributesIdentifier();
-        doReturn(ImmutableSet.of()).when(this.ribSupport).cacheableAttributeObjects();
+        doReturn(nii).when(ribSupport).routeAttributesIdentifier();
+        doReturn(ImmutableSet.of()).when(ribSupport).cacheableAttributeObjects();
         final MapEntryNode emptyTable = mock(MapEntryNode.class);
-        doReturn(emptyTable).when(this.ribSupport).emptyTable();
+        doReturn(emptyTable).when(ribSupport).emptyTable();
         final NodeIdentifierWithPredicates niie = NodeIdentifierWithPredicates.of(Rib.QNAME,
                 QName.create("", "test").intern(), "t");
         doReturn(niie).when(emptyTable).getIdentifier();
-        doReturn(this.domTx).when(this.domDataBroker).createMergingTransactionChain(any());
+        doReturn(domTx).when(domDataBroker).createMergingTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(this.domDataBroker).getExtensions();
+                .when(domDataBroker).getExtensions();
         doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
                 .registerDataTreeChangeListener(any(), any());
     }
 
     @Test
-    public void testRibImpl() {
-        final RibImpl ribImpl = new RibImpl(
-                this.extension,
-                this.dispatcher,
-                this.policyProvider,
-                this.codecsRegistry,
-                new BGPStateCollector(),
-                this.domDataBroker);
-        ribImpl.start(createGlobal(), "rib-test", this.tableTypeRegistry);
-        verify(this.domDataBroker).getExtensions();
+    public void testRibImpl() throws ExecutionException, InterruptedException {
+        final RibImpl ribImpl = new RibImpl(extension, dispatcher, policyProvider, codecsRegistry,
+                new BGPStateCollector(), domDataBroker);
+        ribImpl.start(createGlobal(), "rib-test", tableTypeRegistry);
+        verify(domDataBroker).getExtensions();
         assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
                 + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
                 + "rev200120.Ipv4AddressFamily, "
@@ -114,12 +110,12 @@ public class RibImplTest extends AbstractConfig {
         assertEquals(AS, ribImpl.getLocalAs());
         assertEquals(BGP_ID, ribImpl.getBgpIdentifier());
         assertEquals(Collections.singleton(TABLE_TYPE), ribImpl.getLocalTables());
-        assertEquals(this.dispatcher, ribImpl.getDispatcher());
-        assertEquals(this.extension, ribImpl.getRibExtensions());
+        assertEquals(dispatcher, ribImpl.getDispatcher());
+        assertEquals(extension, ribImpl.getRibExtensions());
         assertNotNull(ribImpl.getRibSupportContext());
         assertNotNull(ribImpl.getCodecsRegistry());
 
-        ribImpl.close();
+        ribImpl.stop().get();
     }
 
     private static Global createGlobal() {

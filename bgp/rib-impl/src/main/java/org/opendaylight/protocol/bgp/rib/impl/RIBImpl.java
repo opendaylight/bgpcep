@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -36,7 +37,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -77,7 +77,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactionChainListener, AutoCloseable {
+public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
@@ -100,8 +100,6 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
     private final BGPRibRoutingPolicy ribPolicies;
     @GuardedBy("this")
-    private ClusterSingletonServiceRegistration registration;
-    @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
     private boolean isServiceInstantiated;
@@ -123,43 +121,44 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
                 localBgpId, localAs);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.localAs = requireNonNull(localAs);
-        this.bgpIdentifier = requireNonNull(localBgpId);
+        bgpIdentifier = requireNonNull(localBgpId);
         this.dispatcher = requireNonNull(dispatcher);
+
         this.localTables = ImmutableSet.copyOf(localTables);
-        this.localTablesKeys = new HashSet<>();
+        // FIXME: can this be immutable?
+        localTablesKeys = localTables.stream()
+            .map(t -> new TablesKey(t.getAfi(), t.getSafi()))
+            .collect(Collectors.toCollection(HashSet::new));
+
         this.domDataBroker = requireNonNull(domDataBroker);
-        this.domService = this.domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
+        domService = domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
-        this.ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, this.codecsRegistry);
-        this.yangRibId = YangInstanceIdentifier.builder().node(BGPRIB_NID).node(RIB_NID)
+        ribContextRegistry = RIBSupportContextRegistryImpl.create(extensions, codecsRegistry);
+        yangRibId = YangInstanceIdentifier.builder().node(BGPRIB_NID).node(RIB_NID)
                 .nodeWithKey(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()).build();
         this.bestPathSelectionStrategies = requireNonNull(bestPathSelectionStrategies);
         this.ribId = ribId;
-
-        for (final BgpTableType t : this.localTables) {
-            final TablesKey key = new TablesKey(t.getAfi(), t.getSafi());
-            this.localTablesKeys.add(key);
-        }
     }
 
+    // FIXME: make this asynchronous?
     private synchronized void startLocRib(final TablesKey key) {
         LOG.debug("Creating LocRib table for {}", key);
         // create locRibWriter for each table
-        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = domChain.newWriteOnlyTransaction();
 
-        final RIBSupport<? extends Routes, ?> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<? extends Routes, ?> ribSupport = ribContextRegistry.getRIBSupport(key);
         if (ribSupport != null) {
             final MapEntryNode emptyTable = ribSupport.emptyTable();
             final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
-                    .builder(this.yangRibId.node(LOCRIB_NID).node(TABLES_NID)).node(emptyTable.getIdentifier());
+                    .builder(yangRibId.node(LOCRIB_NID).node(TABLES_NID)).node(emptyTable.getIdentifier());
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), emptyTable);
             try {
                 tx.commit().get();
-            } catch (final InterruptedException | ExecutionException e1) {
-                LOG.error("Failed to initiate LocRIB for key {}", key, e1);
+            } catch (final InterruptedException | ExecutionException e) {
+                LOG.error("Failed to initiate LocRIB for key {}", key, e);
             }
         } else {
             LOG.warn("There's no registered RIB Context for {}", key.getAfi());
@@ -168,31 +167,31 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
 
     private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void createLocRibWriter(final TablesKey key) {
-        final RIBSupport<C, S> ribSupport = this.ribContextRegistry.getRIBSupport(key);
+        final RIBSupport<C, S> ribSupport = ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
         final DOMTransactionChain txChain = createPeerDOMChain(this);
-        PathSelectionMode pathSelectionStrategy = this.bestPathSelectionStrategies.get(key);
+        PathSelectionMode pathSelectionStrategy = bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
         final LocRibWriter<C, S> locRibWriter = LocRibWriter.create(
                 ribSupport,
-                verifyNotNull(this.tableTypeRegistry.getAfiSafiType(key)),
+                verifyNotNull(tableTypeRegistry.getAfiSafiType(key)),
                 txChain,
                 yangRibId,
-                this.localAs,
+                localAs,
                 getService(),
-                this.ribPolicies,
-                this.peerTracker,
+                ribPolicies,
+                peerTracker,
                 pathSelectionStrategy);
-        this.vpnTableRefresher.put(key, locRibWriter);
+        vpnTableRefresher.put(key, locRibWriter);
         registerTotalPathCounter(key, locRibWriter);
         registerTotalPrefixesCounter(key, locRibWriter);
-        this.txChainToLocRibWriter.put(txChain, locRibWriter);
+        txChainToLocRibWriter.put(txChain, locRibWriter);
     }
 
     @Override
@@ -201,31 +200,23 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public synchronized void close() {
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
-        }
-    }
-
-    @Override
     public AsNumber getLocalAs() {
-        return this.localAs;
+        return localAs;
     }
 
     @Override
     public BgpId getBgpIdentifier() {
-        return this.bgpIdentifier;
+        return bgpIdentifier;
     }
 
     @Override
     public Set<? extends BgpTableType> getLocalTables() {
-        return this.localTables;
+        return localTables;
     }
 
     @Override
     public BGPDispatcher getDispatcher() {
-        return this.dispatcher;
+        return dispatcher;
     }
 
     @Override
@@ -233,12 +224,12 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
             final DOMDataTreeTransaction transaction, final Throwable cause) {
         LOG.error("Broken chain in RIB {} transaction {}",
             getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
-        final LocRibWriter<?, ?> locRibWriter = this.txChainToLocRibWriter.remove(chain);
+        final LocRibWriter<?, ?> locRibWriter = txChainToLocRibWriter.remove(chain);
         if (locRibWriter != null) {
             final DOMTransactionChain newChain = createPeerDOMChain(this);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
-            this.txChainToLocRibWriter.put(newChain, locRibWriter);
+            txChainToLocRibWriter.put(newChain, locRibWriter);
         }
     }
 
@@ -249,27 +240,27 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
 
     @Override
     public Set<TablesKey> getLocalTablesKeys() {
-        return this.localTablesKeys;
+        return localTablesKeys;
     }
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.localTablesKeys.contains(tableKey);
+        return localTablesKeys.contains(tableKey);
     }
 
     @Override
     public BGPRibRoutingPolicy getRibPolicies() {
-        return this.ribPolicies;
+        return ribPolicies;
     }
 
     @Override
     public BGPPeerTracker getPeerTracker() {
-        return this.peerTracker;
+        return peerTracker;
     }
 
     @Override
     public void refreshTable(final TablesKey tk, final PeerId peerId) {
-        final RibOutRefresh table = this.vpnTableRefresher.get(tk);
+        final RibOutRefresh table = vpnTableRefresher.get(tk);
         if (table != null) {
             table.refreshTable(tk, peerId);
         }
@@ -277,97 +268,97 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
 
     @Override
     public DOMDataTreeChangeService getService() {
-        return (DOMDataTreeChangeService) this.domService;
+        return (DOMDataTreeChangeService) domService;
     }
 
     @Override
     public YangInstanceIdentifier getYangRibId() {
-        return this.yangRibId;
+        return yangRibId;
     }
 
     @Override
     public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
-        return this.domDataBroker.createMergingTransactionChain(listener);
+        return domDataBroker.createMergingTransactionChain(listener);
     }
 
     @Override
     public RIBExtensionConsumerContext getRibExtensions() {
-        return this.extensions;
+        return extensions;
     }
 
     @Override
     public RIBSupportContextRegistry getRibSupportContext() {
-        return this.ribContextRegistry;
+        return ribContextRegistry;
     }
 
     @Override
     public CodecsRegistry getCodecsRegistry() {
-        return this.codecsRegistry;
+        return codecsRegistry;
     }
 
     public synchronized void instantiateServiceInstance() {
-        this.isServiceInstantiated = true;
+        isServiceInstantiated = true;
         setActive(true);
-        this.domChain = this.domDataBroker.createMergingTransactionChain(this);
-        LOG.debug("Instantiating RIB table {} at {}", this.ribId, this.yangRibId);
+        domChain = domDataBroker.createMergingTransactionChain(this);
+        LOG.debug("Instantiating RIB table {} at {}", ribId, yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(BGPRIB_NID)
                 .addChild(ImmutableNodes.mapNodeBuilder(RIB_NID).build()).build();
 
         final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
-                NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, this.ribId.getValue()))
-                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, this.ribId.getValue()))
+                NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
+                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
                 .addChild(ImmutableNodes.mapNodeBuilder(PEER_NID).build())
                 .addChild(Builders.containerBuilder().withNodeIdentifier(LOCRIB_NID)
                         .addChild(ImmutableNodes.mapNodeBuilder(TABLES_NID).build())
                         .build()).build();
 
-        final DOMDataTreeWriteTransaction trans = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction trans = domChain.newWriteOnlyTransaction();
 
         // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
         trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.create(BGPRIB_NID), bgpRib);
-        trans.put(LogicalDatastoreType.OPERATIONAL, this.yangRibId, ribInstance);
+        trans.put(LogicalDatastoreType.OPERATIONAL, yangRibId, ribInstance);
 
         try {
             trans.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
-            LOG.error("Failed to initiate RIB {}", this.yangRibId, e);
+            LOG.error("Failed to initiate RIB {}", yangRibId, e);
         }
 
         LOG.debug("Effective RIB created.");
 
-        this.localTablesKeys.forEach(this::startLocRib);
-        this.localTablesKeys.forEach(this::createLocRibWriter);
+        localTablesKeys.forEach(this::startLocRib);
+        localTablesKeys.forEach(this::createLocRibWriter);
     }
 
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (!this.isServiceInstantiated) {
-            LOG.trace("RIB {} already closed", this.ribId.getValue());
+        if (!isServiceInstantiated) {
+            LOG.trace("RIB {} already closed", ribId.getValue());
             return CommitInfo.emptyFluentFuture();
         }
-        LOG.info("Close RIB {}", this.ribId.getValue());
-        this.isServiceInstantiated = false;
+        LOG.info("Close RIB {}", ribId.getValue());
+        isServiceInstantiated = false;
         setActive(false);
 
-        this.txChainToLocRibWriter.values().forEach(LocRibWriter::close);
-        this.txChainToLocRibWriter.clear();
+        txChainToLocRibWriter.values().forEach(LocRibWriter::close);
+        txChainToLocRibWriter.clear();
 
-        final DOMDataTreeWriteTransaction t = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction t = domChain.newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
         final FluentFuture<? extends CommitInfo> cleanFuture = t.commit();
         cleanFuture.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.info("RIB cleaned {}", RIBImpl.this.ribId.getValue());
+                LOG.info("RIB cleaned {}", ribId.getValue());
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Failed to clean RIB {}",
-                        RIBImpl.this.ribId.getValue(), throwable);
+                        ribId.getValue(), throwable);
             }
         }, MoreExecutors.directExecutor());
-        this.domChain.close();
+        domChain.close();
         return cleanFuture;
     }
 }
