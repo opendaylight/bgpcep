@@ -148,7 +148,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.bgpPeerSingletonService == null,
                 "Previous peer instance was not closed.");
-
+        LOG.info("Starting BgPeer instance {}", neighbor.getNeighborAddress());
         this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
         this.currentConfiguration = neighbor;
