@@ -92,6 +92,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void startNegotiation() {
+        LOG.debug("Starting negotiating with {}, current state: {}", channel.remoteAddress(), state);
         if (!(this.state == State.IDLE || this.state == State.OPEN_CONFIRM)) {
             return;
         }

@@ -111,8 +111,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
         super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
                 afiSafisLlGracefulAdvertized);
-        this.name = peerName;
-        this.peerRole = role;
+        name = peerName;
+        peerRole = role;
         this.clusterId = clusterId;
         this.localAs = localAs;
         this.rib = rib;
@@ -135,7 +135,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
             return CommitInfo.emptyFluentFuture();
         }
         LOG.info("Closed per Peer {} removed", peerPath);
-        final DOMDataTreeWriteTransaction tx = this.domChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = domChain.newWriteOnlyTransaction();
         tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
@@ -158,12 +158,12 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
 
     @Override
     public final synchronized PeerId getPeerId() {
-        return this.peerId;
+        return peerId;
     }
 
     @Override
     public final PeerRole getRole() {
-        return this.peerRole;
+        return peerRole;
     }
 
     @Override
@@ -203,22 +203,22 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
 
     @Override
     public final String getName() {
-        return this.name;
+        return name;
     }
 
     @Override
     public final ClusterIdentifier getClusterId() {
-        return this.clusterId;
+        return clusterId;
     }
 
     @Override
     public final AsNumber getLocalAs() {
-        return this.localAs;
+        return localAs;
     }
 
     @Override
     public synchronized DOMTransactionChain getDomChain() {
-        return this.domChain;
+        return domChain;
     }
 
     /**
@@ -232,7 +232,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
                     final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.ribOutChain == null) {
+        if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -241,7 +241,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final YangInstanceIdentifier tableRibout = getRibOutIId(ribSupport.tablesKey());
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = ribOutChain.newWriteOnlyTransaction();
         for (final ActualBestPathRoutes<C, S> initRoute : routesToStore) {
             if (!supportsLLGR() && initRoute.isDepreferenced()) {
                 // Stale Long-lived Graceful Restart routes should not be propagated
@@ -267,7 +267,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
-        this.submitted = future;
+        submitted = future;
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -285,17 +285,17 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
                 final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
-        if (this.ribOutChain == null) {
+        if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
-        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = ribOutChain.newWriteOnlyTransaction();
         final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         deleteRouteRibOut(ribSupport, staleRoutes, tx);
         installRouteRibOut(entryDep, newRoutes, tx);
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
-        this.submitted = future;
+        submitted = future;
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -313,7 +313,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
                 final List<ActualBestPathRoutes<C, S>> routesToStore) {
-        if (this.ribOutChain == null) {
+        if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
@@ -322,7 +322,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final NodeIdentifierWithPredicates tk = ribSupport.tablesKey();
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
-        final DOMDataTreeWriteTransaction tx = this.ribOutChain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = ribOutChain.newWriteOnlyTransaction();
         for (final ActualBestPathRoutes<C, S> actualBestRoute : routesToStore) {
             final PeerId fromPeerId = actualBestRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, ribSupport.getTablesKey())) {
@@ -347,7 +347,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
-        this.submitted = future;
+        submitted = future;
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -367,7 +367,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
         final RIBSupport<?, ?> ribSupport = entryDep.getRIBSupport();
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this,
-            ribSupport.extractRouteKey(route.getIdentifier()), this.rtCache);
+            ribSupport.extractRouteKey(route.getIdentifier()), rtCache);
 
         final Attributes bindingAttrs = ribSupport.attributeFromContainerNode(attrs);
         final Optional<Attributes> optExportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry,
@@ -479,36 +479,37 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
+    // FIXME: make this asynchronous?
     final synchronized void releaseRibOutChain(final boolean isWaitForSubmitted) {
         if (isWaitForSubmitted) {
-            if (this.submitted != null) {
+            if (submitted != null) {
                 try {
-                    this.submitted.get();
+                    submitted.get();
                 } catch (final InterruptedException | ExecutionException throwable) {
                     LOG.error("Write routes failed", throwable);
                 }
             }
         }
 
-        if (this.ribOutChain != null) {
+        if (ribOutChain != null) {
             LOG.info("Closing peer chain {}", getPeerId());
-            this.ribOutChain.close();
-            this.ribOutChain = null;
+            ribOutChain.close();
+            ribOutChain = null;
         }
     }
 
     final synchronized void createDomChain() {
-        if (this.domChain == null) {
+        if (domChain == null) {
             LOG.info("Creating DOM peer chain {}", getPeerId());
-            this.domChain = this.rib.createPeerDOMChain(this);
+            domChain = rib.createPeerDOMChain(this);
         }
     }
 
     final synchronized void closeDomChain() {
-        if (this.domChain != null) {
+        if (domChain != null) {
             LOG.info("Closing DOM peer chain {}", getPeerId());
-            this.domChain.close();
-            this.domChain = null;
+            domChain.close();
+            domChain = null;
         }
     }
 
