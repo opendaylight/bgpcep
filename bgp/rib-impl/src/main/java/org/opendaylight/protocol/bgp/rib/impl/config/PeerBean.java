@@ -24,15 +24,12 @@ public interface PeerBean extends AutoCloseable {
     void start(RIB rib, Neighbor neighbor, InstanceIdentifier<Bgp> bgpIid, PeerGroupConfigLoader peerGroupLoader,
             BGPTableTypeRegistryConsumer tableTypeRegistry);
 
-    void restart(RIB rib, InstanceIdentifier<Bgp> bgpIid, PeerGroupConfigLoader peerGroupLoader,
-            BGPTableTypeRegistryConsumer tableTypeRegistry);
-
-    @Override
-    void close();
-
     void instantiateServiceInstance();
 
     FluentFuture<? extends CommitInfo> closeServiceInstance();
 
     Boolean containsEqualConfiguration(Neighbor neighbor);
+
+    Neighbor getCurrentConfiguration();
+
 }

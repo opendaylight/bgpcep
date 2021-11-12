@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -137,8 +138,8 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     @Override
     public synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(bgpPeerSingletonService == null,
-                "Previous peer instance was not closed.");
+        Preconditions.checkState(bgpPeerSingletonService == null, "Previous peer instance was not closed.");
+        LOG.info("Starting BgPeer instance {}", neighbor.getNeighborAddress());
 
         bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
@@ -147,26 +148,17 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     }
 
     @Override
-    public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
-            final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(currentConfiguration != null);
-        if (bgpPeerSingletonService != null) {
-            bgpPeerSingletonService.closeServiceInstance();
-            bgpPeerSingletonService = null;
+    public synchronized void close() throws ExecutionException, InterruptedException {
+        if (bgpPeerSingletonService == null) {
+            LOG.info("BGP Peer {} already closed, skipping", currentConfiguration.getNeighborAddress());
         }
-        start(rib, currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
-    }
-
-    @Override
-    public synchronized void close() {
-        if (bgpPeerSingletonService != null) {
-            bgpPeerSingletonService.closeServiceInstance();
-            bgpPeerSingletonService = null;
-        }
+        LOG.info("Closing BGP Peer {}", currentConfiguration.getNeighborAddress());
         if (stateProviderRegistration != null) {
             stateProviderRegistration.close();
             stateProviderRegistration = null;
         }
+        closeServiceInstance().get();
+        bgpPeerSingletonService = null;
     }
 
     @Override
@@ -209,6 +201,11 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                 && Objects.equals(currentConfiguration.getState(), neighbor.getState())
                 && Objects.equals(currentConfiguration.getTimers(), neighbor.getTimers())
                 && Objects.equals(currentConfiguration.getTransport(), neighbor.getTransport());
+    }
+
+    @Override
+    public synchronized Neighbor getCurrentConfiguration() {
+        return currentConfiguration;
     }
 
     @Override
