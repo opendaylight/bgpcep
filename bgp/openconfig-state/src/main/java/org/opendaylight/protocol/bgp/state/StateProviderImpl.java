@@ -166,10 +166,13 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void updateBGPStats(final WriteOperations wtx) {
         final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
+        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive)
+                .peek(bgpRibState -> LOG.info("Updating RibState {}", bgpRibState.getInstanceIdentifier().getKey()))
+                .forEach(bgpStateConsumer -> {
             final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
             final List<BGPPeerState> peerStats = this.stateProvider.getPeerStats().stream()
                     .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
+                    .peek(bgpPeerState -> LOG.info("Updating PeerState {}", bgpPeerState.getNeighborAddress()))
                     .collect(Collectors.toList());
             storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
             oldStats.remove(ribId.getKey().getId().getValue());
