@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,10 +30,10 @@ public class AppPeerTest extends AbstractConfig {
 
     private final Neighbor neighbor = new NeighborBuilder()
             .setConfig(new ConfigBuilder()
-                .addAugmentation(new NeighborPeerGroupConfigBuilder()
-                    .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
+                    .addAugmentation(new NeighborPeerGroupConfigBuilder()
+                            .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
+                            .build())
                     .build())
-                .build())
             .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
 
     @Override
@@ -42,7 +43,7 @@ public class AppPeerTest extends AbstractConfig {
     }
 
     @Test
-    public void testAppPeer() {
+    public void testAppPeer() throws ExecutionException, InterruptedException {
         appPeer.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
@@ -60,7 +61,7 @@ public class AppPeerTest extends AbstractConfig {
         Mockito.verify(this.domTx, times(2)).close();
         appPeer.close();
 
-        appPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
+        appPeer.start(this.rib, appPeer.getCurrentConfiguration(), null, this.peerGroupLoader, this.tableTypeRegistry);
         appPeer.instantiateServiceInstance();
         Mockito.verify(this.rib, times(6)).getYangRibId();
         Mockito.verify(this.rib, times(4)).getService();
