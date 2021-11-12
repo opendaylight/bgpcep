@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -19,8 +19,8 @@ import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -63,7 +63,7 @@ public class BgpPeerTest extends AbstractConfig {
     static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
             .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
             .build();
-    static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Collections.singletonMap(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
+    static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Map.of(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
     private BgpPeer bgpPeer;
 
@@ -80,8 +80,8 @@ public class BgpPeerTest extends AbstractConfig {
     }
 
     static Transport createTransport() {
-        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
-                .rev151009.bgp.neighbor.group.transport.ConfigBuilder()
+        return new TransportBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
+                .bgp.neighbor.group.transport.ConfigBuilder()
                     .setMtuDiscovery(false)
                     .setPassiveMode(false)
                     .addAugmentation(new NeighborTransportConfigBuilder().setRemotePort(PORT).build())
@@ -128,81 +128,86 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.bgpPeer = new BgpPeer(mock(RpcProviderService.class), new BGPStateCollector());
+        bgpPeer = new BgpPeer(mock(RpcProviderService.class), new BGPStateCollector());
     }
 
     @Test
-    public void testBgpPeer() {
-        final Neighbor neighbor = new NeighborBuilder().setAfiSafis(createAfiSafi()).setConfig(createConfig())
-                .setNeighborAddress(NEIGHBOR_ADDRESS).setRouteReflector(createRR()).setTimers(createTimers())
-                .setTransport(createTransport()).setAddPaths(createAddPath()).build();
+    public void testBgpPeer() throws ExecutionException, InterruptedException {
+        final Neighbor neighbor = new NeighborBuilder()
+            .setAfiSafis(createAfiSafi())
+            .setConfig(createConfig())
+            .setNeighborAddress(NEIGHBOR_ADDRESS)
+            .setRouteReflector(createRR())
+            .setTimers(createTimers())
+            .setTransport(createTransport())
+            .setAddPaths(createAddPath())
+            .build();
 
-        this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
-        verify(this.rib).createPeerDOMChain(any());
-        verify(this.rib, times(2)).getLocalAs();
-        verify(this.rib).getLocalTables();
+        bgpPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
+        verify(rib).createPeerDOMChain(any());
+        verify(rib, times(2)).getLocalAs();
+        verify(rib).getLocalTables();
 
-        this.bgpPeer.instantiateServiceInstance();
-        verify(this.bgpPeerRegistry).addPeer(any(), any(), any());
-        verify(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
-                any(), anyInt(), any(KeyMapping.class));
+        bgpPeer.instantiateServiceInstance();
+        verify(bgpPeerRegistry).addPeer(any(), any(), any());
+        verify(dispatcher).createReconnectingClient(any(InetSocketAddress.class), any(), anyInt(),
+            any(KeyMapping.class));
 
-        try {
-            this.bgpPeer.start(this.rib, neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
-            fail("Expected Exception");
-        } catch (final IllegalStateException expected) {
-            assertEquals("Previous peer instance was not closed.", expected.getMessage());
-        }
-        this.bgpPeer.closeServiceInstance();
-        verify(this.bgpPeerRegistry).removePeer(any());
-        verify(this.future).cancel(true);
-        this.bgpPeer.close();
-
-        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
-        verify(this.rib, times(2)).createPeerDOMChain(any());
-        verify(this.rib, times(4)).getLocalAs();
-        verify(this.rib, times(2)).getLocalTables();
-        this.bgpPeer.instantiateServiceInstance();
-        verify(this.bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
-        verify(this.dispatcher, times(2)).createReconnectingClient(any(InetSocketAddress.class),
-                any(), anyInt(), any(KeyMapping.class));
+        final var ex = assertThrows(IllegalStateException.class,
+            () -> bgpPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry));
+        assertEquals("Previous peer instance was not closed.", ex.getMessage());
+        bgpPeer.closeServiceInstance();
+        verify(bgpPeerRegistry).removePeer(any());
+        verify(future).cancel(true);
+        bgpPeer.stop().get();
+        bgpPeer.start(rib, bgpPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
+        bgpPeer.instantiateServiceInstance();
+        verify(rib, times(2)).createPeerDOMChain(any());
+        verify(rib, times(4)).getLocalAs();
+        verify(rib, times(2)).getLocalTables();
+        verify(bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
+        verify(dispatcher, times(2)).createReconnectingClient(any(InetSocketAddress.class), any(), anyInt(),
+            any(KeyMapping.class));
 
         final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
-        assertTrue(this.bgpPeer.containsEqualConfiguration(neighborExpected));
-        assertFalse(this.bgpPeer.containsEqualConfiguration(createNeighborExpected(
-                new IpAddress(new Ipv4Address("127.0.0.2")))));
+        assertTrue(bgpPeer.containsEqualConfiguration(neighborExpected));
+        assertFalse(bgpPeer.containsEqualConfiguration(createNeighborExpected(
+            new IpAddress(new Ipv4Address("127.0.0.2")))));
 
-        this.bgpPeer.closeServiceInstance();
-        verify(this.bgpPeerRegistry, times(2)).removePeer(any());
-        verify(this.future, times(2)).cancel(true);
+        bgpPeer.closeServiceInstance();
+        verify(bgpPeerRegistry, times(2)).removePeer(any());
+        verify(future, times(2)).cancel(true);
 
-        this.bgpPeer.instantiateServiceInstance();
-        verify(this.bgpPeerRegistry, times(3)).addPeer(any(), any(), any());
-        verify(this.dispatcher, times(3)).createReconnectingClient(any(InetSocketAddress.class),
-                any(), anyInt(), any(KeyMapping.class));
+        bgpPeer.instantiateServiceInstance();
+        verify(bgpPeerRegistry, times(3)).addPeer(any(), any(), any());
+        verify(dispatcher, times(3)).createReconnectingClient(any(InetSocketAddress.class), any(), anyInt(),
+            any(KeyMapping.class));
 
-        this.bgpPeer.closeServiceInstance();
-        verify(this.bgpPeerRegistry, times(3)).removePeer(any());
-        verify(this.future, times(3)).cancel(true);
-        verify(this.rib, times(3)).createPeerDOMChain(any());
+        bgpPeer.closeServiceInstance();
+        verify(bgpPeerRegistry, times(3)).removePeer(any());
+        verify(future, times(3)).cancel(true);
+        verify(rib, times(3)).createPeerDOMChain(any());
 
-        this.bgpPeer.restart(this.rib, null, this.peerGroupLoader, this.tableTypeRegistry);
-        verify(this.rib, times(4)).createPeerDOMChain(any());
-        verify(this.rib, times(6)).getLocalAs();
-        verify(this.rib, times(3)).getLocalTables();
-        this.bgpPeer.instantiateServiceInstance();
-        verify(this.bgpPeerRegistry, times(4)).addPeer(any(), any(), any());
-        verify(this.dispatcher, times(4)).createReconnectingClient(any(InetSocketAddress.class),
-                any(), anyInt(), any(KeyMapping.class));
-        this.bgpPeer.closeServiceInstance();
-        verify(this.bgpPeerRegistry, times(4)).removePeer(any());
-        verify(this.future, times(4)).cancel(true);
-        this.bgpPeer.close();
+        bgpPeer.stop().get();
+        bgpPeer.start(rib, bgpPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
+        bgpPeer.instantiateServiceInstance();
+        verify(rib, times(4)).createPeerDOMChain(any());
+        verify(rib, times(6)).getLocalAs();
+        verify(rib, times(3)).getLocalTables();
+        verify(bgpPeerRegistry, times(4)).addPeer(any(), any(), any());
+        verify(dispatcher, times(4)).createReconnectingClient(any(InetSocketAddress.class), any(), anyInt(),
+            any(KeyMapping.class));
+        bgpPeer.closeServiceInstance();
+        verify(bgpPeerRegistry, times(4)).removePeer(any());
+        verify(future, times(4)).cancel(true);
+        bgpPeer.stop().get();
 
-        final Neighbor neighborDiffConfig = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
-                .setAfiSafis(createAfiSafi()).build();
-        this.bgpPeer.start(this.rib, neighborDiffConfig, null, this.peerGroupLoader, this.tableTypeRegistry);
-        assertTrue(this.bgpPeer.containsEqualConfiguration(neighborDiffConfig));
-        this.bgpPeer.close();
+        final Neighbor neighborDiffConfig = new NeighborBuilder()
+            .setNeighborAddress(NEIGHBOR_ADDRESS)
+            .setAfiSafis(createAfiSafi())
+            .build();
+        bgpPeer.start(rib, neighborDiffConfig, null, peerGroupLoader, tableTypeRegistry);
+        assertTrue(bgpPeer.containsEqualConfiguration(neighborDiffConfig));
+        bgpPeer.stop().get();
     }
 }
