@@ -242,7 +242,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
             return;
         }
         for (final PeerGroup peerGroup : extPeerGroups.nonnullPeerGroup().values()) {
-            bgpCss.values().forEach(css -> css.restartNeighbors(peerGroup.getPeerGroupName()));
+            bgpCss.values().forEach(css -> css.restartPeerGroup(peerGroup.getPeerGroupName()));
         }
     }
 
