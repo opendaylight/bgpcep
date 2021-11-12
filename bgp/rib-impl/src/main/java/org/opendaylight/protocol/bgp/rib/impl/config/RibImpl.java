@@ -7,17 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getAfiSafiWithDefault;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getGlobalClusterIdentifier;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.toTableTypes;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
@@ -58,31 +61,39 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
+public final class RibImpl implements RIB, BGPRibStateProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(RibImpl.class);
 
-    private final RIBExtensionConsumerContext extensions;
+    private final RIBExtensionConsumerContext extensionProvider;
     private final BGPDispatcher dispatcher;
     private final CodecsRegistry codecsRegistry;
     private final DOMDataBroker domBroker;
     private final BGPRibRoutingPolicyFactory policyProvider;
     private final BGPStateProviderRegistry stateProviderRegistry;
+    @GuardedBy("this")
     private RIBImpl ribImpl;
-    private Collection<AfiSafi> afiSafi;
-    private AsNumber asNumber;
-    private Ipv4AddressNoZone routerId;
-    private ClusterIdentifier clusterId;
+    @GuardedBy("this")
     private Registration stateProviderRegistration;
+    @GuardedBy("this")
+    private Collection<AfiSafi> afiSafi;
+    @GuardedBy("this")
+    private AsNumber asNumber;
+    @GuardedBy("this")
+    private Ipv4AddressNoZone routerId;
+    @GuardedBy("this")
+    private ClusterIdentifier clusterId;
+    @GuardedBy("this")
+    private RibId ribId;
 
     public RibImpl(
-            final RIBExtensionConsumerContext contextProvider,
+            final RIBExtensionConsumerContext extensionProvider,
             final BGPDispatcher dispatcher,
             final BGPRibRoutingPolicyFactory policyProvider,
             final CodecsRegistry codecsRegistry,
             final BGPStateProviderRegistry stateProviderRegistry,
             final DOMDataBroker domBroker) {
-        this.extensions = requireNonNull(contextProvider);
+        this.extensionProvider = requireNonNull(extensionProvider);
         this.dispatcher = requireNonNull(dispatcher);
         this.codecsRegistry = requireNonNull(codecsRegistry);
         this.domBroker = requireNonNull(domBroker);
@@ -90,168 +101,176 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
 
-    void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.ribImpl == null,
-                "Previous instance %s was not closed.", this);
-        this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
-        this.stateProviderRegistration =  this.stateProviderRegistry.register(this);
+    synchronized void start(final Global global, final String instanceName,
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+        checkState(ribImpl == null, "Previous instance %s was not closed.", this);
+        LOG.info("Starting BGP instance {}", instanceName);
+        ribId = new RibId(instanceName);
+        ribImpl = createRib(global, tableTypeRegistry);
+        stateProviderRegistration =  stateProviderRegistry.register(this);
     }
 
-    Boolean isGlobalEqual(final Global global) {
+    synchronized ListenableFuture<?> stop() {
+        if (ribImpl == null) {
+            LOG.info("RIB instance {} already closed, skipping", ribId);
+            return Futures.immediateVoidFuture();
+        }
+
+        LOG.info("Closing RIB instance {}", ribId);
+        if (stateProviderRegistration != null) {
+            LOG.info("Unregistering state provider for RIB instance {}", ribId);
+            stateProviderRegistration.close();
+            stateProviderRegistration = null;
+        }
+
+        final var future = ribImpl.closeServiceInstance();
+        ribImpl = null;
+        return future;
+    }
+
+    synchronized Boolean isGlobalEqual(final Global global) {
         final Collection<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         final AsNumber globalAs = globalConfig.getAs();
         final Ipv4Address globalRouterId = global.getConfig().getRouterId();
         final ClusterIdentifier globalClusterId = getGlobalClusterIdentifier(globalConfig);
-        return this.afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(this.afiSafi)
-                && globalAs.equals(this.asNumber)
-                && globalRouterId.getValue().equals(this.routerId.getValue())
-                && globalClusterId.getValue().equals(this.clusterId.getValue());
+        return afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(afiSafi)
+                && globalAs.equals(asNumber)
+                && globalRouterId.getValue().equals(routerId.getValue())
+                && globalClusterId.getValue().equals(clusterId.getValue());
     }
 
     @Override
-    public KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
-        return this.ribImpl.getInstanceIdentifier();
+    public synchronized KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
+        return ribImpl.getInstanceIdentifier();
     }
 
     @Override
-    public AsNumber getLocalAs() {
-        return this.ribImpl.getLocalAs();
+    public synchronized AsNumber getLocalAs() {
+        return ribImpl.getLocalAs();
     }
 
     @Override
-    public BgpId getBgpIdentifier() {
-        return this.ribImpl.getBgpIdentifier();
+    public synchronized BgpId getBgpIdentifier() {
+        return ribImpl.getBgpIdentifier();
     }
 
     @Override
-    public Set<? extends BgpTableType> getLocalTables() {
-        return this.ribImpl.getLocalTables();
+    public synchronized Set<? extends BgpTableType> getLocalTables() {
+        return ribImpl.getLocalTables();
     }
 
     @Override
-    public BGPDispatcher getDispatcher() {
-        return this.ribImpl.getDispatcher();
+    public synchronized BGPDispatcher getDispatcher() {
+        return ribImpl.getDispatcher();
     }
 
     @Override
-    public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
-        return this.ribImpl.createPeerDOMChain(listener);
+    public synchronized DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
+        return ribImpl.createPeerDOMChain(listener);
     }
 
     @Override
-    public RIBExtensionConsumerContext getRibExtensions() {
-        return this.ribImpl.getRibExtensions();
+    public synchronized RIBExtensionConsumerContext getRibExtensions() {
+        return ribImpl.getRibExtensions();
     }
 
     @Override
-    public RIBSupportContextRegistry getRibSupportContext() {
-        return this.ribImpl.getRibSupportContext();
+    public synchronized RIBSupportContextRegistry getRibSupportContext() {
+        return ribImpl.getRibSupportContext();
     }
 
     @Override
-    public YangInstanceIdentifier getYangRibId() {
-        return this.ribImpl.getYangRibId();
+    public synchronized YangInstanceIdentifier getYangRibId() {
+        return ribImpl.getYangRibId();
     }
 
     @Override
-    public CodecsRegistry getCodecsRegistry() {
-        return this.ribImpl.getCodecsRegistry();
+    public synchronized CodecsRegistry getCodecsRegistry() {
+        return ribImpl.getCodecsRegistry();
     }
 
     @Override
-    public DOMDataTreeChangeService getService() {
-        return this.ribImpl.getService();
+    public synchronized DOMDataTreeChangeService getService() {
+        return ribImpl.getService();
     }
 
-    FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (this.ribImpl != null) {
-            return this.ribImpl.closeServiceInstance();
+    synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
+        if (ribImpl != null) {
+            return ribImpl.closeServiceInstance();
         }
         return CommitInfo.emptyFluentFuture();
     }
 
     @Override
-    public void close() {
-        if (this.ribImpl != null) {
-            this.stateProviderRegistration.close();
-            this.ribImpl.close();
-            this.stateProviderRegistration = null;
-            this.ribImpl = null;
-        }
-    }
-
-
-    @Override
-    public Set<TablesKey> getLocalTablesKeys() {
-        return this.ribImpl.getLocalTablesKeys();
+    public synchronized Set<TablesKey> getLocalTablesKeys() {
+        return ribImpl.getLocalTablesKeys();
     }
 
     @Override
-    public boolean supportsTable(final TablesKey tableKey) {
-        return this.ribImpl.supportsTable(tableKey);
+    public synchronized boolean supportsTable(final TablesKey tableKey) {
+        return ribImpl.supportsTable(tableKey);
     }
 
     @Override
-    public BGPRibRoutingPolicy getRibPolicies() {
-        return this.ribImpl.getRibPolicies();
+    public synchronized BGPRibRoutingPolicy getRibPolicies() {
+        return ribImpl.getRibPolicies();
     }
 
     @Override
-    public BGPPeerTracker getPeerTracker() {
-        return this.ribImpl.getPeerTracker();
+    public synchronized BGPPeerTracker getPeerTracker() {
+        return ribImpl.getPeerTracker();
     }
 
     @Override
-    public String toString() {
-        return this.ribImpl != null ? this.ribImpl.toString() : "";
+    public synchronized String toString() {
+        return ribImpl != null ? ribImpl.toString() : "";
     }
 
-    private RIBImpl createRib(
+    private synchronized RIBImpl createRib(
             final Global global,
-            final String bgpInstanceName,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        this.afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
+        afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
-        this.asNumber = globalConfig.getAs();
-        this.routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());
-        this.clusterId = getGlobalClusterIdentifier(globalConfig);
+        asNumber = globalConfig.getAs();
+        routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());
+        clusterId = getGlobalClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
-                .toPathSelectionMode(this.afiSafi, tableTypeRegistry).entrySet()
+                .toPathSelectionMode(afiSafi, tableTypeRegistry).entrySet()
                 .stream()
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
 
-        final BGPRibRoutingPolicy ribPolicy = this.policyProvider.buildBGPRibPolicy(this.asNumber.getValue().toJava(),
-                this.routerId, this.clusterId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
+        final BGPRibRoutingPolicy ribPolicy = policyProvider.buildBGPRibPolicy(asNumber.getValue().toJava(),
+                routerId, clusterId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
 
         return new RIBImpl(
                 tableTypeRegistry,
-                new RibId(bgpInstanceName),
-                this.asNumber,
-                new BgpId(this.routerId),
-                this.extensions,
-                this.dispatcher,
+                ribId,
+                asNumber,
+                new BgpId(routerId),
+                extensionProvider,
+                dispatcher,
                 codecsRegistry,
-                this.domBroker,
+                domBroker,
                 ribPolicy,
-                toTableTypes(this.afiSafi, tableTypeRegistry),
+                toTableTypes(afiSafi, tableTypeRegistry),
                 pathSelectionModes);
     }
 
     @Override
-    public BGPRibState getRIBState() {
-        return this.ribImpl.getRIBState();
+    public synchronized BGPRibState getRIBState() {
+        return ribImpl.getRIBState();
     }
 
-    public void instantiateServiceInstance() {
-        if (this.ribImpl != null) {
-            this.ribImpl.instantiateServiceInstance();
+    public synchronized void instantiateServiceInstance() {
+        if (ribImpl != null) {
+            ribImpl.instantiateServiceInstance();
         }
     }
 
     @Override
-    public void refreshTable(final TablesKey tk, final PeerId peerId) {
-        this.ribImpl.refreshTable(tk, peerId);
+    public synchronized void refreshTable(final TablesKey tk, final PeerId peerId) {
+        ribImpl.refreshTable(tk, peerId);
     }
 }

@@ -104,100 +104,94 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        doReturn("mapping").when(this.tableTypeRegistry).toString();
-        doReturn(TABLE_TYPE).when(this.tableTypeRegistry).getTableType(any());
-        doReturn(TABLES_KEY).when(this.tableTypeRegistry).getTableKey(any());
+        doReturn("mapping").when(tableTypeRegistry).toString();
+        doReturn(TABLE_TYPE).when(tableTypeRegistry).getTableType(any());
+        doReturn(TABLES_KEY).when(tableTypeRegistry).getTableKey(any());
 
         final ClusterSingletonServiceRegistration serviceRegistration = mock(ClusterSingletonServiceRegistration.class);
-        doReturn(serviceRegistration).when(this.singletonServiceProvider).registerClusterSingletonService(any());
+        doReturn(serviceRegistration).when(singletonServiceProvider).registerClusterSingletonService(any());
         doNothing().when(serviceRegistration).close();
 
         final Future future = mock(BGPReconnectPromise.class);
         doReturn(true).when(future).cancel(true);
-        doReturn(future).when(this.dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
-        this.deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, this.singletonServiceProvider,
-                this.rpcRegistry, this.extensionContext, this.dispatcher,
+        doReturn(future).when(dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
+        deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, singletonServiceProvider,
+                rpcRegistry, extensionContext, dispatcher,
                 new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
-                this.codecsRegistry, getDomBroker(), getDataBroker(), this.tableTypeRegistry, stateProviderRegistry));
-        this.bgpSingletonObtainedLatch = new CountDownLatch(1);
+                codecsRegistry, getDomBroker(), getDataBroker(), tableTypeRegistry, stateProviderRegistry));
+        bgpSingletonObtainedLatch = new CountDownLatch(1);
         doAnswer(invocationOnMock -> {
                 final BGPClusterSingletonService real =
                         (BGPClusterSingletonService) invocationOnMock.callRealMethod();
-                if (this.spiedBgpSingletonService == null) {
-                    this.spiedBgpSingletonService = spy(real);
+                if (spiedBgpSingletonService == null) {
+                    spiedBgpSingletonService = spy(real);
                 }
-                this.bgpSingletonObtainedLatch.countDown();
-                return this.spiedBgpSingletonService;
+                bgpSingletonObtainedLatch.countDown();
+                return spiedBgpSingletonService;
             }
-        ).when(this.deployer).getBgpClusterSingleton(any());
+        ).when(deployer).getBgpClusterSingleton(any());
     }
 
     @Test
     public void testDeployerRib() throws Exception {
-        this.deployer.init();
+        deployer.init();
         checkPresentConfiguration(getDataBroker(), NETWORK_II);
         createRib(createGlobalIpv4());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .initiateRibInstance(any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).initiateRibInstance(any());
 
         //change with same rib already existing
         createRib(createGlobalIpv4());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .initiateRibInstance(any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).initiateRibInstance(any());
 
         //Update for existing rib
         createRib(createGlobalIpv6());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .initiateRibInstance(any());
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1))
-                .closeRibService();
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2)).initiateRibInstance(any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).closeRibInstance();
 
         //Delete for existing rib
         deleteRib();
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .initiateRibInstance(any());
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2))
-                .closeRibService();
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2)).initiateRibInstance(any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(2)).closeRibInstance();
 
-        this.deployer.close();
+        deployer.close();
     }
 
     @Test
     public void testDeployerCreateNeighbor() throws Exception {
-        this.deployer.init();
+        deployer.init();
         checkPresentConfiguration(getDataBroker(), NETWORK_II);
 
         createRib(createGlobalIpv4());
         createNeighbor(createNeighbors());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
 
         //change with same peer already existing
         createNeighbor(createNeighbors());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
-        verify(this.spiedBgpSingletonService, never()).onNeighborRemoved(any());
-        verify(this.spiedBgpSingletonService, never()).onNeighborUpdated(any(), any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS)).onNeighborCreated(any());
+        verify(spiedBgpSingletonService, never()).onNeighborRemoved(any());
+        verify(spiedBgpSingletonService, never()).onNeighborUpdated(any(), any());
 
         //Update for peer
         createNeighbor(createNeighborsNoRR());
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborUpdated(any(), any());
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborUpdated(any(), any());
 
         deleteNeighbors();
         //Delete existing Peer
         awaitForObtainedSingleton();
-        verify(this.spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborRemoved(any());
-        this.deployer.close();
+        verify(spiedBgpSingletonService, timeout(VERIFY_TIMEOUT_MILIS).times(1)).onNeighborRemoved(any());
+        deployer.close();
     }
 
     private void awaitForObtainedSingleton() throws InterruptedException {
-        this.bgpSingletonObtainedLatch = new CountDownLatch(1);
-        this.bgpSingletonObtainedLatch.await(VERIFY_TIMEOUT_MILIS, TimeUnit.MILLISECONDS);
+        bgpSingletonObtainedLatch = new CountDownLatch(1);
+        bgpSingletonObtainedLatch.await(VERIFY_TIMEOUT_MILIS, TimeUnit.MILLISECONDS);
     }
 
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
@@ -223,5 +217,4 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         wr.delete(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II);
         wr.commit().get();
     }
-
 }
