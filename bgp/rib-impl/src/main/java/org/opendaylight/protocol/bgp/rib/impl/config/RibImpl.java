@@ -17,6 +17,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -93,6 +94,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
     void start(final Global global, final String instanceName, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         Preconditions.checkState(this.ribImpl == null,
                 "Previous instance %s was not closed.", this);
+        LOG.info("Starting BGP instance {}", instanceName);
         this.ribImpl = createRib(global, instanceName, tableTypeRegistry);
         this.stateProviderRegistration =  this.stateProviderRegistry.register(this);
     }
@@ -172,11 +174,12 @@ public final class RibImpl implements RIB, BGPRibStateProvider, AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public void close() throws ExecutionException, InterruptedException {
         if (this.ribImpl != null) {
             this.stateProviderRegistration.close();
-            this.ribImpl.close();
             this.stateProviderRegistration = null;
+            closeServiceInstance().get();
+            this.ribImpl.close();
             this.ribImpl = null;
         }
     }

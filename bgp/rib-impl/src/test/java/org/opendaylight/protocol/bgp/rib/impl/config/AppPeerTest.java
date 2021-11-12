@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -42,7 +43,7 @@ public class AppPeerTest extends AbstractConfig {
     }
 
     @Test
-    public void testAppPeer() {
+    public void testAppPeer() throws ExecutionException, InterruptedException {
         appPeer.start(this.rib, this.neighbor, null, this.peerGroupLoader, this.tableTypeRegistry);
         Mockito.verify(this.rib).getYangRibId();
         Mockito.verify(this.rib).getService();
