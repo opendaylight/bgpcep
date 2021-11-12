@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -66,42 +67,42 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
     @Override
     public synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.bgpAppPeerSingletonService == null,
+        Preconditions.checkState(bgpAppPeerSingletonService == null,
                 "Previous peer instance was not closed.");
-        this.currentConfiguration = neighbor;
-        this.bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
+        LOG.info("Starting AppPeer instance {}", neighbor.getNeighborAddress());
+        currentConfiguration = neighbor;
+        bgpAppPeerSingletonService = new BgpAppPeerSingletonService(rib, createAppRibId(neighbor),
             IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(neighbor.getNeighborAddress().getIpv4Address()),
             tableTypeRegistry);
-        this.stateProviderRegistration = this.stateProviderRegistry.register(this);
+        stateProviderRegistration = stateProviderRegistry.register(this);
     }
 
     @Override
-    public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
-            final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.currentConfiguration != null);
-        start(rib, this.currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
-    }
-
-    @Override
-    public synchronized void close() {
-        if (this.bgpAppPeerSingletonService != null) {
-            this.stateProviderRegistration.close();
-            this.stateProviderRegistration = null;
-            this.bgpAppPeerSingletonService = null;
+    public synchronized void close() throws ExecutionException, InterruptedException {
+        if (bgpAppPeerSingletonService == null) {
+            LOG.info("App Peer {} already closed, skipping", currentConfiguration.getNeighborAddress());
+            return;
         }
+        LOG.info("Closing App Peer {}", currentConfiguration.getNeighborAddress());
+        if (stateProviderRegistration != null) {
+            stateProviderRegistration.close();
+            stateProviderRegistration = null;
+        }
+        closeServiceInstance().get();
+        bgpAppPeerSingletonService = null;
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        if (this.bgpAppPeerSingletonService != null) {
-            this.bgpAppPeerSingletonService.instantiateServiceInstance();
+        if (bgpAppPeerSingletonService != null) {
+            bgpAppPeerSingletonService.instantiateServiceInstance();
         }
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (this.bgpAppPeerSingletonService != null) {
-            return this.bgpAppPeerSingletonService.closeServiceInstance();
+        if (bgpAppPeerSingletonService != null) {
+            return bgpAppPeerSingletonService.closeServiceInstance();
         }
 
         return CommitInfo.emptyFluentFuture();
@@ -109,13 +110,18 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
 
     @Override
     public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
-        return Objects.equals(this.currentConfiguration.key(), neighbor.key())
+        return Objects.equals(currentConfiguration.key(), neighbor.key())
                 && OpenConfigMappingUtil.isApplicationPeer(neighbor);
     }
 
     @Override
+    public synchronized Neighbor getCurrentConfiguration() {
+        return currentConfiguration;
+    }
+
+    @Override
     public synchronized BGPPeerState getPeerState() {
-        return this.bgpAppPeerSingletonService.getPeerState();
+        return bgpAppPeerSingletonService.getPeerState();
     }
 
     private static final class BgpAppPeerSingletonService implements BGPPeerStateProvider {
@@ -127,33 +133,33 @@ public final class AppPeer implements PeerBean, BGPPeerStateProvider {
 
         BgpAppPeerSingletonService(final RIB rib, final ApplicationRibId appRibId,
                 final Ipv4AddressNoZone neighborAddress, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-            this.applicationPeer = new ApplicationPeer(tableTypeRegistry, appRibId, neighborAddress, rib);
+            applicationPeer = new ApplicationPeer(tableTypeRegistry, appRibId, neighborAddress, rib);
             this.appRibId = appRibId;
-            this.dataTreeChangeService = rib.getService();
+            dataTreeChangeService = rib.getService();
         }
 
         public synchronized void instantiateServiceInstance() {
-            this.isServiceInstantiated = true;
+            isServiceInstantiated = true;
             final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(APPRIB)
-                    .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, this.appRibId.getValue())
+                    .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, appRibId.getValue())
                     .node(TABLES_NID).node(TABLES_NID).build();
-            this.applicationPeer.instantiateServiceInstance(this.dataTreeChangeService,
+            applicationPeer.instantiateServiceInstance(dataTreeChangeService,
                     new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
         }
 
         public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-            if (!this.isServiceInstantiated) {
-                LOG.trace("Application peer already closed {}", this.appRibId.getValue());
+            if (!isServiceInstantiated) {
+                LOG.trace("Application peer already closed {}", appRibId.getValue());
                 return CommitInfo.emptyFluentFuture();
             }
-            LOG.info("Application peer instance closed {}", this.appRibId.getValue());
-            this.isServiceInstantiated = false;
-            return this.applicationPeer.close();
+            LOG.info("Application peer instance closed {}", appRibId.getValue());
+            isServiceInstantiated = false;
+            return applicationPeer.close();
         }
 
         @Override
         public BGPPeerState getPeerState() {
-            return this.applicationPeer.getPeerState();
+            return applicationPeer.getPeerState();
         }
     }
 }
