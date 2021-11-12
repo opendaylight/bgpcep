@@ -81,6 +81,7 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
         final ChannelHandler chInit = new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel channel) {
+                LOG.info("Initializing channel with {}", channel.remoteAddress());
                 initializer.initializeChannel(channel, sessionPromise);
             }
         };
