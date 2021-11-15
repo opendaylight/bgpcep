@@ -167,12 +167,14 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (this.bgpPeerSingletonService != null) {
-            this.stateProviderRegistration.close();
             this.bgpPeerSingletonService.closeServiceInstance();
-            this.stateProviderRegistration = null;
             this.bgpPeerSingletonService = null;
+        }
+        if (this.stateProviderRegistration != null) {
+            this.stateProviderRegistration.close();
+            this.stateProviderRegistration = null;
         }
     }
 
