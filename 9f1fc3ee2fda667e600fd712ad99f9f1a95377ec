@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "72b8fbeb_8ce1ab18",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
@@ -20,10 +21,10 @@
         "endChar": 8
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "6372af67_f79a1068",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
@@ -44,10 +45,10 @@
         "endChar": 8
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "0365954b_88ff5c28",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
@@ -68,10 +69,10 @@
         "endChar": 8
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "ec7badc5_8ff48e75",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
@@ -92,10 +93,10 @@
         "endChar": 8
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "a12317c2_5cf06e50",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BGPClusterSingletonService.java",
@@ -116,10 +117,10 @@
         "endChar": 8
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": false
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "6ce0b113_7889e68d",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
@@ -139,10 +140,10 @@
         "endChar": 28
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "f1649e9b_8620c1b3",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
@@ -163,8 +164,31 @@
         "endChar": 28
       },
       "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4b01891_ba4e5de6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/config/BgpDeployerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-11-15T13:44:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1649e9b_8620c1b3",
+      "range": {
+        "startLine": 73,
+        "startChar": 27,
+        "endLine": 73,
+        "endChar": 28
+      },
+      "revId": "9f1fc3ee2fda667e600fd712ad99f9f1a95377ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
