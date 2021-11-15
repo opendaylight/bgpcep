@@ -10,7 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
@@ -51,8 +52,8 @@ public final class BGPStateCollector implements BGPStateProviderRegistry, BGPSta
         }
     }
 
-    private final List<BGPPeerStateProviderRegistration> bgpPeerStates = new CopyOnWriteArrayList<>();
-    private final List<BGPRibStateProviderRegistration> bgpRibStates = new CopyOnWriteArrayList<>();
+    private final Set<BGPPeerStateProviderRegistration> bgpPeerStates = ConcurrentHashMap.newKeySet();
+    private final Set<BGPRibStateProviderRegistration> bgpRibStates = ConcurrentHashMap.newKeySet();
 
     @Inject
     public BGPStateCollector() {
