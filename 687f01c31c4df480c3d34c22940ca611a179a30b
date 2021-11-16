@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3ec9877_a8175a42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-16T14:52:51Z",
+      "side": 1,
+      "message": "test-bgpcep-bgp",
+      "revId": "687f01c31c4df480c3d34c22940ca611a179a30b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
