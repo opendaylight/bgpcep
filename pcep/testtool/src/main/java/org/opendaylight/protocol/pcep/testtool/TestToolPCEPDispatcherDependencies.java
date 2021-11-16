@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.testtool;
 
 import java.net.InetSocketAddress;
@@ -18,7 +17,6 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
     private final PCEPSessionListenerFactory listenerFactory = new TestingSessionListenerFactory();
     private final InetSocketAddress address;
     private final KeyMapping keys = KeyMapping.getKeyMapping();
-    private final SpeakerIdMapping speakerIds = SpeakerIdMapping.getSpeakerIdMap();
 
     TestToolPCEPDispatcherDependencies(final InetSocketAddress address) {
         this.address = address;
@@ -26,21 +24,21 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
 
     @Override
     public InetSocketAddress getAddress() {
-        return this.address;
+        return address;
     }
 
     @Override
     public KeyMapping getKeys() {
-        return this.keys;
+        return keys;
     }
 
     @Override
     public SpeakerIdMapping getSpeakerIdMapping() {
-        return this.speakerIds;
+        return SpeakerIdMapping.of();
     }
 
     @Override
     public PCEPSessionListenerFactory getListenerFactory() {
-        return this.listenerFactory;
+        return listenerFactory;
     }
 }
