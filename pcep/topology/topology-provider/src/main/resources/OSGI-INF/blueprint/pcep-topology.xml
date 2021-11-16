@@ -7,18 +7,14 @@
   and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
-
-    <bean id="PCEPTopologySessionListenerFactory"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologySessionListenerFactory"/>
-    <service ref="PCEPTopologySessionListenerFactory"
-             interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory"/>
-
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
+    <reference id="topologySessionListenerFactory"
+               interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory"/>
     <reference id="topologySessionStatsRegistry"
                interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
@@ -31,7 +27,7 @@
         <argument ref="clusterSingletonServiceProvider"/>
         <argument ref="rpcProviderService"/>
         <argument ref="pcepDispatcher"/>
-        <argument ref="PCEPTopologySessionListenerFactory"/>
+        <argument ref="topologySessionListenerFactory"/>
         <argument ref="intructionFactory"/>
         <argument ref="topologySessionStatsRegistry"/>
         <argument ref="pceServerProvider"/>
