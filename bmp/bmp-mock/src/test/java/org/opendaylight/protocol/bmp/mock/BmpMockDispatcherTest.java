@@ -47,9 +47,9 @@ public class BmpMockDispatcherTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        doReturn(this.sl).when(this.slf).getSessionListener();
-        doReturn(this.registry).when(this.ctx).getBmpMessageRegistry();
-        this.bmpMockDispatcher = new BmpMockDispatcher(this.registry, this.sessionFactory);
+        doReturn(sl).when(slf).getSessionListener();
+        doReturn(registry).when(ctx).getBmpMessageRegistry();
+        bmpMockDispatcher = new BmpMockDispatcher(registry, sessionFactory);
     }
 
     @Test(timeout = 20000)
@@ -58,53 +58,52 @@ public class BmpMockDispatcherTest {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
+                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
         final ChannelFuture futureServer = bmpDispatcher
-                .createServer(serverAddr, this.slf, KeyMapping.getKeyMapping());
+                .createServer(serverAddr, slf, KeyMapping.of());
         waitFutureSuccess(futureServer);
 
-        final ChannelFuture channelFuture = this.bmpMockDispatcher.createClient(InetSocketAddressUtil
+        final ChannelFuture channelFuture = bmpMockDispatcher.createClient(InetSocketAddressUtil
                 .getRandomLoopbackInetSocketAddress(0), serverAddr);
         final Channel channel = channelFuture.sync().channel();
 
         assertTrue(channel.isActive());
-        checkEquals(() -> assertTrue(this.sl.getStatus()));
+        checkEquals(() -> assertTrue(sl.getStatus()));
         channel.close();
         bmpDispatcher.close();
-        checkEquals(() -> assertFalse(this.sl.getStatus()));
+        checkEquals(() -> assertFalse(sl.getStatus()));
 
         final BmpDispatcherImpl bmpDispatcher2 = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
-        final ChannelFuture futureServer2 = bmpDispatcher2
-                .createServer(serverAddr, this.slf, KeyMapping.getKeyMapping());
+                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
+        final ChannelFuture futureServer2 = bmpDispatcher2.createServer(serverAddr, slf, KeyMapping.of());
         futureServer2.sync();
-        checkEquals(() -> assertTrue(this.sl.getStatus()));
+        checkEquals(() -> assertTrue(sl.getStatus()));
 
         bmpDispatcher2.close();
-        this.bmpMockDispatcher.close();
-        checkEquals(() -> assertFalse(this.sl.getStatus()));
+        bmpMockDispatcher.close();
+        checkEquals(() -> assertFalse(sl.getStatus()));
     }
 
     @Test(timeout = 20000)
     public void testCreateServer() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), this.ctx, this.sessionFactory);
-        final ChannelFuture futureServer = this.bmpMockDispatcher.createServer(
+                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
+        final ChannelFuture futureServer = bmpMockDispatcher.createServer(
                 new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
         futureServer.sync();
         final ChannelFuture channelFuture = bmpDispatcher.createClient(
-                InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), this.slf, KeyMapping.getKeyMapping());
+                InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port), slf, KeyMapping.of());
         final Channel channel = channelFuture.sync().channel();
 
         assertTrue(channel.isActive());
-        checkEquals(() -> assertTrue(this.sl.getStatus()));
+        checkEquals(() -> assertTrue(sl.getStatus()));
         assertTrue(futureServer.channel().isActive());
         channel.close();
 
         bmpDispatcher.close();
-        this.bmpMockDispatcher.close();
-        checkEquals(() -> assertFalse(this.sl.getStatus()));
+        bmpMockDispatcher.close();
+        checkEquals(() -> assertFalse(sl.getStatus()));
     }
 
 }

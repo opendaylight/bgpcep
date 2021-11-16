@@ -16,7 +16,6 @@ import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherDependencies {
     private final PCEPSessionListenerFactory listenerFactory = new TestingSessionListenerFactory();
     private final InetSocketAddress address;
-    private final KeyMapping keys = KeyMapping.getKeyMapping();
 
     TestToolPCEPDispatcherDependencies(final InetSocketAddress address) {
         this.address = address;
@@ -29,7 +28,7 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
 
     @Override
     public KeyMapping getKeys() {
-        return keys;
+        return KeyMapping.of();
     }
 
     @Override

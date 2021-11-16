@@ -96,10 +96,11 @@ final class OpenConfigMappingUtil {
     }
 
     static KeyMapping getNeighborKey(final Neighbor neighbor) {
-        if (neighbor.getConfig() != null) {
-            final String authPassword = neighbor.getConfig().getAuthPassword();
+        final var config = neighbor.getConfig();
+        if (config != null) {
+            final String authPassword = config.getAuthPassword();
             if (authPassword != null) {
-                return KeyMapping.getKeyMapping(INSTANCE.inetAddressFor(neighbor.getNeighborAddress()), authPassword);
+                return KeyMapping.of(INSTANCE.inetAddressFor(neighbor.getNeighborAddress()), authPassword);
             }
         }
         return null;

@@ -45,24 +45,24 @@ public class BmpMockTest {
     @Before
     public void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
-        this.bmpActivator = new BmpActivator(
+        bmpActivator = new BmpActivator(
             ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow());
-        this.bmpActivator.start(ctx);
-        this.bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
+        bmpActivator.start(ctx);
+        bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
             new DefaultBmpSessionFactory());
     }
 
     @After
     public void tearDown() throws Exception {
-        this.bmpDispatcher.close();
+        bmpDispatcher.close();
     }
 
     @Test(timeout = 20000)
     public void testMain() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
-        final ChannelFuture futureServer = this.bmpDispatcher.createServer(serverAddr,
-                bmpSessionListenerFactory, KeyMapping.getKeyMapping());
+        final ChannelFuture futureServer = bmpDispatcher.createServer(serverAddr,
+                bmpSessionListenerFactory, KeyMapping.of());
         final Channel serverChannel;
         final int sessionUpWait;
         if (futureServer.isSuccess()) {
@@ -81,10 +81,10 @@ public class BmpMockTest {
             "--pre_policy_routes",
             "3"});
 
-        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+        verify(sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
                 .onSessionUp(any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
+        verify(sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
             .times(13))
             .onMessage(any(Notification.class));
 
@@ -104,8 +104,8 @@ public class BmpMockTest {
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
         Assert.assertEquals(1, futureServers.size());
         futureServers.get(0).sync();
-        final ChannelFuture futureClient = this.bmpDispatcher.createClient(serverAddr,
-                bmpSessionListenerFactory, KeyMapping.getKeyMapping());
+        final ChannelFuture futureClient = bmpDispatcher.createClient(serverAddr,
+                bmpSessionListenerFactory, KeyMapping.of());
         futureClient.sync();
         final Channel serverChannel;
         final int sessionUpWait;
@@ -118,10 +118,10 @@ public class BmpMockTest {
             sessionUpWait = 40;
         }
 
-        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
+        verify(sessionListener, timeout(TimeUnit.SECONDS.toMillis(sessionUpWait)))
             .onSessionUp(any(BmpSession.class));
         //1 * Initiate message + 3 * PeerUp Notification + 9 * Route Monitoring message
-        verify(this.sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
+        verify(sessionListener, timeout(TimeUnit.SECONDS.toMillis(10))
             .times(13))
             .onMessage(any(Notification.class));
 
