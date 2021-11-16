@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
@@ -15,14 +16,14 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -33,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -90,12 +90,13 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
             final var topo = change.getRootNode();
             switch (topo.getModificationType()) {
                 case SUBTREE_MODIFIED:
+                    onTopologyModified(requireBeforeImage(topo), requireAfterImage(topo));
+                    break;
                 case WRITE:
-                    // FIXME: BGPCEP-983: propagate all modifications
-                    updateTopologyProvider(topo.getDataAfter());
+                    onTopologyWritten(topo);
                     break;
                 case DELETE:
-                    removeTopologyProvider(topo.getDataBefore());
+                    onTopologyDeleted(topo);
                     break;
                 default:
                     throw new IllegalStateException("Unhandled modification type " + topo.getModificationType());
@@ -104,48 +105,84 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
     }
 
     @Holding("this")
-    private void updateTopologyProvider(final Topology topology) {
-        if (!filterPcepTopologies(topology.getTopologyTypes())) {
-            return;
+    private void onTopologyDeleted(final DataObjectModification<Topology> modification) {
+        // This is rather straightforward: just check if the deleted topology is something we used to care about and if
+        // so shutdown the associated provided
+        final var before = requireBeforeImage(modification);
+        if (isPcepTopology(before)) {
+            destroyProvider(before);
         }
-        final TopologyId topologyId = topology.getTopologyId();
-        LOG.info("Updating Topology {}", topologyId);
-        final PCEPTopologyProviderBean previous = pcepTopologyServices.remove(topologyId);
-        closeTopology(previous, topologyId);
-        createTopologyProvider(topology);
     }
 
     @Holding("this")
-    private void createTopologyProvider(final Topology topology) {
-        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+    private void onTopologyModified(final @NonNull Topology before, final @NonNull Topology after) {
+        // This is a bit tricky. Usually this is just an update to the configuration, but it might also be that the
+        // topology has become interesting, or conversely uninteresting.
+        if (isPcepTopology(before)) {
+            if (isPcepTopology(after)) {
+                updateProvider(after);
+            } else {
+                destroyProvider(before);
+            }
+        } else if (isPcepTopology(after)) {
+            createProvider(after);
+        }
+    }
+
+    @Holding("this")
+    private void onTopologyWritten(final DataObjectModification<Topology> modification) {
+        // This can either be a newly-introduced topology or it can be an overwrite.
+        final var before = modification.getDataBefore();
+        final var after = requireAfterImage(modification);
+        if (before != null) {
+            onTopologyModified(before, after);
+        } else if (isPcepTopology(after)) {
+            createProvider(after);
+        }
+    }
+
+    @Holding("this")
+    private void createProvider(final @NonNull Topology topology) {
+        final var topologyId = topology.requireTopologyId();
+        final var existing = pcepTopologyServices.get(topologyId);
+        if (existing != null) {
+            LOG.warn("Topology Provider {} already exists, ignoring an attempt to re-create", topologyId);
             return;
         }
-        final TopologyId topologyId = topology.getTopologyId();
-        if (pcepTopologyServices.containsKey(topologyId)) {
-            LOG.warn("Topology Provider {} already exist. New instance won't be created", topologyId);
-            return;
-        }
-        LOG.info("Creating Topology {}", topologyId);
+
+        LOG.info("Creating Topology Provider {}", topologyId);
         LOG.trace("Topology {}.", topology);
+        final var service = new PCEPTopologyProviderBean(singletonService, bundleContext, dataBroker, pcepDispatcher,
+            rpcProviderRegistry, sessionListenerFactory, stateRegistry, pceServerProvider);
+        pcepTopologyServices.put(topologyId, service);
 
-        final InstructionScheduler instructionScheduler = instructionSchedulerFactory
-                .createInstructionScheduler(topologyId.getValue());
-
-        final PCEPTopologyProviderBean pcepTopologyProviderBean = new PCEPTopologyProviderBean(singletonService,
-            bundleContext, dataBroker, pcepDispatcher, rpcProviderRegistry, sessionListenerFactory, stateRegistry,
-            pceServerProvider);
-        pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
-
-        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(topology), instructionScheduler);
+        service.start(new PCEPTopologyConfiguration(topology),
+            instructionSchedulerFactory.createInstructionScheduler(topologyId.getValue()));
     }
 
     @Holding("this")
-    private synchronized void removeTopologyProvider(final Topology topology) {
-        if (!filterPcepTopologies(topology.getTopologyTypes())) {
+    private void destroyProvider(final @NonNull Topology topology) {
+        final var topologyId = topology.requireTopologyId();
+        final var existing = pcepTopologyServices.remove(topologyId);
+        if (existing != null) {
+            closeTopology(existing, topologyId);
+        } else {
+            LOG.warn("Topology Provider {} not found, ignoring mismatch", topologyId);
+        }
+    }
+
+    @Holding("this")
+    private void updateProvider(final @NonNull Topology topology) {
+        final var topologyId = topology.requireTopologyId();
+        final var existing = pcepTopologyServices.get(topologyId);
+        if (existing == null) {
+            LOG.warn("Topology Provider {} not found, cannot update its configuration", topologyId);
             return;
         }
-        final TopologyId topologyId = topology.getTopologyId();
-        closeTopology(pcepTopologyServices.remove(topologyId), topologyId);
+
+        LOG.info("Updating Topology Provider {}", topologyId);
+        LOG.trace("Topology {}.", topology);
+        existing.update(new PCEPTopologyConfiguration(topology));
     }
 
     @Override
@@ -164,11 +201,9 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private static void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
-        if (topology == null) {
-            return;
-        }
         LOG.info("Removing Topology {}", topologyId);
         try {
+            // FIXME: this should not be synchronous
             topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
             topology.close();
         } catch (final Exception e) {
@@ -176,11 +211,21 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         }
     }
 
-    private static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {
-        if (topologyTypes == null) {
+    private static boolean isPcepTopology(final Topology topology) {
+        final var types = topology.getTopologyTypes();
+        if (types == null) {
             return false;
         }
-        final TopologyTypes1 aug = topologyTypes.augmentation(TopologyTypes1.class);
-        return aug != null && aug.getTopologyPcep() != null;
+
+        final var augment = types.augmentation(TopologyTypes1.class);
+        return augment != null && augment.getTopologyPcep() != null;
+    }
+
+    private static @NonNull Topology requireAfterImage(final DataObjectModification<Topology> modification) {
+        return verifyNotNull(modification.getDataAfter(), "Missing after-image in %s", modification);
+    }
+
+    private static @NonNull Topology requireBeforeImage(final DataObjectModification<Topology> modification) {
+        return verifyNotNull(modification.getDataBefore(), "Missing before-image in %s", modification);
     }
 }
