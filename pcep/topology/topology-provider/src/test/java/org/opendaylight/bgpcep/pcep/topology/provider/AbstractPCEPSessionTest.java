@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -26,7 +25,6 @@ import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -56,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClient;
@@ -63,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
@@ -82,16 +82,20 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
             .child(Topology.class, TEST_TOPOLOGY_ID).build();
     private static final String IPV4_MASK = "/32";
     final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
-    final NodeId nodeId = new NodeId("pcc://" + this.testAddress);
+    final NodeId nodeId = new NodeId("pcc://" + testAddress);
     protected final InstanceIdentifier<PathComputationClient> pathComputationClientIId = TOPO_IID.builder()
-            .child(Node.class, new NodeKey(this.nodeId)).augmentation(Node1.class).child(PathComputationClient.class
+            .child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class).child(PathComputationClient.class
             ).build();
-    final String eroIpPrefix = this.testAddress + IPV4_MASK;
+    final String eroIpPrefix = testAddress + IPV4_MASK;
     final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
-    final String dstIpPrefix = this.newDestinationAddress + IPV4_MASK;
-    private final Open localPrefs = new OpenBuilder().setDeadTimer(Uint8.valueOf(30)).setKeepalive(Uint8.valueOf(10))
-            .setSessionId(Uint8.ZERO).build();
-    private final Open remotePrefs = this.localPrefs;
+    final String dstIpPrefix = newDestinationAddress + IPV4_MASK;
+    private final Open localPrefs = new OpenBuilder()
+        .setDeadTimer(Uint8.valueOf(30))
+        .setKeepalive(Uint8.TEN)
+        .setSessionId(Uint8.ZERO)
+        .build();
+    private final Open remotePrefs = localPrefs;
+
     List<Notification> receivedMsgs;
     ServerSessionManager manager;
     NetworkTopologyPcepService topologyRpcs;
@@ -108,69 +112,67 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     @Mock
     private PCEPTopologyProviderDependencies topologyDependencies;
     @Mock
-    private SessionConfig sessionConfig;
-    @Mock
-    private Topology topology;
-    @Mock
     private Promise<PCEPSessionImpl> promise;
     private DefaultPCEPSessionNegotiator neg;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        this.receivedMsgs = new ArrayList<>();
+        receivedMsgs = new ArrayList<>();
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            AbstractPCEPSessionTest.this.receivedMsgs.add((Notification) args[0]);
-            return this.channelFuture;
-        }).when(this.clientListener).writeAndFlush(any(Notification.class));
-        doReturn(null).when(this.channelFuture).addListener(Mockito.any());
-        doReturn("TestingChannel").when(this.clientListener).toString();
-        doReturn(this.pipeline).when(this.clientListener).pipeline();
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
-                any(ChannelHandler.class));
-        doReturn(this.eventLoop).when(this.clientListener).eventLoop();
-        doNothing().when(this.statsRegistry).bind(any(), any());
-        doNothing().when(this.statsRegistry).unbind(any());
-        doReturn(null).when(this.eventLoop).schedule(any(Runnable.class), any(long.class),
-                any(TimeUnit.class));
-        doReturn(true).when(this.clientListener).isActive();
-        final InetSocketAddress ra = new InetSocketAddress(this.testAddress, 4189);
-        doReturn(ra).when(this.clientListener).remoteAddress();
-        final InetSocketAddress la = new InetSocketAddress(this.testAddress, InetSocketAddressUtil.getRandomPort());
-        doReturn(la).when(this.clientListener).localAddress();
+            receivedMsgs.add(invocation.getArgument(0, Notification.class));
+            return channelFuture;
+        }).when(clientListener).writeAndFlush(any(Notification.class));
+        doReturn(null).when(channelFuture).addListener(Mockito.any());
+        doReturn("TestingChannel").when(clientListener).toString();
+        doReturn(pipeline).when(clientListener).pipeline();
+        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
+            any(ChannelHandler.class));
+        doReturn(eventLoop).when(clientListener).eventLoop();
+        doNothing().when(statsRegistry).bind(any(), any());
+        doNothing().when(statsRegistry).unbind(any());
+        doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+        doReturn(true).when(clientListener).isActive();
+        final InetSocketAddress ra = new InetSocketAddress(testAddress, 4189);
+        doReturn(ra).when(clientListener).remoteAddress();
+        final InetSocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
+        doReturn(la).when(clientListener).localAddress();
 
-        doReturn(mock(ChannelFuture.class)).when(this.clientListener).close();
+        doReturn(mock(ChannelFuture.class)).when(clientListener).close();
 
-        doReturn(getDataBroker()).when(this.topologyDependencies).getDataBroker();
-        doReturn(this.statsRegistry).when(this.topologyDependencies).getStateRegistry();
+        doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
+        doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
 
-        @SuppressWarnings("unchecked") final T listenerFactory = (T) ((Class) ((ParameterizedType) this.getClass()
+        // FIXME: receive this as an argument
+        @SuppressWarnings("unchecked")
+        final T listenerFactory = (T) ((Class) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[0]).getDeclaredConstructor().newInstance();
-        doReturn(new IpAddressNoZone(new Ipv4AddressNoZone(this.testAddress))).when(this.sessionConfig)
-            .getListenAddress();
-        doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
-        doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
-        doReturn(TEST_TOPOLOGY_ID).when(this.topology).key();
-        doCallRealMethod().when(this.topology).nonnullNode();
-        doReturn(Map.of()).when(this.topology).getNode();
-        doReturn(null).when(this.topologyDependencies).getPceServerProvider();
+        doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology);
-        this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
+        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(new TopologyBuilder()
+            .withKey(TEST_TOPOLOGY_ID)
+            .addAugmentation(new PcepTopologyTypeConfigBuilder()
+                .setSessionConfig(new SessionConfigBuilder()
+                    .setListenAddress(new IpAddressNoZone(new Ipv4AddressNoZone(testAddress)))
+                    .setListenPort(new PortNumber(Uint16.valueOf(4189)))
+                    .setRpcTimeout(RPC_TIMEOUT)
+                    .build())
+                .build())
+            .build());
+        manager = new ServerSessionManager(topologyDependencies, listenerFactory, configDep);
         startSessionManager();
-        this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,
-                this.manager.getSessionListener(), (short) 1, 5, this.localPrefs);
-        this.topologyRpcs = new TopologyRPCs(this.manager);
+        neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
+            localPrefs);
+        topologyRpcs = new TopologyRPCs(manager);
     }
 
     void startSessionManager() throws Exception {
-        this.manager.instantiateServiceInstance();
-        checkEquals(() -> assertFalse(this.manager.isClosed.get()));
+        manager.instantiateServiceInstance();
+        checkEquals(() -> assertFalse(manager.isClosed.get()));
     }
 
     void stopSessionManager() {
-        this.manager.closeServiceInstance();
+        manager.closeServiceInstance();
     }
 
     @After
@@ -195,18 +197,18 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     }
 
     protected Open getLocalPref() {
-        return this.localPrefs;
+        return localPrefs;
     }
 
     protected Open getRemotePref() {
-        return this.remotePrefs;
+        return remotePrefs;
     }
 
     protected PCEPSessionListener getSessionListener() {
-        return this.manager.getSessionListener();
+        return manager.getSessionListener();
     }
 
     protected final PCEPSessionImpl getPCEPSession(final Open localOpen, final Open remoteOpen) {
-        return this.neg.createSession(this.clientListener, localOpen, remoteOpen);
+        return neg.createSession(clientListener, localOpen, remoteOpen);
     }
 }

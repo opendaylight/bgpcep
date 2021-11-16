@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -42,8 +43,10 @@ public final class PCEPTopologyConfiguration implements Immutable {
     private final @NonNull SpeakerIdMapping speakerIds;
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
 
-    public PCEPTopologyConfiguration(final @NonNull SessionConfig config, final @NonNull Topology topology) {
+    public PCEPTopologyConfiguration(final @NonNull Topology topology) {
         this.topology = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology.key());
+
+        final SessionConfig config = topology.augmentation(PcepTopologyTypeConfig.class).getSessionConfig();
         address = getInetSocketAddress(config.getListenAddress(), config.getListenPort());
         keys = constructKeys(topology.getNode());
         speakerIds = contructSpeakersId(topology.getNode());
