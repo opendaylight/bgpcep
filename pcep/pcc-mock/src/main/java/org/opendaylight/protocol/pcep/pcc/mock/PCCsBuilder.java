@@ -46,8 +46,6 @@ final class PCCsBuilder {
     private final Timer timer = new HashedWheelTimer();
     private final MessageRegistry registry;
 
-    private PCCDispatcherImpl pccDispatcher;
-
     PCCsBuilder(final int lsps, final boolean pcError, final int pccCount,
             final @NonNull InetSocketAddress localAddress, final @NonNull List<InetSocketAddress> remoteAddress,
             final short keepAlive, final short deadTimer, final @Nullable String password, final long reconnectTime,
@@ -65,37 +63,39 @@ final class PCCsBuilder {
         this.stateTimeout = stateTimeout;
         this.pcepCapabilities = pcepCapabilities;
 
-        this.registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
+        registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
     }
 
     void createPCCs(final Uint64 initialDBVersion, final Optional<TimerHandler> timerHandler) {
-        InetAddress currentAddress = this.localAddress.getAddress();
-        this.pccDispatcher = new PCCDispatcherImpl(registry);
+        InetAddress currentAddress = localAddress.getAddress();
+        PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(registry);
+
         if (timerHandler.isPresent()) {
-            timerHandler.get().setPCCDispatcher(this.pccDispatcher);
+            timerHandler.get().setPCCDispatcher(pccDispatcher);
         }
-        for (int i = 0; i < this.pccCount; i++) {
-            final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(this.lsps, currentAddress,
-                this.redelegationTimeout, this.stateTimeout, this.timer, timerHandler);
-            createPCC(new InetSocketAddress(currentAddress, this.localAddress.getPort()), tunnelManager,
-                    initialDBVersion);
+        for (int i = 0; i < pccCount; i++) {
+            final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(lsps, currentAddress,
+                redelegationTimeout, stateTimeout, timer, timerHandler);
+            createPCC(pccDispatcher, new InetSocketAddress(currentAddress, localAddress.getPort()), tunnelManager,
+                initialDBVersion);
             currentAddress = InetAddresses.increment(currentAddress);
         }
     }
 
-    private void createPCC(final @NonNull InetSocketAddress plocalAddress,
+    private void createPCC(final PCCDispatcherImpl pccDispatcher, final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
-        for (final InetSocketAddress pceAddress : this.remoteAddress) {
-            this.pccDispatcher.createClient(pceAddress, this.reconnectTime, () -> new PCCSessionListener(
-                            this.remoteAddress.indexOf(pceAddress), tunnelManager, this.pcError), snf,
-                    KeyMapping.getKeyMapping(pceAddress.getAddress(), this.password), plocalAddress, initialDBVersion);
+        for (final InetSocketAddress pceAddress : remoteAddress) {
+            pccDispatcher.createClient(pceAddress, reconnectTime,
+                () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError), snf,
+                    password == null ? KeyMapping.of() : KeyMapping.of(pceAddress.getAddress(), password),
+                        plocalAddress, initialDBVersion);
         }
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
-        final List<PCEPCapability> capabilities = Lists.newArrayList(this.pcepCapabilities);
-        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(this.deadTimer,
-            this.keepAlive, capabilities), 0);
+        final List<PCEPCapability> capabilities = Lists.newArrayList(pcepCapabilities);
+        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(deadTimer,
+            keepAlive, capabilities), 0);
     }
 }

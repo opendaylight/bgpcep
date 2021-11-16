@@ -36,7 +36,7 @@ final class BmpMockDispatcher implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
     private static final int CONNECT_TIMEOUT = 2000;
     private static final int INITIAL_BACKOFF = 15_000;
-    private static final KeyMapping KEY_MAPPING = KeyMapping.getKeyMapping();
+
     private final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
 
@@ -48,16 +48,16 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
         this.sessionFactory = requireNonNull(sessionFactory);
-        this.slf = new BmpMockSessionListenerFactory();
+        slf = new BmpMockSessionListenerFactory();
         requireNonNull(registry);
-        this.hf = new BmpHandlerFactory(registry);
+        hf = new BmpHandlerFactory(registry);
     }
 
     ChannelFuture createClient(final @NonNull SocketAddress localAddress,
             final @NonNull InetSocketAddress remoteAddress) {
-        final Bootstrap bootstrap = BmpDispatcherUtil.createClientBootstrap(this.sessionFactory, this.hf,
-                BmpDispatcherUtil::createChannelWithEncoder, this.slf, remoteAddress, localAddress, this.workerGroup,
-                CONNECT_TIMEOUT, KEY_MAPPING, true, false);
+        final Bootstrap bootstrap = BmpDispatcherUtil.createClientBootstrap(sessionFactory, hf,
+                BmpDispatcherUtil::createChannelWithEncoder, slf, remoteAddress, localAddress, workerGroup,
+                CONNECT_TIMEOUT, KeyMapping.of(), true, false);
         final ChannelFuture channelFuture = bootstrap.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
         channelFuture.addListener(new BootstrapListener(bootstrap, localAddress, remoteAddress));
@@ -66,9 +66,9 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     ChannelFuture createServer(final InetSocketAddress localAddress) {
         requireNonNull(localAddress);
-        final ServerBootstrap serverBootstrap = BmpDispatcherUtil.createServerBootstrap(this.sessionFactory,
-                this.hf, this.slf, BmpDispatcherUtil::createChannelWithEncoder,
-                this.bossGroup, this.workerGroup, KEY_MAPPING, false);
+        final ServerBootstrap serverBootstrap = BmpDispatcherUtil.createServerBootstrap(sessionFactory,
+                hf, slf, BmpDispatcherUtil::createChannelWithEncoder,
+                bossGroup, workerGroup, KeyMapping.of(), false);
         final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);
         return channelFuture;
@@ -76,7 +76,7 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     @Override
     public synchronized void close() {
-        this.close = true;
+        close = true;
     }
 
     private class BootstrapListener implements ChannelFutureListener {
@@ -91,7 +91,7 @@ final class BmpMockDispatcher implements AutoCloseable {
             this.bootstrap = bootstrap;
             this.remoteAddress = remoteAddress;
             this.localAddress = localAddress;
-            this.delay = INITIAL_BACKOFF;
+            delay = INITIAL_BACKOFF;
         }
 
         @Override
@@ -103,20 +103,20 @@ final class BmpMockDispatcher implements AutoCloseable {
                 future.channel().closeFuture().addListener((ChannelFutureListener) channelFuture -> scheduleConnect());
             } else {
                 final EventLoop loop = future.channel().eventLoop();
-                loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
+                loop.schedule(() -> bootstrap.connect().addListener(this), delay, TimeUnit.MILLISECONDS);
                 LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.",
-                        this.remoteAddress, this.delay);
+                        remoteAddress, delay);
             }
         }
 
         private void scheduleConnect() {
-            if (!BmpMockDispatcher.this.close) {
+            if (!close) {
 
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        createClient(BootstrapListener.this.localAddress,
-                                BmpMockDispatcher.BootstrapListener.this.remoteAddress);
+                        createClient(localAddress,
+                                remoteAddress);
                     }
                 }, 5);
             }

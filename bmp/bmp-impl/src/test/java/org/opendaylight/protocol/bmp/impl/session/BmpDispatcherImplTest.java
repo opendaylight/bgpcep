@@ -78,15 +78,13 @@ public class BmpDispatcherImplTest {
 
     @Test
     public void testCreateServer() throws Exception {
-        final ChannelFuture futureServer = dispatcher.createServer(SERVER, mockedListenerFactory,
-            KeyMapping.getKeyMapping());
+        final ChannelFuture futureServer = dispatcher.createServer(SERVER, mockedListenerFactory, KeyMapping.of());
         waitFutureSuccess(futureServer);
         final Channel serverChannel = futureServer.channel();
         checkEquals(() -> assertTrue(serverChannel.isActive()));
 
-
         final ChannelFuture futureClient = dispatcher.createClient(CLIENT_REMOTE, mockedListenerFactory,
-            KeyMapping.getKeyMapping());
+            KeyMapping.of());
         waitFutureSuccess(futureClient);
 
         final Channel clientChannel = futureClient.channel();
