@@ -153,11 +153,11 @@ public class OpenConfigMappingUtilTest {
 
     @Before
     public void setUp() {
-        doReturn(BGP_TABLE_TYPE_IPV4).when(this.tableTypeRegistry).getTableType(IPV4UNICAST.class);
-        doReturn(BGP_TABLE_TYPE_IPV6).when(this.tableTypeRegistry).getTableType(IPV6UNICAST.class);
+        doReturn(BGP_TABLE_TYPE_IPV4).when(tableTypeRegistry).getTableType(IPV4UNICAST.class);
+        doReturn(BGP_TABLE_TYPE_IPV6).when(tableTypeRegistry).getTableType(IPV6UNICAST.class);
         doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class))
-            .when(this.tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
-        doReturn(AS).when(this.rib).getLocalAs();
+            .when(tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
+        doReturn(AS).when(rib).getLocalAs();
     }
 
     @Test
@@ -183,11 +183,11 @@ public class OpenConfigMappingUtilTest {
         final ConfigBuilder configBuilder = new ConfigBuilder();
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(), null, null));
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), null,
-                this.rib.getLocalAs()));
+                rib.getLocalAs()));
 
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(), EMPTY_PEERGROUP, null));
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), EMPTY_PEERGROUP,
-                this.rib.getLocalAs()));
+                rib.getLocalAs()));
 
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(null, new PeerGroupBuilder().setPeerGroupName("foo")
                         .setConfig(new ConfigBuilder().setPeerAs(AS).build()).build(), null));
@@ -236,7 +236,7 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void testGetNeighborKey() {
         assertArrayEquals(MD5_PASSWORD.getBytes(StandardCharsets.US_ASCII),
-            OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).get(INSTANCE.inetAddressFor(NEIGHBOR_ADDRESS)));
+            OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).asMap().get(INSTANCE.inetAddressFor(NEIGHBOR_ADDRESS)));
         assertNull(OpenConfigMappingUtil.getNeighborKey(EMPTY_NEIGHBOR));
         assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setConfig(new ConfigBuilder().build()).build()));
@@ -377,7 +377,7 @@ public class OpenConfigMappingUtilTest {
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
             .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(ALL_PATHS).build()).build());
         final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil
-                .toPathSelectionMode(families, this.tableTypeRegistry);
+                .toPathSelectionMode(families, tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
         expected.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
                 ADD_PATH_BEST_N_PATH_SELECTION);
@@ -421,7 +421,7 @@ public class OpenConfigMappingUtilTest {
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class)
             .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(Boolean.FALSE).build()).build());
         final List<AddressFamilies> result = OpenConfigMappingUtil
-                .toAddPathCapability(families, this.tableTypeRegistry);
+                .toAddPathCapability(families, tableTypeRegistry);
         assertEquals(FAMILIES, result);
     }
 

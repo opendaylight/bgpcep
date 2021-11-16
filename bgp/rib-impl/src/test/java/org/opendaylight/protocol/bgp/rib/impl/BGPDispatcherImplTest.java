@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
 import com.google.common.collect.Sets;
@@ -14,7 +16,6 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-import org.junit.Assert;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -25,31 +26,31 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     public void testCreateClient() throws InterruptedException, ExecutionException {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
-        final Future<BGPSessionImpl> futureClient = this.clientDispatcher.createClient(this.clientAddress,
+        final Future<BGPSessionImpl> futureClient = clientDispatcher.createClient(clientAddress,
             serverAddress, 2, true);
         futureClient.sync();
         final BGPSessionImpl session = futureClient.get();
-        Assert.assertEquals(State.UP, this.clientListener.getState());
-        Assert.assertEquals(State.UP, this.serverListener.getState());
-        Assert.assertEquals(AS_NUMBER, session.getAsNumber());
-        Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
-        Assert.assertTrue(serverChannel.isWritable());
+        assertEquals(State.UP, clientListener.getState());
+        assertEquals(State.UP, serverListener.getState());
+        assertEquals(AS_NUMBER, session.getAsNumber());
+        assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
+        assertTrue(serverChannel.isWritable());
         session.close();
-        this.serverListener.releaseConnection();
-        checkIdleState(this.clientListener);
-        checkIdleState(this.serverListener);
+        serverListener.releaseConnection();
+        checkIdleState(clientListener);
+        checkIdleState(serverListener);
     }
 
     @Test
     public void testCreateReconnectingClient() throws Exception {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
-        final Future<Void> future = this.clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
-            KeyMapping.getKeyMapping(), this.clientAddress, true);
+        final Future<Void> future = clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
+            KeyMapping.of(), clientAddress, true);
         final Channel serverChannel = createServer(serverAddress);
-        Assert.assertEquals(State.UP, this.serverListener.getState());
-        Assert.assertTrue(serverChannel.isWritable());
+        assertEquals(State.UP, serverListener.getState());
+        assertTrue(serverChannel.isWritable());
         future.cancel(true);
-        this.serverListener.releaseConnection();
-        checkIdleState(this.serverListener);
+        serverListener.releaseConnection();
+        checkIdleState(serverListener);
     }
 }
