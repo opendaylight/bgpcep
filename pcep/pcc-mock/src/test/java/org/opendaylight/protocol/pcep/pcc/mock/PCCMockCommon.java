@@ -68,9 +68,9 @@ public abstract class PCCMockCommon {
     private static final long SLEEP_FOR = 50;
     private final int port = InetSocketAddressUtil.getRandomPort();
     final InetSocketAddress remoteAddress = InetSocketAddressUtil
-            .getRandomLoopbackInetSocketAddress(this.port);
+            .getRandomLoopbackInetSocketAddress(port);
     final InetSocketAddress localAddress = InetSocketAddressUtil
-            .getRandomLoopbackInetSocketAddress(this.port);
+            .getRandomLoopbackInetSocketAddress(port);
     PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
     private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
@@ -86,8 +86,8 @@ public abstract class PCCMockCommon {
 
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
 
-        this.messageRegistry = this.extensionProvider.getMessageHandlerRegistry();
-        this.pceDispatcher = new PCEPDispatcherImpl(this.messageRegistry, nf, new NioEventLoopGroup(),
+        messageRegistry = extensionProvider.getMessageHandlerRegistry();
+        pceDispatcher = new PCEPDispatcherImpl(messageRegistry, nf, new NioEventLoopGroup(),
                 new NioEventLoopGroup());
     }
 
@@ -126,10 +126,10 @@ public abstract class PCCMockCommon {
             serverAddress2, final PCEPPeerProposal peerProposal) {
         final StatefulActivator activator07 = new StatefulActivator();
         final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
-        activator07.start(this.extensionProvider);
-        optimizationsActivator.start(this.extensionProvider);
+        activator07.start(extensionProvider);
+        optimizationsActivator.start(extensionProvider);
 
-        final ChannelFuture future = this.pceDispatcher
+        final ChannelFuture future = pceDispatcher
                 .createServer(new DispatcherDependencies(serverAddress2, factory, peerProposal));
         waitFutureSuccess(future);
         return future.channel();
@@ -212,15 +212,15 @@ public abstract class PCCMockCommon {
     }
 
     Future<PCEPSession> createPCCSession(final Uint64 dbVersion) {
-        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(this.messageRegistry);
+        final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(messageRegistry);
         final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
-        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, this.localAddress.getAddress(),
+        final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, localAddress.getAddress(),
                 0, -1, new HashedWheelTimer(), Optional.empty());
 
-        return pccDispatcher.createClient(this.remoteAddress, -1, () -> {
-            this.pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
-            return this.pccSessionListener;
-        }, snf, KeyMapping.getKeyMapping(), this.localAddress, dbVersion);
+        return pccDispatcher.createClient(remoteAddress, -1, () -> {
+            pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
+            return pccSessionListener;
+        }, snf, KeyMapping.getKeyMapping(), localAddress, dbVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
@@ -229,12 +229,11 @@ public abstract class PCCMockCommon {
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
-        return checkSessionListenerNotNull(factory, this.localAddress.getHostString());
+        return checkSessionListenerNotNull(factory, localAddress.getHostString());
     }
 
-    private class DispatcherDependencies implements PCEPDispatcherDependencies {
+    private static class DispatcherDependencies implements PCEPDispatcherDependencies {
         final KeyMapping keys = KeyMapping.getKeyMapping();
-        final SpeakerIdMapping ids = SpeakerIdMapping.getSpeakerIdMap();
         private final InetSocketAddress address;
         private final TestingSessionListenerFactory listenerFactory;
         private final PCEPPeerProposal peerProposal;
@@ -250,7 +249,7 @@ public abstract class PCCMockCommon {
 
         @Override
         public InetSocketAddress getAddress() {
-            return this.address;
+            return address;
         }
 
         @Override
@@ -260,17 +259,17 @@ public abstract class PCCMockCommon {
 
         @Override
         public SpeakerIdMapping getSpeakerIdMapping() {
-            return ids;
+            return SpeakerIdMapping.of();
         }
 
         @Override
         public PCEPSessionListenerFactory getListenerFactory() {
-            return this.listenerFactory;
+            return listenerFactory;
         }
 
         @Override
         public PCEPPeerProposal getPeerProposal() {
-            return this.peerProposal;
+            return peerProposal;
         }
     }
 }
