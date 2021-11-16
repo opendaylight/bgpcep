@@ -29,8 +29,6 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -130,7 +128,6 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         LOG.info("Creating Topology {}", topologyId);
         LOG.trace("Topology {}.", topology);
 
-        final SessionConfig config = topology.augmentation(PcepTopologyTypeConfig.class).getSessionConfig();
         final InstructionScheduler instructionScheduler = instructionSchedulerFactory
                 .createInstructionScheduler(topologyId.getValue());
 
@@ -139,7 +136,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
             pceServerProvider);
         pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
 
-        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(config, topology), instructionScheduler);
+        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(topology), instructionScheduler);
     }
 
     @Holding("this")
