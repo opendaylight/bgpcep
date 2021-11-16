@@ -156,7 +156,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         doReturn(Map.of()).when(this.topology).getNode();
         doReturn(null).when(this.topologyDependencies).getPceServerProvider();
 
-        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology);
+        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.topology);
         this.manager = new ServerSessionManager(this.topologyDependencies, listenerFactory, configDep);
         startSessionManager();
         this.neg = new DefaultPCEPSessionNegotiator(this.promise, this.clientListener,
