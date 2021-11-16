@@ -91,7 +91,7 @@ public final class BmpDispatcherUtil {
 
             if (!keys.isEmpty()) {
                 if (Epoll.isAvailable()) {
-                    serverBootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
+                    serverBootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
                 } else {
                     throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
                 }
@@ -140,7 +140,7 @@ public final class BmpDispatcherUtil {
             }
             if (!keys.isEmpty()) {
                 if (Epoll.isAvailable()) {
-                    bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
+                    bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
                 } else {
                     throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
                 }

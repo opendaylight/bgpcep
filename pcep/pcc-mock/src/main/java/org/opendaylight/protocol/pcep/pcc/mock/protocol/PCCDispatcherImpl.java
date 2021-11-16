@@ -50,11 +50,11 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     public PCCDispatcherImpl(final @NonNull MessageRegistry registry) {
         if (Epoll.isAvailable()) {
-            this.workerGroup = new EpollEventLoopGroup();
+            workerGroup = new EpollEventLoopGroup();
         } else {
-            this.workerGroup = new NioEventLoopGroup();
+            workerGroup = new NioEventLoopGroup();
         }
-        this.factory = new PCEPHandlerFactory(registry);
+        factory = new PCEPHandlerFactory(registry);
     }
 
     @Override
@@ -72,7 +72,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
             final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
             final KeyMapping keys, final InetSocketAddress localAddress, final Uint64 dbVersion) {
         final Bootstrap b = new Bootstrap();
-        b.group(this.workerGroup);
+        b.group(workerGroup);
         b.localAddress(localAddress);
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
@@ -84,7 +84,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         final ChannelInitializer<SocketChannel> channelInitializer = new ChannelInitializer<>() {
             @Override
             protected void initChannel(final SocketChannel ch) {
-                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getDecoders());
+                ch.pipeline().addLast(factory.getDecoders());
                 ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(
                         new PCEPSessionNegotiatorFactoryDependencies() {
                             @Override
@@ -97,7 +97,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                                 return new PCCPeerProposal(dbVersion);
                             }
                         }, ch, promise));
-                ch.pipeline().addLast(PCCDispatcherImpl.this.factory.getEncoders());
+                ch.pipeline().addLast(factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
                     public void channelInactive(final ChannelHandlerContext ctx) {
@@ -136,7 +136,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         }
         if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys);
+                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
             } else {
                 throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
             }
@@ -146,7 +146,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     @Override
     public void close() {
         try {
-            this.workerGroup.shutdownGracefully().get();
+            workerGroup.shutdownGracefully().get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to properly close dispatcher.", e);
         }

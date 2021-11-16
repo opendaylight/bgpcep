@@ -25,8 +25,8 @@ import io.netty.util.concurrent.Promise;
 import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -77,9 +77,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
     static final short DEAD_TIMER = 30;
     static final short KEEP_ALIVE = 10;
     static final short RPC_TIMEOUT = 4;
-    private static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("testtopo");
+    private static final TopologyKey TEST_TOPOLOGY_ID = new TopologyKey(new TopologyId("testtopo"));
     static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(TEST_TOPOLOGY_ID)).build();
+            .child(Topology.class, TEST_TOPOLOGY_ID).build();
     private static final String IPV4_MASK = "/32";
     final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final NodeId nodeId = new NodeId("pcc://" + this.testAddress);
@@ -151,9 +151,9 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
             .getListenAddress();
         doReturn(new PortNumber(Uint16.valueOf(4189))).when(this.sessionConfig).getListenPort();
         doReturn(RPC_TIMEOUT).when(this.sessionConfig).getRpcTimeout();
-        doReturn(TEST_TOPOLOGY_ID).when(this.topology).getTopologyId();
+        doReturn(TEST_TOPOLOGY_ID).when(this.topology).key();
         doCallRealMethod().when(this.topology).nonnullNode();
-        doReturn(Collections.emptyMap()).when(this.topology).getNode();
+        doReturn(Map.of()).when(this.topology).getNode();
         doReturn(null).when(this.topologyDependencies).getPceServerProvider();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(this.sessionConfig, this.topology);
