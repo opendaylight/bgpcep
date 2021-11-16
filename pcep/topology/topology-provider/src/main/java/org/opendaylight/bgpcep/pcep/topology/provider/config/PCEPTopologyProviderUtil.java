@@ -13,7 +13,6 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -21,10 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 
 final class PCEPTopologyProviderUtil {
     private PCEPTopologyProviderUtil() {
@@ -58,16 +55,6 @@ final class PCEPTopologyProviderUtil {
             final @NonNull PortNumber port) {
         return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressForNoZone(address), port.getValue().toJava());
     }
-
-    static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {
-        if (topologyTypes == null) {
-            return false;
-        }
-        final TopologyTypes1 aug = topologyTypes.augmentation(TopologyTypes1.class);
-
-        return aug != null && aug.getTopologyPcep() != null;
-    }
-
 
     static SpeakerIdMapping contructSpeakersId(final Topology topology) {
         final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
