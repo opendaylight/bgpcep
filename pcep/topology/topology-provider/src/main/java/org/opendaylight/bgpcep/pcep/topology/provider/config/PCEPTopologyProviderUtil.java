@@ -14,13 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 
 final class PCEPTopologyProviderUtil {
@@ -54,27 +52,5 @@ final class PCEPTopologyProviderUtil {
     static InetSocketAddress getInetSocketAddress(final @NonNull IpAddressNoZone address,
             final @NonNull PortNumber port) {
         return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressForNoZone(address), port.getValue().toJava());
-    }
-
-    static SpeakerIdMapping contructSpeakersId(final Topology topology) {
-        final SpeakerIdMapping ret = SpeakerIdMapping.getSpeakerIdMap();
-        if (topology.getNode() == null) {
-            return ret;
-        }
-        topology.nonnullNode().values().stream()
-                .filter(Objects::nonNull)
-                .filter(node -> node.augmentation(PcepNodeConfig.class) != null)
-                .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig() != null)
-                .filter(node -> node.augmentation(PcepNodeConfig.class).getSessionConfig()
-                        .augmentation(PcepNodeSyncConfig.class) != null)
-                .forEach(node -> {
-                    final PcepNodeConfig config = node.augmentation(PcepNodeConfig.class);
-                    final PcepNodeSyncConfig nodeSyncConfig = config.getSessionConfig()
-                            .augmentation(PcepNodeSyncConfig.class);
-                    final InetAddress address = InetAddresses.forString(node.getNodeId().getValue());
-                    ret.put(address, nodeSyncConfig.getSpeakerEntityIdValue());
-                });
-
-        return ret;
     }
 }

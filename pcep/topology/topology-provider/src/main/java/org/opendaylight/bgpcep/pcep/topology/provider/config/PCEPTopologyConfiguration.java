@@ -9,15 +9,24 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.net.InetAddresses;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public final class PCEPTopologyConfiguration {
@@ -25,42 +34,69 @@ public final class PCEPTopologyConfiguration {
     private final KeyMapping keys;
     private final TopologyId topologyId;
     private final short rpcTimeout;
-    private final SpeakerIdMapping speakerIds;
+    private final @NonNull SpeakerIdMapping speakerIds;
     private final InstanceIdentifier<Topology> topology;
 
     public PCEPTopologyConfiguration(final @NonNull SessionConfig config, final @NonNull Topology topology) {
         requireNonNull(topology);
-        this.address = PCEPTopologyProviderUtil.getInetSocketAddress(requireNonNull(config.getListenAddress()),
+        address = PCEPTopologyProviderUtil.getInetSocketAddress(requireNonNull(config.getListenAddress()),
                 requireNonNull(config.getListenPort()));
-        this.keys = requireNonNull(PCEPTopologyProviderUtil.contructKeys(topology));
-        this.speakerIds = requireNonNull(PCEPTopologyProviderUtil.contructSpeakersId(topology));
-        this.topologyId = requireNonNull(topology.getTopologyId());
-        this.rpcTimeout = config.getRpcTimeout();
+        keys = requireNonNull(PCEPTopologyProviderUtil.contructKeys(topology));
+        speakerIds = contructSpeakersId(topology.getNode());
+        topologyId = requireNonNull(topology.getTopologyId());
+        rpcTimeout = config.getRpcTimeout();
         this.topology = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(this.topologyId)).build();
+                .child(Topology.class, new TopologyKey(topologyId)).build();
     }
 
     public @NonNull TopologyId getTopologyId() {
-        return this.topologyId;
+        return topologyId;
     }
 
     public @NonNull InstanceIdentifier<Topology> getTopology() {
-        return this.topology;
+        return topology;
     }
 
     public short getRpcTimeout() {
-        return this.rpcTimeout;
+        return rpcTimeout;
     }
 
     public @NonNull InetSocketAddress getAddress() {
-        return this.address;
+        return address;
     }
 
     public @NonNull KeyMapping getKeys() {
-        return this.keys;
+        return keys;
     }
 
     public @NonNull SpeakerIdMapping getSpeakerIds() {
-        return this.speakerIds;
+        return speakerIds;
+    }
+
+    private static @NonNull SpeakerIdMapping contructSpeakersId(final @Nullable Map<NodeKey, Node> nodes) {
+        if (nodes == null) {
+            return SpeakerIdMapping.of();
+        }
+
+        final var builder = ImmutableMap.<InetAddress, byte[]>builder();
+        for (var node : nodes.values()) {
+            if (node != null) {
+                final var nodeConfig = node.augmentation(PcepNodeConfig.class);
+                if (nodeConfig != null) {
+                    final var sessionConfig = nodeConfig.getSessionConfig();
+                    if (sessionConfig != null) {
+                        final var nodeSyncConfig = sessionConfig.augmentation(PcepNodeSyncConfig.class);
+                        if (nodeSyncConfig != null) {
+                            final var speakerEntityId = nodeSyncConfig.getSpeakerEntityIdValue();
+                            if (speakerEntityId != null) {
+                                builder.put(InetAddresses.forString(node.getNodeId().getValue()), speakerEntityId);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return SpeakerIdMapping.copyOf(builder.build());
     }
 }
