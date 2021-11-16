@@ -66,8 +66,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     public PCEPDispatcherImpl(final @NonNull MessageRegistry registry,
             final @NonNull PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
             final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
-        this.snf = requireNonNull(negotiatorFactory);
-        this.hf = new PCEPHandlerFactory(registry);
+        snf = requireNonNull(negotiatorFactory);
+        hf = new PCEPHandlerFactory(registry);
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
@@ -75,18 +75,18 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
             this.bossGroup = requireNonNull(bossGroup);
             this.workerGroup = requireNonNull(workerGroup);
         }
-        this.executor = requireNonNull(GlobalEventExecutor.INSTANCE);
+        executor = requireNonNull(GlobalEventExecutor.INSTANCE);
     }
 
     @Override
     public final synchronized ChannelFuture createServer(final PCEPDispatcherDependencies dispatcherDependencies) {
-        this.keys = dispatcherDependencies.getKeys();
+        keys = dispatcherDependencies.getKeys();
 
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
-            ch.pipeline().addLast(this.hf.getDecoders());
-            ch.pipeline().addLast("negotiator", this.snf
+            ch.pipeline().addLast(hf.getDecoders());
+            ch.pipeline().addLast("negotiator", snf
                     .getSessionNegotiator(dispatcherDependencies, ch, promise));
-            ch.pipeline().addLast(this.hf.getEncoders());
+            ch.pipeline().addLast(hf.getEncoders());
         };
 
         final ServerBootstrap b = createServerBootstrap(initializer);
@@ -94,7 +94,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         final ChannelFuture f = b.bind(address);
         LOG.debug("Initiated server {} at {}.", f, address);
 
-        this.keys = KeyMapping.getKeyMapping();
+        // FIXME: err, why are we resetting this?
+        keys = KeyMapping.of();
         return f;
     }
 
@@ -103,7 +104,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(final SocketChannel ch) {
-                initializer.initializeChannel(ch, new DefaultPromise<>(PCEPDispatcherImpl.this.executor));
+                initializer.initializeChannel(ch, new DefaultPromise<>(executor));
             }
         });
         b.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
@@ -116,9 +117,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         } else {
             b.channel(NioServerSocketChannel.class);
         }
-        if (!this.keys.isEmpty()) {
+        if (!keys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, this.keys);
+                b.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
             } else {
                 throw new UnsupportedOperationException("Setting TCP-MD5 signatures is not supported",
                         Epoll.unavailabilityCause().getCause());
@@ -129,7 +130,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         b.childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
 
         if (b.config().group() == null) {
-            b.group(this.bossGroup, this.workerGroup);
+            b.group(bossGroup, workerGroup);
         }
 
         return b;
@@ -138,14 +139,14 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     @Override
     public final void close() {
         if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+            workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+            bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
         }
     }
 
     @Override
     public final PCEPSessionNegotiatorFactory<PCEPSessionImpl> getPCEPSessionNegotiatorFactory() {
-        return this.snf;
+        return snf;
     }
 
     protected interface ChannelPipelineInitializer {

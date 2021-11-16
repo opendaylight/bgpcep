@@ -7,31 +7,42 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.yangtools.concepts.Immutable;
 
-public final class KeyMapping extends HashMap<InetAddress, byte[]> {
-    private static final long serialVersionUID = 1L;
+public final class KeyMapping implements Immutable {
+    private static final @NonNull KeyMapping EMPTY = new KeyMapping(ImmutableMap.of());
 
-    private KeyMapping() {
-        super();
+    private final ImmutableMap<InetAddress, byte[]> map;
+
+    private KeyMapping(final Map<InetAddress, byte[]> map) {
+        this.map = ImmutableMap.copyOf(map);
     }
 
-    public static @NonNull KeyMapping getKeyMapping(final @NonNull InetAddress inetAddress,
-            final @Nullable String password) {
-        final KeyMapping keyMapping = new KeyMapping();
-        if (!isNullOrEmpty(password)) {
-            keyMapping.put(inetAddress, password.getBytes(StandardCharsets.US_ASCII));
-        }
-        return keyMapping;
+    public static @NonNull KeyMapping of() {
+        return EMPTY;
     }
 
-    public static KeyMapping getKeyMapping() {
-        return new KeyMapping();
+    public static @NonNull KeyMapping of(final @NonNull InetAddress inetAddress, final @NonNull String password) {
+        return new KeyMapping(ImmutableMap.of(inetAddress, password.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    public static @NonNull KeyMapping of(final Map<InetAddress, String> passwords) {
+        return passwords.isEmpty() ? of()
+            : new KeyMapping(Maps.transformValues(passwords, password -> password.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    public @NonNull Map<InetAddress, byte[]> asMap() {
+        // Careful: do not leak our byte[]s
+        return Maps.transformValues(map, byte[]::clone);
     }
 }
