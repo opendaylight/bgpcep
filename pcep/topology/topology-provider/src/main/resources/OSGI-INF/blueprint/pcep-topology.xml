@@ -27,21 +27,14 @@
           class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
           init-method="init"
           destroy-method="close">
-        <argument ref="blueprintContainer"/>
         <argument ref="dataBroker"/>
-        <argument ref="intructionFactory"/>
-    </bean>
-
-    <bean id="PCEPTopologyProviderBean"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderBean"
-          scope="prototype">
         <argument ref="clusterSingletonServiceProvider"/>
-        <argument ref="blueprintBundleContext"/>
-        <argument ref="dataBroker"/>
-        <argument ref="pcepDispatcher"/>
         <argument ref="rpcProviderService"/>
+        <argument ref="pcepDispatcher"/>
         <argument ref="PCEPTopologySessionListenerFactory"/>
+        <argument ref="intructionFactory"/>
         <argument ref="topologySessionStatsRegistry"/>
         <argument ref="pceServerProvider"/>
+        <argument ref="blueprintBundleContext"/>
     </bean>
 </blueprint>

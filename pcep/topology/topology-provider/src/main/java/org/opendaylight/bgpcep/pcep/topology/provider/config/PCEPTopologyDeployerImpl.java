@@ -16,13 +16,19 @@ import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
+import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
+import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1;
@@ -32,27 +38,45 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.service.blueprint.container.BlueprintContainer;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 
-    private final BlueprintContainer container;
-    private final DataBroker dataBroker;
     private final InstructionSchedulerFactory instructionSchedulerFactory;
+    private final TopologySessionListenerFactory sessionListenerFactory;
+    private final ClusterSingletonServiceProvider singletonService;
+    private final PCEPDispatcher pcepDispatcher;
+    private final DataBroker dataBroker;
+    private final RpcProviderService rpcProviderRegistry;
+    private final TopologySessionStatsRegistry stateRegistry;
+    private final PceServerProvider pceServerProvider;
+    private final BundleContext bundleContext;
+
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTopologyProviderBean> pcepTopologyServices = new HashMap<>();
+    @GuardedBy("this")
     private ListenerRegistration<PCEPTopologyDeployerImpl> listenerRegistration;
 
-    public PCEPTopologyDeployerImpl(final BlueprintContainer container,
-            final DataBroker dataBroker, final InstructionSchedulerFactory instructionSchedulerFactory) {
-        this.container = requireNonNull(container);
+    public PCEPTopologyDeployerImpl(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
+            final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
+            final TopologySessionListenerFactory sessionListenerFactory,
+            final InstructionSchedulerFactory instructionSchedulerFactory,
+            final TopologySessionStatsRegistry stateRegistry, final PceServerProvider pceServerProvider,
+            // FIXME: we should not be needing this OSGi dependency
+            final BundleContext bundleContext) {
         this.dataBroker = requireNonNull(dataBroker);
+        this.singletonService = requireNonNull(singletonService);
+        this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        this.pcepDispatcher = requireNonNull(pcepDispatcher);
+        this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
+        this.stateRegistry = requireNonNull(stateRegistry);
+        this.pceServerProvider = requireNonNull(pceServerProvider);
+        this.bundleContext = requireNonNull(bundleContext);
     }
 
     public synchronized void init() {
@@ -110,12 +134,12 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         final InstructionScheduler instructionScheduler = instructionSchedulerFactory
                 .createInstructionScheduler(topologyId.getValue());
 
-        final PCEPTopologyConfiguration dependencies = new PCEPTopologyConfiguration(config, topology);
-
-        final PCEPTopologyProviderBean pcepTopologyProviderBean = (PCEPTopologyProviderBean) container
-                .getComponentInstance(PCEPTopologyProviderBean.class.getSimpleName());
+        final PCEPTopologyProviderBean pcepTopologyProviderBean = new PCEPTopologyProviderBean(singletonService,
+            bundleContext, dataBroker, pcepDispatcher, rpcProviderRegistry, sessionListenerFactory, stateRegistry,
+            pceServerProvider);
         pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
-        pcepTopologyProviderBean.start(dependencies, instructionScheduler);
+
+        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(config, topology), instructionScheduler);
     }
 
     @Holding("this")
