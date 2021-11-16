@@ -21,10 +21,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.security.AccessControlException;
+import java.util.HashMap;
+import java.util.Map;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
-import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -42,7 +43,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
-        this.address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
+        address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
                 && portNumber.getValue().toJava() < PRIVILEGED_PORTS) {
             throw new AccessControlException("Unable to bind port " + portNumber.getValue()
@@ -51,16 +52,16 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     }
 
     public void start() {
-        LOG.debug("Instantiating BGP Peer Acceptor : {}", this.address);
+        LOG.debug("Instantiating BGP Peer Acceptor : {}", address);
 
-        this.futureChannel = this.bgpDispatcher.createServer(this.address);
+        futureChannel = bgpDispatcher.createServer(address);
         // Validate future success
-        this.futureChannel.addListener(future -> {
+        futureChannel.addListener(future -> {
             Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
-                this.address, future.cause());
-            final Channel channel = this.futureChannel.channel();
+                address, future.cause());
+            final Channel channel = futureChannel.channel();
             if (Epoll.isAvailable()) {
-                this.listenerRegistration = this.bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
+                listenerRegistration = bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
                     new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
             }
         });
@@ -83,34 +84,33 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
      **/
     @Override
     public void close() throws Exception {
-        this.futureChannel.cancel(true);
-        this.futureChannel.channel().close();
-        if (this.listenerRegistration != null) {
-            this.listenerRegistration.close();
+        futureChannel.cancel(true);
+        futureChannel.channel().close();
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
         }
     }
 
     private static final class PeerRegistryListenerImpl implements PeerRegistryListener {
+        private final Map<InetAddress, byte[]> keys = new HashMap<>();
         private final ChannelConfig channelConfig;
-        private final KeyMapping keys;
 
         PeerRegistryListenerImpl(final ChannelConfig channelConfig) {
             this.channelConfig = channelConfig;
-            this.keys = KeyMapping.getKeyMapping();
         }
 
         @Override
         public void onPeerAdded(final IpAddressNoZone ip, final BGPSessionPreferences prefs) {
-            if (prefs.getMd5Password().isPresent()) {
-                this.keys.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip), prefs.getMd5Password().get());
-                this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
-            }
+            prefs.getMd5Password().ifPresent(password -> {
+                keys.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip), password);
+                channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, keys);
+            });
         }
 
         @Override
         public void onPeerRemoved(final IpAddressNoZone ip) {
-            if (this.keys.remove(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip)) != null) {
-                this.channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, this.keys);
+            if (keys.remove(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip)) != null) {
+                channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, keys);
             }
         }
     }

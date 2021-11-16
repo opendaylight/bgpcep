@@ -220,7 +220,7 @@ public abstract class PCCMockCommon {
         return pccDispatcher.createClient(remoteAddress, -1, () -> {
             pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
             return pccSessionListener;
-        }, snf, KeyMapping.getKeyMapping(), localAddress, dbVersion);
+        }, snf, KeyMapping.of(), localAddress, dbVersion);
     }
 
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
@@ -233,7 +233,7 @@ public abstract class PCCMockCommon {
     }
 
     private static class DispatcherDependencies implements PCEPDispatcherDependencies {
-        final KeyMapping keys = KeyMapping.getKeyMapping();
+        private final KeyMapping keys = KeyMapping.of();
         private final InetSocketAddress address;
         private final TestingSessionListenerFactory listenerFactory;
         private final PCEPPeerProposal peerProposal;

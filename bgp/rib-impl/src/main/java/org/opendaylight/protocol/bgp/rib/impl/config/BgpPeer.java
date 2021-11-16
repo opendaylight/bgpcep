@@ -134,104 +134,95 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
         return caps;
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private static Optional<byte[]> getPassword(final KeyMapping key) {
-        if (key != null) {
-            return Optional.of(Iterables.getOnlyElement(key.values()));
-        }
-        return Optional.empty();
-    }
-
     @Override
     public synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.bgpPeerSingletonService == null,
+        Preconditions.checkState(bgpPeerSingletonService == null,
                 "Previous peer instance was not closed.");
 
-        this.bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
+        bgpPeerSingletonService = new BgpPeerSingletonService(rib, neighbor, bgpIid, peerGroupLoader,
                 tableTypeRegistry);
-        this.currentConfiguration = neighbor;
-        this.stateProviderRegistration = this.stateProviderRegistry.register(this);
+        currentConfiguration = neighbor;
+        stateProviderRegistration = stateProviderRegistry.register(this);
     }
 
     @Override
     public synchronized void restart(final RIB rib, final InstanceIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Preconditions.checkState(this.currentConfiguration != null);
-        if (this.bgpPeerSingletonService != null) {
-            this.bgpPeerSingletonService.closeServiceInstance();
-            this.bgpPeerSingletonService = null;
+        Preconditions.checkState(currentConfiguration != null);
+        if (bgpPeerSingletonService != null) {
+            bgpPeerSingletonService.closeServiceInstance();
+            bgpPeerSingletonService = null;
         }
-        start(rib, this.currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
+        start(rib, currentConfiguration, bgpIid, peerGroupLoader, tableTypeRegistry);
     }
 
     @Override
     public synchronized void close() {
-        if (this.bgpPeerSingletonService != null) {
-            this.bgpPeerSingletonService.closeServiceInstance();
-            this.bgpPeerSingletonService = null;
+        if (bgpPeerSingletonService != null) {
+            bgpPeerSingletonService.closeServiceInstance();
+            bgpPeerSingletonService = null;
         }
-        if (this.stateProviderRegistration != null) {
-            this.stateProviderRegistration.close();
-            this.stateProviderRegistration = null;
+        if (stateProviderRegistration != null) {
+            stateProviderRegistration.close();
+            stateProviderRegistration = null;
         }
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        if (this.bgpPeerSingletonService != null) {
-            this.bgpPeerSingletonService.instantiateServiceInstance();
+        if (bgpPeerSingletonService != null) {
+            bgpPeerSingletonService.instantiateServiceInstance();
         }
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (this.bgpPeerSingletonService != null) {
-            return this.bgpPeerSingletonService.closeServiceInstance();
+        if (bgpPeerSingletonService != null) {
+            return bgpPeerSingletonService.closeServiceInstance();
         }
         return CommitInfo.emptyFluentFuture();
     }
 
     @Override
     public synchronized Boolean containsEqualConfiguration(final Neighbor neighbor) {
-        if (this.currentConfiguration == null) {
+        if (currentConfiguration == null) {
             return false;
         }
-        final AfiSafis actAfiSafi = this.currentConfiguration.getAfiSafis();
+        final AfiSafis actAfiSafi = currentConfiguration.getAfiSafis();
         final AfiSafis extAfiSafi = neighbor.getAfiSafis();
         final Collection<AfiSafi> actualSafi = actAfiSafi != null ? actAfiSafi.nonnullAfiSafi().values()
                 : Collections.emptyList();
         final Collection<AfiSafi> extSafi = extAfiSafi != null ? extAfiSafi.nonnullAfiSafi().values()
                 : Collections.emptyList();
         return actualSafi.containsAll(extSafi) && extSafi.containsAll(actualSafi)
-                && Objects.equals(this.currentConfiguration.getConfig(), neighbor.getConfig())
-                && Objects.equals(this.currentConfiguration.getNeighborAddress(), neighbor.getNeighborAddress())
-                && Objects.equals(this.currentConfiguration.getAddPaths(), neighbor.getAddPaths())
-                && Objects.equals(this.currentConfiguration.getApplyPolicy(), neighbor.getApplyPolicy())
-                && Objects.equals(this.currentConfiguration.getAsPathOptions(), neighbor.getAsPathOptions())
-                && Objects.equals(this.currentConfiguration.getEbgpMultihop(), neighbor.getEbgpMultihop())
-                && Objects.equals(this.currentConfiguration.getGracefulRestart(), neighbor.getGracefulRestart())
-                && Objects.equals(this.currentConfiguration.getErrorHandling(), neighbor.getErrorHandling())
-                && Objects.equals(this.currentConfiguration.getLoggingOptions(), neighbor.getLoggingOptions())
-                && Objects.equals(this.currentConfiguration.getRouteReflector(), neighbor.getRouteReflector())
-                && Objects.equals(this.currentConfiguration.getState(), neighbor.getState())
-                && Objects.equals(this.currentConfiguration.getTimers(), neighbor.getTimers())
-                && Objects.equals(this.currentConfiguration.getTransport(), neighbor.getTransport());
+                && Objects.equals(currentConfiguration.getConfig(), neighbor.getConfig())
+                && Objects.equals(currentConfiguration.getNeighborAddress(), neighbor.getNeighborAddress())
+                && Objects.equals(currentConfiguration.getAddPaths(), neighbor.getAddPaths())
+                && Objects.equals(currentConfiguration.getApplyPolicy(), neighbor.getApplyPolicy())
+                && Objects.equals(currentConfiguration.getAsPathOptions(), neighbor.getAsPathOptions())
+                && Objects.equals(currentConfiguration.getEbgpMultihop(), neighbor.getEbgpMultihop())
+                && Objects.equals(currentConfiguration.getGracefulRestart(), neighbor.getGracefulRestart())
+                && Objects.equals(currentConfiguration.getErrorHandling(), neighbor.getErrorHandling())
+                && Objects.equals(currentConfiguration.getLoggingOptions(), neighbor.getLoggingOptions())
+                && Objects.equals(currentConfiguration.getRouteReflector(), neighbor.getRouteReflector())
+                && Objects.equals(currentConfiguration.getState(), neighbor.getState())
+                && Objects.equals(currentConfiguration.getTimers(), neighbor.getTimers())
+                && Objects.equals(currentConfiguration.getTransport(), neighbor.getTransport());
     }
 
     @Override
     public synchronized BGPPeerState getPeerState() {
-        if (this.bgpPeerSingletonService == null) {
+        if (bgpPeerSingletonService == null) {
             return null;
         }
-        return this.bgpPeerSingletonService.getPeerState();
+        return bgpPeerSingletonService.getPeerState();
     }
 
     synchronized void removePeer(final BGPPeerRegistry bgpPeerRegistry) {
-        if (this.currentConfiguration != null) {
+        if (currentConfiguration != null) {
             bgpPeerRegistry.removePeer(OpenConfigMappingUtil.convertIpAddress(
-                this.currentConfiguration.getNeighborAddress()));
+                currentConfiguration.getNeighborAddress()));
         }
     }
 
@@ -254,7 +245,7 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
 
         private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
                 final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-            this.neighborAddress = OpenConfigMappingUtil.convertIpAddress(neighbor.getNeighborAddress());
+            neighborAddress = OpenConfigMappingUtil.convertIpAddress(neighbor.getNeighborAddress());
 
             PeerGroup peerGroup = null;
             String peerGroupName = null;
@@ -280,13 +271,13 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
             final ClusterIdentifier clusterId = OpenConfigMappingUtil
                     .getNeighborClusterIdentifier(neighbor.getRouteReflector(), peerGroup);
             final int hold = OpenConfigMappingUtil.getHoldTimer(neighbor, peerGroup);
-            this.gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor,
+            gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor,
                     peerGroup, hold);
             final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(
                 afisSafis.nonnullAfiSafi().values(), tableTypeRegistry);
             final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(
                 afisSafis.nonnullAfiSafi().values(), tableTypeRegistry);
-            this.finalCapabilities = getBgpCapabilities(afisSafis, rib, tableTypeRegistry);
+            finalCapabilities = getBgpCapabilities(afisSafis, rib, tableTypeRegistry);
             final List<BgpParameters> bgpParameters = getInitialBgpParameters(gracefulTables, llGracefulTimers);
             final KeyMapping keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final IpAddressNoZone neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
@@ -300,24 +291,26 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                 neighborLocalAs = globalAs;
             }
 
-            this.errorHandling = OpenConfigMappingUtil.getRevisedErrorHandling(role, peerGroup, neighbor);
-            this.bgpPeer = new BGPPeer(tableTypeRegistry, this.neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, BgpPeer.this.rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+            errorHandling = OpenConfigMappingUtil.getRevisedErrorHandling(role, peerGroup, neighbor);
+            bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
+                    neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
                     BgpPeer.this);
-            this.prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
-                    neighborRemoteAs, bgpParameters, getPassword(keyMapping));
-            this.activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
-            this.retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor, peerGroup);
-            this.dispatcher = rib.getDispatcher();
+            prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
+                    neighborRemoteAs, bgpParameters,
+                    keyMapping == null ? Optional.empty()
+                        : Optional.of(Iterables.getOnlyElement(keyMapping.asMap().values())));
+            activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
+            retryTimer = OpenConfigMappingUtil.getRetryTimer(neighbor, peerGroup);
+            dispatcher = rib.getDispatcher();
 
             final PortNumber port = OpenConfigMappingUtil.getPort(neighbor, peerGroup);
-            this.inetAddress = Ipv4Util.toInetSocketAddress(this.neighborAddress, port);
+            inetAddress = Ipv4Util.toInetSocketAddress(neighborAddress, port);
             if (neighborLocalAddress != null) {
-                this.localAddress = Ipv4Util.toInetSocketAddress(neighborLocalAddress, port);
+                localAddress = Ipv4Util.toInetSocketAddress(neighborLocalAddress, port);
             } else {
-                this.localAddress = null;
+                localAddress = null;
             }
-            this.keys = keyMapping;
+            keys = keyMapping;
         }
 
         private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
@@ -326,56 +319,56 @@ public class BgpPeer implements PeerBean, BGPPeerStateProvider {
                     .map(entry -> new BgpPeerUtil.LlGracefulRestartDTO(entry.getKey(), entry.getValue(), false))
                     .collect(Collectors.toSet());
             return Collections.singletonList(
-                    GracefulRestartUtil.getGracefulBgpParameters(this.finalCapabilities, gracefulTables,
+                    GracefulRestartUtil.getGracefulBgpParameters(finalCapabilities, gracefulTables,
                             Collections.emptySet(), gracefulRestartTimer, false, llGracefulRestarts));
         }
 
         synchronized void instantiateServiceInstance() {
             if (isServiceInstantiated) {
-                LOG.warn("Peer {} has already been instantiated", this.neighborAddress);
+                LOG.warn("Peer {} has already been instantiated", neighborAddress);
                 return;
             }
-            this.isServiceInstantiated = true;
-            LOG.info("Peer instantiated {}", this.neighborAddress);
-            this.bgpPeer.instantiateServiceInstance();
-            this.dispatcher.getBGPPeerRegistry().addPeer(this.neighborAddress, this.bgpPeer, this.prefs);
-            if (this.activeConnection) {
-                this.connection = this.dispatcher.createReconnectingClient(this.inetAddress, this.localAddress,
-                        this.retryTimer, this.keys);
+            isServiceInstantiated = true;
+            LOG.info("Peer instantiated {}", neighborAddress);
+            bgpPeer.instantiateServiceInstance();
+            dispatcher.getBGPPeerRegistry().addPeer(neighborAddress, bgpPeer, prefs);
+            if (activeConnection) {
+                connection = dispatcher.createReconnectingClient(inetAddress, localAddress,
+                        retryTimer, keys);
             }
         }
 
         synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-            if (!this.isServiceInstantiated) {
-                LOG.info("Peer {} already closed", this.neighborAddress);
+            if (!isServiceInstantiated) {
+                LOG.info("Peer {} already closed", neighborAddress);
                 return CommitInfo.emptyFluentFuture();
             }
-            LOG.info("Close Peer {}", this.neighborAddress);
-            this.isServiceInstantiated = false;
-            if (this.connection != null) {
-                this.connection.cancel(true);
-                this.connection = null;
+            LOG.info("Close Peer {}", neighborAddress);
+            isServiceInstantiated = false;
+            if (connection != null) {
+                connection.cancel(true);
+                connection = null;
             }
-            final FluentFuture<? extends CommitInfo> future = this.bgpPeer.close();
-            removePeer(this.dispatcher.getBGPPeerRegistry());
+            final FluentFuture<? extends CommitInfo> future = bgpPeer.close();
+            removePeer(dispatcher.getBGPPeerRegistry());
             return future;
         }
 
         @Override
         public BGPPeerState getPeerState() {
-            return this.bgpPeer.getPeerState();
+            return bgpPeer.getPeerState();
         }
     }
 
     public synchronized List<OptionalCapabilities> getBgpFixedCapabilities() {
-        return this.bgpPeerSingletonService.finalCapabilities;
+        return bgpPeerSingletonService.finalCapabilities;
     }
 
     public synchronized int getGracefulRestartTimer() {
-        return this.bgpPeerSingletonService.gracefulRestartTimer;
+        return bgpPeerSingletonService.gracefulRestartTimer;
     }
 
     public synchronized Optional<RevisedErrorHandlingSupport> getErrorHandling() {
-        return Optional.ofNullable(this.bgpPeerSingletonService.errorHandling);
+        return Optional.ofNullable(bgpPeerSingletonService.errorHandling);
     }
 }

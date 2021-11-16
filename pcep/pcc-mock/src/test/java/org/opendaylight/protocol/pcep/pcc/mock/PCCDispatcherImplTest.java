@@ -68,7 +68,7 @@ public class PCCDispatcherImplTest {
         pcepDispatcher = new PCEPDispatcherImpl(registry, nf, bossGroup, workerGroup);
         serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
-        doReturn(KeyMapping.getKeyMapping()).when(dispatcherDependencies).getKeys();
+        doReturn(KeyMapping.of()).when(dispatcherDependencies).getKeys();
         doReturn(serverAddress).when(dispatcherDependencies).getAddress();
         doReturn(null).when(dispatcherDependencies).getPeerProposal();
     }
@@ -87,7 +87,7 @@ public class PCCDispatcherImplTest {
     @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
         final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1,
-            new TestingSessionListenerFactory(), nf, KeyMapping.getKeyMapping(), clientAddress);
+            new TestingSessionListenerFactory(), nf, KeyMapping.of(), clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         doReturn(slf).when(dispatcherDependencies).getListenerFactory();
 

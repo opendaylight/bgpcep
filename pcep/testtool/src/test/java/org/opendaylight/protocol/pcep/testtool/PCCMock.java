@@ -42,8 +42,8 @@ public final class PCCMock {
 
         try (PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(
                 new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf,
-                    KeyMapping.getKeyMapping(), clientAddr).get();
+            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, KeyMapping.of(), clientAddr)
+                .get();
         }
     }
 }
