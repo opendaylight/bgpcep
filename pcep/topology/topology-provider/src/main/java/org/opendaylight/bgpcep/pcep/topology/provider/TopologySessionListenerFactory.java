@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-public interface TopologySessionListenerFactory {
+// FIXME: this interface exists only for TopologyProgrammingTest
+interface TopologySessionListenerFactory {
     TopologySessionListener createTopologySessionListener(ServerSessionManager manager);
 }

@@ -58,10 +58,8 @@ public final class PCEPTopologyProvider extends DefaultTopologyReference {
                 "Stateful capability not defined, aborting PCEP Topology Provider instantiation");
         }
 
-        final ServerSessionManager manager = new ServerSessionManager(dependenciesProvider,
-            dependenciesProvider.getTopologySessionListenerFactory(), configDependencies);
-
-        return new PCEPTopologyProvider(configDependencies, dependenciesProvider, manager, scheduler);
+        return new PCEPTopologyProvider(configDependencies, dependenciesProvider,
+            new ServerSessionManager(dependenciesProvider, configDependencies), scheduler);
     }
 
     public void instantiateServiceInstance() throws ExecutionException, InterruptedException {

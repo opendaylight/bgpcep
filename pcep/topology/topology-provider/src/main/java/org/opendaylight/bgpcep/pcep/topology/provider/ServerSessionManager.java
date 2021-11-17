@@ -78,10 +78,11 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPDispatcherDependencies pcepDispatcherDependencies;
 
+    @VisibleForTesting
     ServerSessionManager(
             final PCEPTopologyProviderDependencies dependenciesProvider,
-            final TopologySessionListenerFactory listenerFactory,
-            final PCEPTopologyConfiguration configDependencies) {
+            final PCEPTopologyConfiguration configDependencies,
+            final TopologySessionListenerFactory listenerFactory) {
         this.dependenciesProvider = requireNonNull(dependenciesProvider);
         topology = requireNonNull(configDependencies.getTopology());
         this.listenerFactory = requireNonNull(listenerFactory);
@@ -89,6 +90,12 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
                 .createStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
         rpcTimeout = configDependencies.getRpcTimeout();
         pcepDispatcherDependencies = new PCEPDispatcherDependenciesImpl(this, configDependencies);
+    }
+
+    ServerSessionManager(
+            final PCEPTopologyProviderDependencies dependenciesProvider,
+            final PCEPTopologyConfiguration configDependencies) {
+        this(dependenciesProvider, configDependencies, PCEPTopologySessionListener::new);
     }
 
     private static NodeId createNodeId(final InetAddress addr) {

@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider.config;
 import com.google.common.annotations.Beta;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
-import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -42,13 +41,6 @@ public interface PCEPTopologyProviderDependencies {
      * @return DataBroker
      */
     DataBroker getDataBroker();
-
-    /**
-     * Topology Session Listener Factory.
-     *
-     * @return TopologySessionListenerFactory
-     */
-    TopologySessionListenerFactory getTopologySessionListenerFactory();
 
     /**
      * Topology Session State Registry.
