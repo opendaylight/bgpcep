@@ -14,16 +14,15 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -44,14 +43,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.topology.pcep.type.TopologyPcepBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -65,23 +62,24 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
+    private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
+    private final @NonNull PCEPTopologyProviderDependencies dependenciesProvider;
+
     @VisibleForTesting
     final AtomicBoolean isClosed = new AtomicBoolean(false);
     @GuardedBy("this")
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
     @GuardedBy("this")
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
-    private final InstanceIdentifier<Topology> topology;
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
-    private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPDispatcherDependencies pcepDispatcherDependencies;
 
-    ServerSessionManager(
+    ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
             final PCEPTopologyProviderDependencies dependenciesProvider,
             final PCEPTopologyConfiguration configDependencies) {
         this.dependenciesProvider = requireNonNull(dependenciesProvider);
-        topology = requireNonNull(configDependencies.getTopology());
+        topology = requireNonNull(instanceIdentifier);
         peerProposal = new PCEPStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
         rpcTimeout = configDependencies.getRpcTimeout();
         pcepDispatcherDependencies = new PCEPDispatcherDependenciesImpl(this, configDependencies);
@@ -91,29 +89,38 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         return new NodeId("pcc://" + addr.getHostAddress());
     }
 
-    /**
-     * Create Base Topology.
-     */
-    final synchronized void instantiateServiceInstance() {
-        final TopologyKey key = InstanceIdentifier.keyOf(topology);
-        final TopologyId topologyId = key.getTopologyId();
-        final WriteTransaction tx = dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
-        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder()
-            .withKey(key)
-            .setTopologyId(topologyId).setTopologyTypes(new TopologyTypesBuilder()
-                .addAugmentation(new TopologyTypes1Builder()
-                    .setTopologyPcep(new TopologyPcepBuilder().build())
-                    .build())
+    // Initialize the operational view of the topology.
+    final ListenableFuture<Boolean> initialize() {
+        final String topologyName = topology.getKey().getTopologyId().getValue();
+        LOG.info("Creating PCEP Topology {}", topologyName);
+
+        final var tx = dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder()
+            .withKey(topology.getKey())
+            .setTopologyTypes(new TopologyTypesBuilder()
+                .addAugmentation(new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build())
                 .build())
             .build());
-        try {
-            tx.commit().get();
-            LOG.info("PCEP Topology {} created successfully.", topologyId.getValue());
-            ServerSessionManager.this.isClosed.set(false);
-        } catch (final ExecutionException | InterruptedException throwable) {
-            LOG.error("Failed to create PCEP Topology {}.", topologyId.getValue(), throwable);
-            ServerSessionManager.this.isClosed.set(true);
-        }
+
+        final var future = SettableFuture.<Boolean>create();
+        final var txFuture = tx.commit();
+        txFuture.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.info("PCEP Topology {} created successfully.", topologyName);
+                isClosed.set(false);
+                future.set(Boolean.TRUE);
+            }
+
+            @Override
+            public void onFailure(final Throwable failure) {
+                LOG.error("Failed to create PCEP Topology {}.", topologyName, failure);
+                isClosed.set(true);
+                future.set(Boolean.FALSE);
+            }
+        }, MoreExecutors.directExecutor());
+
+        return future;
     }
 
     final synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
