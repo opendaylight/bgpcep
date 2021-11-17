@@ -43,8 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class StateSynchronizationAvoidanceProcedureTest extends
-    AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
+public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSessionTest {
 
     private PCEPTopologySessionListener listener;
 
@@ -52,13 +51,13 @@ public class StateSynchronizationAvoidanceProcedureTest extends
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        listener = getSessionListener();
     }
 
     @Test
     public void testNodePersisted() throws ExecutionException, InterruptedException {
         final PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
-        this.listener.onSessionUp(session);
+        listener.onSessionUp(session);
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder()
             .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
@@ -71,9 +70,9 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                     .build())
             .setPlspId(new PlspId(Uint32.ONE)).setSync(false).setRemove(false).setOperational(OperationalStatus.Active)
             .build(), Optional.of(MsgBuilderUtil.createSrp(Uint32.ONE)), null);
-        this.listener.onMessage(session, pcRpt);
+        listener.onMessage(session, pcRpt);
         //check topology
-        readDataOperational(getDataBroker(), this.pathComputationClientIId.builder()
+        readDataOperational(getDataBroker(), pathComputationClientIId.builder()
                 .augmentation(PathComputationClient1.class)
                 .child(LspDbVersion.class).build(), dbVersion -> {
                 assertEquals(1L, dbVersion.getLspDbVersionValue().longValue());
@@ -81,7 +80,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
             });
 
         //drop session
-        this.listener.onSessionDown(session, new IllegalStateException());
+        listener.onSessionDown(session, new IllegalStateException());
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
             assertFalse(topology.getNode().isEmpty());
             return topology;
@@ -94,9 +93,9 @@ public class StateSynchronizationAvoidanceProcedureTest extends
         //session up - sync skipped (LSP-DBs match)
         final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(Uint64.ONE).build();
         final PCEPSession session = getPCEPSession(getOpen(lspDbVersion), getOpen(lspDbVersion));
-        this.listener.onSessionUp(session);
+        listener.onSessionUp(session);
         //check node - synchronized
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             return pcc;
         });
@@ -105,7 +104,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends
     @Test
     public void testStateSynchronizationPerformed() throws Exception {
         PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
-        this.listener.onSessionUp(session);
+        listener.onSessionUp(session);
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder()
             .setPlspId(new PlspId(Uint32.ONE))
@@ -122,22 +121,22 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                 .setPlspId(new PlspId(Uint32.ONE)).setSync(true).setRemove(false)
                 .setOperational(OperationalStatus.Active)
                 .build(), Optional.empty(), createPath(Collections.emptyList()));
-        this.listener.onMessage(session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
-        this.listener.onSessionDown(session, new IllegalArgumentException("Simulate Exception"));
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        listener.onSessionDown(session, new IllegalArgumentException("Simulate Exception"));
+        listener = getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
                 .setLspDbVersionValue(Uint64.TWO).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
-        this.listener.onSessionUp(session);
+        listener.onSessionUp(session);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - not synchronized
             assertEquals(PccSyncState.InitialResync, pcc.getStateSync());
             //check reported LSP - persisted from previous session
@@ -154,8 +153,8 @@ public class StateSynchronizationAvoidanceProcedureTest extends
                             .build()).build()),
                 true, false), Optional.empty(),
                 createPath(Collections.emptyList()));
-        this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
