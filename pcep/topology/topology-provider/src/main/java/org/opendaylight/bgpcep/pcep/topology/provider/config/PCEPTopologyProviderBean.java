@@ -7,9 +7,9 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider.config;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -36,70 +36,64 @@ import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies, AutoCloseable {
+final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderBean.class);
 
-    private static final String STATEFUL_NOT_DEFINED =
-            "Stateful capability not defined, aborting PCEP Topology Deployer instantiation";
     private final PCEPDispatcher pcepDispatcher;
     private final DataBroker dataBroker;
     private final TopologySessionListenerFactory sessionListenerFactory;
     private final RpcProviderService rpcProviderRegistry;
-    private final BundleContext bundleContext;
-    private final ClusterSingletonServiceProvider cssp;
     private final TopologySessionStatsRegistry stateRegistry;
     private final PceServerProvider pceServerProvider;
     @GuardedBy("this")
     private PCEPTopologyProviderBeanCSS pcepTopoProviderCSS;
 
-    public PCEPTopologyProviderBean(
-            final ClusterSingletonServiceProvider cssp,
-            final BundleContext bundleContext,
+    PCEPTopologyProviderBean(
             final DataBroker dataBroker,
             final PCEPDispatcher pcepDispatcher,
             final RpcProviderService rpcProviderRegistry,
             final TopologySessionListenerFactory sessionListenerFactory,
             final TopologySessionStatsRegistry stateRegistry,
             final PceServerProvider pceServerProvider) {
-        this.cssp = requireNonNull(cssp);
-        this.bundleContext = requireNonNull(bundleContext);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.dataBroker = requireNonNull(dataBroker);
         this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        final List<PCEPCapability> capabilities = this.pcepDispatcher.getPCEPSessionNegotiatorFactory()
+
+        // FIXME: this check should happen before we attempt anything
+        final List<PCEPCapability> capabilities = pcepDispatcher.getPCEPSessionNegotiatorFactory()
                 .getPCEPSessionProposalFactory().getCapabilities();
-        final boolean statefulCapability = capabilities.stream().anyMatch(PCEPCapability::isStateful);
-        if (!statefulCapability) {
-            throw new IllegalStateException(STATEFUL_NOT_DEFINED);
+        if (!capabilities.stream().anyMatch(PCEPCapability::isStateful)) {
+            throw new IllegalStateException(
+                "Stateful capability not defined, aborting PCEP Topology Deployer instantiation");
         }
     }
 
     synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        if (this.pcepTopoProviderCSS != null) {
-            return this.pcepTopoProviderCSS.closeServiceInstance();
+        if (pcepTopoProviderCSS != null) {
+            return pcepTopoProviderCSS.closeServiceInstance();
         }
         return CommitInfo.emptyFluentFuture();
     }
 
     @Override
     public synchronized void close() throws Exception {
-        if (this.pcepTopoProviderCSS != null) {
-            this.pcepTopoProviderCSS.close();
-            this.pcepTopoProviderCSS = null;
+        if (pcepTopoProviderCSS != null) {
+            pcepTopoProviderCSS.close();
+            pcepTopoProviderCSS = null;
         }
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    synchronized void start(final PCEPTopologyConfiguration configDependencies,
-            final InstructionScheduler instructionScheduler) {
-        Preconditions.checkState(this.pcepTopoProviderCSS == null,
-                "Previous instance %s was not closed.", this);
+    synchronized void start(final ClusterSingletonServiceProvider cssp,
+            final PCEPTopologyConfiguration configDependencies, final InstructionScheduler instructionScheduler,
+            final BundleContext bundleContext) {
+        checkState(pcepTopoProviderCSS == null, "Previous instance %s was not closed.", this);
         try {
-            this.pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies,
-                    instructionScheduler, this);
+            pcepTopoProviderCSS = new PCEPTopologyProviderBeanCSS(configDependencies, this, instructionScheduler, cssp,
+                bundleContext);
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue(), e);
         }
@@ -107,32 +101,32 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
 
     @Override
     public PCEPDispatcher getPCEPDispatcher() {
-        return this.pcepDispatcher;
+        return pcepDispatcher;
     }
 
     @Override
     public RpcProviderService getRpcProviderRegistry() {
-        return this.rpcProviderRegistry;
+        return rpcProviderRegistry;
     }
 
     @Override
     public DataBroker getDataBroker() {
-        return this.dataBroker;
+        return dataBroker;
     }
 
     @Override
     public TopologySessionListenerFactory getTopologySessionListenerFactory() {
-        return this.sessionListenerFactory;
+        return sessionListenerFactory;
     }
 
     @Override
     public TopologySessionStatsRegistry getStateRegistry() {
-        return this.stateRegistry;
+        return stateRegistry;
     }
 
     @Override
     public PceServerProvider getPceServerProvider() {
-        return this.pceServerProvider;
+        return pceServerProvider;
     }
 
     private static class PCEPTopologyProviderBeanCSS implements ClusterSingletonService, AutoCloseable {
@@ -145,15 +139,18 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         private boolean serviceInstantiated;
 
         PCEPTopologyProviderBeanCSS(final PCEPTopologyConfiguration configDependencies,
-                final InstructionScheduler instructionScheduler, final PCEPTopologyProviderBean bean) {
-            this.scheduler = instructionScheduler;
-            this.sgi = this.scheduler.getIdentifier();
-            this.pcepTopoProvider = PCEPTopologyProvider.create(bean, this.scheduler, configDependencies);
+                final PCEPTopologyProviderDependencies dependenciesProvider,
+                final InstructionScheduler instructionScheduler, final ClusterSingletonServiceProvider cssp,
+                // FIXME: this should not be needed
+                final BundleContext bundleContext) {
+            scheduler = instructionScheduler;
+            sgi = scheduler.getIdentifier();
+            pcepTopoProvider = PCEPTopologyProvider.create(dependenciesProvider, scheduler, configDependencies);
 
-            this.serviceRegistration = bean.bundleContext.registerService(DefaultTopologyReference.class.getName(),
-                this.pcepTopoProvider, props(configDependencies));
+            serviceRegistration = bundleContext.registerService(DefaultTopologyReference.class.getName(),
+                pcepTopoProvider, props(configDependencies));
             LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getName());
-            this.cssRegistration = bean.cssp.registerClusterSingletonService(this);
+            cssRegistration = cssp.registerClusterSingletonService(this);
         }
 
         @SuppressModernizer
@@ -168,39 +165,39 @@ public final class PCEPTopologyProviderBean implements PCEPTopologyProviderDepen
         public synchronized void instantiateServiceInstance() {
             LOG.info("PCEP Topology Provider Singleton Service {} instantiated", getIdentifier().getName());
             try {
-                this.pcepTopoProvider.instantiateServiceInstance();
+                pcepTopoProvider.instantiateServiceInstance();
             } catch (final Exception e) {
                 LOG.error("Failed to instantiate PCEP Topology provider", e);
             }
-            this.serviceInstantiated = true;
+            serviceInstantiated = true;
         }
 
         @Override
         public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
             LOG.info("Close PCEP Topology Provider Singleton Service {}", getIdentifier().getName());
-            if (this.serviceInstantiated) {
-                this.serviceInstantiated = false;
-                return this.pcepTopoProvider.closeServiceInstance();
+            if (serviceInstantiated) {
+                serviceInstantiated = false;
+                return pcepTopoProvider.closeServiceInstance();
             }
             return CommitInfo.emptyFluentFuture();
         }
 
         @Override
         public ServiceGroupIdentifier getIdentifier() {
-            return this.sgi;
+            return sgi;
         }
 
         @Override
         public synchronized void close() throws Exception {
-            if (this.cssRegistration != null) {
-                this.cssRegistration.close();
-                this.cssRegistration = null;
+            if (cssRegistration != null) {
+                cssRegistration.close();
+                cssRegistration = null;
             }
-            if (this.serviceRegistration != null) {
-                this.serviceRegistration.unregister();
-                this.serviceRegistration = null;
+            if (serviceRegistration != null) {
+                serviceRegistration.unregister();
+                serviceRegistration = null;
             }
-            this.scheduler.close();
+            scheduler.close();
         }
     }
 }
