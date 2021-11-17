@@ -52,10 +52,10 @@ final class PCEPStatefulPeerProposal {
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder, final byte[] speakerId) {
         if (isSynOptimizationEnabled(openTlvsBuilder)) {
             Optional<LspDbVersion> result = Optional.empty();
-            try (ReadTransaction rTx = this.dataBroker.newReadOnlyTransaction()) {
-                final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(
-                        LogicalDatastoreType.OPERATIONAL,
-                        this.topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
+            try (ReadTransaction rTx = dataBroker.newReadOnlyTransaction()) {
+                // FIXME: we should be listening for this configuration and keep a proper cache
+                final ListenableFuture<Optional<LspDbVersion>> future = rTx.read(LogicalDatastoreType.OPERATIONAL,
+                        topologyId.child(Node.class, new NodeKey(nodeId)).augmentation(Node1.class)
                                 .child(PathComputationClient.class).augmentation(PathComputationClient1.class)
                                 .child(LspDbVersion.class));
                 try {
@@ -82,9 +82,12 @@ final class PCEPStatefulPeerProposal {
     }
 
     private static boolean isSynOptimizationEnabled(final TlvsBuilder openTlvsBuilder) {
-        final Tlvs1 statefulTlv = openTlvsBuilder.augmentation(Tlvs1.class);
-        if (statefulTlv != null && statefulTlv.getStateful() != null) {
-            return statefulTlv.getStateful().augmentation(Stateful1.class) != null;
+        final var statefulTlv = openTlvsBuilder.augmentation(Tlvs1.class);
+        if (statefulTlv != null) {
+            final var stateful = statefulTlv.getStateful();
+            if (stateful != null) {
+                return stateful.augmentation(Stateful1.class) != null;
+            }
         }
         return false;
     }
