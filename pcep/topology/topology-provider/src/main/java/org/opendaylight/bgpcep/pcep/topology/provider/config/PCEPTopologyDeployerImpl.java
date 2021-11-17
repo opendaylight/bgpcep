@@ -132,11 +132,10 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
                 .createInstructionScheduler(topologyId.getValue());
 
         final PCEPTopologyProviderBean pcepTopologyProviderBean = new PCEPTopologyProviderBean(singletonService,
-            bundleContext, dataBroker, pcepDispatcher, rpcProviderRegistry, sessionListenerFactory, stateRegistry,
-            pceServerProvider);
+            dataBroker, pcepDispatcher, rpcProviderRegistry, sessionListenerFactory, stateRegistry, pceServerProvider);
         pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
 
-        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(topology), instructionScheduler);
+        pcepTopologyProviderBean.start(new PCEPTopologyConfiguration(topology), instructionScheduler, bundleContext);
     }
 
     @Holding("this")
