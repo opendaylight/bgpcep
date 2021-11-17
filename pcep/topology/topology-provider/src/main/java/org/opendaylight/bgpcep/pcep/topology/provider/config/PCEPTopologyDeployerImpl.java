@@ -12,7 +12,9 @@ import static java.util.Objects.requireNonNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.Nullable;
@@ -162,7 +164,6 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         LOG.info("PCEP Topology Deployer closed");
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private static void closeTopology(final PCEPTopologyProviderBean topology, final TopologyId topologyId) {
         if (topology == null) {
             return;
@@ -170,10 +171,10 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         LOG.info("Removing Topology {}", topologyId);
         try {
             topology.closeServiceInstance().get(TIMEOUT_NS, TimeUnit.NANOSECONDS);
-            topology.close();
-        } catch (final Exception e) {
+        } catch (final InterruptedException | TimeoutException | ExecutionException e) {
             LOG.error("Topology {} instance failed to close service instance", topologyId, e);
         }
+        topology.close();
     }
 
     private static boolean filterPcepTopologies(final @Nullable TopologyTypes topologyTypes) {

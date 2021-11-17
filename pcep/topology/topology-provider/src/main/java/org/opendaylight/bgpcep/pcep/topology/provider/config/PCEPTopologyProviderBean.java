@@ -70,7 +70,7 @@ final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (pcepTopoProviderCSS != null) {
             pcepTopoProviderCSS.close();
             pcepTopoProviderCSS = null;

@@ -53,13 +53,6 @@ final class PCEPTopologyProviderSingleton implements ClusterSingletonService, Au
         cssRegistration = cssp.registerClusterSingletonService(this);
     }
 
-    @SuppressModernizer
-    private static Dictionary<String, String> props(final PCEPTopologyConfiguration configDependencies) {
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
-        return properties;
-    }
-
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void instantiateServiceInstance() {
@@ -88,7 +81,7 @@ final class PCEPTopologyProviderSingleton implements ClusterSingletonService, Au
     }
 
     @Override
-    public synchronized void close() throws Exception {
+    public synchronized void close() {
         if (cssRegistration != null) {
             cssRegistration.close();
             cssRegistration = null;
@@ -98,5 +91,12 @@ final class PCEPTopologyProviderSingleton implements ClusterSingletonService, Au
             serviceRegistration = null;
         }
         scheduler.close();
+    }
+
+    @SuppressModernizer
+    private static Dictionary<String, String> props(final PCEPTopologyConfiguration configDependencies) {
+        final Dictionary<String, String> properties = new Hashtable<>();
+        properties.put(PCEPTopologyProvider.class.getName(), configDependencies.getTopologyId().getValue());
+        return properties;
     }
 }

@@ -12,8 +12,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yangtools.concepts.Identifiable;
+import org.opendaylight.yangtools.concepts.Registration;
 
-public interface InstructionScheduler extends Identifiable<ServiceGroupIdentifier>, AutoCloseable {
+public interface InstructionScheduler extends Identifiable<ServiceGroupIdentifier>, Registration {
     /**
      * Schedule a new instruction for execution. This method tries to enqueue an instruction. It will return a Future
      * which represents the scheduling progress. When the future becomes successful, the requestor is expected to start
