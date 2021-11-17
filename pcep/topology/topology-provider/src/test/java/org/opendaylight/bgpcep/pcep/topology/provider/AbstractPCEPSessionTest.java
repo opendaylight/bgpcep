@@ -159,7 +159,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
                     .build())
                 .build())
             .build());
-        manager = new ServerSessionManager(topologyDependencies, listenerFactory, configDep);
+        manager = new ServerSessionManager(topologyDependencies, configDep, listenerFactory);
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
             localPrefs);

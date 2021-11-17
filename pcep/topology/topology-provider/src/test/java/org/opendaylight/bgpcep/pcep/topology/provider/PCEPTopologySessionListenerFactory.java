@@ -7,20 +7,10 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import org.kohsuke.MetaInfServices;
-import org.osgi.service.component.annotations.Component;
+import com.google.common.annotations.VisibleForTesting;
 
-@Singleton
-@Component(immediate = true)
-@MetaInfServices
-public final class PCEPTopologySessionListenerFactory implements TopologySessionListenerFactory {
-    @Inject
-    public PCEPTopologySessionListenerFactory() {
-        // Visible for DI
-    }
-
+@VisibleForTesting
+final class PCEPTopologySessionListenerFactory implements TopologySessionListenerFactory {
     @Override
     public TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
         return new PCEPTopologySessionListener(manager);
