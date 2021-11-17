@@ -40,39 +40,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class IncrementalSynchronizationProcedureTest
-        extends AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
-
+public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSessionTest {
     private PCEPTopologySessionListener listener;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        listener = getSessionListener();
     }
 
     @Test
     public void testStateSynchronizationPerformed() throws Exception {
         PCEPSession session = getPCEPSession(getOpen(null), getOpen(null));
-        this.listener.onSessionUp(session);
+        listener.onSessionUp(session);
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrpt(Uint32.ONE, "test");
-        this.listener.onMessage(session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
-        this.listener.onSessionDown(session, new IllegalArgumentException());
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        listener.onSessionDown(session, new IllegalArgumentException());
+        listener = getSessionListener();
 
         //session up - expect sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
                 .setLspDbVersionValue(Uint64.TWO).build();
         session = getPCEPSession(getOpen(localDbVersion), getOpen(null));
-        this.listener.onSessionUp(session);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onSessionUp(session);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - IncrementalSync state
             assertEquals(PccSyncState.IncrementalSync, pcc.getStateSync());
             //check reported LSP - persisted from previous session
@@ -82,8 +80,8 @@ public class IncrementalSynchronizationProcedureTest
 
         //report LSP2 + LSP-DB version number 2
         final Pcrpt pcRpt2 = getPcrpt(Uint32.TWO, "testsecond");
-        this.listener.onMessage(session, pcRpt2);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt2);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.IncrementalSync, pcc.getStateSync());
             //check reported LSP is not empty
@@ -93,8 +91,8 @@ public class IncrementalSynchronizationProcedureTest
 
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getSyncPcrt();
-        this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
@@ -104,8 +102,8 @@ public class IncrementalSynchronizationProcedureTest
 
         //report LSP3 + LSP-DB version number 4
         final Pcrpt pcRpt3 = getPcrpt(Uint32.valueOf(3), "testthird");
-        this.listener.onMessage(session, pcRpt3);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt3);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             assertEquals(3,pcc.nonnullReportedLsp().size());

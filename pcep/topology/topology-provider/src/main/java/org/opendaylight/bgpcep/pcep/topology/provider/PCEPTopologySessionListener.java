@@ -111,6 +111,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// Non-final for testing
 class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologySessionListener.class);
     private static final PlspId PLSPID_ZERO = new PlspId(Uint32.ZERO);
@@ -131,7 +132,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
      */
     PCEPTopologySessionListener(final ServerSessionManager serverSessionManager) {
         super(serverSessionManager);
-        this.pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
+        pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
@@ -237,7 +238,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
     @Holding("this")
     private void markAllLspAsStale() {
-        this.staleLsps.addAll(this.lsps.keySet());
+        staleLsps.addAll(lsps.keySet());
     }
 
     private boolean handleErrorMessage(final PcerrMessage message) {
@@ -389,7 +390,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         LOG.info("Start PcRequest Message handler");
 
         /* Get a Path Computation to compute the Path from the Request */
-        PathComputation pathComputation = this.pceServerProvider.getPathComputation();
+        PathComputation pathComputation = pceServerProvider.getPathComputation();
         Message rep = null;
         /* Reply with Error Message if no valid Path Computation is available */
         if (pathComputation == null) {
@@ -424,7 +425,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
-        this.listenerState.updateLastReceivedRptMsg();
+        listenerState.updateLastReceivedRptMsg();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcrpt
                 .message.PcrptMessage rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.getReports()) {
@@ -436,7 +437,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     }
 
     private SrpIdNumber nextRequest() {
-        return new SrpIdNumber(Uint32.valueOf(this.requestId.getAndIncrement()));
+        return new SrpIdNumber(Uint32.valueOf(requestId.getAndIncrement()));
     }
 
     @Override
@@ -630,7 +631,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                 if (path1 != null) {
                     final PlspId plspId = path1.getLsp().getPlspId();
                     if (!incrementalSynchro) {
-                        this.staleLsps.add(plspId);
+                        staleLsps.add(plspId);
                     }
                     lsps.put(plspId, lspName);
                 }
@@ -646,7 +647,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
      * @param plspId id
      */
     private synchronized void unmarkStaleLsp(final PlspId plspId) {
-        this.staleLsps.remove(plspId);
+        staleLsps.remove(plspId);
     }
 
     /**
@@ -655,35 +656,35 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
      * @param ctx message context
      */
     private synchronized void purgeStaleLsps(final MessageContext ctx) {
-        for (final PlspId plspId : this.staleLsps) {
+        for (final PlspId plspId : staleLsps) {
             removeLsp(ctx, plspId);
         }
-        this.staleLsps.clear();
+        staleLsps.clear();
     }
 
     @Override
     public boolean isInitiationCapability() {
-        return this.initiationCapability.get();
+        return initiationCapability.get();
     }
 
     @Override
     public boolean isStatefulCapability() {
-        return this.statefulCapability.get();
+        return statefulCapability.get();
     }
 
     @Override
     public boolean isLspUpdateCapability() {
-        return this.lspUpdateCapability.get();
+        return lspUpdateCapability.get();
     }
 
     private synchronized void setStatefulCapabilities(final Stateful stateful) {
-        this.statefulCapability.set(true);
+        statefulCapability.set(true);
         if (stateful.getLspUpdateCapability() != null) {
-            this.lspUpdateCapability.set(stateful.getLspUpdateCapability());
+            lspUpdateCapability.set(stateful.getLspUpdateCapability());
         }
         final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
         if (stateful1 != null && stateful1.getInitiation() != null) {
-            this.initiationCapability.set(stateful1.getInitiation());
+            initiationCapability.set(stateful1.getInitiation());
         }
     }
 
@@ -697,7 +698,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
         @Override
         public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            final Lsp reportedLsp = validateReportedLsp(rep, input);
             if (reportedLsp == null || !rep.isPresent()) {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
@@ -706,7 +707,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             if (!staleLsp.getPath().isEmpty()) {
                 final Path1 path1 = staleLsp.getPath().values().iterator().next().augmentation(Path1.class);
                 if (path1 != null) {
-                    PCEPTopologySessionListener.this.staleLsps.add(path1.getLsp().getPlspId());
+                    staleLsps.add(path1.getLsp().getPlspId());
                 }
             }
             updatePccState(PccSyncState.PcepTriggeredResync);
@@ -755,25 +756,24 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         @Override
         public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
             if (rep.isPresent()) {
-                LOG.debug("Node {} already contains lsp {} at {}", this.input.getNode(), this.input.getName(),
-                        this.lsp);
+                LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
                 return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
             }
-            if (!PCEPTopologySessionListener.this.initiationCapability.get()) {
+            if (!initiationCapability.get()) {
                 return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
             }
 
             // Build the request
             final RequestsBuilder rb = new RequestsBuilder();
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120
-                    .add.lsp.args.Arguments args = this.input.getArguments();
+                    .add.lsp.args.Arguments args = input.getArguments();
             final Arguments2 args2 = args.augmentation(Arguments2.class);
             final Lsp inputLsp = args2 != null ? args2.getLsp() : null;
             if (inputLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
             }
 
-            rb.fieldsFrom(this.input.getArguments());
+            rb.fieldsFrom(input.getArguments());
 
             /* Call Path Computation if an ERO was not provided */
             boolean segmentRouting = !PSTUtil.isDefaultPST(args2.getPathSetupType());
@@ -797,7 +797,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                 tlvsBuilder = new TlvsBuilder();
             }
             tlvsBuilder.setSymbolicPathName(
-                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(this.input.getName()
+                    new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(input.getName()
                             .getBytes(StandardCharsets.UTF_8))).build());
 
             final SrpBuilder srpBuilder = new SrpBuilder()
@@ -824,7 +824,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                     .setRequests(Collections.singletonList(rb.build()))
                     .build())
                 .build(),
-                rb.getSrp().getOperationId(), this.input.getArguments().getMetadata());
+                rb.getSrp().getOperationId(), input.getArguments().getMetadata());
         }
     }
 
@@ -838,12 +838,12 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
         @Override
         public ListenableFuture<OperationResult> apply(final Optional<ReportedLsp> rep) {
-            final Lsp reportedLsp = validateReportedLsp(rep, this.input);
+            final Lsp reportedLsp = validateReportedLsp(rep, input);
             if (reportedLsp == null) {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
             // create mandatory objects
-            final Arguments3 args = this.input.getArguments().augmentation(Arguments3.class);
+            final Arguments3 args = input.getArguments().augmentation(Arguments3.class);
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
             srpBuilder.setProcessingRule(Boolean.TRUE);
@@ -871,7 +871,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                         .setTlvs(inputLsp.getTlvs())
                         .setAdministrative(Boolean.TRUE.equals(inputLsp.getAdministrative()));
             }
-            return redelegate(reportedLsp, srp, lspBuilder.build(), this.input);
+            return redelegate(reportedLsp, srp, lspBuilder.build(), input);
         }
     }
 

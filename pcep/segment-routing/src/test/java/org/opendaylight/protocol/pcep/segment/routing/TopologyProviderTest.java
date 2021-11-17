@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractPCEPSessionTest;
 import org.opendaylight.bgpcep.pcep.topology.provider.AbstractTopologySessionListener;
-import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologySessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -56,7 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class TopologyProviderTest extends AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
+public class TopologyProviderTest extends AbstractPCEPSessionTest {
 
     private AbstractTopologySessionListener<SrpIdNumber, PlspId> listener;
     private PCEPSession session;
@@ -66,17 +65,17 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<PCEPTopologySe
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (AbstractTopologySessionListener<SrpIdNumber, PlspId>) getSessionListener();
-        this.session = getPCEPSession(getLocalPref(), getRemotePref());
+        listener = getSessionListener();
+        session = getPCEPSession(getLocalPref(), getRemotePref());
     }
 
     @Test
     public void testOnReportMessage() throws ExecutionException, InterruptedException {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
 
         Pcrpt pcRptMsg = createSrPcRpt("1.1.1.1", "sr-path1", Uint32.ONE, true);
-        this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRptMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check sr-path
             final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -97,8 +96,8 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<PCEPTopologySe
         });
 
         pcRptMsg = createSrPcRpt("1.1.1.3", "sr-path2", Uint32.TWO, false);
-        this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRptMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check second lsp sr-path
             final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);
@@ -108,8 +107,8 @@ public class TopologyProviderTest extends AbstractPCEPSessionTest<PCEPTopologySe
 
 
         pcRptMsg = createSrPcRpt("1.1.1.2", "sr-path1", Uint32.ONE, true);
-        this.listener.onMessage(this.session, pcRptMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRptMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check updated sr-path
             final Map<ReportedLspKey, ReportedLsp> reportedLsps = pcc.getReportedLsp();
             assertNotNull(reportedLsps);

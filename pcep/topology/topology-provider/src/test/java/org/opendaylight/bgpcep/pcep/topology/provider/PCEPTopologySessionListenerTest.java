@@ -97,10 +97,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PCEPTopologySessionListenerTest
-        extends AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
-
-    private final String tunnelName = "pcc_" + this.testAddress + "_tunnel_0";
+public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
+    private final String tunnelName = "pcc_" + testAddress + "_tunnel_0";
 
     private PCEPTopologySessionListener listener;
 
@@ -110,68 +108,68 @@ public class PCEPTopologySessionListenerTest
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
-        this.session = getPCEPSession(getLocalPref(), getRemotePref());
+        listener = getSessionListener();
+        session = getPCEPSession(getLocalPref(), getRemotePref());
     }
 
     @Test
     public void testPCEPTopologySessionListener() throws Exception {
-        this.listener.onSessionUp(this.session);
-        final PcepSessionState listenerState = this.listener.listenerState;
-        assertEquals(this.testAddress, listenerState.getPeerPref().getIpAddress());
-        final LocalPref state = this.listener.listenerState.getLocalPref();
+        listener.onSessionUp(session);
+        final PcepSessionState listenerState = listener.listenerState;
+        assertEquals(testAddress, listenerState.getPeerPref().getIpAddress());
+        final LocalPref state = listener.listenerState.getLocalPref();
         assertNotNull(state);
         assertEquals(DEAD_TIMER, state.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, state.getKeepalive().shortValue());
         assertEquals(0, state.getSessionId().intValue());
-        assertEquals(this.testAddress, state.getIpAddress());
+        assertEquals(testAddress, state.getIpAddress());
 
         final PeerPref peerState = listenerState.getPeerPref();
 
         assertEquals(DEAD_TIMER, peerState.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, peerState.getKeepalive().shortValue());
         assertEquals(0, peerState.getSessionId().intValue());
-        assertEquals(this.testAddress, peerState.getIpAddress());
+        assertEquals(testAddress, peerState.getIpAddress());
 
         // add-lsp
-        this.topologyRpcs.addLsp(createAddLspInput());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp())
                         .setTlvs(tlvs).setPlspId(new PlspId(Uint32.ONE)).setSync(FALSE).setRemove(FALSE)
                         .setOperational(OperationalStatus.Active).build(), Optional.of(MsgBuilderUtil.createSrp(srpId)),
                 MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         final Pcrpt esm = MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setSync(FALSE).build(),
                 Optional.of(MsgBuilderUtil.createSrp(Uint32.ZERO)), null);
-        this.listener.onMessage(this.session, esm);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
-            assertEquals(this.testAddress, pcc.getIpAddress().getIpv4AddressNoZone().getValue());
+        listener.onMessage(session, esm);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
+            assertEquals(testAddress, pcc.getIpAddress().getIpv4AddressNoZone().getValue());
             // reported lsp so far empty, has not received response (PcRpt) yet
             assertNull(pcc.getReportedLsp());
             return pcc;
         });
 
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
         // check created lsp
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(1, pcc.nonnullReportedLsp().size());
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
-            assertEquals(this.tunnelName, reportedLsp.getName());
+            assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.nonnullPath().size());
             final Path path = reportedLsp.nonnullPath().values().iterator().next();
             assertEquals(1, path.getEro().getSubobject().size());
-            assertEquals(this.eroIpPrefix, getLastEroIpPrefix(path.getEro()));
+            assertEquals(eroIpPrefix, getLastEroIpPrefix(path.getEro()));
             return pcc;
         });
 
         // check stats
         checkEquals(() -> assertEquals(1, listenerState.getDelegatedLspsCount().intValue()));
-        checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
+        checkEquals(() -> assertTrue(listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
         checkEquals(() -> assertEquals(2, listenerState.getMessages()
@@ -185,37 +183,37 @@ public class PCEPTopologySessionListenerTest
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
-        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix, this.dstIpPrefix)));
+        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(FALSE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
-                .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
-                .setNode(this.nodeId).build();
-        this.topologyRpcs.updateLsp(update);
-        assertEquals(2, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(1) instanceof Pcupd);
-        final Pcupd updateMsg = (Pcupd) this.receivedMsgs.get(1);
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+                .setNode(nodeId).build();
+        topologyRpcs.updateLsp(update);
+        assertEquals(2, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(1) instanceof Pcupd);
+        final Pcupd updateMsg = (Pcupd) receivedMsgs.get(1);
         final Updates upd = updateMsg.getPcupdMessage().getUpdates().get(0);
         final Uint32 srpId2 = upd.getSrp().getOperationId().getValue();
         final Tlvs tlvs2 = createLspTlvs(upd.getLsp().getPlspId().getValue(), false,
-                this.newDestinationAddress, this.testAddress, this.testAddress, Optional.empty());
+                newDestinationAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt2 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(upd.getLsp()).setTlvs(tlvs2)
                         .setSync(TRUE).setRemove(FALSE).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId2)), MsgBuilderUtil.createPath(upd.getPath()
                         .getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt2);
+        listener.onMessage(session, pcRpt2);
 
         //check updated lsp
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(1, pcc.getReportedLsp().size());
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
-            assertEquals(this.tunnelName, reportedLsp.getName());
+            assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.getPath().size());
             final Path path = reportedLsp.getPath().values().iterator().next();
             assertEquals(2, path.getEro().getSubobject().size());
-            assertEquals(this.dstIpPrefix, getLastEroIpPrefix(path.getEro()));
+            assertEquals(dstIpPrefix, getLastEroIpPrefix(path.getEro()));
             assertEquals(1, listenerState.getDelegatedLspsCount().intValue());
-            assertTrue(this.listener.isSessionSynchronized());
+            assertTrue(listener.isSessionSynchronized());
             final StatefulMessagesStatsAug statefulstate = listenerState.getMessages()
                     .augmentation(StatefulMessagesStatsAug.class);
             assertTrue(statefulstate.getLastReceivedRptMsgTimestamp().toJava() > 0);
@@ -239,36 +237,36 @@ public class PCEPTopologySessionListenerTest
                 .xml.ns.yang.topology.pcep.rev200120.ensure.lsp.operational.args.ArgumentsBuilder();
         ensureArgs.addAugmentation(new Arguments1Builder().setOperational(OperationalStatus.Active).build());
         final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build())
-                .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
-                .setNode(this.nodeId).build();
-        final OperationResult result = this.topologyRpcs.ensureLspOperational(ensure).get().getResult();
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+                .setNode(nodeId).build();
+        final OperationResult result = topologyRpcs.ensureLspOperational(ensure).get().getResult();
         //check result
         assertNull(result.getFailure());
 
         // remove-lsp
-        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(this.tunnelName)
-                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId).build();
-        this.topologyRpcs.removeLsp(remove);
-        assertEquals(3, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(2) instanceof Pcinitiate);
-        final Pcinitiate pcinitiate2 = (Pcinitiate) this.receivedMsgs.get(2);
+        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName)
+                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
+        topologyRpcs.removeLsp(remove);
+        assertEquals(3, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(2) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate2 = (Pcinitiate) receivedMsgs.get(2);
         final Requests req2 = pcinitiate2.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId3 = req2.getSrp().getOperationId().getValue();
         final Tlvs tlvs3 = createLspTlvs(req2.getLsp().getPlspId().getValue(), false,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt3 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req2.getLsp()).setTlvs(tlvs3)
                         .setRemove(TRUE).setSync(TRUE).setOperational(OperationalStatus.Down).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId3)), MsgBuilderUtil.createPath(Collections.emptyList()));
-        this.listener.onMessage(this.session, pcRpt3);
+        listener.onMessage(session, pcRpt3);
 
         // check if lsp was removed
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertNull(pcc.getReportedLsp());
             return pcc;
         });
         // check stats
         checkEquals(() -> assertEquals(0, listenerState.getDelegatedLspsCount().intValue()));
-        checkEquals(() -> assertTrue(this.listener.isSessionSynchronized()));
+        checkEquals(() -> assertTrue(listener.isSessionSynchronized()));
         checkEquals(() -> assertTrue(listenerState.getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
         checkEquals(() -> assertEquals(4, listenerState.getMessages()
@@ -282,8 +280,8 @@ public class PCEPTopologySessionListenerTest
     @Test
     public void testOnUnhandledErrorMessage() {
         final Message errorMsg = AbstractMessageParser.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Optional.empty());
-        this.listener.onSessionUp(this.session);
-        assertTrue(this.listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>empty()
+        listener.onSessionUp(session);
+        assertTrue(listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>empty()
                 .orElse(null),
             errorMsg));
     }
@@ -291,9 +289,9 @@ public class PCEPTopologySessionListenerTest
     @Test
     public void testOnErrorMessage() throws InterruptedException, ExecutionException {
         final Message errorMsg = MsgBuilderUtil.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Uint32.ONE);
-        this.listener.onSessionUp(this.session);
-        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
-        this.listener.onMessage(this.session, errorMsg);
+        listener.onSessionUp(session);
+        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        listener.onMessage(session, errorMsg);
 
         final AddLspOutput output = futureOutput.get().getResult();
         assertEquals(FailureType.Failed, output.getFailure());
@@ -305,12 +303,12 @@ public class PCEPTopologySessionListenerTest
 
     @Test
     public void testOnSessionDown() throws InterruptedException, ExecutionException {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
         // send request
-        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
-        assertFalse(this.session.isClosed());
-        this.listener.onSessionDown(this.session, new IllegalArgumentException());
-        assertTrue(this.session.isClosed());
+        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        assertFalse(session.isClosed());
+        listener.onSessionDown(session, new IllegalArgumentException());
+        assertTrue(session.isClosed());
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
@@ -321,17 +319,17 @@ public class PCEPTopologySessionListenerTest
      */
     @Test
     public void testOnServerSessionManagerDown() throws InterruptedException, ExecutionException {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
         // the session should not be closed when session manager is up
-        assertFalse(this.session.isClosed());
+        assertFalse(session.isClosed());
         // send request
-        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
         stopSessionManager();
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
         // verify the session is closed after server session manager is closed
-        assertTrue(this.session.isClosed());
+        assertTrue(session.isClosed());
     }
 
     /**
@@ -341,14 +339,14 @@ public class PCEPTopologySessionListenerTest
     @Test
     public void testOnServerSessionManagerUnstarted() throws InterruptedException, ExecutionException {
         stopSessionManager();
-        assertFalse(this.session.isClosed());
-        this.listener.onSessionUp(this.session);
+        assertFalse(session.isClosed());
+        listener.onSessionUp(session);
         // verify the session was NOT added to topology
         checkNotPresentOperational(getDataBroker(), TOPO_IID);
         // verify the session is closed due to server session manager is closed
-        assertTrue(this.session.isClosed());
+        assertTrue(session.isClosed());
         // send request
-        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
@@ -358,43 +356,43 @@ public class PCEPTopologySessionListenerTest
     public void testOnServerSessionManagerRestartAndSessionRecovery() throws Exception {
         // close server session manager first
         stopSessionManager();
-        assertFalse(this.session.isClosed());
-        this.listener.onSessionUp(this.session);
+        assertFalse(session.isClosed());
+        listener.onSessionUp(session);
         // verify the session was NOT added to topology
         checkNotPresentOperational(getDataBroker(), TOPO_IID);
         // verify the session is closed due to server session manager is closed
-        assertTrue(this.session.isClosed());
+        assertTrue(session.isClosed());
         // send request
-        final Future<RpcResult<AddLspOutput>> futureOutput = this.topologyRpcs.addLsp(createAddLspInput());
+        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
         final AddLspOutput output = futureOutput.get().getResult();
         // deal with unsent request after session down
         assertEquals(FailureType.Unsent, output.getFailure());
         // PCC client is not there
-        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
+        checkNotPresentOperational(getDataBroker(), pathComputationClientIId);
 
         // reset received message queue
-        this.receivedMsgs.clear();
+        receivedMsgs.clear();
         // now we restart the session manager
         startSessionManager();
         // try to start the session again
         // notice since the session was terminated before, it is not usable anymore.
         // we need to get a new session instance. the new session will have the same local / remote preference
-        this.session = getPCEPSession(getLocalPref(), getRemotePref());
-        assertFalse(this.session.isClosed());
-        this.listener.onSessionUp(this.session);
-        assertFalse(this.session.isClosed());
+        session = getPCEPSession(getLocalPref(), getRemotePref());
+        assertFalse(session.isClosed());
+        listener.onSessionUp(session);
+        assertFalse(session.isClosed());
 
         // create node
-        this.topologyRpcs.addLsp(createAddLspInput());
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        topologyRpcs.addLsp(createAddLspInput());
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(TRUE)
                         .setRemove(FALSE).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
             assertEquals(1, topology.nonnullNode().size());
             return topology;
@@ -406,68 +404,66 @@ public class PCEPTopologySessionListenerTest
      */
     @Test
     public void testDuplicatedSession() throws ExecutionException, InterruptedException {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
 
         // create node
-        this.topologyRpcs.addLsp(createAddLspInput());
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        topologyRpcs.addLsp(createAddLspInput());
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(TRUE)
                         .setRemove(FALSE).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
             assertEquals(1, topology.nonnullNode().size());
             return topology;
         });
 
         // now we do session up again
-        this.listener.onSessionUp(this.session);
-        assertTrue(this.session.isClosed());
+        listener.onSessionUp(session);
+        assertTrue(session.isClosed());
         // node should be removed after termination
-        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
-        assertFalse(this.receivedMsgs.isEmpty());
+        checkNotPresentOperational(getDataBroker(), pathComputationClientIId);
+        assertFalse(receivedMsgs.isEmpty());
         // the last message should be a Close message
-        assertTrue(this.receivedMsgs.get(this.receivedMsgs.size() - 1) instanceof Close);
+        assertTrue(receivedMsgs.get(receivedMsgs.size() - 1) instanceof Close);
     }
 
     @Test
     public void testConflictingListeners() {
-        this.listener.onSessionUp(this.session);
-        assertFalse(this.session.isClosed());
-        PCEPTopologySessionListener conflictingListener =
-                (PCEPTopologySessionListener) getSessionListener();
-        conflictingListener.onSessionUp(this.session);
-        assertTrue(this.session.isClosed());
+        listener.onSessionUp(session);
+        assertFalse(session.isClosed());
+        getSessionListener().onSessionUp(session);
+        assertTrue(session.isClosed());
     }
 
     @Test
     public void testOnSessionTermination() throws Exception {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
         // create node
-        this.topologyRpcs.addLsp(createAddLspInput());
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        topologyRpcs.addLsp(createAddLspInput());
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs).setSync(TRUE)
                         .setRemove(FALSE).setOperational(OperationalStatus.Active).build(),
                 Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), TOPO_IID, topology -> {
             assertEquals(1, topology.nonnullNode().size());
             return topology;
         });
 
-        assertFalse(this.session.isClosed());
+        assertFalse(session.isClosed());
         // node should be removed after termination
-        this.listener.onSessionTerminated(this.session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
-        assertTrue(this.session.isClosed());
-        checkNotPresentOperational(getDataBroker(), this.pathComputationClientIId);
+        listener.onSessionTerminated(session, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+        assertTrue(session.isClosed());
+        checkNotPresentOperational(getDataBroker(), pathComputationClientIId);
     }
 
     @Test
@@ -491,8 +487,8 @@ public class PCEPTopologySessionListenerTest
             .build());
         final Pcrpt rptmsg = new PcrptBuilder().setPcrptMessage(new PcrptMessageBuilder().setReports(reports).build())
                 .build();
-        this.listener.onSessionUp(this.session);
-        this.listener.onMessage(this.session, rptmsg);
+        listener.onSessionUp(session);
+        listener.onMessage(session, rptmsg);
         readDataOperational(getDataBroker(), TOPO_IID, node -> {
             assertFalse(node.nonnullNode().isEmpty());
             return node;
@@ -501,17 +497,17 @@ public class PCEPTopologySessionListenerTest
 
     @Test
     public void testUpdateUnknownLsp() throws InterruptedException, ExecutionException {
-        this.listener.onSessionUp(this.session);
+        listener.onSessionUp(session);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
-        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix, this.dstIpPrefix)));
+        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
-                .setName(this.tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId)
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
                 .build();
-        final UpdateLspOutput result = this.topologyRpcs.updateLsp(update).get().getResult();
+        final UpdateLspOutput result = topologyRpcs.updateLsp(update).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -521,10 +517,10 @@ public class PCEPTopologySessionListenerTest
 
     @Test
     public void testRemoveUnknownLsp() throws InterruptedException, ExecutionException {
-        this.listener.onSessionUp(this.session);
-        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(this.tunnelName).setNetworkTopologyRef(
-                new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId).build();
-        final OperationResult result = this.topologyRpcs.removeLsp(remove).get().getResult();
+        listener.onSessionUp(session);
+        final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName).setNetworkTopologyRef(
+                new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
+        final OperationResult result = topologyRpcs.removeLsp(remove).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -534,15 +530,15 @@ public class PCEPTopologySessionListenerTest
 
     @Test
     public void testAddAlreadyExistingLsp() throws InterruptedException, ExecutionException {
-        this.listener.onSessionUp(this.session);
-        this.topologyRpcs.addLsp(createAddLspInput());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        listener.onSessionUp(session);
+        topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                 .setPlspId(new PlspId(Uint32.ONE))
                 .setSync(FALSE)
@@ -550,10 +546,10 @@ public class PCEPTopologySessionListenerTest
                 .setOperational(OperationalStatus.Active)
                 .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro()
                 .getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
 
         //try to add already existing LSP
-        final AddLspOutput result = this.topologyRpcs.addLsp(createAddLspInput()).get().getResult();
+        final AddLspOutput result = topologyRpcs.addLsp(createAddLspInput()).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -565,8 +561,8 @@ public class PCEPTopologySessionListenerTest
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testPccResponseTimeout() throws Exception {
-        this.listener.onSessionUp(this.session);
-        final Future<RpcResult<AddLspOutput>> addLspResult = this.topologyRpcs.addLsp(createAddLspInput());
+        listener.onSessionUp(session);
+        final Future<RpcResult<AddLspOutput>> addLspResult = topologyRpcs.addLsp(createAddLspInput());
         try {
             addLspResult.get(2, TimeUnit.SECONDS);
             fail();
@@ -583,15 +579,15 @@ public class PCEPTopologySessionListenerTest
 
     @Test
     public void testDelegatedLspsCountWithDelegation() throws Exception {
-        this.listener.onSessionUp(this.session);
-        this.topologyRpcs.addLsp(createAddLspInput());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        listener.onSessionUp(session);
+        topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         //delegate set to true
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                 .setPlspId(new PlspId(Uint32.ONE))
@@ -601,21 +597,21 @@ public class PCEPTopologySessionListenerTest
                 .setDelegate(TRUE)
                 .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(
                 req.getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
-        checkEquals(() -> assertEquals(1, this.listener.listenerState.getDelegatedLspsCount().intValue()));
+        listener.onMessage(session, pcRpt);
+        checkEquals(() -> assertEquals(1, listener.listenerState.getDelegatedLspsCount().intValue()));
     }
 
     @Test
     public void testDelegatedLspsCountWithoutDelegation() throws Exception {
-        this.listener.onSessionUp(this.session);
-        this.topologyRpcs.addLsp(createAddLspInput());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Pcinitiate);
-        final Pcinitiate pcinitiate = (Pcinitiate) this.receivedMsgs.get(0);
+        listener.onSessionUp(session);
+        topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Pcinitiate);
+        final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
         final Tlvs tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
-                this.testAddress, this.testAddress, this.testAddress, Optional.empty());
+                testAddress, testAddress, testAddress, Optional.empty());
         //delegate set to false
         final Pcrpt pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
                         .setPlspId(new PlspId(Uint32.ONE))
@@ -625,8 +621,8 @@ public class PCEPTopologySessionListenerTest
                         .setDelegate(FALSE)
                         .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)),
                 MsgBuilderUtil.createPath(req.getEro().getSubobject()));
-        this.listener.onMessage(this.session, pcRpt);
-        checkEquals(() -> assertEquals(0, this.listener.listenerState.getDelegatedLspsCount().intValue()));
+        listener.onMessage(session, pcRpt);
+        checkEquals(() -> assertEquals(0, listener.listenerState.getDelegatedLspsCount().intValue()));
     }
 
     @Override
@@ -647,13 +643,13 @@ public class PCEPTopologySessionListenerTest
     private AddLspInput createAddLspInput() {
         final ArgumentsBuilder argsBuilder = new ArgumentsBuilder();
         final Ipv4CaseBuilder ipv4Builder = new Ipv4CaseBuilder();
-        ipv4Builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(new Ipv4AddressNoZone(this.testAddress))
-                .setDestinationIpv4Address(new Ipv4AddressNoZone(this.testAddress)).build());
+        ipv4Builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(new Ipv4AddressNoZone(testAddress))
+                .setDestinationIpv4Address(new Ipv4AddressNoZone(testAddress)).build());
         argsBuilder.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(ipv4Builder.build()).build());
-        argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(this.eroIpPrefix)));
+        argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix)));
         argsBuilder.addAugmentation(new Arguments2Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
-        return new AddLspInputBuilder().setName(this.tunnelName).setArguments(argsBuilder.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(this.nodeId).build();
+        return new AddLspInputBuilder().setName(tunnelName).setArguments(argsBuilder.build())
+                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
     }
 }
