@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 
 import com.google.common.util.concurrent.Futures;
 import java.util.Optional;
@@ -19,8 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.opendaylight.bgpcep.pcep.topology.provider.TopologyProgrammingTest.MockedTopologySessionListenerFactory;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -43,11 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.ensure.lsp.operational.args.ArgumentsBuilder;
 
-public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopologySessionListenerFactory> {
+public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     private static final String NAME = "test-tunnel";
-
-    // FIXME: this should not be static!
-    private static PCEPTopologySessionListener listener;
 
     @Mock
     private InstructionScheduler scheduler;
@@ -55,6 +51,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     private Instruction instruction;
 
     private TopologyProgramming topologyProgramming;
+    private PCEPTopologySessionListener listener;
 
     @Override
     @Before
@@ -150,18 +147,18 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
         assertEquals(nodeId, triggerSyncArgs.getNode());
     }
 
-    protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
-        @Override
-        public TopologySessionListener createTopologySessionListener(final ServerSessionManager manager) {
-            listener = Mockito.spy(new PCEPTopologySessionListener(manager));
-            return listener;
-        }
-    }
-
     @Override
     protected Open getLocalPref() {
         return new OpenBuilder(super.getLocalPref()).setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
                 .xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder().addAugmentation(
                     new Tlvs1Builder().setStateful(new StatefulBuilder().build()).build()).build()).build();
+    }
+
+    @Override
+    ServerSessionManager customizeSessionManager(final ServerSessionManager manager) {
+        final var customized = spy(manager);
+        listener = spy(new PCEPTopologySessionListener(manager));
+        doReturn(listener).when(customized).getSessionListener();
+        return customized;
     }
 }

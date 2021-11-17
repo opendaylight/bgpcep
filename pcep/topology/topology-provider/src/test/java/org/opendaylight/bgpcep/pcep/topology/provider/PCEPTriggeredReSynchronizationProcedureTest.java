@@ -46,8 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class PCEPTriggeredReSynchronizationProcedureTest
-        extends AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
+public class PCEPTriggeredReSynchronizationProcedureTest extends AbstractPCEPSessionTest {
     private PCEPTopologySessionListener listener;
 
     private PCEPSession session;
@@ -57,43 +56,43 @@ public class PCEPTriggeredReSynchronizationProcedureTest
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        listener = getSessionListener();
     }
 
     @Test
     public void testTriggeredResynchronization() throws Exception {
         //session up - sync skipped (LSP-DBs match)
-        this.session = getPCEPSession(getOpen(), getOpen());
-        this.listener.onSessionUp(this.session);
+        session = getPCEPSession(getOpen(), getOpen());
+        listener.onSessionUp(session);
 
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrt();
-        this.listener.onMessage(this.session, pcRpt);
+        listener.onMessage(session, pcRpt);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
         //PCEP Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).build());
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).build());
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.PcepTriggeredResync, pcc.getStateSync());
             return pcc;
         });
 
         //end of sync
         final Pcrpt syncMsg = getSyncMsg();
-        this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             return pcc;
         });
 
-        this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             final Map<?, ?> lsp = pcc.getReportedLsp();
             assertNotNull(lsp);
             assertEquals(1, lsp.size());
@@ -101,11 +100,11 @@ public class PCEPTriggeredReSynchronizationProcedureTest
         });
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).build());
-        this.listener.onMessage(this.session, pcRpt);
+        listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).build());
+        listener.onMessage(session, pcRpt);
         //end of sync
-        this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is not empty, Stale LSP state were purged
@@ -118,36 +117,36 @@ public class PCEPTriggeredReSynchronizationProcedureTest
     public void testTriggeredResynchronizationLsp() throws Exception {
         //session up - sync skipped (LSP-DBs match)
 
-        this.session = getPCEPSession(getOpen(), getOpen());
-        this.listener.onSessionUp(this.session);
+        session = getPCEPSession(getOpen(), getOpen());
+        listener.onSessionUp(session);
 
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrt();
-        this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).setName("test").build());
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).setName("test").build());
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertEquals(PccSyncState.PcepTriggeredResync, pcc.getStateSync());
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
-        this.listener.onMessage(this.session, pcRpt);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, pcRpt);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
 
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getSyncMsg();
-        this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP
@@ -156,9 +155,9 @@ public class PCEPTriggeredReSynchronizationProcedureTest
         });
 
         //Trigger Full Resync
-        this.listener.triggerSync(new TriggerSyncInputBuilder().setNode(this.nodeId).setName("test").build());
-        this.listener.onMessage(this.session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.triggerSync(new TriggerSyncInputBuilder().setNode(nodeId).setName("test").build());
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP
@@ -176,7 +175,7 @@ public class PCEPTriggeredReSynchronizationProcedureTest
                         .setIncludeDbVersion(Boolean.TRUE).setTriggeredResync(Boolean.TRUE)
                         .build())
                 .build())
-            .build()).addAugmentation(new Tlvs3Builder().setLspDbVersion(this.lspDbVersion).build()).build()).build();
+            .build()).addAugmentation(new Tlvs3Builder().setLspDbVersion(lspDbVersion).build()).build()).build();
     }
 
     private static Pcrpt getSyncMsg() {

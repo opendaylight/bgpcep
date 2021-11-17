@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
-import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -32,7 +31,6 @@ final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies
 
     private final PCEPDispatcher pcepDispatcher;
     private final DataBroker dataBroker;
-    private final TopologySessionListenerFactory sessionListenerFactory;
     private final RpcProviderService rpcProviderRegistry;
     private final TopologySessionStatsRegistry stateRegistry;
     private final PceServerProvider pceServerProvider;
@@ -43,12 +41,10 @@ final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies
             final DataBroker dataBroker,
             final PCEPDispatcher pcepDispatcher,
             final RpcProviderService rpcProviderRegistry,
-            final TopologySessionListenerFactory sessionListenerFactory,
             final TopologySessionStatsRegistry stateRegistry,
             final PceServerProvider pceServerProvider) {
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.dataBroker = requireNonNull(dataBroker);
-        this.sessionListenerFactory = requireNonNull(sessionListenerFactory);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
@@ -103,11 +99,6 @@ final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies
     @Override
     public DataBroker getDataBroker() {
         return dataBroker;
-    }
-
-    @Override
-    public TopologySessionListenerFactory getTopologySessionListenerFactory() {
-        return sessionListenerFactory;
     }
 
     @Override

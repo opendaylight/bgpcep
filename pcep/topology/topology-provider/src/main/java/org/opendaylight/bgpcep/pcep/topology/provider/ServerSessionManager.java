@@ -31,7 +31,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
@@ -60,7 +59,8 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, PCEPPeerProposal,
+// Non-final for testing
+class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, PCEPPeerProposal,
         TopologySessionStatsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
@@ -71,7 +71,6 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
     @GuardedBy("this")
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
-    private final TopologySessionListenerFactory listenerFactory;
     private final InstanceIdentifier<Topology> topology;
     private final PCEPStatefulPeerProposal peerProposal;
     private final short rpcTimeout;
@@ -80,11 +79,9 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
 
     ServerSessionManager(
             final PCEPTopologyProviderDependencies dependenciesProvider,
-            final TopologySessionListenerFactory listenerFactory,
             final PCEPTopologyConfiguration configDependencies) {
         this.dependenciesProvider = requireNonNull(dependenciesProvider);
         topology = requireNonNull(configDependencies.getTopology());
-        this.listenerFactory = requireNonNull(listenerFactory);
         peerProposal = PCEPStatefulPeerProposal
                 .createStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
         rpcTimeout = configDependencies.getRpcTimeout();
@@ -98,7 +95,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     /**
      * Create Base Topology.
      */
-    synchronized void instantiateServiceInstance() {
+    final synchronized void instantiateServiceInstance() {
         final TopologyKey key = InstanceIdentifier.keyOf(topology);
         final TopologyId topologyId = key.getTopologyId();
         final WriteTransaction tx = dependenciesProvider.getDataBroker().newWriteOnlyTransaction();
@@ -120,7 +117,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         }
     }
 
-    synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
+    final synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
             final boolean persistNode) {
         if (isClosed.get()) {
             LOG.error("Session Manager has already been closed.");
@@ -135,7 +132,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         }
     }
 
-    synchronized TopologyNodeState takeNodeState(final InetAddress address,
+    final synchronized TopologyNodeState takeNodeState(final InetAddress address,
             final TopologySessionListener sessionListener, final boolean retrieveNode) {
         final NodeId id = createNodeId(address);
         if (isClosed.get()) {
@@ -165,9 +162,10 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
         return ret;
     }
 
+    // Non-final for testing
     @Override
-    public PCEPSessionListener getSessionListener() {
-        return listenerFactory.createTopologySessionListener(this);
+    public PCEPTopologySessionListener getSessionListener() {
+        return new PCEPTopologySessionListener(this);
     }
 
     private synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
@@ -181,37 +179,38 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
+    public final synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
         return l != null ? l.addLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
+    public final synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
         return l != null ? l.removeLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
+    public final synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
         return l != null ? l.updateLsp(input) : OperationResults.UNSENT.future();
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
+    public final synchronized ListenableFuture<OperationResult> ensureLspOperational(
+            final EnsureLspOperationalInput input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
         return l != null ? l.ensureLspOperational(input) : OperationResults.UNSENT.future();
     }
 
     @Override
-    public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
+    public final synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         final TopologySessionListener l = checkSessionPresence(input.getNode());
         return l != null ? l.triggerSync(input) : OperationResults.UNSENT.future();
     }
 
     @Override
-    public ListenableFuture<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
+    public final ListenableFuture<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
         final NodeId nodeId = input.getNode();
         final TopologySessionListener listener = checkSessionPresence(nodeId);
         if (listener != null) {
@@ -223,7 +222,7 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
             .buildFuture();
     }
 
-    synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
+    final synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         if (isClosed.getAndSet(true)) {
             LOG.error("Session Manager has already been closed.");
             return CommitInfo.emptyFluentFuture();
@@ -255,32 +254,32 @@ final class ServerSessionManager implements PCEPSessionListenerFactory, Topology
     }
 
     @Override
-    public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
+    public final void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
         peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder,
             pcepDispatcherDependencies.getSpeakerIdMapping().speakerIdForAddress(address.getAddress()));
     }
 
-    short getRpcTimeout() {
+    final short getRpcTimeout() {
         return rpcTimeout;
     }
 
     @Override
-    public synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
+    public final synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
             final PcepSessionState sessionState) {
         dependenciesProvider.getStateRegistry().bind(nodeId, sessionState);
     }
 
     @Override
-    public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+    public final synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
         dependenciesProvider.getStateRegistry().unbind(nodeId);
     }
 
-    PCEPDispatcherDependencies getPCEPDispatcherDependencies() {
+    final PCEPDispatcherDependencies getPCEPDispatcherDependencies() {
         return pcepDispatcherDependencies;
     }
 
-    PCEPTopologyProviderDependencies getPCEPTopologyProviderDependencies() {
+    final PCEPTopologyProviderDependencies getPCEPTopologyProviderDependencies() {
         return dependenciesProvider;
     }
 }
