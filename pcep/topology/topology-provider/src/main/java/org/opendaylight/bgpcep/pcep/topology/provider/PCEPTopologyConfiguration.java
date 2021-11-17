@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.bgpcep.pcep.topology.provider.config;
+package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
@@ -22,58 +22,57 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.concepts.Immutable;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
-public final class PCEPTopologyConfiguration implements Immutable {
+final class PCEPTopologyConfiguration implements Immutable {
+    private final @NonNull SpeakerIdMapping speakerIds;
     private final @NonNull InetSocketAddress address;
     private final @NonNull KeyMapping keys;
     private final short rpcTimeout;
-    private final @NonNull SpeakerIdMapping speakerIds;
-    private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
 
-    public PCEPTopologyConfiguration(final @NonNull Topology topology) {
-        this.topology = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology.key());
-
-        final SessionConfig config = topology.augmentation(PcepTopologyTypeConfig.class).getSessionConfig();
-        address = getInetSocketAddress(config.getListenAddress(), config.getListenPort());
-        keys = constructKeys(topology.getNode());
-        speakerIds = contructSpeakersId(topology.getNode());
-        rpcTimeout = config.getRpcTimeout();
+    PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final short rpcTimeout,
+            final @NonNull KeyMapping keys, final @NonNull SpeakerIdMapping speakerIds) {
+        this.address = requireNonNull(address);
+        this.keys = requireNonNull(keys);
+        this.speakerIds = requireNonNull(speakerIds);
+        this.rpcTimeout = rpcTimeout;
     }
 
-    public @NonNull TopologyId getTopologyId() {
-        return topology.getKey().getTopologyId();
+    static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
+        // FIXME: this should live in the pcep topology type's presence container and be mandatory
+        final var pcepConfig = topology.augmentation(PcepTopologyTypeConfig.class);
+        if (pcepConfig == null) {
+            return null;
+        }
+        final var sessionConfig = pcepConfig.getSessionConfig();
+        if (sessionConfig == null) {
+            return null;
+        }
+
+        return new PCEPTopologyConfiguration(
+            getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
+            sessionConfig.getRpcTimeout(), constructKeys(topology.getNode()), contructSpeakersId(topology.getNode()));
     }
 
-    public @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> getTopology() {
-        return topology;
-    }
-
-    public short getRpcTimeout() {
+    short getRpcTimeout() {
         return rpcTimeout;
     }
 
-    public @NonNull InetSocketAddress getAddress() {
+    @NonNull InetSocketAddress getAddress() {
         return address;
     }
 
-    public @NonNull KeyMapping getKeys() {
+    @NonNull KeyMapping getKeys() {
         return keys;
     }
 
-    public @NonNull SpeakerIdMapping getSpeakerIds() {
+    @NonNull SpeakerIdMapping getSpeakerIds() {
         return speakerIds;
     }
 

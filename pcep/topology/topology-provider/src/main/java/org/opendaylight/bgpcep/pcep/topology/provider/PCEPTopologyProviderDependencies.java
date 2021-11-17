@@ -5,9 +5,8 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.bgpcep.pcep.topology.provider.config;
+package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.annotations.Beta;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
@@ -18,9 +17,8 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
 /**
  * Provides required dependencies for PCEPTopologyProviderProvider instantiation.
  */
-@Beta
 @NonNullByDefault
-public interface PCEPTopologyProviderDependencies {
+interface PCEPTopologyProviderDependencies {
     /**
      * PCEP Dispatcher.
      *
