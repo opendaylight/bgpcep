@@ -17,8 +17,8 @@
                interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
 
-    <bean id="pcepTopologyDeployer"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
+    <bean id="pcepTopologyTracker"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyTracker"
           destroy-method="close">
         <argument ref="dataBroker"/>
         <argument ref="clusterSingletonServiceProvider"/>
