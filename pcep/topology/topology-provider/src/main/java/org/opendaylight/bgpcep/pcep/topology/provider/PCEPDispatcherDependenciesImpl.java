@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;

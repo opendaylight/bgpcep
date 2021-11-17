@@ -36,15 +36,20 @@ import org.slf4j.LoggerFactory;
 final class PCEPStatefulPeerProposal implements PCEPPeerProposal {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPStatefulPeerProposal.class);
 
-    private final DataBroker dataBroker;
     private final InstanceIdentifier<Topology> topologyId;
-    private final SpeakerIdMapping speakerIds;
+    private final DataBroker dataBroker;
+
+    private volatile SpeakerIdMapping speakerIds;
 
     PCEPStatefulPeerProposal(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId,
             final SpeakerIdMapping speakerIds) {
         this.dataBroker = requireNonNull(dataBroker);
         this.topologyId = requireNonNull(topologyId);
         // FIXME: BGPCEP-989: once we have DTCL, we certainly should be able to maintain this mapping as well
+        this.speakerIds = requireNonNull(speakerIds);
+    }
+
+    void setSpeakerIds(final SpeakerIdMapping speakerIds) {
         this.speakerIds = requireNonNull(speakerIds);
     }
 
@@ -82,8 +87,8 @@ final class PCEPStatefulPeerProposal implements PCEPPeerProposal {
         if (speakerId == null && !result.isPresent()) {
             return;
         }
-        final Tlvs3Builder syncBuilder = new Tlvs3Builder();
 
+        final Tlvs3Builder syncBuilder = new Tlvs3Builder();
         if (result.isPresent()) {
             syncBuilder.setLspDbVersion(result.get());
         }
