@@ -99,6 +99,8 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     private final String tunnelName = "pcc_" + testAddress + "_tunnel_0";
+    private static final short DEAD_TIMER = 30;
+    private static final short KEEP_ALIVE = 10;
 
     private PCEPTopologySessionListener listener;
 
