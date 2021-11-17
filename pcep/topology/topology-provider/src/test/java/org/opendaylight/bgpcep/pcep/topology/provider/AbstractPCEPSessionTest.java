@@ -8,12 +8,12 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,19 +30,13 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev200120.pcep.config.SessionConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -52,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClient;
@@ -60,23 +53,20 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrokerTest {
 
-    static final short DEAD_TIMER = 30;
-    static final short KEEP_ALIVE = 10;
     static final short RPC_TIMEOUT = 4;
     private static final TopologyKey TEST_TOPOLOGY_ID = new TopologyKey(new TopologyId("testtopo"));
-    static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, TEST_TOPOLOGY_ID).build();
+    static final KeyedInstanceIdentifier<Topology, TopologyKey> TOPO_IID =
+        InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, TEST_TOPOLOGY_ID);
     private static final String IPV4_MASK = "/32";
     final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final NodeId nodeId = new NodeId("pcc://" + testAddress);
@@ -141,17 +131,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(new TopologyBuilder()
-            .withKey(TEST_TOPOLOGY_ID)
-            .addAugmentation(new PcepTopologyTypeConfigBuilder()
-                .setSessionConfig(new SessionConfigBuilder()
-                    .setListenAddress(new IpAddressNoZone(new Ipv4AddressNoZone(testAddress)))
-                    .setListenPort(new PortNumber(Uint16.valueOf(4189)))
-                    .setRpcTimeout(RPC_TIMEOUT)
-                    .build())
-                .build())
-            .build());
-        manager = customizeSessionManager(new ServerSessionManager(topologyDependencies, configDep));
+        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
             localPrefs);
@@ -164,12 +144,12 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     }
 
     void startSessionManager() throws Exception {
-        manager.instantiateServiceInstance();
-        checkEquals(() -> assertFalse(manager.isClosed.get()));
+        assertTrue(manager.start().get());
+        assertFalse(manager.isClosed.get());
     }
 
     void stopSessionManager() {
-        manager.closeServiceInstance();
+        manager.stop();
     }
 
     @After
