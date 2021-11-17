@@ -33,20 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class PCEPStatefulPeerProposal {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPStatefulPeerProposal.class);
 
     private final DataBroker dataBroker;
     private final InstanceIdentifier<Topology> topologyId;
 
-    private PCEPStatefulPeerProposal(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
+    PCEPStatefulPeerProposal(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
         this.dataBroker = requireNonNull(dataBroker);
         this.topologyId = requireNonNull(topologyId);
-    }
-
-    public static PCEPStatefulPeerProposal createStatefulPeerProposal(final DataBroker dataBroker,
-            final InstanceIdentifier<Topology> topologyId) {
-        return new PCEPStatefulPeerProposal(dataBroker, topologyId);
     }
 
     void setPeerProposal(final NodeId nodeId, final TlvsBuilder openTlvsBuilder, final byte[] speakerId) {
