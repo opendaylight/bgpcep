@@ -21,7 +21,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -128,15 +127,12 @@ public final class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeLi
         LOG.info("Creating Topology {}", topologyId);
         LOG.trace("Topology {}.", topology);
 
-        final InstructionScheduler instructionScheduler = instructionSchedulerFactory
-                .createInstructionScheduler(topologyId.getValue());
-
         final PCEPTopologyProviderBean pcepTopologyProviderBean = new PCEPTopologyProviderBean(
             dataBroker, pcepDispatcher, rpcProviderRegistry, sessionListenerFactory, stateRegistry, pceServerProvider);
         pcepTopologyServices.put(topologyId, pcepTopologyProviderBean);
 
-        pcepTopologyProviderBean.start(singletonService, new PCEPTopologyConfiguration(topology), instructionScheduler,
-            bundleContext);
+        pcepTopologyProviderBean.start(instructionSchedulerFactory, singletonService,
+            new PCEPTopologyConfiguration(topology), bundleContext);
     }
 
     @Holding("this")

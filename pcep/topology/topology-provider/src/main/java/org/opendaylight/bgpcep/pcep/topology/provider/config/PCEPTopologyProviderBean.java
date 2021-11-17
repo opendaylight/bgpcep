@@ -16,7 +16,7 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionListenerFactory;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
+import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -78,13 +78,13 @@ final class PCEPTopologyProviderBean implements PCEPTopologyProviderDependencies
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    synchronized void start(final ClusterSingletonServiceProvider cssp,
-            final PCEPTopologyConfiguration configDependencies, final InstructionScheduler instructionScheduler,
+    synchronized void start(final InstructionSchedulerFactory instructionSchedulerFactory,
+            final ClusterSingletonServiceProvider cssp, final PCEPTopologyConfiguration configDependencies,
             final BundleContext bundleContext) {
         checkState(pcepTopoProviderCSS == null, "Previous instance %s was not closed.", this);
         try {
-            pcepTopoProviderCSS = new PCEPTopologyProviderSingleton(configDependencies, this, instructionScheduler,
-                cssp, bundleContext);
+            pcepTopoProviderCSS = new PCEPTopologyProviderSingleton(configDependencies, this,
+                instructionSchedulerFactory, cssp, bundleContext);
         } catch (final Exception e) {
             LOG.debug("Failed to create PCEPTopologyProvider {}", configDependencies.getTopologyId().getValue(), e);
         }

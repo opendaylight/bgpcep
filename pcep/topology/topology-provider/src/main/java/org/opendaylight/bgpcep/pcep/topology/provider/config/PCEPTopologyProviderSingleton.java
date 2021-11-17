@@ -14,6 +14,7 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
+import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 final class PCEPTopologyProviderSingleton implements ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProviderSingleton.class);
 
-    private final ServiceGroupIdentifier sgi;
     private final PCEPTopologyProvider pcepTopoProvider;
     private final InstructionScheduler scheduler;
 
@@ -40,13 +40,16 @@ final class PCEPTopologyProviderSingleton implements ClusterSingletonService, Au
 
     PCEPTopologyProviderSingleton(final PCEPTopologyConfiguration configDependencies,
             final PCEPTopologyProviderDependencies dependenciesProvider,
-            final InstructionScheduler instructionScheduler, final ClusterSingletonServiceProvider cssp,
+            final InstructionSchedulerFactory instructionSchedulerFactory, final ClusterSingletonServiceProvider cssp,
             // FIXME: this should not be needed
             final BundleContext bundleContext) {
-        scheduler = instructionScheduler;
-        sgi = scheduler.getIdentifier();
+        scheduler = instructionSchedulerFactory.createInstructionScheduler(
+            configDependencies.getTopologyId().getValue());
+
+        // FIXME: this should only be created once we are up
         pcepTopoProvider = PCEPTopologyProvider.create(dependenciesProvider, scheduler, configDependencies);
 
+        // FIXME: this should only be registered once we are up
         serviceRegistration = bundleContext.registerService(DefaultTopologyReference.class.getName(),
             pcepTopoProvider, props(configDependencies));
         LOG.info("PCEP Topology Provider service {} registered", getIdentifier().getName());
@@ -77,7 +80,7 @@ final class PCEPTopologyProviderSingleton implements ClusterSingletonService, Au
 
     @Override
     public ServiceGroupIdentifier getIdentifier() {
-        return sgi;
+        return scheduler.getIdentifier();
     }
 
     @Override
