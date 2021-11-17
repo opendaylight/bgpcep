@@ -8,12 +8,12 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,8 +30,6 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfiguration;
-import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
@@ -164,12 +162,12 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     }
 
     void startSessionManager() throws Exception {
-        manager.instantiateServiceInstance();
-        checkEquals(() -> assertFalse(manager.isClosed.get()));
+        assertTrue(manager.start().get());
+        assertFalse(manager.isClosed.get());
     }
 
     void stopSessionManager() {
-        manager.closeServiceInstance();
+        manager.stop();
     }
 
     @After
