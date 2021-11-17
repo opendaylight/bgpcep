@@ -82,8 +82,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             final PCEPTopologyConfiguration configDependencies) {
         this.dependenciesProvider = requireNonNull(dependenciesProvider);
         topology = requireNonNull(configDependencies.getTopology());
-        peerProposal = PCEPStatefulPeerProposal
-                .createStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
+        peerProposal = new PCEPStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
         rpcTimeout = configDependencies.getRpcTimeout();
         pcepDispatcherDependencies = new PCEPDispatcherDependenciesImpl(this, configDependencies);
     }
