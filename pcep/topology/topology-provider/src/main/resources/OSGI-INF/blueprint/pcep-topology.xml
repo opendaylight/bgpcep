@@ -21,7 +21,6 @@
 
     <bean id="pcepTopologyDeployer"
           class="org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyDeployerImpl"
-          init-method="init"
           destroy-method="close">
         <argument ref="dataBroker"/>
         <argument ref="clusterSingletonServiceProvider"/>

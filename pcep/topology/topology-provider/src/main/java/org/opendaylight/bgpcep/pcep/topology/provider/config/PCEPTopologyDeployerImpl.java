@@ -42,7 +42,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
+public final class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyDeployerImpl.class);
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 
@@ -77,9 +77,7 @@ public class PCEPTopologyDeployerImpl implements ClusteredDataTreeChangeListener
         this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
         this.bundleContext = requireNonNull(bundleContext);
-    }
 
-    public synchronized void init() {
         LOG.info("PCEP Topology Deployer initialized");
         listenerRegistration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
