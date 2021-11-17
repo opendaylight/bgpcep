@@ -15,7 +15,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yangtools.concepts.Immutable;
 
-public final class SpeakerIdMapping implements Immutable {
+final class SpeakerIdMapping implements Immutable {
     private static final @NonNull SpeakerIdMapping EMPTY = new SpeakerIdMapping(ImmutableMap.of());
 
     private final ImmutableMap<InetAddress, byte[]> map;
@@ -24,17 +24,17 @@ public final class SpeakerIdMapping implements Immutable {
         this.map = ImmutableMap.copyOf(map);
     }
 
-    public static @NonNull SpeakerIdMapping of() {
+    static @NonNull SpeakerIdMapping of() {
         return EMPTY;
     }
 
-    public static @NonNull SpeakerIdMapping copyOf(final Map<InetAddress, byte[]> map) {
+    static @NonNull SpeakerIdMapping copyOf(final Map<InetAddress, byte[]> map) {
         return map.isEmpty() ? of()
             // Defensive: disconnect byte[]s from caller
             : new SpeakerIdMapping(Maps.transformValues(map, byte[]::clone));
     }
 
-    public byte @Nullable [] speakerIdForAddress(final InetAddress address) {
+    byte @Nullable [] speakerIdForAddress(final InetAddress address) {
         final byte[] found = map.get(address);
         // Defensive: do not leak byte[]
         return found == null ? null : found.clone();
