@@ -21,7 +21,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
-import java.lang.reflect.ParameterizedType;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyConfigu
 import org.opendaylight.bgpcep.pcep.topology.provider.config.PCEPTopologyProviderDependencies;
 import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -71,8 +69,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerFactory>
-        extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrokerTest {
 
     static final short DEAD_TIMER = 30;
     static final short KEEP_ALIVE = 10;
@@ -142,11 +139,6 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
 
         doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
         doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
-
-        // FIXME: receive this as an argument
-        @SuppressWarnings("unchecked")
-        final T listenerFactory = (T) ((Class) ((ParameterizedType) getClass()
-                .getGenericSuperclass()).getActualTypeArguments()[0]).getDeclaredConstructor().newInstance();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
         final PCEPTopologyConfiguration configDep = new PCEPTopologyConfiguration(new TopologyBuilder()
@@ -159,11 +151,16 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
                     .build())
                 .build())
             .build());
-        manager = new ServerSessionManager(topologyDependencies, configDep, listenerFactory);
+        manager = customizeSessionManager(new ServerSessionManager(topologyDependencies, configDep));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
             localPrefs);
         topologyRpcs = new TopologyRPCs(manager);
+    }
+
+    // Visible for TopologyProgrammingTest
+    ServerSessionManager customizeSessionManager(final ServerSessionManager manager) {
+        return manager;
     }
 
     void startSessionManager() throws Exception {
@@ -204,7 +201,7 @@ public abstract class AbstractPCEPSessionTest<T extends TopologySessionListenerF
         return remotePrefs;
     }
 
-    protected PCEPSessionListener getSessionListener() {
+    protected PCEPTopologySessionListener getSessionListener() {
         return manager.getSessionListener();
     }
 

@@ -41,15 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class PCETriggeredInitialSyncProcedureTest
-        extends AbstractPCEPSessionTest<PCEPTopologySessionListenerFactory> {
-    private PCEPTopologySessionListener listener;
-
+public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTest {
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
     }
 
     /**
@@ -57,18 +53,18 @@ public class PCETriggeredInitialSyncProcedureTest
      **/
     @Test
     public void testPcepTriggeredInitialSyncPerformed() throws Exception {
-        this.listener = (PCEPTopologySessionListener) getSessionListener();
+        final PCEPTopologySessionListener listener = getSessionListener();
 
         //session up - expect triggered sync (LSP-DBs do not match)
         final LspDbVersion localDbVersion = new LspDbVersionBuilder()
                 .setLspDbVersionValue(Uint64.ONE).build();
         final LspDbVersion localDbVersion2 = new LspDbVersionBuilder()
                 .setLspDbVersionValue(Uint64.TWO).build();
-        final PCEPSession session = getPCEPSession(getOpen(localDbVersion, Boolean.FALSE),
-                getOpen(localDbVersion2, Boolean.FALSE));
-        this.listener.onSessionUp(session);
+        final PCEPSession session = getPCEPSession(getOpen(localDbVersion, false),
+                getOpen(localDbVersion2, false));
+        listener.onSessionUp(session);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - not synchronized and TriggeredInitialSync state
             assertEquals(PccSyncState.TriggeredInitialSync, pcc.getStateSync());
             return pcc;
@@ -76,8 +72,8 @@ public class PCETriggeredInitialSyncProcedureTest
 
         //sync rpt + LSP-DB
         final Pcrpt syncMsg = getsyncMsg();
-        this.listener.onMessage(session, syncMsg);
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        listener.onMessage(session, syncMsg);
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
             assertEquals(PccSyncState.Synchronized, pcc.getStateSync());
             //check reported LSP is empty, LSP state from previous session was purged
@@ -87,9 +83,9 @@ public class PCETriggeredInitialSyncProcedureTest
 
         //report LSP + LSP-DB version number
         final Pcrpt pcRpt = getPcrpt();
-        this.listener.onMessage(session, pcRpt);
+        listener.onMessage(session, pcRpt);
 
-        readDataOperational(getDataBroker(), this.pathComputationClientIId, pcc -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
             return pcc;
         });
