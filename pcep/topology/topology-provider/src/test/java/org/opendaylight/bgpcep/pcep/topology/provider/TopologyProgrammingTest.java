@@ -7,16 +7,17 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import java.util.concurrent.Executor;
-import org.junit.Assert;
+import com.google.common.util.concurrent.Futures;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.opendaylight.bgpcep.pcep.topology.provider.TopologyProgrammingTest.MockedTopologySessionListenerFactory;
@@ -36,46 +37,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitTriggerSyncInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitUpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.AddLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.AddLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.EnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.EnsureLspOperationalOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.RemoveLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TriggerSyncArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TriggerSyncOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.UpdateLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.ensure.lsp.operational.args.ArgumentsBuilder;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 
 public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopologySessionListenerFactory> {
-
     private static final String NAME = "test-tunnel";
+
+    // FIXME: this should not be static!
     private static PCEPTopologySessionListener listener;
 
     @Mock
     private InstructionScheduler scheduler;
     @Mock
-    private ListenableFuture<Instruction> instructionFuture;
-    @Mock
     private Instruction instruction;
-
-    private AddLspArgs addLspArgs;
-    private UpdateLspArgs updateLspArgs;
-    private RemoveLspArgs removeLspArgs;
-    private TriggerSyncArgs triggerSyncArgs;
-    private EnsureLspOperationalInput ensureLspInput;
-
-    @Mock
-    private ListenableFuture<RpcResult<AddLspOutput>> futureAddLspOutput;
-    @Mock
-    private ListenableFuture<RpcResult<UpdateLspOutput>> futureUpdateLspOutput;
-    @Mock
-    private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
-    @Mock
-    private ListenableFuture<RpcResult<TriggerSyncOutput>> futureTriggerSyncOutput;
-    @Mock
-    private ListenableFuture<RpcResult<EnsureLspOperationalOutput>> futureEnsureLspOutput;
 
     private TopologyProgramming topologyProgramming;
 
@@ -83,124 +60,94 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest<MockedTopol
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        doReturn(true).when(this.instruction).checkedExecutionStart();
-        doNothing().when(this.instruction).executionCompleted(InstructionStatus.Failed, null);
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.instructionFuture).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.futureAddLspOutput).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.futureUpdateLspOutput).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.futureRemoveLspOutput).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.futureTriggerSyncOutput).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            final Runnable callback = (Runnable) invocation.getArguments()[0];
-            callback.run();
-            return null;
-        }).when(this.futureEnsureLspOutput).addListener(any(Runnable.class), any(Executor.class));
-        doAnswer(invocation -> {
-            TopologyProgrammingTest.this.addLspArgs = (AddLspArgs) invocation.getArguments()[0];
-            return TopologyProgrammingTest.this.futureAddLspOutput;
-        }).when(listener).addLsp(any());
-        doAnswer(invocation -> {
-            TopologyProgrammingTest.this.updateLspArgs = (UpdateLspArgs) invocation.getArguments()[0];
-            return TopologyProgrammingTest.this.futureUpdateLspOutput;
-        }).when(listener).updateLsp(any());
-        doAnswer(invocation -> {
-            TopologyProgrammingTest.this.removeLspArgs = (RemoveLspArgs) invocation.getArguments()[0];
-            return TopologyProgrammingTest.this.futureRemoveLspOutput;
-        }).when(listener).removeLsp(any());
-        doAnswer(invocation -> {
-            TopologyProgrammingTest.this.triggerSyncArgs = (TriggerSyncArgs) invocation.getArguments()[0];
-            return TopologyProgrammingTest.this.futureTriggerSyncOutput;
-        }).when(listener).triggerSync(any());
-        doAnswer(invocation -> {
-            TopologyProgrammingTest.this.ensureLspInput = (EnsureLspOperationalInput) invocation.getArguments()[0];
-            return TopologyProgrammingTest.this.futureEnsureLspOutput;
-        }).when(listener).ensureLspOperational(any(EnsureLspOperationalInput.class));
+
         doNothing().when(listener).close();
-        doReturn(this.instruction).when(this.instructionFuture).get();
-        doReturn(true).when(this.instructionFuture).isDone();
-        doNothing().when(this.instruction).executionCompleted(any(InstructionStatus.class), any(Details.class));
-        doReturn(this.instructionFuture).when(this.scheduler).scheduleInstruction(any(SubmitInstructionInput.class));
-        this.topologyProgramming = new TopologyProgramming(this.scheduler, this.manager);
+
+        doReturn(true).when(instruction).checkedExecutionStart();
+        doNothing().when(instruction).executionCompleted(InstructionStatus.Failed, null);
+        doNothing().when(instruction).executionCompleted(any(InstructionStatus.class), any(Details.class));
+
+        doReturn(Futures.immediateFuture(instruction)).when(scheduler)
+            .scheduleInstruction(any(SubmitInstructionInput.class));
+        topologyProgramming = new TopologyProgramming(scheduler, manager);
         final PCEPSession session = getPCEPSession(getLocalPref(), getRemotePref());
         listener.onSessionUp(session);
     }
 
     @Test
     public void testSubmitAddLsp() {
-        final SubmitAddLspInputBuilder inputBuilder = new SubmitAddLspInputBuilder();
-        inputBuilder.setName(NAME);
-        inputBuilder.setNode(this.nodeId);
-        inputBuilder.setArguments(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .topology.pcep.rev200120.add.lsp.args.ArgumentsBuilder().build());
-        this.topologyProgramming.submitAddLsp(inputBuilder.build());
-        Assert.assertNotNull(this.addLspArgs);
-        Assert.assertEquals(NAME, this.addLspArgs.getName());
-        Assert.assertEquals(this.nodeId, this.addLspArgs.getNode());
+        final var captor = ArgumentCaptor.forClass(AddLspArgs.class);
+        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).addLsp(captor.capture());
+
+        topologyProgramming.submitAddLsp(new SubmitAddLspInputBuilder()
+            .setName(NAME).setNode(nodeId)
+            .setArguments(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120
+                .add.lsp.args.ArgumentsBuilder().build())
+            .build());
+
+        final var addLspArgs = captor.getValue();
+        assertNotNull(addLspArgs);
+        assertEquals(NAME, addLspArgs.getName());
+        assertEquals(nodeId, addLspArgs.getNode());
     }
 
     @Test
     public void testSubmitUpdateLsp() {
-        final SubmitUpdateLspInputBuilder inputBuilder = new SubmitUpdateLspInputBuilder();
-        inputBuilder.setName(NAME);
-        inputBuilder.setNode(this.nodeId);
-        this.topologyProgramming.submitUpdateLsp(inputBuilder.build());
-        Assert.assertNotNull(this.updateLspArgs);
-        Assert.assertEquals(NAME, this.updateLspArgs.getName());
-        Assert.assertEquals(this.nodeId, this.updateLspArgs.getNode());
+        final var captor = ArgumentCaptor.forClass(UpdateLspArgs.class);
+        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).updateLsp(captor.capture());
+
+        topologyProgramming.submitUpdateLsp(new SubmitUpdateLspInputBuilder().setName(NAME).setNode(nodeId).build());
+
+        final var updateLspArgs = captor.getValue();
+        assertNotNull(updateLspArgs);
+        assertEquals(NAME, updateLspArgs.getName());
+        assertEquals(nodeId, updateLspArgs.getNode());
     }
 
     @Test
     public void testSubmitEnsureLsp() {
-        final SubmitEnsureLspOperationalInputBuilder inputBuilder = new SubmitEnsureLspOperationalInputBuilder();
-        inputBuilder.setName(NAME);
-        inputBuilder.setNode(this.nodeId);
-        inputBuilder.setArguments(new ArgumentsBuilder().build());
-        this.topologyProgramming.submitEnsureLspOperational(inputBuilder.build());
-        Assert.assertNotNull(this.ensureLspInput);
-        Assert.assertEquals(NAME, this.ensureLspInput.getName());
-        Assert.assertEquals(this.nodeId, this.ensureLspInput.getNode());
+        final var captor = ArgumentCaptor.forClass(EnsureLspOperationalInput.class);
+        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).ensureLspOperational(captor.capture());
+
+        topologyProgramming.submitEnsureLspOperational(new SubmitEnsureLspOperationalInputBuilder()
+            .setName(NAME)
+            .setNode(nodeId)
+            .setArguments(new ArgumentsBuilder().build())
+            .build());
+
+        final var ensureLspInput = captor.getValue();
+        assertNotNull(ensureLspInput);
+        assertEquals(NAME, ensureLspInput.getName());
+        assertEquals(nodeId, ensureLspInput.getNode());
     }
 
     @Test
     public void testSubmitRemoveLsp() {
-        final SubmitRemoveLspInputBuilder inputBuilder = new SubmitRemoveLspInputBuilder();
-        inputBuilder.setName(NAME);
-        inputBuilder.setNode(this.nodeId);
-        this.topologyProgramming.submitRemoveLsp(inputBuilder.build());
-        Assert.assertNotNull(this.removeLspArgs);
-        Assert.assertEquals(NAME, this.removeLspArgs.getName());
-        Assert.assertEquals(this.nodeId, this.removeLspArgs.getNode());
+        final var captor = ArgumentCaptor.forClass(RemoveLspArgs.class);
+        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).removeLsp(captor.capture());
+
+        topologyProgramming.submitRemoveLsp(new SubmitRemoveLspInputBuilder().setName(NAME).setNode(nodeId).build());
+
+        final var removeLspArgs = captor.getValue();
+        assertNotNull(removeLspArgs);
+        assertEquals(NAME, removeLspArgs.getName());
+        assertEquals(nodeId, removeLspArgs.getNode());
     }
 
     @Test
     public void testSubmitTriggerSync() {
-        final SubmitTriggerSyncInputBuilder inputBuilder = new SubmitTriggerSyncInputBuilder();
-        inputBuilder.setName(NAME);
-        inputBuilder.setNode(this.nodeId);
-        this.topologyProgramming.submitTriggerSync(inputBuilder.build());
-        Assert.assertNotNull(this.triggerSyncArgs);
-        Assert.assertEquals(NAME, this.triggerSyncArgs.getName());
-        Assert.assertEquals(this.nodeId, this.triggerSyncArgs.getNode());
+        final var captor = ArgumentCaptor.forClass(TriggerSyncArgs.class);
+        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).triggerSync(captor.capture());
+
+        topologyProgramming.submitTriggerSync(new SubmitTriggerSyncInputBuilder()
+            .setName(NAME)
+            .setNode(nodeId)
+            .build());
+
+        final var triggerSyncArgs = captor.getValue();
+        assertNotNull(triggerSyncArgs);
+        assertEquals(NAME, triggerSyncArgs.getName());
+        assertEquals(nodeId, triggerSyncArgs.getNode());
     }
 
     protected static final class MockedTopologySessionListenerFactory implements TopologySessionListenerFactory {
