@@ -34,6 +34,24 @@
       "parentUuid": "159659e4_8cb12770",
       "revId": "99d3b3ce608bd4ef00f2b9749c693f7e7e990ed0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ba1f096_dc7e1312",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-18T13:43:15Z",
+      "side": 1,
+      "message": "Thanks for the tip for the initial configuration. But, there is many many bundle to install for bgp and I chosen the simplicity by installing the global features-bgp instead of individual feature/bundle.\n\nI upload logs on the jira ticket and leave a comment that I copy/paste here:\n\nI proceed as usual (see above comment) to install the new compiled version. The problem take places just right after adding a new peer  through the REST API. Peer seems correctly added, but BGP session is not fire up. It is necessary to restart karaf to get it up and running. I attached 2 new logs files. Thefirst one, fresh-install.log, captured log when default peers coming from the default configuration file are removed and the new one added. The second one, restart.log, captured the log when karaf is restarted. Note that DEBUG for org.opendaylight.bgpcep.bgp has been enabled before removing peers, but nothing pertinent is revealed and there is no crash and no exception. Just nothing happen.\n\nHope is help you.",
+      "parentUuid": "d3300f95_1471c9d0",
+      "revId": "99d3b3ce608bd4ef00f2b9749c693f7e7e990ed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
