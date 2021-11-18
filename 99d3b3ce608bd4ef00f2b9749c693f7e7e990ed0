@@ -16,6 +16,24 @@
       "message": "So, the patch solved the problem, but introduce a smallest one.\n\nOnce deployed the new bgpcep, as previously, you must restart karaf in order to change the bgp configuration that are stored in etc/opendatlight/bgpcep/protocol-config.xml (if you only used the REST API to change the configuration, after a restart the configuration stored in the config file is applied again and modification from rest API lost). But, once  you add a new peer with the REST API, BGP peer is created but BGP session is not started. You need to restart karaf again to get the BGP session up and running.\n\nI could provide new complete log if needed.",
       "revId": "99d3b3ce608bd4ef00f2b9749c693f7e7e990ed0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3300f95_1471c9d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-18T10:58:25Z",
+      "side": 1,
+      "message": "Initial configuration you are seeing is coming from feature odl-bgpcep-bgp-config-example, so if you omit installation of this feature you won\u0027t have any configuration present and you can add your groups/peers/... via REST. (same for initial pcep config) Another option is to change the initial config files. Files are located in bgp/bgp-config-example so if you change those files to contain your needed configuration and build karaf, you won\u0027t need that karaf restart. But iirc we should have file watcher(bgp/config-loader) on those files so changes should be reflected in datastore, will look into that some time, maybe its broken. About the BGP session not starting, are there any exceptions? Please provide logs in JIRA. Lets also continue the discussion there.",
+      "parentUuid": "159659e4_8cb12770",
+      "revId": "99d3b3ce608bd4ef00f2b9749c693f7e7e990ed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
