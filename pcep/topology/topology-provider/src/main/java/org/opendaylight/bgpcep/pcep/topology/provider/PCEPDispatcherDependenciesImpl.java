@@ -17,14 +17,27 @@ import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 
-public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies {
-    private final @NonNull ServerSessionManager manager;
+final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies {
+    private final @NonNull PCEPSessionListenerFactory listenerFactory;
+    private final @NonNull PCEPPeerProposal peerProposal;
+
     private final @NonNull PCEPTopologyConfiguration topologyConfig;
 
-    public PCEPDispatcherDependenciesImpl(final ServerSessionManager manager,
-            final PCEPTopologyConfiguration topologyConfig) {
-        this.manager = requireNonNull(manager);
+    PCEPDispatcherDependenciesImpl(final PCEPSessionListenerFactory listenerFactory,
+            final PCEPPeerProposal peerProposal, final PCEPTopologyConfiguration topologyConfig) {
+        this.listenerFactory = requireNonNull(listenerFactory);
+        this.peerProposal = requireNonNull(peerProposal);
         this.topologyConfig = requireNonNull(topologyConfig);
+    }
+
+    @Override
+    public PCEPSessionListenerFactory getListenerFactory() {
+        return listenerFactory;
+    }
+
+    @Override
+    public PCEPPeerProposal getPeerProposal() {
+        return peerProposal;
     }
 
     @Override
@@ -35,15 +48,5 @@ public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDepen
     @Override
     public KeyMapping getKeys() {
         return topologyConfig.getKeys();
-    }
-
-    @Override
-    public PCEPSessionListenerFactory getListenerFactory() {
-        return manager;
-    }
-
-    @Override
-    public PCEPPeerProposal getPeerProposal() {
-        return manager;
     }
 }
