@@ -82,8 +82,7 @@ public class PCEPStatefulPeerProposalTest {
     @Test
     public void testSetPeerProposalSuccess() throws InterruptedException, ExecutionException {
         doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
-            SpeakerIdMapping.of());
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertEquals(LSP_DB_VERSION, tlvsBuilder.augmentation(Tlvs3.class).getLspDbVersion());
     }
@@ -102,8 +101,7 @@ public class PCEPStatefulPeerProposalTest {
     @Test
     public void testSetPeerProposalAbsent() throws InterruptedException, ExecutionException {
         doReturn(Optional.empty()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
-            SpeakerIdMapping.of());
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertNull(tlvsBuilder.augmentation(Tlvs3.class));
     }
@@ -111,8 +109,7 @@ public class PCEPStatefulPeerProposalTest {
     @Test
     public void testSetPeerProposalFailure() throws InterruptedException, ExecutionException {
         doThrow(new InterruptedException()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
-            SpeakerIdMapping.of());
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
         peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertNull(tlvsBuilder.augmentation(Tlvs3.class));
     }
