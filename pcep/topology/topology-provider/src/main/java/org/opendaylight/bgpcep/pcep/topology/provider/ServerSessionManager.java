@@ -76,6 +76,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     private final short rpcTimeout;
     private final PCEPTopologyProviderDependencies dependenciesProvider;
     private final PCEPDispatcherDependencies pcepDispatcherDependencies;
+    private final SpeakerIdMapping speakerIds;
 
     ServerSessionManager(
             final PCEPTopologyProviderDependencies dependenciesProvider,
@@ -84,6 +85,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         topology = requireNonNull(configDependencies.getTopology());
         peerProposal = new PCEPStatefulPeerProposal(dependenciesProvider.getDataBroker(), topology);
         rpcTimeout = configDependencies.getRpcTimeout();
+        speakerIds = configDependencies.getSpeakerIds();
         pcepDispatcherDependencies = new PCEPDispatcherDependenciesImpl(this, configDependencies);
     }
 
@@ -256,7 +258,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     public final void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
         peerProposal.setPeerProposal(createNodeId(address.getAddress()), openBuilder,
-            pcepDispatcherDependencies.getSpeakerIdMapping().speakerIdForAddress(address.getAddress()));
+            speakerIds.speakerIdForAddress(address.getAddress()));
     }
 
     final short getRpcTimeout() {

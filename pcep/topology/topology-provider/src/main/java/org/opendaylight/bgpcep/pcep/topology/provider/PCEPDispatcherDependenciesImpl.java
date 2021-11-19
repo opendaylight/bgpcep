@@ -16,40 +16,34 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
-import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 
 public final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies {
-    private final ServerSessionManager manager;
-    private final PCEPTopologyConfiguration topologyConfigDependencies;
+    private final @NonNull ServerSessionManager manager;
+    private final @NonNull PCEPTopologyConfiguration topologyConfig;
 
-    public PCEPDispatcherDependenciesImpl(final @NonNull ServerSessionManager manager,
-            final @NonNull PCEPTopologyConfiguration topologyConfigDependencies) {
+    public PCEPDispatcherDependenciesImpl(final ServerSessionManager manager,
+            final PCEPTopologyConfiguration topologyConfig) {
         this.manager = requireNonNull(manager);
-        this.topologyConfigDependencies = requireNonNull(topologyConfigDependencies);
+        this.topologyConfig = requireNonNull(topologyConfig);
     }
 
     @Override
     public InetSocketAddress getAddress() {
-        return this.topologyConfigDependencies.getAddress();
+        return topologyConfig.getAddress();
     }
 
     @Override
     public KeyMapping getKeys() {
-        return this.topologyConfigDependencies.getKeys();
-    }
-
-    @Override
-    public SpeakerIdMapping getSpeakerIdMapping() {
-        return this.topologyConfigDependencies.getSpeakerIds();
+        return topologyConfig.getKeys();
     }
 
     @Override
     public PCEPSessionListenerFactory getListenerFactory() {
-        return this.manager;
+        return manager;
     }
 
     @Override
     public PCEPPeerProposal getPeerProposal() {
-        return this.manager;
+        return manager;
     }
 }

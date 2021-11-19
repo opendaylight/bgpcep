@@ -8,13 +8,13 @@
 package org.opendaylight.protocol.pcep.testtool;
 
 import java.net.InetSocketAddress;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
-import org.opendaylight.protocol.pcep.SpeakerIdMapping;
 
 public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherDependencies {
-    private final PCEPSessionListenerFactory listenerFactory = new TestingSessionListenerFactory();
+    private final @NonNull PCEPSessionListenerFactory listenerFactory = new TestingSessionListenerFactory();
     private final InetSocketAddress address;
 
     TestToolPCEPDispatcherDependencies(final InetSocketAddress address) {
@@ -29,11 +29,6 @@ public final class TestToolPCEPDispatcherDependencies implements PCEPDispatcherD
     @Override
     public KeyMapping getKeys() {
         return KeyMapping.of();
-    }
-
-    @Override
-    public SpeakerIdMapping getSpeakerIdMapping() {
-        return SpeakerIdMapping.of();
     }
 
     @Override

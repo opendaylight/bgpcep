@@ -29,11 +29,4 @@ public interface PCEPDispatcherDependencies extends PCEPSessionNegotiatorFactory
      * @return map containing Keys
      */
     KeyMapping getKeys();
-
-    /**
-     * PCEP Speaker Id mapping.
-     *
-     * @return map containing Keys
-     */
-    SpeakerIdMapping getSpeakerIdMapping();
 }
