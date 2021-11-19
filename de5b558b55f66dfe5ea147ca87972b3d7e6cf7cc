@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "255237eb_f984c65c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-19T15:33:24Z",
+      "side": 1,
+      "message": "Problem is solved. Test with BGP-LS against Juniper MX router is working fine again.",
+      "revId": "de5b558b55f66dfe5ea147ca87972b3d7e6cf7cc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
