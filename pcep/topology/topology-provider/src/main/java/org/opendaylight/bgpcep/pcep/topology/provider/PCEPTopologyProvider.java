@@ -151,7 +151,6 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             .filter(nodeId -> !Arrays.equals(currentKeys.get(nodeId), newKeys.get(nodeId)))
             .collect(Collectors.toUnmodifiableList());
 
-        proposal.setSpeakerIds(newConfiguration.getSpeakerIds());
         manager.setRpcTimeout(newConfiguration.getRpcTimeout());
         if (!outdatedNodes.isEmpty()) {
             LOG.info("Topology Provider {} updating {} TCP-MD5 keys", topologyId(), outdatedNodes.size());
@@ -187,8 +186,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             return;
         }
 
-        proposal = new PCEPStatefulPeerProposal(dependencies.getDataBroker(), instanceIdentifier,
-            currentConfig.getSpeakerIds());
+        proposal = new PCEPStatefulPeerProposal(dependencies.getDataBroker(), instanceIdentifier);
 
         LOG.info("PCEP Topology Provider {} starting server channel", topologyId());
         final var channelFuture = dependencies.getPCEPDispatcher().createServer(
@@ -240,6 +238,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     @Holding("this")
     private void disableManager(final SettableFuture<Empty> future) {
+        proposal.close();
         proposal = null;
         final var managerStop = manager.stop();
         manager = null;
