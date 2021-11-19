@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.util.concurrent.FluentFuture;
@@ -26,15 +25,17 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.LspDbVersionListener;
+import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.SpeakerIdListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
@@ -68,8 +69,6 @@ public class PCEPStatefulPeerProposalTest {
     private ListenerRegistration<?> listenerReg;
     @Mock
     private FluentFuture<Optional<LspDbVersion>> listenableFutureMock;
-    @Mock
-    private ReadTransaction rt;
 
     private ArgumentCaptor<DataTreeChangeListener<?>> captor;
     private TlvsBuilder tlvsBuilder;
@@ -82,35 +81,66 @@ public class PCEPStatefulPeerProposalTest {
         captor = ArgumentCaptor.forClass(DataTreeChangeListener.class);
         doReturn(listenerReg).when(dataBroker).registerDataTreeChangeListener(any(), captor.capture());
         doNothing().when(listenerReg).close();
-        doReturn(rt).when(dataBroker).newReadOnlyTransaction();
-        doNothing().when(rt).close();
-        doReturn(listenableFutureMock).when(rt).read(any(), any());
     }
 
     @Test
     public void testSetPeerProposalSuccess() throws Exception {
-        doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-        updateBuilder();
-        assertEquals(LSP_DB_VERSION, tlvsBuilder.augmentation(Tlvs3.class).getLspDbVersion());
+        updateBuilder(() -> {
+            final var listeners = captor.getAllValues();
+            assertEquals(2, listeners.size());
+
+            // not entirely accurate, but works well enough
+            final var modPath = TOPOLOGY_IID.child(Node.class,
+                new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
+
+            final var dbverRoot = mock(DataObjectModification.class);
+            doReturn(LSP_DB_VERSION).when(dbverRoot).getDataAfter();
+            final var dbverMod = mock(DataTreeModification.class);
+            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(dbverRoot).when(dbverMod).getRootNode();
+
+            for (DataTreeChangeListener<?> listener : listeners) {
+                if (listener instanceof LspDbVersionListener) {
+                    listener.onDataTreeChanged(List.of(dbverMod));
+                }
+            }
+
+            // Mock lspdb
+        });
+        assertEquals(new Tlvs3Builder().setLspDbVersion(LSP_DB_VERSION).build(), tlvsBuilder.augmentation(Tlvs3.class));
     }
 
     @Test
     public void testSetPeerProposalWithEntityIdSuccess() throws Exception {
-        doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-
         updateBuilder(() -> {
-            final var modification = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
-                // not entirely accurate, but works well enough
-                TOPOLOGY_IID.child(Node.class, new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())))))
-                .when(modification).getRootPath();
+            final var listeners = captor.getAllValues();
+            assertEquals(2, listeners.size());
 
-            final var modificationRoot = mock(DataObjectModification.class);
-            doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(modificationRoot)
+            // not entirely accurate, but works well enough
+            final var modPath = TOPOLOGY_IID.child(Node.class,
+                new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
+
+            final var dbverRoot = mock(DataObjectModification.class);
+            doReturn(LSP_DB_VERSION).when(dbverRoot).getDataAfter();
+            final var dbverMod = mock(DataTreeModification.class);
+            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(dbverRoot).when(dbverMod).getRootNode();
+
+            final var speakerRoot = mock(DataObjectModification.class);
+            doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
                 .getDataAfter();
-            doReturn(modificationRoot).when(modification).getRootNode();
+            final var speakerMod = mock(DataTreeModification.class);
+            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, modPath)).when(speakerMod)
+                .getRootPath();
+            doReturn(speakerRoot).when(speakerMod).getRootNode();
 
-            captor.getValue().onDataTreeChanged(List.of(modification));
+            for (DataTreeChangeListener<?> listener : listeners) {
+                if (listener instanceof SpeakerIdListener) {
+                    listener.onDataTreeChanged(List.of(speakerMod));
+                } else if (listener instanceof LspDbVersionListener) {
+                    listener.onDataTreeChanged(List.of(dbverMod));
+                }
+            }
         });
         final Tlvs3 aug = tlvsBuilder.augmentation(Tlvs3.class);
         assertNotNull(aug);
@@ -121,14 +151,6 @@ public class PCEPStatefulPeerProposalTest {
 
     @Test
     public void testSetPeerProposalAbsent() throws Exception {
-        doReturn(Optional.empty()).when(listenableFutureMock).get();
-        updateBuilder();
-        assertNull(tlvsBuilder.augmentation(Tlvs3.class));
-    }
-
-    @Test
-    public void testSetPeerProposalFailure() throws Exception {
-        doThrow(new InterruptedException()).when(listenableFutureMock).get();
         updateBuilder();
         assertNull(tlvsBuilder.augmentation(Tlvs3.class));
     }
