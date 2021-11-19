@@ -139,7 +139,6 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             return;
         }
 
-        proposal.setSpeakerIds(newConfiguration.getSpeakerIds());
         manager.setRpcTimeout(newConfiguration.getRpcTimeout());
         channel.config().setOption(EpollChannelOption.TCP_MD5SIG, newConfiguration.getKeys().asMap());
         LOG.info("Topology Provider {} configuration updated", topologyId());
@@ -166,8 +165,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             return;
         }
 
-        proposal = new PCEPStatefulPeerProposal(dependencies.getDataBroker(), instanceIdentifier,
-            currentConfig.getSpeakerIds());
+        proposal = new PCEPStatefulPeerProposal(dependencies.getDataBroker(), instanceIdentifier);
 
         LOG.info("PCEP Topology Provider {} starting server channel", topologyId());
         final var channelFuture = dependencies.getPCEPDispatcher().createServer(
@@ -219,6 +217,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     @Holding("this")
     private void disableManager(final SettableFuture<Empty> future) {
+        proposal.close();
         proposal = null;
         final var managerStop = manager.stop();
         manager = null;
