@@ -17,6 +17,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
 import com.google.common.util.concurrent.FluentFuture;
+import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -35,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -43,13 +44,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCEPStatefulPeerProposalTest {
-
     private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(new TopologyId("topology")));
-    private static final NodeId NODE_ID = new NodeId("node");
-    private static final LspDbVersion LSP_DB_VERSION = new LspDbVersionBuilder().setLspDbVersionValue(Uint64.ONE)
-            .build();
+    private static final LspDbVersion LSP_DB_VERSION = new LspDbVersionBuilder()
+        .setLspDbVersionValue(Uint64.ONE)
+        .build();
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
+    private static final InetSocketAddress ADDRESS = new InetSocketAddress(4321);
 
     @Mock
     private DataBroker dataBroker;
@@ -81,16 +82,18 @@ public class PCEPStatefulPeerProposalTest {
     @Test
     public void testSetPeerProposalSuccess() throws InterruptedException, ExecutionException {
         doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder, null);
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
+            SpeakerIdMapping.of());
+        peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertEquals(LSP_DB_VERSION, tlvsBuilder.augmentation(Tlvs3.class).getLspDbVersion());
     }
 
     @Test
     public void testSetPeerProposalWithEntityIdSuccess() throws InterruptedException, ExecutionException {
         doReturn(Optional.of(LSP_DB_VERSION)).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder, SPEAKER_ID);
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
+            SpeakerIdMapping.copyOf(Map.of(ADDRESS.getAddress(), SPEAKER_ID)));
+        peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         final Tlvs3 aug = tlvsBuilder.augmentation(Tlvs3.class);
         assertEquals(LSP_DB_VERSION, aug.getLspDbVersion());
         assertArrayEquals(SPEAKER_ID, aug.getSpeakerEntityId().getSpeakerEntityIdValue());
@@ -99,16 +102,18 @@ public class PCEPStatefulPeerProposalTest {
     @Test
     public void testSetPeerProposalAbsent() throws InterruptedException, ExecutionException {
         doReturn(Optional.empty()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder, null);
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
+            SpeakerIdMapping.of());
+        peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertNull(tlvsBuilder.augmentation(Tlvs3.class));
     }
 
     @Test
     public void testSetPeerProposalFailure() throws InterruptedException, ExecutionException {
         doThrow(new InterruptedException()).when(listenableFutureMock).get();
-        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID);
-        peerProposal.setPeerProposal(NODE_ID, tlvsBuilder, null);
+        final PCEPStatefulPeerProposal peerProposal = new PCEPStatefulPeerProposal(dataBroker, TOPOLOGY_IID,
+            SpeakerIdMapping.of());
+        peerProposal.setPeerSpecificProposal(ADDRESS, tlvsBuilder);
         assertNull(tlvsBuilder.augmentation(Tlvs3.class));
     }
 }
