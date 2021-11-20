@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a3d688f_68f94749",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2021-11-20T08:08:30Z",
+      "side": 1,
+      "message": "Okay, I made a first pass on this, bug this will need a tad more work w.r.t.:\n- BGPClusterSingletonService lifecycle and where it is blocking\n- method naming, as variations on \u0027closeServiceInstance\u0027, which is async in CSS context are confusing",
+      "revId": "1443ce59b9cd4ea39609801bc7991e733057bf4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
