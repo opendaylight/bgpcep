@@ -47,10 +47,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-rib-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>bgp-inet</artifactId>
         </dependency>
         <dependency>
