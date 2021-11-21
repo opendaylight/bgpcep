@@ -19,7 +19,7 @@
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-parent</artifactId>
     <name>BGPCEP common parent</name>
-    <version>0.16.11-SNAPSHOT</version>
+    <version>0.16.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <licenses>
