@@ -30,17 +30,13 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.protocol.bgp.rib.spi.util.ClusterSingletonServiceRegistrationHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -142,27 +138,17 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
 
     @Override
     @SuppressModernizer
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public AbstractRegistration registerService(final TopologyReferenceSingletonService topologyProviderService) {
-        final Dictionary<String, String> properties = new Hashtable<>();
-        properties.put("topology-id", topologyProviderService.getInstanceIdentifier()
-                .firstKeyOf(Topology.class).getTopologyId().getValue());
-        final ServiceRegistration<?> registerService = context
-                .registerService(new String[]{TopologyReference.class.getName()},
-                        topologyProviderService, properties);
-        final ClusterSingletonServiceRegistration registerClusterSingletonService =
-                registerSingletonService(topologyProviderService);
+        final Dictionary<String, String> properties = new Hashtable<>(2);
+        properties.put("topology-id", topologyProviderService.getInstanceIdentifier().firstKeyOf(Topology.class)
+            .getTopologyId().getValue());
+        final var topRefReg = context.registerService(TopologyReference.class, topologyProviderService, properties);
+        final var singletonReg = singletonProvider.registerClusterSingletonService(topologyProviderService);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                try {
-                    registerClusterSingletonService.close();
-                } catch (final Exception e) {
-                    LOG.warn("Failed to close ClusterSingletonServiceRegistration {} for TopologyBuilder {}",
-                            registerClusterSingletonService, topologyProviderService.getInstanceIdentifier(), e);
-                } finally {
-                    registerService.unregister();
-                }
+                topRefReg.unregister();
+                singletonReg.close();
             }
         };
     }
@@ -189,11 +175,4 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
         return topologies.stream().filter(topology -> topologyBuilder.topologyTypeFilter(topology))
                 .collect(Collectors.toList());
     }
-
-    private ClusterSingletonServiceRegistration registerSingletonService(
-            final ClusterSingletonService clusterSingletonService) {
-        return ClusterSingletonServiceRegistrationHelper
-                .registerSingletonService(singletonProvider, clusterSingletonService);
-    }
-
 }
