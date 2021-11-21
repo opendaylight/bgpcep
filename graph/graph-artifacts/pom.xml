@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>graph-artifacts</artifactId>
-    <version>0.16.11-SNAPSHOT</version>
+    <version>0.16.11</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
