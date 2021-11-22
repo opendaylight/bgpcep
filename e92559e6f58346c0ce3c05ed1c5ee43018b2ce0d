@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8af9c1d_b95fb18e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-22T13:33:00Z",
+      "side": 1,
+      "message": "LGTM. Waiting jenkins result before merging ...",
+      "revId": "e92559e6f58346c0ce3c05ed1c5ee43018b2ce0d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
