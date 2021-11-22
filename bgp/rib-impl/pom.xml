@@ -214,6 +214,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>bgp-config-example</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>config-loader-impl</artifactId>
             <scope>test</scope>
         </dependency>
@@ -250,11 +255,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-config-example</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -355,19 +355,17 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-remote-resources-plugin</artifactId>
-                <configuration>
-                    <attachToMain>false</attachToMain>
-                    <resourceBundles>
-                        <resourceBundle>${project.groupId}:bgp-config-example:${project.version}</resourceBundle>
-                    </resourceBundles>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <phase>process-test-sources</phase>
+                        <phase>generate-test-resources</phase>
                         <goals>
-                            <goal>process</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <includeArtifactIds>bgp-config-example</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
