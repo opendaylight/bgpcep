@@ -199,12 +199,12 @@ public final class MessagesUtil {
             bwBuilder.setBandwidth(new Bandwidth(new Float32(ByteBuffer.allocate(4)
                     .putFloat(cpath.getBandwidth().getValue().floatValue()).array())));
             pathBuilder.setBandwidth(bwBuilder.build());
-            if (cpath.getClassType() != null) {
-                pathBuilder.setClassType(new ClassTypeBuilder().setClassType(
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                                .ClassType(cpath.getClassType()))
-                        .build());
-            }
+        }
+        if (cpath.getClassType() != null && !cpath.getClassType().equals(Uint8.ZERO)) {
+            pathBuilder.setClassType(new ClassTypeBuilder().setClassType(
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                            .ClassType(cpath.getClassType()))
+                    .build());
         }
         return pathBuilder;
     }
