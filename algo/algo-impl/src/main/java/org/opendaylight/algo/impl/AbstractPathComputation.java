@@ -226,16 +226,20 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Check that Edge meet Bandwidth constraint */
+        int cos = 0;
+        if (constraints.getClassType() != null) {
+            cos = constraints.getClassType().intValue();
+        }
         if (constraints.getBandwidth() != null) {
             if (attributes.getMaxLinkBandwidth() == null || attributes.getMaxResvLinkBandwidth() == null
                     || attributes.getUnreservedBandwidth() == null
-                    || attributes.getUnreservedBandwidth().get(constraints.getClassType().intValue()) == null) {
+                    || attributes.getUnreservedBandwidth().get(cos) == null) {
                 return true;
             } else {
                 Long bandwidth = constraints.getBandwidth().getValue().longValue();
                 Long unrsv = 0L;
                 for (UnreservedBandwidth unResBw : attributes.getUnreservedBandwidth()) {
-                    if (unResBw.getClassType().intValue() == constraints.getClassType().intValue()) {
+                    if (unResBw.getClassType().intValue() == cos) {
                         unrsv = unResBw.getBandwidth().getValue().longValue();
                         break;
                     }

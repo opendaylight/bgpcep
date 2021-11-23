@@ -40,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2p;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,8 +244,6 @@ public class PathComputationImpl implements PathComputation {
                 ctsBuilder.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(value)));
                 if (classType != null) {
                     ctsBuilder.setClassType(classType.getClassType().getValue());
-                } else {
-                    ctsBuilder.setClassType(Uint8.ZERO);
                 }
             }
         }
