@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng
+Code-Review+2: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-by: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-at: Tue, 23 Nov 2021 10:43:01 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/98622
+Project: bgpcep
+Branch: refs/heads/master
