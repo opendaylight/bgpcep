@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>algo-parent</artifactId>
-    <version>0.16.12-SNAPSHOT</version>
+    <version>0.16.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>Path Computation Algorithms components</description>
     <name>${project.artifactId}</name>
