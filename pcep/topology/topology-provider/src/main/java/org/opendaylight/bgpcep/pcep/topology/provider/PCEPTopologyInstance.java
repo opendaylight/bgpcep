@@ -13,13 +13,9 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
-import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
@@ -29,8 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +41,14 @@ final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topo
     private PCEPTopologyProvider provider;
     @GuardedBy("this")
     private Registration reg;
-    @GuardedBy("this")
-    private ServiceRegistration<?> osgiReg;
 
     PCEPTopologyInstance(final TopologyKey topology, final PCEPTopologyProviderDependencies dependencies,
-            final InstructionScheduler scheduler, final BundleContext bundleContext) {
+            final InstructionScheduler scheduler) {
         this.topology = requireNonNull(topology);
 
         final var instanceIdentifier = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology);
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
-
-        // FIXME: BGPCEP-960: this should not be necessary
-        osgiReg = bundleContext.registerService(DefaultTopologyReference.class.getName(), provider, props());
 
         reg = dependencies.getDataBroker().registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, instanceIdentifier), this);
@@ -70,9 +59,6 @@ final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topo
         verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), this);
         reg.close();
         reg = null;
-
-        osgiReg.unregister();
-        osgiReg = null;
 
         final var ret = provider.stop();
         provider = null;
@@ -99,12 +85,5 @@ final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topo
 
     private String topologyId() {
         return TopologyUtils.friendlyId(topology);
-    }
-
-    @SuppressModernizer
-    private Dictionary<String, String> props() {
-        final Dictionary<String, String> properties = new Hashtable<>(2);
-        properties.put(PCEPTopologyProvider.class.getName(), topologyId());
-        return properties;
     }
 }

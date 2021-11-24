@@ -27,6 +27,5 @@
         <argument ref="intructionFactory"/>
         <argument ref="topologySessionStatsRegistry"/>
         <argument ref="pceServerProvider"/>
-        <argument ref="blueprintBundleContext"/>
     </bean>
 </blueprint>
