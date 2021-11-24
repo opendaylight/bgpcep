@@ -41,6 +41,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2ad67d7_2651a853",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/BgpTopologyDeployerImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-24T12:43:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e39108ad_1ed556c1",
+      "range": {
+        "startLine": 134,
+        "startChar": 4,
+        "endLine": 134,
+        "endChar": 23
+      },
+      "revId": "4539c5b5a656033071dd38fb5b622e33f392242a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0de4c461_b23ba547",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-11-24T11:00:09Z",
       "side": 1,
       "message": "change return type to Registration and ditch the intermediate anonymous class",
+      "range": {
+        "startLine": 135,
+        "startChar": 11,
+        "endLine": 135,
+        "endChar": 31
+      },
+      "revId": "4539c5b5a656033071dd38fb5b622e33f392242a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfe5219a_3c87b89c",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/BgpTopologyDeployerImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8990
+      },
+      "writtenOn": "2021-11-24T12:43:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0de4c461_b23ba547",
       "range": {
         "startLine": 135,
         "startChar": 11,
