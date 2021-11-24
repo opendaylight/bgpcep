@@ -143,6 +143,16 @@
             <groupId>org.osgi</groupId>
             <artifactId>osgi.cmpn</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>javax.inject</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
