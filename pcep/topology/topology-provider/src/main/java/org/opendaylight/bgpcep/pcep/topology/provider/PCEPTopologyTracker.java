@@ -38,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -60,8 +59,6 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
-    // FIXME: BGPCEP-960: this should not be needed
-    final @NonNull BundleContext bundleContext;
     private final @NonNull TopologySessionStatsRegistry stateRegistry;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
@@ -96,9 +93,7 @@ public final class PCEPTopologyTracker
             @Reference final RpcProviderService rpcProviderRegistry, @Reference final PCEPDispatcher pcepDispatcher,
             @Reference final InstructionSchedulerFactory instructionSchedulerFactory,
             @Reference final TopologySessionStatsRegistry stateRegistry,
-            @Reference final PceServerProvider pceServerProvider,
-            // FIXME: we should not be needing this OSGi dependency
-            @Reference final BundleContext bundleContext) {
+            @Reference final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
@@ -106,7 +101,6 @@ public final class PCEPTopologyTracker
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        this.bundleContext = requireNonNull(bundleContext);
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
