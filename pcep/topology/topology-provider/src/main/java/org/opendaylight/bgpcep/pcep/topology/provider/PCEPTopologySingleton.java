@@ -68,7 +68,7 @@ final class PCEPTopologySingleton {
             }
 
             LOG.trace("Topology {} instance {} instantiating", topologyId(), PCEPTopologySingleton.this);
-            instance = new PCEPTopologyInstance(topology, tracker, scheduler, tracker.bundleContext);
+            instance = new PCEPTopologyInstance(topology, tracker, scheduler);
         }
 
         @Override
