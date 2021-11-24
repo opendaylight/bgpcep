@@ -14,6 +14,9 @@ import static org.opendaylight.bgpcep.pcep.topology.provider.TopologyUtils.frien
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -36,6 +39,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +51,8 @@ import org.slf4j.LoggerFactory;
  * changes to the configuration datastore. There it filters only topologies which have {@link TopologyPcep} type and for
  * each one of those instantiates a cluster-wide singleton to handle lifecycle of services attached to that topology.
  */
+@Singleton
+@Component(immediate = true, service = {})
 public final class PCEPTopologyTracker
         implements PCEPTopologyProviderDependencies, ClusteredDataTreeChangeListener<TopologyPcep>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyTracker.class);
@@ -80,12 +89,16 @@ public final class PCEPTopologyTracker
     @GuardedBy("this")
     private Registration reg;
 
-    public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
-            final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory,
-            final TopologySessionStatsRegistry stateRegistry, final PceServerProvider pceServerProvider,
+    @Inject
+    @Activate
+    public PCEPTopologyTracker(@Reference final DataBroker dataBroker,
+            @Reference final ClusterSingletonServiceProvider singletonService,
+            @Reference final RpcProviderService rpcProviderRegistry, @Reference final PCEPDispatcher pcepDispatcher,
+            @Reference final InstructionSchedulerFactory instructionSchedulerFactory,
+            @Reference final TopologySessionStatsRegistry stateRegistry,
+            @Reference final PceServerProvider pceServerProvider,
             // FIXME: we should not be needing this OSGi dependency
-            final BundleContext bundleContext) {
+            @Reference final BundleContext bundleContext) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
@@ -127,6 +140,8 @@ public final class PCEPTopologyTracker
     }
 
     @Override
+    @PreDestroy
+    @Deactivate
     public synchronized void close() {
         if (reg == null) {
             // Already closed, bail out
