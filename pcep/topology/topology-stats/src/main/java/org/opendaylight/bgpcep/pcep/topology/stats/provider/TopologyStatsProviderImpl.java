@@ -21,10 +21,14 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
+import org.kohsuke.MetaInfServices;
+import org.opendaylight.bgpcep.pcep.topology.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
@@ -42,6 +46,8 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@MetaInfServices(value = TopologySessionStatsRegistry.class)
 public final class TopologyStatsProviderImpl extends TimerTask
         implements TransactionChainListener, TopologySessionStatsRegistry, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
@@ -63,19 +69,15 @@ public final class TopologyStatsProviderImpl extends TimerTask
     @GuardedBy("this")
     private TransactionChain transactionChain;
 
-    private TopologyStatsProviderImpl(final DataBroker dataBroker) {
+    @Inject
+    public TopologyStatsProviderImpl(final DataBroker dataBroker, final Timer timer, final int updateIntervalSeconds) {
         this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    public static AutoCloseable createStarted(final DataBroker dataBroker, final Timer timer,
-            final int updateIntervalSeconds) {
         LOG.info("Initializing TopologyStatsProvider service.");
-        final TopologyStatsProviderImpl ret = new TopologyStatsProviderImpl(dataBroker);
-        timer.scheduleAtFixedRate(ret, 0, TimeUnit.SECONDS.toMillis(updateIntervalSeconds));
-        return ret;
+        timer.scheduleAtFixedRate(this, 0, TimeUnit.SECONDS.toMillis(updateIntervalSeconds));
     }
 
     @Override
+    @PreDestroy
     public void close() throws InterruptedException, ExecutionException {
         if (cancel()) {
             LOG.info("Closing TopologyStatsProvider service.");

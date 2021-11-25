@@ -27,13 +27,14 @@
 
     <bean id="topologyStatsRegistry"
           class="org.opendaylight.bgpcep.pcep.topology.stats.provider.TopologyStatsProviderImpl"
-          factory-method="createStarted" destroy-method="close">
+          destroy-method="close">
         <argument ref="dataBroker"/>
         <argument ref="timer"/>
         <argument>
             <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
         </argument>
     </bean>
+
     <service ref="topologyStatsRegistry"
-             interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
+             interface="org.opendaylight.bgpcep.pcep.topology.stats.TopologySessionStatsRegistry"/>
 </blueprint>

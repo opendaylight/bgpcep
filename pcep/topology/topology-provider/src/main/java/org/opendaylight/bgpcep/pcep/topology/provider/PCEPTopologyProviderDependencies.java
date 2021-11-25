@@ -9,7 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
-import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
+import org.opendaylight.bgpcep.pcep.topology.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
