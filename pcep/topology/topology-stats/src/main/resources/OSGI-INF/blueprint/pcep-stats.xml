@@ -20,16 +20,11 @@
     </bean>
     <odl:rpc-implementation ref="topologyStatsRpcService"/>
 
-    <bean id="timer" class="java.util.Timer" destroy-method="cancel">
-        <argument value="pcep-topology-stats-timer"/>
-        <argument value="true"/>
-    </bean>
 
     <bean id="topologyStatsRegistry"
           class="org.opendaylight.bgpcep.pcep.topology.stats.provider.TopologyStatsProviderImpl"
-          factory-method="createStarted" destroy-method="close">
+          destroy-method="close">
         <argument ref="dataBroker"/>
-        <argument ref="timer"/>
         <argument>
             <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
         </argument>
