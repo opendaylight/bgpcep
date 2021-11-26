@@ -9,6 +9,7 @@ module network-topology-pcep {
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
+    import pcep-config { prefix pdc; revision-date 2022-03-28; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -81,6 +82,8 @@ module network-topology-pcep {
     grouping topology-pcep-type {
         container topology-pcep {
             presence "indicates a PCEP-aware topology";
+
+            uses pdc:pcep-config;
         }
     }
 
@@ -141,6 +144,7 @@ module network-topology-pcep {
         when "../../nt:topology-types/topology-pcep";
 
         uses pcep-client-attributes;
+        uses pdc:pcep-node-config;
     }
 
     typedef failure-type {
