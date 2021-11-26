@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
@@ -43,12 +43,19 @@ final class PCEPTopologyConfiguration implements Immutable {
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
-        // FIXME: this should live in the pcep topology type's presence container and be mandatory
-        final var pcepConfig = topology.augmentation(PcepTopologyTypeConfig.class);
-        if (pcepConfig == null) {
+        final var types = topology.getTopologyTypes();
+        if (types == null) {
             return null;
         }
-        final var sessionConfig = pcepConfig.getSessionConfig();
+        final var typesAug = types.augmentation(TopologyTypes1.class);
+        if (typesAug == null) {
+            return null;
+        }
+        final var topologyPcep = typesAug.getTopologyPcep();
+        if (topologyPcep == null) {
+            return null;
+        }
+        final var sessionConfig = topologyPcep.getSessionConfig();
         if (sessionConfig == null) {
             return null;
         }
@@ -83,7 +90,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         final var passwords = new HashMap<InetAddress, String>();
         for (var node : nodes.values()) {
             if (node != null) {
-                final var nodeConfig = node.augmentation(PcepNodeConfig.class);
+                final var nodeConfig = node.augmentation(Node1.class);
                 if (nodeConfig != null) {
                     final var sessionConfig = nodeConfig.getSessionConfig();
                     if (sessionConfig != null) {
@@ -102,7 +109,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         return KeyMapping.of(passwords);
     }
 
-    private static @NonNull GraphKey constructGraphKey(String name) {
+    private static @NonNull GraphKey constructGraphKey(final String name) {
         return new GraphKey(name.startsWith("ted://") ? name : "ted://" + name);
     }
 

@@ -9,7 +9,6 @@ module odl-pcep-topology-sync-optimizations-config {
     import yang-ext { prefix ext; revision-date 2013-07-09; }
     import pcep-config { prefix pc; revision-date 2022-03-28; }
     import odl-pcep-sync-optimizations { prefix opso; revision-date 2020-07-20; }
-    import network-pcep-topology-config { prefix nptc; revision-date 2018-11-09; }
 
     description
         "This module contains the PCEP config extensions to base topology model.
@@ -34,7 +33,7 @@ module odl-pcep-topology-sync-optimizations-config {
             "Initial revision.";
     }
 
-    augment "/nt:network-topology/nt:topology/nt:node/nptc:session-config" {
+    augment "/nt:network-topology/nt:topology/nt:node/pn:session-config" {
         when "../nt:topology-types/pn:topology-pcep";
         ext:augment-identifier pcep-node-sync-config;
         description "Augment Pcep topology node with synchronization config";
