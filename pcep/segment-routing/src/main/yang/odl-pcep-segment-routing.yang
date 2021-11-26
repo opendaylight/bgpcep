@@ -9,7 +9,7 @@ module odl-pcep-segment-routing {
     import odl-pcep-ietf-initiated { prefix initiated; revision-date 2020-07-20; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix pn; revision-date 2020-01-20; }
+    import network-topology-pcep { prefix pn; revision-date 2022-07-30; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";

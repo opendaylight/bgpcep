@@ -9,6 +9,7 @@ module network-topology-pcep {
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
     import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
+    import pcep-config { prefix pdc; revision-date 2022-03-28; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -32,6 +33,10 @@ module network-topology-pcep {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2022-07-30 {
+        description "Integrated PCEP session configuration";
+    }
 
     revision 2020-01-20 {
         description "Update to use -no-zone-adresses";
@@ -81,6 +86,8 @@ module network-topology-pcep {
     grouping topology-pcep-type {
         container topology-pcep {
             presence "indicates a PCEP-aware topology";
+
+            uses pdc:pcep-config;
         }
     }
 
@@ -138,9 +145,10 @@ module network-topology-pcep {
     }
 
     augment "/nt:network-topology/nt:topology/nt:node" {
-        when "../../nt:topology-types/topology-pcep";
+        when "../../nt:topology-types/pn:topology-pcep";
 
         uses pcep-client-attributes;
+        uses pdc:pcep-node-config;
     }
 
     typedef failure-type {

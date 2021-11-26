@@ -4,7 +4,7 @@ module odl-pcep-auto-bandwidth {
 
     import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix topo; revision-date 2020-01-20; }
+    import network-topology-pcep { prefix topo; revision-date 2022-07-30; }
     import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 

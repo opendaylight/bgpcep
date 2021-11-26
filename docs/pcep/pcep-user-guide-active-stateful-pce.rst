@@ -41,7 +41,7 @@ PCEP session is restarted.
 
          <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
              <node-id>43.43.43.43</node-id>
-             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
+             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
                  <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">AQIDBA==</speaker-entity-id-value>
              </session-config>
          </node>
@@ -63,7 +63,7 @@ PCEP session is restarted.
          {
              "node": {
                  "node-id": "43.43.43.43",
-                 "topology:pcep:config:session-config": {
+                 "topology-topology-pcep:session-config": {
                      "topology:pcep:sync:optimizations:config:speaker-entity-id-value": "AQIDBA=="
                  }
              }
@@ -98,7 +98,7 @@ The sample configuration below shows how to set authentication password for a pa
 
          <node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
              <node-id>43.43.43.43</node-id>
-             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
+             <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
                  <password>topsecret</password>
              </session-config>
          </node>
@@ -120,7 +120,7 @@ The sample configuration below shows how to set authentication password for a pa
          {
              "node": {
                  "node-id": "43.43.43.43",
-                 "topology:pcep:config:session-config": {
+                 "network-topology-pcep:session-config": {
                      "password": "topsecret"
                  }
              }

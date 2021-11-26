@@ -10,19 +10,20 @@
     <topology xmlns="urn:TBD:params:xml:ns:yang:network-topology">
         <topology-id>pcep-topology</topology-id>
         <topology-types>
-            <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep"></topology-pcep>
+            <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+                <session-config>
+                    <rpc-timeout>30</rpc-timeout>
+                    <listen-address>0.0.0.0</listen-address>
+                    <listen-port>4189</listen-port>
+                    <dead-timer-value>120</dead-timer-value>
+                    <keep-alive-timer-value>30</keep-alive-timer-value>
+                    <ted-name>example-linkstate-topology</ted-name>
+                </session-config>
+            </topology-pcep>
         </topology-types>
-        <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
-            <rpc-timeout>30</rpc-timeout>
-            <listen-address>0.0.0.0</listen-address>
-            <listen-port>4189</listen-port>
-            <dead-timer-value>120</dead-timer-value>
-            <keep-alive-timer-value>30</keep-alive-timer-value>
-            <ted-name>example-linkstate-topology</ted-name>
-        </session-config>
         <node>
             <node-id>43.43.43.43</node-id>
-            <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:config">
+            <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
                 <password>topsecret</password>
                 <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">AQIDBA==</speaker-entity-id-value>
             </session-config>

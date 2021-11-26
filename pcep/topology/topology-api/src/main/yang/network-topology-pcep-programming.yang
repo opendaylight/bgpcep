@@ -5,7 +5,7 @@ module network-topology-pcep-programming {
     prefix "pnp";
 
     import network-topology-programming { prefix ntp; revision-date 2013-11-02; }
-    import network-topology-pcep { prefix pcep; revision-date 2020-01-20; }
+    import network-topology-pcep { prefix pcep; revision-date 2022-07-30; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
