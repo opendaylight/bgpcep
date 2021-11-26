@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev220328.pcep.node.config.SessionConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
@@ -77,7 +76,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
     static final class SpeakerIdListener extends AbstractListener<PcepNodeSyncConfig, byte[]> {
         SpeakerIdListener(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
             super(dataBroker, LogicalDatastoreType.CONFIGURATION, topologyId.child(Node.class)
-                .augmentation(PcepNodeConfig.class).child(SessionConfig.class)
+                .augmentation(Node1.class).child(SessionConfig.class)
                 .augmentation(PcepNodeSyncConfig.class));
         }
 
