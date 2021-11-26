@@ -16,10 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -42,8 +44,8 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TopologyStatsProviderImpl extends TimerTask
-        implements TransactionChainListener, TopologySessionStatsRegistry, AutoCloseable {
+public final class TopologyStatsProviderImpl implements TopologySessionStatsRegistry, TransactionChainListener,
+        AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
 
     // This tracking looks weird. It essentially tracks when there is a pending delete transaction and skips updates --
@@ -62,22 +64,32 @@ public final class TopologyStatsProviderImpl extends TimerTask
     private DataBroker dataBroker;
     @GuardedBy("this")
     private TransactionChain transactionChain;
+    @GuardedBy("this")
+    private final ScheduledFuture<?> scheduleTask;
 
-    private TopologyStatsProviderImpl(final DataBroker dataBroker) {
-        this.dataBroker = requireNonNull(dataBroker);
+    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds) {
+        this(dataBroker, updateIntervalSeconds, Executors.newScheduledThreadPool(1));
     }
 
-    public static AutoCloseable createStarted(final DataBroker dataBroker, final Timer timer,
-            final int updateIntervalSeconds) {
+    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds,
+            final ScheduledExecutorService scheduler) {
+        this.dataBroker = requireNonNull(dataBroker);
         LOG.info("Initializing TopologyStatsProvider service.");
-        final TopologyStatsProviderImpl ret = new TopologyStatsProviderImpl(dataBroker);
-        timer.scheduleAtFixedRate(ret, 0, TimeUnit.SECONDS.toMillis(updateIntervalSeconds));
-        return ret;
+        final TimerTask task = new TimerTask() {
+            @Override
+            @SuppressWarnings("checkstyle:IllegalCatch")
+            public void run() {
+                synchronized (TopologyStatsProviderImpl.this) {
+                    updateStats();
+                }
+            }
+        };
+        scheduleTask = scheduler.scheduleAtFixedRate(task, 0, updateIntervalSeconds, TimeUnit.SECONDS);
     }
 
     @Override
     public void close() throws InterruptedException, ExecutionException {
-        if (cancel()) {
+        if (scheduleTask.cancel(true)) {
             LOG.info("Closing TopologyStatsProvider service.");
             shutdown();
         } else {
@@ -122,9 +134,8 @@ public final class TopologyStatsProviderImpl extends TimerTask
         return transactionChain;
     }
 
-    @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public synchronized void run() {
+    public synchronized void updateStats() {
         final TransactionChain chain = accessChain();
         if (chain == null) {
             // Already closed, do not bother
@@ -136,10 +147,10 @@ public final class TopologyStatsProviderImpl extends TimerTask
             for (Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry : statsMap.entrySet()) {
                 if (!statsPendingDelete.contains(entry.getKey())) {
                     tx.put(LogicalDatastoreType.OPERATIONAL,
-                        entry.getKey().augmentation(PcepTopologyNodeStatsAug.class),
-                        new PcepTopologyNodeStatsAugBuilder()
-                            .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build())
-                            .build());
+                            entry.getKey().augmentation(PcepTopologyNodeStatsAug.class),
+                            new PcepTopologyNodeStatsAugBuilder()
+                                    .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build())
+                                    .build());
                 }
             }
         } catch (Exception e) {
