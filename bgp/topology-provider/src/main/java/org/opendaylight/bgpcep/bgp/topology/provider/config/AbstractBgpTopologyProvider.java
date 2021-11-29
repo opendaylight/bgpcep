@@ -14,7 +14,6 @@ import java.util.Map;
 import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
-import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBgpTopologyProvider.class);
 
-    private final Map<TopologyId, TopologyReferenceSingletonService> topologyBuilders = new HashMap<>();
+    private final Map<TopologyId, AbstractTopologyBuilder<?>> topologyBuilders = new HashMap<>();
     private final DataBroker dataBroker;
     private final BgpTopologyDeployer deployer;
 
@@ -64,9 +63,10 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     @Override
     public final void onTopologyBuilderCreated(final Topology topology) {
         LOG.debug("Creating topology builder instance {}", topology);
-        final TopologyReferenceSingletonService currentInstance = topologyBuilders.get(topology.getTopologyId());
+        final AbstractTopologyBuilder<?> currentInstance = topologyBuilders.get(topology.getTopologyId());
         if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
-            final TopologyReferenceSingletonService topologyBuilder = createInstance(topology);
+            final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(topology);
+            topologyBuilder.start();
             topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
             LOG.debug("Topology builder instance created {}", topologyBuilder);
         }
@@ -75,7 +75,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     @Override
     public final void onTopologyBuilderRemoved(final Topology topology) {
         LOG.debug("Removing topology builder instance {}", topology);
-        final TopologyReferenceSingletonService topologyBuilder =
+        final AbstractTopologyBuilder<?> topologyBuilder =
                 topologyBuilders.remove(topology.getTopologyId());
         if (topologyBuilder != null) {
             topologyBuilder.close();
@@ -83,16 +83,14 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
         }
     }
 
-    private TopologyReferenceSingletonService createInstance(final Topology topology) {
+    private AbstractTopologyBuilder<?> createTopologyBuilder(final Topology topology) {
         final RibReference ribReference = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
                 .child(Rib.class, new RibKey(topology.augmentation(Topology1.class).getRibId())));
-        final AbstractTopologyBuilder<?> topologyBuilder = createTopologyBuilder(dataBroker,
-                ribReference, topology.getTopologyId());
-        return new TopologyReferenceSingletonServiceImpl(topologyBuilder, deployer, topology);
+        return createTopologyBuilder(dataBroker, ribReference, topology);
     }
 
     abstract AbstractTopologyBuilder<?> createTopologyBuilder(DataBroker dataProvider, RibReference locRibReference,
-            TopologyId topologyId);
+            Topology configuration);
 
     static final TopologyTypes1 getTopologyAug(final Topology topology) {
         final TopologyTypes topologyTypes = topology.getTopologyTypes();

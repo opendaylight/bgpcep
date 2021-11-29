@@ -16,7 +16,6 @@ import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,7 +46,7 @@ public final class Ipv4TopologyProvider extends AbstractBgpTopologyProvider {
 
     @Override
     AbstractTopologyBuilder<?> createTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId) {
-        return new Ipv4ReachabilityTopologyBuilder(dataProvider, locRibReference, topologyId);
+            final Topology configuration) {
+        return new Ipv4ReachabilityTopologyBuilder(dataProvider, locRibReference, configuration);
     }
 }

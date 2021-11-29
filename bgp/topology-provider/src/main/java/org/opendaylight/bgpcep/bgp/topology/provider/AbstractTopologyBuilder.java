@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -55,6 +54,7 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     // we limit the listener reset interval to be 5 min at most
     private static final long LISTENER_RESET_LIMIT_IN_MILLSEC = 5 * 60 * 1000;
     private static final int LISTENER_RESET_ENFORCE_COUNTER = 3;
+    private final Topology topologyConfig;
     private final InstanceIdentifier<Topology> topology;
     private final RibReference locRibReference;
     private final DataBroker dataProvider;
@@ -79,12 +79,13 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     protected boolean networkTopologyTransaction = true;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
+            final Topology topologyConfig, final TopologyTypes types, final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi, final long listenerResetLimitInMillsec,
         final int listenerResetEnforceCounter) {
         this.dataProvider = dataProvider;
         this.locRibReference = requireNonNull(locRibReference);
-        this.topologyKey = new TopologyKey(requireNonNull(topologyId));
+        this.topologyConfig = topologyConfig;
+        this.topologyKey = new TopologyKey(requireNonNull(topologyConfig.getTopologyId()));
         this.topologyTypes = types;
         this.afi = afi;
         this.safi = safi;
@@ -95,9 +96,9 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-        final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
+        final Topology topologyConfig, final TopologyTypes types, final Class<? extends AddressFamily> afi,
         final Class<? extends SubsequentAddressFamily> safi) {
-        this(dataProvider, locRibReference, topologyId, types, afi, safi, LISTENER_RESET_LIMIT_IN_MILLSEC,
+        this(dataProvider, locRibReference, topologyConfig, types, afi, safi, LISTENER_RESET_LIMIT_IN_MILLSEC,
                 LISTENER_RESET_ENFORCE_COUNTER);
     }
 
@@ -144,6 +145,10 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     protected abstract void removeObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
     protected abstract void clearTopology();
+
+    public Topology getConfiguration() {
+        return topologyConfig;
+    }
 
     @Override
     public final InstanceIdentifier<Topology> getInstanceIdentifier() {
