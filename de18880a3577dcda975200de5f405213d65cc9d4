@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05a2a27e_767e22da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-29T18:58:16Z",
+      "side": 1,
+      "message": "This patch solve another NPE in Path Computation if Class Type is not specified.\n\nIt is ready for review.",
+      "revId": "de18880a3577dcda975200de5f405213d65cc9d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
