@@ -69,7 +69,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.topology.sr.type.TopologySrBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.LinkId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
@@ -471,16 +470,16 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     private boolean srAwareTopologyTypeAdded;
 
     public LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
+            final Topology topologyConfig) {
+        super(dataProvider, locRibReference, topologyConfig, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class);
     }
 
     @VisibleForTesting
     LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final long listenerResetLimitInMillsec,
+            final Topology topologyConfig, final long listenerResetLimitInMillsec,
             final int listenerResetEnforceCounter) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
+        super(dataProvider, locRibReference, topologyConfig, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class,
                 listenerResetLimitInMillsec, listenerResetEnforceCounter);
     }
