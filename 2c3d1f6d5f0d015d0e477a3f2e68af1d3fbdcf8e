@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0f90c2d9_d8717004",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T20:07:21Z",
+      "side": 1,
+      "message": "Sorry I meant\n\n        final Constraints icts \u003d iPath.getConstraints();\n        final Constraints rcts \u003d rPath.getConstraints();\n        PathStatus SentStatus \u003d sent ? PathStatus.Failed : PathStatus.Updated;\n        if (!icts.getAddressFamily().equals(rcts.getAddressFamily())\n                || (icts.getBandwidth() !\u003d null \u0026\u0026 !icts.getBandwidth().equals(rcts.getBandwidth()))) {\n            // ClassType is not yet supported in PcInitiate and PcUpdate message\n            //    || (icts.getClassType() !\u003d null \u0026\u0026 !icts.getClassType().equals(rcts.getClassType()))) {\n            return SentStatus;\n        }\n        if (tePath.getActualPath().getPathDescription() \u003d\u003d null) {\n            return PathStatus.Failed;\n        }\n        if (!path.getActualPath().getPathDescription().equals(tePath.getActualPath().getPathDescription())) {\n            return SentStatus;\n        }\n        /* All is conform. TE Path is in sync with expected result. */\n        return PathStatus.Sync;",
+      "parentUuid": "75513314_dda741c0",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "541e100a_cc353dcc",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
         "patchSetId": 8
