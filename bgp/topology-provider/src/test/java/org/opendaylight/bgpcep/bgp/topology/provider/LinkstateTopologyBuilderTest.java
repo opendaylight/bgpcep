@@ -141,7 +141,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     @Override
     public void setUp() {
         super.setUp();
-        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID,
+        this.linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPO_CONFIG,
             LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         this.linkstateTopoBuilder.start();
         this.tablePathIID =
