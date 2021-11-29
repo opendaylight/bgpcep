@@ -23,10 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentDataBrokerTest {
-    static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
+    static final Topology TEST_TOPO_CONFIG = new TopologyBuilder().setTopologyId(new TopologyId("test-topo"))
+            .build();
     static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
         .child(Rib.class, new RibKey(requireNonNull(new RibId("test-rib")))));
 
