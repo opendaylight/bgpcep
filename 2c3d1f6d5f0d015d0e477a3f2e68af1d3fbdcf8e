@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ab8d0f8_4f9e6ca2",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "what about this rather ?\n\n        this.path \u003d path;\n        if (path \u003d\u003d null) {\n            addToDataStore();\n        } else {\n            updateToDataStore();\n        }\n        return this;",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75513314_dda741c0",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "If I am not mistaken, class scope variables are no more updated after this line, what would allow to factorize \"if(sent)\" conditions and simplify the code\n\n        final Constraints icts \u003d iPath.getConstraints();\n        final Constraints rcts \u003d rPath.getConstraints();\n        if (sent) {\n            return PathStatus.Failed;\n        } \n        if (!icts.getAddressFamily().equals(rcts.getAddressFamily())\n                || (icts.getBandwidth() !\u003d null \u0026\u0026 !icts.getBandwidth().equals(rcts.getBandwidth()))) {\n            // ClassType is not yet supported in PcInitiate and PcUpdate message\n            //    || (icts.getClassType() !\u003d null \u0026\u0026 !icts.getClassType().equals(rcts.getClassType()))) {\n            return PathStatus.Updated;\n\n        }\n        if (tePath.getActualPath().getPathDescription() \u003d\u003d null) {\n            return PathStatus.Failed;\n        }\n        if (!path.getActualPath().getPathDescription().equals(tePath.getActualPath().getPathDescription())) {\n            return PathStatus.Updated;\n        }\n\n        /* All is conform. TE Path is in sync with expected result. */\n        return PathStatus.Sync;",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "541e100a_cc353dcc",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "I think setter might be cascaded here",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfa2ab38_47b8ae3c",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "I think the intermediate variable ab is not needed",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70d80e8c_5a1cdc37",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4c69001_aefe911e",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "what about this rather\n\n        /* Create updated TE Path */\n        /* Complete it with the new Computed Route */\n        /* And finally, update the new TE Path for this Node ID */\n        final PathComputationImpl pci \u003d (PathComputationImpl) pceServerProvider.getPathComputation();\n        mngPath.setPath(new TePathBuilder(tePath)\n                .setIntendedPath(ipb.build())\n                .setPathStatus(PathStatus.Updated)\n                .setPathType(mngPath.getPath().getPathType())\n                .setActualPath(\n                    pci \u003d\u003d null\n                        ? new ActualPathBuilder().setStatus(OperationalStatus.Down).build())\n                        : pci.computeTePath(tePath.getIntendedPath()))\n                .build());",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eafd1321_4e9ac67c",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "guard clause would avoid nested if-blocks\n        if (mngPath \u003d\u003d null) {\n            LOG.warn(\"Managed TE Path {} for TE Node {} doesn\u0027t exist\", key, id);\n            return\n        }\n\n        /*\n         * Start by sending corresponding Message to PCC if TE Path is initiated.\n         * TE Path will be removed when PCC confirm the deletion with PcReport.\n         * If TE Path is not initiated, the TE Path should be removed by the PCC\n         * by sending appropriate PcReport which is handle in unregisterTePath.\n         */\n        if (teNode.isSync() \u0026\u0026 mngPath.getPath().getPathType() \u003d\u003d PathType.Initiated) {\n            removeTePath(id, key);\n        } else {\n            LOG.warn(\"Managed TE Path {} for TE Node {} is not managed by this PCE. Remove only configuration\",\n                   key, id);\n        }",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55829074_22c6764f",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "idem line 368",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18933b5f_ec6c5e51",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "I think this intermediate variable is not needed",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "936b1f55_45fa810b",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-29T19:56:04Z",
+      "side": 1,
+      "message": "quard clause style previously used was avoiding nested if-blocks.\nWhy changing this ?\n\n                if (pceServerProvider \u003d\u003d null) {\n                    return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();\n                }\n                PathComputation pathComputation \u003d pceServerProvider.getPathComputation();\n                if (pathComputation \u003d\u003d null) {\n                    return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();\n                }\n                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(),\n                        args.getClassType(), args.getMetrics(), segmentRouting));",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
