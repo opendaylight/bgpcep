@@ -106,6 +106,57 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6eca10a8_09e1a779",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "I think a Map would be more indicated than a switch/case here",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45c94b6d_b44fddb8",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "cts.getDelay() \u003d\u003d null evaluated twice here\n\nwhat about this ?\n\n        if (cts.getDelay() !\u003d null) {\n            algoType \u003d AlgorithmType.Samcra;\n        } else if (cts.getTeMetric() \u003d\u003d null \u0026\u0026 cts.getBandwidth() \u003d\u003d null) {\n            algoType \u003d AlgorithmType.Spf;\n        } else {\n            algoType \u003d AlgorithmType.Cspf;\n        }",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2b561cf_3c7d1c90",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "idem line 253",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d4c69001_aefe911e",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
         "patchSetId": 8
@@ -151,6 +202,57 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "idem line 368",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d65228b7_dde0ba60",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "idem",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38df3d67_680c0b4e",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "idem etc",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37fb0045_f181fcc7",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T13:59:02Z",
+      "side": 1,
+      "message": "what about a ternary operator here ?",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
