@@ -423,6 +423,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0913b924_c0c7e182",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T17:03:47Z",
+      "side": 1,
+      "message": "\"else if\" would avoid a useless check here",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d65228b7_dde0ba60",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 8
@@ -452,6 +469,24 @@
       "side": 1,
       "message": "Idem what ?",
       "parentUuid": "d65228b7_dde0ba60",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0266c64_0812d82d",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2021-11-30T17:03:47Z",
+      "side": 1,
+      "message": "sorry comment on line 248 stayed stuck in draft mode...",
+      "parentUuid": "30bf3a08_dafd9159",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
