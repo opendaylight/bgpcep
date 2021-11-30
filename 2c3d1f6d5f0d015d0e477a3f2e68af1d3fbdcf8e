@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e564ee2e_6a0c1438",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Thanks for your review. I correct all of them in patch set 9 except 2 that are only mark as \u0027idem\u0027 but I don\u0027t understand to what these \u0027idem\u0027 refer to.\n\nOlivier",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3ab8d0f8_4f9e6ca2",
@@ -14,6 +31,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "what about this rather ?\n\n        this.path \u003d path;\n        if (path \u003d\u003d null) {\n            addToDataStore();\n        } else {\n            updateToDataStore();\n        }\n        return this;",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46a5c038_fdb33b96",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Because I would determine if it the first time this.path is initialize to determine the action: add or update. With your suggestion, I will always perform an update and never a add.\n\nWhat I need to add, is to check that path parameter is not null.",
+      "parentUuid": "3ab8d0f8_4f9e6ca2",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -53,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d778e79_fc0dc60b",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Good suggestion.\nDone.",
+      "parentUuid": "0f90c2d9_d8717004",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "541e100a_cc353dcc",
@@ -66,6 +119,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "I think setter might be cascaded here",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcb2ae35_2db396eb",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "541e100a_cc353dcc",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -87,6 +158,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00fd0bed_134176fa",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfa2ab38_47b8ae3c",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "70d80e8c_5a1cdc37",
@@ -100,6 +189,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "idem",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5bd8a8a_93633a7c",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70d80e8c_5a1cdc37",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -121,6 +228,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a95a39dd_e3a50b8c",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Yes. This will be the next step. I would add a new method to give the possibility to register new Path Computation algorithms. And thus, used a MAP.\n\nThis will be done latter.",
+      "parentUuid": "6eca10a8_09e1a779",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "45c94b6d_b44fddb8",
@@ -134,6 +259,24 @@
       "writtenOn": "2021-11-30T13:59:02Z",
       "side": 1,
       "message": "cts.getDelay() \u003d\u003d null evaluated twice here\n\nwhat about this ?\n\n        if (cts.getDelay() !\u003d null) {\n            algoType \u003d AlgorithmType.Samcra;\n        } else if (cts.getTeMetric() \u003d\u003d null \u0026\u0026 cts.getBandwidth() \u003d\u003d null) {\n            algoType \u003d AlgorithmType.Spf;\n        } else {\n            algoType \u003d AlgorithmType.Cspf;\n        }",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e80fbc30_14e53054",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done, but without the test against Bandwidth which is finally not necessary",
+      "parentUuid": "45c94b6d_b44fddb8",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -155,6 +298,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c45206f_a90f90fd",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "I prefer to keep my code as is for clarity and ease maintenance of the code.",
+      "parentUuid": "c2b561cf_3c7d1c90",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4c69001_aefe911e",
@@ -168,6 +329,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "what about this rather\n\n        /* Create updated TE Path */\n        /* Complete it with the new Computed Route */\n        /* And finally, update the new TE Path for this Node ID */\n        final PathComputationImpl pci \u003d (PathComputationImpl) pceServerProvider.getPathComputation();\n        mngPath.setPath(new TePathBuilder(tePath)\n                .setIntendedPath(ipb.build())\n                .setPathStatus(PathStatus.Updated)\n                .setPathType(mngPath.getPath().getPathType())\n                .setActualPath(\n                    pci \u003d\u003d null\n                        ? new ActualPathBuilder().setStatus(OperationalStatus.Down).build())\n                        : pci.computeTePath(tePath.getIntendedPath()))\n                .build());",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43b10b0b_5b942b5e",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Not sure that it is readable and ease the maintenance of the code.",
+      "parentUuid": "d4c69001_aefe911e",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -189,6 +368,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19b86778_d324e753",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eafd1321_4e9ac67c",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55829074_22c6764f",
@@ -202,6 +399,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "idem line 368",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6883201_5287f31d",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "That\u0027s not similar to line 368. Here, we should process differently the reported Path if we have no current Managed TE Path from if we have already a corresponding Managed TE Path.",
+      "parentUuid": "55829074_22c6764f",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -225,6 +440,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "30bf3a08_dafd9159",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Idem what ?",
+      "parentUuid": "d65228b7_dde0ba60",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "38df3d67_680c0b4e",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 8
@@ -236,6 +469,24 @@
       "writtenOn": "2021-11-30T13:59:02Z",
       "side": 1,
       "message": "idem etc",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee6068ab_d24836bb",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Idem what ?",
+      "parentUuid": "38df3d67_680c0b4e",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -257,6 +508,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fda3a321_b6a159a3",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37fb0045_f181fcc7",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18933b5f_ec6c5e51",
@@ -274,6 +543,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa27c8d2_cf740988",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18933b5f_ec6c5e51",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "936b1f55_45fa810b",
@@ -287,6 +574,24 @@
       "writtenOn": "2021-11-29T19:56:04Z",
       "side": 1,
       "message": "quard clause style previously used was avoiding nested if-blocks.\nWhy changing this ?\n\n                if (pceServerProvider \u003d\u003d null) {\n                    return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();\n                }\n                PathComputation pathComputation \u003d pceServerProvider.getPathComputation();\n                if (pathComputation \u003d\u003d null) {\n                    return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();\n                }\n                rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(),\n                        args.getClassType(), args.getMetrics(), segmentRouting));",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eda34416_78e6e018",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologySessionListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2021-11-30T15:47:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "936b1f55_45fa810b",
       "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
