@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1cc6053_ec28724b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-12T18:28:25Z",
+      "side": 1,
+      "message": "well, the reason is so that there is only one active instance for a particular topology id active across all the cluster.\n\nIs this invariant guarded by something else?",
+      "range": {
+        "startLine": 10,
+        "startChar": 36,
+        "endLine": 10,
+        "endChar": 52
+      },
+      "revId": "c3ee113b8462cafb302afa1dccdfded4896b128d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}

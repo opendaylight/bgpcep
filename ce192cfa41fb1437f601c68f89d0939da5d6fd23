@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c66a205_b2ef0f5e",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/config/TopologyReferenceSingletonServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-12T18:28:25Z",
+      "side": 0,
+      "message": "i.e. this cannot happen concurrently in a 3-node cluster",
+      "range": {
+        "startLine": 51,
+        "startChar": 14,
+        "endLine": 51,
+        "endChar": 37
+      },
+      "revId": "ce192cfa41fb1437f601c68f89d0939da5d6fd23",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
