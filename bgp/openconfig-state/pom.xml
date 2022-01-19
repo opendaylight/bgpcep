@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>infrautils-testutils</artifactId>
-            <version>1.9.12</version>
+            <version>1.9.14</version>
             <scope>test</scope>
         </dependency>
         <dependency>
