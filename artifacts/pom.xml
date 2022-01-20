@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-artifacts</artifactId>
-    <version>0.16.14-SNAPSHOT</version>
+    <version>0.16.15-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
