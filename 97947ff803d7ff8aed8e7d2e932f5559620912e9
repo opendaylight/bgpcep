@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bb24d07_76dc81b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-20T17:11:53Z",
+      "side": 1,
+      "message": "I will take a deeper look next week",
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d25c2f9f_773bb67b",
+        "filename": "pcep/server/server-api/src/main/java/org/opendaylight/bgpcep/pcep/server/PceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-20T17:11:53Z",
+      "side": 1,
+      "message": "we return a Registration from register() type methods, so that the lifecycle is properly guarded -- and that renders unRegister() superfluous.\n\nUnfortunately this also seems to highlight a lifecycle problem",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 29
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cde9f64_ba42d0c4",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/DefaultPceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-20T17:11:53Z",
+      "side": 1,
+      "message": "needs to be @Deactivate and @PreDestroy",
+      "range": {
+        "startLine": 56,
+        "startChar": 16,
+        "endLine": 56,
+        "endChar": 21
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37afcf0b_38ea7203",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/DefaultPceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-01-20T17:11:53Z",
+      "side": 1,
+      "message": "so this is problematic with the fact this is a Singleton and we may actually have multiple pcep topologies -- hence I believe the meeting point here is wrong and we need to readjust the wiring.\n\nAlso these methods are not guarded against concurrent access.",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 34
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
