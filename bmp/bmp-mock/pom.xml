@@ -13,12 +13,12 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>testtool-parent</artifactId>
-        <version>0.16.14-SNAPSHOT</version>
+        <version>0.16.15-SNAPSHOT</version>
         <relativePath>../../testtool-parent</relativePath>
     </parent>
 
     <artifactId>bgp-bmp-mock</artifactId>
-    <version>0.16.14-SNAPSHOT</version>
+    <version>0.16.15-SNAPSHOT</version>
     <name>bmp-mock</name>
 
     <dependencies>
