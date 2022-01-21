@@ -529,6 +529,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "69b0081d_5ec381e5",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-01-21T11:07:50Z",
+      "side": 1,
+      "message": "I\u0027ll change that in the next patchset 9 (already done, but not yet published)",
+      "parentUuid": "9f01a45f_b5fd151b",
+      "revId": "2c3d1f6d5f0d015d0e477a3f2e68af1d3fbdcf8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "38df3d67_680c0b4e",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 8
