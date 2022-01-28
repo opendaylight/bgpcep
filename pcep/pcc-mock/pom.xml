@@ -14,12 +14,12 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>testtool-parent</artifactId>
-        <version>0.15.4-SNAPSHOT</version>
+        <version>0.15.4</version>
         <relativePath>../../testtool-parent</relativePath>
     </parent>
 
     <artifactId>pcep-pcc-mock</artifactId>
-    <version>0.15.4-SNAPSHOT</version>
+    <version>0.15.4</version>
     <packaging>jar</packaging>
 
     <dependencies>
