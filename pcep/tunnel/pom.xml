@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-tunnel-parent</artifactId>
-    <version>0.15.4-SNAPSHOT</version>
+    <version>0.15.5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>PCEP Tunnel Topology related components</description>
     <name>${project.artifactId}</name>
