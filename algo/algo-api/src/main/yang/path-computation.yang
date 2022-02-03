@@ -149,12 +149,12 @@ module path-computation {
             type inet:ipv4-address;
         }
         leaf local-ipv6 {
-            description "Local IPv4 address";
+            description "Local IPv6 address";
             when "path-constraints/address-family = 3";
             type inet:ipv6-address;
         }
         leaf remote-ipv6 {
-            description "Remote IPv4 address";
+            description "Remote IPv6 address";
             when "path-constraints/address-family = 3";
             type inet:ipv6-address;
         }
