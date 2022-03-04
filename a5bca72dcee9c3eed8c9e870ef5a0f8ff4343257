@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70ee9147_172592b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-04T10:32:35Z",
+      "side": 1,
+      "message": "I just upload a new version which could handle multi PCEP topology. The change concerns also the entry in DataStore. Intead created a new PathManager entry, I\u0027m extending the path computation client for the operational and the pcep node config for the configuration under the pcep network topology.\n\nCan you review this new version in order to include it into the next release ?\n\nBest Regards\n\nOlivier",
+      "revId": "a5bca72dcee9c3eed8c9e870ef5a0f8ff4343257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
