@@ -133,7 +133,7 @@ public class Samcra extends AbstractPathComputation {
         /* Initialize SAMCRA variables */
         this.constraints = cts;
         cpathBuilder = initializePathComputation(src, dst);
-        if (cpathBuilder.getStatus() == ComputationStatus.Failed) {
+        if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             return cpathBuilder.build();
         }
         cpathBuilder.setBandwidth(cts.getBandwidth()).setClassType(cts.getClassType());
@@ -240,7 +240,7 @@ public class Samcra extends AbstractPathComputation {
          */
         if (cpathBuilder.getStatus() == ComputationStatus.InProgress
                 || cpathBuilder.getPathDescription().size() == 0) {
-            cpathBuilder.setStatus(ComputationStatus.Failed);
+            cpathBuilder.setStatus(ComputationStatus.NoPath);
         } else {
             cpathBuilder.setStatus(ComputationStatus.Completed);
         }

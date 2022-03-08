@@ -127,8 +127,11 @@ public class PathComputationImpl implements PathComputation {
         ConnectedVertex source = tedGraph.getConnectedVertex(intend.getSource());
         ConnectedVertex destination = tedGraph.getConnectedVertex(intend.getDestination());
 
-        if (source == null || destination == null) {
-            return cpb.setComputationStatus(ComputationStatus.Failed).build();
+        if (source == null) {
+            return cpb.setComputationStatus(ComputationStatus.NoSource).build();
+        }
+        if (destination == null) {
+            return cpb.setComputationStatus(ComputationStatus.NoDestination).build();
         }
 
         /* Determine Path Computation Algorithm according to parameters */
@@ -164,7 +167,7 @@ public class PathComputationImpl implements PathComputation {
             return cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed)
                     .build();
         } else {
-            return cpb.setComputationStatus(ComputationStatus.Failed).build();
+            return cpb.setComputationStatus(ComputationStatus.NoPath).build();
         }
     }
 
