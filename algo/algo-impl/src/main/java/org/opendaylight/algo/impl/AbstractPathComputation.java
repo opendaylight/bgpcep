@@ -70,7 +70,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /* Check that source and destination vertexKey are not identical */
         if (src.equals(dst)) {
             LOG.warn("Source and Destination are equal: Abort!");
-            cpathBuilder.setStatus(ComputationStatus.Failed);
+            cpathBuilder.setStatus(ComputationStatus.EqualEndpoints);
             return cpathBuilder;
         }
 
@@ -81,7 +81,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         ConnectedVertex vertex = graph.getConnectedVertex(src.getVertexId().longValue());
         if (vertex == null) {
             LOG.warn("Found no source for Vertex Key {}", src);
-            cpathBuilder.setStatus(ComputationStatus.Failed);
+            cpathBuilder.setStatus(ComputationStatus.NoSource);
             return cpathBuilder;
         }
         LOG.debug("Create Path Source with Vertex {}", vertex);
@@ -95,7 +95,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         vertex = graph.getConnectedVertex(dst.getVertexId().longValue());
         if (vertex == null) {
             LOG.warn("Found no destination for Vertex Key {}", src);
-            cpathBuilder.setStatus(ComputationStatus.Failed);
+            cpathBuilder.setStatus(ComputationStatus.NoDestination);
             return cpathBuilder;
         }
         LOG.debug("Create Path Destination with Vertex {}", vertex);
