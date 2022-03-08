@@ -54,7 +54,30 @@ module path-computation {
                 value 3;
             }
             enum failed {
+                description "Path Computation Algorithm failed during path computation";
                 value 4;
+            }
+            enum no-path {
+                description
+                    "Path Computation Algorithm has not been found a valid path
+                     that meets the given constraints";
+                value 5;
+            }
+            enum no-source {
+                description
+                    "The given source of the path has not been found
+                    in the network topology";
+                value 6;
+            }
+            enum no-destination {
+                description
+                    "The given destination of the path has not been found
+                    in the network topology";
+                value 7;
+            }
+            enum equal-endpoints {
+                description "The given source and destination are equals";
+                value 8;
             }
         }
     }
