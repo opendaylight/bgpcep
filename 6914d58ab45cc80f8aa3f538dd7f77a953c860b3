@@ -16,6 +16,91 @@
       "message": "Just updated the documentation accordingly to this new feature",
       "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56ed3ead_a322e258",
+        "filename": "docs/pcep/pcep-user-guide-pce-server.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T19:51:28Z",
+      "side": 1,
+      "message": "trailing blank",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf735c82_e5f84cbb",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T19:51:28Z",
+      "side": 1,
+      "message": "\"else if\" or early-returns would avoid a useless check here",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a319b39_cb1b88af",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T19:51:28Z",
+      "side": 1,
+      "message": "\"else if\" or early-returns would avoid a useless check here",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "733c9407_8b6f3da9",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T19:51:28Z",
+      "side": 1,
+      "message": "\"else if\" would avoid a useless check here",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9113a1d4_6f0e11d9",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T19:51:28Z",
+      "side": 1,
+      "message": "\"else if\" would avoid a useless check here",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
