@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.LspBuilder;
@@ -207,7 +208,7 @@ public class ManagedTePath {
         }
 
         /* ... and Path to determine if an update is required */
-        if (lsp.getComputedPath().getPathDescription() == null) {
+        if (lsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
             return PathStatus.Failed;
         }
         if (!lsp.getComputedPath().getPathDescription().equals(lsp.getComputedPath().getPathDescription())) {
@@ -327,7 +328,7 @@ public class ManagedTePath {
         }
 
         /* Check if we have a valid Path */
-        if (cfgLsp.getComputedPath().getPathDescription() == null) {
+        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
             return null;
         }
 
@@ -437,7 +438,7 @@ public class ManagedTePath {
         }
 
         /* Check if we have a valid ERO */
-        if (cfgLsp.getComputedPath().getPathDescription() == null) {
+        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
             return null;
         }
 

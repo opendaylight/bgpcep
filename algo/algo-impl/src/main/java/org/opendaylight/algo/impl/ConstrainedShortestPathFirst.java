@@ -44,7 +44,7 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
         /* Initialize algorithm */
         this.constraints = cts;
         ConstrainedPathBuilder cpathBuilder = initializePathComputation(src, dst);
-        if (cpathBuilder.getStatus() == ComputationStatus.Failed) {
+        if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             return cpathBuilder.build();
         }
 
@@ -83,7 +83,7 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
          */
         if (cpathBuilder.getStatus() == ComputationStatus.InProgress
                 || cpathBuilder.getPathDescription().size() == 0) {
-            cpathBuilder.setStatus(ComputationStatus.Failed);
+            cpathBuilder.setStatus(ComputationStatus.NoPath);
         } else {
             cpathBuilder.setStatus(ComputationStatus.Completed);
         }
