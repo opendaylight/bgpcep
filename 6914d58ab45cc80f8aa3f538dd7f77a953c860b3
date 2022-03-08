@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e04406bd_5c72e267",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-08T20:54:35Z",
+      "side": 1,
+      "message": "About this remark and the other similar ones.\n\nsince they have no impact functionally ,\nI\u0027ll drop a few possible optimizations in a separate commit on top of this change at https://git.opendaylight.org/gerrit/c/bgpcep/+/100007\nso that we can go forward faster\n\nhope this helps",
+      "parentUuid": "cf735c82_e5f84cbb",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9a319b39_cb1b88af",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 13
