@@ -30,11 +30,11 @@ BGP concepts
 ~~~~~~~~~~~~
 
 This module contains the base BGP concepts contained in `RFC
-4271 <http://tools.ietf.org/html/rfc4271>`__, `RFC
-4760 <http://tools.ietf.org/html/rfc4760>`__, `RFC
-4456 <http://tools.ietf.org/html/rfc4456>`__, `RFC
-1997 <http://tools.ietf.org/html/rfc1997>`__ and `RFC
-4360 <http://tools.ietf.org/html/rfc4360>`__.
+4271 <https://tools.ietf.org/html/rfc4271>`__, `RFC
+4760 <https://tools.ietf.org/html/rfc4760>`__, `RFC
+4456 <https://tools.ietf.org/html/rfc4456>`__, `RFC
+1997 <https://tools.ietf.org/html/rfc1997>`__ and `RFC
+4360 <https://tools.ietf.org/html/rfc4360>`__.
 
 All the concepts are described in one yang model:
 `bgp-types.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/concepts/src/main/yang/bgp-types.yang;hb=refs/heads/stable/boron>`__.
@@ -47,10 +47,10 @@ BGP parser
 ~~~~~~~~~~
 
 Base BGP parser includes messages and attributes from `RFC
-4271 <http://tools.ietf.org/html/rfc4271>`__, `RFC
-4760 <http://tools.ietf.org/html/rfc4760>`__, `RFC
-1997 <http://tools.ietf.org/html/rfc1997>`__ and `RFC
-4360 <http://tools.ietf.org/html/rfc4360>`__.
+4271 <https://tools.ietf.org/html/rfc4271>`__, `RFC
+4760 <https://tools.ietf.org/html/rfc4760>`__, `RFC
+1997 <https://tools.ietf.org/html/rfc1997>`__ and `RFC
+4360 <https://tools.ietf.org/html/rfc4360>`__.
 
 *API* module defines BGP messages in YANG.
 
@@ -221,7 +221,7 @@ RIB handling
 ~~~~~~~~~~~~
 
 RIB (Route Information Base) is defined as a concept in `RFC
-4271 <http://tools.ietf.org/html/rfc4271#section-3.2>`__. RFC does not
+4271 <https://tools.ietf.org/html/rfc4271#section-3.2>`__. RFC does not
 define how it should be implemented. In our implementation, the routes
 are stored in the MD-SAL datastore. There are four supported routes -
 *Ipv4Routes*, *Ipv6Routes*, *LinkstateRoutes* and *FlowspecRoutes*.
@@ -272,7 +272,7 @@ BGP flowspec
 ------------
 
 BGP flowspec is a module that implements `RFC
-5575 <http://tools.ietf.org/html/rfc5575>`__ for IPv4 AFI and
+5575 <https://tools.ietf.org/html/rfc5575>`__ for IPv4 AFI and
 `draft-ietf-idr-flow-spec-v6-06 <https://tools.ietf.org/html/draft-ietf-idr-flow-spec-v6-06>`__
 for IPv6 AFI. The RFC defines an extension to BGP in form of a new
 subsequent address family, NLRI and extended communities. All of those
@@ -287,14 +287,14 @@ BGP linkstate
 -------------
 
 BGP linkstate is a module that implements
-`draft-ietf-idr-ls-distribution <http://tools.ietf.org/html/draft-ietf-idr-ls-distribution-04>`__
+`draft-ietf-idr-ls-distribution <https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-04>`__
 version 04. The draft defines an extension to BGP in form of a new
 address family, subsequent address family, NLRI and path attribute. All
 of those are defined in the
 `bgp-linkstate.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/linkstate/src/main/yang/bgp-linkstate.yang;hb=refs/heads/stable/boron>`__
 model. In addition to generated sources, the module contains
-`LinkstateAttributeParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/attribute/LinkstateAttributeParser.java;hb=refs/heads/stable/boron>`__,
-`LinkstateNlriParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/nlri/LinkstateNlriParser.java;hb=refs/heads/stable/boron>`__,
+`LinkstateAttributeParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkstateAttributeParser.java;hb=HEAD>`__,
+`LinkstateNlriParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/nlri/LinkstateNlriParser.java;hb=HEAD>`__,
 activators for both, parser and RIB, and RIBSupport handler for
 linkstate address family. As each route needs a key, in case of
 linkstate, the route key is defined as a binary string, containing all

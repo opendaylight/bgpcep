@@ -66,11 +66,11 @@ Parser
 ^^^^^^
 
 The base PCEP parser includes messages and attributes from
-`RFC5441 <http://tools.ietf.org/html/rfc5441>`__,
-`RFC5541 <http://tools.ietf.org/html/rfc5541>`__,
-`RFC5455 <http://tools.ietf.org/html/rfc5455>`__,
-`RFC5557 <http://tools.ietf.org/html/rfc5557>`__ and
-`RFC5521 <http://tools.ietf.org/html/rfc5521>`__.
+`RFC5441 <https://tools.ietf.org/html/rfc5441>`__,
+`RFC5541 <https://tools.ietf.org/html/rfc5541>`__,
+`RFC5455 <https://tools.ietf.org/html/rfc5455>`__,
+`RFC5557 <https://tools.ietf.org/html/rfc5557>`__ and
+`RFC5521 <https://tools.ietf.org/html/rfc5521>`__.
 
 Registration
 ^^^^^^^^^^^^
@@ -120,9 +120,9 @@ Stateful module is a good example of a PCEP parser extension.
 Configuration of PCEP parsers specifies one implementation of *Extension
 provider* that will take care of registering mentioned parser
 extensions:
-`SimplePCEPExtensionProviderContext <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/pojo/SimplePCEPExtensionProviderContext.java;hb=refs/for/stable/boron>`__.
+`SimplePCEPExtensionProviderContext <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/pojo/SimplePCEPExtensionProviderContext.java;hb=HEAD>`__.
 All registries are implemented in package
-`pcep-spi <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=tree;f=pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/pojo;hb=refs/for/stable/boron>`__.
+`pcep-spi <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=tree;f=pcep/spi/src/main/java/org/opendaylight/protocol/pcep/spi/pojo;hb=HEAD>`__.
 
 Parsing
 ^^^^^^^
@@ -161,9 +161,9 @@ PCEP IETF stateful
 
 This section summarizes module pcep-ietf-stateful. The term *stateful*
 refers to
-`draft-ietf-pce-stateful-pce <http://tools.ietf.org/html/draft-ietf-pce-stateful-pce>`__
+`draft-ietf-pce-stateful-pce <https://tools.ietf.org/html/draft-ietf-pce-stateful-pce>`__
 and
-`draft-ietf-pce-pce-initiated-lsp <http://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp>`__
+`draft-ietf-pce-pce-initiated-lsp <https://tools.ietf.org/html/draft-ietf-pce-pce-initiated-lsp>`__
 in versions draft-ietf-pce-stateful-pce-07 with
 draft-ietf-pce-pce-initiated-lsp-00.
 
@@ -174,7 +174,7 @@ The stateful module is implemented as extensions to pcep-base-parser.
 The stateful draft declared new elements as well as additional fields or
 TLVs (type,length,value) to known objects. All new elements are defined
 in yang models, that contain augmentations to elements defined in
-`pcep-types.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/api/src/main/yang/pcep-types.yang;hb=refs/for/stable/boron>`__.
+`pcep-types.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/api/src/main/yang/pcep-types.yang;hb=HEAD>`__.
 In the case of extending known elements, the *Parser* class merely
 extends the base class and overrides necessary methods as shown in
 following diagram:
@@ -198,7 +198,7 @@ PCEP segment routing (SR)
 PCEP Segment Routing is an extension of base PCEP and
 pcep-ietf-stateful-07 extension. The pcep-segment-routing module
 implements
-`draft-ietf-pce-segment-routing-01 <http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01>`__.
+`draft-ietf-pce-segment-routing-01 <https://tools.ietf.org/html/draft-ietf-pce-segment-routing-01>`__.
 
 The extension brings new SR-ERO (Explicit Route Object) and SR-RRO
 (Reported Route Object) subobject composed of SID (Segment Identifier)
@@ -210,15 +210,15 @@ Segment Routing ability.
 
 | The yang models of subobject, SR-PCE-CAPABILITY TLV and appropriate
   augmentations are defined in
-  `odl-pcep-segment-routing.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang;hb=refs/for/stable/boron>`__.
+  `odl-pcep-segment-routing.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/yang/odl-pcep-segment-routing.yang;hb=HEAD>`__.
 | The pcep-segment-routing module includes parsers/serializers for new
   subobject
-  (`SrEroSubobjectParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrEroSubobjectParser.java;hb=refs/for/stable/boron>`__)
+  (`SrEroSubobjectParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrEroSubobjectParser.java;hb=HEAD>`__)
   and TLV
-  (`SrPceCapabilityTlvParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrPceCapabilityTlvParser.java;hb=refs/for/stable/boron>`__).
+  (`SrPceCapabilityTlvParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/segment-routing/src/main/java/org/opendaylight/protocol/pcep/segment/routing/SrPceCapabilityTlvParser.java;hb=HEAD>`__).
 
 The pcep-segment-routing module implements
-`draft-ietf-pce-lsp-setup-type-01 <http://tools.ietf.org/html/draft-ietf-pce-lsp-setup-type-01>`__,
+`draft-ietf-pce-lsp-setup-type-01 <https://tools.ietf.org/html/draft-ietf-pce-lsp-setup-type-01>`__,
 too. The draft defines new TLV - Path Setup Type TLV, which value
 indicate path setup signaling technique. The TLV may be included in
 RP(Request Parameters)/SRP(Stateful PCE Request Parameters) object. For
@@ -226,9 +226,9 @@ the default RSVP-TE (Resource Reservation Protocol), the TLV is omitted.
 For Segment Routing, PST = 1 is defined.
 
 The Path Setup Type TLV is modeled with yang in module
-`pcep-types.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/api/src/main/yang/pcep-types.yang;hb=refs/for/stable/boron>`__.
+`pcep-types.yang <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/api/src/main/yang/pcep-types.yang;hb=HEAD>`__.
 A parser/serializer is implemented in
-`PathSetupTypeTlvParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/impl/src/main/java/org/opendaylight/protocol/pcep/impl/tlv/PathSetupTypeTlvParser.java;hb=refs/for/stable/boron>`__
+`PathSetupTypeTlvParser <https://git.opendaylight.org/gerrit/gitweb?p=bgpcep.git;a=blob;f=pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/tlv/PathSetupTypeTlvParser.java;hb=HEAD>`__
 and it is overriden in segment-routing module to provide the aditional
 PST.
 
