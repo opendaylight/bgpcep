@@ -1107,7 +1107,7 @@ Make sure the *Application Peer* is configured first.
                  <local-administrator>12345</local-administrator>
              </redirect-as4>
          </extended-communities>
- 
+
    .. tab:: JSON
 
       .. code-block:: json

@@ -513,7 +513,7 @@ module openconfig-bgp {
       description
         "Configuration parameters relating to the global BGP router";
       uses bgp-global_config;
-      /* 
+      /*
       Presence is added as a workaround for BUG-6069 and it lacks
       of presence meaning therefore is left empty.
       */

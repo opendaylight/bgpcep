@@ -451,8 +451,8 @@ There are much more attributes that may be carried along with the destination:
       .. code-block:: json
 
          {
-	     "atomic-aggregate": {
-	     }
+         "atomic-aggregate": {
+         }
          }
 
 * **AGGREGATOR**

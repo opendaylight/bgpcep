@@ -546,7 +546,7 @@ BGP Neighbor Family Operational State
                      "state": {
                          "active": true,
                          "prefixes": {
-                             "installed": 3, 
+                             "installed": 3,
                              "sent": 0 ,
                              "received": 3
                          }
