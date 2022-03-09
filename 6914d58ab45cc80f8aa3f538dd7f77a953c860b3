@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "937353b3_00f7eff8",
+        "filename": "docs/pcep/pcep-user-guide-pce-server.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T05:58:17Z",
+      "side": 1,
+      "message": "trailing blank",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "56ed3ead_a322e258",
         "filename": "docs/pcep/pcep-user-guide-pce-server.rst",
         "patchSetId": 13
@@ -31,6 +48,40 @@
       "writtenOn": "2022-03-08T19:51:28Z",
       "side": 1,
       "message": "trailing blank",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3214a037_431b5e04",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T05:58:17Z",
+      "side": 1,
+      "message": "inner parenthesis not needed\n\u0026\u0026 has a precedence over ||",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "928766f6_b10763cc",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T05:58:17Z",
+      "side": 1,
+      "message": "inner parenthesis not needed",
       "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
