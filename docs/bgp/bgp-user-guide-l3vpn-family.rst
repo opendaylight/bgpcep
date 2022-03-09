@@ -529,7 +529,7 @@ The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be ve
                      "route-key": "mAXdcQABrBAALABlKgILgAAAAAE=",
                      "path-id": 0,
                      "attributes": {
-            	         "extended-communities": {
+                         "extended-communities": {
                              "transitive": true,
                              "vrf-route-import-extended-community": {
                                  "inet4-specific-extended-community-common": {

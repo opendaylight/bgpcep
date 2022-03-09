@@ -328,9 +328,9 @@ Usage
 
          {
              "input": {
-       	         "topology": [
+                 "topology": [
                      {
-               	         "topology-id": "pcep-topology",
+                       "topology-id": "pcep-topology",
                          "node": [
                              {
                                  "node-id": "pcc://43.43.43.43"

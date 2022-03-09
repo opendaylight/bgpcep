@@ -8,31 +8,31 @@ DIRECTORY ORGANIZATION
 ======================
 
 src/site:
-	maven site plugin templates
+    maven site plugin templates
 
 mockito-configuration:
-	default configuration of mockito framework
+    default configuration of mockito framework
 
 concepts:
-	Common networking concepts, shared between the protocols
+    Common networking concepts, shared between the protocols
 
 util:
-	Common utility classes
+    Common utility classes
 
 bgp:
-	BGP-related artifacts
+    BGP-related artifacts
 
 pcep:
-	PCEP-related artifacts
+    PCEP-related artifacts
 
 pcep/pcepy:
-	Python PCEP library
+    Python PCEP library
 
 pcep/pcepdump:
-	Python-based PCEP listener and debug tool
+    Python-based PCEP listener and debug tool
 
 rsvp:
-	RSVP modeling concepts (needed by pcep)
+    RSVP modeling concepts (needed by pcep)
 
 
 HOW TO BUILD

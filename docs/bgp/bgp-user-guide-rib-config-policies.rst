@@ -1426,7 +1426,7 @@ Defined set
 
       @line 4: Originator Id Set.
 
-      @line 5: Originator Id Set name. 
+      @line 5: Originator Id Set name.
 
 Match Cluster Id Set
 ''''''''''''''''''''

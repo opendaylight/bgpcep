@@ -760,7 +760,7 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
       @line 10: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
 
-   .. tab:: JSON 
+   .. tab:: JSON
 
       **Content-Type:** ``application/json``
 
