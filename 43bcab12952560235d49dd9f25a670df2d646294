@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d3d48c3_5e6df482",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T15:46:58Z",
+      "side": 1,
+      "message": "wha about simply this ?\n\nreturn cpathBuilder.setStatus(ComputationStatus.EqualEndpoints);",
+      "revId": "43bcab12952560235d49dd9f25a670df2d646294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39f27a61_d0717827",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T15:46:58Z",
+      "side": 1,
+      "message": "idem etc",
+      "revId": "43bcab12952560235d49dd9f25a670df2d646294",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
