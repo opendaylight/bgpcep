@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8bf80817_57eb1f93",
+        "filename": "docs/pcep/pcep-user-guide-pce-server.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-09T06:58:34Z",
+      "side": 1,
+      "message": "it appears that there is no tox linters activated in bgpcep and I found a couple of other issues such as a few docs dead URLs but there are not only in the docs.\n\nI propose to address that separately and to enforce some linters in the CI.\ncf https://git.opendaylight.org/gerrit/c/bgpcep/+/100009\nand https://git.opendaylight.org/gerrit/c/bgpcep/+/100011/1\n@Robert and Venkatragan feel free to amend these 2 changes",
+      "parentUuid": "937353b3_00f7eff8",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "56ed3ead_a322e258",
         "filename": "docs/pcep/pcep-user-guide-pce-server.rst",
         "patchSetId": 13
