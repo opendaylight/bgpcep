@@ -100,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -173,7 +174,8 @@ public class OpenConfigMappingUtilTest {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, EMPTY_PEERGROUP));
         TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
+                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(Decimal64.valueOf("10.00"))
+                .build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder()
                 .setPeerGroupName("foo").setTimers(builder.build()).build()));
     }
@@ -221,8 +223,9 @@ public class OpenConfigMappingUtilTest {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getRetryTimer(EMPTY_NEIGHBOR, null));
-        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setConnectRetry(BigDecimal.TEN).build());
+        TimersBuilder builder = new TimersBuilder()
+            .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .ConfigBuilder().setConnectRetry(Decimal64.valueOf("10.00")).build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder()
                 .setNeighborAddress(NEIGHBOR_ADDRESS).setTimers(builder.build()).build(), null));
 

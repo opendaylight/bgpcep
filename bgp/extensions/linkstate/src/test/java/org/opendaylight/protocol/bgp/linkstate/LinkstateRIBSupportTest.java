@@ -66,8 +66,8 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<LinkstateRoutesCase, LinkstateRoutes,
         LinkstateRoute> {
@@ -126,32 +126,32 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = new LinkstateRIBSupport(this.adapter.currentSerializer());
+        ribSupport = new LinkstateRIBSupport(adapter.currentSerializer());
         setUpTestCustomizer(ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final InstanceIdentifier<LinkstateRoute> instanceIdentifier = this.deletedRoutes.get(0);
+        ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        final InstanceIdentifier<LinkstateRoute> instanceIdentifier = deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(LinkstateRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        final LinkstateRoute route = (LinkstateRoute) this.insertedRoutes.get(0).getValue();
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final LinkstateRoute route = (LinkstateRoute) insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
 
     @Test
     public void testEmptyRoute() {
-        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), ribSupport.emptyTable());
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(Collections.emptyList(), createRoutes(ROUTES), ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesReach.class));
@@ -159,7 +159,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
     @Test
     public void testBuildMpReachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(createRoutes(ROUTES), Collections.emptyList(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().augmentation(AttributesReach.class)
                 .getMpReachNlri().getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
@@ -167,40 +167,40 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
 
     @Test
     public void testCacheableNlriObjects() {
-        Assert.assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        Assert.assertEquals(ImmutableSet.of(), ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        Assert.assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        Assert.assertEquals(ImmutableSet.of(), ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(ROUTES);
-        Assert.assertEquals(getRoutePath().node(prefixNii), this.ribSupport.routePath(getTablePath(), prefixNii));
+        Assert.assertEquals(getRoutePath().node(prefixNii), ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         Assert.assertEquals(new NodeIdentifier(QName.create(LinkstateRoutes.QNAME,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes
-            .QNAME.getLocalName().intern())), this.ribSupport.routeAttributesIdentifier());
+            .QNAME.getLocalName().intern())), ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        Assert.assertEquals(LinkstateRoutesCase.class, this.ribSupport.routesCaseClass());
+        Assert.assertEquals(LinkstateRoutesCase.class, ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        Assert.assertEquals(LinkstateRoutes.class, this.ribSupport.routesContainerClass());
+        Assert.assertEquals(LinkstateRoutes.class, ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        Assert.assertEquals(LinkstateRoute.class, this.ribSupport.routesListClass());
+        Assert.assertEquals(LinkstateRoute.class, ribSupport.routesListClass());
     }
 
     @Test
@@ -208,16 +208,16 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         final Routes emptyCase = new LinkstateRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new LinkstateRoutesCaseBuilder()
                 .setLinkstateRoutes(new LinkstateRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        Assert.assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new LinkstateRoutesCaseBuilder().setLinkstateRoutes(ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         Assert.assertFalse(result.isEmpty());
     }
 }

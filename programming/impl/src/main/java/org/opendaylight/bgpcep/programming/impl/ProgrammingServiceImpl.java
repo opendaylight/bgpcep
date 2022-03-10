@@ -22,9 +22,11 @@ import io.netty.util.Timer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
@@ -93,39 +95,39 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         private final InstructionBuilder builder = new InstructionBuilder();
 
         InstructionPusher(final InstructionId id, final Nanotime deadline) {
-            this.builder.setDeadline(deadline);
-            this.builder.setId(id);
-            this.builder.withKey(new InstructionKey(id));
-            this.builder.setStatus(InstructionStatus.Queued);
+            builder.setDeadline(deadline);
+            builder.setId(id);
+            builder.withKey(new InstructionKey(id));
+            builder.setStatus(InstructionStatus.Queued);
         }
 
         @Override
         public void instructionUpdated(final InstructionStatus status, final Details details) {
-            if (!status.equals(this.builder.getStatus())) {
-                this.builder.setStatus(status);
+            if (!status.equals(builder.getStatus())) {
+                builder.setStatus(status);
 
-                final WriteTransaction wt = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
+                final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
                 wt.put(LogicalDatastoreType.OPERATIONAL,
-                        ProgrammingServiceImpl.this.qid.child(
+                        qid.child(
                                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming
                                         .rev150720.instruction.queue.Instruction.class,
-                                new InstructionKey(this.builder.getId())), this.builder.build());
+                                new InstructionKey(builder.getId())), builder.build());
                 wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
-                        LOG.debug("Instruction Queue {} updated", ProgrammingServiceImpl.this.qid);
+                        LOG.debug("Instruction Queue {} updated", qid);
                     }
 
                     @Override
                     public void onFailure(final Throwable trw) {
-                        LOG.error("Failed to update Instruction Queue {}", ProgrammingServiceImpl.this.qid, trw);
+                        LOG.error("Failed to update Instruction Queue {}", qid, trw);
                     }
                 }, MoreExecutors.directExecutor());
             }
 
             try {
-                ProgrammingServiceImpl.this.notifs.putNotification(new InstructionStatusChangedBuilder()
-                        .setId(this.builder.getId()).setStatus(status).setDetails(details).build());
+                notifs.putNotification(new InstructionStatusChangedBuilder()
+                        .setId(builder.getId()).setStatus(status).setDetails(details).build());
             } catch (final InterruptedException e) {
                 LOG.debug("Failed to publish notification", e);
             }
@@ -133,20 +135,20 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
 
         @Override
         public void instructionRemoved() {
-            final WriteTransaction wt = ProgrammingServiceImpl.this.dataProvider.newWriteOnlyTransaction();
-            wt.delete(LogicalDatastoreType.OPERATIONAL, ProgrammingServiceImpl.this.qid.child(
+            final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+            wt.delete(LogicalDatastoreType.OPERATIONAL, qid.child(
                     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction
                             .queue.Instruction.class,
-                    new InstructionKey(this.builder.getId())));
+                    new InstructionKey(builder.getId())));
             wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
-                    LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
+                    LOG.debug("Instruction Queue {} removed", qid);
                 }
 
                 @Override
                 public void onFailure(final Throwable trw) {
-                    LOG.error("Failed to remove Instruction Queue {}", ProgrammingServiceImpl.this.qid, trw);
+                    LOG.error("Failed to remove Instruction Queue {}", qid, trw);
                 }
             }, MoreExecutors.directExecutor());
         }
@@ -161,51 +163,51 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         this.executor = requireNonNull(executor);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.timer = requireNonNull(timer);
-        this.qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
+        qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
                 new InstructionsQueueKey(this.instructionId)).build();
-        this.sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
-        LOG.info("Creating Programming Service {}.", this.sgi.getName());
-        this.csspReg = cssp.registerClusterSingletonService(this);
+        sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
+        LOG.info("Creating Programming Service {}.", sgi.getName());
+        csspReg = cssp.registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        LOG.info("Instruction Queue service {} instantiated", this.sgi.getName());
-        this.reg = this.rpcProviderRegistry.registerRpcImplementation(ProgrammingService.class, this);
+        LOG.info("Instruction Queue service {} instantiated", sgi.getName());
+        reg = rpcProviderRegistry.registerRpcImplementation(ProgrammingService.class, this);
 
-        final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
-        wt.put(LogicalDatastoreType.OPERATIONAL, this.qid, new InstructionsQueueBuilder()
-                .withKey(new InstructionsQueueKey(this.instructionId)).setInstruction(Map.of()).build());
+        final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+        wt.put(LogicalDatastoreType.OPERATIONAL, qid, new InstructionsQueueBuilder()
+                .withKey(new InstructionsQueueKey(instructionId)).setInstruction(Map.of()).build());
         wt.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.debug("Instruction Queue {} added", ProgrammingServiceImpl.this.qid);
+                LOG.debug("Instruction Queue {} added", qid);
             }
 
             @Override
             public void onFailure(final Throwable trw) {
-                LOG.error("Failed to add Instruction Queue {}", ProgrammingServiceImpl.this.qid, trw);
+                LOG.error("Failed to add Instruction Queue {}", qid, trw);
             }
         }, MoreExecutors.directExecutor());
     }
 
     @Override
     public ServiceGroupIdentifier getIdentifier() {
-        return this.sgi;
+        return sgi;
     }
 
     @Override
     public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
-        return this.executor.submit(() -> realCancelInstruction(input));
+        return executor.submit(() -> realCancelInstruction(input));
     }
 
     @Override
     public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
-        return this.executor.submit(() -> realCleanInstructions(input));
+        return executor.submit(() -> realCleanInstructions(input));
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
-        final InstructionImpl instruction = this.insns.get(input.getId());
+        final InstructionImpl instruction = insns.get(input.getId());
         if (instruction == null) {
             LOG.debug("Instruction {} not present in the graph", input.getId());
 
@@ -219,11 +221,11 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     }
 
     private synchronized RpcResult<CleanInstructionsOutput> realCleanInstructions(final CleanInstructionsInput input) {
-        final List<InstructionId> failed = new ArrayList<>();
+        final Set<InstructionId> failed = new HashSet<>();
 
         for (final InstructionId id : input.getId()) {
             // Find the instruction
-            final InstructionImpl instruction = this.insns.get(id);
+            final InstructionImpl instruction = insns.get(id);
             if (instruction == null) {
                 LOG.debug("Instruction {} not present in the graph", input.getId());
                 failed.add(id);
@@ -252,7 +254,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
             // it from its dependencies and dependents
             instruction.clean();
 
-            this.insns.remove(id);
+            insns.remove(id);
             LOG.debug("Instruction {} cleaned successfully", id);
         }
 
@@ -265,7 +267,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
         final List<InstructionImpl> dependencies = collectDependencies(input);
         // Check if all dependencies are non-failed
-        final List<InstructionId> unmet = checkIfUnfailed(dependencies);
+        final Set<InstructionId> unmet = checkIfUnfailed(dependencies);
         /*
          *  Some dependencies have failed, declare the request dead-on-arrival
          *  and fail the operation.
@@ -280,7 +282,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     private List<InstructionImpl> collectDependencies(final SubmitInstructionInput input) throws SchedulerException {
         final List<InstructionImpl> dependencies = new ArrayList<>();
         for (final InstructionId pid : input.getPreconditions()) {
-            final InstructionImpl instruction = this.insns.get(pid);
+            final InstructionImpl instruction = insns.get(pid);
             if (instruction == null) {
                 LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
                 throw new SchedulerException("Unknown dependency ID specified",
@@ -291,8 +293,8 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         return dependencies;
     }
 
-    private static List<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
-        final List<InstructionId> unmet = new ArrayList<>();
+    private static Set<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
+        final Set<InstructionId> unmet = new HashSet<>();
         for (final InstructionImpl d : dependencies) {
             switch (d.getStatus()) {
                 case Cancelled:
@@ -316,7 +318,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     public synchronized ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws
             SchedulerException {
         final InstructionId id = input.getId();
-        if (this.insns.get(id) != null) {
+        if (insns.get(id) != null) {
             LOG.info("Instruction ID {} already present", id);
             throw new SchedulerException("Instruction ID currently in use",
                     new FailureBuilder().setType(DuplicateInstructionId.class).build());
@@ -342,14 +344,14 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
          */
 
         // Schedule a timeout for the instruction
-        final Timeout t = this.timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(),
+        final Timeout t = timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(),
                 TimeUnit.NANOSECONDS);
 
         // Put it into the instruction list
         final SettableFuture<Instruction> ret = SettableFuture.create();
         final InstructionImpl instruction = new InstructionImpl(new InstructionPusher(id, input.getDeadline()), ret, id,
                 dependencies, t);
-        this.insns.put(id, instruction);
+        insns.put(id, instruction);
 
         // Attach it into its dependencies
         for (final InstructionImpl d : dependencies) {
@@ -362,18 +364,18 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
          * This task should be ingress-weighed, so we reinsert it into the
          * same execution service.
          */
-        this.executor.submit(() -> tryScheduleInstruction(instruction));
+        executor.submit(() -> tryScheduleInstruction(instruction));
 
         return ret;
     }
 
     @Override
     public String getInstructionID() {
-        return this.instructionId;
+        return instructionId;
     }
 
     private synchronized void timeoutInstruction(final InstructionId id) {
-        final InstructionImpl instruction = this.insns.get(id);
+        final InstructionImpl instruction = insns.get(id);
         if (instruction == null) {
             LOG.warn("Instruction {} timed out, but not found in the queue", id);
             return;
@@ -412,29 +414,29 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        LOG.info("Closing Instruction Queue service {}", this.sgi.getName());
+        LOG.info("Closing Instruction Queue service {}", sgi.getName());
 
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
+        if (reg != null) {
+            reg.close();
+            reg = null;
         }
-        for (final InstructionImpl instruction : this.insns.values()) {
+        for (final InstructionImpl instruction : insns.values()) {
             instruction.tryCancel(null);
         }
         // Workaround for BUG-2283
-        final WriteTransaction wt = this.dataProvider.newWriteOnlyTransaction();
-        wt.delete(LogicalDatastoreType.OPERATIONAL, this.qid);
+        final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+        wt.delete(LogicalDatastoreType.OPERATIONAL, qid);
 
         final FluentFuture<? extends CommitInfo> future = wt.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.debug("Instruction Queue {} removed", ProgrammingServiceImpl.this.qid);
+                LOG.debug("Instruction Queue {} removed", qid);
             }
 
             @Override
             public void onFailure(final Throwable trw) {
-                LOG.error("Failed to shutdown Instruction Queue {}", ProgrammingServiceImpl.this.qid, trw);
+                LOG.error("Failed to shutdown Instruction Queue {}", qid, trw);
             }
         }, MoreExecutors.directExecutor());
 
@@ -443,6 +445,6 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
 
     @Override
     public synchronized void close() {
-        this.csspReg.close();
+        csspReg.close();
     }
 }

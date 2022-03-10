@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSeg
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import io.netty.buffer.ByteBuf;
-import java.util.List;
+import java.util.Collection;
 import org.opendaylight.protocol.util.ReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -72,7 +72,8 @@ public final class AsPathSegmentParser {
         return coll.build();
     }
 
-    static void serializeAsList(final List<AsNumber> asList, final SegmentType type, final ByteBuf byteAggregator) {
+    static void serializeAsList(final Collection<AsNumber> asList, final SegmentType type,
+            final ByteBuf byteAggregator) {
         if (asList == null) {
             return;
         }

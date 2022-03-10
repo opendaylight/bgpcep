@@ -11,10 +11,9 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
@@ -125,10 +124,10 @@ public class PCEPTlvParserTest {
     @Test
     public void testOFListTlv() throws PCEPDeserializerException {
         final OFListTlvParser parser = new OFListTlvParser();
-        final List<OfId> ids = new ArrayList<>();
-        ids.add(new OfId(Uint16.valueOf(0x1234)));
-        ids.add(new OfId(Uint16.valueOf(0x5678)));
-        final OfList tlv = new OfListBuilder().setCodes(ids).build();
+        final OfList tlv = new OfListBuilder()
+            // Predictable order
+            .setCodes(ImmutableSet.of(new OfId(Uint16.valueOf(0x1234)), new OfId(Uint16.valueOf(0x5678))))
+            .build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(OF_LIST_BYTES, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
