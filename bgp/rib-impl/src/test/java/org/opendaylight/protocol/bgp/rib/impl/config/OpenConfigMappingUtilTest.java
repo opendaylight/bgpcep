@@ -69,6 +69,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.RrClusterIdType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -100,6 +101,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -112,10 +114,13 @@ public class OpenConfigMappingUtilTest {
     private static final PeerGroup EMPTY_PEERGROUP = new PeerGroupBuilder().setPeerGroupName("foo").build();
 
     private static final String KEY = "bgp";
-    private static final InstanceIdentifier<Bgp> BGP_II = InstanceIdentifier.create(NetworkInstances.class)
-        .child(NetworkInstance.class, new NetworkInstanceKey("identifier-test")).child(Protocols.class)
-        .child(Protocol.class, new ProtocolKey(BGP.class, KEY)).augmentation(NetworkInstanceProtocol.class)
-            .child(Bgp.class);
+    private static final InstanceIdentifier<Bgp> BGP_II =
+        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+        .child(NetworkInstance.class, new NetworkInstanceKey("identifier-test"))
+        .child(Protocols.class)
+        .child(Protocol.class, new ProtocolKey(BGP.class, KEY))
+        .augmentation(NetworkInstanceProtocol.class)
+        .child(Bgp.class);
     private static final NeighborKey NEIGHBOR_KEY = new NeighborKey(NEIGHBOR_ADDRESS);
     private static final Ipv4Address ROUTER_ID = new Ipv4Address("1.2.3.4");
     private static final Ipv4Address CLUSTER_ID = new Ipv4Address("4.3.2.1");
@@ -173,7 +178,8 @@ public class OpenConfigMappingUtilTest {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, EMPTY_PEERGROUP));
         TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(BigDecimal.TEN).build());
+                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setHoldTime(Decimal64.valueOf(2, 10))
+                .build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, new PeerGroupBuilder()
                 .setPeerGroupName("foo").setTimers(builder.build()).build()));
     }
@@ -221,8 +227,9 @@ public class OpenConfigMappingUtilTest {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getRetryTimer(EMPTY_NEIGHBOR, null));
-        TimersBuilder builder = new TimersBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net
-                .yang.bgp.rev151009.bgp.neighbor.group.timers.ConfigBuilder().setConnectRetry(BigDecimal.TEN).build());
+        TimersBuilder builder = new TimersBuilder()
+            .setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .ConfigBuilder().setConnectRetry(Decimal64.valueOf(2, 10)).build());
         assertEquals(BigDecimal.TEN.intValue(), OpenConfigMappingUtil.getRetryTimer(new NeighborBuilder()
                 .setNeighborAddress(NEIGHBOR_ADDRESS).setTimers(builder.build()).build(), null));
 

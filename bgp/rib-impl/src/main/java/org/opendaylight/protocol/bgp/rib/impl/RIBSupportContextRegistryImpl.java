@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
@@ -48,8 +47,6 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         return new RIBSupportContextRegistryImpl(extensions, codecs);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private RIBSupportContextImpl createRIBSupportContext(final RIBSupport<?, ?> support) {
         return new RIBSupportContextImpl(support, this.codecs);
     }

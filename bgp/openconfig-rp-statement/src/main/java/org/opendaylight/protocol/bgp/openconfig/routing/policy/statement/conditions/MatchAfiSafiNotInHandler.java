@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
-import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -35,7 +35,7 @@ public final class MatchAfiSafiNotInHandler implements
 
     private static boolean matchAfiSafi(
             final Class<? extends AfiSafiType> afiSafi,
-            final List<Class<? extends AfiSafiType>> afiSafiNotIn) {
+            final Set<Class<? extends AfiSafiType>> afiSafiNotIn) {
         return !afiSafiNotIn.contains(afiSafi);
     }
 

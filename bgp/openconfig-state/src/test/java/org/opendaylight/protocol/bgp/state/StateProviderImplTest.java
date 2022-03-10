@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Uninterruptibles;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +98,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.MPBGP;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.ROUTEREFRESH;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -139,6 +139,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -152,9 +153,12 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final PortNumber remotePort = new PortNumber(Uint16.valueOf(179));
     private final Uint16 restartTime = Uint16.valueOf(15);
     private final String ribId = "identifier-test";
-    private final InstanceIdentifier<Bgp> bgpInstanceIdentifier = InstanceIdentifier.create(NetworkInstances.class)
-        .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class)
-        .child(Protocol.class, new ProtocolKey(BGP.class, this.ribId)).augmentation(NetworkInstanceProtocol.class)
+    private final InstanceIdentifier<Bgp> bgpInstanceIdentifier =
+        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+            .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
+            .child(Protocols.class)
+            .child(Protocol.class, new ProtocolKey(BGP.class, ribId))
+            .augmentation(NetworkInstanceProtocol.class)
             .child(Bgp.class);
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
     private final AsNumber as = new AsNumber(Uint32.valueOf(72));
@@ -193,78 +197,78 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
     @Before
     public void setUp() {
-        doReturn(IPV4UNICAST.class).when(this.tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
+        doReturn(IPV4UNICAST.class).when(tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
-        doReturn(this.bgpRibStates).when(this.stateProvider).getRibStats();
-        doReturn(this.bgpPeerStates).when(this.stateProvider).getPeerStats();
+        doReturn(bgpRibStates).when(stateProvider).getRibStats();
+        doReturn(bgpPeerStates).when(stateProvider).getPeerStats();
 
         final KeyedInstanceIdentifier<Rib, RibKey> iid = InstanceIdentifier.create(BgpRib.class)
-            .child(Rib.class, new RibKey(new RibId(this.ribId)));
-        doReturn(iid).when(this.bgpRibState).getInstanceIdentifier();
-        doReturn(this.as).when(this.bgpRibState).getAs();
-        doReturn(this.bgpId).when(this.bgpRibState).getRouteId();
+            .child(Rib.class, new RibKey(new RibId(ribId)));
+        doReturn(iid).when(bgpRibState).getInstanceIdentifier();
+        doReturn(as).when(bgpRibState).getAs();
+        doReturn(bgpId).when(bgpRibState).getRouteId();
 
-        doAnswer(invocation -> this.totalPathsCounter.longValue())
-                .when(this.bgpRibState).getTotalPathsCount();
-        doAnswer(invocation -> this.totalPrefixesCounter.longValue())
-                .when(this.bgpRibState).getTotalPrefixesCount();
-        doAnswer(invocation -> this.totalPathsCounter.longValue())
-                .when(this.bgpRibState).getPathCount(eq(TABLES_KEY));
-        doAnswer(invocation -> this.totalPrefixesCounter.longValue())
-                .when(this.bgpRibState).getPrefixesCount(eq(TABLES_KEY));
+        doAnswer(invocation -> totalPathsCounter.longValue())
+                .when(bgpRibState).getTotalPathsCount();
+        doAnswer(invocation -> totalPrefixesCounter.longValue())
+                .when(bgpRibState).getTotalPrefixesCount();
+        doAnswer(invocation -> totalPathsCounter.longValue())
+                .when(bgpRibState).getPathCount(eq(TABLES_KEY));
+        doAnswer(invocation -> totalPrefixesCounter.longValue())
+                .when(bgpRibState).getPrefixesCount(eq(TABLES_KEY));
         doAnswer(invocation -> Map.of(TABLES_KEY,
-            this.totalPathsCounter.longValue())).when(this.bgpRibState).getPathsCount();
+            totalPathsCounter.longValue())).when(bgpRibState).getPathsCount();
 
         // Mock Peer
-        doReturn("test-group").when(this.bgpPeerState).getGroupId();
-        doReturn(iid).when(this.bgpPeerState).getInstanceIdentifier();
-        doAnswer(invocation -> this.totalPrefixesCounter.longValue()).when(this.bgpPeerState).getTotalPrefixes();
-        doAnswer(invocation -> this.totalPathsCounter.longValue()).when(this.bgpPeerState).getTotalPathsCount();
-        doReturn(this.neighborAddress).when(this.bgpPeerState).getNeighborAddress();
-        doReturn(this.bgpSessionState).when(this.bgpPeerState).getBGPSessionState();
-        doReturn(this.bgpPeerMessagesState).when(this.bgpPeerState).getBGPPeerMessagesState();
+        doReturn("test-group").when(bgpPeerState).getGroupId();
+        doReturn(iid).when(bgpPeerState).getInstanceIdentifier();
+        doAnswer(invocation -> totalPrefixesCounter.longValue()).when(bgpPeerState).getTotalPrefixes();
+        doAnswer(invocation -> totalPathsCounter.longValue()).when(bgpPeerState).getTotalPathsCount();
+        doReturn(neighborAddress).when(bgpPeerState).getNeighborAddress();
+        doReturn(bgpSessionState).when(bgpPeerState).getBGPSessionState();
+        doReturn(bgpPeerMessagesState).when(bgpPeerState).getBGPPeerMessagesState();
 
-        doReturn(1L).when(this.bgpPeerMessagesState).getNotificationMessagesReceivedCount();
-        doReturn(1L).when(this.bgpPeerMessagesState).getNotificationMessagesSentCount();
-        doReturn(1L).when(this.bgpPeerMessagesState).getUpdateMessagesReceivedCount();
-        doReturn(1L).when(this.bgpPeerMessagesState).getUpdateMessagesSentCount();
-        doReturn(State.UP).when(this.bgpSessionState).getSessionState();
-        doReturn(true).when(this.bgpSessionState).isAddPathCapabilitySupported();
-        doReturn(true).when(this.bgpSessionState).isAsn32CapabilitySupported();
-        doReturn(true).when(this.bgpSessionState).isGracefulRestartCapabilitySupported();
-        doReturn(true).when(this.bgpSessionState).isMultiProtocolCapabilitySupported();
-        doReturn(true).when(this.bgpSessionState).isRouterRefreshCapabilitySupported();
+        doReturn(1L).when(bgpPeerMessagesState).getNotificationMessagesReceivedCount();
+        doReturn(1L).when(bgpPeerMessagesState).getNotificationMessagesSentCount();
+        doReturn(1L).when(bgpPeerMessagesState).getUpdateMessagesReceivedCount();
+        doReturn(1L).when(bgpPeerMessagesState).getUpdateMessagesSentCount();
+        doReturn(State.UP).when(bgpSessionState).getSessionState();
+        doReturn(true).when(bgpSessionState).isAddPathCapabilitySupported();
+        doReturn(true).when(bgpSessionState).isAsn32CapabilitySupported();
+        doReturn(true).when(bgpSessionState).isGracefulRestartCapabilitySupported();
+        doReturn(true).when(bgpSessionState).isMultiProtocolCapabilitySupported();
+        doReturn(true).when(bgpSessionState).isRouterRefreshCapabilitySupported();
 
-        doReturn(this.timersState).when(this.bgpPeerState).getBGPTimersState();
-        doReturn(10L).when(this.timersState).getNegotiatedHoldTime();
-        doReturn(10L).when(this.timersState).getUpTime();
+        doReturn(timersState).when(bgpPeerState).getBGPTimersState();
+        doReturn(10L).when(timersState).getNegotiatedHoldTime();
+        doReturn(10L).when(timersState).getUpTime();
 
-        doReturn(this.bgpTransportState).when(this.bgpPeerState).getBGPTransportState();
-        doReturn(this.localPort).when(this.bgpTransportState).getLocalPort();
-        doReturn(this.neighborAddress).when(this.bgpTransportState).getRemoteAddress();
-        doReturn(this.remotePort).when(this.bgpTransportState).getRemotePort();
+        doReturn(bgpTransportState).when(bgpPeerState).getBGPTransportState();
+        doReturn(localPort).when(bgpTransportState).getLocalPort();
+        doReturn(neighborAddress).when(bgpTransportState).getRemoteAddress();
+        doReturn(remotePort).when(bgpTransportState).getRemotePort();
 
-        doReturn(this.bgpErrorHandlingState).when(this.bgpPeerState).getBGPErrorHandlingState();
-        doReturn(1L).when(this.bgpErrorHandlingState).getErroneousUpdateReceivedCount();
+        doReturn(bgpErrorHandlingState).when(bgpPeerState).getBGPErrorHandlingState();
+        doReturn(1L).when(bgpErrorHandlingState).getErroneousUpdateReceivedCount();
 
-        doReturn(this.bgpGracelfulRestartState).when(this.bgpPeerState).getBGPGracelfulRestart();
-        doReturn(true).when(this.bgpGracelfulRestartState).isLocalRestarting();
-        doReturn(true).when(this.bgpGracelfulRestartState).isPeerRestarting();
-        doReturn(this.restartTime.toJava()).when(this.bgpGracelfulRestartState).getPeerRestartTime();
-        doReturn(BgpAfiSafiGracefulRestartState.Mode.BILATERAL).when(this.bgpGracelfulRestartState).getMode();
+        doReturn(bgpGracelfulRestartState).when(bgpPeerState).getBGPGracelfulRestart();
+        doReturn(true).when(bgpGracelfulRestartState).isLocalRestarting();
+        doReturn(true).when(bgpGracelfulRestartState).isPeerRestarting();
+        doReturn(restartTime.toJava()).when(bgpGracelfulRestartState).getPeerRestartTime();
+        doReturn(BgpAfiSafiGracefulRestartState.Mode.BILATERAL).when(bgpGracelfulRestartState).getMode();
 
-        doReturn(this.bgpAfiSafiState).when(this.bgpPeerState).getBGPAfiSafiState();
-        doReturn(Set.of(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
-        doReturn(Set.of(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
-        doReturn(1L).when(this.bgpAfiSafiState).getPrefixesInstalledCount(any());
-        doReturn(2L).when(this.bgpAfiSafiState).getPrefixesReceivedCount(any());
-        doReturn(1L).when(this.bgpAfiSafiState).getPrefixesSentCount(any());
-        doReturn(true).when(this.bgpAfiSafiState).isAfiSafiSupported(any());
-        doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(any());
-        doReturn(true).when(this.bgpAfiSafiState).isGracefulRestartReceived(any());
-        doReturn(true).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised(any());
-        doReturn(true).when(this.bgpAfiSafiState).isLlGracefulRestartReceived(any());
-        doReturn(60).when(this.bgpAfiSafiState).getLlGracefulRestartTimer(any());
+        doReturn(bgpAfiSafiState).when(bgpPeerState).getBGPAfiSafiState();
+        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisAdvertized();
+        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisReceived();
+        doReturn(1L).when(bgpAfiSafiState).getPrefixesInstalledCount(any());
+        doReturn(2L).when(bgpAfiSafiState).getPrefixesReceivedCount(any());
+        doReturn(1L).when(bgpAfiSafiState).getPrefixesSentCount(any());
+        doReturn(true).when(bgpAfiSafiState).isAfiSafiSupported(any());
+        doReturn(true).when(bgpAfiSafiState).isGracefulRestartAdvertized(any());
+        doReturn(true).when(bgpAfiSafiState).isGracefulRestartReceived(any());
+        doReturn(true).when(bgpAfiSafiState).isLlGracefulRestartAdvertised(any());
+        doReturn(true).when(bgpAfiSafiState).isLlGracefulRestartReceived(any());
+        doReturn(60).when(bgpAfiSafiState).getLlGracefulRestartTimer(any());
     }
 
     @Override
@@ -287,36 +291,36 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
     @Test
     public void testActiveStateProvider() throws Exception {
-        doReturn(true).when(this.bgpRibState).isActive();
-        doReturn(true).when(this.bgpPeerState).isActive();
+        doReturn(true).when(bgpRibState).isActive();
+        doReturn(true).when(bgpPeerState).isActive();
 
         try (StateProviderImpl stateProvider =
                 // FIXME: use a properly-controlled executor service
                 new StateProviderImpl(getDataBroker(), 1, tableTypeRegistry, this.stateProvider, "global-bgp")) {
 
             final Global globalExpected = buildGlobalExpected(0);
-            this.bgpRibStates.add(this.bgpRibState);
-            readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+            bgpRibStates.add(bgpRibState);
+            readDataOperational(getDataBroker(), bgpInstanceIdentifier, bgpRib -> {
                 final Global global = bgpRib.getGlobal();
                 assertEquals(globalExpected, global);
                 return bgpRib;
             });
 
-            this.totalPathsCounter.increment();
-            this.totalPrefixesCounter.increment();
+            totalPathsCounter.increment();
+            totalPrefixesCounter.increment();
 
             final Global globalExpected2 = buildGlobalExpected(1);
-            readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+            readDataOperational(getDataBroker(), bgpInstanceIdentifier, bgpRib -> {
                 final Global global = bgpRib.getGlobal();
                 assertEquals(globalExpected2, global);
                 return bgpRib;
             });
 
-            this.totalPathsCounter.decrement();
-            this.totalPrefixesCounter.decrement();
+            totalPathsCounter.decrement();
+            totalPrefixesCounter.decrement();
 
             final Global globalExpected3 = buildGlobalExpected(0);
-            readDataOperational(getDataBroker(), this.bgpInstanceIdentifier, bgpRib -> {
+            readDataOperational(getDataBroker(), bgpInstanceIdentifier, bgpRib -> {
                 final Global global = bgpRib.getGlobal();
                 assertEquals(globalExpected3, global);
                 assertNull(bgpRib.getNeighbors());
@@ -324,11 +328,11 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 return bgpRib;
             });
 
-            this.bgpPeerStates.add(this.bgpPeerState);
+            bgpPeerStates.add(bgpPeerState);
             final PeerGroup peerGroupExpected = buildGroupExpected();
 
-            this.totalPathsCounter.increment();
-            this.totalPrefixesCounter.increment();
+            totalPathsCounter.increment();
+            totalPrefixesCounter.increment();
 
             final AfiSafis expectedAfiSafis = buildAfiSafis();
             final ErrorHandling expectedErrorHandling = buildErrorHandling();
@@ -354,20 +358,20 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 assertEquals(expectedBgpNeighborState, stateResult.augmentation(BgpNeighborStateAugmentation.class));
                 assertEquals(BgpNeighborState.SessionState.ESTABLISHED, stateResult
                     .augmentation(NeighborStateAugmentation.class).getSessionState());
-                final List<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
+                final Set<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
                     .augmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
-                assertTrue(supportedCapabilitiesResult.containsAll(this.supportedCap));
+                assertTrue(supportedCapabilitiesResult.containsAll(supportedCap));
                 return bgpRib;
             });
 
-            this.bgpRibStates.clear();
-            checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+            bgpRibStates.clear();
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
         }
     }
 
     @Test
     public void testInactiveStateProvider() throws Exception {
-        doReturn(false).when(this.bgpRibState).isActive();
+        doReturn(false).when(bgpRibState).isActive();
 
         try (StateProviderImpl stateProvider =
                 new StateProviderImpl(getDataBroker(), 100, TimeUnit.MILLISECONDS, tableTypeRegistry,
@@ -375,20 +379,20 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     // FIXME: use a properly-controlled executor service ...
                     "global-bgp", Executors.newScheduledThreadPool(1))) {
 
-            bgpRibStates.add(this.bgpRibState);
+            bgpRibStates.add(bgpRibState);
             /// ... and trigger here
             Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
 
-            bgpPeerStates.add(this.bgpPeerState);
+            bgpPeerStates.add(bgpPeerState);
             /// ... and trigger here
             Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
 
             bgpRibStates.clear();
             /// ... and trigger here
             Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), this.bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
         }
     }
 
@@ -399,9 +403,9 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 + LoggerFactory.getLogger(StateProviderImpl.class).getClass());
         }
 
-        doReturn(true).when(this.bgpRibState).isActive();
+        doReturn(true).when(bgpRibState).isActive();
 
-        this.bgpRibStates.add(this.bgpRibState);
+        bgpRibStates.add(bgpRibState);
 
         ScheduledFuture<?> mockScheduledFuture = mock(ScheduledFuture.class);
         doReturn(true).when(mockScheduledFuture).cancel(anyBoolean());
@@ -510,12 +514,12 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         return new TimersBuilder()
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                     .timers.StateBuilder()
-                        .setConnectRetry(BigDecimal.valueOf(30))
-                        .setHoldTime(BigDecimal.valueOf(90))
-                        .setKeepaliveInterval(BigDecimal.valueOf(30))
-                        .setMinimumAdvertisementInterval(BigDecimal.valueOf(30))
+                        .setConnectRetry(Decimal64.valueOf(2, 30))
+                        .setHoldTime(Decimal64.valueOf(2, 90))
+                        .setKeepaliveInterval(Decimal64.valueOf(2, 30))
+                        .setMinimumAdvertisementInterval(Decimal64.valueOf(2, 30))
                         .addAugmentation(new NeighborTimersStateAugmentationBuilder()
-                            .setNegotiatedHoldTime(BigDecimal.TEN)
+                            .setNegotiatedHoldTime(Decimal64.valueOf(2, 10))
                             .setUptime(new Timeticks(Uint32.ONE)).build())
                         .build())
                 .build();
@@ -528,8 +532,8 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     .setMtuDiscovery(false)
                 .setPassiveMode(false)
                 .addAugmentation(new NeighborTransportStateAugmentationBuilder()
-                    .setLocalPort(this.localPort)
-                                .setRemotePort(this.remotePort)
+                    .setLocalPort(localPort)
+                                .setRemotePort(remotePort)
                                 .setRemoteAddress(new IpAddress(neighborAddress.getIpv4AddressNoZone())).build())
                 .build()).build();
     }
@@ -542,7 +546,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .setPeerRestartTime(Uint16.ZERO)
                 .setLocalRestarting(true)
                 .setPeerRestarting(true)
-                .setPeerRestartTime(this.restartTime)
+                .setPeerRestartTime(restartTime)
                 .setMode(BgpAfiSafiGracefulRestartState.Mode.BILATERAL);
         final GracefulRestart gracefulRestart = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.graceful.restart.GracefulRestartBuilder().setState(new org.opendaylight.yang.gen.v1.http
@@ -555,10 +559,10 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         return new GlobalBuilder()
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                         .StateBuilder()
-                            .setRouterId(new Ipv4Address(this.bgpId.getValue()))
+                            .setRouterId(new Ipv4Address(bgpId.getValue()))
                             .setTotalPrefixes(Uint32.valueOf(prefixesAndPaths))
                             .setTotalPaths(Uint32.valueOf(prefixesAndPaths))
-                            .setAs(this.as)
+                            .setAs(as)
                             .build())
                 .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                         .AfiSafisBuilder()

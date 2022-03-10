@@ -15,8 +15,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import org.junit.Before;
@@ -155,7 +155,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
                 .addAugmentation(new TerminationPoint1Builder()
                     .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
                         .setTerminationPointType(new IpBuilder()
-                            .setIpAddress(Collections.singletonList(new IpAddress(new Ipv4Address(ipv4Address))))
+                            .setIpAddress(Set.of(new IpAddress(new Ipv4Address(ipv4Address))))
                             .build())
                         .build())
                     .build())

@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -192,11 +193,11 @@ public class BGPParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.2")).build()).build();
 
-        final List<Communities> comms = new ArrayList<>();
-        comms.add((Communities) CommunityUtil.NO_EXPORT);
-        comms.add((Communities) CommunityUtil.NO_ADVERTISE);
-        comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
-        comms.add((Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
+        final List<Communities> comms = List.of(
+            (Communities) CommunityUtil.NO_EXPORT,
+            (Communities) CommunityUtil.NO_ADVERTISE,
+            (Communities) CommunityUtil.NO_EXPORT_SUBCONFED,
+            (Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
 
         final UpdateBuilder builder = new UpdateBuilder();
 
@@ -307,12 +308,11 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(Uint32.valueOf(30)));
-        final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-        final List<AsNumber> asSet = List.of(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)));
-        asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
+        final List<Segments> asPath = List.of(
+            new SegmentsBuilder().setAsSequence(List.of(new AsNumber(Uint32.valueOf(30)))).build(),
+            new SegmentsBuilder()
+                // Predictable iteration order
+                .setAsSet(ImmutableSet.of(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)))).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
                 .setNetworkAddress(new Ipv4AddressNoZone("10.0.0.9")).build();
@@ -401,10 +401,10 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // check nlri
-        final List<Nlri> nlris = new ArrayList<>();
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.3.0/24")).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.2.0/24")).build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.1.0/24")).build());
+        final List<Nlri> nlris = List.of(
+            new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.3.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.2.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("10.30.1.0/24")).build());
 
         assertEquals(nlris, message.getNlri());
 
@@ -414,8 +414,7 @@ public class BGPParserTest {
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("3.3.3.3")).build()).build();
 
-        final List<ExtendedCommunities> comms = new ArrayList<>();
-        comms.add(new ExtendedCommunitiesBuilder()
+        final List<ExtendedCommunities> comms = List.of(new ExtendedCommunitiesBuilder()
             .setTransitive(true)
             .setExtendedCommunity(new RouteTargetIpv4CaseBuilder()
                 .setRouteTargetIpv4(new RouteTargetIpv4Builder()
@@ -642,31 +641,26 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(Uint32.valueOf(65002)));
-        final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
+        final List<Segments> asPath = List.of(
+            new SegmentsBuilder().setAsSequence(List.of(new AsNumber(Uint32.valueOf(65002)))).build());
 
         final Ipv4NextHopCase nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(
                 new Ipv4NextHopBuilder().setGlobal(new Ipv4AddressNoZone("10.0.0.2")).build()).build();
 
-        final List<Communities> comms = new ArrayList<>();
-        comms.add((Communities) CommunityUtil.NO_EXPORT);
-        comms.add((Communities) CommunityUtil.NO_ADVERTISE);
-        comms.add((Communities) CommunityUtil.NO_EXPORT_SUBCONFED);
-        comms.add((Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
+        final List<Communities> comms = List.of(
+            (Communities) CommunityUtil.NO_EXPORT,
+            (Communities) CommunityUtil.NO_ADVERTISE,
+            (Communities) CommunityUtil.NO_EXPORT_SUBCONFED,
+            (Communities) CommunityUtil.create(NoopReferenceCache.getInstance(), 0xFFFF, 0xFF10));
 
         final UpdateBuilder builder = new UpdateBuilder();
 
         // check nlri
 
-        final List<Nlri> nlris = new ArrayList<>();
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.ONE))
-            .build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.TWO))
-            .build());
-        nlris.add(new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(Uint32.ONE))
-            .build());
+        final List<Nlri> nlris = List.of(
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.ONE)).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.1.0/24")).setPathId(new PathId(Uint32.TWO)).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("172.17.0.0/24")).setPathId(new PathId(Uint32.ONE)).build());
 
         assertEquals(nlris, message.getNlri());
 
@@ -730,11 +724,11 @@ public class BGPParserTest {
             mpConstraint);
 
         // attributes
-        final List<WithdrawnRoutes> withdrawnRoutes = new ArrayList<>();
-        withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
-            .setPathId(new PathId(Uint32.ONE)).build());
-        withdrawnRoutes.add(new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("172.16.0.4/30"))
-            .setPathId(new PathId(Uint32.TWO)).build());
+        final List<WithdrawnRoutes> withdrawnRoutes = List.of(
+            new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix("172.16.0.4/30")).setPathId(new PathId(Uint32.ONE)).build(),
+            new WithdrawnRoutesBuilder()
+                .setPrefix(new Ipv4Prefix("172.16.0.4/30")).setPathId(new PathId(Uint32.TWO)).build());
 
         // check API message
         final Update expectedMessage = new UpdateBuilder().setWithdrawnRoutes(withdrawnRoutes).build();
