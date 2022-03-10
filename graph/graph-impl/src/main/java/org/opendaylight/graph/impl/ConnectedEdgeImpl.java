@@ -34,6 +34,11 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     /* Edge key in the Connected Graph */
     private Long ceid;
 
+    /* Total amount of Bandwidth reserved by Constrained Paths */
+    private static int MAX_PRIORITY = 8;
+    private Long globalResvBandwidth = 0L;
+    private Long[] cosResvBandwidth = {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
+
     public ConnectedEdgeImpl(@NonNull Long key) {
         checkArgument(key != 0, "Edge Key must not be equal to 0");
         this.ceid = key;
@@ -129,6 +134,44 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     @Override
     public Edge getEdge() {
         return this.edge;
+    }
+
+    @Override
+    public Long getGlobalResvBandwidth() {
+        return globalResvBandwidth;
+    }
+
+    @Override
+    public Long getCosResvBandwidth(int cos) {
+        if (cos < 0 || cos > MAX_PRIORITY) {
+            return null;
+        } else {
+            return cosResvBandwidth[cos];
+        }
+    }
+
+    @Override
+    public void addBandwidth(Long bw, int cos) {
+        if (cos < 0 || cos > MAX_PRIORITY) {
+            return;
+        }
+        globalResvBandwidth += bw;
+        cosResvBandwidth[cos] += bw;
+    }
+
+    @Override
+    public void delBandwidth(Long bw, int cos) {
+        if (cos < 0 || cos > MAX_PRIORITY) {
+            return;
+        }
+        globalResvBandwidth -= bw;
+        if (globalResvBandwidth < 0) {
+            globalResvBandwidth = 0L;
+        }
+        cosResvBandwidth[cos] -= bw;
+        if (cosResvBandwidth[cos] < 0) {
+            cosResvBandwidth[cos] = 0L;
+        }
     }
 
     /**

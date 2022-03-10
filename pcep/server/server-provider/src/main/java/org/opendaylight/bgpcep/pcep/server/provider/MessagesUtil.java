@@ -100,14 +100,14 @@ public final class MessagesUtil {
                 IpPrefix ipPref = null;
                 /* Prepare SubObject for IPv4 or IPv6 address */
                 if (path.getIpv4() != null) {
-                    final Ipv4Prefix ipv4Pref = new Ipv4Prefix(path.getIpv4().getValue() + "/32");
+                    final Ipv4Prefix ipv4Pref = new Ipv4Prefix(path.getRemoteIpv4().getValue() + "/32");
                     ipPref = new IpPrefixBuilder().setIpPrefix(
                             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715
                                     .IpPrefix(ipv4Pref))
                             .build();
                 }
                 if (path.getIpv6() != null) {
-                    final Ipv6Prefix ipv6Pref = new Ipv6Prefix(path.getIpv6().getValue() + "/128");
+                    final Ipv6Prefix ipv6Pref = new Ipv6Prefix(path.getRemoteIpv6().getValue() + "/128");
                     ipPref = new IpPrefixBuilder().setIpPrefix(
                             new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715
                                     .IpPrefix(ipv6Pref))
@@ -120,7 +120,7 @@ public final class MessagesUtil {
             } else {
                 /* Prepare SubObject for Segment Routing */
                 SrEroType srEro = null;
-                if (path.getLocalIpv4() != null && path.getRemoteIpv4() != null) {
+                if (path.getIpv4() != null && path.getRemoteIpv4() != null) {
                     srEro = new SrEroTypeBuilder()
                             .setNaiType(NaiType.Ipv4Adjacency)
                             .setSid(path.getSid())
@@ -128,13 +128,13 @@ public final class MessagesUtil {
                             .setMFlag(true)
                             .setNai(new IpAdjacencyBuilder()
                                     .setLocalIpAddress(
-                                            new IpAddressNoZone(new Ipv4AddressNoZone(path.getLocalIpv4().getValue())))
+                                            new IpAddressNoZone(new Ipv4AddressNoZone(path.getIpv4().getValue())))
                                     .setRemoteIpAddress(
                                             new IpAddressNoZone(new Ipv4AddressNoZone(path.getRemoteIpv4().getValue())))
                                     .build())
                             .build();
                 }
-                if (path.getLocalIpv6() != null && path.getRemoteIpv6() != null) {
+                if (path.getIpv6() != null && path.getRemoteIpv6() != null) {
                     srEro = new SrEroTypeBuilder()
                             .setNaiType(NaiType.Ipv6Adjacency)
                             .setSid(path.getSid())
@@ -142,7 +142,7 @@ public final class MessagesUtil {
                             .setMFlag(true)
                             .setNai(new IpAdjacencyBuilder()
                                     .setLocalIpAddress(
-                                            new IpAddressNoZone(new Ipv6AddressNoZone(path.getLocalIpv6().getValue())))
+                                            new IpAddressNoZone(new Ipv6AddressNoZone(path.getIpv6().getValue())))
                                     .setRemoteIpAddress(
                                             new IpAddressNoZone(new Ipv6AddressNoZone(path.getRemoteIpv6().getValue())))
                                     .build())

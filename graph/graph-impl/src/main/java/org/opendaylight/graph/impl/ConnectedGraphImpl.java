@@ -9,6 +9,7 @@ package org.opendaylight.graph.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -26,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -190,13 +194,15 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public ConnectedEdge getConnectedEdge(final IpAddress address) {
-        for (ConnectedEdge cedge : edges.values()) {
-            if (cedge.getEdge() == null) {
-                continue;
-            }
-            if (cedge.getEdge().getEdgeAttributes().getLocalAddress().equals(address)) {
-                return cedge;
-            }
+        Uint64 key;
+        if (address.getIpv4Address() != null) {
+            key = Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressBits(address.getIpv4Address())).toUint64();
+            return getConnectedEdge(key.longValue());
+        }
+        if (address.getIpv6Address() != null) {
+            final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressBytes(address.getIpv6Address());
+            key = Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
+            return getConnectedEdge(key.longValue());
         }
         return null;
     }
@@ -259,6 +265,10 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         return cedge;
     }
 
+    /**
+     * Connected Edge is kept in the edges Hash Map in order to memorize the total Bandwidth reserved by
+     * Constrained Paths that belong to this Edge. Connected Edges are removed when the Connected Graph is cleared.
+     */
     @Override
     public void deleteEdge(final EdgeKey key) {
         checkArgument(key != null, "Provided Edge Key is a null object");
@@ -266,7 +276,6 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         if (cedge != null) {
             this.connectedGraphServer.deleteEdge(this.graph, cedge.getEdge());
             cedge.disconnect();
-            edges.remove(cedge.getKey());
             cedge.setEdge(null);
         }
     }
