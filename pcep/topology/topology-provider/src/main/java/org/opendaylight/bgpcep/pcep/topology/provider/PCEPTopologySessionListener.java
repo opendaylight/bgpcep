@@ -497,8 +497,6 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         return rb.build();
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
             final UpdateLspArgs input) {
         // the D bit that was reported decides the type of PCE message sent
@@ -537,7 +535,6 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
 
     @Override
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
-
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
         checkArgument(input != null && input.getName() != null && input.getNode() != null
                 && input.getArguments() != null, MISSING_XML_TAG);

@@ -9,9 +9,8 @@ package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.SIDParser.SID_TYPE;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
-import java.util.ArrayList;
-import java.util.List;
 import org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -70,11 +69,11 @@ public final class SrNodeAttributesParser {
 
     public static SrAlgorithm parseSrAlgorithms(final ByteBuf buffer) {
         final SrAlgorithmBuilder builder = new SrAlgorithmBuilder();
-        final List<Algorithm> algs = new ArrayList<>();
+        final var algs = ImmutableSet.<Algorithm>builder();
         while (buffer.isReadable()) {
             algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
         }
-        builder.setAlgorithms(algs);
+        builder.setAlgorithms(algs.build());
         return builder.build();
     }
 

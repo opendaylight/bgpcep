@@ -9,7 +9,7 @@ Supported Capabilities │
                        │
 Timer state            │
 ====================== │
-Negotiated Hold Time   │ 10
+Negotiated Hold Time   │ 10.0
 Uptime                 │ 600
                        │
 Transport state        │

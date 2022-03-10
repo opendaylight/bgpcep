@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
+    @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+        justification = "False positive on synchronized createDomChain()")
     AbstractPeer(
             final RIB rib,
             final String peerName,

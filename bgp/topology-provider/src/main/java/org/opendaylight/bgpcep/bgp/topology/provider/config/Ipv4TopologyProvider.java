@@ -30,6 +30,7 @@ public final class Ipv4TopologyProvider extends AbstractBgpTopologyProvider {
     @Activate
     public Ipv4TopologyProvider(@Reference final BgpTopologyDeployer deployer) {
         super(deployer);
+        register();
     }
 
     @Override

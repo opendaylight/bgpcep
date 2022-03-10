@@ -10,13 +10,14 @@ package org.opendaylight.bgpcep.programming.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
@@ -43,7 +44,7 @@ final class InstructionImpl implements Instruction {
 
     InstructionImpl(final QueueInstruction queue, final SettableFuture<Instruction> future, final InstructionId id,
             final List<InstructionImpl> dependencies, final Timeout timeout) {
-        this.schedulingFuture = requireNonNull(future);
+        schedulingFuture = requireNonNull(future);
         this.dependencies = requireNonNull(dependencies);
         this.timeout = requireNonNull(timeout);
         this.queue = requireNonNull(queue);
@@ -51,20 +52,20 @@ final class InstructionImpl implements Instruction {
     }
 
     InstructionId getId() {
-        return this.id;
+        return id;
     }
 
     synchronized InstructionStatus getStatus() {
-        return this.status;
+        return status;
     }
 
     private synchronized void setStatus(final InstructionStatus newStatus, final Details details) {
         // Set the status
-        this.status = newStatus;
-        LOG.debug("Instruction {} transitioned to status {}", this.id, newStatus);
+        status = newStatus;
+        LOG.debug("Instruction {} transitioned to status {}", id, newStatus);
 
         // Send out a notification
-        this.queue.instructionUpdated(newStatus, details);
+        queue.instructionUpdated(newStatus, details);
 
         switch (newStatus) {
             case Cancelled:
@@ -84,38 +85,38 @@ final class InstructionImpl implements Instruction {
 
     @Holding("this")
     private void cancelTimeout() {
-        if (this.timeout != null) {
-            this.timeout.cancel();
-            this.timeout = null;
+        if (timeout != null) {
+            timeout.cancel();
+            timeout = null;
         }
     }
 
     public synchronized void timeout() {
-        if (this.timeout == null) {
+        if (timeout == null) {
             return;
         }
-        this.timeout = null;
-        switch (this.status) {
+        timeout = null;
+        switch (status) {
             case Cancelled:
             case Failed:
             case Successful:
-                LOG.debug("Instruction {} has status {}, timeout is a no-op", this.id, this.status);
+                LOG.debug("Instruction {} has status {}, timeout is a no-op", id, status);
                 break;
             case Unknown:
-                LOG.warn("Instruction {} has status {} before timeout completed", this.id, this.status);
+                LOG.warn("Instruction {} has status {} before timeout completed", id, status);
                 break;
             case Executing:
-                LOG.info("Instruction {} timed out while executing, transitioning into Unknown", this.id);
+                LOG.info("Instruction {} timed out while executing, transitioning into Unknown", id);
                 setStatus(InstructionStatus.Unknown, null);
                 cancelDependants();
                 break;
             case Queued:
-                LOG.debug("Instruction {} timed out while Queued, cancelling it", this.id);
+                LOG.debug("Instruction {} timed out while Queued, cancelling it", id);
                 cancelInstrunction();
                 break;
             case Scheduled:
-                LOG.debug("Instruction {} timed out while Scheduled, cancelling it", this.id);
-                cancel(this.heldUpDetails);
+                LOG.debug("Instruction {} timed out while Scheduled, cancelling it", id);
+                cancel(heldUpDetails);
                 break;
             default:
                 break;
@@ -123,8 +124,8 @@ final class InstructionImpl implements Instruction {
     }
 
     private synchronized void cancelInstrunction() {
-        final List<InstructionId> ids = new ArrayList<>();
-        for (final InstructionImpl instruction : this.dependencies) {
+        final Set<InstructionId> ids = new HashSet<>();
+        for (final InstructionImpl instruction : dependencies) {
             if (instruction.getStatus() != InstructionStatus.Successful) {
                 ids.add(instruction.getId());
             }
@@ -134,8 +135,8 @@ final class InstructionImpl implements Instruction {
 
     @Holding("this")
     private void cancelDependants() {
-        final Details details = new DetailsBuilder().setUnmetDependencies(ImmutableList.of(this.id)).build();
-        for (final InstructionImpl instruction : this.dependants) {
+        final Details details = new DetailsBuilder().setUnmetDependencies(Set.of(id)).build();
+        for (final InstructionImpl instruction : dependants) {
             instruction.tryCancel(details);
         }
     }
@@ -143,31 +144,31 @@ final class InstructionImpl implements Instruction {
     @Holding("this")
     private void cancel(final Details details) {
         cancelTimeout();
-        this.schedulingFuture.cancel(false);
+        schedulingFuture.cancel(false);
         setStatus(InstructionStatus.Cancelled, details);
     }
 
     synchronized Class<? extends CancelFailure> tryCancel(final Details details) {
-        switch (this.status) {
+        switch (status) {
             case Cancelled:
             case Executing:
             case Failed:
             case Successful:
             case Unknown:
-                LOG.debug("Instruction {} can no longer be cancelled due to status {}", this.id, this.status);
+                LOG.debug("Instruction {} can no longer be cancelled due to status {}", id, status);
                 return UncancellableInstruction.class;
             case Queued:
             case Scheduled:
                 cancel(details);
                 return null;
             default:
-                throw new IllegalStateException("Unhandled instruction state " + this.status);
+                throw new IllegalStateException("Unhandled instruction state " + status);
         }
     }
 
     @Override
     public synchronized boolean checkedExecutionStart() {
-        if (this.status != InstructionStatus.Scheduled) {
+        if (status != InstructionStatus.Scheduled) {
             return false;
         }
 
@@ -177,11 +178,11 @@ final class InstructionImpl implements Instruction {
 
     @Override
     public synchronized boolean executionHeldUp(final Details details) {
-        if (this.status != InstructionStatus.Scheduled) {
+        if (status != InstructionStatus.Scheduled) {
             return false;
         }
 
-        this.heldUpDetails = details;
+        heldUpDetails = details;
         return true;
     }
 
@@ -190,51 +191,51 @@ final class InstructionImpl implements Instruction {
         final ExecutionResult<Details> result;
 
         synchronized (this) {
-            Preconditions.checkState(this.executionFuture != null);
+            Preconditions.checkState(executionFuture != null);
 
             cancelTimeout();
 
             // We reuse the preconditions set down in this class
             result = new ExecutionResult<>(newStatus, details);
             setStatus(newStatus, details);
-            this.executionFuture.set(result);
+            executionFuture.set(result);
         }
     }
 
     synchronized void addDependant(final InstructionImpl instruction) {
-        this.dependants.add(instruction);
+        dependants.add(instruction);
     }
 
     private synchronized void removeDependant(final InstructionImpl instruction) {
-        this.dependants.remove(instruction);
+        dependants.remove(instruction);
     }
 
     private synchronized void removeDependency(final InstructionImpl other) {
-        this.dependencies.remove(other);
+        dependencies.remove(other);
     }
 
     synchronized Iterator<InstructionImpl> getDependants() {
-        return this.dependants.iterator();
+        return dependants.iterator();
     }
 
     synchronized void clean() {
-        for (final InstructionImpl dependency : this.dependencies) {
+        for (final InstructionImpl dependency : dependencies) {
             dependency.removeDependant(this);
         }
-        this.dependencies.clear();
+        dependencies.clear();
 
-        for (final InstructionImpl dependant : this.dependants) {
+        for (final InstructionImpl dependant : dependants) {
             dependant.removeDependency(this);
         }
-        this.dependants.clear();
+        dependants.clear();
 
-        this.queue.instructionRemoved();
+        queue.instructionRemoved();
     }
 
     private Boolean checkDependencies() {
         boolean ready = true;
-        final List<InstructionId> unmet = new ArrayList<>();
-        for (final InstructionImpl instruction : this.dependencies) {
+        final Set<InstructionId> unmet = new HashSet<>();
+        for (final InstructionImpl instruction : dependencies) {
             switch (instruction.getStatus()) {
                 case Cancelled:
                 case Failed:
@@ -255,7 +256,7 @@ final class InstructionImpl implements Instruction {
         }
         if (!unmet.isEmpty()) {
             LOG.warn("Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it",
-                    this.id);
+                    id);
             cancel(new DetailsBuilder().setUnmetDependencies(unmet).build());
             return false;
         }
@@ -263,8 +264,8 @@ final class InstructionImpl implements Instruction {
     }
 
     synchronized ListenableFuture<ExecutionResult<Details>> ready() {
-        Preconditions.checkState(this.status == InstructionStatus.Queued);
-        Preconditions.checkState(this.executionFuture == null);
+        Preconditions.checkState(status == InstructionStatus.Queued);
+        Preconditions.checkState(executionFuture == null);
         /*
          * Check all vertices we depend on. We start off as ready for
          * scheduling. If we encounter a cancelled/failed/unknown
@@ -275,10 +276,10 @@ final class InstructionImpl implements Instruction {
         if (!checkDependencies()) {
             return null;
         }
-        LOG.debug("Instruction {} is ready for execution", this.id);
+        LOG.debug("Instruction {} is ready for execution", id);
         setStatus(InstructionStatus.Scheduled, null);
-        this.executionFuture = SettableFuture.create();
-        this.schedulingFuture.set(this);
-        return this.executionFuture;
+        executionFuture = SettableFuture.create();
+        schedulingFuture.set(this);
+        return executionFuture;
     }
 }

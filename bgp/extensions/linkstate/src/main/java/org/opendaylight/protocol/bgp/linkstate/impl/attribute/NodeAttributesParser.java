@@ -10,14 +10,14 @@ package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -75,8 +75,8 @@ public final class NodeAttributesParser {
      */
     static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes,
             final ProtocolId protocolId) {
-        final List<TopologyIdentifier> topologyMembership = new ArrayList<>();
-        final List<IsisAreaIdentifier> areaMembership = new ArrayList<>();
+        final var topologyMembership = ImmutableSet.<TopologyIdentifier>builder();
+        final var areaMembership = ImmutableSet.<IsisAreaIdentifier>builder();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
         for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             final int key = entry.getKey();
@@ -128,8 +128,8 @@ public final class NodeAttributesParser {
             }
         }
         LOG.trace("Finished parsing Node Attributes.");
-        builder.setTopologyIdentifier(topologyMembership);
-        builder.setIsisAreaId(areaMembership);
+        builder.setTopologyIdentifier(topologyMembership.build());
+        builder.setIsisAreaId(areaMembership.build());
         return new NodeAttributesCaseBuilder().setNodeAttributes(builder.build()).build();
     }
 
@@ -141,7 +141,8 @@ public final class NodeAttributesParser {
             flags.get(OVERLOAD_BIT), flags.get(ATTACHED_BIT), flags.get(EXTERNAL_BIT), flags.get(ABBR_BIT));
     }
 
-    private static void parseTopologyId(final List<TopologyIdentifier> topologyMembership, final ByteBuf value) {
+    private static void parseTopologyId(final ImmutableSet.Builder<TopologyIdentifier> topologyMembership,
+            final ByteBuf value) {
         while (value.isReadable()) {
             final TopologyIdentifier topId = new TopologyIdentifier(
                 Uint16.valueOf(value.readUnsignedShort() & TlvUtil.TOPOLOGY_ID_OFFSET));
@@ -159,7 +160,7 @@ public final class NodeAttributesParser {
             TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(
                 nodeAttributes.getDynamicHostname())), byteAggregator);
         }
-        final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
+        final Set<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null) {
             for (final IsisAreaIdentifier isisAreaIdentifier : isisList) {
                 TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()),
@@ -187,7 +188,7 @@ public final class NodeAttributesParser {
         LOG.trace("Finished serializing Node Attributes");
     }
 
-    private static void serializeTopologyId(final List<TopologyIdentifier> topList, final ByteBuf byteAggregator) {
+    private static void serializeTopologyId(final Set<TopologyIdentifier> topList, final ByteBuf byteAggregator) {
         if (topList != null) {
             final ByteBuf mpIdBuf = Unpooled.buffer();
             for (final TopologyIdentifier topologyIdentifier : topList) {

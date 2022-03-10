@@ -7,12 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.config.loader.routing.policy.AbstractOpenconfigRoutingPolicyLoaderTest;
-import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.PolicyDefinitions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinition;
@@ -30,10 +32,15 @@ public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPoli
     protected final StatementRegistry statementRegistry = new StatementRegistry();
 
     protected List<Statement> loadStatement(final String policyName) throws ExecutionException, InterruptedException {
-        final ReadWriteTransaction rt = getDataBroker().newReadWriteTransaction();
-        final PolicyDefinition policy = rt.read(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.create(RoutingPolicy.class).child(PolicyDefinitions.class)
-                .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName))).get().get();
-        return policy.getStatements().getStatement();
+        final ListenableFuture<Optional<PolicyDefinition>> future;
+
+        try (var tx = getDataBroker().newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+                .child(PolicyDefinitions.class)
+                    .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName)));
+        }
+
+        return future.get().orElseThrow().getStatements().getStatement();
     }
 }

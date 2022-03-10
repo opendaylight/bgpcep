@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.cli.utils;
 
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -62,7 +62,7 @@ final class NeighborStateCliUtils {
         table.print(stream);
     }
 
-    private static void printCapabilitiesState(final List<Class<? extends BgpCapability>> supportedCapabilities,
+    private static void printCapabilitiesState(final Set<Class<? extends BgpCapability>> supportedCapabilities,
             final ShellTable table) {
         if (supportedCapabilities == null) {
             return;
