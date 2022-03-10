@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -159,7 +160,7 @@ public final class NodeAttributesParser {
             TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(
                 nodeAttributes.getDynamicHostname())), byteAggregator);
         }
-        final List<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
+        final Set<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null) {
             for (final IsisAreaIdentifier isisAreaIdentifier : isisList) {
                 TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()),
