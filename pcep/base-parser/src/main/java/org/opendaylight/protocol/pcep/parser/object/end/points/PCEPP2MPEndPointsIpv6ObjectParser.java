@@ -11,8 +11,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -45,7 +45,7 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final Boolean ignore,
         final P2mpIpv6 p2mpIpv6,
         final ByteBuf buffer) {
-        final List<Ipv6AddressNoZone> dest = p2mpIpv6.getDestinationIpv6Address();
+        final Set<Ipv6AddressNoZone> dest = p2mpIpv6.getDestinationIpv6Address();
         checkArgument(dest != null, "DestinationIpv6Address is mandatory.");
         final ByteBuf body =
             Unpooled.buffer(LEAF_TYPE_SIZE + Ipv6Util.IPV6_LENGTH + Ipv6Util.IPV6_LENGTH * dest.size());
@@ -70,7 +70,7 @@ public class PCEPP2MPEndPointsIpv6ObjectParser extends CommonObjectParser {
         final P2mpIpv6Builder p2mpIpv6Builder = new P2mpIpv6Builder()
                 .setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()))
                 .setSourceIpv6Address(Ipv6Util.addressForByteBuf(bytes));
-        List<Ipv6AddressNoZone> dest = new ArrayList<>();
+        Set<Ipv6AddressNoZone> dest = new HashSet<>();
         while (bytes.isReadable()) {
             dest.add(Ipv6Util.addressForByteBuf(bytes));
         }

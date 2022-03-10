@@ -13,10 +13,9 @@ import com.google.common.io.Resources;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -46,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.ReceivedBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.Sent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.SentBuilder;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -56,7 +56,7 @@ public class NeighborStateCliUtilsTest {
     private static final IpAddress NEIGHBOR_IP_ADDRESS = new IpAddress(new Ipv4Address(NEIGHBOR_ADDRESS));
     private static final String  NO_SESSION_FOUND = "No BgpSessionState found for [" + NEIGHBOR_ADDRESS + "]\n";
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final PrintStream stream = new PrintStream(this.output);
+    private final PrintStream stream = new PrintStream(output);
 
     static Neighbor createBasicNeighbor() {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi
@@ -78,18 +78,18 @@ public class NeighborStateCliUtilsTest {
     public void testNeighborStateWO_StateCli() {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
                 new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4"))).build(),
-                this.stream);
-        assertEquals(NO_SESSION_FOUND, this.output.toString());
+                stream);
+        assertEquals(NO_SESSION_FOUND, output.toString());
     }
 
     @Test
     public void testEmptyNeighborStateCli() throws IOException {
         final Neighbor neighbor = createBasicNeighbor();
-        NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS, neighbor, this.stream);
+        NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS, neighbor, stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 
     @Test
@@ -111,7 +111,7 @@ public class NeighborStateCliUtilsTest {
 
         final StateBuilder stateBuilder = new StateBuilder()
                 .addAugmentation(new NeighborStateAugmentationBuilder()
-                    .setSupportedCapabilities(Collections.singletonList(ADDPATHS.class))
+                    .setSupportedCapabilities(Set.of(ADDPATHS.class))
                     .setSessionState(BgpNeighborState.SessionState.ACTIVE)
                     .build());
 
@@ -146,7 +146,7 @@ public class NeighborStateCliUtilsTest {
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                     .timers.StateBuilder()
                         .addAugmentation(new NeighborTimersStateAugmentationBuilder()
-                            .setNegotiatedHoldTime(BigDecimal.TEN)
+                            .setNegotiatedHoldTime(Decimal64.valueOf("10.00"))
                             .setUptime(new Timeticks(Uint32.valueOf(600)))
                             .build())
                         .build())
@@ -159,10 +159,10 @@ public class NeighborStateCliUtilsTest {
                 .setTimers(timers)
                 .build();
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
-                neighbor, this.stream);
+                neighbor, stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("neighbor.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 }
