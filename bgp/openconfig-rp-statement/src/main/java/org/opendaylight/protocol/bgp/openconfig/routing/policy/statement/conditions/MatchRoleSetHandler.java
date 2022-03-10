@@ -13,10 +13,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -53,10 +51,10 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
             .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
             .augmentation(BgpRoleSets.class).child(RoleSets.class);
     private final DataBroker dataBroker;
-    private final LoadingCache<String, List<PeerRole>> roleSets = CacheBuilder.newBuilder()
+    private final LoadingCache<String, Set<PeerRole>> roleSets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
-                public List<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
+                public Set<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
                     return loadRoleSets(key);
                 }
             });
@@ -65,15 +63,13 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private List<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final  FluentFuture<Optional<RoleSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+    private Set<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
+        final FluentFuture<Optional<RoleSet>> future;
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key)));
         }
-        return future.get().map(RoleSet::getRole).orElse(Collections.emptyList());
+        return future.get().map(RoleSet::getRole).orElse(Set.of());
     }
 
     @Override
@@ -109,8 +105,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
 
     private boolean checkMatch(final String roleSetName, final PeerRole role,
             final MatchSetOptionsRestrictedType matchSetOptions) {
-        final List<PeerRole> roles = this.roleSets.getUnchecked(StringUtils
-                .substringBetween(roleSetName, "=\"", "\""));
+        final Set<PeerRole> roles = roleSets.getUnchecked(StringUtils.substringBetween(roleSetName, "=\"", "\""));
 
         final boolean found = roles.contains(role);
         if (MatchSetOptionsRestrictedType.ANY.equals(matchSetOptions)) {

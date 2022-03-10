@@ -97,7 +97,7 @@ final class PCEPTopologySingleton {
                     closeFuture = null;
                 }
                 LOG.trace("Topology {} instance {} closed", topologyId(), PCEPTopologySingleton.this);
-                close.set(Empty.getInstance());
+                close.set(Empty.value());
             }, MoreExecutors.directExecutor());
             return close;
         }
@@ -119,7 +119,7 @@ final class PCEPTopologySingleton {
                 ret = closeFuture = SettableFuture.create();
                 if (instance == null) {
                     // ... and there is no instance, hence we need to also compete it immediate
-                    closeFuture.set(Empty.getInstance());
+                    closeFuture.set(Empty.value());
                 }
             } else {
                 // Service close is already going on, reuse that future

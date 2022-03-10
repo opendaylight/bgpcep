@@ -8,9 +8,9 @@
 
 package org.opendaylight.protocol.bgp.state;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.UnsignedInteger;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -268,7 +268,7 @@ public final class NeighborUtil {
      */
     public static NeighborStateAugmentation buildCapabilityState(final @NonNull BGPSessionState neighbor) {
 
-        final List<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
+        final Set<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
         SessionState sessionState = null;
         switch (neighbor.getSessionState()) {
             case IDLE:
@@ -390,9 +390,9 @@ public final class NeighborUtil {
      *
      * @return List containing supported capabilities
      */
-    public static @NonNull List<Class<? extends BgpCapability>> buildSupportedCapabilities(
+    public static @NonNull Set<Class<? extends BgpCapability>> buildSupportedCapabilities(
             final @NonNull BGPSessionState neighbor) {
-        final List<Class<? extends BgpCapability>> supportedCapabilities = new ArrayList<>();
+        final var supportedCapabilities = ImmutableSet.<Class<? extends BgpCapability>>builder();
         if (neighbor.isAddPathCapabilitySupported()) {
             supportedCapabilities.add(ADDPATHS.class);
         }
@@ -408,6 +408,6 @@ public final class NeighborUtil {
         if (neighbor.isRouterRefreshCapabilitySupported()) {
             supportedCapabilities.add(ROUTEREFRESH.class);
         }
-        return supportedCapabilities;
+        return supportedCapabilities.build();
     }
 }
