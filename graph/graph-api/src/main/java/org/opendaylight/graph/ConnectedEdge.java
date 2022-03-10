@@ -58,4 +58,39 @@ public interface ConnectedEdge {
      */
     @Nullable ConnectedVertex getDestination();
 
+    /**
+     * Returns the total amount of Bandwidth consumes by all Constrained Paths that belong to the Edge associated
+     * to this Connected Edge for all Class of Service.
+     *
+     * @return      Global Reserved Bandwidth
+     */
+    Long getGlobalResvBandwidth();
+
+    /**
+     * Returns the total amount of Bandwidth consumes by all Constrained Paths that belong to the Edge associated
+     * to this Connected Edge for the given Class of Service (CoS).
+     *
+     * @param cos   Class of Service
+     *
+     * @return      Reserved Bandwidth per CoS
+     */
+    Long getCosResvBandwidth(int cos);
+
+    /**
+     * Add the given Bandwidth for the given Class of Service (CoS) to the associated Edge of this Connected Edge.
+     * This method increments by the Bandwidth value the GlobalResvBandwidth and the ReservedBandwidth[cos] attributes.
+     *
+     * @param bw    Bandwidth consumed by the TE Path
+     * @param cos   Class of Service of the TE Path
+     */
+    void addBandwidth(Long bw, int cos);
+
+    /**
+     * Remove the given Bandwidth for the given Class of Service (CoS) to the associated Edge of this Connected Edge.
+     * This method decrements by the Bandwidth value the GlobalResvBandwidth and the ReservedBandwidth[cos] attributes.
+     *
+     * @param bw    Bandwidth consumed by the TE Path
+     * @param cos   Class of Service of the TE Path
+     */
+    void delBandwidth(Long bw, int cos);
 }

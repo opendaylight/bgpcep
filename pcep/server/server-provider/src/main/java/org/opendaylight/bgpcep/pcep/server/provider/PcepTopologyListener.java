@@ -27,7 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Delay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.PathConstraints.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.path.descriptions.PathDescriptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1;
@@ -240,7 +241,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                     case Ipv4Adjacency:
                         return new PathDescriptionBuilder()
                             .setSid(srObj.getSid())
-                            .setLocalIpv4(((IpAdjacency)(srObj).getNai()).getLocalIpAddress().getIpv4AddressNoZone())
+                            .setIpv4(((IpAdjacency)(srObj).getNai()).getLocalIpAddress().getIpv4AddressNoZone())
                             .setRemoteIpv4(((IpAdjacency)(srObj).getNai()).getRemoteIpAddress().getIpv4AddressNoZone())
                             .build();
                     case Ipv4NodeId:
@@ -256,7 +257,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                     case Ipv6Adjacency:
                         return new PathDescriptionBuilder()
                             .setSid(srObj.getSid())
-                            .setLocalIpv6(((IpAdjacency)(srObj).getNai()).getLocalIpAddress().getIpv6AddressNoZone())
+                            .setIpv6(((IpAdjacency)(srObj).getNai()).getLocalIpAddress().getIpv6AddressNoZone())
                             .setRemoteIpv6(((IpAdjacency)(srObj).getNai()).getRemoteIpAddress().getIpv6AddressNoZone())
                             .build();
                     case Ipv6NodeId:
@@ -462,7 +463,9 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             pathDesc = getPathDescription(path.getRro(), cb.getAddressFamily());
         }
         if (pathDesc != null) {
-            cpb.setPathDescription(pathDesc);
+            cpb.setPathDescription(pathDesc).setComputationStatus(ComputationStatus.Completed);
+        } else {
+            cpb.setComputationStatus(ComputationStatus.Failed);
         }
 
         /* Finally build TE Path */

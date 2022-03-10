@@ -233,6 +233,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     || attributes.getUnreservedBandwidth().get(cos) == null) {
                 return true;
             } else {
+                /* Get Unreserved Bandwidth for the given Class of Service / Priority */
                 Long bandwidth = constraints.getBandwidth().getValue().longValue();
                 Long unrsv = 0L;
                 for (UnreservedBandwidth unResBw : attributes.getUnreservedBandwidth()) {
@@ -241,7 +242,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                         break;
                     }
                 }
-                if (unrsv < bandwidth || attributes.getMaxLinkBandwidth().getValue().longValue() < bandwidth
+                Long maxBW = attributes.getMaxLinkBandwidth().getValue().longValue();
+                if (unrsv < bandwidth
+                        || maxBW < bandwidth
+                        || (maxBW - edge.getCosResvBandwidth(cos)) < bandwidth
+                        || (maxBW - edge.getGlobalResvBandwidth()) < bandwidth
                         || attributes.getMaxResvLinkBandwidth().getValue().longValue() < bandwidth) {
                     LOG.debug("Bandwidth constraint is not met");
                     return true;
@@ -344,22 +349,26 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             switch (constraints.getAddressFamily()) {
                 case Ipv4:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address()).build();
+                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
+                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address())
+                            .build();
                     break;
                 case Ipv6:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address()).build();
+                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
+                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address())
+                            .build();
                     break;
                 case SrIpv4:
                     pathDesc = new PathDescriptionBuilder()
-                            .setLocalIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
+                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
                             .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
                     break;
                 case SrIpv6:
                     pathDesc = new PathDescriptionBuilder()
-                            .setLocalIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
+                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
                             .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
