@@ -13,7 +13,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +27,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsRestrictedType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -45,10 +45,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class MatchOriginatorIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchOriginatorIdSetCondition, OriginatorId> {
-    private static final InstanceIdentifier<OriginatorIdSets> ORIGINATOR_ID_SETS_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
-            .augmentation(BgpOriginatorIdSets.class).child(OriginatorIdSets.class);
+    private static final InstanceIdentifier<OriginatorIdSets> ORIGINATOR_ID_SETS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
+            .augmentation(BgpOriginatorIdSets.class)
+            .child(OriginatorIdSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, OriginatorIdSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
@@ -62,11 +65,9 @@ public final class MatchOriginatorIdSetHandler
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private OriginatorIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<OriginatorIdSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key)));
         }
@@ -107,7 +108,7 @@ public final class MatchOriginatorIdSetHandler
                 .odl.bgp._default.policy.rev200120.match.originator.id.set.condition.grouping
                 .MatchOriginatorIdSetCondition condition) {
 
-        final OriginatorIdSet originatorIdSet = this.sets.getUnchecked(StringUtils
+        final OriginatorIdSet originatorIdSet = sets.getUnchecked(StringUtils
                 .substringBetween(condition.getOriginatorIdSet(), "=\"", "\""));
 
         if (originatorIdSet == null) {

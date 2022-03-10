@@ -11,8 +11,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -45,7 +45,7 @@ public class PCEPP2MPEndPointsIpv4ObjectParser extends CommonObjectParser {
         final Boolean ignore,
         final P2mpIpv4 p2mpIpv4,
         final ByteBuf buffer) {
-        final List<Ipv4AddressNoZone> dest = p2mpIpv4.getDestinationIpv4Address();
+        final Set<Ipv4AddressNoZone> dest = p2mpIpv4.getDestinationIpv4Address();
         checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
         final ByteBuf body = Unpooled.buffer(LEAF_TYPE_SIZE + Ipv4Util.IP4_LENGTH + Ipv4Util.IP4_LENGTH * dest.size());
         checkArgument(p2mpIpv4.getSourceIpv4Address() != null, "SourceIpv4Address is mandatory.");
@@ -71,7 +71,7 @@ public class PCEPP2MPEndPointsIpv4ObjectParser extends CommonObjectParser {
         final P2mpIpv4Builder p2mpIpv4Builder = new P2mpIpv4Builder();
         p2mpIpv4Builder.setP2mpLeaves(P2mpLeaves.forValue(bytes.readInt()));
         p2mpIpv4Builder.setSourceIpv4Address(Ipv4Util.addressForByteBuf(bytes));
-        List<Ipv4AddressNoZone> dest = new ArrayList<>();
+        Set<Ipv4AddressNoZone> dest = new HashSet<>();
         while (bytes.isReadable()) {
             dest.add(Ipv4Util.addressForByteBuf(bytes));
         }

@@ -13,10 +13,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -30,6 +28,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsRestrictedType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -48,15 +47,18 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Match a Peer Role (FROM, TO).
  */
 public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolicy<MatchRoleSetCondition, Void> {
-    private static final InstanceIdentifier<RoleSets> ROLE_SET_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
-            .augmentation(BgpRoleSets.class).child(RoleSets.class);
+    private static final InstanceIdentifier<RoleSets> ROLE_SET_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
+            .augmentation(BgpRoleSets.class)
+            .child(RoleSets.class);
     private final DataBroker dataBroker;
-    private final LoadingCache<String, List<PeerRole>> roleSets = CacheBuilder.newBuilder()
+    private final LoadingCache<String, Set<PeerRole>> roleSets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
-                public List<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
+                public Set<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
                     return loadRoleSets(key);
                 }
             });
@@ -65,15 +67,13 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
-    private List<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final  FluentFuture<Optional<RoleSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+    private Set<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
+        final FluentFuture<Optional<RoleSet>> future;
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key)));
         }
-        return future.get().map(RoleSet::getRole).orElse(Collections.emptyList());
+        return future.get().map(RoleSet::getRole).orElse(Set.of());
     }
 
     @Override
@@ -109,8 +109,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
 
     private boolean checkMatch(final String roleSetName, final PeerRole role,
             final MatchSetOptionsRestrictedType matchSetOptions) {
-        final List<PeerRole> roles = this.roleSets.getUnchecked(StringUtils
-                .substringBetween(roleSetName, "=\"", "\""));
+        final Set<PeerRole> roles = roleSets.getUnchecked(StringUtils.substringBetween(roleSetName, "=\"", "\""));
 
         final boolean found = roles.contains(role);
         if (MatchSetOptionsRestrictedType.ANY.equals(matchSetOptions)) {

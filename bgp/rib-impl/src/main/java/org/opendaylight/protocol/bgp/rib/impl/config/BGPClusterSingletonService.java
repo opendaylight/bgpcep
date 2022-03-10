@@ -57,7 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
+public final class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPClusterSingletonService.class);
 
     private final InstanceIdentifier<Bgp> bgpIid;
@@ -140,9 +140,9 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
                 synchronized (BGPClusterSingletonService.this) {
                     if (ribImpl != null) {
                         done.setFuture(Futures.transform(ribImpl.closeServiceInstance(),
-                                input -> Empty.getInstance(), MoreExecutors.directExecutor()));
+                                input -> Empty.value(), MoreExecutors.directExecutor()));
                     } else {
-                        done.set(Empty.getInstance());
+                        done.set(Empty.value());
                     }
                 }
             }

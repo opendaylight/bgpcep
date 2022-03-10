@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
+import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -55,7 +55,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
 
     @Override
     public ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
-        final ListenableFuture<?> f = this.peerRPCs.releaseConnection();
+        final ListenableFuture<?> f = peerRPCs.releaseConnection();
         return Futures.transform(f, input1 -> {
             if (f.isDone()) {
                 return RpcResultBuilder.success(new ResetSessionOutputBuilder().build()).build();
@@ -105,11 +105,11 @@ public class BgpPeerRpc implements BgpPeerRpcService {
     }
 
     private ChannelFuture sendRRMessage(final RouteRefreshRequestInput input) {
-        if (!this.supportedFamilies.contains(new TablesKey(input.getAfi(), input.getSafi()))) {
+        if (!supportedFamilies.contains(new TablesKey(input.getAfi(), input.getSafi()))) {
             LOG.info("Unsupported afi/safi: {}, {}.", input.getAfi(), input.getSafi());
             return null;
         }
         final RouteRefresh msg = new RouteRefreshBuilder().setAfi(input.getAfi()).setSafi(input.getSafi()).build();
-        return ((BGPSessionImpl) this.session).getLimiter().writeAndFlush(msg);
+        return ((BGPSessionImpl) session).getLimiter().writeAndFlush(msg);
     }
 }

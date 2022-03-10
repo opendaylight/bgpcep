@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborAddPathsConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborTransportConfigBuilder;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -64,7 +64,7 @@ public class BgpPeerTest extends AbstractConfig {
             .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
             .build();
     static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Map.of(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
-    private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
+    private static final Decimal64 DEFAULT_TIMERS = Decimal64.valueOf("30.00");
     private BgpPeer bgpPeer;
 
     static Neighbor createNeighborExpected(final IpAddress neighborAddress) {

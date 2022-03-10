@@ -16,7 +16,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +52,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceBuilder;
@@ -122,7 +122,8 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
         this.routingPolicyFactory = requireNonNull(routingPolicyFactory);
         this.codecsRegistry = requireNonNull(codecsRegistry);
         this.domDataBroker = requireNonNull(domDataBroker);
-        networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
+        networkInstanceIId =
+            InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
                 .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
         initializeNetworkInstance(dataBroker, networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -147,8 +148,6 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
         LOG.info("BGP Deployer {} started.", networkInstanceName);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
             throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<PeerGroup>> future;

@@ -10,13 +10,12 @@ package org.opendaylight.protocol.bgp.linkstate;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
@@ -160,9 +159,8 @@ public class SrAttributeParserTest {
     @Test
     public void testSrAlgorithm() {
         final byte[] bytes = { 0 };
-        final SrAlgorithm alg = new SrAlgorithmBuilder().setAlgorithms(Lists.newArrayList(Algorithm.ShortestPathFirst))
-                .build();
-        final SrAlgorithm empty = new SrAlgorithmBuilder().setAlgorithms(Collections.emptyList()).build();
+        final SrAlgorithm alg = new SrAlgorithmBuilder().setAlgorithms(Set.of(Algorithm.ShortestPathFirst)).build();
+        final SrAlgorithm empty = new SrAlgorithmBuilder().setAlgorithms(Set.of()).build();
         assertEquals(alg, SrNodeAttributesParser.parseSrAlgorithms(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
         assertEquals(empty, SrNodeAttributesParser.parseSrAlgorithms(b));
