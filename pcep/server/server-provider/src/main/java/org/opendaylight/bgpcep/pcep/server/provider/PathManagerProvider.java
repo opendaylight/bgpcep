@@ -14,7 +14,6 @@ import static java.util.Objects.requireNonNull;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PreDestroy;
-import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
@@ -49,14 +48,14 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerProvider.class);
     private final InstanceIdentifier<Topology> pcepTopology;
     private final DataBroker dataBroker;
-    private final PceServerProvider pceServerProvider;
+    private final DefaultPceServerProvider pceServerProvider;
     private final NetworkTopologyPcepService ntps;
     private TransactionChain chain = null;
 
     private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<NodeId, ManagedTeNode>();
 
     public PathManagerProvider(final DataBroker dataBroker, KeyedInstanceIdentifier<Topology, TopologyKey> topology,
-            final NetworkTopologyPcepService ntps, final PceServerProvider pceServerProvider) {
+            final NetworkTopologyPcepService ntps, final DefaultPceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.pceServerProvider = requireNonNull(pceServerProvider);
         this.ntps = requireNonNull(ntps);
@@ -387,6 +386,9 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
                 newPath.setConfiguredLsp(clb.build());
             }
 
+            /* Update Reserved Bandwidth in the Connected Graph */
+            newPath.addBandwidth(pceServerProvider.getTedGraph());
+
             /* Store this new reported TE Path */
             teNode.addManagedTePath(newPath);
 
@@ -410,6 +412,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         if ((curPath.getLsp().getComputedPath().getPathDescription() == null)
                 && (rptPath.getComputedPath().getPathDescription() != null)) {
             curPath.setConfiguredLsp(new ConfiguredLspBuilder(rptPath).setPathStatus(PathStatus.Sync).build());
+            curPath.updateBandwidth(pceServerProvider.getTedGraph());
             curPath.updateToDataStore();
             LOG.debug("Updated Managed TE Path with reported LSP: {}", curPath);
             return curPath;
@@ -425,6 +428,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         /* Check if TE Path becoming in SYNC */
         if (newStatus == PathStatus.Sync && curPath.getLsp().getPathStatus() != PathStatus.Sync) {
             curPath.sync();
+            curPath.updateBandwidth(pceServerProvider.getTedGraph());
             LOG.debug("Sync Managed TE Path {} on NodeId {}", curPath, id);
             return curPath;
         }
@@ -450,7 +454,11 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
             return;
         }
 
-        teNode.removeManagedTePath(key);
+        /* Remove the TE Path and associated Bandwidth if any */
+        final ManagedTePath tePath = teNode.removeManagedTePath(key);
+        if (tePath != null) {
+            tePath.delBandwidth(pceServerProvider.getTedGraph());
+        }
     }
 
     /**
