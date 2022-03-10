@@ -16,6 +16,23 @@
       "message": "Comments addressed in patchset 2",
       "revId": "bd723713be26646b459459e50829215da853185a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a802abe3_72b136d5",
+        "filename": "algo/algo-api/src/main/yang/path-computation.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-10T19:19:26Z",
+      "side": 1,
+      "message": "I think the rev date should be changed",
+      "revId": "bd723713be26646b459459e50829215da853185a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
