@@ -13,12 +13,13 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 
 import org.junit.Before;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoaderTest {
     private static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
-        InstanceIdentifier.create(RoutingPolicy.class);
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
 
     OpenconfigRoutingConfigFileProcessor policyLoader;
 

@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -89,8 +88,6 @@ public class BgpPeer extends PeerBean {
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static List<OptionalCapabilities> getBgpCapabilities(final AfiSafis afiSafis, final RIB rib,
                                                           final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final List<OptionalCapabilities> caps = new ArrayList<>();

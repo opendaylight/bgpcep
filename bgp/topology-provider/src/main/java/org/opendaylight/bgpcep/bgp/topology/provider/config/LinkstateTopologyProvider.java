@@ -30,6 +30,7 @@ public final class LinkstateTopologyProvider extends AbstractBgpTopologyProvider
     @Activate
     public LinkstateTopologyProvider(@Reference final BgpTopologyDeployer deployer) {
         super(deployer);
+        register();
     }
 
     @Override

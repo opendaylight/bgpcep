@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
+@SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR", justification = "Non-final for Mockito.spy()")
 public class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPClusterSingletonService.class);
 
@@ -140,9 +142,9 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
                 synchronized (BGPClusterSingletonService.this) {
                     if (ribImpl != null) {
                         done.setFuture(Futures.transform(ribImpl.closeServiceInstance(),
-                                input -> Empty.getInstance(), MoreExecutors.directExecutor()));
+                                input -> Empty.value(), MoreExecutors.directExecutor()));
                     } else {
-                        done.set(Empty.getInstance());
+                        done.set(Empty.value());
                     }
                 }
             }
