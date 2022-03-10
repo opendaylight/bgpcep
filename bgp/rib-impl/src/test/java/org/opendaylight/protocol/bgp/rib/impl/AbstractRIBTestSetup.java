@@ -69,11 +69,11 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
@@ -120,43 +120,43 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
 
         final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
-        this.a1.startRIBExtensionProvider(context, serializer);
+        a1.startRIBExtensionProvider(context, serializer);
 
         mockedMethods();
-        doReturn(mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+        doReturn(mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
-        this.rib = new RIBImpl(this.tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
-                this.dispatcher, new ConstantCodecsRegistry(serializer), this.dom, this.policies,
+        rib = new RIBImpl(tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
+                dispatcher, new ConstantCodecsRegistry(serializer), dom, policies,
                 localTables, Collections.singletonMap(KEY,
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
     }
 
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
-        doReturn(new TestListenerRegistration()).when(this.service)
+        doReturn(new TestListenerRegistration()).when(service)
                 .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
                         any(ClusteredDOMDataTreeChangeListener.class));
-        doNothing().when(this.domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doNothing().when(this.domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
-        doNothing().when(this.domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doNothing().when(this.domChain).close();
-        doReturn(this.domTransWrite).when(this.domChain).newWriteOnlyTransaction();
+        doNothing().when(domChain).close();
+        doReturn(domTransWrite).when(domChain).newWriteOnlyTransaction();
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
-        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, this.service)).when(this.dom)
+        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, service)).when(dom)
             .getExtensions();
-        doReturn(this.domChain).when(this.dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
-        doReturn(Optional.empty()).when(this.future).get();
-        doReturn(this.future).when(this.domTransWrite).commit();
-        doNothing().when(this.future).addListener(any(Runnable.class), any(Executor.class));
+        doReturn(domChain).when(dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
+        doReturn(Optional.empty()).when(future).get();
+        doReturn(future).when(domTransWrite).commit();
+        doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
     }
 
-    public Collection<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,
+    public List<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,
             final ModificationType type, final Ipv4Prefix... prefix) {
-        final Collection<DataTreeCandidate> col = new HashSet<>();
+        final List<DataTreeCandidate> col = new ArrayList<>();
         final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
         final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
         doReturn(rootNode).when(candidate).getRootNode();
@@ -192,14 +192,14 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     }
 
     public RIBImpl getRib() {
-        return this.rib;
+        return rib;
     }
 
     public DOMDataTreeWriteTransaction getTransaction() {
-        return this.domTransWrite;
+        return domTransWrite;
     }
 
-    private class TestListenerRegistration implements ListenerRegistration<EventListener> {
+    private static class TestListenerRegistration implements ListenerRegistration<EventListener> {
         @Override
         public EventListener getInstance() {
             return null;

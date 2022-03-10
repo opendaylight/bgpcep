@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -46,10 +47,13 @@ public class AsPathAttributeParserTest {
         final Attributes attr = new AttributesBuilder()
             .setAsPath(new AsPathBuilder()
                 .setSegments(List.of(
-                    new SegmentsBuilder().setAsSet(List.of(new AsNumber(Uint32.ONE), new AsNumber(Uint32.TWO))).build(),
                     new SegmentsBuilder()
-                    .setAsSequence(List.of(new AsNumber(Uint32.valueOf(3)), new AsNumber(Uint32.valueOf(4))))
-                    .build()))
+                        // For testing purposes we need a predictable iteration order
+                        .setAsSet(ImmutableSet.of(new AsNumber(Uint32.ONE), new AsNumber(Uint32.TWO)))
+                        .build(),
+                    new SegmentsBuilder()
+                        .setAsSequence(List.of(new AsNumber(Uint32.valueOf(3)), new AsNumber(Uint32.valueOf(4))))
+                        .build()))
                 .build())
             .build();
 

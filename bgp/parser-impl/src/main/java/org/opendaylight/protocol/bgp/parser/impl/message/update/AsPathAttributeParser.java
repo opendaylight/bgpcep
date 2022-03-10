@@ -15,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
@@ -55,7 +56,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException, BGPTreatAsWithdrawException {
-        builder.setAsPath(parseAsPath(this.refCache, buffer, errorHandling));
+        builder.setAsPath(parseAsPath(refCache, buffer, errorHandling));
     }
 
     @Override
@@ -126,7 +127,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
                 ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
             } else {
-                ases.add(new SegmentsBuilder().setAsSet(asList).build());
+                ases.add(new SegmentsBuilder().setAsSet(Set.copyOf(asList)).build());
             }
         }
 

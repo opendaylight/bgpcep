@@ -11,6 +11,7 @@ import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -290,11 +292,11 @@ public final class LinkAttributesParser {
     }
 
     private static void parseSrlg(final ByteBuf value, final LinkAttributesBuilder builder) {
-        final List<SrlgId> sharedRiskLinkGroups = new ArrayList<>();
+        final var sharedRiskLinkGroups = ImmutableSet.<SrlgId>builder();
         while (value.isReadable()) {
             sharedRiskLinkGroups.add(new SrlgId(readUint32(value)));
         }
-        builder.setSharedRiskLinkGroups(sharedRiskLinkGroups);
+        builder.setSharedRiskLinkGroups(sharedRiskLinkGroups.build());
         LOG.debug("Parsed Shared Risk Link Groups {}", builder.getSharedRiskLinkGroups());
     }
 
@@ -303,7 +305,6 @@ public final class LinkAttributesParser {
             serializer.check(tlv);
         }
     }
-
 
     static void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf output) {
         final LinkAttributes linkAttributes = linkAttributesCase.getLinkAttributes();
@@ -374,7 +375,7 @@ public final class LinkAttributesParser {
         }
     }
 
-    private static void serializeSrlg(final List<SrlgId> srlgList, final ByteBuf byteAggregator) {
+    private static void serializeSrlg(final Set<SrlgId> srlgList, final ByteBuf byteAggregator) {
         if (srlgList != null) {
             final ByteBuf sharedRLGBuf = Unpooled.buffer();
             for (final SrlgId srlgId : srlgList) {

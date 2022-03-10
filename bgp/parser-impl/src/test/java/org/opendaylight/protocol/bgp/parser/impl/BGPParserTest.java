@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -307,12 +308,11 @@ public class BGPParserTest {
         assertNull(message.getWithdrawnRoutes());
 
         // attributes
-        final List<AsNumber> asNumbers = new ArrayList<>();
-        asNumbers.add(new AsNumber(Uint32.valueOf(30)));
-        final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(asNumbers).build());
-        final List<AsNumber> asSet = List.of(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)));
-        asPath.add(new SegmentsBuilder().setAsSet(asSet).build());
+        final List<Segments> asPath = List.of(
+            new SegmentsBuilder().setAsSequence(List.of(new AsNumber(Uint32.valueOf(30)))).build(),
+            new SegmentsBuilder()
+                // Predictable iteration order
+                .setAsSet(ImmutableSet.of(new AsNumber(Uint32.TEN), new AsNumber(Uint32.valueOf(20)))).build());
 
         final Aggregator aggregator = new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(30)))
                 .setNetworkAddress(new Ipv4AddressNoZone("10.0.0.9")).build();

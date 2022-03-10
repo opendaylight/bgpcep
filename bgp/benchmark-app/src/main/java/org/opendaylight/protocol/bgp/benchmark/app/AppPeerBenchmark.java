@@ -77,7 +77,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, TransactionChainListener, AutoCloseable {
+public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, TransactionChainListener, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppPeerBenchmark.class);
 
@@ -102,34 +102,34 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
             final String appRibId) {
         this.appRibId = requireNonNull(appRibId);
-        this.txChain = bindingDataBroker.createMergingTransactionChain(this);
+        txChain = bindingDataBroker.createMergingTransactionChain(this);
 
-        this.appIID = InstanceIdentifier.builder(ApplicationRib.class,
+        appIID = InstanceIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
-        this.routesIId = this.appIID
+        routesIId = appIID
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
             .child(Ipv4RoutesCase.class, Ipv4Routes.class);
-        this.rpcRegistration = rpcProviderRegistry.registerRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
+        rpcRegistration = rpcProviderRegistry.registerRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
         LOG.info("BGP Application Peer Benchmark Application started.");
     }
 
     public void start() {
-        LOG.debug("Instantiating App Peer Benchmark : {}", this.appRibId);
+        LOG.debug("Instantiating App Peer Benchmark : {}", appRibId);
         final ApplicationRib appRib = new ApplicationRibBuilder().setId(new ApplicationRibId(
-            new ApplicationRibId(this.appRibId))).setTables(EMPTY_TABLES).build();
+            new ApplicationRibId(appRibId))).setTables(EMPTY_TABLES).build();
 
-        final WriteTransaction wTx = this.txChain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.CONFIGURATION, this.appIID, appRib);
+        final WriteTransaction wTx = txChain.newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.CONFIGURATION, appIID, appRib);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.info("Empty Structure created for Application Peer Benchmark {}", AppPeerBenchmark.this.appRibId);
+                LOG.info("Empty Structure created for Application Peer Benchmark {}", appRibId);
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Failed to create Empty Structure for Application Peer Benchmark {}",
-                    AppPeerBenchmark.this.appRibId, throwable);
+                    appRibId, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
@@ -171,21 +171,21 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     @Override
     public void close() {
-        this.rpcRegistration.close();
-        final WriteTransaction dTx = this.txChain.newWriteOnlyTransaction();
-        dTx.delete(LogicalDatastoreType.CONFIGURATION, this.appIID);
+        rpcRegistration.close();
+        final WriteTransaction dTx = txChain.newWriteOnlyTransaction();
+        dTx.delete(LogicalDatastoreType.CONFIGURATION, appIID);
         try {
             dTx.commit().get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to clean-up BGP Application RIB.", e);
         }
-        this.txChain.close();
+        txChain.close();
         LOG.info("BGP Application Peer Benchmark Application closed.");
     }
 
     @VisibleForTesting
     InstanceIdentifier<Ipv4Routes> getIpv4RoutesIID() {
-        return this.routesIId;
+        return routesIId;
     }
 
     private long addRoute(final Ipv4Prefix ipv4Prefix, final Ipv4AddressNoZone nextHop, final Uint32 count,
@@ -207,7 +207,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
 
     private long processRoutes(final Ipv4Prefix ipv4Prefix, final Uint32 count, final Uint32 batch,
         final Attributes attributes) {
-        WriteTransaction wt = this.txChain.newWriteOnlyTransaction();
+        WriteTransaction wt = txChain.newWriteOnlyTransaction();
         String address = getAdddressFromPrefix(ipv4Prefix);
         final long countLong = count.longValue();
         final long batchLong = batch.longValue();
@@ -215,7 +215,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
         for (int i = 1; i <= countLong; i++) {
             final Ipv4RouteKey routeKey = new Ipv4RouteKey(NON_PATH_ID, createKey(address));
             final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId =
-                this.routesIId.child(Ipv4Route.class, routeKey);
+                routesIId.child(Ipv4Route.class, routeKey);
             if (attributes != null) {
                 final Ipv4RouteBuilder ipv4RouteBuilder = new Ipv4RouteBuilder();
                 ipv4RouteBuilder.setRouteKey(routeKey.getRouteKey());
@@ -240,7 +240,7 @@ public class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Transact
                         LOG.error("Failed commit", trw);
                     }
                 }, MoreExecutors.directExecutor());
-                wt = this.txChain.newWriteOnlyTransaction();
+                wt = txChain.newWriteOnlyTransaction();
             }
             address = increasePrefix(address);
         }

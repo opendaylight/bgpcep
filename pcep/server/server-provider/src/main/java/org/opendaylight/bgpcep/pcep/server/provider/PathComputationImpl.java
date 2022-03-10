@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.opendaylight.algo.PathComputationAlgorithm;
@@ -39,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2p;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,7 +241,8 @@ public class PathComputationImpl implements PathComputation {
             final long value = convert.longValue();
             /* Skip Bandwidth with value equal to 0 */
             if (value != 0) {
-                ctsBuilder.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(value)));
+                // FIXME: fraction-digits!
+                ctsBuilder.setBandwidth(new DecimalBandwidth(Decimal64.valueOf(value)));
                 if (classType != null) {
                     ctsBuilder.setClassType(classType.getClassType().getValue());
                 }
