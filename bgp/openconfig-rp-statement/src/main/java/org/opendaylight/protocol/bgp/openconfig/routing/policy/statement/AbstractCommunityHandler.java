@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.CommunitySets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySetKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
@@ -32,9 +33,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AbstractCommunityHandler {
-    private static final InstanceIdentifier<CommunitySets> COMMUNITY_SETS_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
+    private static final InstanceIdentifier<CommunitySets> COMMUNITY_SETS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
             .child(CommunitySets.class);
     protected final LoadingCache<String, List<Communities>> communitySets;
 

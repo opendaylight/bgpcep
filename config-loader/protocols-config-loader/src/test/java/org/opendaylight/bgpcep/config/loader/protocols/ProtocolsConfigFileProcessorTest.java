@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 import com.google.common.annotations.VisibleForTesting;
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -24,7 +25,8 @@ import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absol
 
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @VisibleForTesting
-    static final InstanceIdentifier<Protocols> BGP_PROTOCOLS_IID = InstanceIdentifier.create(NetworkInstances.class)
+    static final InstanceIdentifier<Protocols> BGP_PROTOCOLS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
         .child(NetworkInstance.class, new NetworkInstanceKey(ProtocolsConfigFileProcessor.GLOBAL_BGP_NAME))
         .child(Protocols.class);
 
