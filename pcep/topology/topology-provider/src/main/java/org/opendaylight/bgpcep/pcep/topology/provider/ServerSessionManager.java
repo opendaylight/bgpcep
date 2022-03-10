@@ -49,7 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcError;
+import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -255,7 +255,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         }
 
         return RpcResultBuilder.<Void>failed()
-            .withError(RpcError.ErrorType.RPC, "Failed to find session " + nodeId)
+            .withError(ErrorType.RPC, "Failed to find session " + nodeId)
             .buildFuture();
     }
 

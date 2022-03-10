@@ -11,8 +11,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -37,7 +37,7 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         final Boolean ignore,
         final Ipv4DestinationCase ipv4Case,
         final ByteBuf buffer) {
-        final List<Ipv4AddressNoZone> dest = ipv4Case.getDestinationIpv4Address();
+        final Set<Ipv4AddressNoZone> dest = ipv4Case.getDestinationIpv4Address();
         checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
         final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH * dest.size());
         dest.forEach(ipv4 -> Ipv4Util.writeIpv4Address(ipv4, body));
@@ -54,7 +54,7 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         }
         builder.setIgnore(header.getIgnore());
         builder.setProcessingRule(header.getProcessingRule());
-        List<Ipv4AddressNoZone> dest = new ArrayList<>();
+        Set<Ipv4AddressNoZone> dest = new HashSet<>();
         while (bytes.isReadable()) {
             dest.add(Ipv4Util.addressForByteBuf(bytes));
         }

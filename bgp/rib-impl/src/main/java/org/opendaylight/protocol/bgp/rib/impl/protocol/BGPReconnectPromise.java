@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl.protocol;
 
 import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -98,15 +97,11 @@ public class BGPReconnectPromise<S extends BGPSession> extends DefaultPromise<Vo
      * @return true if initial connection was established successfully, false if initial connection failed due
      *         to e.g. Connection refused, Negotiation failed
      */
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized boolean isInitialConnectFinished() {
         requireNonNull(this.pending);
         return this.pending.isDone() && this.pending.isSuccess();
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void reconnect() {
         requireNonNull(this.pending);
         this.pending.reconnect();
