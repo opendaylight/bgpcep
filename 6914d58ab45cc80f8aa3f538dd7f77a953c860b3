@@ -248,6 +248,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a380cb17_a8b00e2a",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-10T15:12:30Z",
+      "side": 1,
+      "message": "If so, I think we have a bigger problem because srObj.getNaiType() should return a List or any collection type instead of a constant such as an enum type item.\n\notherwise it means that we can have simultaneously srObj.getNaiType() \u003d\u003d NaiType.Ipv4NodeId and  srObj.getNaiType() \u003d\u003d NaiType.Ipv4Adjacency\nand consequently we would have NaiType.Ipv4NodeId \u003d\u003d NaiType.Ipv4Adjacency ...\nwhat is of course impossible.\n\nLet\u0027s not mix the standard and its implementation.\nMy remark was from a pure implementation standpoint.\nAnd if this is a deliberate implementation choice to not cover all the norm, I think it is still fair to optimize things this way.\nMaybe we can leave a comment to clarify things in that case.",
+      "parentUuid": "e05dd8d9_8e11f0e3",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9a319b39_cb1b88af",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 13
