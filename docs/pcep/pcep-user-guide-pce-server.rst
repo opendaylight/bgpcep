@@ -382,14 +382,10 @@ mentioned hereinafter:
   * Exclude Route Object (XRO)
   * Objective Function (OF)
 
-* For Segment Routing, ERO is provided with Node SID for NAI and SID index.
+* For Segment Routing, ERO is only provided with Adjacency NAI type and Adjacency SID.
 
 * Due to the integration with BGP-LS, the graph name must start with *ted://*
   tag in order to be automatically used by the pcep plugin.
-
-* For Segment Routing, as network resources are not updated due to the lack
-  of signaling, the resources consumed by the new segment path are not updated
-  in the graph.
 
 All these limitations will be solved in future releases.
 

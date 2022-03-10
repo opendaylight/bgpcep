@@ -100,7 +100,7 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
         return graph == null ? null : new PathComputationImpl(tedGraph, algoProvider);
     }
 
-    private ConnectedGraph getTedGraph() {
+    public ConnectedGraph getTedGraph() {
         /* Leave a chance to get a valid Graph in case of late fulfillment */
         if (tedGraph == null) {
             setTedGraph();
