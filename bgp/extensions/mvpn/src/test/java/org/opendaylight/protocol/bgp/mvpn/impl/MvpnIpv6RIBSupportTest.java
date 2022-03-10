@@ -12,10 +12,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -45,14 +44,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public final class MvpnIpv6RIBSupportTest
         extends AbstractRIBSupportTest<MvpnRoutesIpv6Case, MvpnRoutesIpv6, MvpnRoute> {
@@ -70,54 +70,54 @@ public final class MvpnIpv6RIBSupportTest
                 .setMvpnChoice(MVPN)
                 .build();
     private static final MvpnRoutesIpv6 MVPN_ROUTES
-            = new MvpnRoutesIpv6Builder().setMvpnRoute(Map.of(ROUTE.key(), ROUTE)).build();
+            = new MvpnRoutesIpv6Builder().setMvpnRoute(BindingMap.of(ROUTE)).build();
     private static final MvpnDestination MVPN_DESTINATION = new MvpnDestinationBuilder()
             .setMvpnChoice(MVPN)
             .setPathId(PATH_ID)
             .build();
     private static final DestinationMvpnIpv6AdvertizedCase REACH_NLRI = new DestinationMvpnIpv6AdvertizedCaseBuilder()
             .setDestinationMvpn(new DestinationMvpnBuilder()
-                    .setMvpnDestination(Collections.singletonList(MVPN_DESTINATION)).build()).build();
+                    .setMvpnDestination(List.of(MVPN_DESTINATION)).build()).build();
     private static final DestinationMvpnIpv6WithdrawnCase UNREACH_NLRI = new DestinationMvpnIpv6WithdrawnCaseBuilder()
             .setDestinationMvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.ipv6
                     .rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.destination.mvpn
                     .ipv6.withdrawn._case.DestinationMvpnBuilder()
-                    .setMvpnDestination(Collections.singletonList(MVPN_DESTINATION)).build()).build();
+                    .setMvpnDestination(List.of(MVPN_DESTINATION)).build()).build();
 
     private MvpnIpv6RIBSupport ribSupport;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = new MvpnIpv6RIBSupport(this.adapter.currentSerializer());
-        setUpTestCustomizer(this.ribSupport);
+        ribSupport = new MvpnIpv6RIBSupport(adapter.currentSerializer());
+        setUpTestCustomizer(ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), withdraw);
-        final InstanceIdentifier<MvpnRoute> instanceIdentifier = this.deletedRoutes.get(0);
+        ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
+        final InstanceIdentifier<MvpnRoute> instanceIdentifier = deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(MvpnRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        final MvpnRoute route = (MvpnRoute) this.insertedRoutes.get(0).getValue();
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final MvpnRoute route = (MvpnRoute) insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
 
 
     @Test
     public void testEmptyRoute() {
-        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), ribSupport.emptyTable());
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MVPN_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), routes, ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(List.of(), routes, ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class).getMpUnreachNlri()
                 .getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesReach.class));
@@ -126,7 +126,7 @@ public final class MvpnIpv6RIBSupportTest
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MVPN_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(routes, Collections.emptyList(), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(routes, List.of(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().augmentation(AttributesReach.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
@@ -134,41 +134,41 @@ public final class MvpnIpv6RIBSupportTest
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(MvpnRoutesIpv6Case.class), this.ribSupport.cacheableNlriObjects());
+        assertEquals(Set.of(MvpnRoutesIpv6Case.class), ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(Set.of(), ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MVPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
-        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
+        final YangInstanceIdentifier actual = ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(MvpnRoutesIpv6Case.QNAME.getModule())),
-            this.ribSupport.routeAttributesIdentifier());
+            ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(MvpnRoutesIpv6Case.class, this.ribSupport.routesCaseClass());
+        assertEquals(MvpnRoutesIpv6Case.class, ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(MvpnRoutesIpv6.class, this.ribSupport.routesContainerClass());
+        assertEquals(MvpnRoutesIpv6.class, ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(MvpnRoute.class, this.ribSupport.routesListClass());
+        assertEquals(MvpnRoute.class, ribSupport.routesListClass());
     }
 
     @Test
@@ -176,16 +176,16 @@ public final class MvpnIpv6RIBSupportTest
         final Routes emptyCase = new MvpnRoutesIpv6CaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes
                 = new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(new MvpnRoutesIpv6Builder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new MvpnRoutesIpv6CaseBuilder().setMvpnRoutesIpv6(MVPN_ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
     }
 }

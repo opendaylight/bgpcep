@@ -7,14 +7,14 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.BaseEncoding;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.IsisAreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.NodeIdentifier;
@@ -55,10 +55,16 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.node.attributes.ospf.node.attributes.router.type.PseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021.ospf.prefix.attributes.OspfPrefixAttributesBuilder;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class ProtocolUtil {
+    private static final Decimal64 MIN_BANDWIDTH = Decimal64.minValueIn(2);
+    private static final float MIN_BANDWIDTH_FLT = MIN_BANDWIDTH.floatValue();
+    private static final Decimal64 MAX_BANDWIDTH = Decimal64.maxValueIn(2);
+    private static final float MAX_BANDWIDTH_FLT = MAX_BANDWIDTH.floatValue();
+
     private ProtocolUtil() {
         // Hidden on purpose
     }
@@ -184,16 +190,16 @@ public final class ProtocolUtil {
             if (ri instanceof OspfPseudonodeCase) {
                 final OspfPseudonode pn = ((OspfPseudonodeCase) ri).getOspfPseudonode();
 
-                ab.setRouterType(new PseudonodeBuilder().setPseudonode(Empty.getInstance()).build());
+                ab.setRouterType(new PseudonodeBuilder().setPseudonode(Empty.value()).build());
                 ab.setDrInterfaceId(pn.getLanInterface().getValue());
             } else if (ri instanceof OspfNodeCase && na.getNodeFlags() != null) {
                 // TODO: what should we do with in.getOspfRouterId()?
 
                 final NodeFlagBits nf = na.getNodeFlags();
                 if (nf.getAbr() != null) {
-                    ab.setRouterType(new AbrBuilder().setAbr(nf.getAbr() ? Empty.getInstance() : null).build());
+                    ab.setRouterType(new AbrBuilder().setAbr(nf.getAbr() ? Empty.value() : null).build());
                 } else if (nf.getExternal() != null) {
-                    ab.setRouterType(new InternalBuilder().setInternal(nf.getExternal() ? null : Empty.getInstance())
+                    ab.setRouterType(new InternalBuilder().setInternal(nf.getExternal() ? null : Empty.value())
                         .build());
                 }
             }
@@ -204,17 +210,17 @@ public final class ProtocolUtil {
     }
 
 
-    private static List<IsoNetId> toIsoNetIds(final List<IsisAreaIdentifier> areaIds, final String systemId) {
+    private static Set<IsoNetId> toIsoNetIds(final Set<IsisAreaIdentifier> areaIds, final String systemId) {
         return areaIds.stream().map(input -> new IsoNetId(UriBuilder.toIsoNetId(input, systemId)))
-                .collect(Collectors.toList());
+                .collect(ImmutableSet.toImmutableSet());
     }
 
-    private static List<Uint8> nodeMultiTopology(final List<TopologyIdentifier> list) {
-        final List<Uint8> ret = new ArrayList<>(list.size());
+    private static Set<Uint8> nodeMultiTopology(final Set<TopologyIdentifier> list) {
+        final var builder = ImmutableSet.<Uint8>builderWithExpectedSize(list.size());
         for (final TopologyIdentifier id : list) {
-            ret.add(Uint8.valueOf(id.getValue()));
+            builder.add(Uint8.valueOf(id.getValue()));
         }
-        return ret;
+        return builder.build();
     }
 
     private static org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.ospf.topology.rev131021
@@ -235,10 +241,10 @@ public final class ProtocolUtil {
                 tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
-                tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+                tb.setMaxLinkBandwidth(bandwidthToDecimal64(la.getMaxLinkBandwidth()));
             }
             if (la.getMaxReservableBandwidth() != null) {
-                tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+                tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(la.getMaxReservableBandwidth()));
             }
             if (la.getSharedRiskLinkGroups() != null) {
                 tb.setSrlg(new SrlgBuilder()
@@ -278,10 +284,10 @@ public final class ProtocolUtil {
                 tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
             }
             if (la.getMaxLinkBandwidth() != null) {
-                tb.setMaxLinkBandwidth(bandwidthToBigDecimal(la.getMaxLinkBandwidth()));
+                tb.setMaxLinkBandwidth(bandwidthToDecimal64(la.getMaxLinkBandwidth()));
             }
             if (la.getMaxReservableBandwidth() != null) {
-                tb.setMaxResvLinkBandwidth(bandwidthToBigDecimal(la.getMaxReservableBandwidth()));
+                tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(la.getMaxReservableBandwidth()));
             }
             if (la.getSharedRiskLinkGroups() != null) {
                 tb.setSrlg(new SrlgBuilder()
@@ -302,12 +308,20 @@ public final class ProtocolUtil {
                 .IgpLinkAttributes1Builder().setIsisLinkAttributes(ilab.build()).build();
     }
 
-    private static Float bandwidthToFloat(final Bandwidth bandwidth) {
-        return ByteBuffer.wrap(bandwidth.getValue()).getFloat();
-    }
+    static Decimal64 bandwidthToDecimal64(final Bandwidth bandwidth) {
+        final float floatValue = ByteBuffer.wrap(bandwidth.getValue()).getFloat();
+        if (floatValue <= MIN_BANDWIDTH_FLT) {
+            return MIN_BANDWIDTH;
+        }
+        if (floatValue >= MAX_BANDWIDTH_FLT) {
+            return MAX_BANDWIDTH;
+        }
 
-    private static BigDecimal bandwidthToBigDecimal(final Bandwidth bandwidth) {
-        return BigDecimal.valueOf(bandwidthToFloat(bandwidth));
+        // Deal with rounding...
+        return Decimal64.of(2, BigDecimal.valueOf(floatValue)
+            .setScale(2, RoundingMode.HALF_UP)
+            .unscaledValue()
+            .longValueExact());
     }
 
     private static Map<UnreservedBandwidthKey, UnreservedBandwidth> unreservedBandwidthList(
@@ -315,7 +329,7 @@ public final class ProtocolUtil {
                 .bgp.linkstate.rev200120.UnreservedBandwidth> input) {
         return input.stream()
             .map(bandwidth -> new UnreservedBandwidthBuilder()
-                .setBandwidth(bandwidthToBigDecimal(bandwidth.getBandwidth()))
+                .setBandwidth(bandwidthToDecimal64(bandwidth.getBandwidth()))
                 .withKey(new UnreservedBandwidthKey(bandwidth.getPriority()))
                 .build())
             .collect(BindingMap.toOrderedMap());

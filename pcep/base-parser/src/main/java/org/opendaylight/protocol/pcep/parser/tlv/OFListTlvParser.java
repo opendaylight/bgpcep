@@ -9,10 +9,9 @@ package org.opendaylight.protocol.pcep.parser.tlv;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
@@ -40,11 +39,11 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                 + ".");
         }
-        final List<OfId> ofCodes = new ArrayList<>();
+        final var ofCodes = ImmutableSet.<OfId>builder();
         while (buffer.isReadable()) {
             ofCodes.add(new OfId(ByteBufUtils.readUint16(buffer)));
         }
-        return new OfListBuilder().setCodes(ofCodes).build();
+        return new OfListBuilder().setCodes(ofCodes.build()).build();
     }
 
     @Override
@@ -52,8 +51,7 @@ public class OFListTlvParser implements TlvParser, TlvSerializer {
         checkArgument(tlv instanceof OfList, "OFListTlv is mandatory.");
         final OfList oft = (OfList) tlv;
         final ByteBuf body = Unpooled.buffer();
-        final List<OfId> ofCodes = oft.getCodes();
-        for (OfId id : ofCodes) {
+        for (OfId id : oft.getCodes()) {
             ByteBufUtils.write(body, id.getValue());
         }
         TlvUtil.formatTlv(TYPE, body, buffer);

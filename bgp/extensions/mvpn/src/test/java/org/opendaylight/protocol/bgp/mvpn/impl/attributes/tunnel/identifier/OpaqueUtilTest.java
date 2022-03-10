@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
@@ -72,7 +71,7 @@ public final class OpaqueUtilTest {
     private static final Opaque OPAQUE_EXTENDED = new OpaqueValueBuilder().setOpaque(OPAQUE_TEST2)
             .setOpaqueType(Uint8.TWO).setOpaqueType(Uint8.MAX_VALUE).setOpaqueExtendedType(Uint16.valueOf(4))
             .build();
-    private static final List<OpaqueValue> OPAQUE_VALUE_LIST = Arrays.asList((OpaqueValue) OPAQUE,
+    private static final List<OpaqueValue> OPAQUE_VALUE_LIST = List.of((OpaqueValue) OPAQUE,
             (OpaqueValue) OPAQUE_EXTENDED);
 
     @Test

@@ -688,8 +688,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         releaseConnection(true);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-        justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void onRibOutChainFailed(final Throwable cause) {
         LOG.error("RibOut transaction chain failed.", cause);
         releaseConnection(false);

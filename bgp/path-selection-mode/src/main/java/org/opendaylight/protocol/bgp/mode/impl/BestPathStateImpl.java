@@ -16,6 +16,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,19 +61,19 @@ public final class BestPathStateImpl implements BestPathState {
         final NodeIdentifier semantics;
 
         NamespaceSpecificIds(final @NonNull QNameModule namespace) {
-            this.asPath = List.of(NodeIdentifier.create(AsPath.QNAME.bindTo(namespace).intern()),
+            asPath = List.of(NodeIdentifier.create(AsPath.QNAME.bindTo(namespace).intern()),
                 NodeIdentifier.create(QName.create(namespace, "segments").intern()));
-            this.locPref = List.of(NodeIdentifier.create(LocalPref.QNAME.bindTo(namespace).intern()),
+            locPref = List.of(NodeIdentifier.create(LocalPref.QNAME.bindTo(namespace).intern()),
                 NodeIdentifier.create(QName.create(namespace, "pref").intern()));
-            this.med = List.of(NodeIdentifier.create(MultiExitDisc.QNAME.bindTo(namespace).intern()),
+            med = List.of(NodeIdentifier.create(MultiExitDisc.QNAME.bindTo(namespace).intern()),
                 NodeIdentifier.create(QName.create(namespace, "med").intern()));
-            this.orig = List.of(NodeIdentifier.create(Origin.QNAME.bindTo(namespace).intern()),
+            orig = List.of(NodeIdentifier.create(Origin.QNAME.bindTo(namespace).intern()),
                 NodeIdentifier.create(QName.create(namespace, "value").intern()));
-            this.asSetNid = NodeIdentifier.create(QName.create(namespace, "as-set").intern());
-            this.asSeqNid = NodeIdentifier.create(QName.create(namespace, "as-sequence").intern());
-            this.communities = NodeIdentifier.create(Communities.QNAME.bindTo(namespace).intern());
-            this.asNumber = NodeIdentifier.create(QName.create(namespace, "as-number").intern());
-            this.semantics = NodeIdentifier.create(QName.create(namespace, "semantics").intern());
+            asSetNid = NodeIdentifier.create(QName.create(namespace, "as-set").intern());
+            asSeqNid = NodeIdentifier.create(QName.create(namespace, "as-sequence").intern());
+            communities = NodeIdentifier.create(Communities.QNAME.bindTo(namespace).intern());
+            asNumber = NodeIdentifier.create(QName.create(namespace, "as-number").intern());
+            semantics = NodeIdentifier.create(QName.create(namespace, "semantics").intern());
         }
     }
 
@@ -132,8 +134,8 @@ public final class BestPathStateImpl implements BestPathState {
             final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
             final List<Segments> segs = extractSegments(segments, ids);
             if (!segs.isEmpty()) {
-                this.peerAs = BesthPathStateUtil.getPeerAs(segs);
-                this.asPathLength = countAsPath(segs);
+                peerAs = BesthPathStateUtil.getPeerAs(segs);
+                asPathLength = countAsPath(segs);
             }
         }
 
@@ -145,7 +147,7 @@ public final class BestPathStateImpl implements BestPathState {
             depreferenced = false;
         }
 
-        this.resolved = true;
+        resolved = true;
     }
 
     private static boolean isStale(final NamespaceSpecificIds ids, final UnkeyedListEntryNode community) {
@@ -156,36 +158,36 @@ public final class BestPathStateImpl implements BestPathState {
     @Override
     public Uint32 getLocalPref() {
         resolveValues();
-        return this.localPref;
+        return localPref;
     }
 
     @Override
     public long getMultiExitDisc() {
         resolveValues();
-        return this.multiExitDisc;
+        return multiExitDisc;
     }
 
     @Override
     public BgpOrigin getOrigin() {
         resolveValues();
-        return this.origin;
+        return origin;
     }
 
     @Override
     public long getPeerAs() {
         resolveValues();
-        return this.peerAs;
+        return peerAs;
     }
 
     @Override
     public int getAsPathLength() {
         resolveValues();
-        return this.asPathLength;
+        return asPathLength;
     }
 
     @Override
     public ContainerNode getAttributes() {
-        return this.attributes;
+        return attributes;
     }
 
     @Override
@@ -195,12 +197,12 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("attributes", this.attributes);
-        toStringHelper.add("localPref", this.localPref);
-        toStringHelper.add("multiExitDisc", this.multiExitDisc);
-        toStringHelper.add("origin", this.origin);
-        toStringHelper.add("resolved", this.resolved);
-        toStringHelper.add("depreferenced", this.depreferenced);
+        toStringHelper.add("attributes", attributes);
+        toStringHelper.add("localPref", localPref);
+        toStringHelper.add("multiExitDisc", multiExitDisc);
+        toStringHelper.add("origin", origin);
+        toStringHelper.add("resolved", resolved);
+        toStringHelper.add("depreferenced", depreferenced);
         return toStringHelper;
     }
 
@@ -213,10 +215,10 @@ public final class BestPathStateImpl implements BestPathState {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + this.attributes.hashCode();
-        result = prime * result + (this.localPref == null ? 0 : this.localPref.hashCode());
+        result = prime * result + attributes.hashCode();
+        result = prime * result + (localPref == null ? 0 : localPref.hashCode());
         result = prime * result + Long.hashCode(multiExitDisc);
-        result = prime * result + (this.origin == null ? 0 : this.origin.hashCode());
+        result = prime * result + (origin == null ? 0 : origin.hashCode());
         result = prime * result + Boolean.hashCode(depreferenced);
         return result;
     }
@@ -233,7 +235,7 @@ public final class BestPathStateImpl implements BestPathState {
         if (!attributes.equals(other.attributes)) {
             return false;
         }
-        if (!Objects.equals(this.localPref, other.localPref)) {
+        if (!Objects.equals(localPref, other.localPref)) {
             return false;
         }
         if (multiExitDisc != other.multiExitDisc) {
@@ -245,22 +247,22 @@ public final class BestPathStateImpl implements BestPathState {
         return depreferenced == other.depreferenced;
     }
 
-    private List<Segments> extractSegments(final UnkeyedListNode segments, final NamespaceSpecificIds ids) {
+    private static List<Segments> extractSegments(final UnkeyedListNode segments, final NamespaceSpecificIds ids) {
         // list segments
         final List<Segments> extracted = new ArrayList<>();
         for (final UnkeyedListEntryNode segment : segments.body()) {
             final SegmentsBuilder sb = new SegmentsBuilder();
             // We are expecting that segment contains either as-sequence or as-set,
             // so just one of them will be set, other would be null
-            sb.setAsSequence(extractAsList(segment, ids.asSeqNid))
-                    .setAsSet(extractAsList(segment, ids.asSetNid));
+            sb.setAsSequence(extractAsList(new ArrayList<>(), segment, ids.asSeqNid))
+                    .setAsSet(extractAsList(new LinkedHashSet<>(), segment, ids.asSetNid));
             extracted.add(sb.build());
         }
         return extracted;
     }
 
-    private static List<AsNumber> extractAsList(final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
-        final List<AsNumber> ases = new ArrayList<>();
+    private static <T extends Collection<AsNumber>> T extractAsList(final T ases,
+            final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
         final Optional<NormalizedNode> maybeAsList = NormalizedNodes.findNode(segment, nid);
         if (maybeAsList.isPresent()) {
             final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.get();

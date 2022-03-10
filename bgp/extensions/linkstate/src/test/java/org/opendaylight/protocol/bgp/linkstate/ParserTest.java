@@ -19,9 +19,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import org.junit.Before;
@@ -401,7 +401,7 @@ public class ParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(List.of()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
@@ -429,7 +429,7 @@ public class ParserTest {
             new LinkAttributesCaseBuilder().setLinkAttributes(new LinkAttributesBuilder()
                 .setMetric(new Metric(Uint32.ONE)).build()).build());
         paBuilder.addAugmentation(lsAttrBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
 
         assertEquals(
             lsAttrBuilder.build(),
@@ -603,14 +603,14 @@ public class ParserTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         assertEquals(paBuilder.getOrigin(), attrs.getOrigin());
 
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        paBuilder.setAsPath(new AsPathBuilder().setSegments(List.of()).build());
         assertEquals(paBuilder.getAsPath(), attrs.getAsPath());
 
         paBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build());
         assertEquals(paBuilder.getLocalPref(), attrs.getLocalPref());
 
         paBuilder.addAugmentation(lsBuilder.build());
-        paBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        paBuilder.setUnrecognizedAttributes(Map.of());
 
         final MpReachNlri mp = attrs.augmentation(AttributesReach.class).getMpReachNlri();
         assertEquals(mpBuilder.getAfi(), mp.getAfi());

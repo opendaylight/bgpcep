@@ -35,11 +35,11 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
-            <artifactId>rfc7223</artifactId>
+            <artifactId>rfc8294-ietf-routing-types</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
-            <artifactId>rfc8294-ietf-routing-types</artifactId>
+            <artifactId>rfc8343</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>

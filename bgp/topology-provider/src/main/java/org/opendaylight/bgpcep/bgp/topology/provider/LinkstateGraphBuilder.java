@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.math.BigDecimal;
+import com.google.common.collect.ImmutableSet;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,13 +98,12 @@ import org.slf4j.LoggerFactory;
  * @author Philippe Niger
  */
 public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRoute> {
+    private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphBuilder.class);
     private static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder().addAugmentation(
             new TopologyTypes1Builder().setBgpLinkstateTopology(new BgpLinkstateTopologyBuilder().build()).build())
             .build();
-
     private static final String UNHANDLED_OBJECT_CLASS = "Unhandled object class {}";
-
-    private static final Logger LOG = LoggerFactory.getLogger(LinkstateGraphBuilder.class);
+    private static final int MAX_PRIORITY = 8;
 
     private final ConnectedGraph cgraph;
 
@@ -112,11 +111,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final TopologyId topologyId, final ConnectedGraphProvider provider) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class);
-        this.cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
+        cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
-        this.networkTopologyTransaction = false;
+        networkTopologyTransaction = false;
         LOG.info("Started Traffic Engineering Graph Builder");
     }
 
@@ -126,11 +125,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final int listenerResetEnforceCounter) {
         super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
                 LinkstateSubsequentAddressFamily.class, listenerResetLimitInMillsec, listenerResetEnforceCounter);
-        this.cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
+        cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
-        this.networkTopologyTransaction = false;
+        networkTopologyTransaction = false;
         LOG.info("Started Traffic Engineering Graph Builder");
     }
 
@@ -267,8 +266,6 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         cgraph.addPrefix(prefix);
     }
 
-    private static final int MAX_PRIORITY = 8;
-
     /**
      * Create Edge Attributes from Link attributes.
      *
@@ -350,11 +347,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             builder.setUtilizedBandwidth(bandwithToDecimalBandwidth(la.getUtilizedBandwidth()));
         }
         if (la.getSharedRiskLinkGroups() != null) {
-            List<Uint32> srlgs = new ArrayList<>();
+            final var srlgs = ImmutableSet.<Uint32>builder();
             for (SrlgId srlg : la.getSharedRiskLinkGroups()) {
                 srlgs.add(srlg.getValue());
             }
-            builder.setSrlgs(srlgs);
+            builder.setSrlgs(srlgs.build());
         }
         for (SrAdjIds adj : la.nonnullSrAdjIds()) {
             if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
@@ -631,7 +628,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     private static DecimalBandwidth bandwithToDecimalBandwidth(final Bandwidth bw) {
-        return new DecimalBandwidth(BigDecimal.valueOf(ByteBuffer.wrap(bw.getValue()).getFloat()));
+        return new DecimalBandwidth(ProtocolUtil.bandwidthToDecimal64(bw));
     }
 
     private static Uint64 ipv4ToKey(final Ipv4InterfaceIdentifier ifId) {

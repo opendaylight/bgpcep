@@ -12,10 +12,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -49,8 +49,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMcastRoutesIpv6Case, L3vpnMcastRoutesIpv6,
         L3vpnMcastRoute> {
@@ -77,48 +77,48 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
     private static final DestinationL3vpnMcastIpv6AdvertizedCase REACH_NLRI
             = new DestinationL3vpnMcastIpv6AdvertizedCaseBuilder()
             .setDestinationIpv6L3vpnMcast(new DestinationIpv6L3vpnMcastBuilder()
-                    .setL3vpnMcastDestination(Collections.singletonList(MCAST_L3VPN_DESTINATION)).build()).build();
+                    .setL3vpnMcastDestination(List.of(MCAST_L3VPN_DESTINATION)).build()).build();
     private static final DestinationL3vpnMcastIpv6WithdrawnCase UNREACH_NLRI
             = new DestinationL3vpnMcastIpv6WithdrawnCaseBuilder()
             .setDestinationIpv6L3vpnMcast(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                     .l3vpn.mcast.rev180417.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                     .destination.l3vpn.mcast.ipv6.withdrawn._case.DestinationIpv6L3vpnMcastBuilder()
-                    .setL3vpnMcastDestination(Collections.singletonList(MCAST_L3VPN_DESTINATION)).build()).build();
+                    .setL3vpnMcastDestination(List.of(MCAST_L3VPN_DESTINATION)).build()).build();
 
     private L3VpnMcastIpv6RIBSupport ribSupport;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        ribSupport = new L3VpnMcastIpv6RIBSupport(this.adapter.currentSerializer());
+        ribSupport = new L3VpnMcastIpv6RIBSupport(adapter.currentSerializer());
         setUpTestCustomizer(ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), withdraw);
-        final InstanceIdentifier<L3vpnMcastRoute> instanceIdentifier = this.deletedRoutes.get(0);
+        ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
+        final InstanceIdentifier<L3vpnMcastRoute> instanceIdentifier = deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(L3vpnMcastRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        final L3vpnMcastRoute route = (L3vpnMcastRoute) this.insertedRoutes.get(0).getValue();
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final L3vpnMcastRoute route = (L3vpnMcastRoute) insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
 
 
     @Test
     public void testEmptyRoute() {
-        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), ribSupport.emptyTable());
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MCAST_L3VPN_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), routes, ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(List.of(), routes, ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class).getMpUnreachNlri()
                 .getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesReach.class));
@@ -127,7 +127,7 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(MCAST_L3VPN_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(routes, Collections.emptyList(), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(routes, List.of(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().augmentation(AttributesReach.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
@@ -135,41 +135,41 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(L3vpnMcastRoutesIpv6Case.class), this.ribSupport.cacheableNlriObjects());
+        assertEquals(Set.of(L3vpnMcastRoutesIpv6Case.class), ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(Set.of(), ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
         final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(MCAST_L3VPN_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
-        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
+        final YangInstanceIdentifier actual = ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(L3vpnMcastRoutesIpv6Case.QNAME.getModule())),
-            this.ribSupport.routeAttributesIdentifier());
+            ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(L3vpnMcastRoutesIpv6Case.class, this.ribSupport.routesCaseClass());
+        assertEquals(L3vpnMcastRoutesIpv6Case.class, ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(L3vpnMcastRoutesIpv6.class, this.ribSupport.routesContainerClass());
+        assertEquals(L3vpnMcastRoutesIpv6.class, ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(L3vpnMcastRoute.class, this.ribSupport.routesListClass());
+        assertEquals(L3vpnMcastRoute.class, ribSupport.routesListClass());
     }
 
     @Test
@@ -177,17 +177,17 @@ public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMc
         final Routes emptyCase = new L3vpnMcastRoutesIpv6CaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes
                 = new L3vpnMcastRoutesIpv6CaseBuilder()
                 .setL3vpnMcastRoutesIpv6(new L3vpnMcastRoutesIpv6Builder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new L3vpnMcastRoutesIpv6CaseBuilder().setL3vpnMcastRoutesIpv6(MCAST_L3VPN_ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
     }
 }

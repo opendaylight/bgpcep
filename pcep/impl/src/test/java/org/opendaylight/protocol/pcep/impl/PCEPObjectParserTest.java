@@ -14,14 +14,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
@@ -174,18 +174,18 @@ public class PCEPObjectParserTest {
 
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new BaseParserExtensionActivator();
-        this.viAct = new TestVendorInformationActivator();
-        this.act.start(this.ctx);
-        this.viAct.start(this.ctx);
-        this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
-        this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
+        ctx = new SimplePCEPExtensionProviderContext();
+        act = new BaseParserExtensionActivator();
+        viAct = new TestVendorInformationActivator();
+        act.start(ctx);
+        viAct.start(ctx);
+        tlvRegistry = ctx.getTlvHandlerRegistry();
+        viTlvRegistry = ctx.getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWOTLV() throws PCEPDeserializerException, IOException {
-        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPOpenObject1.bin"));
 
         final OpenBuilder builder = new OpenBuilder()
@@ -221,7 +221,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testCloseObject() throws IOException, PCEPDeserializerException {
-        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPCloseObject1.bin"));
 
         final CCloseBuilder builder = new CCloseBuilder()
@@ -286,7 +286,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testERObject() throws Exception {
         final PCEPExplicitRouteObjectParser parser =
-            new PCEPExplicitRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+            new PCEPExplicitRouteObjectParser(ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result =
             Unpooled.wrappedBuffer(
                 ByteArray.fileToBytes("src/test/resources/PCEPExplicitRouteObject1PackOfSubobjects.bin"));
@@ -337,7 +337,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testIRObject() throws Exception {
         final PCEPIncludeRouteObjectParser parser =
-            new PCEPIncludeRouteObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+            new PCEPIncludeRouteObjectParser(ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result =
             Unpooled.wrappedBuffer(
                 ByteArray.fileToBytes("src/test/resources/PCEPIncludeRouteObject1PackOfSubobjects.bin"));
@@ -395,7 +395,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testRRObject() throws Exception {
         final PCEPReportedRouteObjectParser parser =
-            new PCEPReportedRouteObjectParser(this.ctx.getRROSubobjectHandlerRegistry());
+            new PCEPReportedRouteObjectParser(ctx.getRROSubobjectHandlerRegistry());
         final ByteBuf result =
             Unpooled.wrappedBuffer(
                 ByteArray.fileToBytes("src/test/resources/PCEPReportedRouteObject1PackOfSubobjects.bin"));
@@ -582,7 +582,7 @@ public class PCEPObjectParserTest {
         builder.setAddressFamily(new P2mpIpv4CaseBuilder().setP2mpIpv4(new P2mpIpv4Builder()
                 .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
                 .setSourceIpv4Address(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
-                .setDestinationIpv4Address(Arrays.asList(new Ipv4AddressNoZone("255.255.255.255"),
+                .setDestinationIpv4Address(ImmutableSet.of(new Ipv4AddressNoZone("255.255.255.255"),
                         new Ipv4AddressNoZone("255.255.255.252"))).build()).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
@@ -680,7 +680,7 @@ public class PCEPObjectParserTest {
         builder.setAddressFamily(new P2mpIpv6CaseBuilder().setP2mpIpv6(new P2mpIpv6Builder()
                 .setP2mpLeaves(P2mpLeaves.NewLeavesToAdd)
                 .setSourceIpv6Address(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(srcIPBytes)))
-                .setDestinationIpv6Address(Arrays.asList(
+                .setDestinationIpv6Address(ImmutableSet.of(
                         new Ipv6AddressNoZone("2:5dd2:ffec:a1b6:581e:9f50::"),
                         new Ipv6AddressNoZone("3:5dd2:ffec:a1b6:581e:9f50::")
                 )).build()).build());
@@ -708,7 +708,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testErrorObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPErrorObjectParser parser = new PCEPErrorObjectParser(tlvRegistry, viTlvRegistry);
 
         final ErrorObjectBuilder builder = new ErrorObjectBuilder()
                 .setProcessingRule(true)
@@ -754,7 +754,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObject() throws IOException, PCEPDeserializerException {
-        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(tlvRegistry, viTlvRegistry);
 
         final LspaBuilder builder = new LspaBuilder()
                 .setProcessingRule(true)
@@ -854,7 +854,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testNoPathObjectWithTlv() throws PCEPDeserializerException, IOException {
-        final PCEPNoPathObjectParser parser = new PCEPNoPathObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPNoPathObjectParser parser = new PCEPNoPathObjectParser(tlvRegistry, viTlvRegistry);
         ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPNoPathObject1WithoutTLV.bin"));
 
@@ -907,7 +907,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testNotifyObjectWithTlv() throws PCEPDeserializerException, IOException {
         final PCEPNotificationObjectParser parser =
-            new PCEPNotificationObjectParser(this.tlvRegistry, this.viTlvRegistry);
+            new PCEPNotificationObjectParser(tlvRegistry, viTlvRegistry);
 
         final CNotificationBuilder builder = new CNotificationBuilder()
                 .setProcessingRule(true)
@@ -954,7 +954,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testRPObjectWithTlv() throws PCEPDeserializerException, IOException {
         final PCEPRequestParameterObjectParser parser =
-            new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
+            new PCEPRequestParameterObjectParser(tlvRegistry, viTlvRegistry);
 
         final RpBuilder builder = new RpBuilder()
                 .setProcessingRule(true)
@@ -1026,7 +1026,7 @@ public class PCEPObjectParserTest {
                 .setSrlgDiverse(false)
                 .setPartialPathDiverse(false)
                 .setLinkDirectionDiverse(false)
-                .setRequestsIds(Lists.newArrayList(new RequestId(Uint32.valueOf(0xFF))));
+                .setRequestsIds(Set.of(new RequestId(Uint32.valueOf(0xFF))));
 
         ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPSvecObject2.bin"));
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
@@ -1041,19 +1041,18 @@ public class PCEPObjectParserTest {
         builder.setLinkDiverse(true);
         builder.setSrlgDiverse(true);
 
-        final List<RequestId> requestIDs = new ArrayList<>();
-        requestIDs.add(new RequestId(Uint32.valueOf(0xFFFFFFFFL)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x00000001L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x01234567L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x89ABCDEFL)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0xFEDCBA98L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x76543210L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x15825266L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x48120BBEL)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0x25FB7E52L)));
-        requestIDs.add(new RequestId(Uint32.valueOf(0xB2F2546BL)));
-
-        builder.setRequestsIds(requestIDs);
+        builder.setRequestsIds(ImmutableSet.of(
+            // Order is important for assertion
+            new RequestId(Uint32.valueOf(0xFFFFFFFFL)),
+            new RequestId(Uint32.valueOf(0x00000001L)),
+            new RequestId(Uint32.valueOf(0x01234567L)),
+            new RequestId(Uint32.valueOf(0x89ABCDEFL)),
+            new RequestId(Uint32.valueOf(0xFEDCBA98L)),
+            new RequestId(Uint32.valueOf(0x76543210L)),
+            new RequestId(Uint32.valueOf(0x15825266L)),
+            new RequestId(Uint32.valueOf(0x48120BBEL)),
+            new RequestId(Uint32.valueOf(0x25FB7E52L)),
+            new RequestId(Uint32.valueOf(0xB2F2546BL))));
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, false),
             result.slice(4, result.readableBytes() - 4)));
@@ -1109,7 +1108,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testExcludeRouteObject() throws Exception {
         final PCEPExcludeRouteObjectParser parser =
-            new PCEPExcludeRouteObjectParser(this.ctx.getXROSubobjectHandlerRegistry());
+            new PCEPExcludeRouteObjectParser(ctx.getXROSubobjectHandlerRegistry());
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPExcludeRouteObject.1.bin"));
 
@@ -1157,7 +1156,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testPathKeyObject() throws Exception {
-        final PCEPPathKeyObjectParser parser = new PCEPPathKeyObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+        final PCEPPathKeyObjectParser parser = new PCEPPathKeyObjectParser(ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPPathKeyObject.bin"));
 
@@ -1192,7 +1191,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testObjectiveFunctionObject() throws IOException, PCEPDeserializerException {
         final PCEPObjectiveFunctionObjectParser parser =
-            new PCEPObjectiveFunctionObjectParser(this.tlvRegistry, this.viTlvRegistry);
+            new PCEPObjectiveFunctionObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPObjectiveFunctionObject.1.bin"));
 
@@ -1226,7 +1225,7 @@ public class PCEPObjectParserTest {
     @Test
     public void testGlobalConstraintsObject() throws IOException, PCEPDeserializerException {
         final PCEPGlobalConstraintsObjectParser parser =
-            new PCEPGlobalConstraintsObjectParser(this.tlvRegistry, this.viTlvRegistry);
+            new PCEPGlobalConstraintsObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPGlobalConstraintsObject.1.bin"));
 
@@ -1263,14 +1262,14 @@ public class PCEPObjectParserTest {
     @Test
     public void testIgnoreUknownObject() throws PCEPDeserializerException {
         final Object object =
-            this.ctx.getObjectHandlerRegistry().parseObject(35, 1, new ObjectHeaderImpl(false, false), null);
+            ctx.getObjectHandlerRegistry().parseObject(35, 1, new ObjectHeaderImpl(false, false), null);
         assertNull(object);
     }
 
     @Test
     public void testUnrecognizedObjectType() throws PCEPDeserializerException {
         final Object object =
-            this.ctx.getObjectHandlerRegistry().parseObject(2, 2, new ObjectHeaderImpl(true, true), null);
+            ctx.getObjectHandlerRegistry().parseObject(2, 2, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
         assertTrue(object instanceof UnknownObject);
         assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_TYPE, ((UnknownObject) object).getError());
@@ -1278,7 +1277,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testUnrecognizedObjectClass() throws PCEPDeserializerException {
-        final Object object = this.ctx.getObjectHandlerRegistry()
+        final Object object = ctx.getObjectHandlerRegistry()
             .parseObject(35, 1, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
         assertTrue(object instanceof UnknownObject);
@@ -1287,7 +1286,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testLspaObjectSerializerDefence() throws IOException {
-        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPLspaObjectParser parser = new PCEPLspaObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result =
             Unpooled.wrappedBuffer(ByteArray.fileToBytes("src/test/resources/PCEPLspaObject1LowerBounds.bin"));
 
@@ -1303,7 +1302,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testEmptyEroObject() throws PCEPDeserializerException {
-        final Object object = this.ctx.getObjectHandlerRegistry().parseObject(7, 1,
+        final Object object = ctx.getObjectHandlerRegistry().parseObject(7, 1,
             new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
         assertNotNull(object);
         assertTrue(object instanceof Ero);
@@ -1311,7 +1310,7 @@ public class PCEPObjectParserTest {
         assertNull(eroObject.getSubobject());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.ctx.getObjectHandlerRegistry().serializeObject(eroObject, buffer);
+        ctx.getObjectHandlerRegistry().serializeObject(eroObject, buffer);
         final byte[] expected = {0x07, 0x13, 0x00, 0x04};
         assertArrayEquals(expected, ByteArray.getAllBytes(buffer));
     }
@@ -1328,7 +1327,7 @@ public class PCEPObjectParserTest {
             /* enterprise specific information */
             0x00, 0x00, 0x00, 0x05
         };
-        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPCloseObjectParser parser = new PCEPCloseObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(closeBytes);
 
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
@@ -1386,7 +1385,7 @@ public class PCEPObjectParserTest {
             /* monitoring-id=16 */
             0x00, 0x00, 0x00, 0x10
         };
-        final PCEPMonitoringObjectParser parser = new PCEPMonitoringObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final PCEPMonitoringObjectParser parser = new PCEPMonitoringObjectParser(tlvRegistry, viTlvRegistry);
         final Monitoring monitoring = new MonitoringBuilder()
                 .setMonitoringId(Uint32.valueOf(16L))
                 .setFlags(new Flags(false, false, true, false, false))
@@ -1553,7 +1552,7 @@ public class PCEPObjectParserTest {
             0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
 
         final PCEPRequestParameterObjectParser parser
-            = new PCEPRequestParameterObjectParser(this.tlvRegistry, this.viTlvRegistry);
+            = new PCEPRequestParameterObjectParser(tlvRegistry, viTlvRegistry);
         final RpBuilder builder = new RpBuilder()
                 .setProcessingRule(false)
                 .setIgnore(false)
@@ -1592,7 +1591,7 @@ public class PCEPObjectParserTest {
         };
 
         final BranchNodeListObjectParser parser
-            = new BranchNodeListObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+            = new BranchNodeListObjectParser(ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(expected);
 
         final BranchNodeListBuilder builder = new BranchNodeListBuilder();
@@ -1631,7 +1630,7 @@ public class PCEPObjectParserTest {
         };
 
         final NonBranchNodeListObjectParser parser
-            = new NonBranchNodeListObjectParser(this.ctx.getEROSubobjectHandlerRegistry());
+            = new NonBranchNodeListObjectParser(ctx.getEROSubobjectHandlerRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(expected);
 
         final NonBranchNodeListBuilder builder = new NonBranchNodeListBuilder();
@@ -1676,7 +1675,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final Ipv4DestinationCase dest = new Ipv4DestinationCaseBuilder()
-            .setDestinationIpv4Address(Collections.singletonList(new Ipv4AddressNoZone("127.0.0.1")))
+            .setDestinationIpv4Address(Set.of(new Ipv4AddressNoZone("127.0.0.1")))
             .build();
         builder.setDestination(dest);
 
@@ -1712,7 +1711,7 @@ public class PCEPObjectParserTest {
         builder.setProcessingRule(false);
         builder.setIgnore(false);
         final Ipv6DestinationCase dest = new Ipv6DestinationCaseBuilder()
-            .setDestinationIpv6Address(Collections.singletonList(new Ipv6AddressNoZone("::1")))
+            .setDestinationIpv6Address(Set.of(new Ipv6AddressNoZone("::1")))
             .build();
         builder.setDestination(dest);
 

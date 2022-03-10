@@ -13,10 +13,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
@@ -70,6 +70,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -146,10 +147,10 @@ public class LinkstateAttributeParserTest {
 
     @Before
     public final void setUp() {
-        this.context = new SimpleRSVPExtensionProviderContext();
-        this.rsvpActivator = new RSVPActivator();
-        this.rsvpActivator.start(this.context);
-        this.parser = new LinkstateAttributeParser(false,this.context.getRsvpRegistry());
+        context = new SimpleRSVPExtensionProviderContext();
+        rsvpActivator = new RSVPActivator();
+        rsvpActivator.start(context);
+        parser = new LinkstateAttributeParser(false,context.getRsvpRegistry());
     }
 
     private static AttributesBuilder createBuilder(final ObjectType type) {
@@ -160,7 +161,7 @@ public class LinkstateAttributeParserTest {
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                     .setDestinationType(new DestinationLinkstateCaseBuilder()
                         .setDestinationLinkstate(new DestinationLinkstateBuilder()
-                            .setCLinkstateDestination(Lists.newArrayList(new CLinkstateDestinationBuilder()
+                            .setCLinkstateDestination(List.of(new CLinkstateDestinationBuilder()
                                 .setObjectType(type)
                                 .setProtocolId(ProtocolId.IsisLevel1)
                                 .build()))
@@ -183,7 +184,7 @@ public class LinkstateAttributeParserTest {
                             .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                                 .yang.bgp.linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes
                                 .destination.type.destination.linkstate._case.DestinationLinkstateBuilder()
-                                    .setCLinkstateDestination(Lists.newArrayList(new CLinkstateDestinationBuilder()
+                                    .setCLinkstateDestination(List.of(new CLinkstateDestinationBuilder()
                                         .setObjectType(type)
                                         .setProtocolId(ProtocolId.IsisLevel1)
                                         .build()))
@@ -198,13 +199,13 @@ public class LinkstateAttributeParserTest {
     public void testGetNlriType() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf b = Unpooled.buffer();
         AttributesBuilder builder = new AttributesBuilder();
-        this.parser.parseAttribute(b, builder, null);
+        parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         final AttributesReachBuilder builder1 = new AttributesReachBuilder();
         builder.addAugmentation(builder1.build());
-        this.parser.parseAttribute(b, builder, null);
+        parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
@@ -215,13 +216,13 @@ public class LinkstateAttributeParserTest {
                     .build())
                 .build())
             .build());
-        this.parser.parseAttribute(b, builder, null);
+        parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
         final AttributesUnreachBuilder builder2 = new AttributesUnreachBuilder();
         builder.addAugmentation(builder2.build());
-        this.parser.parseAttribute(b, builder, null);
+        parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
         builder = new AttributesBuilder();
 
@@ -234,14 +235,14 @@ public class LinkstateAttributeParserTest {
                     .build())
                 .build())
             .build());
-        this.parser.parseAttribute(b, builder, null);
+        parser.parseAttribute(b, builder, null);
         assertEquals(0, b.readableBytes());
     }
 
     @Test
     public void testPositiveLinks() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder, null);
+        parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder, null);
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final LinkAttributes ls = ((LinkAttributesCase) attrs.getLinkStateAttribute()).getLinkAttributes();
         assertNotNull(ls);
@@ -260,7 +261,7 @@ public class LinkstateAttributeParserTest {
         assertTrue(ls.getMplsProtocol().getRsvpte());
         assertEquals(Uint32.TEN, ls.getMetric().getValue());
         assertEquals(2, ls.getSharedRiskLinkGroups().size());
-        assertEquals(305419896, ls.getSharedRiskLinkGroups().get(0).getValue().intValue());
+        assertEquals(305419896, ls.getSharedRiskLinkGroups().iterator().next().getValue().intValue());
         assertEquals("12K-2", ls.getLinkName());
         final IsisAdjFlagsCase flags = new IsisAdjFlagsCaseBuilder()
                 .setIsisAdjFlags(new IsisAdjFlagsBuilder()
@@ -297,7 +298,7 @@ public class LinkstateAttributeParserTest {
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
-        this.parser.serializeAttribute(builder.build(), buff);
+        parser.serializeAttribute(builder.build(), buff);
         // The LINK_ATTR buffer is now greater than 255 bytes. Need to skip one more byte
         buff.skipBytes(4);
         // there is unresolved TLV at the end, that needs to be cut off
@@ -308,14 +309,14 @@ public class LinkstateAttributeParserTest {
     @Test
     public void testPositiveNodes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder, null);
+        parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
         assertNotNull(ls);
 
         assertEquals(2, ls.getTopologyIdentifier().size());
-        assertEquals(42, ls.getTopologyIdentifier().get(0).getValue().intValue());
+        assertEquals(Uint16.valueOf(42), ls.getTopologyIdentifier().iterator().next().getValue());
         assertTrue(ls.getNodeFlags().getOverload());
         assertFalse(ls.getNodeFlags().getAttached());
         assertTrue(ls.getNodeFlags().getExternal());
@@ -329,7 +330,7 @@ public class LinkstateAttributeParserTest {
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
-        this.parser.serializeAttribute(builder.build(), buff);
+        parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
         assertArrayEquals(NODE_ATTR_S, ByteArray.getAllBytes(buff));
     }
@@ -339,7 +340,7 @@ public class LinkstateAttributeParserTest {
         final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
             new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32")))
             .build()).build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder, null);
+        parser.parseAttribute(Unpooled.copiedBuffer(P4_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final PrefixAttributes ls = ((PrefixAttributesCase) attrs.getLinkStateAttribute()).getPrefixAttributes();
@@ -356,18 +357,18 @@ public class LinkstateAttributeParserTest {
         assertTrue(ispBits.getOspfLocalAddress());
         assertTrue(ispBits.getOspfPropagateNssa());
         assertEquals(2, ls.getRouteTags().size());
-        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 }, ls.getRouteTags().get(0)
-            .getValue());
+        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 },
+            ls.getRouteTags().iterator().next().getValue());
         assertEquals(1, ls.getExtendedTags().size());
         assertArrayEquals(new byte[] {
             (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30, (byte) 0x50, (byte) 0x70
-        }, ls.getExtendedTags().get(0).getValue());
+        }, ls.getExtendedTags().iterator().next().getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
         assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4AddressNoZone().getValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
-        this.parser.serializeAttribute(builder.build(), buff);
+        parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
         // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(P4_ATTR, ByteArray.getAllBytes(buff));
@@ -376,7 +377,7 @@ public class LinkstateAttributeParserTest {
     @Test
     public void testPositiveTELspAttribute() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
-        this.parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder, null);
+        parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
         final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute())
@@ -403,7 +404,7 @@ public class LinkstateAttributeParserTest {
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
-        this.parser.serializeAttribute(builder.build(), buff);
+        parser.serializeAttribute(builder.build(), buff);
         assertArrayEquals(TE_LSP_ATTR, ByteArray.getAllBytes(buff));
         assertTrue(Arrays.equals(TE_LSP_ATTR, ByteArray.getAllBytes(buff)));
     }

@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.unreach;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
@@ -19,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public final class PCEPUnreachDestinationSerializer implements ObjectSerializer {
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof UnreachDestinationObj,
+        checkArgument(object instanceof UnreachDestinationObj,
             "Wrong instance of PCEPObject. Passed %s. Needed UnreachDestinationObj.", object.getClass());
         final UnreachDestinationObj uPObj = (UnreachDestinationObj) object;
         final Destination destination = uPObj.getDestination();

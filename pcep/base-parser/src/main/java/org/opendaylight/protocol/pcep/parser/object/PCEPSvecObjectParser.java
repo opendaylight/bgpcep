@@ -9,10 +9,10 @@ package org.opendaylight.protocol.pcep.parser.object;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -69,11 +69,12 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         }
         bytes.skipBytes(FLAGS_F_OFFSET);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        final List<RequestId> requestIDs = new ArrayList<>();
-
+        final var builder = ImmutableSet.<RequestId>builder();
         while (bytes.isReadable()) {
-            requestIDs.add(new RequestId(ByteBufUtils.readUint32(bytes)));
+            builder.add(new RequestId(ByteBufUtils.readUint32(bytes)));
         }
+        final Set<RequestId> requestIDs = builder.build();
+
         if (requestIDs.isEmpty()) {
             throw new PCEPDeserializerException("Empty Svec Object - no request ids.");
         }
@@ -94,6 +95,9 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         checkArgument(object instanceof Svec, "Wrong instance of PCEPObject. Passed %s. Needed SvecObject.",
             object.getClass());
         final Svec svecObj = (Svec) object;
+        final Set<RequestId> requestIDs = svecObj.getRequestsIds();
+        checkArgument(!requestIDs.isEmpty(), "Empty Svec Object - no request ids.");
+
         final ByteBuf body = Unpooled.buffer();
         body.writeZero(FLAGS_F_OFFSET);
         final BitArray flags = new BitArray(FLAGS_SIZE);
@@ -104,9 +108,6 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.set(P_FLAG_OFFSET, svecObj.getPartialPathDiverse());
         flags.toByteBuf(body);
 
-        final List<RequestId> requestIDs = svecObj.getRequestsIds();
-        // FIXME: remove this assert
-        assert !requestIDs.isEmpty() : "Empty Svec Object - no request ids.";
         for (final RequestId requestId : requestIDs) {
             ByteBufUtils.write(body, requestId.getValue());
         }

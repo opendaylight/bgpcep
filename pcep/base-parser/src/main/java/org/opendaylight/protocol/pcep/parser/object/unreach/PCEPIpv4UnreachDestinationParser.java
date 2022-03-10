@@ -9,10 +9,10 @@ package org.opendaylight.protocol.pcep.parser.object.unreach;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
@@ -37,7 +37,7 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
         final Boolean ignore,
         final Ipv4DestinationCase ipv4Case,
         final ByteBuf buffer) {
-        final List<Ipv4AddressNoZone> dest = ipv4Case.getDestinationIpv4Address();
+        final Set<Ipv4AddressNoZone> dest = ipv4Case.getDestinationIpv4Address();
         checkArgument(dest != null, "DestinationIpv4Address is mandatory.");
         final ByteBuf body = Unpooled.buffer(Ipv4Util.IP4_LENGTH * dest.size());
         dest.forEach(ipv4 -> Ipv4Util.writeIpv4Address(ipv4, body));
@@ -48,17 +48,17 @@ public final class PCEPIpv4UnreachDestinationParser extends CommonObjectParser {
     public UnreachDestinationObj parseObject(final ObjectHeader header, final ByteBuf bytes)
         throws PCEPDeserializerException {
         checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        final UnreachDestinationObjBuilder builder = new UnreachDestinationObjBuilder();
         if (bytes.readableBytes() % Ipv4Util.IP4_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes.");
         }
-        builder.setIgnore(header.getIgnore());
-        builder.setProcessingRule(header.getProcessingRule());
-        List<Ipv4AddressNoZone> dest = new ArrayList<>();
+        final var dest = ImmutableSet.<Ipv4AddressNoZone>builder();
         while (bytes.isReadable()) {
             dest.add(Ipv4Util.addressForByteBuf(bytes));
         }
-        builder.setDestination(new Ipv4DestinationCaseBuilder().setDestinationIpv4Address(dest).build());
-        return builder.build();
+        return new UnreachDestinationObjBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule())
+            .setDestination(new Ipv4DestinationCaseBuilder().setDestinationIpv4Address(dest.build()).build())
+            .build();
     }
 }

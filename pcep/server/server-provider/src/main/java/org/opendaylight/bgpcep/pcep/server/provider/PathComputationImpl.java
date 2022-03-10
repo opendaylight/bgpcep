@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.opendaylight.algo.PathComputationAlgorithm;
@@ -42,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2p;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,12 +251,11 @@ public class PathComputationImpl implements PathComputation {
     private static PathConstraints getConstraints(final EndpointsObj endpoints, final Bandwidth bandwidth,
             final ClassType classType, final List<Metrics> metrics, final boolean segmentRouting) {
         ConstraintsBuilder ctsBuilder = new ConstraintsBuilder();
-        Float convert;
 
         /* Set Metrics if any */
         if (metrics != null) {
             for (Metrics metric : metrics) {
-                convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
+                Float convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
                 final long value = convert.longValue();
                 /* Skip Metric with value equal to 0 */
                 if (value == 0) {
@@ -282,11 +281,12 @@ public class PathComputationImpl implements PathComputation {
 
         /* Set Bandwidth and Class Type */
         if (bandwidth != null) {
-            convert = ByteBuffer.wrap(bandwidth.getBandwidth().getValue()).getFloat();
+            Float convert = ByteBuffer.wrap(bandwidth.getBandwidth().getValue()).getFloat();
             final long value = convert.longValue();
             /* Skip Bandwidth with value equal to 0 */
             if (value != 0) {
-                ctsBuilder.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(value)));
+                // FIXME: correct rounding/truncation!
+                ctsBuilder.setBandwidth(new DecimalBandwidth(Decimal64.valueOf(2, value)));
                 if (classType != null) {
                     ctsBuilder.setClassType(classType.getClassType().getValue());
                 }

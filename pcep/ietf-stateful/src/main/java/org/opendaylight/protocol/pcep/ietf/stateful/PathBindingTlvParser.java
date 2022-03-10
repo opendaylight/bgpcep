@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
@@ -168,16 +167,12 @@ public final class PathBindingTlvParser implements TlvParser, TlvSerializer {
         abstract void writeEntry(ByteBuf buf, BindingTypeValue value);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel
         getMplsLabel(final long mplsStackEntry) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125
                 .MplsLabel(Uint32.valueOf(mplsStackEntry >> LABEL_SHIFT & LABEL_MASK));
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private static long getMplsStackEntry(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network
             .concepts.rev131125.MplsLabel mplsLabel) {
         return mplsLabel.getValue().toJava() << LABEL_SHIFT;

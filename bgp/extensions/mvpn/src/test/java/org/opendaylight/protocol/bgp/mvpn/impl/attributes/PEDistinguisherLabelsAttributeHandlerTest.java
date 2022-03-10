@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.bgp.rib.route.PeDistinguisherLabelsAttributeAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.PeDistinguisherLabelsAttributeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -56,34 +54,35 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
         inetActivator.start(ctx);
         final BGPActivator bgpActivator = new BGPActivator();
         bgpActivator.start(ctx);
-        this.handler = ctx.getAttributeRegistry();
+        handler = ctx.getAttributeRegistry();
     }
 
     @Test
     public void testPEDistinguisherLabelsHandler() throws Exception {
         final Attributes expected = buildPEDistinguisherLabelsAttributAttribute();
         final ByteBuf actual = Unpooled.buffer();
-        this.handler.serializeAttribute(expected, actual);
+        handler.serializeAttribute(expected, actual);
         assertArrayEquals(PE_DISTINGUISHER_LABELS, ByteArray.readAllBytes(actual));
-        final Attributes actualAttr = this.handler.parseAttributes(
+        final Attributes actualAttr = handler.parseAttributes(
                 Unpooled.wrappedBuffer(PE_DISTINGUISHER_LABELS), null).getAttributes();
         assertEquals(expected, actualAttr);
     }
 
     private static Attributes buildPEDistinguisherLabelsAttributAttribute() {
-        final List<PeDistinguisherLabelAttribute> peAtt = new ArrayList<>(2);
-
-        peAtt.add(new PeDistinguisherLabelAttributeBuilder()
-                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1")))
-                .setMplsLabel(new MplsLabel(Uint32.ONE))
-                .build());
-        peAtt.add(new PeDistinguisherLabelAttributeBuilder()
-                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2")))
-                .setMplsLabel(new MplsLabel(Uint32.TWO))
-                .build());
         return new AttributesBuilder()
                 .addAugmentation(new PeDistinguisherLabelsAttributeAugmentationBuilder()
                     .setPeDistinguisherLabelsAttribute(new PeDistinguisherLabelsAttributeBuilder()
-                        .setPeDistinguisherLabelAttribute(peAtt).build()).build()).build();
+                        .setPeDistinguisherLabelAttribute(List.of(
+                            new PeDistinguisherLabelAttributeBuilder()
+                                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1")))
+                                .setMplsLabel(new MplsLabel(Uint32.ONE))
+                                .build(),
+                            new PeDistinguisherLabelAttributeBuilder()
+                                .setPeAddress(new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2")))
+                                .setMplsLabel(new MplsLabel(Uint32.TWO))
+                                .build()))
+                        .build())
+                    .build())
+                .build();
     }
 }

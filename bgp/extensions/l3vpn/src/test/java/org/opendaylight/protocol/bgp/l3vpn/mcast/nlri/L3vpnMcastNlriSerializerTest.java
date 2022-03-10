@@ -13,9 +13,7 @@ import static org.junit.Assert.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,18 +62,18 @@ public class L3vpnMcastNlriSerializerTest {
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {IPV4_EXPECTED, Collections.singletonList(MCAST_IPV4_L3VPN_DESTINATION)},
-                {IPV6_EXPECTED, Collections.singletonList(MCAST_IPV6_L3VPN_DESTINATION)},
+        return List.of(new Object[][] {
+                { IPV4_EXPECTED, List.of(MCAST_IPV4_L3VPN_DESTINATION) },
+                { IPV6_EXPECTED, List.of(MCAST_IPV6_L3VPN_DESTINATION) },
         });
     }
 
     @Test
     public void testL3vpnMcastNlriSerializer() {
         ByteBuf actual = Unpooled.buffer();
-        L3vpnMcastNlriSerializer.serializeNlri(this.destination, actual);
-        assertArrayEquals(this.expectedArray, ByteArray.getAllBytes(actual));
-        assertEquals(this.destination,
-                L3vpnMcastNlriSerializer.extractDest(Unpooled.copiedBuffer(this.expectedArray), false));
+        L3vpnMcastNlriSerializer.serializeNlri(destination, actual);
+        assertArrayEquals(expectedArray, ByteArray.getAllBytes(actual));
+        assertEquals(destination,
+                L3vpnMcastNlriSerializer.extractDest(Unpooled.copiedBuffer(expectedArray), false));
     }
 }
