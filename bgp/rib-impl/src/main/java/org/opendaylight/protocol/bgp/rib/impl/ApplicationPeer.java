@@ -22,7 +22,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -59,8 +58,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,40 +122,40 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 new IpAddressNoZone(ipAddress), Collections.emptySet());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         final RIB targetRib = requireNonNull(rib);
-        this.peerId = RouterIds.createPeerId(ipAddress);
+        peerId = RouterIds.createPeerId(ipAddress);
 
         final YangInstanceIdentifier peerRib = targetRib.getYangRibId().node(PEER_NID)
             .node(IdentifierUtils.domPeerId(peerId));
-        this.adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
-        this.peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
+        adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
+        peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
     }
 
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
         setActive(true);
-        final Set<TablesKey> localTables = this.rib.getLocalTablesKeys();
-        localTables.forEach(tablesKey -> this.supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
+        final Set<TablesKey> localTables = rib.getLocalTablesKeys();
+        localTables.forEach(tablesKey -> supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
         setAdvertizedGracefulRestartTableTypes(Collections.emptyList());
 
         createDomChain();
-        this.adjRibInWriter = AdjRibInWriter.create(this.rib.getYangRibId(), PeerRole.Internal, this);
-        final RIBSupportContextRegistry context = this.rib.getRibSupportContext();
+        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
+        final RIBSupportContextRegistry context = rib.getRibSupportContext();
         final RegisterAppPeerListener registerAppPeerListener = () -> {
             synchronized (this) {
                 if (getDomChain() != null) {
-                    this.registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
+                    registration = dataTreeChangeService.registerDataTreeChangeListener(appPeerDOMId, this);
                 }
             }
         };
-        this.peerPath = createPeerPath(this.peerId);
-        this.adjRibInWriter = this.adjRibInWriter.transform(this.peerId, this.peerPath, context, localTables,
+        peerPath = createPeerPath(peerId);
+        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables,
                 Collections.emptyMap(), registerAppPeerListener);
-        this.effectiveRibInWriter = new EffectiveRibInWriter(this, this.rib,
-                this.rib.createPeerDOMChain(this), this.peerPath, localTables, this.tableTypeRegistry,
-                new ArrayList<>(), this.rtCache);
-        this.effectiveRibInWriter.init();
-        this.bgpSessionState.registerMessagesCounter(this);
-        this.trackerRegistration = this.rib.getPeerTracker().registerPeer(this);
+        effectiveRibInWriter = new EffectiveRibInWriter(this, rib,
+                rib.createPeerDOMChain(this), peerPath, localTables, tableTypeRegistry,
+                new ArrayList<>(), rtCache);
+        effectiveRibInWriter.init();
+        bgpSessionState.registerMessagesCounter(this);
+        trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }
 
     @Override
@@ -173,7 +172,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
      * be determined in LocRib.
      */
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
         final DOMTransactionChain chain = getDomChain();
         if (chain == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
@@ -188,13 +187,13 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
             verify(lastArg instanceof NodeIdentifierWithPredicates,
                     "Unexpected type %s in path %s", lastArg.getClass(), path);
             final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-            if (!this.supportedTables.contains(tableKey)) {
+            if (!supportedTables.contains(tableKey)) {
                 LOG.trace("Skipping received data change for non supported family {}.", tableKey);
                 continue;
             }
             for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
                 final PathArgument childIdentifier = child.getIdentifier();
-                final YangInstanceIdentifier tableId = this.adjRibsInId.node(tableKey).node(childIdentifier);
+                final YangInstanceIdentifier tableId = adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.getModificationType()) {
                     case DELETE:
                     case DISAPPEARED:
@@ -287,21 +286,21 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     @Override
     public synchronized FluentFuture<? extends CommitInfo> close() {
         setActive(false);
-        if (this.registration != null) {
-            this.registration.close();
-            this.registration = null;
+        if (registration != null) {
+            registration.close();
+            registration = null;
         }
-        if (this.adjRibInWriter != null) {
-            this.adjRibInWriter.releaseChain();
+        if (adjRibInWriter != null) {
+            adjRibInWriter.releaseChain();
         }
-        if (this.effectiveRibInWriter != null) {
-            this.effectiveRibInWriter.close();
+        if (effectiveRibInWriter != null) {
+            effectiveRibInWriter.close();
         }
-        final FluentFuture<? extends CommitInfo> future = removePeer(this.peerPath);
+        final FluentFuture<? extends CommitInfo> future = removePeer(peerPath);
         closeDomChain();
-        if (this.trackerRegistration != null) {
-            this.trackerRegistration.close();
-            this.trackerRegistration = null;
+        if (trackerRegistration != null) {
+            trackerRegistration.close();
+            trackerRegistration = null;
         }
         return future;
     }
@@ -318,12 +317,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     @Override
     public boolean supportsTable(final TablesKey tableKey) {
-        return this.rib.supportsTable(tableKey);
+        return rib.supportsTable(tableKey);
     }
 
     @Override
     public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
-        return this.tablesIId.getUnchecked(tablekey);
+        return tablesIId.getUnchecked(tablekey);
     }
 
     @Override
@@ -334,16 +333,16 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     @Override
     public BGPSessionState getBGPSessionState() {
-        return this.bgpSessionState;
+        return bgpSessionState;
     }
 
     @Override
     public BGPTimersState getBGPTimersState() {
-        return this.bgpSessionState;
+        return bgpSessionState;
     }
 
     @Override
     public BGPTransportState getBGPTransportState() {
-        return this.bgpSessionState;
+        return bgpSessionState;
     }
 }

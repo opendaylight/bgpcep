@@ -77,10 +77,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.ModificationType;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,26 +143,26 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final List<RouteTarget> rtMemberships,
             final ClientRouteTargetContrainCache rtCache) {
-        this.registry = requireNonNull(rib.getRibSupportContext());
+        registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
         this.peerIId = requireNonNull(peerIId);
-        this.effRibTables = this.peerIId.node(EFFRIBIN_NID);
-        this.prefixesInstalled = buildPrefixesTables(tables);
-        this.prefixesReceived = buildPrefixesTables(tables);
-        this.ribPolicies = requireNonNull(rib.getRibPolicies());
-        this.service = requireNonNull(rib.getService());
+        effRibTables = this.peerIId.node(EFFRIBIN_NID);
+        prefixesInstalled = buildPrefixesTables(tables);
+        prefixesReceived = buildPrefixesTables(tables);
+        ribPolicies = requireNonNull(rib.getRibPolicies());
+        service = requireNonNull(rib.getService());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
-        this.peerImportParameters = peer;
+        peerImportParameters = peer;
         this.rtMemberships = rtMemberships;
         this.rtCache = rtCache;
-        this.vpnTableRefresher = rib;
+        vpnTableRefresher = rib;
     }
 
     public void init() {
         final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
-            this.peerIId.node(ADJRIBIN_NID).node(TABLES_NID));
-        LOG.debug("Registered Effective RIB on {}", this.peerIId);
-        this.reg = requireNonNull(this.service).registerDataTreeChangeListener(treeId, this);
+            peerIId.node(ADJRIBIN_NID).node(TABLES_NID));
+        LOG.debug("Registered Effective RIB on {}", peerIId);
+        reg = requireNonNull(service).registerDataTreeChangeListener(treeId, this);
     }
 
     private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
@@ -177,8 +177,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
-        if (this.chain == null) {
+    public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
+        if (chain == null) {
             LOG.trace("Chain closed. Ignoring Changes : {}", changes);
             return;
         }
@@ -190,7 +190,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final DataTreeCandidateNode root = tc.getRootNode();
             for (final DataTreeCandidateNode table : root.getChildNodes()) {
                 if (tx == null) {
-                    tx = this.chain.newWriteOnlyTransaction();
+                    tx = chain.newWriteOnlyTransaction();
                 }
                 changeDataTree(tx, rootPath, root, table);
             }
@@ -198,7 +198,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         if (tx != null) {
             final FluentFuture<? extends CommitInfo> future = tx.commit();
-            this.submitted = future;
+            submitted = future;
             future.addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
@@ -213,37 +213,37 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         //Refresh VPN Table if RT Memberships were updated
-        if (this.rtMembershipsUpdated) {
-            this.vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, this.peerImportParameters.getFromPeerId());
-            this.rtMembershipsUpdated = false;
+        if (rtMembershipsUpdated) {
+            vpnTableRefresher.refreshTable(IVP4_VPN_TABLE_KEY, peerImportParameters.getFromPeerId());
+            vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, peerImportParameters.getFromPeerId());
+            rtMembershipsUpdated = false;
         }
     }
 
     @Override
     public synchronized void close() {
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
+        if (reg != null) {
+            reg.close();
+            reg = null;
         }
-        if (this.submitted != null) {
+        if (submitted != null) {
             try {
-                this.submitted.get();
+                submitted.get();
             } catch (final InterruptedException | ExecutionException throwable) {
                 LOG.error("Write routes failed", throwable);
             }
         }
-        if (this.chain != null) {
-            this.chain.close();
-            this.chain = null;
+        if (chain != null) {
+            chain.close();
+            chain = null;
         }
-        this.prefixesReceived.values().forEach(LongAdder::reset);
-        this.prefixesInstalled.values().forEach(LongAdder::reset);
+        prefixesReceived.values().forEach(LongAdder::reset);
+        prefixesInstalled.values().forEach(LongAdder::reset);
     }
 
     @Override
     public long getPrefixedReceivedCount(final TablesKey tablesKey) {
-        final LongAdder counter = this.prefixesReceived.get(tablesKey);
+        final LongAdder counter = prefixesReceived.get(tablesKey);
         if (counter == null) {
             return 0;
         }
@@ -252,17 +252,17 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     @Override
     public Set<TablesKey> getTableKeys() {
-        return ImmutableSet.copyOf(this.prefixesReceived.keySet());
+        return ImmutableSet.copyOf(prefixesReceived.keySet());
     }
 
     @Override
     public boolean isSupported(final TablesKey tablesKey) {
-        return this.prefixesReceived.containsKey(tablesKey);
+        return prefixesReceived.containsKey(tablesKey);
     }
 
     @Override
     public long getPrefixedInstalledCount(final TablesKey tablesKey) {
-        final LongAdder counter = this.prefixesInstalled.get(tablesKey);
+        final LongAdder counter = prefixesInstalled.get(tablesKey);
         if (counter == null) {
             return 0;
         }
@@ -271,7 +271,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     @Override
     public long getTotalPrefixesInstalled() {
-        return this.prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+        return prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
     }
 
     @Holding("this")
@@ -281,7 +281,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(),
             rootPath);
         final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
-        final RIBSupportContext ribContext = this.registry.getRIBSupportContext(tableKey);
+        final RIBSupportContext ribContext = registry.getRIBSupportContext(tableKey);
         if (ribContext == null) {
             LOG.warn("Table {} is not supported, ignoring event", tableKey);
             return;
@@ -439,7 +439,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             for (final MapEntryNode routeBefore : deletedRoutes) {
                 deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
             }
-            this.rtMembershipsUpdated = true;
+            rtMembershipsUpdated = true;
         }
 
         final TablesKey tablesKey = ribSupport.getTablesKey();
@@ -476,14 +476,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
         LOG.debug("Route deleted. routeId={}", routeIdPath);
         final TablesKey tablesKey = ribSupport.getTablesKey();
-        CountersUtil.decrement(this.prefixesInstalled.get(tablesKey), tablesKey);
+        CountersUtil.decrement(prefixesInstalled.get(tablesKey), tablesKey);
     }
 
     private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier routePath, final Optional<NormalizedNode> routeBefore,
             final NormalizedNode routeAfter, final boolean longLivedStale) {
         final TablesKey tablesKey = ribSupport.getTablesKey();
-        CountersUtil.increment(this.prefixesReceived.get(tablesKey), tablesKey);
+        CountersUtil.increment(prefixesReceived.get(tablesKey), tablesKey);
         // Lookup per-table attributes from RIBSupport
         final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(routeAfter,
             ribSupport.routeAttributesIdentifier()).orElse(null);
@@ -509,7 +509,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
         handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeAfter);
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
-        CountersUtil.increment(this.prefixesInstalled.get(tablesKey), tablesKey);
+        CountersUtil.increment(prefixesInstalled.get(tablesKey), tablesKey);
 
         final Attributes attToStore = optEffAtt.get();
         if (!attToStore.equals(routeAttrs)) {
@@ -521,10 +521,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void addRouteTarget(final RouteTargetConstrainRoute rtc) {
         final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
-        if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-            this.rtCache.cacheRoute(rtc);
+        if (PeerRole.Ebgp != peerImportParameters.getFromPeerRole()) {
+            rtCache.cacheRoute(rtc);
         }
-        this.rtMemberships.add(rtMembership);
+        rtMemberships.add(rtMembership);
     }
 
     private void deleteRouteTarget(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier routeIdPath,
@@ -534,10 +534,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void deleteRouteTarget(final RouteTargetConstrainRoute rtc) {
         final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
-        if (PeerRole.Ebgp != this.peerImportParameters.getFromPeerRole()) {
-            this.rtCache.uncacheRoute(rtc);
+        if (PeerRole.Ebgp != peerImportParameters.getFromPeerRole()) {
+            rtCache.uncacheRoute(rtc);
         }
-        this.rtMemberships.remove(rtMembership);
+        rtMemberships.remove(rtMembership);
     }
 
     private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?> ribSupport,
@@ -550,7 +550,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             } else {
                 addRouteTarget(rtc);
             }
-            this.rtMembershipsUpdated = true;
+            rtMembershipsUpdated = true;
         }
     }
 
@@ -585,7 +585,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private YangInstanceIdentifier effectiveTablePath(final NodeIdentifierWithPredicates tableKey) {
-        return this.effRibTables.node(TABLES_NID).node(tableKey);
+        return effRibTables.node(TABLES_NID).node(tableKey);
     }
 
     private static YangInstanceIdentifier routeMapPath(final RIBSupport<?, ?> ribSupport,

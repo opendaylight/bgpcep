@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Map;
@@ -42,12 +43,13 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCEPPeerProposal {
-    @VisibleForTesting
     private abstract static class AbstractListener<D extends DataObject, V>
             implements ClusteredDataTreeChangeListener<D> {
         final Map<NodeId, V> map = new ConcurrentHashMap<>();
         final Registration reg;
 
+        @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+            justification = "Stateless specializations in this nest")
         AbstractListener(final DataBroker dataBroker, final @NonNull LogicalDatastoreType datastore,
                 final @NonNull InstanceIdentifier<D> wildcard) {
             reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(datastore, wildcard), this);

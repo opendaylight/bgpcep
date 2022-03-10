@@ -13,7 +13,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -29,6 +28,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsRestrictedType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.defined.sets.NeighborSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.neighbor.set.NeighborSet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.neighbor.set.NeighborSetKey;
@@ -46,8 +46,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class MatchBgpNeighborSetHandler
         implements BgpConditionsAugmentationPolicy<MatchBgpNeighborCondition, Void> {
-    private static final InstanceIdentifier<NeighborSets> NEIGHBOR_SET_IID
-            = InstanceIdentifier.create(RoutingPolicy.class)
+    private static final InstanceIdentifier<NeighborSets> NEIGHBOR_SET_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
             .child(DefinedSets.class)
             .child(NeighborSets.class);
     private final DataBroker dataBroker;
@@ -63,11 +63,9 @@ public final class MatchBgpNeighborSetHandler
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private List<PeerId> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<NeighborSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key)));
 
@@ -126,7 +124,7 @@ public final class MatchBgpNeighborSetHandler
             final String neighborSetName,
             final PeerId peerId,
             final MatchSetOptionsRestrictedType matchSetOptions) {
-        final List<PeerId> roles = this.peerSets.getUnchecked(StringUtils
+        final List<PeerId> roles = peerSets.getUnchecked(StringUtils
                 .substringBetween(neighborSetName, "=\"", "\""));
 
         final boolean found = roles.contains(peerId);

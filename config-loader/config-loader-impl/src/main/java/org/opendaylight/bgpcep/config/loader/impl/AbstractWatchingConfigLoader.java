@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.config.loader.impl;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.nio.file.ClosedWatchServiceException;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -23,6 +24,8 @@ abstract class AbstractWatchingConfigLoader extends AbstractConfigLoader {
     private final AtomicBoolean closed = new AtomicBoolean();
     private final Thread watcherThread;
 
+    @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+        justification = "https://github.com/spotbugs/spotbugs/issues/1867")
     AbstractWatchingConfigLoader() {
         watcherThread = new Thread(this::dispatchEvents, "Config Loader Watcher Thread");
         watcherThread.setDaemon(true);
@@ -40,7 +43,7 @@ abstract class AbstractWatchingConfigLoader extends AbstractConfigLoader {
         watcherThread.interrupt();
 
         try {
-            this.watcherThread.join();
+            watcherThread.join();
         } catch (InterruptedException e) {
             LOG.warn("Interrupted while waiting for watcher thread to terminate", e);
         }

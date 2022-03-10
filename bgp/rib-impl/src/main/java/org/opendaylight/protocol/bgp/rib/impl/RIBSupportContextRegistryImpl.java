@@ -48,8 +48,6 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         return new RIBSupportContextRegistryImpl(extensions, codecs);
     }
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-            justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private RIBSupportContextImpl createRIBSupportContext(final RIBSupport<?, ?> support) {
         return new RIBSupportContextImpl(support, this.codecs);
     }

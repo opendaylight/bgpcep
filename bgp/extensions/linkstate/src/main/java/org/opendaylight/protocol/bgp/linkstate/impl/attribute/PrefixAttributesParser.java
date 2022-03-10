@@ -11,6 +11,7 @@ import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.Ipv6PrefixSidParser.IPV6_PREFIX_SID;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
@@ -18,6 +19,7 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.BindingSidLabelParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.Ipv6SrPrefixAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.RangeTlvParser;
@@ -93,8 +95,8 @@ public final class PrefixAttributesParser {
             parseAttribute(key, value, protocolId, builder, routeTags, exRouteTags);
         }
         LOG.trace("Finished parsing Prefix Attributes.");
-        builder.setRouteTags(routeTags);
-        builder.setExtendedTags(exRouteTags);
+        builder.setRouteTags(ImmutableSet.copyOf(routeTags));
+        builder.setExtendedTags(ImmutableSet.copyOf(exRouteTags));
         return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
     }
 
@@ -266,7 +268,7 @@ public final class PrefixAttributesParser {
         }
     }
 
-    private static void serializeRouteTags(final List<RouteTag> routeTags, final ByteBuf byteAggregator) {
+    private static void serializeRouteTags(final Set<RouteTag> routeTags, final ByteBuf byteAggregator) {
         if (routeTags != null) {
             final ByteBuf routeTagsBuf = Unpooled.buffer();
             for (final RouteTag routeTag : routeTags) {
@@ -276,7 +278,7 @@ public final class PrefixAttributesParser {
         }
     }
 
-    private static void serializeExtendedRouteTags(final List<ExtendedRouteTag> exRouteTags,
+    private static void serializeExtendedRouteTags(final Set<ExtendedRouteTag> exRouteTags,
             final ByteBuf byteAggregator) {
         if (exRouteTags != null) {
             final ByteBuf extendedBuf = Unpooled.buffer();

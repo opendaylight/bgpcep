@@ -16,7 +16,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.util.concurrent.FutureListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -652,8 +651,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             this.requests.add(req);
         }
 
-        @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-                justification = "https://github.com/spotbugs/spotbugs/issues/811")
         private void notifyRequests() {
             for (final PCEPRequest r : this.requests) {
                 r.done(OperationResults.SUCCESS);

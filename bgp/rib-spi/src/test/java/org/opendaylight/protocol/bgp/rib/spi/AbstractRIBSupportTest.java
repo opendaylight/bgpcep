@@ -18,11 +18,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -72,12 +74,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
-    private static final InstanceIdentifier<Attributes> ATTRIBUTES_IID = InstanceIdentifier.create(Update.class)
-            .child(Attributes.class);
-    private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_IID = ATTRIBUTES_IID
-            .augmentation(AttributesUnreach.class).child(MpUnreachNlri.class);
-    private static final InstanceIdentifier<MpReachNlri> MP_REACH_IID = ATTRIBUTES_IID
-            .augmentation(AttributesReach.class).child(MpReachNlri.class);
+
     @Mock
     protected DOMDataTreeWriteTransaction tx;
     protected List<InstanceIdentifier<R>> deletedRoutes;
@@ -118,24 +115,28 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         return customizer;
     }
 
+    private @NonNull BindingDataObjectCodecTreeNode<Attributes> updateAttributesCodec() {
+        return adapter.currentSerializer().streamChild(Update.class).streamChild(Attributes.class);
+    }
+
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
-        final MpUnreachNlri mpReach = new MpUnreachNlriBuilder().setWithdrawnRoutes(new WithdrawnRoutesBuilder()
-                .setDestinationType(destUnreach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode> result = this.adapter.currentSerializer()
-                .toNormalizedNode(MP_UNREACH_IID, mpReach);
-        return (ContainerNode) result.getValue();
+        return (ContainerNode) updateAttributesCodec()
+            .streamChild(AttributesUnreach.class).streamChild(MpUnreachNlri.class)
+            .serialize(new MpUnreachNlriBuilder()
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(destUnreach).build())
+                .build());
     }
 
     protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
-        final MpReachNlri mpReach = new MpReachNlriBuilder().setAdvertizedRoutes(new AdvertizedRoutesBuilder()
-                .setDestinationType(destReach).build()).build();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode> result = this.adapter.currentSerializer()
-                .toNormalizedNode(MP_REACH_IID, mpReach);
-        return (ContainerNode) result.getValue();
+        return (ContainerNode) updateAttributesCodec()
+            .streamChild(AttributesReach.class).streamChild(MpReachNlri.class)
+            .serialize(new MpReachNlriBuilder()
+                .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destReach).build())
+                .build());
     }
 
     protected final ContainerNode createAttributes() {
-        return (ContainerNode) this.adapter.currentSerializer().toNormalizedNode(ATTRIBUTES_IID, ATTRIBUTES).getValue();
+        return (ContainerNode) updateAttributesCodec().serialize(ATTRIBUTES);
     }
 
     protected final MapEntryNode createEmptyTable() {
