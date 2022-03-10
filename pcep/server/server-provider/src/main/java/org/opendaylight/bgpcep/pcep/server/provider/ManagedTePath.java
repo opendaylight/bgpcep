@@ -17,15 +17,20 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import org.opendaylight.graph.ConnectedEdge;
+import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev200120.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.LspBuilder;
@@ -72,6 +77,7 @@ import org.slf4j.LoggerFactory;
 public class ManagedTePath {
 
     private ConfiguredLsp cfgLsp = null;
+    private ConfiguredLsp prevLsp = null;
     private final ManagedTeNode teNode;
     private boolean sent = false;
     private PathType type = PathType.Pcc;
@@ -123,6 +129,7 @@ public class ManagedTePath {
     }
 
     public ManagedTePath setConfiguredLsp(final ConfiguredLsp lsp) {
+        this.prevLsp = this.cfgLsp;
         this.cfgLsp = lsp;
         return this;
     }
@@ -217,6 +224,125 @@ public class ManagedTePath {
 
         /* All is conform. LSP is in sync with expected result. */
         return PathStatus.Sync;
+    }
+
+    public void addBandwidth(ConnectedGraph graph) {
+        /* Check that Connected Graph is valid */
+        if (graph == null) {
+            return;
+        }
+        /* Verify that we have a valid Computed Path and that the LSP is in SYNC */
+        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed
+                || cfgLsp.getPathStatus() != PathStatus.Sync) {
+            return;
+        }
+        /* Verify that a Bandwidth has been requested and reserved */
+        if (cfgLsp.getIntendedPath().getConstraints().getBandwidth() == null) {
+            return;
+        }
+
+        /* Loop the path description to add reserved bandwidth for this LSP */
+        final Long bw = cfgLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
+        int cos = cfgLsp.getIntendedPath().getConstraints().getClassType() != null
+                ? cfgLsp.getIntendedPath().getConstraints().getClassType().intValue()
+                : 0;
+        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
+        for (PathDescription path : cfgLsp.getComputedPath().getPathDescription()) {
+            ConnectedEdge edge = null;
+            switch (af) {
+                case Ipv4:
+                case SrIpv4:
+                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
+                    break;
+                case Ipv6:
+                case SrIpv6:
+                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
+                    break;
+                default:
+                    break;
+            }
+            if (edge != null) {
+                edge.addBandwidth(bw, cos);
+            }
+        }
+    }
+
+    public void delBandwidth(ConnectedGraph graph) {
+        /* Check that Connected Graph is valid */
+        if (graph == null) {
+            return;
+        }
+        /* Verify that we have a valid Computed Path and that the LSP is in SYNC */
+        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed
+                || cfgLsp.getPathStatus() != PathStatus.Sync) {
+            return;
+        }
+        /* Verify that a Bandwidth has been requested and reserved */
+        if (cfgLsp.getIntendedPath().getConstraints().getBandwidth() == null) {
+            return;
+        }
+
+        /* Loop the path description to delete reserved bandwidth for this LSP */
+        final Long bw = cfgLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
+        int cos = cfgLsp.getIntendedPath().getConstraints().getClassType() != null
+                ? cfgLsp.getIntendedPath().getConstraints().getClassType().intValue()
+                : 0;
+        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
+        for (PathDescription path : cfgLsp.getComputedPath().getPathDescription()) {
+            ConnectedEdge edge = null;
+            switch (af) {
+                case Ipv4:
+                case SrIpv4:
+                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
+                    break;
+                case Ipv6:
+                case SrIpv6:
+                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
+                    break;
+                default:
+                    break;
+            }
+            if (edge != null) {
+                edge.delBandwidth(bw, cos);
+            }
+        }
+    }
+
+    public void updateBandwidth(ConnectedGraph graph) {
+        /* Check that Connected Graph is valid */
+        if (graph == null) {
+            return;
+        }
+        /* First remove Bandwidth for the old path if any */
+        if (prevLsp != null && prevLsp.getIntendedPath().getConstraints().getBandwidth() != null) {
+            final Long bw = prevLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
+            int cos = prevLsp.getIntendedPath().getConstraints().getClassType() != null
+                    ? prevLsp.getIntendedPath().getConstraints().getClassType().intValue()
+                    : 0;
+            final AddressFamily af = prevLsp.getIntendedPath().getConstraints().getAddressFamily();
+            for (PathDescription path : prevLsp.getComputedPath().getPathDescription()) {
+                ConnectedEdge edge = null;
+                switch (af) {
+                    case Ipv4:
+                    case SrIpv4:
+                        edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
+                        break;
+                    case Ipv6:
+                    case SrIpv6:
+                        edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
+                        break;
+                    default:
+                        break;
+                }
+                if (edge != null) {
+                    edge.delBandwidth(bw, cos);
+                }
+            }
+        }
+        /* Then add Bandwidth for the current path */
+        addBandwidth(graph);
+        /* And memorize current LSP for latter update */
+        prevLsp = cfgLsp;
     }
 
     /**

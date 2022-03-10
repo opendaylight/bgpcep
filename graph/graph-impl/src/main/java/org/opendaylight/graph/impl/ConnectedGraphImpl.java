@@ -259,6 +259,10 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         return cedge;
     }
 
+    /**
+     * Connected Edge is kept in the edges Hash Map in order to memorize the total Bandwidth reserved by
+     * Constrained Paths that belong to this Edge. Connected Edges are removed when the Connected Graph is cleared.
+     */
     @Override
     public void deleteEdge(final EdgeKey key) {
         checkArgument(key != null, "Provided Edge Key is a null object");
@@ -266,7 +270,6 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         if (cedge != null) {
             this.connectedGraphServer.deleteEdge(this.graph, cedge.getEdge());
             cedge.disconnect();
-            edges.remove(cedge.getKey());
             cedge.setEdge(null);
         }
     }
