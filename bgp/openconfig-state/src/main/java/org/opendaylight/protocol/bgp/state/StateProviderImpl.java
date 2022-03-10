@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -125,11 +126,12 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         this.dataBroker = requireNonNull(dataBroker);
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateProvider = requireNonNull(stateProvider);
-        this.networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
+        networkInstanceIId =
+            InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.scheduler = scheduler;
 
-        this.transactionChain = this.dataBroker.createMergingTransactionChain(this);
+        transactionChain = this.dataBroker.createMergingTransactionChain(this);
         final TimerTask task = new TimerTask() {
             @Override
             @SuppressWarnings("checkstyle:IllegalCatch")
@@ -159,16 +161,16 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
             }
         };
 
-        this.scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, period, timeUnit);
+        scheduleTask = this.scheduler.scheduleAtFixedRate(task, 0, period, timeUnit);
     }
 
     @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void updateBGPStats(final WriteOperations wtx) {
-        final Set<String> oldStats = new HashSet<>(this.instanceIdentifiersCache.keySet());
-        this.stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
+        final Set<String> oldStats = new HashSet<>(instanceIdentifiersCache.keySet());
+        stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
             final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
-            final List<BGPPeerState> peerStats = this.stateProvider.getPeerStats().stream()
+            final List<BGPPeerState> peerStats = stateProvider.getPeerStats().stream()
                     .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
                     .collect(Collectors.toList());
             storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
@@ -178,23 +180,23 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     }
 
     private synchronized void removeStoredOperationalState(final String ribId, final WriteOperations wtx) {
-        final InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.remove(ribId);
+        final InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.remove(ribId);
         wtx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
     }
 
     private synchronized void storeOperationalState(final BGPRibState bgpStateConsumer,
             final List<BGPPeerState> peerStats, final String ribId, final WriteOperations wtx) {
-        final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, this.bgpTableTypeRegistry);
+        final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, bgpTableTypeRegistry);
         final PeerGroups peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);
-        final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, this.bgpTableTypeRegistry);
-        InstanceIdentifier<Bgp> bgpIID = this.instanceIdentifiersCache.get(ribId);
+        final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, bgpTableTypeRegistry);
+        InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.get(ribId);
         if (bgpIID == null) {
             final ProtocolKey protocolKey = new ProtocolKey(BGP.class, bgpStateConsumer.getInstanceIdentifier()
                     .getKey().getId().getValue());
-            final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = this.networkInstanceIId
+            final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = networkInstanceIId
                     .child(Protocols.class).child(Protocol.class, protocolKey);
             bgpIID = protocolIId.augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-            this.instanceIdentifiersCache.put(ribId, bgpIID);
+            instanceIdentifiersCache.put(ribId, bgpIID);
         }
 
         final Bgp bgp = new BgpBuilder().setGlobal(global).setNeighbors(neighbors).setPeerGroups(peerGroups).build();
@@ -206,12 +208,12 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     @Override
     public synchronized void close() {
         if (closed.compareAndSet(false, true)) {
-            this.scheduleTask.cancel(true);
-            if (!this.instanceIdentifiersCache.isEmpty()) {
-                final WriteTransaction wTx = this.transactionChain.newWriteOnlyTransaction();
-                this.instanceIdentifiersCache.values()
+            scheduleTask.cancel(true);
+            if (!instanceIdentifiersCache.isEmpty()) {
+                final WriteTransaction wTx = transactionChain.newWriteOnlyTransaction();
+                instanceIdentifiersCache.values()
                         .forEach(bgpIID -> wTx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID));
-                this.instanceIdentifiersCache.clear();
+                instanceIdentifiersCache.clear();
                 wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
@@ -224,8 +226,8 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                     }
                 }, MoreExecutors.directExecutor());
             }
-            this.transactionChain.close();
-            this.scheduler.shutdown();
+            transactionChain.close();
+            scheduler.shutdown();
         }
     }
 

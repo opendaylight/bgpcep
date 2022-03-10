@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -48,10 +49,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 public final class MatchClusterIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchClusterIdSetCondition, ClusterId> {
-    private static final InstanceIdentifier<ClusterIdSets> CLUSTERS_ID_SETS_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
-            .augmentation(BgpClusterIdSets.class).child(ClusterIdSets.class);
+    private static final InstanceIdentifier<ClusterIdSets> CLUSTERS_ID_SETS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
+            .augmentation(BgpClusterIdSets.class)
+            .child(ClusterIdSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, ClusterIdSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
@@ -69,7 +73,7 @@ public final class MatchClusterIdSetHandler
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private ClusterIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<ClusterIdSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     CLUSTERS_ID_SETS_IID.child(ClusterIdSet.class, new ClusterIdSetKey(key)));
         }
@@ -112,7 +116,7 @@ public final class MatchClusterIdSetHandler
             final ClusterId clusterId, final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .odl.bgp._default.policy.rev200120.match.cluster.id.set.condition.grouping
                 .MatchClusterIdSetCondition matchClusterIdSetCondition) {
-        final ClusterIdSet clusterIdSet = this.sets.getUnchecked(StringUtils
+        final ClusterIdSet clusterIdSet = sets.getUnchecked(StringUtils
                 .substringBetween(matchClusterIdSetCondition.getClusterIdSet(), "=\"", "\""));
 
         if (clusterIdSet == null) {

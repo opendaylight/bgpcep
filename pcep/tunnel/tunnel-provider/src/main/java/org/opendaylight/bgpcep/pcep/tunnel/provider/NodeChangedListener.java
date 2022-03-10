@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
@@ -133,13 +132,13 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
-        return this.target.child(Link.class, new LinkKey(linkId));
+        return target.child(Link.class, new LinkKey(linkId));
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
         return new SupportingNodeBuilder()
                 .setNodeRef(sni)
-                .withKey(new SupportingNodeKey(sni, this.source))
+                .withKey(new SupportingNodeKey(sni, source))
                 .addAugmentation(new SupportingNode1Builder().setPathComputationClient(
                     new PathComputationClientBuilder().setControlling(inControl).build()).build())
                 .build();
@@ -163,7 +162,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             }
             if (!have) {
                 final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-                trans.put(LogicalDatastoreType.OPERATIONAL, this.target.child(Node.class, node.key()).child(
+                trans.put(LogicalDatastoreType.OPERATIONAL, target.child(Node.class, node.key()).child(
                         SupportingNode.class, sn.key()), sn);
             }
         }
@@ -172,7 +171,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans,
             final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
             throws ExecutionException, InterruptedException {
-        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get().get();
+        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, target).get().get();
         for (final Node n : topo.nonnullNode().values()) {
             for (final TerminationPoint tp : n.nonnullTerminationPoint().values()) {
                 final TerminationPoint1 tpa = tp.augmentation(TerminationPoint1.class);
@@ -183,7 +182,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
                         for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
                             if (addr.equals(address)) {
                                 handleSni(sni, n, inControl, trans);
-                                return this.target.builder().child(Node.class, n.key())
+                                return target.builder().child(Node.class, n.key())
                                         .child(TerminationPoint.class, tp.key()).build();
                             }
                         }
@@ -205,7 +204,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         tpb.withKey(tpk).setTpId(tpk.getTpId());
         tpb.addAugmentation(new TerminationPoint1Builder()
             .setIgpTerminationPointAttributes(new IgpTerminationPointAttributesBuilder()
-                .setTerminationPointType(new IpBuilder().setIpAddress(Lists.newArrayList(addr)).build())
+                .setTerminationPointType(new IpBuilder().setIpAddress(Set.of(addr)).build())
                 .build())
             .build());
 
@@ -217,7 +216,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             nb.setSupportingNode(BindingMap.of(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
                     inControl)));
         }
-        final InstanceIdentifier<Node> nid = this.target.child(Node.class, nb.key());
+        final InstanceIdentifier<Node> nid = target.child(Node.class, nb.key());
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
         return nid.child(TerminationPoint.class, tpb.key());
     }
@@ -283,12 +282,12 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
-        return this.target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class,
+        return target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class,
                 new TerminationPointKey(tp)).build();
     }
 
     private InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
-        return this.target.child(Node.class, new NodeKey(node));
+        return target.child(Node.class, new NodeKey(node));
     }
 
     private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
@@ -305,7 +304,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
         LOG.debug("Searching for orphan links/nodes");
-        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, this.target).get();
+        final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, target).get();
         Preconditions.checkState(ot.isPresent());
 
         final Topology topology = ot.get();
@@ -398,7 +397,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        final ReadWriteTransaction trans = this.dataProvider.newReadWriteTransaction();
+        final ReadWriteTransaction trans = dataProvider.newReadWriteTransaction();
 
         final Set<InstanceIdentifier<ReportedLsp>> lsps = new HashSet<>();
         final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
@@ -466,7 +465,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
                 pathArguments.add(pathArgument);
             }
             pathArguments.add(child.getIdentifier());
-            final InstanceIdentifier<?> childIID = InstanceIdentifier.create(pathArguments);
+            final InstanceIdentifier<?> childIID = InstanceIdentifier.unsafeOf(pathArguments);
             handleChangedNode(child, childIID, lsps, nodes, original, updated, created);
         }
     }

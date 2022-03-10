@@ -12,9 +12,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -38,21 +38,21 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("match-as-path-set-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("match-as-path-set-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
 
     @Test
     public void testMatchAsPathAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-match-as-path-any-set")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -63,10 +63,10 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
                         .setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
                                 new SegmentsBuilder().setAsSequence(Collections.singletonList(
                                         AsNumber.getDefaultInstance("65"))).build())).build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -74,16 +74,16 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
 
     @Test
     public void testMatchAsPathAll() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-match-as-path-all-set")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
-                        new SegmentsBuilder().setAsSequence(Collections.singletonList(
+                .setAsPath(new AsPathBuilder().setSegments(List.of(
+                        new SegmentsBuilder().setAsSequence(List.of(
                                 AsNumber.getDefaultInstance("65"))).build())).build()).build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -91,19 +91,19 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
 
         attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder()
-                        .setAsPath(new AsPathBuilder().setSegments(Arrays.asList(
-                                new SegmentsBuilder().setAsSet(Arrays.asList(
+                        .setAsPath(new AsPathBuilder().setSegments(List.of(
+                                new SegmentsBuilder().setAsSet(Set.of(
                                         AsNumber.getDefaultInstance("65"),
                                         AsNumber.getDefaultInstance("64")
                                 )).build(),
-                                new SegmentsBuilder().setAsSet(Collections.singletonList(
+                                new SegmentsBuilder().setAsSet(Set.of(
                                         AsNumber.getDefaultInstance("63")
                                 )).build()
                         )).build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -111,17 +111,17 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
 
     @Test
     public void testMatchAsPathInverse() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-match-as-path-inverse-set")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder()
                         .setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
                                 new SegmentsBuilder().setAsSequence(Collections.singletonList(
                                         AsNumber.getDefaultInstance("65"))).build())).build()).build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -132,10 +132,10 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
                         .setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
                                 new SegmentsBuilder().setAsSequence(Collections.singletonList(
                                         AsNumber.getDefaultInstance("200"))).build())).build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
                 IPV4UNICAST.class,
-                this.exportParameters,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
