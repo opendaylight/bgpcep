@@ -8,16 +8,13 @@
 
 package org.opendaylight.protocol.bgp.state;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.UnsignedInteger;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -81,6 +78,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.Sent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.SentBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -111,7 +110,7 @@ public final class NeighborUtil {
         return new NeighborsBuilder().setNeighbor(peerStats.stream()
                 .filter(Objects::nonNull)
                 .map(neighbor -> buildNeighbor(neighbor, bgpTableTypeRegistry))
-                .collect(Collectors.toUnmodifiableMap(Neighbor::key, Function.identity()))).build();
+                .collect(BindingMap.toMap())).build();
     }
 
     /**
@@ -184,7 +183,7 @@ public final class NeighborUtil {
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                     .timers.StateBuilder()
                         .addAugmentation(new NeighborTimersStateAugmentationBuilder()
-                            .setNegotiatedHoldTime(BigDecimal.valueOf(neighbor.getNegotiatedHoldTime()))
+                            .setNegotiatedHoldTime(Decimal64.valueOf(neighbor.getNegotiatedHoldTime()))
                             .setUptime(new Timeticks(Uint32.valueOf(uptimeTicks))).build())
                         .build())
                 .build();
@@ -268,7 +267,7 @@ public final class NeighborUtil {
      */
     public static NeighborStateAugmentation buildCapabilityState(final @NonNull BGPSessionState neighbor) {
 
-        final List<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
+        final Set<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
         SessionState sessionState = null;
         switch (neighbor.getSessionState()) {
             case IDLE:
@@ -336,7 +335,7 @@ public final class NeighborUtil {
         afiSafiJoin.addAll(neighbor.getAfiSafisReceived());
         return afiSafiJoin.stream().map(tableKey -> buildAfiSafi(neighbor, tableKey, bgpTableTypeRegistry))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toUnmodifiableMap(AfiSafi::key, Function.identity()));
+                .collect(BindingMap.toMap());
     }
 
     private static @Nullable AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
@@ -390,9 +389,9 @@ public final class NeighborUtil {
      *
      * @return List containing supported capabilities
      */
-    public static @NonNull List<Class<? extends BgpCapability>> buildSupportedCapabilities(
+    public static @NonNull Set<Class<? extends BgpCapability>> buildSupportedCapabilities(
             final @NonNull BGPSessionState neighbor) {
-        final List<Class<? extends BgpCapability>> supportedCapabilities = new ArrayList<>();
+        final var supportedCapabilities = ImmutableSet.<Class<? extends BgpCapability>>builder();
         if (neighbor.isAddPathCapabilitySupported()) {
             supportedCapabilities.add(ADDPATHS.class);
         }
@@ -408,6 +407,6 @@ public final class NeighborUtil {
         if (neighbor.isRouterRefreshCapabilitySupported()) {
             supportedCapabilities.add(ROUTEREFRESH.class);
         }
-        return supportedCapabilities;
+        return supportedCapabilities.build();
     }
 }

@@ -58,14 +58,6 @@ public final class CodecsImpl implements Codecs {
             .child(LocRib.class)
             .child(Tables.class)
             .build();
-    private static final InstanceIdentifier<MpReachNlri> MP_REACH_NLRI_II = InstanceIdentifier.create(Update.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                        .attributes.Attributes.class)
-                .augmentation(AttributesReach.class)
-                .child(MpReachNlri.class);
-    private static final InstanceIdentifier<MpUnreachNlri> MP_UNREACH_NLRI_II = InstanceIdentifier.create(Update.class)
-            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.Attributes.class).augmentation(AttributesUnreach.class).child(MpUnreachNlri.class);
 
     static {
         final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
@@ -97,7 +89,7 @@ public final class CodecsImpl implements Codecs {
         final Builder<Class<? extends BindingObject>> acb = ImmutableSet.builder();
         acb.addAll(ATTRIBUTE_CACHEABLES);
         acb.addAll(this.ribSupport.cacheableAttributeObjects());
-        this.cacheableAttributes = acb.build();
+        cacheableAttributes = acb.build();
     }
 
     @Override
@@ -108,42 +100,47 @@ public final class CodecsImpl implements Codecs {
         final BindingDataObjectCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
         final BindingDataObjectCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
             .streamChild(Routes.class)
-            .streamChild(this.ribSupport.routesCaseClass())
-            .streamChild(this.ribSupport.routesContainerClass())
-            .streamChild(this.ribSupport.routesListClass());
+            .streamChild(ribSupport.routesCaseClass())
+            .streamChild(ribSupport.routesContainerClass())
+            .streamChild(ribSupport.routesListClass());
 
-        this.attributesCodec = routeListCodec.streamChild(Attributes.class)
-                .createCachingCodec(this.cacheableAttributes);
-        this.reachNlriCodec = tree.getSubtreeCodec(MP_REACH_NLRI_II)
-                .createCachingCodec(this.ribSupport.cacheableNlriObjects());
-        this.unreachNlriCodec = tree.getSubtreeCodec(MP_UNREACH_NLRI_II)
-                .createCachingCodec(this.ribSupport.cacheableNlriObjects());
+        attributesCodec = routeListCodec.streamChild(Attributes.class)
+            .createCachingCodec(cacheableAttributes);
+
+        final var attributesCodec = tree.streamChild(Update.class)
+            .streamChild(Attributes.class);
+        reachNlriCodec = tree.streamChild(AttributesReach.class)
+            .streamChild(MpReachNlri.class)
+            .createCachingCodec(ribSupport.cacheableNlriObjects());
+        unreachNlriCodec = tree.streamChild(AttributesUnreach.class)
+            .streamChild(MpUnreachNlri.class)
+            .createCachingCodec(ribSupport.cacheableNlriObjects());
     }
 
     @Override
     public ContainerNode serializeUnreachNlri(final MpUnreachNlri nlri) {
-        Preconditions.checkState(this.unreachNlriCodec != null, "MpReachNlri codec not available");
-        return (ContainerNode) this.unreachNlriCodec.serialize(nlri);
+        Preconditions.checkState(unreachNlriCodec != null, "MpReachNlri codec not available");
+        return (ContainerNode) unreachNlriCodec.serialize(nlri);
     }
 
     @Override
     public ContainerNode serializeReachNlri(final MpReachNlri nlri) {
-        Preconditions.checkState(this.reachNlriCodec != null, "MpReachNlri codec not available");
-        return (ContainerNode) this.reachNlriCodec.serialize(nlri);
+        Preconditions.checkState(reachNlriCodec != null, "MpReachNlri codec not available");
+        return (ContainerNode) reachNlriCodec.serialize(nlri);
     }
 
     @Override
     public Attributes deserializeAttributes(final NormalizedNode attributes) {
-        Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
-        return this.attributesCodec.deserialize(attributes);
+        Preconditions.checkState(attributesCodec != null, "Attributes codec not available");
+        return attributesCodec.deserialize(attributes);
     }
 
     @Override
     public ContainerNode serializeAttributes(final Attributes pathAttr) {
-        Preconditions.checkState(this.attributesCodec != null, "Attributes codec not available");
+        Preconditions.checkState(attributesCodec != null, "Attributes codec not available");
         final AttributesBuilder a = new AttributesBuilder(pathAttr);
         a.removeAugmentation(AttributesReach.class);
         a.removeAugmentation(AttributesUnreach.class);
-        return (ContainerNode) this.attributesCodec.serialize(a.build());
+        return (ContainerNode) attributesCodec.serialize(a.build());
     }
 }

@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceBuilder;
@@ -122,7 +123,8 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
         this.routingPolicyFactory = requireNonNull(routingPolicyFactory);
         this.codecsRegistry = requireNonNull(codecsRegistry);
         this.domDataBroker = requireNonNull(domDataBroker);
-        networkInstanceIId = InstanceIdentifier.create(NetworkInstances.class)
+        networkInstanceIId =
+            InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
                 .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
         initializeNetworkInstance(dataBroker, networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
             @Override

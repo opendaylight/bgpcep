@@ -17,6 +17,7 @@ import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.AbstractStatementRegistryTest;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.PolicyDefinitions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinition;
@@ -48,10 +49,10 @@ public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegi
         final ListenableFuture<Optional<Statements>> future;
         try (ReadTransaction rt = getDataBroker().newReadOnlyTransaction()) {
             future = rt.read(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.create(RoutingPolicy.class)
-                .child(PolicyDefinitions.class)
-                .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName))
-                .child(Statements.class));
+                InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+                    .child(PolicyDefinitions.class)
+                    .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName))
+                    .child(Statements.class));
         }
         return future.get().orElseThrow().getStatement();
     }

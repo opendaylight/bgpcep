@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -45,8 +46,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +110,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public void onDataTreeChanged(final List<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (final DataTreeCandidate tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());

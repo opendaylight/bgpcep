@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ext.community.set.ExtCommunityMember;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
@@ -35,9 +36,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AbstractExtCommunityHandler {
-    private static final InstanceIdentifier<ExtCommunitySets> EXT_COMMUNITY_SETS_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
+    private static final InstanceIdentifier<ExtCommunitySets> EXT_COMMUNITY_SETS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
             .child(ExtCommunitySets.class);
     private final DataBroker databroker;
     protected final LoadingCache<String, List<ExtendedCommunities>> extCommunitySets = CacheBuilder.newBuilder()
@@ -58,7 +61,7 @@ public class AbstractExtCommunityHandler {
     private List<ExtendedCommunities> loadCommunitySet(final String key)
             throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<ExtCommunitySet>> future;
-        try (ReadTransaction tr = this.databroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tr = databroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     EXT_COMMUNITY_SETS_IID.child(ExtCommunitySet.class, new ExtCommunitySetKey(key)));
         }
@@ -66,7 +69,7 @@ public class AbstractExtCommunityHandler {
         return result.map(AbstractExtCommunityHandler::toExtendedCommunitiesList).orElse(Collections.emptyList());
     }
 
-    private static List<ExtendedCommunities> toExtendedCommunitiesList(ExtCommunitySet extCommunitySets) {
+    private static List<ExtendedCommunities> toExtendedCommunitiesList(final ExtCommunitySet extCommunitySets) {
         return extCommunitySets.getExtCommunityMember().stream()
                        .map(AbstractExtCommunityHandler::toExtendedCommunities).collect(Collectors.toList());
     }

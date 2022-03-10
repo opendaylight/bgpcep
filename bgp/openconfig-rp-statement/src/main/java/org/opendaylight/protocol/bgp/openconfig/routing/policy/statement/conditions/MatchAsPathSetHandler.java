@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.as.path.sets.AsPathSetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -51,9 +53,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  * Match a set of AS (All, ANY, INVERT).
  */
 public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsPathSet, AsPath> {
-    private static final InstanceIdentifier<AsPathSets> AS_PATHS_SETS_IID
-            = InstanceIdentifier.create(RoutingPolicy.class).child(DefinedSets.class)
-            .augmentation(DefinedSets1.class).child(BgpDefinedSets.class)
+    private static final InstanceIdentifier<AsPathSets> AS_PATHS_SETS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+            .child(DefinedSets.class)
+            .augmentation(DefinedSets1.class)
+            .child(BgpDefinedSets.class)
             .child(AsPathSets.class);
     private final DataBroker dataBroker;
     private final LoadingCache<String, AsPathSet> sets = CacheBuilder.newBuilder()
@@ -72,7 +76,7 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
             justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private AsPathSet loadSets(final String key) throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<AsPathSet>> future;
-        try (ReadTransaction tr = this.dataBroker.newReadOnlyTransaction()) {
+        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
                     AS_PATHS_SETS_IID.child(AsPathSet.class, new AsPathSetKey(key)));
         }
@@ -114,7 +118,7 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
         if (asPath == null) {
             return false;
         }
-        final AsPathSet asPathSetFilter = this.sets.getUnchecked(StringUtils
+        final AsPathSet asPathSetFilter = sets.getUnchecked(StringUtils
                 .substringBetween(asPathSetName, "=\"", "\""));
 
         final List<Segments> segments = asPath.getSegments();
@@ -138,7 +142,7 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
 
         List<AsNumber> allAs = Stream.of(l1, l2).flatMap(Collection::stream).collect(Collectors.toList());
 
-        final List<AsNumber> asPathSetFilterList = asPathSetFilter.getAsPathSetMember();
+        final Set<AsNumber> asPathSetFilterList = asPathSetFilter.getAsPathSetMember();
         if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
             return allAs.containsAll(asPathSetFilterList)
                     && asPathSetFilterList.containsAll(allAs);

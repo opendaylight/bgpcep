@@ -12,10 +12,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -51,8 +51,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<RouteTargetConstrainRoutesCase,
         RouteTargetConstrainRoutes, RouteTargetConstrainRoute> {
@@ -87,48 +87,48 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     private static final DestinationRouteTargetConstrainAdvertizedCase REACH_NLRI
             = new DestinationRouteTargetConstrainAdvertizedCaseBuilder()
             .setDestinationRouteTargetConstrain(new DestinationRouteTargetConstrainBuilder()
-                    .setRouteTargetConstrainDestination(Collections.singletonList(RT_DESTINATION)).build()).build();
+                    .setRouteTargetConstrainDestination(List.of(RT_DESTINATION)).build()).build();
     private static final DestinationRouteTargetConstrainWithdrawnCase UNREACH_NLRI
             = new DestinationRouteTargetConstrainWithdrawnCaseBuilder()
             .setDestinationRouteTargetConstrain(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                     .route.target.constrain.rev180618.update.attributes.mp.unreach.nlri.withdrawn.routes.destination
                     .type.destination.route.target.constrain.withdrawn._case.DestinationRouteTargetConstrainBuilder()
-                    .setRouteTargetConstrainDestination(Collections.singletonList(RT_DESTINATION)).build()).build();
+                    .setRouteTargetConstrainDestination(List.of(RT_DESTINATION)).build()).build();
 
     private RouteTargetConstrainRIBSupport ribSupport;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.ribSupport = new RouteTargetConstrainRIBSupport(this.adapter.currentSerializer());
-        setUpTestCustomizer(this.ribSupport);
+        ribSupport = new RouteTargetConstrainRIBSupport(adapter.currentSerializer());
+        setUpTestCustomizer(ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), withdraw);
-        final InstanceIdentifier<RouteTargetConstrainRoute> instanceIdentifier = this.deletedRoutes.get(0);
+        ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
+        final InstanceIdentifier<RouteTargetConstrainRoute> instanceIdentifier = deletedRoutes.get(0);
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(RouteTargetConstrainRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        final RouteTargetConstrainRoute route = (RouteTargetConstrainRoute) this.insertedRoutes.get(0).getValue();
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        final RouteTargetConstrainRoute route = (RouteTargetConstrainRoute) insertedRoutes.get(0).getValue();
         assertEquals(ROUTE, route);
     }
 
 
     @Test
     public void testEmptyRoute() {
-        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), ribSupport.emptyTable());
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(RT_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(), routes, ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(List.of(), routes, ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class).getMpUnreachNlri()
                 .getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesReach.class));
@@ -137,7 +137,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     @Test
     public void testBuildMpReachNlriUpdate() {
         final Collection<MapEntryNode> routes = createRoutes(RT_ROUTES);
-        final Update update = this.ribSupport.buildUpdate(routes, Collections.emptyList(), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(routes, List.of(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().augmentation(AttributesReach.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
@@ -145,41 +145,41 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(RouteTargetConstrainRoutesCase.class), this.ribSupport.cacheableNlriObjects());
+        assertEquals(Set.of(RouteTargetConstrainRoutesCase.class), ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(Set.of(), ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
         final YangInstanceIdentifier.NodeIdentifierWithPredicates prefixNii = createRouteNIWP(RT_ROUTES);
         final YangInstanceIdentifier expected = getRoutePath().node(prefixNii);
-        final YangInstanceIdentifier actual = this.ribSupport.routePath(getTablePath(), prefixNii);
+        final YangInstanceIdentifier actual = ribSupport.routePath(getTablePath(), prefixNii);
         assertEquals(expected, actual);
     }
 
     @Test
     public void testRouteAttributesIdentifier() {
         assertEquals(new NodeIdentifier(Attributes.QNAME.bindTo(RouteTargetConstrainRoutesCase.QNAME.getModule())),
-                this.ribSupport.routeAttributesIdentifier());
+                ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(RouteTargetConstrainRoutesCase.class, this.ribSupport.routesCaseClass());
+        assertEquals(RouteTargetConstrainRoutesCase.class, ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(RouteTargetConstrainRoutes.class, this.ribSupport.routesContainerClass());
+        assertEquals(RouteTargetConstrainRoutes.class, ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(RouteTargetConstrainRoute.class, this.ribSupport.routesListClass());
+        assertEquals(RouteTargetConstrainRoute.class, ribSupport.routesListClass());
     }
 
     @Test
@@ -187,17 +187,17 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
         final Routes emptyCase = new RouteTargetConstrainRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new RouteTargetConstrainRoutesCaseBuilder()
                 .setRouteTargetConstrainRoutes(new RouteTargetConstrainRoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes routes = new RouteTargetConstrainRoutesCaseBuilder()
                 .setRouteTargetConstrainRoutes(RT_ROUTES).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
+        final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
     }
 }
