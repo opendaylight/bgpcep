@@ -11,8 +11,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -69,7 +69,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         }
         bytes.skipBytes(FLAGS_F_OFFSET);
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        final List<RequestId> requestIDs = new ArrayList<>();
+        final Set<RequestId> requestIDs = new HashSet<>();
 
         while (bytes.isReadable()) {
             requestIDs.add(new RequestId(ByteBufUtils.readUint32(bytes)));
@@ -104,7 +104,7 @@ public final class PCEPSvecObjectParser extends CommonObjectParser implements Ob
         flags.set(P_FLAG_OFFSET, svecObj.getPartialPathDiverse());
         flags.toByteBuf(body);
 
-        final List<RequestId> requestIDs = svecObj.getRequestsIds();
+        final Set<RequestId> requestIDs = svecObj.getRequestsIds();
         // FIXME: remove this assert
         assert !requestIDs.isEmpty() : "Empty Svec Object - no request ids.";
         for (final RequestId requestId : requestIDs) {

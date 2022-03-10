@@ -27,12 +27,10 @@ import org.slf4j.LoggerFactory;
  * Class for setting up TLS connection.
  */
 public class SslContextFactory {
-
+    private static final Logger LOG = LoggerFactory.getLogger(SslContextFactory.class);
     private static final String PROTOCOL = "TLS";
-    private final Tls tlsConfig;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(SslContextFactory.class);
+    private final Tls tlsConfig;
 
     /**
      * SslContextFactory provides information about the TLS context and configuration.
@@ -44,16 +42,23 @@ public class SslContextFactory {
     }
 
     public SSLContext getServerContext() {
-        try {
-            final KeyStore ks = KeyStore.getInstance(this.tlsConfig.getKeystoreType().name());
-            ks.load(SslKeyStore.asInputStream(this.tlsConfig.getKeystore(), this.tlsConfig.getKeystorePathType()),
-                    this.tlsConfig.getKeystorePassword().toCharArray());
-            final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(ks, this.tlsConfig.getCertificatePassword().toCharArray());
+        final var keyStoreType = tlsConfig.getKeystoreType();
+        if (keyStoreType == null) {
+            LOG.warn("No keystore type, not initializing server-side context");
+            return null;
+        }
 
-            final KeyStore ts = KeyStore.getInstance(this.tlsConfig.getTruststoreType().name());
-            ts.load(SslKeyStore.asInputStream(this.tlsConfig.getTruststore(), this.tlsConfig.getTruststorePathType()),
-                    this.tlsConfig.getTruststorePassword().toCharArray());
+        // FIXME: refactor these for defensiveness
+        try {
+            final KeyStore ks = KeyStore.getInstance(keyStoreType.name());
+            ks.load(SslKeyStore.asInputStream(tlsConfig.getKeystore(), tlsConfig.getKeystorePathType()),
+                    tlsConfig.getKeystorePassword().toCharArray());
+            final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(ks, tlsConfig.getCertificatePassword().toCharArray());
+
+            final KeyStore ts = KeyStore.getInstance(tlsConfig.getTruststoreType().name());
+            ts.load(SslKeyStore.asInputStream(tlsConfig.getTruststore(), tlsConfig.getTruststorePathType()),
+                    tlsConfig.getTruststorePassword().toCharArray());
             final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             tmf.init(ts);
 
@@ -71,7 +76,7 @@ public class SslContextFactory {
             LOG.warn(
                 "CertificateException - Unable to get a certificate (check password) to set the server-side SSLContext",
                 e);
-        } catch (final KeyManagementException | UnrecoverableKeyException | NullPointerException e) {
+        } catch (final KeyManagementException | UnrecoverableKeyException e) {
             LOG.warn("Exception - Failed to initialize the server-side SSLContext", e);
         }
         //TODO try to use default SSLContext instance?

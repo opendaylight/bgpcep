@@ -8,6 +8,6 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="odl-bgpcep-programming-api-${project.version}">
     <feature name="odl-bgpcep-programming-api" version="${project.version}">
-        <feature version="[8,9)">odl-mdsal-singleton-common</feature>
+        <feature version="[9,10)">odl-mdsal-singleton-common</feature>
     </feature>
 </features>

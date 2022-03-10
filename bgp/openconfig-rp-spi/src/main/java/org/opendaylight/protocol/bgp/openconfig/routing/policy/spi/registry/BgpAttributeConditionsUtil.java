@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.attribute.conditions.AsPathLength;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.conditions.BgpConditions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -54,7 +55,7 @@ final class BgpAttributeConditionsUtil {
     }
 
     private static boolean matchAfiSafi(final Class<? extends AfiSafiType> afiSafi,
-            final List<Class<? extends AfiSafiType>> afiSafiIn) {
+            final Set<Class<? extends AfiSafiType>> afiSafiIn) {
         return afiSafiIn == null || afiSafiIn.contains(afiSafi);
     }
 
@@ -77,7 +78,7 @@ final class BgpAttributeConditionsUtil {
 
         if (total == 0) {
             total = segments.stream().map(AsPathSegment::getAsSet)
-                    .filter(Objects::nonNull).mapToInt(List::size).sum();
+                    .filter(Objects::nonNull).mapToInt(Set::size).sum();
         }
 
         final Class<? extends AttributeComparison> comp = asPathLength.getOperator();
@@ -92,7 +93,7 @@ final class BgpAttributeConditionsUtil {
         return false;
     }
 
-    private static boolean matchNextHopIn(final CNextHop nextHop, final List<IpAddress> nextHopIn) {
+    private static boolean matchNextHopIn(final CNextHop nextHop, final Set<IpAddress> nextHopIn) {
         if (nextHop == null || nextHopIn == null || nextHop instanceof EmptyNextHopCase) {
             return true;
         }

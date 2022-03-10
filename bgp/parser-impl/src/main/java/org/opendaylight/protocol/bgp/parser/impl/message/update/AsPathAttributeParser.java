@@ -10,10 +10,10 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -45,7 +45,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
     private final ReferenceCache refCache;
     private static final Logger LOG = LoggerFactory.getLogger(AsPathAttributeParser.class);
 
-    private static final AsPath EMPTY = new AsPathBuilder().setSegments(Collections.emptyList()).build();
+    private static final AsPath EMPTY = new AsPathBuilder().setSegments(List.of()).build();
 
     public AsPathAttributeParser(final ReferenceCache refCache) {
         this.refCache = requireNonNull(refCache);
@@ -55,7 +55,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
             final RevisedErrorHandling errorHandling, final PeerSpecificParserConstraint constraint)
                     throws BGPDocumentedException, BGPTreatAsWithdrawException {
-        builder.setAsPath(parseAsPath(this.refCache, buffer, errorHandling));
+        builder.setAsPath(parseAsPath(refCache, buffer, errorHandling));
     }
 
     @Override
@@ -126,7 +126,7 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
                 ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
             } else {
-                ases.add(new SegmentsBuilder().setAsSet(asList).build());
+                ases.add(new SegmentsBuilder().setAsSet(ImmutableSet.copyOf(asList)).build());
             }
         }
 

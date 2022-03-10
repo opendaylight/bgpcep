@@ -50,6 +50,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -70,8 +71,8 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
             UnicastSubsequentAddressFamily.class);
     private static final String NETWORK_INSTANCE_NAME = "network-test";
     private static final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> NETWORK_II =
-            InstanceIdentifier.create(NetworkInstances.class)
-                    .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME));
+        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+            .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME));
     private static final String KEY = "bgp";
     private static final InstanceIdentifier<Bgp> BGP_II = NETWORK_II.child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.class, KEY))
