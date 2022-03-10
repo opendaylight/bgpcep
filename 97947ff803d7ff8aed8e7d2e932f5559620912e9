@@ -41,6 +41,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7779514_da884501",
+        "filename": "pcep/server/server-api/src/main/java/org/opendaylight/bgpcep/pcep/server/PceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-10T14:23:15Z",
+      "side": 1,
+      "message": "New version take care of topology.",
+      "parentUuid": "d25c2f9f_773bb67b",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 29
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5cde9f64_ba42d0c4",
@@ -88,6 +112,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef885142_978191a0",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/DefaultPceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-10T14:23:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac8a8847_ce671d6f",
+      "range": {
+        "startLine": 56,
+        "startChar": 16,
+        "endLine": 56,
+        "endChar": 21
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37afcf0b_38ea7203",
@@ -125,6 +173,30 @@
       "side": 1,
       "message": "During the development, I hesitate between two scenarios: store the Path Manager at the root of the DataStore (what\u0027s done) and under network-topology/pcep-topology. Regarding your comment about the possibility to manage several pcep topology I better understand now. I have the felling that only one pcep topo is managed at once. Thus, can you confirm that the code could manage several pcep topology in // ? If yes, I will change my code to store the Path Manager under the network-topology/pcep-topology and let it compatible to manage multi-topo",
       "parentUuid": "37afcf0b_38ea7203",
+      "range": {
+        "startLine": 105,
+        "startChar": 8,
+        "endLine": 105,
+        "endChar": 34
+      },
+      "revId": "97947ff803d7ff8aed8e7d2e932f5559620912e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "caff3aaa_ba4bc394",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/DefaultPceServerProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-10T14:23:15Z",
+      "side": 1,
+      "message": "New version take care of PCEP topology and launch appropriate PCE server classes. Only the DefaultPceServerProvider is a singleton.",
+      "parentUuid": "d2e9f268_65adaaa1",
       "range": {
         "startLine": 105,
         "startChar": 8,
