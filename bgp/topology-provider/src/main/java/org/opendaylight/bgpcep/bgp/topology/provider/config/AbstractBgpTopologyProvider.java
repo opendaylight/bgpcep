@@ -40,14 +40,9 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     private AbstractRegistration registration;
 
-    AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer, final DataBroker dataBroker) {
-        this.deployer = requireNonNull(deployer);
-        this.dataBroker = requireNonNull(dataBroker);
-    }
-
     AbstractBgpTopologyProvider(final BgpTopologyDeployer deployer) {
-        this(deployer, deployer.getDataBroker());
-        register();
+        this.deployer = requireNonNull(deployer);
+        dataBroker = requireNonNull(deployer.getDataBroker());
     }
 
     final void register() {

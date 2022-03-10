@@ -7,10 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.cli.utils;
 
-import static org.opendaylight.protocol.bgp.cli.utils.GlobalStateCliUtils.displayRibOperationalState;
-import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.displayNeighborOperationalState;
-import static org.opendaylight.protocol.bgp.cli.utils.PeerGroupStateCliUtils.displayPeerOperationalState;
-
 import java.io.PrintStream;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
@@ -19,6 +15,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
@@ -37,8 +34,10 @@ import org.slf4j.LoggerFactory;
  */
 public final class BGPOperationalStateUtils {
     private static final Logger LOG = LoggerFactory.getLogger(BGPOperationalStateUtils.class);
-    static final InstanceIdentifier<Protocols> PROTOCOLS_IID = InstanceIdentifier.create(NetworkInstances.class)
-        .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp")).child(Protocols.class);
+    static final InstanceIdentifier<Protocols> PROTOCOLS_IID =
+        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+        .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
+        .child(Protocols.class);
 
     private BGPOperationalStateUtils() {
         // Hidden on purpose
@@ -63,15 +62,17 @@ public final class BGPOperationalStateUtils {
             return;
         }
         if (neighbor == null && group == null) {
-            displayRibOperationalState(ribId, globalBgp.getGlobal(), stream);
+            GlobalStateCliUtils.displayRibOperationalState(ribId, globalBgp.getGlobal(), stream);
         } else {
             if (neighbor != null) {
                 globalBgp.getNeighbors().nonnullNeighbor().values().stream()
-                        .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
-                        .findFirst()
-                        .ifPresent(neighbor1 -> displayNeighborOperationalState(neighbor, neighbor1, stream));
+                    .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
+                    .findFirst()
+                    .ifPresent(neighbor1 -> NeighborStateCliUtils.displayNeighborOperationalState(neighbor,
+                        neighbor1, stream));
             } else {
-                displayPeerOperationalState(globalBgp.getPeerGroups().nonnullPeerGroup().values(), stream);
+                PeerGroupStateCliUtils.displayPeerOperationalState(
+                    globalBgp.getPeerGroups().nonnullPeerGroup().values(), stream);
             }
         }
     }

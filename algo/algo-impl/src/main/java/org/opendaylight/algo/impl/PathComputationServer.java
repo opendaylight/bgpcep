@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.GetConstrainedPathOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.PathComputationService;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.common.RpcError;
+import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.osgi.service.component.annotations.Activate;
@@ -70,7 +70,7 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
         if (cgraph == null) {
             output.setStatus(ComputationStatus.Failed);
             return RpcResultBuilder.<GetConstrainedPathOutput>failed()
-                    .withError(RpcError.ErrorType.RPC, "Unknown Graph Name").buildFuture();
+                    .withError(ErrorType.RPC, "Unknown Graph Name").buildFuture();
         }
 
         /* get a new Path Computation Algorithm according to Input choice */
@@ -78,7 +78,7 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
         if (algo == null) {
             output.setStatus(ComputationStatus.Failed);
             return RpcResultBuilder.<GetConstrainedPathOutput>failed()
-                    .withError(RpcError.ErrorType.RPC, "Unknown Path Computation Algorithm").buildFuture();
+                    .withError(ErrorType.RPC, "Unknown Path Computation Algorithm").buildFuture();
         }
 
         /*

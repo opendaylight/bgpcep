@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.config.loader.impl;
 
 import com.google.common.base.Stopwatch;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -135,8 +134,6 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
     abstract @NonNull File directory();
 
-    @SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD",
-        justification = "https://github.com/spotbugs/spotbugs/issues/811")
     private synchronized void unregister(final ProcessorRegistration reg) {
         configServices.remove(reg);
     }

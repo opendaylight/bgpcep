@@ -15,8 +15,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_KEY;
 
-import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborStateAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborTimersStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborTimersStateAugmentationBuilder;
+import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -58,33 +59,33 @@ public class NeighborUtilTest {
 
     @Before
     public void setUp() throws Exception {
-        doReturn(false).when(this.sessionState).isRouterRefreshCapabilitySupported();
-        doReturn(false).when(this.sessionState).isMultiProtocolCapabilitySupported();
-        doReturn(false).when(this.sessionState).isGracefulRestartCapabilitySupported();
-        doReturn(false).when(this.sessionState).isAsn32CapabilitySupported();
-        doReturn(false).when(this.sessionState).isAddPathCapabilitySupported();
-        doAnswer(invocation -> NeighborUtilTest.this.state).when(this.sessionState).getSessionState();
-        doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisAdvertized();
-        doReturn(Collections.singleton(TABLES_KEY)).when(this.bgpAfiSafiState).getAfiSafisReceived();
-        doAnswer(invocation -> NeighborUtilTest.this.afiSafi).when(this.tableRegistry).getAfiSafiType(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
-        doReturn(false).when(this.bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
-        doReturn(0).when(this.bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
+        doReturn(false).when(sessionState).isRouterRefreshCapabilitySupported();
+        doReturn(false).when(sessionState).isMultiProtocolCapabilitySupported();
+        doReturn(false).when(sessionState).isGracefulRestartCapabilitySupported();
+        doReturn(false).when(sessionState).isAsn32CapabilitySupported();
+        doReturn(false).when(sessionState).isAddPathCapabilitySupported();
+        doAnswer(invocation -> NeighborUtilTest.this.state).when(sessionState).getSessionState();
+        doReturn(Collections.singleton(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisAdvertized();
+        doReturn(Collections.singleton(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisReceived();
+        doAnswer(invocation -> NeighborUtilTest.this.afiSafi).when(tableRegistry).getAfiSafiType(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(0).when(bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
     }
 
     @Test
     public void testBuildCapabilityState() {
         final NeighborStateAugmentationBuilder expected = new NeighborStateAugmentationBuilder()
-                .setSupportedCapabilities(Collections.emptyList())
+                .setSupportedCapabilities(Set.of())
                 .setSessionState(SessionState.IDLE);
-        assertEquals(expected.build(), NeighborUtil.buildCapabilityState(this.sessionState));
+        assertEquals(expected.build(), NeighborUtil.buildCapabilityState(sessionState));
 
-        this.state = State.OPEN_CONFIRM;
+        state = State.OPEN_CONFIRM;
         expected.setSessionState(SessionState.OPENCONFIRM);
-        assertEquals(expected.build(), NeighborUtil.buildCapabilityState(this.sessionState));
+        assertEquals(expected.build(), NeighborUtil.buildCapabilityState(sessionState));
     }
 
     @Test
@@ -98,12 +99,15 @@ public class NeighborUtilTest {
         doReturn(90L).when(timerState).getNegotiatedHoldTime();
         doReturn(5000L).when(timerState).getUpTime();
 
-        final NeighborTimersStateAugmentation timerStateAug = new NeighborTimersStateAugmentationBuilder()
-                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(500))).build();
-        final Timers expectedTimers = new TimersBuilder().setState(
-                new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
-                .StateBuilder().addAugmentation(timerStateAug).build())
-                .build();
+        final Timers expectedTimers = new TimersBuilder()
+            .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
+                .StateBuilder()
+                    .addAugmentation(new NeighborTimersStateAugmentationBuilder()
+                        .setNegotiatedHoldTime(Decimal64.valueOf(2, 90))
+                        .setUptime(new Timeticks(Uint32.valueOf(500)))
+                        .build())
+                    .build())
+            .build();
         assertEquals(expectedTimers, NeighborUtil.buildTimer(timerState));
     }
 
@@ -114,7 +118,7 @@ public class NeighborUtilTest {
         doReturn(42949673015L).when(timerState).getUpTime();
 
         final NeighborTimersStateAugmentation timerStateAug = new NeighborTimersStateAugmentationBuilder()
-                .setNegotiatedHoldTime(BigDecimal.valueOf(90L)).setUptime(new Timeticks(Uint32.valueOf(5))).build();
+                .setNegotiatedHoldTime(Decimal64.valueOf(2, 90)).setUptime(new Timeticks(Uint32.valueOf(5))).build();
         final Timers expectedTimers = new TimersBuilder().setState(
                 new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.timers
                 .StateBuilder().addAugmentation(timerStateAug).build()).build();
@@ -134,7 +138,7 @@ public class NeighborUtilTest {
     @Test
     public void buildAfisSafisState() {
         assertEquals(Collections.emptyMap(),
-                NeighborUtil.buildAfisSafisState(this.bgpAfiSafiState, this.tableRegistry));
+                NeighborUtil.buildAfisSafisState(bgpAfiSafiState, tableRegistry));
 
         final GracefulRestart graceful = new GracefulRestartBuilder()
                 .setState(new StateBuilder().addAugmentation(
@@ -151,11 +155,11 @@ public class NeighborUtilTest {
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
                 .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build()).build();
 
-        this.afiSafi = IPV4UNICAST.class;
-        final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(this.afiSafi)
+        afiSafi = IPV4UNICAST.class;
+        final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(afiSafi)
                 .setState(afiSafiState)
                 .setGracefulRestart(graceful).build();
         assertEquals(Collections.singletonMap(expected.key(), expected),
-                NeighborUtil.buildAfisSafisState(this.bgpAfiSafiState, this.tableRegistry));
+                NeighborUtil.buildAfisSafisState(bgpAfiSafiState, tableRegistry));
     }
 }

@@ -68,8 +68,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidate;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +203,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
      */
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public synchronized void onDataTreeChanged(final Collection<DataTreeCandidate> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
         if (this.chain == null) {
             LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
             return;

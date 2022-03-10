@@ -35,7 +35,7 @@ public final class LinkstateGraphProvider extends AbstractBgpTopologyProvider {
     @Activate
     public LinkstateGraphProvider(@Reference final BgpTopologyDeployer deployer,
             @Reference final ConnectedGraphProvider graphProvider) {
-        super(deployer, deployer.getDataBroker());
+        super(deployer);
         this.graphProvider = requireNonNull(graphProvider);
         register();
     }
