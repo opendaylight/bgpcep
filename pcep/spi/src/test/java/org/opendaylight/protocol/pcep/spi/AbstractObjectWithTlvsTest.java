@@ -17,9 +17,9 @@ import static org.mockito.Mockito.verify;
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,7 +53,7 @@ public class AbstractObjectWithTlvsTest {
     @Mock
     private VendorInformationTlvRegistry viTlvRegistry;
 
-    private class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
+    private static class Abs extends AbstractObjectWithTlvsParser<TlvsBuilder> {
 
         protected Abs(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
             super(tlvReg, viTlvReg, 0, 0);
@@ -81,42 +81,42 @@ public class AbstractObjectWithTlvsTest {
 
     @Before
     public void setUp() throws PCEPDeserializerException {
-        this.tlv = new OfListBuilder().setCodes(Collections.singletonList(new OfId(Uint16.TEN))).build();
-        this.viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(EN).build();
-        doNothing().when(this.viTlvRegistry).serializeVendorInformationTlv(any(VendorInformationTlv.class),
+        tlv = new OfListBuilder().setCodes(Set.of(new OfId(Uint16.TEN))).build();
+        viTlv = new VendorInformationTlvBuilder().setEnterpriseNumber(EN).build();
+        doNothing().when(viTlvRegistry).serializeVendorInformationTlv(any(VendorInformationTlv.class),
             any(ByteBuf.class));
-        doReturn(Optional.of(this.viTlv)).when(this.viTlvRegistry).parseVendorInformationTlv(EN,
+        doReturn(Optional.of(viTlv)).when(viTlvRegistry).parseVendorInformationTlv(EN,
             Unpooled.wrappedBuffer(new byte[0]));
-        doNothing().when(this.tlvRegistry).serializeTlv(any(Tlv.class), any(ByteBuf.class));
-        doReturn(this.tlv).when(this.tlvRegistry).parseTlv(4, Unpooled.wrappedBuffer(new byte[] { 5, 6 }));
+        doNothing().when(tlvRegistry).serializeTlv(any(Tlv.class), any(ByteBuf.class));
+        doReturn(tlv).when(tlvRegistry).parseTlv(4, Unpooled.wrappedBuffer(new byte[] { 5, 6 }));
     }
 
     @Test
     public void testParseTlvs() throws PCEPDeserializerException {
-        Abs abs = new Abs(this.tlvRegistry, this.viTlvRegistry);
+        Abs abs = new Abs(tlvRegistry, viTlvRegistry);
         ByteBuf buffer = Unpooled.buffer();
-        abs.serializeTlv(this.tlv, buffer);
+        abs.serializeTlv(tlv, buffer);
 
-        verify(this.tlvRegistry, only()).serializeTlv(any(Tlv.class), any(ByteBuf.class));
+        verify(tlvRegistry, only()).serializeTlv(any(Tlv.class), any(ByteBuf.class));
 
         TlvsBuilder builder = new TlvsBuilder();
         abs.parseTlvs(builder, Unpooled.wrappedBuffer(new byte[] { 0, 4, 0, 2, 5, 6, 0, 0 }));
 
-        assertEquals(this.tlv, builder.getOfList());
+        assertEquals(tlv, builder.getOfList());
     }
 
     @Test
     public void testParseVendorInformationTlv() throws PCEPDeserializerException {
-        final Abs parser = new Abs(this.tlvRegistry, this.viTlvRegistry);
+        final Abs parser = new Abs(tlvRegistry, viTlvRegistry);
         final ByteBuf buffer = Unpooled.buffer();
 
-        parser.serializeVendorInformationTlvs(Lists.newArrayList(this.viTlv), buffer);
-        verify(this.viTlvRegistry, only()).serializeVendorInformationTlv(any(VendorInformationTlv.class),
+        parser.serializeVendorInformationTlvs(Lists.newArrayList(viTlv), buffer);
+        verify(viTlvRegistry, only()).serializeVendorInformationTlv(any(VendorInformationTlv.class),
             any(ByteBuf.class));
 
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         parser.parseTlvs(tlvsBuilder, Unpooled.wrappedBuffer(
             new byte[] { 0x00, 0x07, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00 }));
-        assertEquals(this.viTlv, tlvsBuilder.getVendorInformationTlv().get(0));
+        assertEquals(viTlv, tlvsBuilder.getVendorInformationTlv().get(0));
     }
 }

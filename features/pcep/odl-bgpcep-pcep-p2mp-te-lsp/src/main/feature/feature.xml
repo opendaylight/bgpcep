@@ -11,6 +11,6 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-bgpcep-pcep-p2mp-te-lsp" version="${project.version}">
-        <feature version="[4,5)">odl-mdsal-broker</feature>
+        <feature version="[5,6)">odl-mdsal-broker</feature>
     </feature>
 </features>

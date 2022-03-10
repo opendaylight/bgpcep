@@ -8,6 +8,6 @@
   -->
 <features name="odl-bgpcep-bgp-dependencies-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
     <feature name="odl-bgpcep-bgp-dependencies" version="${project.version}">
-        <feature version="[7,8)">odl-yangtools-data-api</feature>
+        <feature version="[8,9)">odl-yangtools-data-api</feature>
     </feature>
 </features>

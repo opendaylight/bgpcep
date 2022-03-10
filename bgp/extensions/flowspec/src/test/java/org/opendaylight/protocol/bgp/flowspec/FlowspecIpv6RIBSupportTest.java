@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -48,8 +48,8 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidateNode;
-import org.opendaylight.yangtools.yang.data.api.schema.tree.DataTreeCandidates;
+import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecIpv6RoutesCase, FlowspecIpv6Routes,
         FlowspecRoute> {
@@ -57,8 +57,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
     private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final DestinationIpv6PrefixCase DEST_PREFIX = new DestinationIpv6PrefixCaseBuilder()
             .setDestinationPrefix(new Ipv6Prefix("2001:db8:1:2::/64")).build();
-    private static final List<Flowspec> FLOW_LIST = Collections.singletonList(new FlowspecBuilder()
-            .setFlowspecType(DEST_PREFIX).build());
+    private static final List<Flowspec> FLOW_LIST = List.of(new FlowspecBuilder().setFlowspecType(DEST_PREFIX).build());
     private static final DestinationFlowspecIpv6 DEST_FLOW = new DestinationFlowspecIpv6Builder()
             .setFlowspec(FLOW_LIST).setPathId(PATH_ID).build();
     private static final DestinationFlowspecIpv6Case REACH_NLRI = new DestinationFlowspecIpv6CaseBuilder()
@@ -81,36 +80,35 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         act.start(context);
 
         final SimpleFlowspecIpv6NlriParser parser = new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC);
-        this.routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
-        this.route = new FlowspecRouteBuilder().withKey(this.routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
+        routeKey = new FlowspecRouteKey(PATH_ID, parser.stringNlri(FLOW_LIST));
+        route = new FlowspecRouteBuilder().withKey(routeKey).setPathId(PATH_ID).setFlowspec(FLOW_LIST)
                 .setAttributes(new AttributesBuilder().build()).build();
-        this.routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Map.of(this.route.key(), this.route)).build();
-        this.ribSupport = new FlowspecIpv6RIBSupport(this.adapter.currentSerializer());
-        setUpTestCustomizer(this.ribSupport);
+        routes = new FlowspecIpv6RoutesBuilder().setFlowspecRoute(Map.of(route.key(), route)).build();
+        ribSupport = new FlowspecIpv6RIBSupport(adapter.currentSerializer());
+        setUpTestCustomizer(ribSupport);
     }
 
     @Test
     public void testDeleteRoutes() {
-        this.ribSupport.deleteRoutes(this.tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final InstanceIdentifier<FlowspecRoute> instanceIdentifier = this.deletedRoutes.get(0);
-        assertEquals(this.routeKey, instanceIdentifier.firstKeyOf(FlowspecRoute.class));
+        ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        final InstanceIdentifier<FlowspecRoute> instanceIdentifier = deletedRoutes.get(0);
+        assertEquals(routeKey, instanceIdentifier.firstKeyOf(FlowspecRoute.class));
     }
 
     @Test
     public void testPutRoutes() {
-        this.ribSupport.putRoutes(this.tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
-        assertEquals(this.route, this.insertedRoutes.get(0).getValue());
+        ribSupport.putRoutes(tx, getTablePath(), createNlriAdvertiseRoute(REACH_NLRI), createAttributes());
+        assertEquals(route, insertedRoutes.get(0).getValue());
     }
 
     @Test
     public void testEmptyRoute() {
-        assertEquals(createEmptyTable(), this.ribSupport.emptyTable());
+        assertEquals(createEmptyTable(), ribSupport.emptyTable());
     }
 
     @Test
     public void testBuildMpUnreachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(Collections.emptyList(),
-                createRoutes(this.routes), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(List.of(), createRoutes(routes), ATTRIBUTES);
         assertEquals(UNREACH_NLRI, update.getAttributes().augmentation(AttributesUnreach.class)
             .getMpUnreachNlri().getWithdrawnRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesReach.class));
@@ -118,8 +116,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
 
     @Test
     public void testBuildMpReachNlriUpdate() {
-        final Update update = this.ribSupport.buildUpdate(createRoutes(this.routes),
-                Collections.emptyList(), ATTRIBUTES);
+        final Update update = ribSupport.buildUpdate(createRoutes(routes), List.of(), ATTRIBUTES);
         assertEquals(REACH_NLRI, update.getAttributes().augmentation(AttributesReach.class).getMpReachNlri()
                 .getAdvertizedRoutes().getDestinationType());
         assertNull(update.getAttributes().augmentation(AttributesUnreach.class));
@@ -127,19 +124,19 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
 
     @Test
     public void testCacheableNlriObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableNlriObjects());
+        assertEquals(Set.of(), ribSupport.cacheableNlriObjects());
     }
 
     @Test
     public void testCacheableAttributeObjects() {
-        assertEquals(ImmutableSet.of(), this.ribSupport.cacheableAttributeObjects());
+        assertEquals(Set.of(), ribSupport.cacheableAttributeObjects());
     }
 
     @Test
     public void testRoutePath() {
-        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(this.routes);
+        final NodeIdentifierWithPredicates prefixNii = createRouteNIWP(routes);
         assertEquals(getRoutePath().node(prefixNii),
-                this.ribSupport.routePath(getTablePath(), prefixNii));
+                ribSupport.routePath(getTablePath(), prefixNii));
     }
 
     @Test
@@ -147,22 +144,22 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         assertEquals(new NodeIdentifier(QName.create(FlowspecIpv6Routes.QNAME,
             org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Attributes
                     .QNAME.getLocalName().intern())),
-            this.ribSupport.routeAttributesIdentifier());
+            ribSupport.routeAttributesIdentifier());
     }
 
     @Test
     public void testRoutesCaseClass() {
-        assertEquals(FlowspecIpv6RoutesCase.class, this.ribSupport.routesCaseClass());
+        assertEquals(FlowspecIpv6RoutesCase.class, ribSupport.routesCaseClass());
     }
 
     @Test
     public void testRoutesContainerClass() {
-        assertEquals(FlowspecIpv6Routes.class, this.ribSupport.routesContainerClass());
+        assertEquals(FlowspecIpv6Routes.class, ribSupport.routesContainerClass());
     }
 
     @Test
     public void testRoutesListClass() {
-        assertEquals(FlowspecRoute.class, this.ribSupport.routesListClass());
+        assertEquals(FlowspecRoute.class, ribSupport.routesListClass());
     }
 
     @Test
@@ -170,17 +167,17 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
         final Routes emptyCase = new FlowspecIpv6RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
                 createRoutes(emptyCase)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         final Routes emptyRoutes = new FlowspecIpv6RoutesCaseBuilder()
                 .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder().build()).build();
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(emptyRoutes)).getRootNode();
-        Assert.assertTrue(this.ribSupport.changedRoutes(tree).isEmpty());
+        assertTrue(ribSupport.changedRoutes(tree).isEmpty());
 
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(new FlowspecIpv6RoutesCaseBuilder()
             .setFlowspecIpv6Routes(new FlowspecIpv6RoutesBuilder()
-                .setFlowspecRoute(Map.of(this.route.key(), this.route)).build()).build())).getRootNode();
-        final Collection<DataTreeCandidateNode> result = this.ribSupport.changedRoutes(tree);
-        Assert.assertFalse(result.isEmpty());
+                .setFlowspecRoute(Map.of(route.key(), route)).build()).build())).getRootNode();
+        final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
+        assertFalse(result.isEmpty());
     }
 }

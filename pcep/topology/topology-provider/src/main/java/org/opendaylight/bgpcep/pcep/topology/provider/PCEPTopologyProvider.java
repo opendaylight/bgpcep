@@ -89,7 +89,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         stopFuture = SettableFuture.create();
         applyConfiguration(null);
         if (asyncOperation == null) {
-            stopFuture.set(Empty.getInstance());
+            stopFuture.set(Empty.value());
         }
         return stopFuture;
     }
@@ -262,7 +262,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
     @Holding("this")
     private void finishOperation(final SettableFuture<Empty> future) {
         asyncOperation = null;
-        future.set(Empty.getInstance());
+        future.set(Empty.value());
 
         // Process next configuration change if there is one
         if (nextConfig != null) {
@@ -274,7 +274,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         // Check if we are shutting down
         if (stopFuture != null) {
-            stopFuture.set(Empty.getInstance());
+            stopFuture.set(Empty.value());
         }
     }
 
