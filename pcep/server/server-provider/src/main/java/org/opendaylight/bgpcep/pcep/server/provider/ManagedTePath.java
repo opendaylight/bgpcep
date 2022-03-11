@@ -17,14 +17,22 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.List;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.graph.ConnectedEdge;
+import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
+import org.opendaylight.graph.ConnectedVertex;
+import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Vertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
@@ -39,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.Constraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
@@ -74,12 +83,13 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ManagedTePath {
+public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigger {
 
     private ConfiguredLsp cfgLsp = null;
     private ConfiguredLsp prevLsp = null;
     private final ManagedTeNode teNode;
     private boolean sent = false;
+    private boolean triggerFlag = false;
     private PathType type = PathType.Pcc;
     private final InstanceIdentifier<Topology> pcepTopology;
     private final InstanceIdentifier<PathComputationClient1> pccIdentifier;
@@ -226,29 +236,25 @@ public class ManagedTePath {
         return PathStatus.Sync;
     }
 
-    public void addBandwidth(ConnectedGraph graph) {
+    private void configureGraph(ConnectedGraph graph, ComputedPath cpath, Constraints cts, boolean config) {
         /* Check that Connected Graph is valid */
         if (graph == null) {
             return;
         }
+
         /* Verify that we have a valid Computed Path and that the LSP is in SYNC */
-        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed
-                || cfgLsp.getPathStatus() != PathStatus.Sync) {
-            return;
-        }
-        /* Verify that a Bandwidth has been requested and reserved */
-        if (cfgLsp.getIntendedPath().getConstraints().getBandwidth() == null) {
+        if (cpath.getComputationStatus() != ComputationStatus.Completed || cfgLsp.getPathStatus() != PathStatus.Sync) {
             return;
         }
 
-        /* Loop the path description to add reserved bandwidth for this LSP */
-        final Long bw = cfgLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
-        int cos = cfgLsp.getIntendedPath().getConstraints().getClassType() != null
-                ? cfgLsp.getIntendedPath().getConstraints().getClassType().intValue()
-                : 0;
-        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
-        for (PathDescription path : cfgLsp.getComputedPath().getPathDescription()) {
-            ConnectedEdge edge = null;
+        /* Loop the path description to add reserved bandwidth and triggers for this LSP */
+        final Long bw = cts.getBandwidth() == null ? 0L : cts.getBandwidth().getValue().longValue();
+        int cos = cts.getClassType() == null ? 0 : cts.getClassType().intValue();
+        final AddressFamily af = cts.getAddressFamily();
+        final String lspId = teNode.getId().getValue() + "/" + cfgLsp.getName();
+        ConnectedEdge edge = null;
+        for (PathDescription path : cpath.getPathDescription()) {
+            edge = null;
             switch (af) {
                 case Ipv4:
                 case SrIpv4:
@@ -256,7 +262,7 @@ public class ManagedTePath {
                         edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
                     } else if (path.getRemoteIpv4() != null) {
                         edge = graph.getConnectedEdge(new IpAddress(path.getRemoteIpv4()));
-                        if (edge != null) {
+                        if (edgeAttrNotNull(edge)) {
                             edge = graph.getConnectedEdge(edge.getEdge().getEdgeAttributes().getRemoteAddress());
                         }
                     }
@@ -267,7 +273,7 @@ public class ManagedTePath {
                         edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
                     } else if (path.getRemoteIpv6() != null) {
                         edge = graph.getConnectedEdge(new IpAddress(path.getRemoteIpv6()));
-                        if (edge != null) {
+                        if (edgeAttrNotNull(edge)) {
                             /* Need to force using IPv6 address as Connected Edge is searched first on IPv4 address */
                             edge = graph.getConnectedEdge(new IpAddress(
                                     edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address()));
@@ -277,88 +283,205 @@ public class ManagedTePath {
                 default:
                     break;
             }
-            if (edge != null) {
-                edge.addBandwidth(bw, cos);
-            }
-        }
-    }
 
-    public void delBandwidth(ConnectedGraph graph) {
-        /* Check that Connected Graph is valid */
-        if (graph == null) {
-            return;
-        }
-        /* Verify that we have a valid Computed Path and that the LSP is in SYNC */
-        if (cfgLsp.getComputedPath().getComputationStatus() != ComputationStatus.Completed
-                || cfgLsp.getPathStatus() != PathStatus.Sync) {
-            return;
-        }
-        /* Verify that a Bandwidth has been requested and reserved */
-        if (cfgLsp.getIntendedPath().getConstraints().getBandwidth() == null) {
-            return;
-        }
-
-        /* Loop the path description to delete reserved bandwidth for this LSP */
-        final Long bw = cfgLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
-        int cos = cfgLsp.getIntendedPath().getConstraints().getClassType() != null
-                ? cfgLsp.getIntendedPath().getConstraints().getClassType().intValue()
-                : 0;
-        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
-        for (PathDescription path : cfgLsp.getComputedPath().getPathDescription()) {
-            ConnectedEdge edge = null;
-            switch (af) {
-                case Ipv4:
-                case SrIpv4:
-                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
-                    break;
-                case Ipv6:
-                case SrIpv6:
-                    edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
-                    break;
-                default:
-                    break;
+            if (edge == null) {
+                continue;
             }
-            if (edge != null) {
-                edge.delBandwidth(bw, cos);
-            }
-        }
-    }
 
-    public void updateBandwidth(ConnectedGraph graph) {
-        /* Check that Connected Graph is valid */
-        if (graph == null) {
-            return;
-        }
-        /* First remove Bandwidth for the old path if any */
-        if (prevLsp != null && prevLsp.getIntendedPath().getConstraints().getBandwidth() != null) {
-            final Long bw = prevLsp.getIntendedPath().getConstraints().getBandwidth().getValue().longValue();
-            int cos = prevLsp.getIntendedPath().getConstraints().getClassType() != null
-                    ? prevLsp.getIntendedPath().getConstraints().getClassType().intValue()
-                    : 0;
-            final AddressFamily af = prevLsp.getIntendedPath().getConstraints().getAddressFamily();
-            for (PathDescription path : prevLsp.getComputedPath().getPathDescription()) {
-                ConnectedEdge edge = null;
-                switch (af) {
-                    case Ipv4:
-                    case SrIpv4:
-                        edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
-                        break;
-                    case Ipv6:
-                    case SrIpv6:
-                        edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
-                        break;
-                    default:
-                        break;
+            if (config) {
+                if (bw != 0L) {
+                    edge.addBandwidth(bw, cos);
                 }
-                if (edge != null) {
+                edge.registerTrigger(this, lspId);
+                if (edge.getSource() != null) {
+                    edge.getSource().registerTrigger(this, lspId);
+                }
+            } else {
+                if (bw != 0L) {
                     edge.delBandwidth(bw, cos);
                 }
+                edge.unRegisterTrigger(lspId);
+                if (edge.getSource() != null) {
+                    edge.getSource().unRegisterTrigger(lspId);
+                }
             }
         }
-        /* Then add Bandwidth for the current path */
-        addBandwidth(graph);
+        if (edge != null && edge.getDestination() != null) {
+            if (config) {
+                edge.getDestination().registerTrigger(this, lspId);
+            } else {
+                edge.getDestination().unRegisterTrigger(lspId);
+            }
+        }
+
+        /* Finally, reset Trigger Flag to activate them */
+        triggerFlag = false;
+    }
+
+    private boolean edgeAttrNotNull(ConnectedEdge edge) {
+        return edge != null && edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null;
+    }
+
+    public void setGraph(ConnectedGraph graph) {
+        configureGraph(graph, cfgLsp.getComputedPath(), cfgLsp.getIntendedPath().getConstraints(), true);
+    }
+
+    public void unsetGraph(ConnectedGraph graph) {
+        configureGraph(graph, cfgLsp.getComputedPath(), cfgLsp.getIntendedPath().getConstraints(), false);
+    }
+
+    public void updateGraph(ConnectedGraph graph) {
+        /* First unset Bandwidth and Triggers for the old path if any */
+        if (prevLsp != null) {
+            configureGraph(graph, prevLsp.getComputedPath(), prevLsp.getIntendedPath().getConstraints(), false);
+        }
+
+        /* Then add Bandwidth and Triggers for the current path */
+        configureGraph(graph, cfgLsp.getComputedPath(), cfgLsp.getIntendedPath().getConstraints(), true);
+
         /* And memorize current LSP for latter update */
         prevLsp = cfgLsp;
+    }
+
+    /**
+     * Reset Triggered Flag.
+     */
+    public void unSetTriggerFlag() {
+        triggerFlag = false;
+    }
+
+    @Override
+    public boolean verifyVertex(@Nullable ConnectedVertex next, @Nullable Vertex current) {
+        /* Check if there is an on-going trigger */
+        if (triggerFlag) {
+            return false;
+        }
+
+        /* Check if Vertex has been removed */
+        Vertex vertex = next.getVertex();
+        if (vertex == null) {
+            triggerFlag = true;
+            return true;
+        }
+
+        /* Check if Vertex changed its Segment Routing Global Block */
+        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
+        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6) && !current.getSrgb().equals(vertex.getSrgb())) {
+            LOG.debug("Vertex {} modified its SRGB {} / {}", vertex.getName(), current.getSrgb(), vertex.getSrgb());
+            triggerFlag = true;
+            return true;
+        }
+
+        /* All is fine */
+        triggerFlag = false;
+        return false;
+    }
+
+    @Override
+    public boolean verifyEdge(@Nullable ConnectedEdge next, @Nullable Edge current) {
+        /* Check if there is an on-going trigger */
+        if (triggerFlag) {
+            return false;
+        }
+
+        /* Check if Edge or Attributes has been removed */
+        Edge edge = next.getEdge();
+        if (edge == null || edge.getEdgeAttributes() == null) {
+            triggerFlag = true;
+            return true;
+        }
+
+        /* Check that Configured LSP has valid constraints */
+        final Constraints constraints = cfgLsp.getIntendedPath().getConstraints();
+        if (constraints == null) {
+            return false;
+        }
+
+        /* Check if Metric is always met */
+        Long metric = 0L;
+        Long delta = 0L;
+        if (constraints.getDelay() != null) {
+            if (edge.getEdgeAttributes().getDelay() != null) {
+                metric = constraints.getDelay().getValue().longValue();
+                delta = edge.getEdgeAttributes().getDelay().getValue().longValue()
+                        - current.getEdgeAttributes().getDelay().getValue().longValue();
+            } else {
+                triggerFlag = true;
+                return true;
+            }
+        }
+        if (constraints.getTeMetric() != null) {
+            if (edge.getEdgeAttributes().getTeMetric() != null) {
+                metric = constraints.getTeMetric().longValue();
+                delta = edge.getEdgeAttributes().getTeMetric().longValue()
+                        - current.getEdgeAttributes().getTeMetric().longValue();
+            } else {
+                triggerFlag = true;
+                return true;
+            }
+        } else if (constraints.getMetric() != null) {
+            if (edge.getEdgeAttributes().getMetric() != null) {
+                metric = constraints.getMetric().longValue();
+                delta = edge.getEdgeAttributes().getMetric().longValue()
+                        - current.getEdgeAttributes().getMetric().longValue();
+            } else {
+                triggerFlag = true;
+                return true;
+            }
+        }
+        if (metric != 0L && cfgLsp.getComputedPath().getComputedMetric() != null
+                && cfgLsp.getComputedPath().getComputedMetric().longValue() + delta > metric) {
+            LOG.debug("Following an update on Edge {} Metric is no longer guaranteed: {} / {}",
+                    edge.getName(),
+                    cfgLsp.getComputedPath().getComputedMetric().longValue() + delta,
+                    metric);
+            triggerFlag = true;
+            return true;
+        }
+
+        /* Check if Bandwidth is always met */
+        if (constraints.getBandwidth() != null) {
+            if (edge.getEdgeAttributes().getMaxLinkBandwidth() == null
+                    || edge.getEdgeAttributes().getMaxResvLinkBandwidth() == null
+                    || edge.getEdgeAttributes().getUnreservedBandwidth() == null) {
+                triggerFlag = true;
+                return true;
+            }
+            Long bandwidth = constraints.getBandwidth().getValue().longValue();
+            Long unrsv = 0L;
+            int cos = 0;
+            for (UnreservedBandwidth unResBw : edge.getEdgeAttributes().getUnreservedBandwidth()) {
+                if (unResBw.getClassType().intValue() == cos) {
+                    unrsv = unResBw.getBandwidth().getValue().longValue();
+                    break;
+                }
+            }
+            Long maxBW = edge.getEdgeAttributes().getMaxLinkBandwidth().getValue().longValue();
+            if (bandwidth > List.of(
+                    unrsv,
+                    /* maxBW might be on the list but will always be greater than the next items */
+                    maxBW - next.getCosResvBandwidth(cos),
+                    maxBW - next.getGlobalResvBandwidth(),
+                    edge.getEdgeAttributes().getMaxResvLinkBandwidth().getValue().longValue())
+                    .stream().mapToLong(v -> v)
+                    .min().getAsLong()
+            ) {
+                LOG.debug("Following an update on Edge {}, Reserved bandwidth is no longer guaranteed", edge.getName());
+                triggerFlag = true;
+                return true;
+            }
+        }
+
+        /* Check if Edge changed its Adjacency SID */
+        final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
+        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6)
+                && !current.getEdgeAttributes().getAdjSid().equals(edge.getEdgeAttributes().getAdjSid())) {
+            LOG.debug("Edge {} has modified its Adjacency SID", edge.getName());
+            triggerFlag = true;
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -558,8 +681,8 @@ public class ManagedTePath {
             final MetricBuilder metricBuilder = new MetricBuilder()
                     .setComputed(true)
                     .setMetricType(Uint8.ONE)
-                    .setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(iPath.getConstraints().getMetric().floatValue()).array()));
+                    .setValue(new Float32(ByteBuffer.allocate(4)
+                            .putFloat(iPath.getConstraints().getMetric().floatValue()).array()));
             args.setMetrics(Collections.singletonList(new MetricsBuilder().setMetric(metricBuilder.build()).build()));
         }
 
@@ -760,4 +883,5 @@ public class ManagedTePath {
         CodeHelpers.appendValue(helper, "Sent", sent);
         return helper.toString();
     }
+
 }

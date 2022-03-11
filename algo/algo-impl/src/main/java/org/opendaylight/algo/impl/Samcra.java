@@ -178,7 +178,7 @@ public class Samcra extends AbstractPathComputation {
                 if (pathLength > 0F && pathLength <= currentPathLength) {
                     final SamcraPath finalPath = samcraPaths.get(pathDestination.getVertexKey());
                     cpathBuilder.setPathDescription(getPathDescription(finalPath.getCurrentPath().getPath()))
-                            .setMetric(Uint32.valueOf(finalPath.getCurrentPath().getCost()))
+                            .setTeMetric(Uint32.valueOf(finalPath.getCurrentPath().getCost()))
                             .setDelay(new Delay(Uint32.valueOf(finalPath.getCurrentPath().getDelay())))
                             .setStatus(ComputationStatus.Active);
                     LOG.debug(" - Path to destination found and registered {}", cpathBuilder.getPathDescription());

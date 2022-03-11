@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.path.descriptions.PathDescriptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
@@ -440,9 +441,6 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                 .setDestination(destination)
                 .setConstraints(cb.build());
 
-        /* Build Actual Path */
-        ComputedPathBuilder cpb = new ComputedPathBuilder();
-
         /* Get a Valid Path Description for this TePath if any */
         List<PathDescription> pathDesc = null;
         if (path.getEro() != null
@@ -456,19 +454,28 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                 && path.getRro().getSubobject().size() > 0) {
             pathDesc = getPathDescription(path.getRro(), cb.getAddressFamily());
         }
-        if (pathDesc != null) {
-            cpb.setPathDescription(pathDesc).setComputationStatus(ComputationStatus.Completed);
-        } else {
-            cpb.setComputationStatus(ComputationStatus.Failed);
-        }
 
-        /* Finally build TE Path */
-        return new ConfiguredLspBuilder()
+        ConfiguredLspBuilder clb =
+            new ConfiguredLspBuilder()
                 .setName(rl.getName())
                 .setPathStatus(PathStatus.Reported)
-                .setIntendedPath(ipb.build())
-                .setComputedPath(cpb.build())
+                .setIntendedPath(ipb.build());
+
+        /* Finally Build Actual Path and TE Path */
+        if (pathDesc == null) {
+            return clb.setComputedPath(
+                    new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build())
                 .build();
+        }
+        return clb.setComputedPath(
+                new ComputedPathBuilder()
+                    .setPathDescription(pathDesc)
+                    .setComputationStatus(
+                        lsp.getOperational() == OperationalStatus.Down
+                            ? ComputationStatus.Failed
+                            : ComputationStatus.Completed)
+                    .build())
+            .build();
     }
 
     /**
