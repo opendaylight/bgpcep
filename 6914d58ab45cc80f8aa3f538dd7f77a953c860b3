@@ -264,6 +264,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0a91a02_3f86e1b7",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-11T19:53:45Z",
+      "side": 1,
+      "message": "since https://git.opendaylight.org/gerrit/c/bgpcep/+/100007/ has been squashed in next PS and we agreed to use switch/case, we can close this comment.",
+      "parentUuid": "a380cb17_a8b00e2a",
+      "revId": "6914d58ab45cc80f8aa3f538dd7f77a953c860b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a319b39_cb1b88af",

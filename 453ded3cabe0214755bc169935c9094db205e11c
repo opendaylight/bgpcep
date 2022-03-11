@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4f48414_3369a410",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-11T19:53:45Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "453ded3cabe0214755bc169935c9094db205e11c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "685f2f03_9ad78b76",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-11T19:53:45Z",
+      "side": 1,
+      "message": "Previous build failed only because this import was modified.\nSo I have taken care to fix it in this PS.",
+      "revId": "453ded3cabe0214755bc169935c9094db205e11c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
