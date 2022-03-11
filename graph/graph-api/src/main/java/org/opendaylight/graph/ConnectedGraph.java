@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 
 /**
  * Connected Graph class is the connected version of the Graph class from the graph yang model.
@@ -193,4 +194,22 @@ public interface ConnectedGraph {
      */
     String getSummary();
 
+    /**
+     * Register a trigger that is executed when a problem occurs on a Vertex or a Edge within the Connected Graph.
+     *
+     * @param trigger   Trigger to be registered
+     * @param key       Topology Key Identifier
+     *
+     * @return          True if registration is done, false otherwise
+     */
+    boolean registerTrigger(ConnectedGraphTrigger trigger, TopologyKey key);
+
+    /**
+     * Un-register a trigger that is already registered on the Connected Graph.
+     *
+     * @param key   Topology Key Identifier
+     *
+     * @return      True if un-registration is done, false otherwise
+     */
+    boolean unRegisterTrigger(TopologyKey key);
 }

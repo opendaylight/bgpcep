@@ -155,8 +155,15 @@ public class PathComputationImpl implements PathComputation {
 
         /* Check if we got a valid Path and return appropriate Path Description */
         if (cpath.getStatus() == ComputationStatus.Completed) {
-            return cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed)
-                    .build();
+            cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed);
+            if (intend.getConstraints().getDelay() != null) {
+                cpb.setComputedMetric(cpath.getDelay().getValue());
+            } else if (intend.getConstraints().getTeMetric() != null) {
+                cpb.setComputedMetric(cpath.getTeMetric());
+            } else {
+                cpb.setComputedMetric(cpath.getMetric());
+            }
+            return cpb.build();
         } else {
             return cpb.setComputationStatus(ComputationStatus.NoPath).build();
         }

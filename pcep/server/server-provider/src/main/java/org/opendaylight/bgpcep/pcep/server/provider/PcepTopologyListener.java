@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.path.descriptions.PathDescriptionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
@@ -457,7 +458,12 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             pathDesc = getPathDescription(path.getRro(), cb.getAddressFamily());
         }
         if (pathDesc != null) {
-            cpb.setPathDescription(pathDesc).setComputationStatus(ComputationStatus.Completed);
+            cpb.setPathDescription(pathDesc);
+            if (lsp.getOperational() == OperationalStatus.Down) {
+                cpb.setComputationStatus(ComputationStatus.Failed);
+            } else {
+                cpb.setComputationStatus(ComputationStatus.Completed);
+            }
         } else {
             cpb.setComputationStatus(ComputationStatus.Failed);
         }
