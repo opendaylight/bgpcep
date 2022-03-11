@@ -18,6 +18,8 @@ import java.util.List;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -132,6 +134,22 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
          * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
         this.networkTopologyTransaction = false;
         LOG.info("Started Traffic Engineering Graph Builder");
+    }
+
+    @Override
+    protected void routeChanged(final DataTreeModification<LinkstateRoute> change, final ReadWriteTransaction trans) {
+        final DataObjectModification<LinkstateRoute> root = change.getRootNode();
+        switch (root.getModificationType()) {
+            case DELETE:
+                removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                break;
+            case SUBTREE_MODIFIED:
+            case WRITE:
+                createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
+                break;
+            default:
+                throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+        }
     }
 
     @Override

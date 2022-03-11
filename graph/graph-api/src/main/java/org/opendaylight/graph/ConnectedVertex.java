@@ -96,4 +96,23 @@ public interface ConnectedVertex {
      */
     List<Prefix> getPrefixes();
 
+    /**
+     * Register a trigger that is executed when a problem occurs on the Connected Vertex.
+     *
+     * @param trigger   Trigger to be registered
+     * @param key       A unique key as string e.g. NodeId+LspId
+     *
+     * @return          True if registration is done, false otherwise
+     */
+    boolean registerTrigger(ConnectedVertexTrigger trigger, String key);
+
+    /**
+     * Un-register a trigger that is already registered on the Connected Vertex.
+     *
+     * @param trigger   Trigger to be unregistered
+     * @param key       A unique key as string e.g. NodeId+LspId
+     *
+     * @return          True if un-registration is done, false otherwise
+     */
+    boolean unRegisterTrigger(ConnectedVertexTrigger trigger, String key);
 }

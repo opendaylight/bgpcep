@@ -10,8 +10,13 @@ package org.opendaylight.graph.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
+import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Edge;
 
@@ -39,6 +44,10 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     private Long globalResvBandwidth = 0L;
     private Long[] cosResvBandwidth = {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
 
+    /* List of Connected Edge Trigger */
+    private ConcurrentMap<String, ConnectedEdgeTrigger> triggers =
+            new ConcurrentHashMap<String, ConnectedEdgeTrigger>();
+
     public ConnectedEdgeImpl(@NonNull Long key) {
         checkArgument(key != 0, "Edge Key must not be equal to 0");
         this.ceid = key;
@@ -55,6 +64,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
      * When edge is removed, we must disconnect source and destination Connected Vertices.
      */
     void close() {
+        this.triggers.clear();
         this.disconnect();
     }
 
@@ -172,6 +182,20 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
         if (cosResvBandwidth[cos] < 0) {
             cosResvBandwidth[cos] = 0L;
         }
+    }
+
+    @Override
+    public boolean registerTrigger(ConnectedEdgeTrigger trigger, String key) {
+        return triggers.putIfAbsent(key, trigger) == null;
+    }
+
+    @Override
+    public boolean unRegisterTrigger(ConnectedEdgeTrigger trigger, String key) {
+        return triggers.remove(key, trigger);
+    }
+
+    public List<ConnectedEdgeTrigger> getTriggers() {
+        return new ArrayList<ConnectedEdgeTrigger>(triggers.values());
     }
 
     /**
