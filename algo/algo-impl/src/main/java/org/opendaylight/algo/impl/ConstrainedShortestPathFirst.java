@@ -71,7 +71,7 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
                 if (relaxMultiConstraints(edge, currentPath) && pathDestination.getCost() < currentCost) {
                     currentCost = pathDestination.getCost();
                     cpathBuilder.setPathDescription(getPathDescription(pathDestination.getPath()))
-                            .setMetric(Uint32.valueOf(pathDestination.getCost()))
+                            .setTeMetric(Uint32.valueOf(pathDestination.getCost()))
                             .setStatus(ComputationStatus.Active);
                     LOG.debug("  Found a valid path up to destination {}", cpathBuilder.getPathDescription());
                 }

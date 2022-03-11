@@ -93,4 +93,23 @@ public interface ConnectedEdge {
      * @param cos   Class of Service of the TE Path
      */
     void delBandwidth(Long bw, int cos);
+
+    /**
+     * Register a trigger that is executed when a problem occurs on the Connected Edge.
+     *
+     * @param trigger   Trigger to be registered
+     * @param key       A unique key as string e.g. NodeId+LspId
+     *
+     * @return          True if registration is done, false otherwise
+     */
+    boolean registerTrigger(ConnectedEdgeTrigger trigger, String key);
+
+    /**
+     * Un-register a trigger that is already registered on the Connected Edge.
+     *
+     * @param key   A unique key as string e.g. NodeId+LspId   Trigger to be unregistered
+     *
+     * @return      True if un-registration is done, false otherwise
+     */
+    boolean unRegisterTrigger(String key);
 }

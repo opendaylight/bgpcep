@@ -11,13 +11,23 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PreDestroy;
+import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.graph.ConnectedEdge;
+import org.opendaylight.graph.ConnectedEdgeTrigger;
+import org.opendaylight.graph.ConnectedGraph;
+import org.opendaylight.graph.ConnectedGraphTrigger;
+import org.opendaylight.graph.ConnectedVertex;
+import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Vertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathType;
@@ -45,13 +55,14 @@ import org.slf4j.LoggerFactory;
  * @author Olivier Dugeon
  */
 
-public final class PathManagerProvider implements TransactionChainListener, AutoCloseable {
+public final class PathManagerProvider implements TransactionChainListener, AutoCloseable, ConnectedGraphTrigger {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerProvider.class);
     private final InstanceIdentifier<Topology> pcepTopology;
     private final DataBroker dataBroker;
     private final DefaultPceServerProvider pceServerProvider;
     private final NetworkTopologyPcepService ntps;
     private TransactionChain chain = null;
+    private ConnectedGraph tedGraph = null;
 
     private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<NodeId, ManagedTeNode>();
 
@@ -62,6 +73,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         this.ntps = requireNonNull(ntps);
         this.pcepTopology = requireNonNull(topology);
         initTransactionChain();
+        tedGraph = getGraph();
         LOG.info("Path Manager Server started for topology {}", topology.getKey().getTopologyId().getValue());
     }
 
@@ -72,7 +84,21 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     @Deactivate
     @PreDestroy
     public void close() {
+        this.tedGraph = pceServerProvider.getTedGraph();
+        if (tedGraph != null) {
+            tedGraph.unRegisterTrigger(InstanceIdentifier.keyOf(pcepTopology));
+        }
         destroyTransactionChain();
+    }
+
+    private ConnectedGraph getGraph() {
+        if (tedGraph == null) {
+            this.tedGraph = pceServerProvider.getTedGraph();
+            if (tedGraph != null) {
+                tedGraph.registerTrigger(this, InstanceIdentifier.keyOf(pcepTopology));
+            }
+        }
+        return tedGraph;
     }
 
     /**
@@ -120,8 +146,8 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     /**
      * Setup Managed TE Path to existing Managed Node.
      *
-     * @param id        Managed Node ID where the TE Path will be enforced
-     * @param lsp    TE Path to be inserted in the Managed Node
+     * @param teNode    Managed TE Node where the TE Path will be enforced
+     * @param lsp       TE Path to be inserted in the Managed Node
      *
      * @return          Newly created Managed TE Path
      */
@@ -162,7 +188,6 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     /**
      * Update TE Path to existing Managed Node.
      *
-     * @param id       Managed Node ID where the TE Path will be updated
      * @param mngPath  Managed TE Path to be updated
      * @param tePath   New TE Path to be updated in the Managed Node
      */
@@ -221,6 +246,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         LOG.debug("Updated Managed Paths: {}", mngPath);
         return mngPath.getLsp();
     }
+
 
     /**
      * Update Computed Path to an existing Managed TE Path.
@@ -426,8 +452,8 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
                 newPath.setConfiguredLsp(new ConfiguredLspBuilder(rptPath).setPathStatus(PathStatus.Sync).build());
             }
 
-            /* Update Reserved Bandwidth in the Connected Graph */
-            newPath.addBandwidth(pceServerProvider.getTedGraph());
+            /* Update Reserved Bandwidth and Add triggers in the Connected Graph */
+            newPath.setGraph(getGraph());
 
             /* Store this new reported TE Path */
             teNode.addManagedTePath(newPath);
@@ -462,7 +488,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         if ((curPath.getLsp().getComputedPath().getPathDescription() == null)
                 && (rptPath.getComputedPath().getPathDescription() != null)) {
             curPath.setConfiguredLsp(new ConfiguredLspBuilder(rptPath).setPathStatus(PathStatus.Sync).build());
-            curPath.updateBandwidth(pceServerProvider.getTedGraph());
+            curPath.updateGraph(getGraph());
             curPath.updateToDataStore();
             LOG.debug("Updated Managed TE Path with reported LSP: {}", curPath);
             return curPath;
@@ -478,7 +504,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         /* Check if TE Path becoming in SYNC */
         if (newStatus == PathStatus.Sync && curPath.getLsp().getPathStatus() != PathStatus.Sync) {
             curPath.sync();
-            curPath.updateBandwidth(pceServerProvider.getTedGraph());
+            curPath.updateGraph(getGraph());
             LOG.debug("Sync Managed TE Path {} on NodeId {}", curPath, id);
             return curPath;
         }
@@ -507,7 +533,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         /* Remove the TE Path and associated Bandwidth if any */
         final ManagedTePath tePath = teNode.removeManagedTePath(key);
         if (tePath != null) {
-            tePath.delBandwidth(pceServerProvider.getTedGraph());
+            tePath.unsetGraph(getGraph());
         }
     }
 
@@ -704,5 +730,29 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         /* And mark the Node as disable */
         teNode.disable();
+    }
+
+    @Override
+    public void verifyVertex(Collection<ConnectedVertexTrigger> triggers, @Nullable ConnectedVertex current,
+            @Nullable Vertex next) {
+        for (ConnectedVertexTrigger trigger : triggers) {
+            if (trigger.verifyVertex(current, next)) {
+                final ManagedTePath tePath = (ManagedTePath )trigger;
+                updateComputedPath(tePath, false);
+                tePath.unSetTriggerFlag();
+            }
+        }
+    }
+
+    @Override
+    public void verifyEdge(Collection<ConnectedEdgeTrigger> triggers, @Nullable ConnectedEdge current,
+            @Nullable Edge next) {
+        for (ConnectedEdgeTrigger trigger : triggers) {
+            if (trigger.verifyEdge(current, next)) {
+                final ManagedTePath tePath = (ManagedTePath )trigger;
+                updateComputedPath(tePath, false);
+                tePath.unSetTriggerFlag();
+            }
+        }
     }
 }

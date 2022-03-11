@@ -11,10 +11,14 @@ package org.opendaylight.graph.impl;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
+import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
@@ -41,6 +45,9 @@ public class ConnectedVertexImpl implements ConnectedVertex {
     /* Connected Vertex Identifier */
     private Long cvid;
 
+    /* List of Connected Edge Trigger */
+    private Map<String, ConnectedVertexTrigger> triggers = new HashMap<String, ConnectedVertexTrigger>();
+
     public ConnectedVertexImpl(@NonNull Long key) {
         checkArgument(key != 0, "Vertex Key must not be equal to 0");
         this.cvid = key;
@@ -57,6 +64,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * When vertex is removed, we must disconnect all Connected Edges.
      */
     void close() {
+        this.triggers.clear();
         this.disconnect();
     }
 
@@ -201,6 +209,20 @@ public class ConnectedVertexImpl implements ConnectedVertex {
     @Override
     public List<Prefix> getPrefixes() {
         return this.prefixes;
+    }
+
+    @Override
+    public boolean registerTrigger(ConnectedVertexTrigger trigger, String key) {
+        return triggers.putIfAbsent(key, trigger) == null;
+    }
+
+    @Override
+    public boolean unRegisterTrigger(String key) {
+        return triggers.remove(key) != null;
+    }
+
+    public Collection<ConnectedVertexTrigger> getTriggers() {
+        return triggers.values();
     }
 
     /**
