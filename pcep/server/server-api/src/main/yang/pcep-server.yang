@@ -112,6 +112,9 @@ module pcep-server {
             }
             container computed-path {
                 uses algo:path-descriptions;
+                leaf computed-metric {
+                    type uint32;
+                }
                 leaf computation-status {
                     type algo:computation-status;
                 }

@@ -58,6 +58,10 @@
             <artifactId>rfc6991-ietf-inet-types</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.mdsal.model</groupId>
+            <artifactId>ietf-topology</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
             <scope>provided</scope>
