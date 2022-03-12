@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9b2fc26_341fa783",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/ConstrainedShortestPathFirst.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-12T14:23:16Z",
+      "side": 1,
+      "message": "adressed in a next change at https://git.opendaylight.org/gerrit/c/bgpcep/+/100095/",
+      "parentUuid": "433580fb_1d65378f",
+      "revId": "fb6e3017975bc2f1084a883b0a46762682890e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6c77c8af_d0063749",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "801430b0_e289dce0",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/Samcra.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-12T14:23:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c77c8af_d0063749",
+      "revId": "fb6e3017975bc2f1084a883b0a46762682890e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c7042e8_359e8ed3",
@@ -48,6 +84,24 @@
       "writtenOn": "2022-03-11T20:12:26Z",
       "side": 1,
       "message": "idem",
+      "revId": "fb6e3017975bc2f1084a883b0a46762682890e98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fa84e07_1514b987",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/ShortestPathFirst.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-12T14:23:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c7042e8_359e8ed3",
       "revId": "fb6e3017975bc2f1084a883b0a46762682890e98",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
