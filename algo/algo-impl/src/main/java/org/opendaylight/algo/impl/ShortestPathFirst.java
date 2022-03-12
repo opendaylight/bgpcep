@@ -80,13 +80,13 @@ public class ShortestPathFirst extends AbstractPathComputation {
          * The "ConstrainedPathBuilder" object contains the optimal path if it exists
          * Otherwise an empty path with status failed is returned
          */
-        if (cpathBuilder.getStatus() == ComputationStatus.InProgress
-                || cpathBuilder.getPathDescription().size() == 0) {
-            cpathBuilder.setStatus(ComputationStatus.NoPath);
-        } else {
-            cpathBuilder.setStatus(ComputationStatus.Completed);
-        }
-        return cpathBuilder.build();
+        return cpathBuilder
+            .setStatus(
+                cpathBuilder.getStatus() == ComputationStatus.InProgress
+                        || cpathBuilder.getPathDescription().size() == 0
+                   ? ComputationStatus.NoPath
+                   : ComputationStatus.Completed)
+            .build();
     }
 
     private boolean relax(final ConnectedEdge edge, final CspfPath currentPath) {

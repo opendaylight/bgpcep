@@ -124,15 +124,11 @@ public class Samcra extends AbstractPathComputation {
 
     @Override
     public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
-        ConstrainedPathBuilder cpathBuilder;
-        List<ConnectedEdge> edges;
-        CspfPath currentPath;
-
         LOG.info("Start SAMCRA Path Computation from {} to {} with constraints {}", src, dst, cts);
 
         /* Initialize SAMCRA variables */
         this.constraints = cts;
-        cpathBuilder = initializePathComputation(src, dst);
+        ConstrainedPathBuilder cpathBuilder = initializePathComputation(src, dst);
         if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             return cpathBuilder.build();
         }
@@ -148,7 +144,7 @@ public class Samcra extends AbstractPathComputation {
          * The top of the queue, i.e. the element with the minimal key( path weight), is processed at each loop
          */
         while (priorityQueue.size() != 0) {
-            currentPath = priorityQueue.poll();
+            CspfPath currentPath = priorityQueue.poll();
             LOG.debug(" - Process path up to Vertex {} from Priority Queue", currentPath.getVertex());
 
             /* Prepare Samcra Path from current CSP Path except for the source */
@@ -160,7 +156,7 @@ public class Samcra extends AbstractPathComputation {
                         currentSamcraPath.currentPath, currentCspfPath, queuePathLength);
             }
 
-            edges = currentPath.getVertex().getOutputConnectedEdges();
+            List<ConnectedEdge> edges = currentPath.getVertex().getOutputConnectedEdges();
             float currentPathLength = 1.0F;
             for (ConnectedEdge edge : edges) {
                 /* Connected Vertex's edges processing:
@@ -238,13 +234,13 @@ public class Samcra extends AbstractPathComputation {
          * The "ConstrainedPathBuilder" object contains the optimal path if it exists
          * Otherwise an empty path with status failed is returned
          */
-        if (cpathBuilder.getStatus() == ComputationStatus.InProgress
-                || cpathBuilder.getPathDescription().size() == 0) {
-            cpathBuilder.setStatus(ComputationStatus.NoPath);
-        } else {
-            cpathBuilder.setStatus(ComputationStatus.Completed);
-        }
-        return cpathBuilder.build();
+        return cpathBuilder
+            .setStatus(
+                cpathBuilder.getStatus() == ComputationStatus.InProgress
+                        || cpathBuilder.getPathDescription().size() == 0
+                   ? ComputationStatus.NoPath
+                   : ComputationStatus.Completed)
+            .build();
     }
 
     /* Connected Edge to remote connected vertex processing (on contrast to CSPF algorithm, the already processed

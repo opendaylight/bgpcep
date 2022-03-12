@@ -243,11 +243,15 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     }
                 }
                 Long maxBW = attributes.getMaxLinkBandwidth().getValue().longValue();
-                if (unrsv < bandwidth
-                        || maxBW < bandwidth
-                        || (maxBW - edge.getCosResvBandwidth(cos)) < bandwidth
-                        || (maxBW - edge.getGlobalResvBandwidth()) < bandwidth
-                        || attributes.getMaxResvLinkBandwidth().getValue().longValue() < bandwidth) {
+                if (bandwidth > List.of(
+                            unrsv,
+                            // maxBW might be on the list but will always be greater than the next items
+                            maxBW - edge.getCosResvBandwidth(cos),
+                            maxBW - edge.getGlobalResvBandwidth(),
+                            attributes.getMaxResvLinkBandwidth().getValue().longValue())
+                        .stream().mapToLong(v -> v)
+                        .min().getAsLong()
+                ) {
                     LOG.debug("Bandwidth constraint is not met");
                     return true;
                 }
