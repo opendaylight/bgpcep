@@ -21,6 +21,12 @@ module path-computation {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2022-03-10" {
+        description
+             "add new computation status for failures and a type for address-family";
+        reference "";
+    }
+
     revision "2020-01-20" {
         description
              "Initial revision.";
