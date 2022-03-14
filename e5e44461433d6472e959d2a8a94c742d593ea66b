@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd3d4bbd_e7f35e81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-14T10:39:09Z",
+      "side": 1,
+      "message": "LGTM apart the commit message. Please add \u0027JIRA: BGPCEP-795\u0027 in the commit message for automatic reference to the JIRA ticket.",
+      "revId": "e5e44461433d6472e959d2a8a94c742d593ea66b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
