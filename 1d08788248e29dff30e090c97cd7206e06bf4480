@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ae3300f_3c8a11b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-21T16:16:31Z",
+      "side": 1,
+      "message": "This is the last part of the PCE Server Path Manager.\n\nI test it other Juniper and Cisco routers network. It works fine when modifying a metric, shutdown an interface as well as shutdown a router. LSP configured through the Path Manager are automatically updated: new path is computed and if a valid path is found, it is enforced in the PCCs",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
