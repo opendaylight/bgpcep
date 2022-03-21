@@ -404,10 +404,7 @@ public class ManagedTePath {
                 .setAdministrative(true)
                 .setDelegate(true);
 
-        /*
-         * Build Arguments.
-         * Note that TE Metric and Delay are not set because, at least, Juniper Routers don't support them.
-         */
+        /* Build Arguments. */
         final ArgumentsBuilder args = new ArgumentsBuilder()
                 .setEndpointsObj(epb.build())
                 .setEro(MessagesUtil.getEro(cfgLsp.getComputedPath().getPathDescription()))
@@ -416,14 +413,22 @@ public class ManagedTePath {
                         .setPathSetupType(pstBuilder.build())
                         .build());
 
-        /* with Bandwidth and Standard Metric */
+        /* with Bandwidth and Metric if defined */
         if (iPath.getConstraints().getBandwidth() != null) {
             final int ftoi = Float.floatToIntBits(iPath.getConstraints().getBandwidth().getValue().floatValue());
             final byte[] itob = { (byte) (0xFF & ftoi >> 24), (byte) (0xFF & ftoi >> 16), (byte) (0xFF & ftoi >> 8),
                 (byte) (0xFF & ftoi) };
             args.setBandwidth(new BandwidthBuilder().setBandwidth(new Bandwidth(itob)).build());
         }
-        if (iPath.getConstraints().getMetric() != null) {
+        /* Note that Delay are not set because, at least, Juniper Routers don't support them */
+        if (iPath.getConstraints().getTeMetric() != null) {
+            final MetricBuilder metricBuilder = new MetricBuilder()
+                    .setComputed(true)
+                    .setMetricType(Uint8.TWO)
+                    .setValue(new Float32(ByteBuffer.allocate(4)
+                            .putFloat(iPath.getConstraints().getTeMetric().floatValue()).array()));
+            args.setMetrics(Collections.singletonList(new MetricsBuilder().setMetric(metricBuilder.build()).build()));
+        } else if (iPath.getConstraints().getMetric() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder()
                     .setComputed(true)
                     .setMetricType(Uint8.ONE)
@@ -534,12 +539,28 @@ public class ManagedTePath {
                     .build())
                 .setEro(MessagesUtil.getEro(cfgLsp.getComputedPath().getPathDescription()));
 
-        /*  with Bandwidth if defined, but not other Metrics as some routers don't support them */
+        /*  with Bandwidth and Metric if defined */
         if (iPath.getConstraints().getBandwidth() != null) {
             final int ftoi = Float.floatToIntBits(iPath.getConstraints().getBandwidth().getValue().floatValue());
             final byte[] itob = { (byte) (0xFF & ftoi >> 24), (byte) (0xFF & ftoi >> 16), (byte) (0xFF & ftoi >> 8),
                 (byte) (0xFF & ftoi) };
             args.setBandwidth(new BandwidthBuilder().setBandwidth(new Bandwidth(itob)).build());
+        }
+        /* Note that Delay are not set because, at least, Juniper Routers don't support them */
+        if (iPath.getConstraints().getTeMetric() != null) {
+            final MetricBuilder metricBuilder = new MetricBuilder()
+                    .setComputed(true)
+                    .setMetricType(Uint8.TWO)
+                    .setValue(new Float32(ByteBuffer.allocate(4)
+                            .putFloat(iPath.getConstraints().getTeMetric().floatValue()).array()));
+            args.setMetrics(Collections.singletonList(new MetricsBuilder().setMetric(metricBuilder.build()).build()));
+        } else if (iPath.getConstraints().getMetric() != null) {
+            final MetricBuilder metricBuilder = new MetricBuilder()
+                    .setComputed(true)
+                    .setMetricType(Uint8.ONE)
+                    .setValue(new Float32(
+                            ByteBuffer.allocate(4).putFloat(iPath.getConstraints().getMetric().floatValue()).array()));
+            args.setMetrics(Collections.singletonList(new MetricsBuilder().setMetric(metricBuilder.build()).build()));
         }
 
         /*

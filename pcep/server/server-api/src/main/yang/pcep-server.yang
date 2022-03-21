@@ -51,25 +51,6 @@ module pcep-server {
         }
     }
 
-    typedef routing-type {
-        description "Various objectives for the Path Computation Algorithm";
-        type enumeration {
-            enum none {
-                value 0;
-            }
-            enum metric {
-                value 1;
-            }
-            enum te-metric {
-                value 2;
-            }
-            enum delay {
-                value 3;
-            }
-        }
-        default "none";
-    }
-
     typedef path-status {
         description "Status of the TE Path";
         type enumeration {
@@ -106,13 +87,6 @@ module pcep-server {
                 type string;
                 mandatory true;
             }
-            /*
-            leaf path-type {
-                description "Type of the TE Path";
-                type path-type;
-                config false;
-            }
-            */
             leaf path-status {
                 description "Status of TE Path";
                 type path-status;
@@ -125,9 +99,6 @@ module pcep-server {
                 }
                 leaf destination {
                     type inet:ip-address;
-                }
-                leaf routing-method {
-                     type routing-type;
                 }
                 container constraints {
                     uses algo:path-constraints;
