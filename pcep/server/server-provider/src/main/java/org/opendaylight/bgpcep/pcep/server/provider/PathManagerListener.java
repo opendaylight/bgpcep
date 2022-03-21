@@ -80,13 +80,13 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
             switch (lsp.getModificationType()) {
                 case DELETE:
                     cfgLsp = (ConfiguredLsp) lsp.getDataBefore();
-                    LOG.debug("Un-Register Managed TE Path: {}", cfgLsp.getName());
+                    LOG.debug("Delete Managed TE Path: {}", cfgLsp.getName());
                     pathManager.deleteManagedTePath(nodeId, cfgLsp.key());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     cfgLsp = (ConfiguredLsp) lsp.getDataAfter();
-                    LOG.debug("Register Managed TE Path {}", cfgLsp.getName());
+                    LOG.debug("Update Managed TE Path {}", cfgLsp);
                     pathManager.createManagedTePath(nodeId, cfgLsp);
                     break;
                 default:

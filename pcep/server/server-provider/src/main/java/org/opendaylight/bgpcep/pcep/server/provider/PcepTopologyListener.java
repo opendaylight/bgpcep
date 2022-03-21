@@ -43,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpNodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.PathStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.PathType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.RoutingType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLspKey;
@@ -391,22 +390,18 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             convert = ByteBuffer.wrap(path.getReoptimizationBandwidth().getBandwidth().getValue()).getFloat();
             cb.setBandwidth(new DecimalBandwidth(BigDecimal.valueOf(convert.longValue())));
         }
-        RoutingType rtype = RoutingType.None;
         if (path.getMetrics() != null) {
             for (Metrics metric: path.getMetrics()) {
                 convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
                 switch (metric.getMetric().getMetricType().intValue()) {
                     case MessagesUtil.IGP_METRIC:
                         cb.setMetric(Uint32.valueOf(convert.longValue()));
-                        rtype = RoutingType.Metric;
                         break;
                     case MessagesUtil.TE_METRIC:
                         cb.setTeMetric(Uint32.valueOf(convert.longValue()));
-                        rtype = RoutingType.TeMetric;
                         break;
                     case MessagesUtil.PATH_DELAY:
                         cb.setDelay(new Delay(Uint32.valueOf(convert.longValue())));
-                        rtype = RoutingType.Delay;
                         break;
                     default:
                         break;
@@ -443,7 +438,6 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         final IntendedPathBuilder ipb = new IntendedPathBuilder()
                 .setSource(source)
                 .setDestination(destination)
-                .setRoutingMethod(rtype)
                 .setConstraints(cb.build());
 
         /* Build Actual Path */
