@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.PathConstraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.get.constrained.path.input.ConstraintsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.RoutingType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.ComputedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.IntendedPath;
@@ -136,20 +135,12 @@ public class PathComputationImpl implements PathComputation {
 
         /* Determine Path Computation Algorithm according to parameters */
         AlgorithmType algoType;
-        final RoutingType rt = intend.getRoutingMethod();
-        switch (rt) {
-            case Metric:
-                algoType = AlgorithmType.Spf;
-                break;
-            case TeMetric:
-                algoType = AlgorithmType.Cspf;
-                break;
-            case Delay:
-                algoType = AlgorithmType.Samcra;
-                break;
-            default:
-                algoType = AlgorithmType.Spf;
-                break;
+        if (intend.getConstraints().getDelay() != null) {
+            algoType = AlgorithmType.Samcra;
+        } else if (intend.getConstraints().getTeMetric() != null) {
+            algoType = AlgorithmType.Cspf;
+        } else {
+            algoType = AlgorithmType.Spf;
         }
         PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
@@ -164,8 +155,15 @@ public class PathComputationImpl implements PathComputation {
 
         /* Check if we got a valid Path and return appropriate Path Description */
         if (cpath.getStatus() == ComputationStatus.Completed) {
-            return cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed)
-                    .build();
+            cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed);
+            if (intend.getConstraints().getDelay() != null) {
+                cpb.setComputedMetric(cpath.getDelay().getValue());
+            } else if (intend.getConstraints().getTeMetric() != null) {
+                cpb.setComputedMetric(cpath.getTeMetric());
+            } else {
+                cpb.setComputedMetric(cpath.getMetric());
+            }
+            return cpb.build();
         } else {
             return cpb.setComputationStatus(ComputationStatus.NoPath).build();
         }

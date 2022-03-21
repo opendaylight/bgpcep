@@ -12,6 +12,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import java.util.HashMap;
+// import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.PreDestroy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -28,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -184,14 +186,14 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
                     iPath.getDestination(), oPath.getDestination());
             ipb.setDestination(oPath.getDestination());
         }
-        /*
-         * Same for Routing Method: i.e. refused to change a TE Path from
-         * RSVP-TE to Segment Routing and vice versa
-         */
-        if (!iPath.getRoutingMethod().equals(oPath.getRoutingMethod())) {
-            LOG.warn("Routing Method {}/{} of TE Path has been modified. Revert to initial one",
-                    iPath.getRoutingMethod(), oPath.getRoutingMethod());
-            ipb.setRoutingMethod(oPath.getRoutingMethod());
+
+        /* Same for Address Family i.e. refused to change a TE Path from RSVP-TE to Segment Routing and vice versa */
+        if (!iPath.getConstraints().getAddressFamily().equals(oPath.getConstraints().getAddressFamily())) {
+            LOG.warn("Address Family {}/{} of TE Path has been modified. Revert to initial one",
+                    iPath.getConstraints().getAddressFamily(), oPath.getConstraints().getAddressFamily());
+            ConstraintsBuilder cb = new ConstraintsBuilder(iPath.getConstraints());
+            cb.setAddressFamily(oPath.getConstraints().getAddressFamily());
+            ipb.setConstraints(cb.build());
         }
 
         /* Create updated TE Path */
@@ -217,6 +219,48 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         LOG.debug("Updated Managed Paths: {}", mngPath);
         return mngPath.getLsp();
+    }
+
+    /**
+     * Update Computed Path to an existing Managed TE Path.
+     *
+     * @param mngPath  Managed TE Path to be updated
+     */
+    private void updateComputedPath(final ManagedTePath mngPath, boolean add) {
+        checkArgument(mngPath != null, "Provided Managed TE Path is a null object");
+
+        final ManagedTeNode teNode = mngPath.getManagedTeNode();
+
+        LOG.info("Update Computed Path for Managed TE Path {}", mngPath.getLsp().getName());
+
+        /* Compute new Route */
+        ConfiguredLspBuilder clb = new ConfiguredLspBuilder(mngPath.getLsp())
+                .setPathStatus(PathStatus.Updated);
+        final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
+        if (pci != null) {
+            clb.setComputedPath(pci.computeTePath(mngPath.getLsp().getIntendedPath()));
+        } else {
+            clb.setComputedPath(new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build());
+        }
+
+        /* Update the TE Path with the new computed path */
+        mngPath.setConfiguredLsp(clb.build());
+        if (add) {
+            mngPath.addToDataStore();
+        } else {
+            mngPath.updateToDataStore();
+        }
+
+        /* Finally, update Path on PCC if it is synchronized and computed path is valid */
+        if (teNode.isSync()) {
+            if (add) {
+                mngPath.addPath(ntps);
+            } else {
+                mngPath.updatePath(ntps);
+            }
+        }
+
+        LOG.debug("Computed new path: {}", clb.getComputedPath());
     }
 
     /**
@@ -394,6 +438,16 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
             LOG.debug("Created new Managed TE Path: {}", newPath);
             return newPath;
+        }
+
+        /*
+         * If PCE restart, it will consider all configured TE Path as Initiated, while some of configurations
+         * concern only Delegate Path. Thus, It is necessary to verify the Path Type and correct them:
+         * i.e. a reported TE Path, if not Initiated, will overwrite an Initiated configured TE Path.
+         */
+        if (curPath.getType() == PathType.Initiated && ptype != PathType.Initiated) {
+            LOG.debug("Reset Path Type to {} for Managed TE Path {}", ptype, curPath.getLsp().getName());
+            curPath.setType(ptype);
         }
 
         /* Check this TE Path against current configuration */
@@ -575,20 +629,32 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         teNode.sync();
 
         /*
-         * PCC is synchronized, browse all TE Path to check if:
+         * PCC is synchronized, browse all Managed TE Path to check if:
          *  - some are missing i.e. apply previously initiated paths that have been created before the PCC connects
          *  - some need update i.e. apply previous modifications
+         * And for eligible Managed TE Path, give it a last chance to obtain a valid computed path. This is mandatory
+         * when ODL restart: Path Manager Configuration is read before a valid TED is available.
          */
-        for (ManagedTePath mngPath : teNode.getTePaths().values()) {
-            switch (mngPath.getLsp().getPathStatus()) {
-                case Updated:
-                    mngPath.updatePath(ntps);
-                    break;
-                case Configured:
-                    mngPath.addPath(ntps);
-                    break;
-                default:
-                    break;
+        if (teNode.getTePaths() != null && !teNode.getTePaths().isEmpty()) {
+            for (ManagedTePath mngPath : teNode.getTePaths().values()) {
+                switch (mngPath.getLsp().getPathStatus()) {
+                    case Updated:
+                        if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
+                            updateComputedPath(mngPath, false);
+                        } else {
+                            mngPath.updatePath(ntps);
+                        }
+                        break;
+                    case Configured:
+                        if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
+                            updateComputedPath(mngPath, true);
+                        } else {
+                            mngPath.addPath(ntps);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
@@ -611,7 +677,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         }
 
         /* Remove all associated TE Paths that are managed by the PCE */
-        for (ManagedTePath mngPath: teNode.getTePaths().values()) {
+        for (ManagedTePath mngPath : teNode.getTePaths().values()) {
             if (mngPath.getType() == PathType.Initiated) {
                 removeTePath(nodeId, mngPath.getLsp().key());
             }
@@ -643,5 +709,4 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         /* And mark the Node as disable */
         teNode.disable();
     }
-
 }
