@@ -132,7 +132,6 @@ schema:
        +--ro intended-path
        |  +--ro source?           inet:ip-address
        |  +--ro destination?      inet:ip-address
-       |  +--ro routing-method?   routing-type
        |  +--ro constraints
        |     +--ro metric?           uint32
        |     +--ro te-metric?        uint32
@@ -219,7 +218,6 @@ operational (with ``?content=nonconfig``) and onfiguration (with
                                 "intended-path": {
                                     "destination": "10.2.2.2",
                                     "source": "10.1.1.1",
-                                    "routing-method": "te-metric",
                                     "constraints": {
                                         "bandwidth": "100000",
                                         "class-type": 1,
@@ -257,7 +255,6 @@ path are also reported:
                                 "intended-path": {
                                     "destination": "10.1.1.1",
                                     "source": "10.2.2.2",
-                                    "routing-method": "te-metric",
                                     "constraints": {
                                         "bandwidth": "100000",
                                         "class-type": 1,
@@ -314,7 +311,7 @@ the configuration as follow:
 
 .. code-block:: json
    :linenos:
-   :emphasize-lines: 4,8,9,13
+   :emphasize-lines: 4,8,11,12
 
     {
         "pcep-server:configured-lsp": [
@@ -323,7 +320,6 @@ the configuration as follow:
                 "intended-path": {
                     "destination": "10.2.2.2",
                     "source": "10.1.1.1",
-                    "routing-method": "te-metric",
                     "constraints": {
                         "bandwidth": "100000",
                         "class-type": 1,
@@ -335,17 +331,17 @@ the configuration as follow:
         ]
     }
 
-@line 5: **name** The tunnel identifier. Must be unique.
+@line 4: **name** The tunnel identifier. Must be unique.
 
-@line 8: **routing-method** Specify which type of metric is used to compute
-the path: ``metric`` (standard), ``te-metric`` (TE metric) or ``delay``
-
-@line 9: **constraints** Constraints that the path compputation algorithm
+@line 8: **constraints** Constraints that the path compputation algorithm
 should respect to determine the path of the tunnel. Note that if no path
 is found, the tunnel is not enforced in the PCC and ``computation-status``
 within the ``computed-path`` is set to failed.
 
-@line 13: **address-family** Indicate the IP family of the tunnel: ``ipv4`` or
+@line 11: Specify which type of metric is used to compute the path:
+``metric`` (standard IGP metric), ``te-metric`` (TE metric) or ``delay``
+
+@line 12: **address-family** Indicate the IP family of the tunnel: ``ipv4`` or
 ``ipv6`` for IPv4 respectively IPv6 RSVP-TE tunnel, ``sr-ipv4`` or ``sr-ipv6``
 for IPv4 respectively IPv6 Segment Routing tunnel.
 

@@ -18,8 +18,8 @@ import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.PcepNodeConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PcepNodeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLsp;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -80,13 +80,13 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
             switch (lsp.getModificationType()) {
                 case DELETE:
                     cfgLsp = (ConfiguredLsp) lsp.getDataBefore();
-                    LOG.debug("Un-Register Managed TE Path: {}", cfgLsp.getName());
+                    LOG.debug("Delete Managed TE Path: {}", cfgLsp.getName());
                     pathManager.deleteManagedTePath(nodeId, cfgLsp.key());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     cfgLsp = (ConfiguredLsp) lsp.getDataAfter();
-                    LOG.debug("Register Managed TE Path {}", cfgLsp.getName());
+                    LOG.debug("Update Managed TE Path {}", cfgLsp);
                     pathManager.createManagedTePath(nodeId, cfgLsp);
                     break;
                 default:

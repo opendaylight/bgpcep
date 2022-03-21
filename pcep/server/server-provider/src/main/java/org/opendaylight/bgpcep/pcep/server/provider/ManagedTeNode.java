@@ -10,13 +10,13 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.MoreObjects;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.PathType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev210720.pcc.configured.lsp.ConfiguredLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLspKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.CodeHelpers;
 import org.slf4j.Logger;
@@ -32,7 +32,8 @@ public class ManagedTeNode {
 
     private final NodeId id;
     private NodeState state;
-    private Map<ConfiguredLspKey, ManagedTePath> mngPaths = new HashMap<ConfiguredLspKey, ManagedTePath>();
+    private ConcurrentMap<ConfiguredLspKey, ManagedTePath> mngPaths =
+            new ConcurrentHashMap<ConfiguredLspKey, ManagedTePath>();
     private final TransactionChain chain;
     private static final Logger LOG = LoggerFactory.getLogger(ManagedTeNode.class);
 
@@ -56,7 +57,7 @@ public class ManagedTeNode {
         return id;
     }
 
-    public Map<ConfiguredLspKey, ManagedTePath> getTePaths() {
+    public ConcurrentMap<ConfiguredLspKey, ManagedTePath> getTePaths() {
         return mngPaths;
     }
 

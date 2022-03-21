@@ -23,6 +23,12 @@ module pcep-server {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2022-03-21" {
+        description
+            "Del LSP routing method and path type. Add computed path metric.";
+        reference "";
+    }
+
     revision "2021-07-20" {
         description
              "Initial revision.";
@@ -49,25 +55,6 @@ module pcep-server {
                 value 3;
             }
         }
-    }
-
-    typedef routing-type {
-        description "Various objectives for the Path Computation Algorithm";
-        type enumeration {
-            enum none {
-                value 0;
-            }
-            enum metric {
-                value 1;
-            }
-            enum te-metric {
-                value 2;
-            }
-            enum delay {
-                value 3;
-            }
-        }
-        default "none";
     }
 
     typedef path-status {
@@ -106,13 +93,6 @@ module pcep-server {
                 type string;
                 mandatory true;
             }
-            /*
-            leaf path-type {
-                description "Type of the TE Path";
-                type path-type;
-                config false;
-            }
-            */
             leaf path-status {
                 description "Status of TE Path";
                 type path-status;
@@ -125,9 +105,6 @@ module pcep-server {
                 }
                 leaf destination {
                     type inet:ip-address;
-                }
-                leaf routing-method {
-                     type routing-type;
                 }
                 container constraints {
                     uses algo:path-constraints;
