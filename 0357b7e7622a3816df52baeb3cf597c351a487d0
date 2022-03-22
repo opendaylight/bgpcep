@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "0357b7e7622a3816df52baeb3cf597c351a487d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c4acf9b_38ae75f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T11:08:14Z",
+      "side": 1,
+      "message": "LGTM, but is it finished ?",
+      "revId": "0357b7e7622a3816df52baeb3cf597c351a487d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
