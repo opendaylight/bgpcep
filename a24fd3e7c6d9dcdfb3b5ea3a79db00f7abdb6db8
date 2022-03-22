@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18fedc31_378c509b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T11:16:14Z",
+      "side": 1,
+      "message": "LGTM, but need to be manually rebased",
+      "revId": "a24fd3e7c6d9dcdfb3b5ea3a79db00f7abdb6db8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
