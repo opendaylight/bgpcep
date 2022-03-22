@@ -13,7 +13,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.HashMap;
-// import java.util.Iterator;
 import java.util.Map;
 import javax.annotation.PreDestroy;
 import org.eclipse.jdt.annotation.Nullable;
@@ -158,18 +157,21 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         LOG.info("Setup TE Path {} for Node {}", lsp.getName(), teNode.getId());
 
-        /* Complete the LSP with the Computed Route */
-        ConfiguredLspBuilder clb = new ConfiguredLspBuilder(lsp)
-                .setPathStatus(PathStatus.Configured);
         final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
-        if (pci != null) {
-            clb.setComputedPath(pci.computeTePath(lsp.getIntendedPath()));
-        } else {
-            clb.setComputedPath(new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build());
-        }
-
         /* Create Corresponding Managed LSP */
-        final ManagedTePath mngLsp = new ManagedTePath(teNode, clb.build(), pcepTopology).setType(PathType.Initiated);
+        final ManagedTePath mngLsp =
+            new ManagedTePath(
+                    teNode,
+                    /* Complete the LSP with the Computed Route */
+                    new ConfiguredLspBuilder(lsp)
+                        .setPathStatus(PathStatus.Configured)
+                        .setComputedPath(
+                            pci == null
+                                ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                                : pci.computeTePath(lsp.getIntendedPath()))
+                        .build(),
+                    pcepTopology)
+                .setType(PathType.Initiated);
 
         /* Store this new Managed TE Node */
         teNode.addManagedTePath(mngLsp);
@@ -221,19 +223,19 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         }
 
         /* Create updated TE Path */
-        ConfiguredLspBuilder clb = new ConfiguredLspBuilder(tePath)
-                .setIntendedPath(ipb.build())
-                .setPathStatus(PathStatus.Updated);
-        /* Complete it with the new Computed Route */
         final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
-        if (pci != null) {
-            clb.setComputedPath(pci.computeTePath(tePath.getIntendedPath()));
-        } else {
-            clb.setComputedPath(new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build());
-        }
+        mngPath.setConfiguredLsp(
+            new ConfiguredLspBuilder(tePath)
+                .setIntendedPath(ipb.build())
+                .setPathStatus(PathStatus.Updated)
+                /* Complete it with the new Computed Route */
+                .setComputedPath(
+                    pci == null
+                        ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                        : pci.computeTePath(tePath.getIntendedPath()))
+                .build());
 
         /* Finally, update the new TE Path for this Node ID */
-        mngPath.setConfiguredLsp(clb.build());
         mngPath.updateToDataStore();
 
         /* Finally, update Path on PCC if it is synchronized and we computed a valid path */
@@ -258,18 +260,18 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         LOG.info("Update Computed Path for Managed TE Path {}", mngPath.getLsp().getName());
 
-        /* Compute new Route */
-        ConfiguredLspBuilder clb = new ConfiguredLspBuilder(mngPath.getLsp())
-                .setPathStatus(PathStatus.Updated);
-        final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
-        if (pci != null) {
-            clb.setComputedPath(pci.computeTePath(mngPath.getLsp().getIntendedPath()));
-        } else {
-            clb.setComputedPath(new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build());
-        }
-
         /* Update the TE Path with the new computed path */
-        mngPath.setConfiguredLsp(clb.build());
+        final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
+        mngPath.setConfiguredLsp(
+            new ConfiguredLspBuilder(mngPath.getLsp())
+                .setPathStatus(PathStatus.Updated)
+                .setComputedPath(
+                    /* Compute new Route */
+                    pci == null
+                        ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                        : pci.computeTePath(mngPath.getLsp().getIntendedPath()))
+                .build());
+
         if (add) {
             mngPath.addToDataStore();
         } else {
@@ -285,7 +287,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
             }
         }
 
-        LOG.debug("Computed new path: {}", clb.getComputedPath());
+        LOG.debug("Computed new path: {}", mngPath.getLsp().getComputedPath());
     }
 
     /**
@@ -428,31 +430,26 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         if (curPath == null) {
             final ManagedTePath newPath = new ManagedTePath(teNode, pcepTopology).setType(ptype);
-            final ConfiguredLspBuilder clb = new ConfiguredLspBuilder(rptPath);
-
             /* Check if ERO needs to be updated i.e. Path Description is empty */
             if (rptPath.getComputedPath().getPathDescription() == null) {
-                clb.setPathStatus(PathStatus.Updated);
-                /* Complete the TE Path with Computed Route */
-                final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
-                if (pci != null) {
-                    clb.setComputedPath(pci.computeTePath(rptPath.getIntendedPath()));
-                } else {
-                    clb.setComputedPath(
-                            new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build());
-                }
-
                 /* Finally, update the new TE Path for this Node ID */
-                newPath.setConfiguredLsp(clb.build());
-
+                final PathComputationImpl pci = (PathComputationImpl) pceServerProvider.getPathComputation();
+                newPath.setConfiguredLsp(
+                    new ConfiguredLspBuilder(rptPath)
+                        .setPathStatus(PathStatus.Updated)
+                        .setComputedPath(
+                            /* Complete the TE Path with Computed Route */
+                            pci == null
+                                ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                                : pci.computeTePath(rptPath.getIntendedPath()))
+                        .build());
                 /* and update Path on PCC if it is synchronized */
                 if (teNode.isSync()) {
                     newPath.updatePath(ntps);
                 }
             } else {
                 /* Mark this TE Path as Synchronous and add it to the Managed TE Path */
-                clb.setPathStatus(PathStatus.Sync);
-                newPath.setConfiguredLsp(clb.build());
+                newPath.setConfiguredLsp(new ConfiguredLspBuilder(rptPath).setPathStatus(PathStatus.Sync).build());
             }
 
             /* Update Reserved Bandwidth and Add triggers in the Connected Graph */
