@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8a82a18a_7c343d39",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T20:13:52Z",
+      "side": 1,
+      "message": "I am not sure to understand what you mean by series of patches.\nPlease can you be more specific ?\nThis file was introduced in August 2021 and was only updated to use newer import since then. Cf below.\n\n\n$ git log --pretty\u003dreference pcep/server/server-api/src/main/yang/pcep-server.yang\na2e87762a (Correct Bugs in Path Manager, 2022-03-21)\n63b0f2c21 (Update algo path-computation YANG model rev date, 2022-03-12)\n1bafc4f7e (Add Path Manager to PCE Server Provider, 2021-08-03)\n\n$ git diff 1bafc4f7e 63b0f2c21 pcep/server/server-api/src/main/yang/pcep-server.yang\ndiff --git a/pcep/server/server-api/src/main/yang/pcep-server.yang b/pcep/server/server-api/src/main/yang/pcep-server.yang\nindex d36610b15..3729f3862 100644\n--- a/pcep/server/server-api/src/main/yang/pcep-server.yang\n+++ b/pcep/server/server-api/src/main/yang/pcep-server.yang\n@@ -5,7 +5,7 @@ module pcep-server {\n \n     import network-topology { prefix nt; revision-date 2013-10-21; }\n     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }\n-    import path-computation { prefix algo; revision-date 2020-01-20; }\n+    import path-computation { prefix algo; revision-date 2022-03-10; }\n     import network-topology-pcep { prefix topo; revision-date 2020-01-20; }\n     import yang-ext { prefix ext; revision-date 2013-07-09; }",
+      "parentUuid": "8f0f75ef_9b89b628",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "33cb8703_a4b50557",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
         "patchSetId": 1
@@ -136,6 +154,24 @@
       "side": 1,
       "message": "I don\u0027t know how to do that. Here, the purpose is to call some methods of the ManagedTePath class depending conditions and not allocate some variables regarding the same conditions.",
       "parentUuid": "d7f43669_c927c63f",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3235729_c1bc187a",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T20:13:52Z",
+      "side": 1,
+      "message": "reopened for tracking purposes",
+      "parentUuid": "156fd25f_25c4f015",
       "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
