@@ -278,6 +278,24 @@
       "parentUuid": "92f0f5ac_f3aa0983",
       "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1b11a58_3af5442d",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T22:00:02Z",
+      "side": 1,
+      "message": "I am not sure to understand your point.\n\nHere is my proposal at https://git.opendaylight.org/gerrit/c/bgpcep/+/100219",
+      "parentUuid": "b21426c8_3dca83fc",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
