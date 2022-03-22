@@ -1,6 +1,57 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "024a00a8_a865b8fc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "I this this sentence is a bit clumsy because \u0027in order to\u0027 is present twice.\nIt is probably worth splitting it in two sentences.",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edd5dbb6_16f76503",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "triggers or a trigger ?",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5645fb6_d5ee9e49",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "belong ?",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3ae3300f_3c8a11b4",
@@ -31,6 +82,74 @@
       "writtenOn": "2022-03-21T16:50:36Z",
       "side": 1,
       "message": "recheck",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9b6a285_6be188b9",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "shouldn\u0027t we change the rev date ?",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebb6da9a_b79a1199",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "if(edge \u003d\u003d null) { continue; } would avoid nested if-structures",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d67a764b_776355d8",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "the cyclomatic complexity of this method is high.\nI think there is probably room to improve this later with more guard clauses for example.",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92f0f5ac_f3aa0983",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T08:13:59Z",
+      "side": 1,
+      "message": "what about a ternary operator here ?",
       "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
