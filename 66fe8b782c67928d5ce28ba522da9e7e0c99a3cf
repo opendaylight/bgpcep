@@ -52,6 +52,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f0f75ef_9b89b628",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:05:02Z",
+      "side": 1,
+      "message": "I think not as the pcep-server.yang model was just introduced with this series of patches to add the Path Manager feature. Indeed, the first 3 patches have been merged before I finalized the latest patches which add this extra modification.",
+      "parentUuid": "f9968228_37ccd293",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33cb8703_a4b50557",
@@ -69,6 +87,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4f1b93a_dff9bf07",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:05:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33cb8703_a4b50557",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7f43669_c927c63f",
@@ -82,6 +118,24 @@
       "writtenOn": "2022-03-22T08:20:59Z",
       "side": 1,
       "message": "IMO some intermediate variables could be removed and a ternary operator would be more indicated here",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "156fd25f_25c4f015",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:05:02Z",
+      "side": 1,
+      "message": "I don\u0027t know how to do that. Here, the purpose is to call some methods of the ManagedTePath class depending conditions and not allocate some variables regarding the same conditions.",
+      "parentUuid": "d7f43669_c927c63f",
       "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
