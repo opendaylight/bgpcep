@@ -441,9 +441,6 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                 .setDestination(destination)
                 .setConstraints(cb.build());
 
-        /* Build Actual Path */
-        ComputedPathBuilder cpb = new ComputedPathBuilder();
-
         /* Get a Valid Path Description for this TePath if any */
         List<PathDescription> pathDesc = null;
         if (path.getEro() != null
@@ -457,24 +454,28 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                 && path.getRro().getSubobject().size() > 0) {
             pathDesc = getPathDescription(path.getRro(), cb.getAddressFamily());
         }
-        if (pathDesc != null) {
-            cpb.setPathDescription(pathDesc);
-            if (lsp.getOperational() == OperationalStatus.Down) {
-                cpb.setComputationStatus(ComputationStatus.Failed);
-            } else {
-                cpb.setComputationStatus(ComputationStatus.Completed);
-            }
-        } else {
-            cpb.setComputationStatus(ComputationStatus.Failed);
-        }
 
-        /* Finally build TE Path */
-        return new ConfiguredLspBuilder()
+        ConfiguredLspBuilder clb =
+            new ConfiguredLspBuilder()
                 .setName(rl.getName())
                 .setPathStatus(PathStatus.Reported)
-                .setIntendedPath(ipb.build())
-                .setComputedPath(cpb.build())
+                .setIntendedPath(ipb.build());
+
+        /* Finally Build Actual Path and TE Path */
+        if (pathDesc == null) {
+            return clb.setComputedPath(
+                    new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build())
                 .build();
+        }
+        return clb.setComputedPath(
+                new ComputedPathBuilder()
+                    .setPathDescription(pathDesc)
+                    .setComputationStatus(
+                        lsp.getOperational() == OperationalStatus.Down
+                            ? ComputationStatus.Failed
+                            : ComputationStatus.Completed)
+                    .build())
+            .build();
     }
 
     /**
