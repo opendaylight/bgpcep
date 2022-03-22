@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e71a2057_0438bc75",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "024a00a8_a865b8fc",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edd5dbb6_16f76503",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c55172bc_d8ec57ae",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edd5dbb6_16f76503",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e5645fb6_d5ee9e49",
@@ -48,6 +84,24 @@
       "writtenOn": "2022-03-22T08:13:59Z",
       "side": 1,
       "message": "belong ?",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53e80c83_7f52b028",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5645fb6_d5ee9e49",
       "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -103,6 +157,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "03e9f64c_e76a9dbc",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "I think not because this model was just introduced with the first patch of the Path Manager series and this one is the latest of the series. Indeed, the first 3 patches have been merged before I publish the latest patch of the series. My primary goal was to update the model as a new patchset and not a new patch.",
+      "parentUuid": "e9b6a285_6be188b9",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ebb6da9a_b79a1199",
@@ -116,6 +188,24 @@
       "writtenOn": "2022-03-22T08:13:59Z",
       "side": 1,
       "message": "if(edge \u003d\u003d null) { continue; } would avoid nested if-structures",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0df22dcf_3cf9a547",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ebb6da9a_b79a1199",
       "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -137,6 +227,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c89dd9ed_489235e2",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "The purpose of the loop lines 256 - 305, is to installed a trigger on all edges and vertices as well as adjust reserved bandwidth on edges that belongs to the LSP. Then, the lines 306 - 312, installed the trigger on the destination vertex. It is a simple \"pole / gaps\" problem ;-)",
+      "parentUuid": "d67a764b_776355d8",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92f0f5ac_f3aa0983",
@@ -150,6 +258,24 @@
       "writtenOn": "2022-03-22T08:13:59Z",
       "side": 1,
       "message": "what about a ternary operator here ?",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b21426c8_3dca83fc",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:04:44Z",
+      "side": 1,
+      "message": "Ternary operator is normally used for variable allocation. Here conditions are used to call different methods.",
+      "parentUuid": "92f0f5ac_f3aa0983",
       "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
