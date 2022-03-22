@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b83d0321_221a889a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T11:19:36Z",
+      "side": 1,
+      "message": "Is still relevant? If yes, please address open comments, if no, please abandon this patch.",
+      "revId": "045b5b958339d160f0c3c09282ca969b6d792afe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
