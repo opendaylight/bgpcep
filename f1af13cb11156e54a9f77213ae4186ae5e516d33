@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26dafb24_f1466596",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T11:09:39Z",
+      "side": 1,
+      "message": "UP. Robert, can you update the commit message in order to merge this patch?",
+      "revId": "f1af13cb11156e54a9f77213ae4186ae5e516d33",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
