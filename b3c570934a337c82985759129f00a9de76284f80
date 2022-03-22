@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "755dce5f_90aa3a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-22T10:54:24Z",
+      "side": 1,
+      "message": "LGTM. It is mark as \u0027WIP\u0027, thus is this patch still relevant ? if yes, I will merge it.",
+      "revId": "b3c570934a337c82985759129f00a9de76284f80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
