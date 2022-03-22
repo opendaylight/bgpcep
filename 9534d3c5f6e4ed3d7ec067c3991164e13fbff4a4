@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aee42e6_1a72caa1",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-22T22:31:51Z",
+      "side": 1,
+      "message": "I can\u0027t see any difference with the previous case constraints.getDelay() !\u003d null",
+      "revId": "9534d3c5f6e4ed3d7ec067c3991164e13fbff4a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
