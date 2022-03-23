@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "71821a0f_66122726",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T10:12:55Z",
+      "side": 1,
+      "message": "I means that the first version of pcep-server.yang was written in August 2021 (when I started the development of the Path Manager) but was merged only last week. In addition, the Path Manager feature is composed of 4 patches:\n- https://git.opendaylight.org/gerrit/c/bgpcep/+/97076\n- https://git.opendaylight.org/gerrit/c/bgpcep/+/100014\n- https://git.opendaylight.org/gerrit/c/bgpcep/+/100059\n- https://git.opendaylight.org/gerrit/c/bgpcep/+/100206\nThe first 3 ones have been merge before I upload the latest one. And because I discover bugs, I must upload this one.\n\nSo, this current patch which modify the yang model should not appear as a new patch but as an ultimate patchset of https://git.opendaylight.org/gerrit/c/bgpcep/+/97076\n\nNow, if you consider that what it is important it is the date of creation (i.e. August 2021) and not the date of merge / bug correction, I\u0027ll update the revision date, but this is pure cosmetic from my point f view.",
+      "parentUuid": "8a82a18a_7c343d39",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "33cb8703_a4b50557",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
         "patchSetId": 1
@@ -208,6 +226,24 @@
       "side": 1,
       "message": "I\u0027ve made a proposal that address similar situations in the whole class at https://git.opendaylight.org/gerrit/c/bgpcep/+/100218\nIt removes clb intermediate variables.",
       "parentUuid": "e3235729_c1bc187a",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a940ce50_08bf10cb",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T10:12:55Z",
+      "side": 1,
+      "message": "OK. Understand this time. I\u0027ll incorporate your proposal in patchset 4",
+      "parentUuid": "11491120_fba29487",
       "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
