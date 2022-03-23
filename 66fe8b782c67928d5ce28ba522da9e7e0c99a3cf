@@ -90,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5c200096_bd69da16",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-23T10:11:26Z",
+      "side": 1,
+      "message": "adressed in https://git.opendaylight.org/gerrit/c/bgpcep/+/100221",
+      "parentUuid": "8a82a18a_7c343d39",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "33cb8703_a4b50557",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
         "patchSetId": 1
