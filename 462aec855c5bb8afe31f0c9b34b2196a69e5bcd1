@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7773bdfc_430b5898",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:45:34Z",
+      "side": 1,
+      "message": "I upload patchset 4 with merge of Guillaume\u0027 proposals.",
+      "revId": "462aec855c5bb8afe31f0c9b34b2196a69e5bcd1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}

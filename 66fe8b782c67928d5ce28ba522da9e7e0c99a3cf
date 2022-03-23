@@ -142,6 +142,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10731fad_eb157c8d",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:45:34Z",
+      "side": 1,
+      "message": "Apply your proposal patch to update revision date of the yang model.",
+      "parentUuid": "65a8dcb4_6f24e679",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33cb8703_a4b50557",
@@ -262,6 +280,24 @@
       "side": 1,
       "message": "OK. Understand this time. I\u0027ll incorporate your proposal in patchset 4",
       "parentUuid": "11491120_fba29487",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9e54dad_46eb0402",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:45:34Z",
+      "side": 1,
+      "message": "apply your proposal.",
+      "parentUuid": "a940ce50_08bf10cb",
       "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
