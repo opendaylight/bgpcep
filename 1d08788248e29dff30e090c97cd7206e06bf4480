@@ -247,6 +247,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9374435d_42067e7d",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-23T10:10:30Z",
+      "side": 1,
+      "message": "OK but some intermediate functions won\u0027t hurt.\npartially addressed in https://git.opendaylight.org/gerrit/c/bgpcep/+/100222\nfor example",
+      "parentUuid": "c89dd9ed_489235e2",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "92f0f5ac_f3aa0983",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PcepTopologyListener.java",
         "patchSetId": 1
