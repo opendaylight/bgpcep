@@ -126,6 +126,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "65a8dcb4_6f24e679",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-23T10:25:25Z",
+      "side": 1,
+      "message": "Thanks for the explanation.\nI do beliveve the bug correction is more important than the rev update.\nMy point is that this is still an import API break anyway.\nI had to rebuild most o the project instead of only pcep/server/server-provider  to make this new commit work on my local repo.\nThus it is not only pure cosmetic IMO.\nBut since it was only merged last week and not yet shipped in any official ODL distribution, I do agree the impact is very low.\nSo up to you to take it into account or not.",
+      "parentUuid": "71821a0f_66122726",
+      "revId": "66fe8b782c67928d5ce28ba522da9e7e0c99a3cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "33cb8703_a4b50557",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathManagerProvider.java",
         "patchSetId": 1
