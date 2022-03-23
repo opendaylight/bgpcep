@@ -16,6 +16,23 @@
       "message": "Is still relevant? If yes, please address open comments, if no, please abandon this patch.",
       "revId": "045b5b958339d160f0c3c09282ca969b6d792afe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d88faef_60277742",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 797
+      },
+      "writtenOn": "2022-03-23T23:30:45Z",
+      "side": 1,
+      "message": "I think this gerrit was an exercise we set for interns to help with the selection process. We can abandon this change.",
+      "revId": "045b5b958339d160f0c3c09282ca969b6d792afe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
