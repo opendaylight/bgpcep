@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cf81d8d_3f710763",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:50:42Z",
+      "side": 1,
+      "message": "Correction about getDelay() is wrong. The error is mine due to a too quick copy / paste",
+      "revId": "ef744f620837551e53fa05fb710357537b0f890d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "566683db_58235b48",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:50:42Z",
+      "side": 1,
+      "message": "That\u0027s not the good correction. The error is above where getTeMetric() should be replaced by getDelay().getValue()",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 402,
+        "endChar": 0
+      },
+      "revId": "ef744f620837551e53fa05fb710357537b0f890d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
