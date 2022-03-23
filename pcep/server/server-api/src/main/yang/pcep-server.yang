@@ -23,6 +23,12 @@ module pcep-server {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2022-03-21" {
+        description
+            "Del LSP routing method and path type. Add computed path metric.";
+        reference "";
+    }
+
     revision "2021-07-20" {
         description
              "Initial revision.";
