@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db9bcfb0_1462430e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-23T16:47:01Z",
+      "side": 1,
+      "message": "Upload patchset 4 with Guillaume\u0027 proposals",
+      "revId": "9a5f2ecfca09706dfa427a14d799af7e146c2d8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
