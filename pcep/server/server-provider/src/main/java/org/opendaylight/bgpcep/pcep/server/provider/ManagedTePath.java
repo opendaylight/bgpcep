@@ -248,8 +248,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         }
 
         /* Loop the path description to add reserved bandwidth and triggers for this LSP */
-        final Long bw = cts.getBandwidth() != null ? cts.getBandwidth().getValue().longValue() : 0L;
-        int cos = cts.getClassType() != null ? cts.getClassType().intValue() : 0;
+        final Long bw = cts.getBandwidth() == null ? 0L : cts.getBandwidth().getValue().longValue();
+        int cos = cts.getClassType() == null ? 0 : cts.getClassType().intValue();
         final AddressFamily af = cts.getAddressFamily();
         final String lspId = teNode.getId().getValue() + "/" + cfgLsp.getName();
         ConnectedEdge edge = null;
@@ -262,7 +262,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                         edge = graph.getConnectedEdge(new IpAddress(path.getIpv4()));
                     } else if (path.getRemoteIpv4() != null) {
                         edge = graph.getConnectedEdge(new IpAddress(path.getRemoteIpv4()));
-                        if (edge != null && edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null) {
+                        if (edgeAttrNotNull(edge)) {
                             edge = graph.getConnectedEdge(edge.getEdge().getEdgeAttributes().getRemoteAddress());
                         }
                     }
@@ -273,7 +273,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                         edge = graph.getConnectedEdge(new IpAddress(path.getIpv6()));
                     } else if (path.getRemoteIpv6() != null) {
                         edge = graph.getConnectedEdge(new IpAddress(path.getRemoteIpv6()));
-                        if (edge != null && edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null) {
+                        if (edgeAttrNotNull(edge)) {
                             /* Need to force using IPv6 address as Connected Edge is searched first on IPv4 address */
                             edge = graph.getConnectedEdge(new IpAddress(
                                     edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address()));
@@ -313,6 +313,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 edge.getDestination().unRegisterTrigger(lspId);
             }
         }
+    }
+
+    private boolean edgeAttrNotNull(ConnectedEdge edge) {
+        return edge != null && edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null;
     }
 
     public void setGraph(ConnectedGraph graph) {
@@ -393,16 +397,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         /* Check if Metric is always met */
         Long metric = 0L;
         Long delta = 0L;
-        if (constraints.getDelay() != null) {
-            if (edge.getEdgeAttributes().getTeMetric() != null) {
-                metric = constraints.getTeMetric().longValue();
-                delta = edge.getEdgeAttributes().getTeMetric().longValue()
-                        - current.getEdgeAttributes().getTeMetric().longValue();
-            } else {
-                triggerFlag = true;
-                return true;
-            }
-        } else if (constraints.getTeMetric() != null) {
+        if (constraints.getDelay() != null
+                || constraints.getTeMetric() != null) {
             if (edge.getEdgeAttributes().getTeMetric() != null) {
                 metric = constraints.getTeMetric().longValue();
                 delta = edge.getEdgeAttributes().getTeMetric().longValue()
@@ -673,8 +669,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             final MetricBuilder metricBuilder = new MetricBuilder()
                     .setComputed(true)
                     .setMetricType(Uint8.ONE)
-                    .setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(iPath.getConstraints().getMetric().floatValue()).array()));
+                    .setValue(new Float32(ByteBuffer.allocate(4)
+                            .putFloat(iPath.getConstraints().getMetric().floatValue()).array()));
             args.setMetrics(Collections.singletonList(new MetricsBuilder().setMetric(metricBuilder.build()).build()));
         }
 
