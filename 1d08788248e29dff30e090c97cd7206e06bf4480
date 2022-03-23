@@ -177,6 +177,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b989bc37_cf568517",
+        "filename": "pcep/server/server-api/src/main/yang/pcep-server.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-23T10:11:56Z",
+      "side": 1,
+      "message": "adressed in https://git.opendaylight.org/gerrit/c/bgpcep/+/100221/1",
+      "parentUuid": "03e9f64c_e76a9dbc",
+      "revId": "1d08788248e29dff30e090c97cd7206e06bf4480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ebb6da9a_b79a1199",
         "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/ManagedTePath.java",
         "patchSetId": 1
