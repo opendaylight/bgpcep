@@ -12,10 +12,9 @@ import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.PathConstraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,17 +37,15 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
     }
 
     @Override
-    public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
-        LOG.info("Start CSPF Path Computation from {} to {} with constraints {}", src, dst, cts);
+    protected ConstrainedPath computeSimplePath(final VertexKey src, final VertexKey dst) {
+        LOG.info("Start CSPF Path Computation from {} to {} with constraints {}", src, dst, constraints);
 
         /* Initialize algorithm */
-        this.constraints = cts;
         ConstrainedPathBuilder cpathBuilder = initializePathComputation(src, dst);
         if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             return cpathBuilder.build();
         }
-
-        cpathBuilder.setBandwidth(cts.getBandwidth()).setClassType(cts.getClassType());
+        cpathBuilder.setBandwidth(constraints.getBandwidth()).setClassType(constraints.getClassType());
 
         visitedVertices.clear();
 

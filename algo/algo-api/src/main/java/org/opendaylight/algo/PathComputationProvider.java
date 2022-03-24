@@ -9,7 +9,7 @@
 package org.opendaylight.algo;
 
 import org.opendaylight.graph.ConnectedGraph;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.AlgorithmType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AlgorithmType;
 
 /**
  * This class provides access to Path Computation Algorithms.
