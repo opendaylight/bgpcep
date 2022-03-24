@@ -1,0 +1,9 @@
+Verified+1: jenkins-releng ODL
+Code-Review+1: Guillaume Lambert <guillaume.lambert@orange.com>
+Code-Review+1: Cedric Ollivier <cedric.ollivier@orange.com>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Thu, 24 Mar 2022 19:58:47 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/100205
+Project: bgpcep
+Branch: refs/heads/master
