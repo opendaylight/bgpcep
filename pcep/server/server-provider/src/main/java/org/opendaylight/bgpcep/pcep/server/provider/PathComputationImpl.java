@@ -11,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.algo.PathComputationAlgorithm;
 import org.opendaylight.algo.PathComputationProvider;
@@ -20,15 +21,21 @@ import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.AlgorithmType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.PathConstraints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.get.constrained.path.input.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AlgorithmType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.get.constrained.path.input.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
@@ -38,10 +45,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.exclude.route.object.Xro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2p;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,7 +182,7 @@ public class PathComputationImpl implements PathComputation {
 
     @Override
     public Ero computeEro(final EndpointsObj endpoints, final Bandwidth bandwidth, final ClassType classType,
-            final List<Metrics> metrics, final boolean segmentRouting) {
+            final List<Metrics> metrics, final Xro xro, final Iro iro, final boolean segmentRouting) {
         /* Get source and destination Vertex and verify there are valid */
         VertexKey source = getSourceVertexKey(endpoints);
         if (source == null) {
@@ -182,7 +193,7 @@ public class PathComputationImpl implements PathComputation {
             return null;
         }
         /* Create new Constraints Object from the request */
-        PathConstraints cts = getConstraints(endpoints, bandwidth, classType, metrics, segmentRouting);
+        PathConstraints cts = getConstraints(endpoints, bandwidth, classType, metrics, xro, iro, segmentRouting);
 
         /* Determine Path Computation Algorithm according to parameters */
         AlgorithmType algoType;
@@ -250,13 +261,76 @@ public class PathComputationImpl implements PathComputation {
         return vertex != null ? vertex.getVertex().key() : null;
     }
 
+    /* Convert Exclude Route Object (list of IP prefix) into Exclude Route (list of IP address) */
+    private static List<ExcludeRoute> getExcludeRoute(final Xro xro, AddressFamily af) {
+        if (xro == null || xro.getSubobject() == null || xro.getSubobject().isEmpty()) {
+            return null;
+        }
+        ArrayList<ExcludeRoute> erl = new ArrayList<ExcludeRoute>();
+        for (int i = 0; i < xro.getSubobject().size(); i++) {
+            final SubobjectType sbt = xro.getSubobject().get(i).getSubobjectType();
+            if (sbt instanceof IpPrefixCase) {
+                final IpPrefixCase ipc = (IpPrefixCase) sbt;
+                switch (af) {
+                    case Ipv4:
+                    case SrIpv4:
+                        erl.add(new ExcludeRouteBuilder().setIpv4(new Ipv4Address(
+                                ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                                .build());
+                        break;
+                    case Ipv6:
+                    case SrIpv6:
+                        erl.add(new ExcludeRouteBuilder().setIpv6(new Ipv6Address(
+                                ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                                .build());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return erl;
+    }
+
+    /* Convert Include Route Object (list of IP prefix) into Exclude Route (list of IP address) */
+    private static List<IncludeRoute> getIncludeRoute(final Iro iro, AddressFamily af) {
+        if (iro == null || iro.getSubobject() == null || iro.getSubobject().isEmpty()) {
+            return null;
+        }
+        ArrayList<IncludeRoute> irl = new ArrayList<IncludeRoute>();
+        for (int i = 0; i < iro.getSubobject().size(); i++) {
+            final SubobjectType sbt = iro.getSubobject().get(i).getSubobjectType();
+            if (sbt instanceof IpPrefixCase) {
+                final IpPrefixCase ipc = (IpPrefixCase) sbt;
+                switch (af) {
+                    case Ipv4:
+                    case SrIpv4:
+                        irl.add(new IncludeRouteBuilder().setIpv4(new Ipv4Address(
+                                ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                                .build());
+                        break;
+                    case Ipv6:
+                    case SrIpv6:
+                        irl.add(new IncludeRouteBuilder().setIpv6(new Ipv6Address(
+                                ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                                .build());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        return irl;
+    }
+
     private static PathConstraints getConstraints(final P2p parameters, final boolean segmentRouting) {
         return getConstraints(parameters.getEndpointsObj(), parameters.getBandwidth(), parameters.getClassType(),
-                parameters.getMetrics(), segmentRouting);
+                parameters.getMetrics(), parameters.getXro(), parameters.getIro(), segmentRouting);
     }
 
     private static PathConstraints getConstraints(final EndpointsObj endpoints, final Bandwidth bandwidth,
-            final ClassType classType, final List<Metrics> metrics, final boolean segmentRouting) {
+            final ClassType classType, final List<Metrics> metrics, final Xro xro, final Iro iro,
+            final boolean segmentRouting) {
         ConstraintsBuilder ctsBuilder = new ConstraintsBuilder();
         Float convert;
 
@@ -300,13 +374,15 @@ public class PathComputationImpl implements PathComputation {
             }
         }
 
-        /* Set Address Family */
-        if (endpoints.getAddressFamily() instanceof Ipv4Case) {
-            ctsBuilder.setAddressFamily(segmentRouting ? AddressFamily.SrIpv4 : AddressFamily.Ipv4);
-        } else {
-            ctsBuilder.setAddressFamily(segmentRouting ? AddressFamily.SrIpv6 : AddressFamily.Ipv6);
-        }
+        AddressFamily af = endpoints.getAddressFamily() instanceof Ipv4Case
+                ? segmentRouting ? AddressFamily.SrIpv4 : AddressFamily.Ipv4
+                : segmentRouting ? AddressFamily.SrIpv6 : AddressFamily.Ipv6;
 
-        return ctsBuilder.build();
+        /* Set Address Family, Exclude Route and Include Route if any */
+        return ctsBuilder
+                .setAddressFamily(af)
+                .setExcludeRoute(getExcludeRoute(xro, af))
+                .setIncludeRoute(getIncludeRoute(iro, af))
+                .build();
     }
 }

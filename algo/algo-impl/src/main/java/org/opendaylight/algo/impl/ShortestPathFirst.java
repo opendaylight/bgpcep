@@ -12,10 +12,9 @@ import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.ConstrainedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220310.PathConstraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,16 +36,15 @@ public class ShortestPathFirst extends AbstractPathComputation {
     }
 
     @Override
-    public ConstrainedPath computeP2pPath(final VertexKey src, final VertexKey dst, final PathConstraints cts) {
+    protected ConstrainedPath computeSimplePath(final VertexKey src, final VertexKey dst) {
         ConstrainedPathBuilder cpathBuilder;
         List<ConnectedEdge> edges;
         CspfPath currentPath;
         int currentCost = Integer.MAX_VALUE;
 
-        LOG.info("Start SPF Path Computation from {} to {} with constraints {}", src, dst, cts);
+        LOG.info("Start SPF Path Computation from {} to {} with constraints {}", src, dst, constraints);
 
         /* Initialize algorithm */
-        this.constraints = cts;
         cpathBuilder = initializePathComputation(src, dst);
         if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             LOG.warn("Initial configurations are not met. Abort!");
