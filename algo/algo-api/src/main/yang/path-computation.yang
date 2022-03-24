@@ -3,7 +3,6 @@ module path-computation {
     namespace "urn:opendaylight:params:xml:ns:yang:path:computation";
     prefix "algo";
 
-    import network-concepts { prefix netc; revision-date 2013-11-25; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import graph { prefix gr; revision-date 2019-11-25; }
 
@@ -21,6 +20,12 @@ module path-computation {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2022-03-24" {
+        description
+             "add Exclude Route and Include Route to constraints";
+        reference "";
+    }
+
     revision "2022-03-10" {
         description
              "add new computation status for failures and a type for address-family";
@@ -35,7 +40,7 @@ module path-computation {
 
     typedef computation-status {
         description
-            "Status of the Path Computation Algorithm regaring current
+            "Status of the Path Computation Algorithm regarding current
              computed path";
         type enumeration {
             enum idle {
@@ -161,6 +166,28 @@ module path-computation {
         leaf bandwidth {
             description "Requested bandwidth for the computed path";
             type gr:decimal-bandwidth;
+        }
+        list include-route {
+            description "Speficy routes which must be included in the computed path, i.e. IRO";
+            leaf ipv4 {
+                when "../../address-family = 0 or ../../address-family = 2";
+                type inet:ipv4-address;
+            }
+            leaf ipv6 {
+                when "../../address-family = 1 or ../../address-family = 3";
+                type inet:ipv6-address;
+            }
+        }
+        list exclude-route {
+            description "Speficy routes which must be excluded in the computed path, i.e. XRO";
+            leaf ipv4 {
+                when "../../address-family = 0 or ../../address-family = 2";
+                type inet:ipv4-address;
+            }
+            leaf ipv6 {
+                when "../../address-family = 1 or ../../address-family = 3";
+                type inet:ipv6-address;
+            }
         }
     }
 

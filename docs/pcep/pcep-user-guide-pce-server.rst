@@ -142,6 +142,12 @@ schema:
        |     +--ro address-family?   enumeration
        |     +--ro class-type?       uint8
        |     +--ro bandwidth?        gr:decimal-bandwidth
+       |     +--ro include-route* []
+       |     |  +--ro ipv4?   inet:ipv4-address
+       |     |  +--ro ipv6?   inet:ipv6-address
+       |     +--ro exclude-route* []
+       |        +--ro ipv4?   inet:ipv4-address
+       |        +--ro ipv6?   inet:ipv6-address
        +--ro computed-path
           +--ro path-description* []
           |  +--ro ipv4?          inet:ipv4-address
@@ -170,6 +176,12 @@ schema:
        |     +--rw address-family?   enumeration
        |     +--rw class-type?       uint8
        |     +--rw bandwidth?        gr:decimal-bandwidth
+       |     +--rw include-route* []
+       |     |  +--rw ipv4?   inet:ipv4-address
+       |     |  +--rw ipv6?   inet:ipv6-address
+       |     +--rw exclude-route* []
+       |        +--rw ipv4?   inet:ipv4-address
+       |        +--rw ipv6?   inet:ipv6-address
        +--ro computed-path
           +--ro path-description* []
           |  +--ro ipv4?          inet:ipv4-address
@@ -364,6 +376,17 @@ using the ``DELETE`` method as follow:
 
 **Method:** ``DELETE``
 
+Close Loop
+^^^^^^^^^^
+
+Each Managed TE Path automatically registers its current path within the
+Connected Graph whih serves to compute the route. In case of failure (Link or
+Node removal) or Link or Node attributes modifications in the Graph, registered
+Managed TE Path are trigger against those modifications. This feature allows
+the Path Manager to automatically detects problems in the underlying network
+topology and made appropriate action (i.e. mostly path re-computation and new
+computed path enforcement) in order to ensure that the constraints of the
+Managed TE Path are always guaranteed.
 
 Known limitations
 ^^^^^^^^^^^^^^^^^
@@ -374,8 +397,6 @@ mentioned hereinafter:
 * Following PCEP Objects that may be present in the PcRequest message are not
   yet supported, and right now, ignored:
 
-  * Include Route Object (IRO)
-  * Exclude Route Object (XRO)
   * Objective Function (OF)
 
 * For Segment Routing, ERO is only provided with Adjacency NAI type and Adjacency SID.

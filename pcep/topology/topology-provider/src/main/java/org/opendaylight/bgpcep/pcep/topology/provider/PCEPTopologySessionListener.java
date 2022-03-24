@@ -798,7 +798,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                     return OperationResults.createUnsent(PCEPErrors.ERO_MISSING).future();
                 }
                 rb.setEro(pathComputation.computeEro(args.getEndpointsObj(), args.getBandwidth(),
-                        args.getClassType(), args.getMetrics(), segmentRouting));
+                        args.getClassType(), args.getMetrics(), args.getXro(), args.getIro(), segmentRouting));
             }
 
             final TlvsBuilder tlvsBuilder;
