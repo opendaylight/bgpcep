@@ -18,6 +18,23 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f23cf82_05e6299f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-25T09:40:00Z",
+      "side": 1,
+      "message": "Thanks for the pertinent review Robert. I correct the code, hope these modifications will solve the potential issues you raised.",
+      "revId": "618532f5116426817b16a143d58313087328b201",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51ef085a_8724c81b",
@@ -41,6 +58,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69f2a2b7_b8e838b9",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedEdgeImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-25T09:40:00Z",
+      "side": 1,
+      "message": "Absolutely right. The trigger mechanisms has for goal to take appropriate action on LSP path. Thus, in case the path of LSP should be re-computed, the trigger on the edge will be removed i.e. the path will no longer through this edge. Thus, a ConcurrentMap is mandatory and remove(key, value) too.\n\nI updated the code accordingly.",
+      "parentUuid": "51ef085a_8724c81b",
+      "range": {
+        "startLine": 192,
+        "startChar": 24,
+        "endLine": 192,
+        "endChar": 44
+      },
+      "revId": "618532f5116426817b16a143d58313087328b201",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f6ef95b8_241c2e96",
@@ -54,6 +95,30 @@
       "writtenOn": "2022-03-24T20:03:47Z",
       "side": 1,
       "message": "this is a potentially-problematic combo:\n- plain HashMap\n- leaking collection -- can Iterator.remove() happen?\n- even if not, can triggers.put/remove happen? -- if so, it will kill the iterator",
+      "range": {
+        "startLine": 195,
+        "startChar": 11,
+        "endLine": 195,
+        "endChar": 43
+      },
+      "revId": "618532f5116426817b16a143d58313087328b201",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d830dad0_d337fd9f",
+        "filename": "graph/graph-impl/src/main/java/org/opendaylight/graph/impl/ConnectedEdgeImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-25T09:40:00Z",
+      "side": 1,
+      "message": "Yes. Absolutely right. For the same reason, there is a great risk that the collection is altered, at least by removing a trigger following a path re-computation.\n\nI updated the code to return a new ArrayList\u003c\u003e(trigger.values()) instead of the direct collection. It will consume a bit more memory and CPU, but, it is safer.",
+      "parentUuid": "f6ef95b8_241c2e96",
       "range": {
         "startLine": 195,
         "startChar": 11,
