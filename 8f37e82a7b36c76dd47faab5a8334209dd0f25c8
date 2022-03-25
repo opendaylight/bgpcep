@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87929b34_702de344",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-25T09:58:45Z",
+      "side": 1,
+      "message": "have for goal",
+      "revId": "8f37e82a7b36c76dd47faab5a8334209dd0f25c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3cf1980_25865a31",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-25T09:58:45Z",
+      "side": 1,
+      "message": "else is not needed after a guard clause with a return.\nRemoving it would avoid a nested if-block",
+      "revId": "8f37e82a7b36c76dd47faab5a8334209dd0f25c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1be51240_97e590fe",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-25T09:58:45Z",
+      "side": 1,
+      "message": "moving constructor at line 484 here would allow to cascade this setter.",
+      "revId": "8f37e82a7b36c76dd47faab5a8334209dd0f25c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "537c5c9d_c04f5ecc",
+        "filename": "pcep/server/server-provider/src/main/java/org/opendaylight/bgpcep/pcep/server/provider/PathComputationImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-25T09:58:45Z",
+      "side": 1,
+      "message": "what about simply this  ?\n\n\nAddressFamily af \u003d\n    endpoints.getAddressFamily() instanceof Ipv4Case\n        ? segmentRouting ? AddressFamily.SrIpv4 : AddressFamily.Ipv4\n        : segmentRouting ? AddressFamily.SrIpv6 : AddressFamily.Ipv6;\n\nreturn ctsBuilder\n    .setAddressFamily(af)\n    .setExcludeRoute(getExcludeRoute(xro, af))\n    .setIncludeRoute(getIncludeRoute(iro, af))\n    .build();",
+      "revId": "8f37e82a7b36c76dd47faab5a8334209dd0f25c8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
