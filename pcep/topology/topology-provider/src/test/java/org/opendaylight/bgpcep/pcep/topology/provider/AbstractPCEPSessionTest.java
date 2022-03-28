@@ -37,6 +37,7 @@ import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -131,7 +132,8 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT));
+        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT,
+                new GraphKey("graph-test")));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
             localPrefs);
