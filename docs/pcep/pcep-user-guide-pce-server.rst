@@ -28,7 +28,11 @@ Graph Setup
 
 The PCE Server uses the Path Computation Algorithm plugin which needs a graph
 to be able to compute constrained paths. Thus, a valid graph must be provided
-manually or automatically.
+manually or automatically. For that purpose, a new key **ted-name** has been
+introduced in the pcep configuration. By default, the pcep configuration is
+fulfill with a ted named 'example-linkstate-topology' in the
+'network-topology-pcep-config.xml' configuration file located under
+'etc/opendaylight/bgpcep'. This 'ted-name' must corresponds to a valid graph.
 
 Manual activation
 '''''''''''''''''

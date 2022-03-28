@@ -20,6 +20,10 @@ module pcep-config {
          accompanies this distribution, and is available at
          http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2022-03-28 {
+        description "Add ted-name key";
+    }
+
     revision 2020-01-20 {
         description "Update to use -no-zone-adresses";
     }
@@ -59,6 +63,11 @@ module pcep-config {
                 type uint16;
                 default 30;
                 units seconds;
+            }
+
+            leaf ted-name {
+                type string;
+                default "example-linkstate-topology";
             }
         }
     }

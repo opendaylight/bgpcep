@@ -20,6 +20,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepNodeConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.config.rev181109.PcepTopologyTypeConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -31,12 +32,14 @@ final class PCEPTopologyConfiguration implements Immutable {
     private final @NonNull InetSocketAddress address;
     private final @NonNull KeyMapping keys;
     private final short rpcTimeout;
+    private final GraphKey graphKey;
 
     PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final short rpcTimeout,
-            final @NonNull KeyMapping keys) {
+            final @NonNull KeyMapping keys, final @NonNull GraphKey graphKey) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
         this.rpcTimeout = rpcTimeout;
+        this.graphKey = requireNonNull(graphKey);
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -52,7 +55,8 @@ final class PCEPTopologyConfiguration implements Immutable {
 
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
-            sessionConfig.getRpcTimeout(), constructKeys(topology.getNode()));
+            sessionConfig.getRpcTimeout(), constructKeys(topology.getNode()),
+            constructGraphKey(sessionConfig.getTedName()));
     }
 
     short getRpcTimeout() {
@@ -65,6 +69,10 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     @NonNull KeyMapping getKeys() {
         return keys;
+    }
+
+    @NonNull GraphKey getGraphKey() {
+        return graphKey;
     }
 
     private static @NonNull KeyMapping constructKeys(final @Nullable Map<NodeKey, Node> nodes) {
@@ -92,6 +100,10 @@ final class PCEPTopologyConfiguration implements Immutable {
         }
 
         return KeyMapping.of(passwords);
+    }
+
+    private static @NonNull GraphKey constructGraphKey(String name) {
+        return new GraphKey(name.startsWith("ted://") ? name : "ted://" + name);
     }
 
     private static InetAddress nodeAddress(final Node node) {

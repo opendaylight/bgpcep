@@ -22,6 +22,7 @@ import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -47,6 +48,7 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
     private Map<TopologyId, PathManagerListener> pathListeners = new HashMap<TopologyId, PathManagerListener>();
     private Map<TopologyId, PcepTopologyListener> pcepListeners = new HashMap<TopologyId, PcepTopologyListener>();
     private volatile ConnectedGraph tedGraph;
+    private volatile GraphKey graphKey;
 
     @Inject
     @Activate
@@ -118,20 +120,18 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
      * from BGP Link State.
      */
     private void setTedGraph() {
-        tedGraph = graphProvider.getConnectedGraphs().stream()
-            .filter(graph -> graph.getGraph().getName().startsWith("ted://"))
-            .findFirst()
-            .orElse(null);
+        tedGraph = graphProvider.getConnectedGraph(graphKey);
     }
 
     @Override
-    public void registerPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
-        TopologyId key = requireNonNull(topology).getKey().getTopologyId();
+    public void registerPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology, GraphKey key) {
+        TopologyId topoKey = requireNonNull(topology).getKey().getTopologyId();
+        this.graphKey = requireNonNull(key);
 
-        LOG.info("Start PCE Server components for Topology {}", key.getValue());
+        LOG.info("Start PCE Server components for Topology {} with TED {}", topoKey.getValue(), graphKey.getName());
 
         /* First close current Listener & Manager if there are active */
-        closeListenerAndManager(key);
+        closeListenerAndManager(topoKey);
 
         /* Then create Path Manger */
         final NetworkTopologyPcepService ntps = rpcRegistry.getRpcService(NetworkTopologyPcepService.class);
@@ -142,16 +142,17 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
         PcepTopologyListener pcepListener = new PcepTopologyListener(dataBroker, topology, pathManager);
 
         /* Finally, register all of them for later deletion */
-        pathManagers.put(key, pathManager);
-        pathListeners.put(key, pathListener);
-        pcepListeners.put(key, pcepListener);
+        pathManagers.put(topoKey, pathManager);
+        pathListeners.put(topoKey, pathListener);
+        pcepListeners.put(topoKey, pcepListener);
     }
 
     @Override
     public void unRegisterPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
-        TopologyId key = requireNonNull(topology).getKey().getTopologyId();
+        TopologyId topoKey = requireNonNull(topology).getKey().getTopologyId();
+        this.graphKey = null;
 
-        LOG.info("Stop PCE Server for Topology {}", key.getValue());
-        closeListenerAndManager(key);
+        LOG.info("Stop PCE Server for Topology {}", topoKey.getValue());
+        closeListenerAndManager(topoKey);
     }
 }

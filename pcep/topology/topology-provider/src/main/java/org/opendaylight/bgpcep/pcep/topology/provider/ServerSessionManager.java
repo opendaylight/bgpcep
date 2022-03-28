@@ -30,6 +30,7 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.EnsureLspOperationalInput;
@@ -72,17 +73,19 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private volatile short rpcTimeout;
 
+    private final GraphKey graphKey;
+
     ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
-            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout) {
+            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final GraphKey graphKey) {
         this.dependencies = requireNonNull(dependencies);
         topology = requireNonNull(instanceIdentifier);
         this.rpcTimeout = rpcTimeout;
+        this.graphKey = requireNonNull(graphKey);
     }
 
     // Initialize the operational view of the topology.
     final ListenableFuture<Boolean> start() {
         LOG.info("Creating PCEP Topology {}", topologyId());
-
         final var tx = dependencies.getDataBroker().newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder()
             .withKey(topology.getKey())
@@ -112,7 +115,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         // Register this new topology to PCE Server
         final PceServerProvider server = dependencies.getPceServerProvider();
         if (server != null) {
-            server.registerPcepTopology(topology);
+            server.registerPcepTopology(topology, graphKey);
         }
         return future;
     }
