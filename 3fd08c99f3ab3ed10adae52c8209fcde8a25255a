@@ -50,6 +50,23 @@
       "message": "verified -1 likely due to a connectivity issue in the CI\nI cannot see any RST update here\n\n00:25:31   docs: commands succeeded\n00:25:31 ERROR:   docs-linkcheck: parallel child exit code 1\n00:25:31   pre-commit: commands succeeded",
       "revId": "3fd08c99f3ab3ed10adae52c8209fcde8a25255a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e473ecb9_9949c53a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-03-28T08:33:39Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "3fd08c99f3ab3ed10adae52c8209fcde8a25255a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
