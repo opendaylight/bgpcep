@@ -172,7 +172,8 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         currentConfig = newConfiguration;
 
         // First start the manager
-        manager = new ServerSessionManager(instanceIdentifier, dependencies, newConfiguration.getRpcTimeout());
+        manager = new ServerSessionManager(instanceIdentifier, dependencies, newConfiguration.getRpcTimeout(),
+                newConfiguration.getGraphKey());
         final var managerStart = manager.start();
         managerStart.addListener(() -> enableChannel(future, Futures.getUnchecked(managerStart)),
             MoreExecutors.directExecutor());
