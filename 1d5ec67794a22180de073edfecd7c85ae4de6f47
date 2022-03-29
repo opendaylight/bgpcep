@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "29afc785_1c87af6f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-29T13:39:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "001fbe99_04b55272",
+      "revId": "1d5ec67794a22180de073edfecd7c85ae4de6f47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "db03714a_c9f3855c",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -31,6 +49,23 @@
       "writtenOn": "2022-03-28T16:42:00Z",
       "side": 1,
       "message": "A last one to handle multi-graph topology in conjunction with multi PCEP topology.",
+      "revId": "1d5ec67794a22180de073edfecd7c85ae4de6f47",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81309f0d_ba5609ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-29T13:39:47Z",
+      "side": 1,
+      "message": "Updated commit message accordingly.",
       "revId": "1d5ec67794a22180de073edfecd7c85ae4de6f47",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
