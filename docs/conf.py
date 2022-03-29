@@ -12,3 +12,21 @@
 
 from docs_conf.conf import *
 
+linkcheck_ignore = [
+    'http://localhost',
+    # Ignore jenkins because it's often slow to respond.
+    'https://jenkins.opendaylight.org/releng',
+    'https://jenkins.opendaylight.org/sandbox',
+    # The '#' in the path makes sphinx think it's an anchor
+    'https://git.opendaylight.org/gerrit/#/admin/projects/releng/builder',
+    'https://git.opendaylight.org/gerrit/#/c/',
+    'https://git.opendaylight.org/gerrit/gitweb',
+    # URL returns a 403 Forbidden
+    'https://www.osgi.org',
+    # Ignore anchors on github.com because linkcheck fails on them
+    '^https?://github.com/.*#',
+    # Ignore IETF URLs often not reachable from Jenkins minions
+    # because of hosting connectivity issues
+    '^https?://tools.ietf.org/html/.*',
+]
+linkcheck_timeout = 300
