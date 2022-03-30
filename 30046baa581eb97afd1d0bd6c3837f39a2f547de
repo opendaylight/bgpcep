@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "30046baa581eb97afd1d0bd6c3837f39a2f547de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de1bb308_c1cb380c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-03-30T09:08:27Z",
+      "side": 1,
+      "message": "LGTM. CI ran smoothly this time",
+      "revId": "30046baa581eb97afd1d0bd6c3837f39a2f547de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
