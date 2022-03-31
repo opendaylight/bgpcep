@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>single-feature-parent</artifactId>
-        <version>0.17.0-SNAPSHOT</version>
+        <version>0.17.1-SNAPSHOT</version>
         <relativePath>../../../single-feature-parent</relativePath>
     </parent>
 
