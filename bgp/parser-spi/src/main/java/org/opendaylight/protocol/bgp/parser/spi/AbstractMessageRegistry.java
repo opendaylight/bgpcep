@@ -23,10 +23,10 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
     private static final byte[] MARKER;
 
-    protected abstract Notification parseBody(int type, ByteBuf body, int messageLength,
+    protected abstract Notification<?> parseBody(int type, ByteBuf body, int messageLength,
             PeerSpecificParserConstraint constraint) throws BGPDocumentedException;
 
-    protected abstract void serializeMessageImpl(Notification message, ByteBuf buffer);
+    protected abstract void serializeMessageImpl(Notification<?> message, ByteBuf buffer);
 
     static {
         MARKER = new byte[MessageUtil.MARKER_LENGTH];
@@ -34,7 +34,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public Notification parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+    public Notification<?> parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
         Preconditions.checkArgument(buffer != null && buffer.isReadable(), "Array of bytes cannot be null or empty.");
         Preconditions.checkArgument(buffer.readableBytes() >= MessageUtil.COMMON_HEADER_LENGTH,
@@ -63,7 +63,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
 
         final ByteBuf msgBody = buffer.readSlice(messageLength - MessageUtil.COMMON_HEADER_LENGTH);
 
-        final Notification msg = parseBody(messageType, msgBody, messageLength, constraint);
+        final Notification<?> msg = parseBody(messageType, msgBody, messageLength, constraint);
         if (msg == null) {
             throw new BGPDocumentedException("Unhandled message type " + messageType, BGPError.BAD_MSG_TYPE,
                 new byte[] { typeBytes });
@@ -72,7 +72,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
     }
 
     @Override
-    public final void serializeMessage(final Notification message, final ByteBuf buffer) {
+    public final void serializeMessage(final Notification<?> message, final ByteBuf buffer) {
         requireNonNull(message, "BGPMessage is mandatory.");
         serializeMessageImpl(message, buffer);
     }

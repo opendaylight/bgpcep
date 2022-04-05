@@ -19,24 +19,24 @@ public final class BmpMockSessionListener implements BmpSessionListener {
 
     @Override
     public void onSessionUp(final BmpSession session) {
-        this.up.set(true);
+        up.set(true);
     }
 
     @Override
     public void onSessionDown(final Exception exception) {
-        this.up.set(false);
+        up.set(false);
     }
 
     @Override
-    public void onMessage(final Notification message) {
-        this.counter.increment();
+    public void onMessage(final Notification<?> message) {
+        counter.increment();
     }
 
     public boolean getStatus() {
-        return this.up.get();
+        return up.get();
     }
 
     public long getNumberOfMessagesReceived() {
-        return this.counter.longValue();
+        return counter.longValue();
     }
 }

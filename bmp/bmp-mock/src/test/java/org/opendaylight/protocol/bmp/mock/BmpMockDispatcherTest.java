@@ -20,8 +20,9 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
@@ -31,8 +32,8 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BmpMockDispatcherTest {
-
     private final BmpSessionFactory sessionFactory = new DefaultBmpSessionFactory();
     private final BmpMockSessionListener sl = new BmpMockSessionListener();
     @Mock
@@ -46,7 +47,6 @@ public class BmpMockDispatcherTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         doReturn(sl).when(slf).getSessionListener();
         doReturn(registry).when(ctx).getBmpMessageRegistry();
         bmpMockDispatcher = new BmpMockDispatcher(registry, sessionFactory);
@@ -105,5 +105,4 @@ public class BmpMockDispatcherTest {
         bmpMockDispatcher.close();
         checkEquals(() -> assertFalse(sl.getStatus()));
     }
-
 }

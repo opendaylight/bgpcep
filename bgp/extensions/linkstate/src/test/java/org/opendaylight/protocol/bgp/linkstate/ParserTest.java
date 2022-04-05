@@ -665,7 +665,7 @@ public class ParserTest {
      */
     @Test
     public void testOpenMessage() throws Exception {
-        final Notification o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
+        final Notification<?> o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
         final Open open = (Open) o;
         final Set<BgpTableType> types = new HashSet<>();
         for (final BgpParameters param : open.getBgpParameters()) {

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -20,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-public final class BmpMessageToByteEncoder extends MessageToByteEncoder<Notification> {
-
+public final class BmpMessageToByteEncoder extends MessageToByteEncoder<Notification<?>> {
     private static final Logger LOG = LoggerFactory.getLogger(BmpMessageToByteEncoder.class);
 
     private final BmpMessageRegistry registry;
@@ -31,11 +29,9 @@ public final class BmpMessageToByteEncoder extends MessageToByteEncoder<Notifica
     }
 
     @Override
-    protected void encode(final ChannelHandlerContext ctx, final Notification message, final ByteBuf out)
-        throws Exception {
+    protected void encode(final ChannelHandlerContext ctx, final Notification<?> message, final ByteBuf out) {
         LOG.trace("Encoding message: {}", message);
-        this.registry.serializeMessage(message, out);
+        registry.serializeMessage(message, out);
         LOG.debug("Message sent to output: {}", message);
     }
-
 }

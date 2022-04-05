@@ -35,10 +35,9 @@ public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuil
     private static final int MESSAGE_TYPE = 5;
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public TerminationMessage parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final TerminationMessageBuilder terminationMessage = new TerminationMessageBuilder();
-        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        tlvsBuilder.setStringInformation(ImmutableList.of());
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder().setStringInformation(ImmutableList.of());
         parseTlvs(tlvsBuilder, bytes);
         if (tlvsBuilder.getReasonTlv() == null || tlvsBuilder.getReasonTlv().getReason() == null) {
             throw new BmpDeserializationException("Inclusion of Reason TLV is mandatory.");
@@ -48,7 +47,7 @@ public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuil
 
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         Preconditions.checkArgument(message instanceof TerminationMessage,
                 "An instance of Termination message is required");
         final TerminationMessage terminationMsg = (TerminationMessage) message;

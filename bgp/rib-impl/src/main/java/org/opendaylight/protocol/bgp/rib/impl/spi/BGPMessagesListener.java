@@ -20,12 +20,12 @@ public interface BGPMessagesListener {
      *
      * @param msg message
      */
-    void messageSent(Notification msg);
+    void messageSent(Notification<?> msg);
 
     /**
      * Fired when message is received.
      *
      * @param msg message
      */
-    void messageReceived(Notification msg);
+    void messageReceived(Notification<?> msg);
 }

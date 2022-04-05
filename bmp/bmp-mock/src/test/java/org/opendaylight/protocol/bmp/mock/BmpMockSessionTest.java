@@ -5,74 +5,69 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.mock;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerUp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessage;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BmpMockSessionTest {
-
     private static final InetSocketAddress REMOTE_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
     private static final InetSocketAddress LOCAL_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
-    private ChannelHandlerContext context;
-    private Channel channel;
-    private BmpMockSession session;
-    private List<Notification> messages;
+    private final BmpMockSession session = new BmpMockSession(1, 1, 1);
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        this.messages = new ArrayList<>();
-        this.session = new BmpMockSession(1, 1, 1);
-        this.channel = Mockito.mock(Channel.class);
-        Mockito.doReturn(REMOTE_ADDRESS).when(this.channel).remoteAddress();
-        Mockito.doReturn(LOCAL_ADDRESS).when(this.channel).localAddress();
-        final ChannelPipeline pipeline = Mockito.mock(ChannelPipeline.class);
-        Mockito.doReturn(pipeline).when(this.channel).pipeline();
-        Mockito.doAnswer(invocation -> {
-            messages.add((Notification) invocation.getArguments()[0]);
-            return null;
-        }).when(this.channel).writeAndFlush(Mockito.any());
-        final ChannelFuture channelFuture = Mockito.mock(ChannelFuture.class);
-        Mockito.doReturn(null).when(channelFuture).addListener(Mockito.any());
-        Mockito.doReturn(channelFuture).when(this.channel).closeFuture();
-        Mockito.doReturn(channelFuture).when(this.channel).close();
-        this.context = Mockito.mock(ChannelHandlerContext.class);
-        Mockito.doReturn(this.channel).when(this.context).channel();
-    }
+    @Mock
+    private ChannelHandlerContext context;
+    @Mock
+    private Channel channel;
 
     @Test
-    public void testBmpMockSession() throws Exception {
-        this.session.channelActive(this.context);
+    public void testBmpMockSession() throws InterruptedException {
+        doReturn(REMOTE_ADDRESS).when(channel).remoteAddress();
+        doReturn(LOCAL_ADDRESS).when(channel).localAddress();
 
-        assertEquals(REMOTE_ADDRESS.getAddress(), this.session.getRemoteAddress());
-        assertTrue(this.messages.get(0) instanceof InitiationMessage);
-        assertTrue(this.messages.get(1) instanceof PeerUp);
-        assertTrue(this.messages.get(2) instanceof RouteMonitoringMessage);
-        assertTrue(this.messages.get(3) instanceof RouteMonitoringMessage);
+        final ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        doReturn(null).when(channel).writeAndFlush(captor.capture());
 
-        this.session.close();
-        assertFalse(this.channel.isWritable());
+        final ChannelFuture channelFuture = mock(ChannelFuture.class);
+        doReturn(null).when(channelFuture).addListener(any());
+        doReturn(channelFuture).when(channel).closeFuture();
+        doReturn(channelFuture).when(channel).close();
+        doReturn(channel).when(context).channel();
+
+        session.channelActive(context);
+
+        assertEquals(REMOTE_ADDRESS.getAddress(), session.getRemoteAddress());
+
+        final List<Object> messages = captor.getAllValues();
+        assertEquals(4, messages.size());
+        assertThat(messages.get(0), instanceOf(InitiationMessage.class));
+        assertThat(messages.get(1), instanceOf(PeerUp.class));
+        assertThat(messages.get(2), instanceOf(RouteMonitoringMessage.class));
+        assertThat(messages.get(3), instanceOf(RouteMonitoringMessage.class));
+
+        session.close();
+        assertFalse(channel.isWritable());
     }
-
 }

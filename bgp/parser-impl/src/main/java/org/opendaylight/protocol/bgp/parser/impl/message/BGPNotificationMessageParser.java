@@ -45,7 +45,7 @@ public final class BGPNotificationMessageParser implements MessageParser, Messag
      * @param bytes ByteBuf where the message will be serialized
      */
     @Override
-    public void serializeMessage(final Notification msg, final ByteBuf bytes) {
+    public void serializeMessage(final Notification<?> msg, final ByteBuf bytes) {
         checkArgument(msg instanceof Notify, "Message needs to be of type Notify");
         final Notify ntf = (Notify) msg;
 

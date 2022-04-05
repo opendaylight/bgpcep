@@ -45,7 +45,7 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
     }
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
         Preconditions.checkArgument(message instanceof StatsReportsMessage,
                 "An instance of Statistics Reports message is required");
@@ -54,7 +54,7 @@ public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<Tlv
     }
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public StatsReportsMessage parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final StatsReportsMessageBuilder statReport = new StatsReportsMessageBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();

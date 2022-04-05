@@ -157,12 +157,13 @@ public class ParserTest {
 
     @Test
     public void testKeepAliveMsg() throws BGPParsingException, BGPDocumentedException {
-        final Notification keepAlive = new KeepaliveBuilder().build();
+        final Keepalive keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.reg.serializeMessage(keepAlive, buffer);
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
-        final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
+        final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)),
+            null);
         assertThat(m, instanceOf(Keepalive.class));
     }
 
@@ -182,7 +183,7 @@ public class ParserTest {
 
     @Test
     public void testOpenMessage() throws BGPParsingException, BGPDocumentedException {
-        final Notification open = new OpenBuilder()
+        final Open open = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(100))
                 .setHoldTimer(Uint16.valueOf(180))
                 .setBgpIdentifier(new Ipv4AddressNoZone("20.20.20.20"))
@@ -192,7 +193,7 @@ public class ParserTest {
         ParserTest.reg.serializeMessage(open, bytes);
         assertArrayEquals(OPEN_BMSG, ByteArray.getAllBytes(bytes));
 
-        final Notification m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
+        final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
         assertThat(m, instanceOf(Open.class));
 
         final Open mo = (Open) m;
@@ -249,13 +250,13 @@ public class ParserTest {
 
     @Test
     public void testNotificationMsg() throws BGPParsingException, BGPDocumentedException {
-        Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
+        Notify notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
             .setErrorSubcode(BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         final ByteBuf bytes = Unpooled.buffer();
         ParserTest.reg.serializeMessage(notMsg, bytes);
         assertArrayEquals(NOTIFICATION_BMSG, ByteArray.subByte(bytes.array(),0,bytes.writerIndex()));
 
-        Notification msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
+        Notification<?> msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
 
         assertTrue(msg instanceof Notify);
         assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) msg).getErrorCode(),
@@ -314,7 +315,7 @@ public class ParserTest {
 
     @Test
     public void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
-        final Notification msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
+        final Notification<?> msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
             null);
         assertThat(msg, instanceOf(Update.class));
     }
@@ -340,13 +341,13 @@ public class ParserTest {
 
     @Test
     public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException {
-        final Notification rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class)
+        final Notification<?> rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class)
             .setSafi(UnicastSubsequentAddressFamily.class).build();
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.reg.serializeMessage(rrMsg, buffer);
         assertArrayEquals(RR_MSG, ByteArray.getAllBytes(buffer));
 
-        final Notification m = ParserTest.reg.parseMessage(
+        final Notification<?> m = ParserTest.reg.parseMessage(
             Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
 
         assertThat(m, instanceOf(RouteRefresh.class));

@@ -38,11 +38,11 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
 
     public PeerDownHandler(final MessageRegistry bgpMssageRegistry) {
         super(bgpMssageRegistry);
-        this.msgRegistry = getBgpMessageRegistry();
+        msgRegistry = getBgpMessageRegistry();
     }
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
         Preconditions.checkArgument(message instanceof PeerDownNotification,
                 "An instance of PeerDownNotification is required");
@@ -74,11 +74,11 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
             .Notification notification =
             (org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data
             .Notification) data;
-        this.msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
+        msgRegistry.serializeMessage(new NotifyBuilder(notification.getNotification()).build(), buffer);
     }
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public PeerDownNotification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final PeerDownNotificationBuilder peerDown = new PeerDownNotificationBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
         final Reason reason = Reason.forValue(bytes.readUnsignedByte());
@@ -119,7 +119,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
                 .opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.down.data.notification
                 .NotificationBuilder();
         try {
-            final Notification not = this.msgRegistry.parseMessage(bytes, null);
+            final Notification<?> not = msgRegistry.parseMessage(bytes, null);
             requireNonNull(not, "Notify message may not be null.");
             Preconditions.checkArgument(not instanceof NotifyMessage,
                     "An instance of NotifyMessage is required");
@@ -165,7 +165,7 @@ public class PeerDownHandler extends AbstractBmpPerPeerMessageParser<PeerDownNot
         }
 
         public short getValue() {
-            return this.value;
+            return value;
         }
     }
 }

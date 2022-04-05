@@ -39,7 +39,7 @@ public final class BGPKeepAliveMessageParser implements MessageParser, MessageSe
     }
 
     @Override
-    public void serializeMessage(final Notification message, final ByteBuf bytes) {
+    public void serializeMessage(final Notification<?> message, final ByteBuf bytes) {
         Preconditions.checkArgument(message instanceof Keepalive);
         bytes.writeBytes(KEEPALIVE_BYTES.slice());
     }

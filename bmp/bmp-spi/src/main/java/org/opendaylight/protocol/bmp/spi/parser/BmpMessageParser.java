@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
@@ -13,6 +12,5 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface BmpMessageParser {
 
-    Notification parseMessage(ByteBuf bytes) throws BmpDeserializationException;
-
+    Notification<?> parseMessage(ByteBuf bytes) throws BmpDeserializationException;
 }

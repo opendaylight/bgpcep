@@ -53,7 +53,6 @@ public class BmpDispatcherImplTest {
 
     @Before
     public void setUp() throws Exception {
-        doNothing().when(mockedSession).handlerRemoved(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).handlerAdded(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelRegistered(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelActive(any(ChannelHandlerContext.class));
