@@ -137,14 +137,14 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final BindingCodecTree tree) {
         this.domTxChain = requireNonNull(domTxChain);
         this.peerId = peerId;
-        this.peerYangIId = YangInstanceIdentifier.builder(peersYangIId).nodeWithKey(Peer.QNAME, PEER_ID_QNAME,
+        peerYangIId = YangInstanceIdentifier.builder(peersYangIId).nodeWithKey(Peer.QNAME, PEER_ID_QNAME,
                 this.peerId.getValue()).build();
-        this.sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);
-        this.receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
+        sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);
+        receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
 
         final Set<TablesKey> peerTables = setPeerTables(peerUp.getReceivedOpen());
         final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, this.peerYangIId, createPeerEntry(peerUp));
+        wTx.put(LogicalDatastoreType.OPERATIONAL, peerYangIId, createPeerEntry(peerUp));
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -156,9 +156,9 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
-        this.prePolicyWriter = BmpRibInWriter.create(this.peerYangIId.node(PrePolicyRib.QNAME).node(BMP_TABLES_QNAME),
+        prePolicyWriter = BmpRibInWriter.create(peerYangIId.node(PrePolicyRib.QNAME).node(BMP_TABLES_QNAME),
                 this.domTxChain, extensions, peerTables, tree);
-        this.postPolicyWriter = BmpRibInWriter.create(this.peerYangIId.node(PostPolicyRib.QNAME).node(BMP_TABLES_QNAME),
+        postPolicyWriter = BmpRibInWriter.create(peerYangIId.node(PostPolicyRib.QNAME).node(BMP_TABLES_QNAME),
                 this.domTxChain, extensions, peerTables, tree);
     }
 
@@ -170,7 +170,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     @Override
-    public void onPeerMessage(final Notification message) {
+    public void onPeerMessage(final Notification<?> message) {
         if (message instanceof PeerDownNotification) {
             onPeerDown();
         } else if (message instanceof RouteMonitoringMessage) {
@@ -183,14 +183,14 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private void onRouteMonitoring(final RouteMonitoringMessage routeMonitoring) {
-        if (this.up) {
+        if (up) {
             final AdjRibInType ribType = routeMonitoring.getPeerHeader().getAdjRibInType();
             switch (ribType) {
                 case PrePolicy:
-                    this.prePolicyWriter.onMessage(routeMonitoring.getUpdate());
+                    prePolicyWriter.onMessage(routeMonitoring.getUpdate());
                     break;
                 case PostPolicy:
-                    this.postPolicyWriter.onMessage(routeMonitoring.getUpdate());
+                    postPolicyWriter.onMessage(routeMonitoring.getUpdate());
                     break;
                 default:
                     break;
@@ -199,9 +199,9 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private synchronized void onStatsReports(final StatsReportsMessage statsReports) {
-        if (this.up) {
-            final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
-            wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Stats.QNAME),
+        if (up) {
+            final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
+            wTx.merge(LogicalDatastoreType.OPERATIONAL, peerYangIId.node(Stats.QNAME),
                     createStats(statsReports, statsReports.getPeerHeader().getTimestampSec()));
             wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
@@ -218,8 +218,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private synchronized void onRouteMirror(final RouteMirroringMessage mirror) {
-        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
-        wTx.merge(LogicalDatastoreType.OPERATIONAL, this.peerYangIId.node(Mirrors.QNAME),
+        final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
+        wTx.merge(LogicalDatastoreType.OPERATIONAL, peerYangIId.node(Mirrors.QNAME),
                 createMirrors(mirror, mirror.getPeerHeader().getTimestampSec()));
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -235,8 +235,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private synchronized void onPeerDown() {
-        final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, this.peerYangIId);
+        final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, peerYangIId);
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -253,8 +253,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
 
     @Override
     public void close() {
-        Preconditions.checkState(this.up, "Already closed.");
-        this.up = false;
+        Preconditions.checkState(up, "Already closed.");
+        up = false;
     }
 
     private static Set<TablesKey> setPeerTables(final ReceivedOpen open) {
@@ -288,11 +288,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                 .withChild(ImmutableNodes.leafNode(PEER_STATUS_QNAME, "up"))
                 .withChild(ImmutableNodes.leafNode(PEER_UP_TIMESTAMP_QNAME,
                         timestamp.getValue()));
-        if (this.receivedOpenCodec != null) {
-            builder.withChild((ContainerNode) this.receivedOpenCodec.serialize(peerUp.getReceivedOpen()));
+        if (receivedOpenCodec != null) {
+            builder.withChild((ContainerNode) receivedOpenCodec.serialize(peerUp.getReceivedOpen()));
         }
-        if (this.sentOpenCodec != null) {
-            builder.withChild((ContainerNode) this.sentOpenCodec.serialize(peerUp.getSentOpen()));
+        if (sentOpenCodec != null) {
+            builder.withChild((ContainerNode) sentOpenCodec.serialize(peerUp.getSentOpen()));
         }
         return builder.build();
     }
@@ -302,8 +302,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
                 Builders.mapEntryBuilder()
                         .withNodeIdentifier(NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_QNAME,
-                                this.peerId.getValue()))
-                        .withChild(ImmutableNodes.leafNode(PEER_ID_QNAME, this.peerId.getValue()))
+                                peerId.getValue()))
+                        .withChild(ImmutableNodes.leafNode(PEER_ID_QNAME, peerId.getValue()))
                         .withChild(ImmutableNodes.leafNode(PEER_TYPE_QNAME,
                                 peerHeader.getType().name().toLowerCase(Locale.ENGLISH)))
                         .withChild(ImmutableNodes.leafNode(PEER_ADDRESS_QNAME,

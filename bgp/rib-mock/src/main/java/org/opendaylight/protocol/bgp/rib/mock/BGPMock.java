@@ -19,6 +19,7 @@ import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -32,25 +33,24 @@ public final class BGPMock implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
 
-    static final Notification CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder()
-            .setErrorCode(BGPError.CEASE.getCode()).build();
+    static final Notify CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
     @GuardedBy("this")
     private final List<byte[]> allPreviousByteMessages;
-    private final List<Notification> allPreviousBGPMessages;
+    private final List<Notification<?>> allPreviousBGPMessages;
     private final EventBus eventBus;
 
     @GuardedBy("this")
     private final List<EventBusRegistration> openRegistrations = new ArrayList<>();
 
     public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
-        this.allPreviousByteMessages = new ArrayList<>(bgpMessages);
+        allPreviousByteMessages = new ArrayList<>(bgpMessages);
         this.eventBus = eventBus;
-        this.allPreviousBGPMessages = parsePrevious(registry, this.allPreviousByteMessages);
+        allPreviousBGPMessages = parsePrevious(registry, allPreviousByteMessages);
     }
 
-    private static List<Notification> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
-        final List<Notification> messages = new ArrayList<>();
+    private static List<Notification<?>> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
+        final List<Notification<?>> messages = new ArrayList<>();
         try {
             for (final byte[] b : msgs) {
 
@@ -67,13 +67,13 @@ public final class BGPMock implements Closeable {
     @Override
     public synchronized void close() {
         // unregister all EventBusRegistration instances
-        for (final EventBusRegistration registration : this.openRegistrations) {
+        for (final EventBusRegistration registration : openRegistrations) {
             registration.close();
         }
-        this.openRegistrations.clear();
+        openRegistrations.clear();
     }
 
     public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {
-        return EventBusRegistration.createAndRegister(this.eventBus, listener, this.allPreviousBGPMessages);
+        return EventBusRegistration.createAndRegister(eventBus, listener, allPreviousBGPMessages);
     }
 }

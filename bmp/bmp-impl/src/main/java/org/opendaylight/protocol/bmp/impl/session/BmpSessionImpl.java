@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notification> implements BmpSession {
+public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notification<?>> implements BmpSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpSessionImpl.class);
 
@@ -42,11 +42,11 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
 
     public BmpSessionImpl(final @NonNull BmpSessionListener listener) {
         this.listener = requireNonNull(listener);
-        this.state = State.IDLE;
+        state = State.IDLE;
     }
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext channelHandlerContext, final Notification msg) {
+    protected void channelRead0(final ChannelHandlerContext channelHandlerContext, final Notification<?> msg) {
         this.handleMessage(msg);
     }
 
@@ -65,26 +65,26 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
 
     @Override
     public synchronized void channelActive(final ChannelHandlerContext ctx) {
-        this.channel = ctx.channel();
-        LOG.info("Starting session {} <-> {}.", this.channel.localAddress(), this.channel.remoteAddress());
-        Preconditions.checkArgument(State.IDLE == this.state);
-        this.listener.onSessionUp(this);
-        this.state = State.UP;
+        channel = ctx.channel();
+        LOG.info("Starting session {} <-> {}.", channel.localAddress(), channel.remoteAddress());
+        Preconditions.checkArgument(State.IDLE == state);
+        listener.onSessionUp(this);
+        state = State.UP;
     }
 
     @Override
     public synchronized void close() {
         LOG.info("Closing session: {}", this);
-        if (this.channel != null) {
-            this.channel.close();
-            this.channel = null;
-            this.state = State.IDLE;
+        if (channel != null) {
+            channel.close();
+            channel = null;
+            state = State.IDLE;
         }
     }
 
     @Override
     public synchronized InetAddress getRemoteAddress() {
-        final InetSocketAddress address = (InetSocketAddress) this.channel.remoteAddress();
+        final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         requireNonNull(address, "BMP Channel doesn't have a valid remote address.");
         return address.getAddress();
     }
@@ -93,7 +93,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         LOG.error("Exception caught in BMP Session.", cause);
         close();
-        this.listener.onSessionDown(new IllegalStateException(cause));
+        listener.onSessionDown(new IllegalStateException(cause));
     }
 
     @Override
@@ -102,19 +102,19 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     private synchronized ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("channel", this.channel);
+        toStringHelper.add("channel", channel);
         return toStringHelper;
     }
 
-    private synchronized void handleMessage(final Notification msg) {
-        switch (this.state) {
+    private synchronized void handleMessage(final Notification<?> msg) {
+        switch (state) {
             case UP:
                 if (msg instanceof InitiationMessage) {
-                    this.state = State.INITIATED;
-                    this.listener.onMessage(msg);
+                    state = State.INITIATED;
+                    listener.onMessage(msg);
                 } else {
-                    LOG.warn("Unexpected message received {}, "
-                            + "expected was BMP Initiation Message. Closing session.", msg);
+                    LOG.warn("Unexpected message received {}, expected was BMP Initiation Message. Closing session.",
+                        msg);
                     close();
                 }
                 break;
@@ -124,7 +124,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
                             this, getTerminationReason((TerminationMessage) msg));
                     close();
                 } else {
-                    this.listener.onMessage(msg);
+                    listener.onMessage(msg);
                 }
                 break;
             case IDLE:
@@ -144,7 +144,7 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
     }
 
     private void endOfInput() {
-        this.listener.onSessionDown(new IOException("End of input detected. Closing the session."));
+        listener.onSessionDown(new IOException("End of input detected. Closing the session."));
     }
 
     protected enum State {

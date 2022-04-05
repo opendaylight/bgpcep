@@ -25,7 +25,7 @@ public interface MessageRegistry {
      * @param constraint Peer specific constraint.
      * @return Parsed BGP message.
      */
-    Notification parseMessage(ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
+    Notification<?> parseMessage(ByteBuf bytes, @Nullable PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException;
 
     /**
@@ -33,5 +33,5 @@ public interface MessageRegistry {
      * @param message Input BGP Message to be serialized.
      * @param buffer Output buffer where message is to be written.
      */
-    void serializeMessage(Notification message, ByteBuf buffer);
+    void serializeMessage(Notification<?> message, ByteBuf buffer);
 }

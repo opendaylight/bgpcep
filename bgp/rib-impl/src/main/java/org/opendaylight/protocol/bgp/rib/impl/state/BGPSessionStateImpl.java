@@ -57,21 +57,21 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     private BGPMessagesListener messagesListenerCounter;
 
     public BGPSessionStateImpl() {
-        this.sessionState = State.OPEN_CONFIRM;
-        this.sessionStopwatch = Stopwatch.createUnstarted();
+        sessionState = State.OPEN_CONFIRM;
+        sessionStopwatch = Stopwatch.createUnstarted();
     }
 
     @Override
-    public synchronized void messageSent(final Notification msg) {
-        if (this.messagesListenerCounter != null) {
-            this.messagesListenerCounter.messageSent(msg);
+    public synchronized void messageSent(final Notification<?> msg) {
+        if (messagesListenerCounter != null) {
+            messagesListenerCounter.messageSent(msg);
         }
     }
 
     @Override
-    public synchronized void messageReceived(final Notification msg) {
-        if (this.messagesListenerCounter != null) {
-            this.messagesListenerCounter.messageReceived(msg);
+    public synchronized void messageReceived(final Notification<?> msg) {
+        if (messagesListenerCounter != null) {
+            messagesListenerCounter.messageReceived(msg);
         }
     }
 
@@ -86,97 +86,97 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
                     if (capabilities != null) {
                         final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
                         if (mc != null) {
-                            this.multiProtocolCapability = true;
+                            multiProtocolCapability = true;
                         }
                         if (capabilities.getGracefulRestartCapability() != null) {
-                            this.gracefulRestartCapability = true;
+                            gracefulRestartCapability = true;
                         }
                         if (capabilities.getAddPathCapability() != null) {
-                            this.addPathCapability = true;
+                            addPathCapability = true;
                         }
                         if (capabilities.getRouteRefreshCapability() != null) {
-                            this.routerRefreshCapability = true;
+                            routerRefreshCapability = true;
                         }
                     }
                     if (cParam.getAs4BytesCapability() != null) {
-                        this.asn32Capability = true;
+                        asn32Capability = true;
                     }
                 }
             }
         }
 
-        this.holdTimerValue = newHoldTimerValue;
-        this.remoteAddress = StrictBGPPeerRegistry.getIpAddress(newRemoteAddress);
-        this.remotePort = new PortNumber(Uint16.valueOf(((InetSocketAddress) newRemoteAddress).getPort()));
-        this.localPort = new PortNumber(Uint16.valueOf(((InetSocketAddress) localAddress).getPort()));
+        holdTimerValue = newHoldTimerValue;
+        remoteAddress = StrictBGPPeerRegistry.getIpAddress(newRemoteAddress);
+        remotePort = new PortNumber(Uint16.valueOf(((InetSocketAddress) newRemoteAddress).getPort()));
+        localPort = new PortNumber(Uint16.valueOf(((InetSocketAddress) localAddress).getPort()));
     }
 
     @Override
     public synchronized State getSessionState() {
-        return this.sessionState;
+        return sessionState;
     }
 
     @Override
     public synchronized void setSessionState(final State state) {
         if (state == State.IDLE) {
-            this.sessionStopwatch.reset();
+            sessionStopwatch.reset();
         } else if (state == State.UP) {
-            this.sessionStopwatch.start();
+            sessionStopwatch.start();
         }
-        this.sessionState = state;
+        sessionState = state;
     }
 
     @Override
     public synchronized boolean isAddPathCapabilitySupported() {
-        return this.addPathCapability;
+        return addPathCapability;
     }
 
     @Override
     public synchronized boolean isAsn32CapabilitySupported() {
-        return this.asn32Capability;
+        return asn32Capability;
     }
 
     @Override
     public synchronized boolean isGracefulRestartCapabilitySupported() {
-        return this.gracefulRestartCapability;
+        return gracefulRestartCapability;
     }
 
     @Override
     public synchronized boolean isMultiProtocolCapabilitySupported() {
-        return this.multiProtocolCapability;
+        return multiProtocolCapability;
     }
 
     @Override
     public synchronized boolean isRouterRefreshCapabilitySupported() {
-        return this.routerRefreshCapability;
+        return routerRefreshCapability;
     }
 
     @Override
     public synchronized PortNumber getLocalPort() {
-        return this.localPort;
+        return localPort;
     }
 
     @Override
     public synchronized IpAddressNoZone getRemoteAddress() {
-        return this.remoteAddress;
+        return remoteAddress;
     }
 
     @Override
     public synchronized PortNumber getRemotePort() {
-        return this.remotePort;
+        return remotePort;
     }
 
     @Override
     public synchronized long getNegotiatedHoldTime() {
-        return this.holdTimerValue;
+        return holdTimerValue;
     }
 
     @Override
     public synchronized long getUpTime() {
-        return this.sessionStopwatch.elapsed(TimeUnit.MILLISECONDS);
+        return sessionStopwatch.elapsed(TimeUnit.MILLISECONDS);
     }
 
     public synchronized void registerMessagesCounter(final BGPMessagesListener bgpMessagesListener) {
-        this.messagesListenerCounter = bgpMessagesListener;
+        messagesListenerCounter = bgpMessagesListener;
     }
 }

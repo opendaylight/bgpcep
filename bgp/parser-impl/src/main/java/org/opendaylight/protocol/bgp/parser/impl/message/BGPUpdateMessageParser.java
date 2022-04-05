@@ -77,7 +77,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
     }
 
     @Override
-    public void serializeMessage(final Notification message, final ByteBuf bytes) {
+    public void serializeMessage(final Notification<?> message, final ByteBuf bytes) {
         checkArgument(message instanceof Update, "Message needs to be of type Update");
         final Update update = (Update) message;
 
@@ -94,7 +94,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         }
         if (update.getAttributes() != null) {
             final ByteBuf pathAttributesBuf = Unpooled.buffer();
-            this.attrReg.serializeAttribute(update.getAttributes(), pathAttributesBuf);
+            attrReg.serializeAttribute(update.getAttributes(), pathAttributesBuf);
             messageBody.writeShort(pathAttributesBuf.writerIndex());
             messageBody.writeBytes(pathAttributesBuf);
         } else {
@@ -309,7 +309,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
             }
         }
 
-        final MpUnreachNlri converted = this.nlriReg.convertMpReachToMpUnReach(mpReachNlri, unreachNlri)
+        final MpUnreachNlri converted = nlriReg.convertMpReachToMpUnReach(mpReachNlri, unreachNlri)
                 .orElseThrow(() -> {
                     LOG.warn("Could not convert attributes {} to withdraw attributes", parsed, withdrawCause);
                     return new BGPDocumentedException(withdrawCause);

@@ -53,32 +53,32 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
     private final EventBus eventBus;
 
     public static EventBusRegistration createAndRegister(final EventBus eventBus, final BGPSessionListener listener,
-            final List<Notification> allPreviousMessages) {
+            final List<Notification<?>> allPreviousMessages) {
         final EventBusRegistration instance = new EventBusRegistration(eventBus, listener, allPreviousMessages);
         eventBus.register(instance);
         return instance;
     }
 
     private EventBusRegistration(final EventBus eventBus, final BGPSessionListener listener,
-            final List<Notification> allPreviousMessages) {
+            final List<Notification<?>> allPreviousMessages) {
         super(listener);
         this.eventBus = eventBus;
-        for (final Notification message : allPreviousMessages) {
+        for (final Notification<?> message : allPreviousMessages) {
             sendMessage(listener, message);
         }
     }
 
     @Subscribe
-    public void onMessage(final Notification message) {
+    public void onMessage(final Notification<?> message) {
         sendMessage(this.getInstance(), message);
     }
 
     @Override
     public synchronized void removeRegistration() {
-        this.eventBus.unregister(this);
+        eventBus.unregister(this);
     }
 
-    private static void sendMessage(final BGPSessionListener listener, final Notification message) {
+    private static void sendMessage(final BGPSessionListener listener, final Notification<?> message) {
         if (BGPMock.CONNECTION_LOST_MAGIC_MSG.equals(message)) {
             listener.onSessionTerminated(null, new BGPTerminationReason(BGPError.CEASE));
         } else if (message instanceof Open) {

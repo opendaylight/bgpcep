@@ -31,16 +31,13 @@ import org.slf4j.LoggerFactory;
  * Listener for the client.
  */
 public final class SimpleSessionListener implements BGPSessionListener, ListenerCheck {
-
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
+
     @GuardedBy("this")
-    private final List<Notification> listMsg = new ArrayList<>();
-    private BGPSession bgpSession;
+    private final List<Notification<?>> listMsg = new ArrayList<>();
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
-    public SimpleSessionListener() {
-    }
-
+    private BGPSession bgpSession;
 
     @Override
     public void markUptodate(final TablesKey tablesKey) {
@@ -50,8 +47,8 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     @Override
     public void onSessionUp(final BGPSession session) {
         LOG.info("Session Up");
-        this.bgpSession = session;
-        this.sessionLatch.countDown();
+        bgpSession = session;
+        sessionLatch.countDown();
     }
 
     @Override
@@ -65,8 +62,8 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     }
 
     @Override
-    public synchronized void onMessage(final BGPSession session, final Notification message) {
-        this.listMsg.add(message);
+    public synchronized void onMessage(final BGPSession session, final Notification<?> message) {
+        listMsg.add(message);
         LOG.debug("Message received: {}", message);
     }
 
@@ -74,9 +71,9 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     @SuppressWarnings("checkstyle:IllegalCatch")
     public ListenableFuture<Void> releaseConnection() {
         LOG.debug("Releasing connection");
-        if (this.bgpSession != null) {
+        if (bgpSession != null) {
             try {
-                this.bgpSession.close();
+                bgpSession.close();
             } catch (final Exception e) {
                 LOG.warn("Error closing session", e);
             }
@@ -96,17 +93,17 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
 
     BGPSessionImpl getSession() {
         assertTrue("Session up",
-                Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
-        return (BGPSessionImpl) this.bgpSession;
+                Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        return (BGPSessionImpl) bgpSession;
     }
 
     @Override
-    public synchronized List<Notification> getListMsg() {
-        return this.listMsg;
+    public synchronized List<Notification<?>> getListMsg() {
+        return listMsg;
     }
 
     @Override
     public int getListMessageSize() {
-        return this.listMsg.size();
+        return listMsg.size();
     }
 }

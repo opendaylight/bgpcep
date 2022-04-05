@@ -58,9 +58,9 @@ public class AbstractBmpPerPeerMessageParserTest {
     public void setUp() {
         msgRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow()
             .getMessageRegistry();
-        this.parser = new AbstractBmpPerPeerMessageParser<>(msgRegistry) {
+        parser = new AbstractBmpPerPeerMessageParser<>(msgRegistry) {
             @Override
-            public Notification parseMessageBody(final ByteBuf bytes) {
+            public Notification<?> parseMessageBody(final ByteBuf bytes) {
                 return null;
             }
 
@@ -102,7 +102,7 @@ public class AbstractBmpPerPeerMessageParserTest {
             .build());
 
         final ByteBuf aggregator = Unpooled.buffer();
-        this.parser.serializePerPeerHeader(perHeader, aggregator);
+        parser.serializePerPeerHeader(perHeader, aggregator);
         assertArrayEquals(msgBytes, ByteArray.getAllBytes(aggregator));
     }
 
@@ -110,7 +110,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     public void testPerPeerHeaderIpv6() {
 
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
-                .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+                .parsePerPeerHeader(Unpooled.wrappedBuffer(ipv6MsgWithDistinguishergBytes));
 
         final PeerHeaderBuilder phBuilder = new PeerHeaderBuilder()
                 .setType(PeerType.L3vpn)
@@ -129,24 +129,24 @@ public class AbstractBmpPerPeerMessageParserTest {
         final ByteBuf aggregator = Unpooled.buffer();
         phBuilder.setTimestampSec(null);
         phBuilder.setTimestampMicro(null);
-        this.parser.serializePerPeerHeader(phBuilder.build(), aggregator);
-        assertArrayEquals(this.ipv6MsgWithDistinguishergBytes, ByteArray.getAllBytes(aggregator));
+        parser.serializePerPeerHeader(phBuilder.build(), aggregator);
+        assertArrayEquals(ipv6MsgWithDistinguishergBytes, ByteArray.getAllBytes(aggregator));
     }
 
     @Test
     public void testBgpMessageRegistry() {
-        assertEquals(msgRegistry, this.parser.getBgpMessageRegistry());
+        assertEquals(msgRegistry, parser.getBgpMessageRegistry());
     }
 
     @Test
     public void testSerializeMessageBody() {
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
-                .parsePerPeerHeader(Unpooled.wrappedBuffer(this.ipv6MsgWithDistinguishergBytes));
+                .parsePerPeerHeader(Unpooled.wrappedBuffer(ipv6MsgWithDistinguishergBytes));
 
         final PeerUpNotification peerNotif = new PeerUpNotificationBuilder().setPeerHeader(perHeader).build();
 
         final ByteBuf aggregator = Unpooled.buffer();
-        this.parser.serializeMessageBody(peerNotif, aggregator);
-        assertArrayEquals(this.ipv6MsgWithDistinguishergBytes, ByteArray.getAllBytes(aggregator));
+        parser.serializeMessageBody(peerNotif, aggregator);
+        assertArrayEquals(ipv6MsgWithDistinguishergBytes, ByteArray.getAllBytes(aggregator));
     }
 }

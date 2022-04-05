@@ -30,24 +30,24 @@ public class RouteMonitoringMessageHandler extends AbstractBmpPerPeerMessagePars
 
     public RouteMonitoringMessageHandler(final MessageRegistry bgpMssageRegistry) {
         super(bgpMssageRegistry);
-        this.msgRegistry = getBgpMessageRegistry();
+        msgRegistry = getBgpMessageRegistry();
     }
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
         Preconditions.checkArgument(message instanceof RouteMonitoringMessage,
                 "An instance of RouteMonitoringMessage is required");
         final RouteMonitoringMessage routeMonitor = (RouteMonitoringMessage) message;
-        this.msgRegistry.serializeMessage(new UpdateBuilder(routeMonitor.getUpdate()).build(), buffer);
+        msgRegistry.serializeMessage(new UpdateBuilder(routeMonitor.getUpdate()).build(), buffer);
     }
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public RouteMonitoringMessage parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final RouteMonitoringMessageBuilder routeMonitor = new RouteMonitoringMessageBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
         try {
-            final Notification message = this.msgRegistry.parseMessage(bytes, null);
+            final Notification<?> message = msgRegistry.parseMessage(bytes, null);
             requireNonNull(message, "UpdateMessage may not be null");
             Preconditions.checkArgument(message instanceof UpdateMessage,
                     "An instance of UpdateMessage is required");
