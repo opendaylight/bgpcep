@@ -23,7 +23,7 @@ public abstract class AbstractBmpMessageParser implements BmpMessageParser, BmpM
     private static final Logger LOG = LoggerFactory.getLogger(AbstractBmpMessageParser.class);
 
     @Override
-    public final void serializeMessage(final Notification message, final ByteBuf buffer) {
+    public final void serializeMessage(final Notification<?> message, final ByteBuf buffer) {
         checkArgument(message != null, "BMP message is mandatory.");
         final ByteBuf bodyBuffer = Unpooled.buffer();
         serializeMessageBody(message, bodyBuffer);
@@ -32,9 +32,9 @@ public abstract class AbstractBmpMessageParser implements BmpMessageParser, BmpM
     }
 
     @Override
-    public final Notification parseMessage(final ByteBuf bytes) throws BmpDeserializationException {
+    public final Notification<?> parseMessage(final ByteBuf bytes) throws BmpDeserializationException {
         checkArgument(bytes != null && bytes.isReadable());
-        final Notification parsedMessage = parseMessageBody(bytes);
+        final Notification<?> parsedMessage = parseMessageBody(bytes);
         LOG.trace("Parsed BMP message: {}", parsedMessage);
         return parsedMessage;
     }
@@ -46,9 +46,9 @@ public abstract class AbstractBmpMessageParser implements BmpMessageParser, BmpM
         output.writeBytes(body);
     }
 
-    public abstract void serializeMessageBody(Notification message, ByteBuf buffer);
+    public abstract void serializeMessageBody(Notification<?> message, ByteBuf buffer);
 
-    public abstract Notification parseMessageBody(ByteBuf bytes) throws BmpDeserializationException;
+    public abstract Notification<?> parseMessageBody(ByteBuf bytes) throws BmpDeserializationException;
 
     public abstract int getBmpMessageType();
 

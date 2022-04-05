@@ -36,7 +36,7 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
     private static final int MESSAGE_TYPE = 4;
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         Preconditions.checkArgument(message instanceof InitiationMessage,
                 "Incorrect instance of BGP message. The Initiation Message is expected.");
         final InitiationMessage initiation = (InitiationMessage) message;
@@ -44,7 +44,7 @@ public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuild
     }
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public Notification<?> parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final InitiationMessageBuilder initiationBuilder = new InitiationMessageBuilder();
         final TlvsBuilder tlvsBuilder = new TlvsBuilder();
         tlvsBuilder.setStringInformation(ImmutableList.of());

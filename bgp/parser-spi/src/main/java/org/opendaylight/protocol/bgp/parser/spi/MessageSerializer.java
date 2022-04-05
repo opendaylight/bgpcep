@@ -12,5 +12,5 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface MessageSerializer {
 
-    void serializeMessage(Notification message, ByteBuf bytes);
+    void serializeMessage(Notification<?> message, ByteBuf bytes);
 }
