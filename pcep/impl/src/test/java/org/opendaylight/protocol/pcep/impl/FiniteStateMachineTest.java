@@ -41,10 +41,10 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void setup() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open
             localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
-        this.serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                this.channel, this.listener, (short) 1, 20, localPrefs);
-        this.tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                this.channel, this.listener, (short) 1, 20, localPrefs, new TlsBuilder().build());
+        serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
+                channel, listener, (short) 1, 20, localPrefs);
+        tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
+                channel, listener, (short) 1, 20, localPrefs, new TlsBuilder().build());
     }
 
     /**
@@ -53,14 +53,14 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testSessionCharsAccBoth() {
-        this.serverSession.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Open);
-        this.serverSession.handleMessage(this.openMsg);
-        assertEquals(2, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(1) instanceof Keepalive);
-        this.serverSession.handleMessage(this.kaMsg);
-        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
+        serverSession.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Open);
+        serverSession.handleMessage(openMsg);
+        assertEquals(2, msgsSend.size());
+        assertTrue(msgsSend.get(1) instanceof Keepalive);
+        serverSession.handleMessage(kaMsg);
+        assertEquals(serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**
@@ -70,17 +70,17 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void testEstablishTLS() {
         final DefaultPCEPSessionNegotiator negotiator =
             new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                this.channel, this.listener, (short) 1, 20, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
+                channel, listener, (short) 1, 20, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
                 SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Starttls);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Starttls);
         assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, negotiator.getState());
-        negotiator.handleMessage(this.startTlsMsg);
+        negotiator.handleMessage(startTlsMsg);
         assertEquals(DefaultPCEPSessionNegotiator.State.OPEN_WAIT, negotiator.getState());
-        assertEquals(2, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(1) instanceof Open);
-        negotiator.handleMessage(this.openMsg);
+        assertEquals(2, msgsSend.size());
+        assertTrue(msgsSend.get(1) instanceof Open);
+        negotiator.handleMessage(openMsg);
         assertEquals(DefaultPCEPSessionNegotiator.State.KEEP_WAIT, negotiator.getState());
     }
 
@@ -89,17 +89,17 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testFailedToEstablishTLS() {
-        this.tlsSessionNegotiator.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Starttls);
-        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, this.tlsSessionNegotiator.getState());
-        this.tlsSessionNegotiator.handleMessage(this.startTlsMsg);
-        assertEquals(2, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(1) instanceof Pcerr);
-        final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
+        tlsSessionNegotiator.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Starttls);
+        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, tlsSessionNegotiator.getState());
+        tlsSessionNegotiator.handleMessage(startTlsMsg);
+        assertEquals(2, msgsSend.size());
+        assertTrue(msgsSend.get(1) instanceof Pcerr);
+        final Errors obj = ((Pcerr) msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
         assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorType(), obj.getErrorObject().getType());
         assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorValue(), obj.getErrorObject().getValue());
-        assertEquals(DefaultPCEPSessionNegotiator.State.FINISHED, this.tlsSessionNegotiator.getState());
+        assertEquals(DefaultPCEPSessionNegotiator.State.FINISHED, tlsSessionNegotiator.getState());
     }
 
     /**
@@ -107,17 +107,17 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testTLSUnexpectedMessage() {
-        this.tlsSessionNegotiator.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Starttls);
-        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, this.tlsSessionNegotiator.getState());
-        this.tlsSessionNegotiator.handleMessage(this.openMsg);
-        assertEquals(2, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(1) instanceof Pcerr);
-        final Errors obj = ((Pcerr) this.msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
+        tlsSessionNegotiator.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Starttls);
+        assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, tlsSessionNegotiator.getState());
+        tlsSessionNegotiator.handleMessage(openMsg);
+        assertEquals(2, msgsSend.size());
+        assertTrue(msgsSend.get(1) instanceof Pcerr);
+        final Errors obj = ((Pcerr) msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
         assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorType(), obj.getErrorObject().getType());
         assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorValue(), obj.getErrorObject().getValue());
-        assertEquals(this.tlsSessionNegotiator.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
+        assertEquals(tlsSessionNegotiator.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**
@@ -125,19 +125,19 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testSessionCharsAccMe() {
-        this.serverSession.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Open);
-        final Open remote = (Open) this.msgsSend.get(0);
-        this.serverSession.handleMessage(this.openMsg);
-        assertEquals(2, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(1) instanceof Keepalive);
-        this.serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR,
+        serverSession.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Open);
+        final Open remote = (Open) msgsSend.get(0);
+        serverSession.handleMessage(openMsg);
+        assertEquals(2, msgsSend.size());
+        assertTrue(msgsSend.get(1) instanceof Keepalive);
+        serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR,
             remote.getOpenMessage().getOpen()));
-        assertEquals(3, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(2) instanceof Open);
-        this.serverSession.handleMessage(this.kaMsg);
-        assertEquals(this.serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
+        assertEquals(3, msgsSend.size());
+        assertTrue(msgsSend.get(2) instanceof Open);
+        serverSession.handleMessage(kaMsg);
+        assertEquals(serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
 
     /**
@@ -147,12 +147,12 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testErrorOneOne() throws Exception {
-        this.serverSession.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Open);
-        this.serverSession.handleMessage(this.kaMsg);
+        serverSession.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Open);
+        serverSession.handleMessage(kaMsg);
         checkEquals(() -> {
-            for (final Notification m : this.msgsSend) {
+            for (final Notification<?> m : msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
                     assertEquals(Uint8.ONE, obj.getErrorObject().getType());
@@ -169,12 +169,12 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testErrorOneSeven() throws Exception {
-        this.serverSession.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof Open);
-        this.serverSession.handleMessage(this.openMsg);
+        serverSession.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof Open);
+        serverSession.handleMessage(openMsg);
         checkEquals(() -> {
-            for (final Notification m : this.msgsSend) {
+            for (final Notification<?> m : msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
                     assertEquals(Uint8.ONE, obj.getErrorObject().getType());
@@ -191,11 +191,11 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      */
     @Test
     public void testErrorOneTwo() throws Exception {
-        this.serverSession.channelActive(null);
-        assertEquals(1, this.msgsSend.size());
-        assertTrue(this.msgsSend.get(0) instanceof OpenMessage);
+        serverSession.channelActive(null);
+        assertEquals(1, msgsSend.size());
+        assertTrue(msgsSend.get(0) instanceof OpenMessage);
         checkEquals(() -> {
-            for (final Notification m : this.msgsSend) {
+            for (final Notification<?> m : msgsSend) {
                 if (m instanceof Pcerr) {
                     final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
                     assertEquals(Uint8.ONE, obj.getErrorObject().getType());
@@ -208,9 +208,9 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     @Test
     public void testUnknownMessage() throws Exception {
         final SimpleSessionListener client = new SimpleSessionListener();
-        final PCEPSessionImpl session = new PCEPSessionImpl(client, 5, this.channel,
-            this.openMsg.getOpenMessage().getOpen(), this.openMsg.getOpenMessage().getOpen());
-        PCEPSessionImpl.setTicker(this.ticker);
+        final PCEPSessionImpl session = new PCEPSessionImpl(client, 5, channel,
+            openMsg.getOpenMessage().getOpen(), openMsg.getOpenMessage().getOpen());
+        PCEPSessionImpl.setTicker(ticker);
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         final Queue<Long> qeue = session.getUnknownMessagesTimes();
         CheckTestUtil.checkEquals(() -> assertEquals(1, qeue.size()));
@@ -237,7 +237,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         CheckTestUtil.checkEquals(() -> assertTrue(!client.up));
     }
 
-    private final class TestTicker extends Ticker {
+    private static final class TestTicker extends Ticker {
         private long counter = 0L;
 
         TestTicker() {
@@ -245,14 +245,14 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
 
         @Override
         public long read() {
-            if (this.counter == 8) {
-                this.counter++;
+            if (counter == 8) {
+                counter++;
                 return 60000000003L;
-            } else if (this.counter == 10) {
-                this.counter++;
+            } else if (counter == 10) {
+                counter++;
                 return 60000000006L;
             }
-            return this.counter++;
+            return counter++;
         }
     }
 }

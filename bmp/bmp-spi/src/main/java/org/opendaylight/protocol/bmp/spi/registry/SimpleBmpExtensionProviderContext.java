@@ -14,6 +14,7 @@ import org.opendaylight.protocol.bmp.spi.parser.BmpTlvRegistry;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Tlv;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerContext, BmpExtensionProviderContext {
@@ -26,97 +27,97 @@ public class SimpleBmpExtensionProviderContext implements BmpExtensionConsumerCo
 
     @Override
     public Registration registerBmpMessageParser(final int messageType, final BmpMessageParser parser) {
-        return this.bmpMessageRegistry.registerBmpMessageParser(messageType, parser);
+        return bmpMessageRegistry.registerBmpMessageParser(messageType, parser);
     }
 
     @Override
-    public Registration registerBmpMessageSerializer(final Class<? extends Notification> messageClass,
-            final BmpMessageSerializer serializer) {
-        return this.bmpMessageRegistry.registerBmpMessageSerializer(messageClass, serializer);
+    public <T extends Notification<T> & DataObject> Registration registerBmpMessageSerializer(
+            final Class<T> messageClass, final BmpMessageSerializer serializer) {
+        return bmpMessageRegistry.registerBmpMessageSerializer(messageClass, serializer);
     }
 
     @Override
     public BmpMessageRegistry getBmpMessageRegistry() {
-        return this.bmpMessageRegistry;
+        return bmpMessageRegistry;
     }
 
     @Override
     public Registration registerBmpStatisticsTlvParser(final int tlvType, final BmpTlvParser parser) {
-        return this.bmpStatisticsTlvRegistry.registerBmpTlvParser(tlvType, parser);
+        return bmpStatisticsTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
 
     @Override
     public Registration registerBmpStatisticsTlvSerializer(final Class<? extends Tlv> tlvClass,
             final BmpTlvSerializer serializer) {
-        return this.bmpStatisticsTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+        return bmpStatisticsTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
     @Override
     public Registration registerBmpPeerUpTlvParser(final int tlvType, final BmpTlvParser parser) {
-        return this.bmpPeerUpTlvRegistry.registerBmpTlvParser(tlvType, parser);
+        return bmpPeerUpTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
 
     @Override
     public Registration registerBmpPeerUpTlvSerializer(final Class<? extends Tlv> tlvClass,
             final BmpTlvSerializer serializer) {
-        return this.bmpPeerUpTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+        return bmpPeerUpTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
     @Override
     public Registration registerBmpInitiationTlvParser(final int tlvType, final BmpTlvParser parser) {
-        return this.bmpInitiationTlvRegistry.registerBmpTlvParser(tlvType, parser);
+        return bmpInitiationTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
 
     @Override
     public Registration registerBmpInitiationTlvSerializer(final Class<? extends Tlv> tlvClass,
             final BmpTlvSerializer serializer) {
-        return this.bmpInitiationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+        return bmpInitiationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
     @Override
     public Registration registerBmpTerminationTlvParser(final int tlvType, final BmpTlvParser parser) {
-        return this.bmpTerminationTlvRegistry.registerBmpTlvParser(tlvType, parser);
+        return bmpTerminationTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
 
     @Override
     public Registration registerBmpTerminationTlvSerializer(final Class<? extends Tlv> tlvClass,
             final BmpTlvSerializer serializer) {
-        return this.bmpTerminationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+        return bmpTerminationTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
     @Override
     public Registration registerBmpRouteMirroringTlvParser(final int tlvType, final BmpTlvParser parser) {
-        return this.bmpRouteMirroringTlvRegistry.registerBmpTlvParser(tlvType, parser);
+        return bmpRouteMirroringTlvRegistry.registerBmpTlvParser(tlvType, parser);
     }
 
     @Override
     public Registration registerBmpRouteMirroringTlvSerializer(final Class<? extends Tlv> tlvClass,
             final BmpTlvSerializer serializer) {
-        return this.bmpRouteMirroringTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
+        return bmpRouteMirroringTlvRegistry.registerBmpTlvSerializer(tlvClass, serializer);
     }
 
     @Override
     public BmpTlvRegistry getBmpStatisticsTlvRegistry() {
-        return this.bmpStatisticsTlvRegistry;
+        return bmpStatisticsTlvRegistry;
     }
 
     @Override
     public BmpTlvRegistry getBmpInitiationTlvRegistry() {
-        return this.bmpInitiationTlvRegistry;
+        return bmpInitiationTlvRegistry;
     }
 
     @Override
     public BmpTlvRegistry getBmpPeerUpTlvRegistry() {
-        return this.bmpPeerUpTlvRegistry;
+        return bmpPeerUpTlvRegistry;
     }
 
     @Override
     public BmpTlvRegistry getBmpTerminationTlvRegistry() {
-        return this.bmpTerminationTlvRegistry;
+        return bmpTerminationTlvRegistry;
     }
 
     @Override
     public BmpTlvRegistry getBmpRouteMirroringTlvRegistry() {
-        return this.bmpRouteMirroringTlvRegistry;
+        return bmpRouteMirroringTlvRegistry;
     }
 }

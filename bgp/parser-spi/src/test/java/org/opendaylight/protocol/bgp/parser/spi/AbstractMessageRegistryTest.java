@@ -35,12 +35,12 @@ public class AbstractMessageRegistryTest {
 
     private final AbstractMessageRegistry registry = new AbstractMessageRegistry() {
         @Override
-        protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
+        protected void serializeMessageImpl(final Notification<?> message, final ByteBuf buffer) {
             buffer.writeBytes(KEEPALIVE_BMSG);
         }
 
         @Override
-        protected Notification parseBody(final int type, final ByteBuf body, final int messageLength,
+        protected Notification<?> parseBody(final int type, final ByteBuf body, final int messageLength,
                 final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
             return new KeepaliveBuilder().build();
         }
@@ -48,12 +48,12 @@ public class AbstractMessageRegistryTest {
 
     @Test
     public void testRegistry() throws BGPDocumentedException, BGPParsingException {
-        final Notification keepAlive = new KeepaliveBuilder().build();
+        final Notification<?> keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
-        this.registry.serializeMessage(keepAlive, buffer);
+        registry.serializeMessage(keepAlive, buffer);
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
-        final Notification not = this.registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
+        final Notification<?> not = registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
         assertThat(not, instanceOf(Keepalive.class));
     }
 
@@ -66,7 +66,7 @@ public class AbstractMessageRegistryTest {
         };
 
         final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
-            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+            () -> registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
         assertEquals("Marker not set to ones.", ex.getMessage());
     }
 
@@ -78,7 +78,7 @@ public class AbstractMessageRegistryTest {
             (byte) 0x00, (byte) 0x12, (byte) 0x04
         };
         final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
-            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+            () -> registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
         assertEquals("Message length field not within valid range.", ex.getMessage());
     }
 
@@ -90,7 +90,7 @@ public class AbstractMessageRegistryTest {
             (byte) 0x00, (byte) 0x13, (byte) 0x04, (byte) 0x04
         };
         final BGPParsingException ex = assertThrows(BGPParsingException.class,
-            () -> this.registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
+            () -> registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
         assertThat(ex.getMessage(), startsWith("Size doesn't match size specified in header."));
     }
 

@@ -42,7 +42,8 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     Registration registerMessageParser(int messageType, MessageParser parser);
 
-    Registration registerMessageSerializer(Class<? extends Notification> messageClass, MessageSerializer serializer);
+    <T extends Notification<T> & DataObject> Registration registerMessageSerializer(Class<T> messageClass,
+        MessageSerializer serializer);
 
     Registration registerBgpPrefixSidTlvParser(int tlvType, BgpPrefixSidTlvParser parser);
 

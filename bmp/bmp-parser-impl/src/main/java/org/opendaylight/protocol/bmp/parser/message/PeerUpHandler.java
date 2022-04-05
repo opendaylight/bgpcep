@@ -45,11 +45,11 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
 
     public PeerUpHandler(final MessageRegistry bgpMssageRegistry, final BmpTlvRegistry tlvRegistry) {
         super(bgpMssageRegistry, tlvRegistry);
-        this.msgRegistry = getBgpMessageRegistry();
+        msgRegistry = getBgpMessageRegistry();
     }
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         super.serializeMessageBody(message, buffer);
         checkArgument(message instanceof PeerUpNotification, "An instance of Peer Up notification is required");
         final PeerUpNotification peerUp = (PeerUpNotification) message;
@@ -63,8 +63,8 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         ByteBufUtils.write(buffer, peerUp.getLocalPort().getValue());
         ByteBufUtils.write(buffer, peerUp.getRemotePort().getValue());
 
-        this.msgRegistry.serializeMessage(new OpenBuilder(peerUp.getSentOpen()).build(), buffer);
-        this.msgRegistry.serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
+        msgRegistry.serializeMessage(new OpenBuilder(peerUp.getSentOpen()).build(), buffer);
+        msgRegistry.serializeMessage(new OpenBuilder(peerUp.getReceivedOpen()).build(), buffer);
         serializeTlvs(peerUp.getInformation(), buffer);
     }
 
@@ -79,7 +79,7 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
     }
 
     @Override
-    public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+    public PeerUpNotification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
         final PeerUpNotificationBuilder peerUpNot = new PeerUpNotificationBuilder()
                 .setPeerHeader(parsePerPeerHeader(bytes));
 
@@ -92,13 +92,13 @@ public class PeerUpHandler extends AbstractBmpPerPeerMessageParser<InformationBu
         peerUpNot.setLocalPort(new PortNumber(ByteBufUtils.readUint16(bytes)));
         peerUpNot.setRemotePort(new PortNumber(ByteBufUtils.readUint16(bytes)));
         try {
-            final Notification opSent = this.msgRegistry
+            final Notification<?> opSent = msgRegistry
                     .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
             requireNonNull(opSent, "Error on parse Sent OPEN Message, Sent OPEN Message is null");
             checkArgument(opSent instanceof OpenMessage, "An instance of OpenMessage notification is required");
             final OpenMessage sent = (OpenMessage) opSent;
 
-            final Notification opRec = this.msgRegistry
+            final Notification<?> opRec = msgRegistry
                     .parseMessage(bytes.readSlice(getBgpMessageLength(bytes)), null);
             requireNonNull(opRec, "Error on parse Received  OPEN Message, Received  OPEN Message is null");
             checkArgument(opRec instanceof OpenMessage, "An instance of OpenMessage notification is required");

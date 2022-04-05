@@ -55,5 +55,5 @@ public interface BGPSessionListener extends PeerRPCs, EventListener {
      *
      * @param notification Protocol message
      */
-    void onMessage(BGPSession session, Notification notification) throws BGPDocumentedException;
+    void onMessage(BGPSession session, Notification<?> notification) throws BGPDocumentedException;
 }

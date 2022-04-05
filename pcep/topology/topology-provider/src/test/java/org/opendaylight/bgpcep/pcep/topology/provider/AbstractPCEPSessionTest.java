@@ -84,7 +84,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         .build();
     private final Open remotePrefs = localPrefs;
 
-    List<Notification> receivedMsgs;
+    List<Notification<?>> receivedMsgs;
     ServerSessionManager manager;
     NetworkTopologyPcepService topologyRpcs;
     @Mock

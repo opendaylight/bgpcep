@@ -19,6 +19,7 @@ import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,20 +34,20 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
     @Override
     public Registration registerBmpMessageParser(final int messageType, final BmpMessageParser parser) {
         checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        return this.handlers.registerParser(messageType, parser);
+        return handlers.registerParser(messageType, parser);
     }
 
     @Override
-    public Registration registerBmpMessageSerializer(final Class<? extends Notification> msgClass,
+    public <T extends Notification<T> & DataObject> Registration registerBmpMessageSerializer(final Class<T> msgClass,
             final BmpMessageSerializer serializer) {
-        return this.handlers.registerSerializer(msgClass, serializer);
+        return handlers.registerSerializer(msgClass, serializer);
     }
 
     @Override
-    public Notification parseMessage(final ByteBuf buffer) throws BmpDeserializationException {
+    public Notification<?> parseMessage(final ByteBuf buffer) throws BmpDeserializationException {
         final int messageType = parseMessageHeader(buffer);
         checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        final BmpMessageParser parser = this.handlers.getParser(messageType);
+        final BmpMessageParser parser = handlers.getParser(messageType);
         if (parser == null) {
             LOG.warn("BMP parser for message type {} is not registered.", messageType);
             return null;
@@ -55,8 +56,8 @@ public class SimpleBmpMessageRegistry implements BmpMessageRegistry {
     }
 
     @Override
-    public void serializeMessage(final Notification message, final ByteBuf buffer)  {
-        final BmpMessageSerializer serializer = this.handlers.getSerializer(message.implementedInterface());
+    public void serializeMessage(final Notification<?> message, final ByteBuf buffer)  {
+        final BmpMessageSerializer serializer = handlers.getSerializer(message.implementedInterface());
         if (serializer == null) {
             LOG.warn("BMP serializer for message type {} is not registered.", message.getClass());
             return;
