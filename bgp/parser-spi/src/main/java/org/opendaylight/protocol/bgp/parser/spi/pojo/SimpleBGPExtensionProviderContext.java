@@ -46,7 +46,7 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
     private final ReferenceCache referenceCache = new ReferenceCache() {
         @Override
         public <T> T getSharedReference(final T object) {
-            final Cache<Object, Object> cache = SimpleBGPExtensionProviderContext.this.cacheRef.get();
+            final Cache<Object, Object> cache = cacheRef.get();
 
             @SuppressWarnings("unchecked")
             final T ret = (T) cache.getIfPresent(object);
@@ -65,7 +65,7 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
 
     public SimpleBGPExtensionProviderContext(final int maximumCachedObjects) {
         final Cache<Object, Object> cache = CacheBuilder.newBuilder().maximumSize(maximumCachedObjects).build();
-        this.cacheRef = new AtomicReference<>(cache);
+        cacheRef = new AtomicReference<>(cache);
     }
 
     @Override
@@ -101,7 +101,7 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
     }
 
     @Override
-    public Registration registerMessageSerializer(final Class<? extends Notification> messageClass,
+    public <T extends Notification<T> & DataObject> Registration registerMessageSerializer(final Class<T> messageClass,
             final MessageSerializer serializer) {
         return this.getMessageRegistry().registerMessageSerializer(messageClass, serializer);
     }
@@ -140,7 +140,7 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
 
     @Override
     public ReferenceCache getReferenceCache() {
-        return this.referenceCache;
+        return referenceCache;
     }
 
     @Override

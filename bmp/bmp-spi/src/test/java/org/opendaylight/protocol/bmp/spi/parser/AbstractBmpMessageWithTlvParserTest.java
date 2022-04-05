@@ -30,7 +30,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 public class AbstractBmpMessageWithTlvParserTest {
 
     private final SimpleBmpTlvRegistry registry = new SimpleBmpTlvRegistry();
-    private final SimpleHandler parser = new SimpleHandler(this.registry);
+    private final SimpleHandler parser = new SimpleHandler(registry);
     private static final byte[] DATA = {0, 1, 0, 4, 't', 'e', 's', 't'};
     private static final int TYPE = 1;
 
@@ -48,18 +48,18 @@ public class AbstractBmpMessageWithTlvParserTest {
 
     @Before
     public void setUp() {
-        this.registry.registerBmpTlvParser(TYPE, DESCRIPTION_TLV_PARSER);
-        this.registry.registerBmpTlvSerializer(DescriptionTlv.class, DESCRIPTION_TLV_SERIALIZER);
+        registry.registerBmpTlvParser(TYPE, DESCRIPTION_TLV_PARSER);
+        registry.registerBmpTlvSerializer(DescriptionTlv.class, DESCRIPTION_TLV_SERIALIZER);
     }
 
     @Test
     public void testParseTlvs() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.EMPTY_BUFFER;
         final TlvsBuilder builder = new TlvsBuilder();
-        this.parser.parseTlvs(builder, buffer);
+        parser.parseTlvs(builder, buffer);
         assertNull(builder.getDescriptionTlv());
 
-        this.parser.parseTlvs(builder, Unpooled.wrappedBuffer(DATA));
+        parser.parseTlvs(builder, Unpooled.wrappedBuffer(DATA));
         assertNotNull(builder.getDescriptionTlv());
         assertEquals("test", builder.getDescriptionTlv().getDescription());
     }
@@ -68,14 +68,14 @@ public class AbstractBmpMessageWithTlvParserTest {
     public void testSerializeTlv() {
         final ByteBuf output = Unpooled.buffer();
         final DescriptionTlvBuilder builder = new DescriptionTlvBuilder().setDescription("test");
-        this.parser.serializeTlv(builder.build(), output);
+        parser.serializeTlv(builder.build(), output);
         assertArrayEquals(DATA, ByteArray.getAllBytes(output));
     }
 
     @Test(expected = BmpDeserializationException.class)
     public void testParseCorruptedTlv() throws BmpDeserializationException {
         final byte[] wrongData = {0, 1, 0, 10, 't', 'e', 's', 't'};
-        this.parser.parseTlvs(new TlvsBuilder(), Unpooled.wrappedBuffer(wrongData));
+        parser.parseTlvs(new TlvsBuilder(), Unpooled.wrappedBuffer(wrongData));
     }
 
     private static final class SimpleHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
@@ -84,11 +84,12 @@ public class AbstractBmpMessageWithTlvParserTest {
         }
 
         @Override
-        public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+        public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
+
         }
 
         @Override
-        public Notification parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
+        public Notification<?> parseMessageBody(final ByteBuf bytes) throws BmpDeserializationException {
             return null;
         }
 

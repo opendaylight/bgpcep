@@ -33,12 +33,12 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     }
 
     private void ensureWritable() {
-        if (this.blocked) {
-            LOG.trace("Blocked slow path tripped on session {}", this.session);
+        if (blocked) {
+            LOG.trace("Blocked slow path tripped on session {}", session);
             synchronized (this) {
-                while (this.blocked) {
+                while (blocked) {
                     try {
-                        LOG.debug("Waiting for session {} to become writable", this.session);
+                        LOG.debug("Waiting for session {} to become writable", session);
                         flush();
                         this.wait();
                     } catch (final InterruptedException e) {
@@ -46,23 +46,23 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
                     }
                 }
 
-                LOG.debug("Resuming write on session {}", this.session);
+                LOG.debug("Resuming write on session {}", session);
             }
         }
     }
 
-    public void write(final Notification msg) {
+    public void write(final Notification<?> msg) {
         ensureWritable();
-        this.session.write(msg);
+        session.write(msg);
     }
 
-    ChannelFuture writeAndFlush(final Notification msg) {
+    ChannelFuture writeAndFlush(final Notification<?> msg) {
         ensureWritable();
-        return this.session.writeAndFlush(msg);
+        return session.writeAndFlush(msg);
     }
 
     public void flush() {
-        this.session.flush();
+        session.flush();
     }
 
     @Override
@@ -70,8 +70,8 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
         final boolean w = ctx.channel().isWritable();
 
         synchronized (this) {
-            this.blocked = !w;
-            LOG.debug("Writes on session {} {}", this.session, w ? "unblocked" : "blocked");
+            blocked = !w;
+            LOG.debug("Writes on session {} {}", session, w ? "unblocked" : "blocked");
 
             if (w) {
                 notifyAll();
@@ -84,7 +84,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         synchronized (this) {
-            this.blocked = false;
+            blocked = false;
             notifyAll();
         }
 

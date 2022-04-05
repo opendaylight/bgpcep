@@ -70,7 +70,7 @@ public class AbstractPCEPSessionTest {
 
     protected final String ipAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     protected final int port = InetSocketAddressUtil.getRandomPort();
-    protected final List<Notification> msgsSend = new ArrayList<>();
+    protected final List<Notification<?>> msgsSend = new ArrayList<>();
 
     protected Open openMsg;
 
@@ -86,29 +86,29 @@ public class AbstractPCEPSessionTest {
     @Before
     public final void setUp() {
         MockitoAnnotations.initMocks(this);
-        final ChannelFuture cfuture = new DefaultChannelPromise(this.channel);
+        final ChannelFuture cfuture = new DefaultChannelPromise(channel);
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            AbstractPCEPSessionTest.this.msgsSend.add((Notification) args[0]);
+            AbstractPCEPSessionTest.this.msgsSend.add((Notification<?>) args[0]);
             return cfuture;
-        }).when(this.channel).writeAndFlush(any(Notification.class));
-        doReturn(this.channelFuture).when(this.channel).closeFuture();
-        doReturn(this.channelFuture).when(this.channelFuture).addListener(any(GenericFutureListener.class));
-        doReturn("TestingChannel").when(this.channel).toString();
-        doReturn(this.pipeline).when(this.channel).pipeline();
-        doReturn(this.address).when(this.channel).localAddress();
-        doReturn(this.address).when(this.channel).remoteAddress();
-        doReturn(this.eventLoop).when(this.channel).eventLoop();
-        doReturn(true).when(this.future).cancel(false);
-        doReturn(this.future).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
+        }).when(channel).writeAndFlush(any(Notification.class));
+        doReturn(channelFuture).when(channel).closeFuture();
+        doReturn(channelFuture).when(channelFuture).addListener(any(GenericFutureListener.class));
+        doReturn("TestingChannel").when(channel).toString();
+        doReturn(pipeline).when(channel).pipeline();
+        doReturn(address).when(channel).localAddress();
+        doReturn(address).when(channel).remoteAddress();
+        doReturn(eventLoop).when(channel).eventLoop();
+        doReturn(true).when(future).cancel(false);
+        doReturn(future).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
             any(ChannelHandler.class));
-        doReturn(this.pipeline).when(this.pipeline).addFirst(any(ChannelHandler.class));
-        doReturn(true).when(this.channel).isActive();
-        doReturn(mock(ChannelFuture.class)).when(this.channel).close();
-        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).remoteAddress();
-        doReturn(new InetSocketAddress(this.ipAddress, this.port)).when(this.channel).localAddress();
-        this.openMsg = new OpenBuilder()
+        doReturn(pipeline).when(pipeline).addFirst(any(ChannelHandler.class));
+        doReturn(true).when(channel).isActive();
+        doReturn(mock(ChannelFuture.class)).when(channel).close();
+        doReturn(new InetSocketAddress(ipAddress, port)).when(channel).remoteAddress();
+        doReturn(new InetSocketAddress(ipAddress, port)).when(channel).localAddress();
+        openMsg = new OpenBuilder()
                 .setOpenMessage(new OpenMessageBuilder()
                     .setOpen(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
                         .open.object.OpenBuilder()
@@ -118,12 +118,12 @@ public class AbstractPCEPSessionTest {
                         .build())
                     .build())
                 .build();
-        this.kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
-        this.startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
-        this.closeMsg = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder()
+        kaMsg = new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
+        startTlsMsg = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build();
+        closeMsg = new CloseBuilder().setCCloseMessage(new CCloseMessageBuilder()
             .setCClose(new CCloseBuilder().setReason(Uint8.valueOf(6)).build()).build()).build();
 
-        this.listener = new SimpleSessionListener();
+        listener = new SimpleSessionListener();
     }
 
 }
