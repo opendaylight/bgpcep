@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class SimpleMessageRegistry extends AbstractMessageRegistry {
@@ -23,9 +24,9 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     private final HandlerRegistry<DataContainer, MessageParser, MessageSerializer> handlers = new HandlerRegistry<>();
 
     @Override
-    protected Notification parseBody(final int type, final ByteBuf body, final int messageLength,
+    protected Notification<?> parseBody(final int type, final ByteBuf body, final int messageLength,
             final PeerSpecificParserConstraint constraint) throws BGPDocumentedException {
-        final MessageParser parser = this.handlers.getParser(type);
+        final MessageParser parser = handlers.getParser(type);
         if (parser == null) {
             return null;
         }
@@ -33,8 +34,8 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     }
 
     @Override
-    protected void serializeMessageImpl(final Notification message, final ByteBuf buffer) {
-        final MessageSerializer serializer = this.handlers.getSerializer(message.implementedInterface());
+    protected void serializeMessageImpl(final Notification<?> message, final ByteBuf buffer) {
+        final MessageSerializer serializer = handlers.getSerializer(message.implementedInterface());
         if (serializer == null) {
             return;
         }
@@ -42,11 +43,11 @@ final class SimpleMessageRegistry extends AbstractMessageRegistry {
     }
 
     Registration registerMessageParser(final int messageType, final MessageParser parser) {
-        return this.handlers.registerParser(messageType, parser);
+        return handlers.registerParser(messageType, parser);
     }
 
-    Registration registerMessageSerializer(final Class<? extends Notification> messageClass,
+    <T extends Notification<T> & DataObject> Registration registerMessageSerializer(final Class<T> messageClass,
             final MessageSerializer serializer) {
-        return this.handlers.registerSerializer(messageClass, serializer);
+        return handlers.registerSerializer(messageClass, serializer);
     }
 }

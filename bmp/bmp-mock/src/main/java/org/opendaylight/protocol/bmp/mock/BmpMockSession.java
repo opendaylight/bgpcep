@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpMockSession extends SimpleChannelInboundHandler<Notification> implements BmpSession {
+public final class BmpMockSession extends SimpleChannelInboundHandler<Notification<?>> implements BmpSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockSession.class);
 
@@ -48,38 +48,38 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
     @Override
     public void close() throws InterruptedException {
         LOG.info("BMP session {} is closed.", BmpMockSession.this.channel);
-        this.channel.close().sync();
+        channel.close().sync();
     }
 
     @Override
     public InetAddress getRemoteAddress() {
-        return this.remoteAddress.getAddress();
+        return remoteAddress.getAddress();
     }
 
     @Override
-    protected void channelRead0(final ChannelHandlerContext ctx, final Notification msg) throws Exception {
+    protected void channelRead0(final ChannelHandlerContext ctx, final Notification<?> msg) throws Exception {
         // nothing to read
     }
 
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
-        this.channel = ctx.channel();
-        this.channel.closeFuture().addListener((ChannelFutureListener) future ->
+        channel = ctx.channel();
+        channel.closeFuture().addListener((ChannelFutureListener) future ->
                 LOG.info("BMP session {} close.", BmpMockSession.this.channel));
-        LOG.info("BMP session {} successfully established.", this.channel);
-        final InetSocketAddress localAddress = (InetSocketAddress) this.channel.localAddress();
-        this.remoteAddress = (InetSocketAddress) this.channel.remoteAddress();
+        LOG.info("BMP session {} successfully established.", channel);
+        final InetSocketAddress localAddress = (InetSocketAddress) channel.localAddress();
+        remoteAddress = (InetSocketAddress) channel.remoteAddress();
         advertizePeers(localAddress);
     }
 
     private void advertizePeers(final InetSocketAddress localAddress) {
         channel.writeAndFlush(BmpMockUtil.createInitiation());
         Ipv4AddressNoZone peerAddress = PEER_ADDRESS;
-        for (int i = 0; i < this.peersCount; i++) {
+        for (int i = 0; i < peersCount; i++) {
             channel.writeAndFlush(BmpMockUtil.createPeerUp(peerAddress, localAddress.getAddress()));
             LOG.debug("BMP router {} advertized peer {}", channel.localAddress(), peerAddress);
-            advertizeRoutes(this.prePolicyRoutesCount, AdjRibInType.PrePolicy, channel, peerAddress);
-            advertizeRoutes(this.postPolicyRoutesCount, AdjRibInType.PostPolicy, channel, peerAddress);
+            advertizeRoutes(prePolicyRoutesCount, AdjRibInType.PrePolicy, channel, peerAddress);
+            advertizeRoutes(postPolicyRoutesCount, AdjRibInType.PostPolicy, channel, peerAddress);
             peerAddress = incrementIpv4Address(peerAddress);
         }
     }

@@ -84,7 +84,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
      * @param bytes ByteBuf where the message will be serialized
      */
     @Override
-    public void serializeMessage(final Notification msg, final ByteBuf bytes) {
+    public void serializeMessage(final Notification<?> msg, final ByteBuf bytes) {
         checkArgument(msg instanceof Open, "Message needs to be of type Open, not %s", msg);
         final Open open = (Open) msg;
         final ByteBuf msgBody = Unpooled.buffer()

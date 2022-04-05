@@ -18,7 +18,6 @@
     </parent>
 
     <artifactId>bgp-bmp-mock</artifactId>
-    <version>0.17.1-SNAPSHOT</version>
     <name>bmp-mock</name>
 
     <dependencies>

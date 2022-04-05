@@ -47,7 +47,7 @@ public abstract class AbstractBmpPerPeerMessageParser<T> extends AbstractBmpMess
     }
 
     @Override
-    public void serializeMessageBody(final Notification message, final ByteBuf buffer) {
+    public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
         if (message
                 instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120
                 .PeerHeader) {

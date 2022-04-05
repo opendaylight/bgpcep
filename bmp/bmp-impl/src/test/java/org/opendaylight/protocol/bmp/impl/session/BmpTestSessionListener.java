@@ -18,33 +18,33 @@ import org.slf4j.LoggerFactory;
 public final class BmpTestSessionListener implements BmpSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(BmpTestSessionListener.class);
 
-    private final List<Notification> messages = new ArrayList<>();
+    private final List<Notification<?>> messages = new ArrayList<>();
     private boolean up = false;
 
     public boolean isUp() {
-        return this.up;
+        return up;
     }
 
-    public List<Notification> getListMsg() {
-        return this.messages;
+    public List<Notification<?>> getListMsg() {
+        return messages;
     }
 
     @Override
-    public void onMessage(final Notification message) {
+    public void onMessage(final Notification<?> message) {
         LOG.debug("Received message: {} {}", message.getClass(), message);
-        this.messages.add(message);
+        messages.add(message);
     }
 
     @Override
     public synchronized void onSessionUp(final BmpSession session) {
         LOG.debug("Session up.");
-        this.up = true;
+        up = true;
     }
 
     @Override
     public void onSessionDown(final Exception throwable) {
         LOG.debug("Session down.", throwable);
-        this.up = false;
+        up = false;
     }
 }
 

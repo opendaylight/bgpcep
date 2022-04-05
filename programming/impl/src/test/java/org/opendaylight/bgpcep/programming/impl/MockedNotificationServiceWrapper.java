@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,7 +18,6 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Assert;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
@@ -24,35 +25,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 final class MockedNotificationServiceWrapper {
-    private final List<Notification> publishedNotifications = new ArrayList<>();
+    private final List<Notification<?>> publishedNotifications = new ArrayList<>();
 
     NotificationPublishService getMockedNotificationService() throws InterruptedException {
         final NotificationPublishService mockedNotificationService = mock(NotificationPublishService.class);
 
         doAnswer(invocation -> {
             final Object notif = invocation.getArguments()[0];
-            assertTrue(Notification.class.isAssignableFrom(notif.getClass()));
-            MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification) notif);
+            assertThat(notif, instanceOf(Notification.class));
+            MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification<?>) notif);
             return null;
         }).when(mockedNotificationService).putNotification(any(Notification.class));
         return mockedNotificationService;
     }
 
     void assertNotificationsCount(final int count) throws Exception {
-        checkEquals(() -> assertEquals(count, this.publishedNotifications.size()));
+        checkEquals(() -> assertEquals(count, publishedNotifications.size()));
     }
 
     void assertInstructionStatusChangedNotification(final int idx, final InstructionId id,
             final InstructionStatus status) {
-        assertTrue(InstructionStatusChanged.class.isAssignableFrom(this.publishedNotifications.get(idx).getClass()));
+        assertTrue(InstructionStatusChanged.class.isAssignableFrom(publishedNotifications.get(idx).getClass()));
         final InstructionStatusChanged firstNotification =
-                (InstructionStatusChanged) this.publishedNotifications.get(idx);
+                (InstructionStatusChanged) publishedNotifications.get(idx);
         assertInstructionStatusChangedNotification(id, status, firstNotification);
     }
 
     private static void assertInstructionStatusChangedNotification(final InstructionId id,
             final InstructionStatus status, final InstructionStatusChanged firstNotification) {
-        Assert.assertEquals(id, firstNotification.getId());
-        Assert.assertEquals(status, firstNotification.getStatus());
+        assertEquals(id, firstNotification.getId());
+        assertEquals(status, firstNotification.getStatus());
     }
 }

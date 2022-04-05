@@ -53,12 +53,12 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
      * @param bytes ByteBuf where the message will be serialized
      */
     @Override
-    public void serializeMessage(final Notification message, final ByteBuf bytes) {
+    public void serializeMessage(final Notification<?> message, final ByteBuf bytes) {
         checkArgument(message instanceof RouteRefresh, ARGUMENT_ERROR);
         final RouteRefresh msg = (RouteRefresh) message;
 
         final ByteBuf msgBuf = Unpooled.buffer(TRIPLET_BYTE_SIZE);
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg,
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(afiReg, safiReg,
                 msg.getAfi(), msg.getSafi(), msgBuf);
 
         if (LOG.isTraceEnabled()) {
@@ -82,7 +82,7 @@ public final class BGPRouteRefreshMessageParser implements MessageParser, Messag
         if (body.readableBytes() < TRIPLET_BYTE_SIZE) {
             throw BGPDocumentedException.badMessageLength("RouteRefresh message is too small.", messageLength);
         }
-        return new RouteRefreshBuilder(MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, this.afiReg, this.safiReg)
+        return new RouteRefreshBuilder(MultiprotocolCapabilitiesUtil.parseMPAfiSafi(body, afiReg, safiReg)
             .orElseThrow(() -> new BGPDocumentedException("Unsupported afi/safi in Route Refresh message.",
                 BGPError.WELL_KNOWN_ATTR_NOT_RECOGNIZED))
             ).build();
