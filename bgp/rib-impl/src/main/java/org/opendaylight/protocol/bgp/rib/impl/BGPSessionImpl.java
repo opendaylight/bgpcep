@@ -81,12 +81,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @VisibleForTesting
-public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> implements BGPSession,
+public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>> implements BGPSession,
         BGPSessionStateProvider, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BGPSessionImpl.class);
 
-    private static final Notification KEEP_ALIVE = new KeepaliveBuilder().build();
+    private static final Keepalive KEEP_ALIVE = new KeepaliveBuilder().build();
 
     private static final int KA_TO_DEADTIMER_RATIO = 3;
 
@@ -136,18 +136,18 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
             final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
         this.listener = requireNonNull(listener);
         this.channel = requireNonNull(channel);
-        this.limiter = new ChannelOutputLimiter(this);
-        this.channel.pipeline().addLast(this.limiter);
+        limiter = new ChannelOutputLimiter(this);
+        this.channel.pipeline().addLast(limiter);
 
         final int remoteHoldTimer = remoteOpen.getHoldTimer().toJava();
         final int holdTimerValue = Math.min(remoteHoldTimer, localHoldTimer);
         LOG.info("BGP HoldTimer new value: {}", holdTimerValue);
-        this.holdTimerNanos = TimeUnit.SECONDS.toNanos(holdTimerValue);
-        this.keepAliveNanos = TimeUnit.SECONDS.toNanos(holdTimerValue / KA_TO_DEADTIMER_RATIO);
+        holdTimerNanos = TimeUnit.SECONDS.toNanos(holdTimerValue);
+        keepAliveNanos = TimeUnit.SECONDS.toNanos(holdTimerValue / KA_TO_DEADTIMER_RATIO);
 
-        this.asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
+        asNumber = AsNumberUtil.advertizedAsNumber(remoteOpen);
         this.peerRegistry = peerRegistry;
-        this.sessionState = new BGPSessionStateImpl();
+        sessionState = new BGPSessionStateImpl();
 
         final Set<TablesKey> tts = new HashSet<>();
         final Set<BgpTableType> tats = new HashSet<>();
@@ -174,31 +174,31 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                     }
                 }
             }
-            this.gracefulCapability = findSingleCapability(bgpParameters, "Graceful Restart",
+            gracefulCapability = findSingleCapability(bgpParameters, "Graceful Restart",
                 CParameters1::getGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_GR_CAPABILITY);
-            this.llGracefulCapability = findSingleCapability(bgpParameters, "Long-lived Graceful Restart",
+            llGracefulCapability = findSingleCapability(bgpParameters, "Long-lived Graceful Restart",
                 CParameters1::getLlGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_LLGR_CAPABILITY);
         } else {
-            this.gracefulCapability = GracefulRestartUtil.EMPTY_GR_CAPABILITY;
-            this.llGracefulCapability = GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
+            gracefulCapability = GracefulRestartUtil.EMPTY_GR_CAPABILITY;
+            llGracefulCapability = GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
         }
 
-        this.sync = new BGPSynchronization(this.listener, tts);
-        this.tableTypes = tats;
-        this.addPathTypes = addPathCapabilitiesList;
+        sync = new BGPSynchronization(this.listener, tts);
+        tableTypes = tats;
+        addPathTypes = addPathCapabilitiesList;
 
-        if (!this.addPathTypes.isEmpty()) {
+        if (!addPathTypes.isEmpty()) {
             addDecoderConstraint(MultiPathSupport.class,
-                MultiPathSupportImpl.createParserMultiPathSupport(this.addPathTypes));
+                MultiPathSupportImpl.createParserMultiPathSupport(addPathTypes));
         }
 
         if (holdTimerValue != 0) {
-            channel.eventLoop().schedule(this::handleHoldTimer, this.holdTimerNanos, TimeUnit.NANOSECONDS);
-            channel.eventLoop().schedule(this::handleKeepaliveTimer, this.keepAliveNanos, TimeUnit.NANOSECONDS);
+            channel.eventLoop().schedule(this::handleHoldTimer, holdTimerNanos, TimeUnit.NANOSECONDS);
+            channel.eventLoop().schedule(this::handleKeepaliveTimer, keepAliveNanos, TimeUnit.NANOSECONDS);
         }
-        this.bgpId = remoteOpen.getBgpIdentifier();
-        this.sessionState.advertizeCapabilities(holdTimerValue, channel.remoteAddress(), channel.localAddress(),
-                this.tableTypes, bgpParameters);
+        bgpId = remoteOpen.getBgpIdentifier();
+        sessionState.advertizeCapabilities(holdTimerValue, channel.remoteAddress(), channel.localAddress(),
+                tableTypes, bgpParameters);
     }
 
     private static <T extends ChildOf<MpCapabilities>> Optional<T> findSingleCapability(
@@ -244,14 +244,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     public synchronized void setChannelExtMsgCoder(final Open remoteOpen) {
         final boolean enableExMess = BgpExtendedMessageUtil.advertizedBgpExtendedMessageCapability(remoteOpen);
         if (enableExMess) {
-            BGPMessageHeaderDecoder.enableExtendedMessages(this.channel);
+            BGPMessageHeaderDecoder.enableExtendedMessages(channel);
         }
     }
 
     @Override
     public synchronized void close() {
-        if (this.state != State.IDLE) {
-            if (!this.terminationReasonNotified) {
+        if (state != State.IDLE) {
+            if (!terminationReasonNotified) {
                 this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode())
                         .setErrorSubcode(BGPError.CEASE.getSubcode()).build());
             }
@@ -264,16 +264,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      *
      * @param msg incoming message
      */
-    void handleMessage(final Notification msg) {
+    void handleMessage(final Notification<?> msg) {
         // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
+        synchronized (listener) {
             synchronized (this) {
-                if (this.state == State.IDLE) {
+                if (state == State.IDLE) {
                     return;
                 }
                 try {
                     // Update last reception time
-                    this.lastMessageReceivedAt = System.nanoTime();
+                    lastMessageReceivedAt = System.nanoTime();
 
                     if (msg instanceof Open) {
                         // Open messages should not be present here
@@ -289,20 +289,20 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
                     } else if (msg instanceof Keepalive) {
                         // Keepalives are handled internally
                         LOG.trace("Received KeepAlive message.");
-                        this.kaCounter++;
-                        if (this.kaCounter >= 2) {
-                            this.sync.kaReceived();
+                        kaCounter++;
+                        if (kaCounter >= 2) {
+                            sync.kaReceived();
                         }
                     } else if (msg instanceof RouteRefresh) {
-                        this.listener.onMessage(this, msg);
+                        listener.onMessage(this, msg);
                     } else if (msg instanceof Update) {
-                        this.listener.onMessage(this, msg);
-                        this.sync.updReceived((Update) msg);
+                        listener.onMessage(this, msg);
+                        sync.updReceived((Update) msg);
                     } else {
                         LOG.warn("Ignoring unhandled message: {}.", msg.getClass());
                     }
 
-                    this.sessionState.messageReceived(msg);
+                    sessionState.messageReceived(msg);
                 } catch (final BGPDocumentedException e) {
                     terminate(e);
                 }
@@ -312,81 +312,81 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Holding({"this.listener", "this"})
     private void notifyTerminationReasonAndCloseWithoutMessage(final BGPError error) {
-        this.terminationReasonNotified = true;
+        terminationReasonNotified = true;
         this.closeWithoutMessage();
-        this.listener.onSessionTerminated(this, new BGPTerminationReason(error));
+        listener.onSessionTerminated(this, new BGPTerminationReason(error));
     }
 
     @Holding({"this.listener", "this"})
     private void notifyTerminationReasonAndCloseWithoutMessage(final Uint8 errorCode, final Uint8 errorSubcode) {
-        this.terminationReasonNotified = true;
+        terminationReasonNotified = true;
         this.closeWithoutMessage();
-        this.listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(errorCode, errorSubcode)));
+        listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(errorCode, errorSubcode)));
     }
 
     void endOfInput() {
         // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
+        synchronized (listener) {
             synchronized (this) {
-                if (this.state == State.UP) {
+                if (state == State.UP) {
                     LOG.info(END_OF_INPUT);
-                    this.listener.onSessionDown(this, new IOException(END_OF_INPUT));
+                    listener.onSessionDown(this, new IOException(END_OF_INPUT));
                 }
             }
         }
     }
 
     @Holding("this")
-    private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification msg) {
+    private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification<?> msg) {
         future.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
-                LOG.trace("Message {} sent to socket {}", msg, this.channel);
+                LOG.trace("Message {} sent to socket {}", msg, channel);
             } else {
-                LOG.warn("Failed to send message {} to socket {}", msg, this.channel, f.cause());
+                LOG.warn("Failed to send message {} to socket {}", msg, channel, f.cause());
             }
         });
-        this.lastMessageSentAt = System.nanoTime();
-        this.sessionState.messageSent(msg);
+        lastMessageSentAt = System.nanoTime();
+        sessionState.messageSent(msg);
         return future;
     }
 
     void flush() {
-        this.channel.flush();
+        channel.flush();
     }
 
     @SuppressWarnings("checkstyle:illegalCatch")
-    synchronized void write(final Notification msg) {
+    synchronized void write(final Notification<?> msg) {
         try {
-            writeEpilogue(this.channel.write(msg), msg);
+            writeEpilogue(channel.write(msg), msg);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
     }
 
-    synchronized ChannelFuture writeAndFlush(final Notification msg) {
-        if (this.channel.isWritable()) {
-            return writeEpilogue(this.channel.writeAndFlush(msg), msg);
+    synchronized ChannelFuture writeAndFlush(final Notification<?> msg) {
+        if (channel.isWritable()) {
+            return writeEpilogue(channel.writeAndFlush(msg), msg);
         }
-        return this.channel.newFailedFuture(new NonWritableChannelException());
+        return channel.newFailedFuture(new NonWritableChannelException());
     }
 
     @Override
     public synchronized void closeWithoutMessage() {
-        if (this.state == State.IDLE) {
+        if (state == State.IDLE) {
             return;
         }
         LOG.info("Closing session: {}", this);
-        this.channel.close().addListener((ChannelFutureListener) future -> {
+        channel.close().addListener((ChannelFutureListener) future -> {
             if (future.isSuccess()) {
-                LOG.debug("Channel {} closed successfully", this.channel);
+                LOG.debug("Channel {} closed successfully", channel);
             } else {
-                LOG.warn("Channel {} failed to close", this.channel, future.cause());
+                LOG.warn("Channel {} failed to close", channel, future.cause());
             }
         });
 
-        this.state = State.IDLE;
+        state = State.IDLE;
         removePeerSession();
-        this.sessionState.setSessionState(this.state);
+        sessionState.setSessionState(state);
     }
 
     /**
@@ -410,8 +410,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     private void removePeerSession() {
-        if (this.peerRegistry != null) {
-            this.peerRegistry.removePeerSession(StrictBGPPeerRegistry.getIpAddress(this.channel.remoteAddress()));
+        if (peerRegistry != null) {
+            peerRegistry.removePeerSession(StrictBGPPeerRegistry.getIpAddress(channel.remoteAddress()));
         }
     }
 
@@ -423,20 +423,20 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      */
     private void handleHoldTimer() {
         // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
+        synchronized (listener) {
             synchronized (this) {
-                if (this.state == State.IDLE) {
+                if (state == State.IDLE) {
                     return;
                 }
 
                 final long ct = System.nanoTime();
-                final long nextHold = this.lastMessageReceivedAt + holdTimerNanos;
+                final long nextHold = lastMessageReceivedAt + holdTimerNanos;
 
                 if (ct >= nextHold) {
                     LOG.debug("HoldTimer expired. {}", new Date());
                     terminate(new BGPDocumentedException(BGPError.HOLD_TIMER_EXPIRED));
                 } else {
-                    this.channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
+                    channel.eventLoop().schedule(this::handleHoldTimer, nextHold - ct, TimeUnit.NANOSECONDS);
                 }
             }
         }
@@ -449,13 +449,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
     private synchronized void handleKeepaliveTimer() {
-        if (this.state == State.IDLE) {
+        if (state == State.IDLE) {
             LOG.debug("Skipping keepalive on session idle {}", this);
             return;
         }
 
         final long ct = System.nanoTime();
-        final long nextKeepalive = this.lastMessageSentAt + keepAliveNanos;
+        final long nextKeepalive = lastMessageSentAt + keepAliveNanos;
         long nextNanos = nextKeepalive - ct;
 
         if (nextNanos <= 0) {
@@ -470,7 +470,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
         }
 
         LOG.debug("Scheduling next keepalive on {} in {} nanos", this, nextNanos);
-        this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
+        channel.eventLoop().schedule(this::handleKeepaliveTimer, nextNanos, TimeUnit.NANOSECONDS);
     }
 
     @Override
@@ -479,41 +479,41 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("channel", this.channel);
+        toStringHelper.add("channel", channel);
         toStringHelper.add("state", this.getState());
         return toStringHelper;
     }
 
     @Override
     public Set<BgpTableType> getAdvertisedTableTypes() {
-        return this.tableTypes;
+        return tableTypes;
     }
 
     @Override
     public List<AddressFamilies> getAdvertisedAddPathTableTypes() {
-        return this.addPathTypes;
+        return addPathTypes;
     }
 
     @Override
     public GracefulRestartCapability getAdvertisedGracefulRestartCapability() {
-        return this.gracefulCapability;
+        return gracefulCapability;
     }
 
     @Override
     public LlGracefulRestartCapability getAdvertisedLlGracefulRestartCapability() {
-        return this.llGracefulCapability;
+        return llGracefulCapability;
     }
 
     @VisibleForTesting
     @SuppressWarnings("checkstyle:illegalCatch")
     void sessionUp() {
         // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
+        synchronized (listener) {
             synchronized (this) {
-                this.state = State.UP;
+                state = State.UP;
                 try {
-                    this.sessionState.setSessionState(this.state);
-                    this.listener.onSessionUp(this);
+                    sessionState.setSessionState(state);
+                    listener.onSessionUp(this);
                 } catch (final Exception e) {
                     handleException(e);
                     throw e;
@@ -523,21 +523,21 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     public synchronized State getState() {
-        return this.state;
+        return state;
     }
 
     @Override
     public final Ipv4Address getBgpId() {
-        return this.bgpId;
+        return bgpId;
     }
 
     @Override
     public final AsNumber getAsNumber() {
-        return this.asNumber;
+        return asNumber;
     }
 
     public ChannelOutputLimiter getLimiter() {
-        return this.limiter;
+        return limiter;
     }
 
     @Override
@@ -548,7 +548,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     }
 
     @Override
-    protected final void channelRead0(final ChannelHandlerContext ctx, final Notification msg) {
+    protected final void channelRead0(final ChannelHandlerContext ctx, final Notification<?> msg) {
         LOG.trace("Message was received: {} from {}", msg, channel.remoteAddress());
         this.handleMessage(msg);
     }
@@ -561,7 +561,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         // synchronize on listener and then on this object to ensure correct order of locking
-        synchronized (this.listener) {
+        synchronized (listener) {
             synchronized (this) {
                 handleException(cause);
             }
@@ -583,31 +583,31 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification> im
 
     @Override
     public BGPSessionState getBGPSessionState() {
-        return this.sessionState;
+        return sessionState;
     }
 
     @Override
     public BGPTimersState getBGPTimersState() {
-        return this.sessionState;
+        return sessionState;
     }
 
     @Override
     public BGPTransportState getBGPTransportState() {
-        return this.sessionState;
+        return sessionState;
     }
 
     @Override
     public void registerMessagesCounter(final BGPMessagesListener bgpMessagesListener) {
-        this.sessionState.registerMessagesCounter(bgpMessagesListener);
+        sessionState.registerMessagesCounter(bgpMessagesListener);
     }
 
     @Override
     public <T extends PeerConstraint> void addDecoderConstraint(final Class<T> constraintClass, final T constraint) {
-        this.channel.pipeline().get(BGPByteToMessageDecoder.class).addDecoderConstraint(constraintClass, constraint);
+        channel.pipeline().get(BGPByteToMessageDecoder.class).addDecoderConstraint(constraintClass, constraint);
     }
 
     @Override
     public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
-        return this.channel.eventLoop().schedule(command, delay, unit);
+        return channel.eventLoop().schedule(command, delay, unit);
     }
 }

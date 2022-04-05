@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
+final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification<?>> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPMessageToByteEncoder.class);
     private final MessageRegistry registry;
 
@@ -29,9 +29,9 @@ final class BGPMessageToByteEncoder extends MessageToByteEncoder<Notification> {
     }
 
     @Override
-    protected void encode(final ChannelHandlerContext ctx, final Notification msg, final ByteBuf out) {
+    protected void encode(final ChannelHandlerContext ctx, final Notification<?> msg, final ByteBuf out) {
         LOG.trace("Encoding message: {}", msg);
-        this.registry.serializeMessage(msg, out);
+        registry.serializeMessage(msg, out);
         if (LOG.isTraceEnabled()) {
             LOG.trace("Encoded message: {}", ByteBufUtil.hexDump(out));
         }

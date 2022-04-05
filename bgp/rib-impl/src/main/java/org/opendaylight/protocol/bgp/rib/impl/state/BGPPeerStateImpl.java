@@ -59,7 +59,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private final LongAdder notificationReceivedCounter = new LongAdder();
     private final LongAdder erroneousUpdate = new LongAdder();
     private final String groupId;
-    private AtomicBoolean active = new AtomicBoolean(false);
+    private final AtomicBoolean active = new AtomicBoolean(false);
 
     @GuardedBy("this")
     private final Map<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
@@ -84,25 +84,25 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         this.groupId = groupId;
         this.afiSafisAdvertized = requireNonNull(afiSafisAdvertized);
         this.afiSafisGracefulAdvertized = requireNonNull(afiSafisGracefulAdvertized);
-        this.afiSafisLlGracefulAdvertised = requireNonNull(afiSafisLlGracefulAdvertized);
+        afiSafisLlGracefulAdvertised = requireNonNull(afiSafisLlGracefulAdvertized);
     }
 
     @Override
     public final String getGroupId() {
-        return this.groupId;
+        return groupId;
     }
 
     @Override
     public final IpAddressNoZone getNeighborAddress() {
-        return this.neighborAddress;
+        return neighborAddress;
     }
 
     @Override
     public final synchronized long getTotalPrefixes() {
-        if (this.prefixesInstalled == null) {
+        if (prefixesInstalled == null) {
             return NONE;
         }
-        return this.prefixesInstalled.getTotalPrefixesInstalled();
+        return prefixesInstalled.getTotalPrefixesInstalled();
     }
 
     @Override
@@ -117,24 +117,24 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized boolean isAfiSafiSupported(final TablesKey tablesKey) {
-        return this.prefixesReceived != null && this.prefixesReceived.isSupported(tablesKey)
-                && this.afiSafisAdvertized.contains(tablesKey);
+        return prefixesReceived != null && prefixesReceived.isSupported(tablesKey)
+                && afiSafisAdvertized.contains(tablesKey);
     }
 
     @Override
     public final synchronized long getPrefixesInstalledCount(final TablesKey tablesKey) {
-        if (this.prefixesInstalled == null) {
+        if (prefixesInstalled == null) {
             return NONE;
         }
-        return this.prefixesInstalled.getPrefixedInstalledCount(tablesKey);
+        return prefixesInstalled.getPrefixedInstalledCount(tablesKey);
     }
 
     @Override
     public final synchronized long getPrefixesSentCount(final TablesKey tablesKey) {
-        if (this.prefixesSent == null) {
+        if (prefixesSent == null) {
             return 0;
         }
-        final PrefixesSentCounters counter = this.prefixesSent.get(tablesKey);
+        final PrefixesSentCounters counter = prefixesSent.get(tablesKey);
         if (counter == null) {
             return NONE;
         }
@@ -143,86 +143,86 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized long getPrefixesReceivedCount(final TablesKey tablesKey) {
-        if (this.prefixesReceived == null) {
+        if (prefixesReceived == null) {
             return NONE;
         }
-        return this.prefixesReceived.getPrefixedReceivedCount(tablesKey);
+        return prefixesReceived.getPrefixedReceivedCount(tablesKey);
     }
 
     @Override
     public final Set<TablesKey> getAfiSafisAdvertized() {
-        return ImmutableSet.copyOf(this.afiSafisAdvertized);
+        return ImmutableSet.copyOf(afiSafisAdvertized);
     }
 
     @Override
     public final synchronized Set<TablesKey> getAfiSafisReceived() {
-        if (this.prefixesReceived == null) {
+        if (prefixesReceived == null) {
             return Collections.emptySet();
         }
-        return this.prefixesReceived.getTableKeys();
+        return prefixesReceived.getTableKeys();
     }
 
     @Override
     public final boolean isGracefulRestartAdvertized(final TablesKey tablesKey) {
-        return this.afiSafisGracefulAdvertized.contains(tablesKey);
+        return afiSafisGracefulAdvertized.contains(tablesKey);
     }
 
     @Override
     public final boolean isGracefulRestartReceived(final TablesKey tablesKey) {
-        return this.afiSafisGracefulReceived.contains(tablesKey);
+        return afiSafisGracefulReceived.contains(tablesKey);
     }
 
     @Override
     public final synchronized boolean isLocalRestarting() {
-        return this.localRestarting;
+        return localRestarting;
     }
 
     @Override
     public final synchronized int getPeerRestartTime() {
-        return this.peerRestartTime;
+        return peerRestartTime;
     }
 
     @Override
     public final synchronized boolean isPeerRestarting() {
-        return this.peerRestarting;
+        return peerRestarting;
     }
 
     public final synchronized void setAfiSafiGracefulRestartState(final int newPeerRestartTime,
             final boolean newPeerRestarting, final boolean newLocalRestarting) {
-        this.peerRestartTime = newPeerRestartTime;
-        this.peerRestarting = newPeerRestarting;
-        this.localRestarting = newLocalRestarting;
+        peerRestartTime = newPeerRestartTime;
+        peerRestarting = newPeerRestarting;
+        localRestarting = newLocalRestarting;
     }
 
     protected final synchronized void setAdvertizedGracefulRestartTableTypes(final List<TablesKey> receivedGraceful) {
-        this.afiSafisGracefulReceived.clear();
-        this.afiSafisGracefulReceived.addAll(receivedGraceful);
+        afiSafisGracefulReceived.clear();
+        afiSafisGracefulReceived.addAll(receivedGraceful);
     }
 
     protected final synchronized void registerPrefixesSentCounter(final TablesKey tablesKey,
         final PrefixesSentCounters prefixesSentCounter) {
-        this.prefixesSent.put(tablesKey, prefixesSentCounter);
+        prefixesSent.put(tablesKey, prefixesSentCounter);
     }
 
     protected final synchronized void registerPrefixesCounters(
             final @NonNull PrefixesReceivedCounters newPrefixesReceived,
             final @NonNull PrefixesInstalledCounters newPrefixesInstalled) {
-        this.prefixesReceived = newPrefixesReceived;
-        this.prefixesInstalled = newPrefixesInstalled;
+        prefixesReceived = newPrefixesReceived;
+        prefixesInstalled = newPrefixesInstalled;
     }
 
     protected final synchronized void resetState() {
-        this.localRestarting = false;
-        this.peerRestartTime = 0;
-        this.peerRestarting = false;
+        localRestarting = false;
+        peerRestartTime = 0;
+        peerRestarting = false;
     }
 
     protected final synchronized void setRestartingState() {
-        this.peerRestarting = true;
+        peerRestarting = true;
     }
 
     protected final synchronized void setLocalRestartingState(final boolean restarting) {
-        this.localRestarting = restarting;
+        localRestarting = restarting;
     }
 
     @Override
@@ -233,50 +233,50 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     @Override
     public final long getErroneousUpdateReceivedCount() {
         //FIXME BUG-4979
-        return this.erroneousUpdate.longValue();
+        return erroneousUpdate.longValue();
     }
 
     @Override
     public final long getUpdateMessagesSentCount() {
-        return this.updateSentCounter.longValue();
+        return updateSentCounter.longValue();
     }
 
     @Override
     public final long getNotificationMessagesSentCount() {
-        return this.notificationSentCounter.longValue();
+        return notificationSentCounter.longValue();
     }
 
     @Override
     public final long getUpdateMessagesReceivedCount() {
-        return this.updateReceivedCounter.longValue();
+        return updateReceivedCounter.longValue();
     }
 
     @Override
     public final long getNotificationMessagesReceivedCount() {
-        return this.notificationReceivedCounter.longValue();
+        return notificationReceivedCounter.longValue();
     }
 
     @Override
-    public final void messageSent(final Notification msg) {
+    public final void messageSent(final Notification<?> msg) {
         if (msg instanceof Notify) {
-            this.notificationSentCounter.increment();
+            notificationSentCounter.increment();
         } else if (msg instanceof Update) {
-            this.updateSentCounter.increment();
+            updateSentCounter.increment();
         }
     }
 
     @Override
-    public final void messageReceived(final Notification msg) {
+    public final void messageReceived(final Notification<?> msg) {
         if (msg instanceof Notify) {
-            this.notificationReceivedCounter.increment();
+            notificationReceivedCounter.increment();
         } else if (msg instanceof Update) {
-            this.updateReceivedCounter.increment();
+            updateReceivedCounter.increment();
         }
     }
 
     @Override
     public final boolean isActive() {
-        return this.active.get();
+        return active.get();
     }
 
     protected final void setActive(final boolean active) {
@@ -285,10 +285,10 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized Mode getMode() {
-        if (this.afiSafisGracefulAdvertized.isEmpty()) {
+        if (afiSafisGracefulAdvertized.isEmpty()) {
             return Mode.HELPERONLY;
         }
-        if (this.afiSafisGracefulReceived.isEmpty()) {
+        if (afiSafisGracefulReceived.isEmpty()) {
             return Mode.REMOTEHELPER;
         }
         return Mode.BILATERAL;
@@ -296,26 +296,26 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     public final synchronized void setAdvertizedLlGracefulRestartTableTypes(
             final Map<TablesKey, Integer> afiSafiReceived) {
-        this.afiSafisLlGracefulReceived.clear();
-        this.afiSafisLlGracefulReceived.putAll(afiSafiReceived);
+        afiSafisLlGracefulReceived.clear();
+        afiSafisLlGracefulReceived.putAll(afiSafiReceived);
     }
 
     @Override
     public final synchronized boolean isLlGracefulRestartAdvertised(final TablesKey tablesKey) {
-        return this.afiSafisLlGracefulAdvertised.containsKey(tablesKey);
+        return afiSafisLlGracefulAdvertised.containsKey(tablesKey);
     }
 
     @Override
     public final synchronized boolean isLlGracefulRestartReceived(final TablesKey tablesKey) {
-        return this.afiSafisLlGracefulReceived.containsKey(tablesKey);
+        return afiSafisLlGracefulReceived.containsKey(tablesKey);
     }
 
     @Override
     public final synchronized int getLlGracefulRestartTimer(final TablesKey tablesKey) {
         final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey)
-                ? this.afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
+                ? afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
         final int timerReceived = isLlGracefulRestartReceived(tablesKey)
-                ? this.afiSafisLlGracefulReceived.get(tablesKey) : 0;
+                ? afiSafisLlGracefulReceived.get(tablesKey) : 0;
         return Integer.min(timerAdvertised, timerReceived);
     }
 }

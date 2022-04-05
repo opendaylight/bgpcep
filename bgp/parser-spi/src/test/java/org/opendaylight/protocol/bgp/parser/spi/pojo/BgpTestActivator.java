@@ -63,6 +63,12 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Notification;
 
 public class BgpTestActivator implements BGPExtensionProviderActivator {
+    interface MockNotification extends DataObject, Notification<MockNotification> {
+        @Override
+        default Class<MockNotification> implementedInterface() {
+            return MockNotification.class;
+        }
+    }
 
     protected static final int TYPE = 0;
     private static final String EMPTY = "";
@@ -108,26 +114,26 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
     public List<? extends Registration> start(final BGPExtensionProviderContext context) {
         initMock();
         final List<Registration> regs = new ArrayList<>();
-        regs.add(context.registerAttributeParser(TYPE, this.attrParser));
-        regs.add(context.registerAttributeSerializer(DataObject.class, this.attrSerializer));
+        regs.add(context.registerAttributeParser(TYPE, attrParser));
+        regs.add(context.registerAttributeSerializer(DataObject.class, attrSerializer));
 
-        regs.add(context.registerParameterParser(TYPE, this.paramParser));
-        regs.add(context.registerParameterSerializer(BgpParameters.class, this.paramSerializer));
+        regs.add(context.registerParameterParser(TYPE, paramParser));
+        regs.add(context.registerParameterSerializer(BgpParameters.class, paramSerializer));
 
-        regs.add(context.registerCapabilityParser(TYPE, this.capaParser));
-        regs.add(context.registerCapabilitySerializer(CParameters.class, this.capaSerializer));
+        regs.add(context.registerCapabilityParser(TYPE, capaParser));
+        regs.add(context.registerCapabilitySerializer(CParameters.class, capaSerializer));
 
-        regs.add(context.registerBgpPrefixSidTlvParser(TYPE, this.sidTlvParser));
-        regs.add(context.registerBgpPrefixSidTlvSerializer(BgpPrefixSidTlv.class, this.sidTlvSerializer));
+        regs.add(context.registerBgpPrefixSidTlvParser(TYPE, sidTlvParser));
+        regs.add(context.registerBgpPrefixSidTlvSerializer(BgpPrefixSidTlv.class, sidTlvSerializer));
 
-        regs.add(context.registerMessageParser(TYPE, this.msgParser));
-        regs.add(context.registerMessageSerializer(Notification.class, this.msgSerializer));
+        regs.add(context.registerMessageParser(TYPE, msgParser));
+        regs.add(context.registerMessageSerializer(MockNotification.class, msgSerializer));
 
         regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
         regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));
         regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
 
-        this.nextHopParserSerializer = new NextHopParserSerializer() {
+        nextHopParserSerializer = new NextHopParserSerializer() {
             @Override
             public CNextHop parseNextHop(final ByteBuf buffer) throws BGPParsingException {
                 return new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
@@ -143,14 +149,12 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
             }
         };
 
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, this
-            .nlriParser, this.nextHopParserSerializer, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, this
-            .nlriParser, this.nextHopParserSerializer, Ipv6NextHopCase.class));
-        regs.add(context.registerNlriSerializer(DataObject.class, this.nlriSerializer));
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, nlriParser, nextHopParserSerializer, Ipv4NextHopCase.class));
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, nlriParser, nextHopParserSerializer, Ipv6NextHopCase.class));
+        regs.add(context.registerNlriSerializer(DataObject.class, nlriSerializer));
 
-        regs.add(context.registerExtendedCommunityParser(0, 0, this.exParser));
-        regs.add(context.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, this.exSerializer));
+        regs.add(context.registerExtendedCommunityParser(0, 0, exParser));
+        regs.add(context.registerExtendedCommunitySerializer(RouteTargetIpv4Case.class, exSerializer));
 
         return regs;
     }
@@ -158,38 +162,38 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
     private void initMock() {
         MockitoAnnotations.initMocks(this);
         try {
-            doNothing().when(this.attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
+            doNothing().when(attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
                 any(RevisedErrorHandling.class), any(PeerSpecificParserConstraint.class));
-            doReturn(EMPTY).when(this.attrParser).toString();
-            doNothing().when(this.attrSerializer).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
-            doReturn(EMPTY).when(this.attrSerializer).toString();
+            doReturn(EMPTY).when(attrParser).toString();
+            doNothing().when(attrSerializer).serializeAttribute(any(Attributes.class), any(ByteBuf.class));
+            doReturn(EMPTY).when(attrSerializer).toString();
 
-            doReturn(null).when(this.paramParser).parseParameter(any(ByteBuf.class));
-            doReturn(EMPTY).when(this.paramParser).toString();
-            doNothing().when(this.paramSerializer).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
-            doReturn(EMPTY).when(this.paramSerializer).toString();
+            doReturn(null).when(paramParser).parseParameter(any(ByteBuf.class));
+            doReturn(EMPTY).when(paramParser).toString();
+            doNothing().when(paramSerializer).serializeParameter(any(BgpParameters.class), any(ByteBuf.class));
+            doReturn(EMPTY).when(paramSerializer).toString();
 
-            doReturn(null).when(this.capaParser).parseCapability(any(ByteBuf.class));
-            doReturn(EMPTY).when(this.capaParser).toString();
-            doNothing().when(this.capaSerializer).serializeCapability(any(CParameters.class), any(ByteBuf.class));
-            doReturn(EMPTY).when(this.capaSerializer).toString();
+            doReturn(null).when(capaParser).parseCapability(any(ByteBuf.class));
+            doReturn(EMPTY).when(capaParser).toString();
+            doNothing().when(capaSerializer).serializeCapability(any(CParameters.class), any(ByteBuf.class));
+            doReturn(EMPTY).when(capaSerializer).toString();
 
-            doReturn(null).when(this.sidTlvParser).parseBgpPrefixSidTlv(any(ByteBuf.class));
-            doReturn(EMPTY).when(this.sidTlvParser).toString();
-            doNothing().when(this.sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
+            doReturn(null).when(sidTlvParser).parseBgpPrefixSidTlv(any(ByteBuf.class));
+            doReturn(EMPTY).when(sidTlvParser).toString();
+            doNothing().when(sidTlvSerializer).serializeBgpPrefixSidTlv(any(BgpPrefixSidTlv.class),
                 any(ByteBuf.class));
-            doReturn(EMPTY).when(this.sidTlvSerializer).toString();
-            doReturn(0).when(this.sidTlvSerializer).getType();
+            doReturn(EMPTY).when(sidTlvSerializer).toString();
+            doReturn(0).when(sidTlvSerializer).getType();
 
-            doReturn(mock(Notification.class)).when(this.msgParser).parseMessageBody(any(ByteBuf.class), anyInt(),
+            doReturn(mock(Notification.class)).when(msgParser).parseMessageBody(any(ByteBuf.class), anyInt(),
                 any(PeerSpecificParserConstraint.class));
-            doReturn(EMPTY).when(this.msgParser).toString();
-            doNothing().when(this.msgSerializer).serializeMessage(any(Notification.class), any(ByteBuf.class));
-            doReturn(EMPTY).when(this.msgSerializer).toString();
+            doReturn(EMPTY).when(msgParser).toString();
+            doNothing().when(msgSerializer).serializeMessage(any(Notification.class), any(ByteBuf.class));
+            doReturn(EMPTY).when(msgSerializer).toString();
 
-            doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
-            doNothing().when(this.nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
-            doReturn(EMPTY).when(this.nlriParser).toString();
+            doNothing().when(nlriParser).parseNlri(any(ByteBuf.class), any(MpUnreachNlriBuilder.class), any());
+            doNothing().when(nlriParser).parseNlri(any(ByteBuf.class), any(MpReachNlriBuilder.class), any());
+            doReturn(EMPTY).when(nlriParser).toString();
 
         } catch (BGPDocumentedException | BGPParsingException | BGPTreatAsWithdrawException
                 | ParameterLengthOverflowException e) {

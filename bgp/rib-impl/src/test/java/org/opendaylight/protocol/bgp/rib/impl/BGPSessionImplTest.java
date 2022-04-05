@@ -91,7 +91,7 @@ public class BGPSessionImplTest {
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class,
         UnicastSubsequentAddressFamily.class);
 
-    private final List<Notification> receivedMsgs = new ArrayList<>();
+    private final List<Notification<?>> receivedMsgs = new ArrayList<>();
 
     private Open classicOpen;
 
@@ -107,13 +107,13 @@ public class BGPSessionImplTest {
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                    .setAfi(this.ipv4tt.getAfi()).setSafi(this.ipv4tt.getSafi()).build())
+                    .setAfi(ipv4tt.getAfi()).setSafi(ipv4tt.getSafi()).build())
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
             .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY)
             .build());
 
-        this.classicOpen = new OpenBuilder()
+        classicOpen = new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
                 .setHoldTimer(HOLD_TIMER)
                 .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
@@ -126,99 +126,99 @@ public class BGPSessionImplTest {
 
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
-            BGPSessionImplTest.this.receivedMsgs.add((Notification) args[0]);
+            BGPSessionImplTest.this.receivedMsgs.add((Notification<?>) args[0]);
             return f;
-        }).when(this.speakerListener).writeAndFlush(any(Notification.class));
-        doReturn(this.eventLoop).when(this.speakerListener).eventLoop();
-        doReturn(true).when(this.speakerListener).isActive();
+        }).when(speakerListener).writeAndFlush(any(Notification.class));
+        doReturn(eventLoop).when(speakerListener).eventLoop();
+        doReturn(true).when(speakerListener).isActive();
         doAnswer(invocation -> {
             final Runnable command = (Runnable) invocation.getArguments()[0];
             final long delay = (long) invocation.getArguments()[1];
             final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
             GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
             return null;
-        }).when(this.eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn("TestingChannel").when(this.speakerListener).toString();
-        doReturn(true).when(this.speakerListener).isWritable();
-        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(this.speakerListener)
+        }).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+        doReturn("TestingChannel").when(speakerListener).toString();
+        doReturn(true).when(speakerListener).isWritable();
+        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(speakerListener)
         .remoteAddress();
-        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(this.speakerListener)
+        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(speakerListener)
         .localAddress();
-        doReturn(this.pipeline).when(this.speakerListener).pipeline();
-        doReturn(this.pipeline).when(this.pipeline).replace(any(ChannelHandler.class), any(String.class),
+        doReturn(pipeline).when(speakerListener).pipeline();
+        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
             any(ChannelHandler.class));
-        doReturn(null).when(this.pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
+        doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
             any(ChannelHandler.class));
-        doReturn(this.pipeline).when(this.pipeline).addLast(any(ChannelHandler.class));
+        doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
         final ChannelFuture futureChannel = mock(ChannelFuture.class);
         doReturn(null).when(futureChannel).addListener(any());
-        doReturn(futureChannel).when(this.speakerListener).close();
-        this.listener = new SimpleSessionListener();
-        this.bgpSession = new BGPSessionImpl(this.listener, this.speakerListener, this.classicOpen,
-            this.classicOpen.getHoldTimer().toJava(), null);
-        this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
+        doReturn(futureChannel).when(speakerListener).close();
+        listener = new SimpleSessionListener();
+        bgpSession = new BGPSessionImpl(listener, speakerListener, classicOpen,
+            classicOpen.getHoldTimer().toJava(), null);
+        bgpSession.setChannelExtMsgCoder(classicOpen);
     }
 
     @Test
     public void testBGPSession() throws BGPDocumentedException {
-        this.bgpSession.sessionUp();
-        assertEquals(State.UP, this.bgpSession.getState());
-        assertEquals(AS_NUMBER, this.bgpSession.getAsNumber());
-        assertEquals(BGP_ID, this.bgpSession.getBgpId());
-        assertEquals(1, this.bgpSession.getAdvertisedTableTypes().size());
-        assertEquals(State.UP, this.listener.getState());
+        bgpSession.sessionUp();
+        assertEquals(State.UP, bgpSession.getState());
+        assertEquals(AS_NUMBER, bgpSession.getAsNumber());
+        assertEquals(BGP_ID, bgpSession.getBgpId());
+        assertEquals(1, bgpSession.getAdvertisedTableTypes().size());
+        assertEquals(State.UP, listener.getState());
 
-        this.bgpSession.handleMessage(new UpdateBuilder().build());
-        assertEquals(1, this.listener.getListMsg().size());
-        assertTrue(this.listener.getListMsg().get(0) instanceof Update);
-        this.bgpSession.close();
-        assertEquals(State.IDLE, this.bgpSession.getState());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) this.receivedMsgs.get(0);
+        bgpSession.handleMessage(new UpdateBuilder().build());
+        assertEquals(1, listener.getListMsg().size());
+        assertTrue(listener.getListMsg().get(0) instanceof Update);
+        bgpSession.close();
+        assertEquals(State.IDLE, bgpSession.getState());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Notify);
+        final Notify error = (Notify) receivedMsgs.get(0);
         assertEquals(BGPError.CEASE.getCode(), error.getErrorCode());
         assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode());
-        verify(this.speakerListener).close();
+        verify(speakerListener).close();
     }
 
     @Test
     public void testHandleOpenMsg() throws BGPDocumentedException {
-        this.bgpSession.handleMessage(this.classicOpen);
-        assertEquals(State.IDLE, this.bgpSession.getState());
-        assertEquals(1, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) this.receivedMsgs.get(0);
+        bgpSession.handleMessage(classicOpen);
+        assertEquals(State.IDLE, bgpSession.getState());
+        assertEquals(1, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(0) instanceof Notify);
+        final Notify error = (Notify) receivedMsgs.get(0);
         assertEquals(BGPError.FSM_ERROR.getCode(), error.getErrorCode());
         assertEquals(BGPError.FSM_ERROR.getSubcode(), error.getErrorSubcode());
-        verify(this.speakerListener).close();
+        verify(speakerListener).close();
     }
 
     @Test
     public void testHandleNotifyMsg() throws BGPDocumentedException {
-        this.bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode())
+        bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode())
                 .setErrorSubcode(BGPError.BAD_BGP_ID.getSubcode()).build());
-        assertEquals(State.IDLE, this.bgpSession.getState());
-        verify(this.speakerListener).close();
+        assertEquals(State.IDLE, bgpSession.getState());
+        verify(speakerListener).close();
     }
 
     @Test
     public void testEndOfInput() throws InterruptedException {
-        this.bgpSession.sessionUp();
-        assertEquals(State.UP, this.listener.getState());
-        this.bgpSession.endOfInput();
-        checkIdleState(this.listener);
+        bgpSession.sessionUp();
+        assertEquals(State.UP, listener.getState());
+        bgpSession.endOfInput();
+        checkIdleState(listener);
     }
 
     @Test
     public void testHoldTimerExpire() throws InterruptedException {
-        this.bgpSession.sessionUp();
-        checkIdleState(this.listener);
-        assertEquals(3, this.receivedMsgs.size());
-        assertTrue(this.receivedMsgs.get(2) instanceof Notify);
-        final Notify error = (Notify) this.receivedMsgs.get(2);
+        bgpSession.sessionUp();
+        checkIdleState(listener);
+        assertEquals(3, receivedMsgs.size());
+        assertTrue(receivedMsgs.get(2) instanceof Notify);
+        final Notify error = (Notify) receivedMsgs.get(2);
         assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode());
         assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode());
-        verify(this.speakerListener).close();
+        verify(speakerListener).close();
     }
 
     @Test
@@ -228,24 +228,24 @@ public class BGPSessionImplTest {
 
         doThrow(mockedEx).when(mockListener).onSessionUp(any());
         doNothing().when(mockListener).onSessionTerminated(any(), any());
-        this.bgpSession = spy(new BGPSessionImpl(mockListener, this.speakerListener, this.classicOpen,
-                this.classicOpen.getHoldTimer().toJava(), null));
-        this.bgpSession.setChannelExtMsgCoder(this.classicOpen);
+        bgpSession = spy(new BGPSessionImpl(mockListener, speakerListener, classicOpen,
+                classicOpen.getHoldTimer().toJava(), null));
+        bgpSession.setChannelExtMsgCoder(classicOpen);
 
-        verify(this.bgpSession, never()).handleException(any());
-        verify(this.bgpSession, never()).writeAndFlush(any(Notification.class));
-        verify(this.bgpSession, never()).terminate(any(BGPDocumentedException.class));
+        verify(bgpSession, never()).handleException(any());
+        verify(bgpSession, never()).writeAndFlush(any(Notification.class));
+        verify(bgpSession, never()).terminate(any(BGPDocumentedException.class));
         try {
-            this.bgpSession.sessionUp();
+            bgpSession.sessionUp();
             // expect the exception to be populated
             fail();
         } catch (final IllegalStateException e) {
             assertSame(mockedEx, e);
         }
-        assertNotEquals(State.UP, this.bgpSession.getState());
-        verify(this.bgpSession).handleException(any());
-        verify(this.bgpSession).writeAndFlush(any(Notification.class));
-        verify(this.bgpSession).terminate(any(BGPDocumentedException.class));
-        verify(mockListener).onSessionTerminated(this.bgpSession, new BGPTerminationReason(BGPError.CEASE));
+        assertNotEquals(State.UP, bgpSession.getState());
+        verify(bgpSession).handleException(any());
+        verify(bgpSession).writeAndFlush(any(Notification.class));
+        verify(bgpSession).terminate(any(BGPDocumentedException.class));
+        verify(mockListener).onSessionTerminated(bgpSession, new BGPTerminationReason(BGPError.CEASE));
     }
 }

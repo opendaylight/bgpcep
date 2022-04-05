@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4RouteKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.OpenBuilder;
@@ -90,7 +91,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -145,35 +145,35 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        this.ribActivator.startRIBExtensionProvider(this.ribExtension, this.mappingService.currentSerializer());
+        ribActivator.startRIBExtensionProvider(ribExtension, mappingService.currentSerializer());
 
-        this.bgpActivator = new BGPActivator();
-        this.inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
-        this.bgpActivator.start(this.context);
-        this.inetActivator.start(this.context);
+        bgpActivator = new BGPActivator();
+        inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
+        bgpActivator.start(context);
+        inetActivator.start(context);
         if (!Epoll.isAvailable()) {
-            this.worker = new NioEventLoopGroup();
-            this.boss = new NioEventLoopGroup();
+            worker = new NioEventLoopGroup();
+            boss = new NioEventLoopGroup();
         }
-        this.serverRegistry = new StrictBGPPeerRegistry();
-        this.serverDispatcher = new BGPDispatcherImpl(this.context, this.boss, this.worker, this.serverRegistry);
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(this.clusterSingletonServiceProvider)
+        serverRegistry = new StrictBGPPeerRegistry();
+        serverDispatcher = new BGPDispatcherImpl(context, boss, worker, serverRegistry);
+        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
 
-        this.codecsRegistry = new ConstantCodecsRegistry(mappingService.currentSerializer());
-        this.clientDispatchers = new ArrayList<>();
+        codecsRegistry = new ConstantCodecsRegistry(mappingService.currentSerializer());
+        clientDispatchers = new ArrayList<>();
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
-        this.serverDispatcher.close();
+        serverDispatcher.close();
         if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
-        this.clientDispatchers.forEach(BGPDispatcherImpl::close);
-        this.clientDispatchers = null;
+        clientDispatchers.forEach(BGPDispatcherImpl::close);
+        clientDispatchers = null;
 
         super.tearDown();
     }
@@ -191,7 +191,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     void sendNotification(final BGPSessionImpl session) {
-        final Notification notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
+        final Notify notMsg = new NotifyBuilder().setErrorCode(BGPError.OPT_PARAM_NOT_SUPPORTED.getCode())
             .setErrorSubcode(BGPError.OPT_PARAM_NOT_SUPPORTED.getSubcode()).setData(new byte[] { 4, 9 }).build();
         waitFutureSuccess(session.writeAndFlush(notMsg));
     }
@@ -242,7 +242,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                                      final SimpleSessionListener sessionListener,
                                      final AsNumber remoteAsNumber) throws InterruptedException {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
-        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(this.context, this.boss, this.worker,
+        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(context, boss, worker,
                 clientRegistry);
 
         clientDispatchers.add(clientDispatcher);
