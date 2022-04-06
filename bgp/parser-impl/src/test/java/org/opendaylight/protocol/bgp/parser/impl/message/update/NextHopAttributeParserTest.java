@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
@@ -78,19 +77,31 @@ public class NextHopAttributeParserTest {
 
     @Test
     public void testParseEmptyIpv4Attribute() {
-        final NullPointerException ex = assertThrows(NullPointerException.class,
+        final String message = assertThrows(NullPointerException.class,
             () -> registry.serializeAttribute(new AttributesBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder().build())
-                .build(), Unpooled.buffer()));
-        assertNull(ex.getMessage());
+                .build(), Unpooled.buffer()))
+            .getMessage();
+        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
+            + ".types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop.getGlobal()\" because the return "
+            + "value of \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop"
+            + ".c.next.hop.Ipv4NextHopCase.getIpv4NextHop()\" is null"), message);
     }
 
     @Test
     public void testParseEmptyIpv6Attribute() {
-        final NullPointerException ex = assertThrows(NullPointerException.class,
+        final String message = assertThrows(NullPointerException.class,
             () -> registry.serializeAttribute(new AttributesBuilder()
                 .setCNextHop(new Ipv6NextHopCaseBuilder().build())
-                .build(), Unpooled.buffer()));
-        assertNull(ex.getMessage());
+                .build(), Unpooled.buffer()))
+            .getMessage();
+        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
+            + ".types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop.getGlobal()\" because \"nextHop\" "
+            + "is null"), message);
+    }
+
+    // FIXME: remove this method once we require JDK17+
+    private static String npeString(final String helpfulString) {
+        return Runtime.getRuntime().version().feature() >= 15 ? helpfulString : null;
     }
 }
