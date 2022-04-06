@@ -61,6 +61,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Automatic-Module-Name>org.opendaylight.bgpcep.util</Automatic-Module-Name>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                     </instructions>
                 </configuration>
