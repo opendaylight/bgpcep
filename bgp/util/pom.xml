@@ -43,10 +43,6 @@
             <artifactId>rfc6991-ietf-inet-types</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-        </dependency>
     </dependencies>
 
     <scm>
