@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
@@ -83,10 +82,19 @@ public class OriginAttributeParserTest {
 
     @Test
     public void testParseEmptyAttribute() {
-        final NullPointerException ex = assertThrows(NullPointerException.class,
+        final String message = assertThrows(NullPointerException.class,
             () -> attributeRegistry.serializeAttribute(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().build())
-                .build(), Unpooled.buffer()));
-        assertNull(ex.getMessage());
+                .build(), Unpooled.buffer()))
+            .getMessage();
+        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
+            + ".types.rev200120.BgpOrigin.getIntValue()\" because the return value of \"org.opendaylight.yang.gen.v1"
+            + ".urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin"
+            + ".getValue()\" is null"), message);
+    }
+
+    // FIXME: remove this method once we require JDK17+
+    private static String npeString(final String helpfulString) {
+        return Runtime.getRuntime().version().feature() >= 15 ? helpfulString : null;
     }
 }
