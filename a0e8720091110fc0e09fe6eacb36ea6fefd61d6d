@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cce1fb16_a2d7435c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-04-06T09:55:58Z",
+      "side": 1,
+      "message": "LGTM. But it seems that the CI is broken due to a bug in bgpparser-impl. I already saw the same error in an another patch. ",
+      "revId": "a0e8720091110fc0e09fe6eacb36ea6fefd61d6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
