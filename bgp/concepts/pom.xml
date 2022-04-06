@@ -42,10 +42,6 @@
             <artifactId>yang-data-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>concepts</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>concepts</artifactId>
         </dependency>
