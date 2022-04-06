@@ -68,6 +68,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.3.2</version>
                 <executions>
                     <execution>
                         <id>aggregate</id>
@@ -77,6 +78,84 @@
                         <phase>site</phase>
                     </execution>
                 </executions>
+                <configuration combine.children="append">
+                    <skippedModules>
+                        features-algo,
+                        features-bgp,
+                        features-bgpcep-extras,
+                        features-bmp,
+                        features-concepts,
+                        features-config-loader,
+                        features-graph,
+                        features-pcep,
+                        features-rsvp,
+                        features-topology,
+                        odl-bgpcep-algo,
+                        odl-bgpcep-algo-api,
+                        odl-bgpcep-bgp,
+                        odl-bgpcep-bgp-benchmark,
+                        odl-bgpcep-bgp-cli,
+                        odl-bgpcep-bgp-config-example,
+                        odl-bgpcep-bgp-dependencies,
+                        odl-bgpcep-bgp-evpn,
+                        odl-bgpcep-bgp-extensions-api,
+                        odl-bgpcep-bgp-flowspec,
+                        odl-bgpcep-bgp-inet,
+                        odl-bgpcep-bgp-l3vpn,
+                        odl-bgpcep-bgp-labeled-unicast,
+                        odl-bgpcep-bgp-linkstate,
+                        odl-bgpcep-bgp-mvpn,
+                        odl-bgpcep-bgp-openconfig,
+                        odl-bgpcep-bgp-openconfig-rp-impl,
+                        odl-bgpcep-bgp-openconfig-rp-spi,
+                        odl-bgpcep-bgp-openconfig-rp-statement,
+                        odl-bgpcep-bgp-openconfig-state,
+                        odl-bgpcep-bgp-parser,
+                        odl-bgpcep-bgp-parser-api,
+                        odl-bgpcep-bgp-path-selection-mode,
+                        odl-bgpcep-bgp-rib-api,
+                        odl-bgpcep-bgp-rib-impl,
+                        odl-bgpcep-bgp-route-target,
+                        odl-bgpcep-bgp-topology,
+                        odl-bgpcep-bmp,
+                        odl-bgpcep-bmp-api,
+                        odl-bgpcep-bmp-config-example,
+                        odl-bgpcep-bmp-config-loader,
+                        odl-bgpcep-concepts,
+                        odl-bgpcep-config-loader-impl,
+                        odl-bgpcep-config-loader-spi,
+                        odl-bgpcep-data-change-counter,
+                        odl-bgpcep-extras-dependencies,
+                        odl-bgpcep-graph,
+                        odl-bgpcep-graph-api,
+                        odl-bgpcep-pcep,
+                        odl-bgpcep-pcep-api,
+                        odl-bgpcep-pcep-auto-bandwidth,
+                        odl-bgpcep-pcep-base-parser,
+                        odl-bgpcep-pcep-cli,
+                        odl-bgpcep-pcep-config-example,
+                        odl-bgpcep-pcep-impl,
+                        odl-bgpcep-pcep-p2mp-te-lsp,
+                        odl-bgpcep-pcep-segment-routing,
+                        odl-bgpcep-pcep-server,
+                        odl-bgpcep-pcep-server-provider,
+                        odl-bgpcep-pcep-stateful,
+                        odl-bgpcep-pcep-topology,
+                        odl-bgpcep-pcep-topology-provider,
+                        odl-bgpcep-pcep-topology-stats,
+                        odl-bgpcep-pcep-tunnel-provider,
+                        odl-bgpcep-programming-api,
+                        odl-bgpcep-programming-impl,
+                        odl-bgpcep-protocols-config-loader,
+                        odl-bgpcep-routing-policy-config-loader,
+                        odl-bgpcep-rsvp,
+                        odl-bgpcep-rsvp-api,
+                        odl-bgpcep-topology-api,
+                        odl-bgpcep-topology-config-loader,
+                        odl-bgpcep-topology-segment-routing,
+                        odl-bgpcep-topology-tunnel-api
+                    </skippedModules>
+                </configuration>
             </plugin>
         </plugins>
     </build>
