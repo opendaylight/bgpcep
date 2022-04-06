@@ -114,6 +114,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <Automatic-Module-Name>org.opendaylight.bgpcep.bgp.parser.impl</Automatic-Module-Name>
                         <Bundle-Name>${project.groupId}.${project.artifactId}</Bundle-Name>
                         <Export-Package>
                             org.opendaylight.protocol.bgp.parser.impl.*,
