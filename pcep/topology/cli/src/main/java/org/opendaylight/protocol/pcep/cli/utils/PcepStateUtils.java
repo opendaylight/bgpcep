@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.pcep.cli.utils;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.support.table.ShellTable;
@@ -109,7 +110,7 @@ public final class PcepStateUtils {
         final ReplyTime reply = messages.getReplyTime();
         showReplyMessages(table, reply);
 
-        table.print(stream);
+        table.print(stream, StandardCharsets.UTF_8, true);
     }
 
     private static void showNodeState(final ShellTable table, final String topologyId, final String nodeId,

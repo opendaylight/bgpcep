@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.cli.utils;
 import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.addHeader;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -37,7 +38,7 @@ final class GlobalStateCliUtils {
         table.addRow().addContent("Total Paths", globalState.getTotalPaths());
         table.addRow().addContent("Total Prefixes", globalState.getTotalPrefixes());
         global.getAfiSafis().nonnullAfiSafi().values().forEach(afiSafi -> displayAfiSafi(afiSafi, table));
-        table.print(stream);
+        table.print(stream, StandardCharsets.UTF_8, true);
     }
 
     private static void displayAfiSafi(final AfiSafi afiSafi, final ShellTable table) {

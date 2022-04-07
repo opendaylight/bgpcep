@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.cli.utils;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import org.apache.karaf.shell.support.table.ShellTable;
@@ -59,7 +60,7 @@ final class NeighborStateCliUtils {
         printMessagesState(neighborState, table);
         printAfiSafisState(neighbor.getAfiSafis().nonnullAfiSafi().values(), table);
 
-        table.print(stream);
+        table.print(stream, StandardCharsets.UTF_8, true);
     }
 
     private static void printCapabilitiesState(final List<Class<? extends BgpCapability>> supportedCapabilities,
