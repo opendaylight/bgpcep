@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.cli.utils;
 import static org.opendaylight.protocol.bgp.cli.utils.NeighborStateCliUtils.addHeader;
 
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
@@ -30,7 +31,7 @@ final class PeerGroupStateCliUtils {
         table.column("Value").alignLeft();
 
         peerGroupList.forEach(group -> displayState(group, table));
-        table.print(stream);
+        table.print(stream, StandardCharsets.UTF_8, true);
     }
 
     private static void displayState(final PeerGroup group, final ShellTable table) {
