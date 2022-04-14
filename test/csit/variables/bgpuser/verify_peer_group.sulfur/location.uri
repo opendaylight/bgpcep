@@ -1,0 +1,1 @@
+rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types%3ABGP,$BGP_RIB_OPENCONFIG/bgp-openconfig-extensions:bgp/peer-groups/peer-group=$PEER_GROUP_NAME?content=config
