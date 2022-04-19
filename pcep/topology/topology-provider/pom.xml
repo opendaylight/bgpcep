@@ -14,9 +14,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>bgpcep-parent</artifactId>
+        <artifactId>binding-parent</artifactId>
         <version>0.17.2-SNAPSHOT</version>
-        <relativePath>../../../parent</relativePath>
+        <relativePath>../../../binding-parent</relativePath>
     </parent>
 
     <artifactId>pcep-topology-provider</artifactId>
