@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
-import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -57,7 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // Non-final for testing
-class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs, TopologySessionStatsRegistry {
+class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs {
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -276,14 +275,12 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         }
     }
 
-    @Override
-    public final synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
+    final synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
             final PcepSessionState sessionState) {
         dependencies.getStateRegistry().bind(nodeId, sessionState);
     }
 
-    @Override
-    public final synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+    final synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
         dependencies.getStateRegistry().unbind(nodeId);
     }
 
