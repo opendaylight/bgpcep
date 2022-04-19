@@ -6,7 +6,6 @@
   ~  terms of the Eclipse Public License v1.0 which accompanies this distribution,
   ~  and is available at http://www.eclipse.org/legal/epl-v10.html
   -->
-
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
@@ -14,14 +13,14 @@
         binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
 
     <bean id="topologyStatsRpcService"
-          class="org.opendaylight.bgpcep.pcep.topology.stats.rpc.TopologyStatsRpcServiceImpl"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.TopologyStatsRpcServiceImpl"
           destroy-method="close">
         <argument ref="dataBroker"/>
     </bean>
     <odl:rpc-implementation ref="topologyStatsRpcService"/>
 
     <bean id="topologyStatsRegistry"
-          class="org.opendaylight.bgpcep.pcep.topology.stats.provider.TopologyStatsProviderImpl"
+          class="org.opendaylight.bgpcep.pcep.topology.provider.TopologyStatsProviderImpl"
           destroy-method="close">
         <argument ref="dataBroker"/>
         <argument>
@@ -30,5 +29,5 @@
     </bean>
 
     <service ref="topologyStatsRegistry"
-             interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
+             interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionStatsRegistry"/>
 </blueprint>

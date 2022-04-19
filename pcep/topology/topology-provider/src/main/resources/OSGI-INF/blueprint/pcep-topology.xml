@@ -14,7 +14,7 @@
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
     <reference id="topologySessionStatsRegistry"
-               interface="org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegistry"/>
+               interface="org.opendaylight.bgpcep.pcep.topology.provider.TopologySessionStatsRegistry"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
 
     <bean id="pcepTopologyTracker"
