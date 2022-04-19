@@ -95,7 +95,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         @Override
         public ProtocolVersion getVersion() {
-            return this.version;
+            return version;
         }
     };
 
@@ -230,8 +230,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         requireNonNull(psession);
         synchronized (this.serverSessionManager) {
             synchronized (this) {
-                this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
                 clearNodeState();
+                this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
 
                 try {
                     if (this.session != null) {
@@ -648,11 +648,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
 
         void resolveRequest(final PCEPRequest req) {
-            this.requests.add(req);
+            requests.add(req);
         }
 
         private void notifyRequests() {
-            for (final PCEPRequest r : this.requests) {
+            for (final PCEPRequest r : requests) {
                 r.done(OperationResults.SUCCESS);
             }
         }
