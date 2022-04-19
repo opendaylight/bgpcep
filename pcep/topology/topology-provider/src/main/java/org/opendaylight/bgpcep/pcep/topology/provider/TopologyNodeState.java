@@ -7,7 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -42,8 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-final class TopologyNodeState implements AutoCloseable, TransactionChainListener {
+final class TopologyNodeState implements TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
+
     private final Map<String, Metadata> metadata = new HashMap<>();
     private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
@@ -55,75 +57,74 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
 
     TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id,
             final long holdStateNanos) {
-        Preconditions.checkArgument(holdStateNanos >= 0);
-        this.nodeId = topology.child(Node.class, new NodeKey(id));
+        checkArgument(holdStateNanos >= 0);
+        nodeId = topology.child(Node.class, new NodeKey(id));
         this.holdStateNanos = holdStateNanos;
-        this.chain = broker.createMergingTransactionChain(this);
+        chain = broker.createMergingTransactionChain(this);
     }
 
     @NonNull KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
-        return this.nodeId;
+        return nodeId;
     }
 
     synchronized Metadata getLspMetadata(final String name) {
-        return this.metadata.get(name);
+        return metadata.get(name);
     }
 
     synchronized void setLspMetadata(final String name, final Metadata value) {
         if (value == null) {
-            this.metadata.remove(name);
+            metadata.remove(name);
         } else {
-            this.metadata.put(name, value);
+            metadata.put(name, value);
         }
     }
 
     synchronized void cleanupExcept(final Collection<String> values) {
-        this.metadata.keySet().removeIf(s -> !values.contains(s));
+        metadata.keySet().removeIf(s -> !values.contains(s));
     }
 
     synchronized void released(final boolean persist) {
         // The session went down. Undo all the Topology changes we have done.
         // We might want to persist topology node for later re-use.
         if (!persist) {
-            final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
-            trans.delete(LogicalDatastoreType.OPERATIONAL, this.nodeId);
+            final WriteTransaction trans = chain.newWriteOnlyTransaction();
+            trans.delete(LogicalDatastoreType.OPERATIONAL, nodeId);
             trans.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
-                    LOG.trace("Internal state for node {} cleaned up successfully", TopologyNodeState.this.nodeId);
+                    LOG.trace("Internal state for node {} cleaned up successfully", nodeId);
                 }
 
                 @Override
                 public void onFailure(final Throwable throwable) {
-                    LOG.error("Failed to cleanup internal state for session {}",
-                            TopologyNodeState.this.nodeId, throwable);
+                    LOG.error("Failed to cleanup internal state for session {}", nodeId, throwable);
                 }
             }, MoreExecutors.directExecutor());
         }
 
         close();
-        this.lastReleased = System.nanoTime();
+        lastReleased = System.nanoTime();
     }
 
     synchronized void taken(final boolean retrieveNode) {
         final long now = System.nanoTime();
 
-        if (now - this.lastReleased > this.holdStateNanos) {
-            this.metadata.clear();
+        if (now - lastReleased > holdStateNanos) {
+            metadata.clear();
         }
 
         //try to get the topology's node
         if (retrieveNode) {
             try {
-                final Optional<Node> prevNode = readOperationalData(this.nodeId).get();
+                final Optional<Node> prevNode = readOperationalData(nodeId).get();
                 if (!prevNode.isPresent()) {
                     putTopologyNode();
                 } else {
                     //cache retrieved node
-                    TopologyNodeState.this.initialNodeState = prevNode.get();
+                    initialNodeState = prevNode.get();
                 }
             } catch (final ExecutionException | InterruptedException throwable) {
-                LOG.error("Failed to get topology node {}", TopologyNodeState.this.nodeId, throwable);
+                LOG.error("Failed to get topology node {}", nodeId, throwable);
             }
         } else {
             putTopologyNode();
@@ -131,16 +132,16 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     }
 
     synchronized Node getInitialNodeState() {
-        return this.initialNodeState;
+        return initialNodeState;
     }
 
     synchronized TransactionChain getChain() {
-        return this.chain;
+        return chain;
     }
 
     synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
             final InstanceIdentifier<T> id) {
-        try (ReadTransaction t = this.chain.newReadOnlyTransaction()) {
+        try (ReadTransaction t = chain.newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, id);
         }
     }
@@ -149,36 +150,35 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     public void onTransactionChainFailed(final TransactionChain pchain, final Transaction transaction,
             final Throwable cause) {
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
-        LOG.error("Unexpected transaction failure in node {} transaction {}",
-                this.nodeId, transaction.getIdentifier(), cause);
+        LOG.error("Unexpected transaction failure in node {} transaction {}", nodeId, transaction.getIdentifier(),
+            cause);
         close();
     }
 
     @Override
     public void onTransactionChainSuccessful(final TransactionChain pchain) {
-        LOG.info("Node {} shutdown successfully", this.nodeId);
+        LOG.info("Node {} shutdown successfully", nodeId);
     }
 
-    @Override
-    public synchronized void close() {
-        this.chain.close();
+    synchronized void close() {
+        chain.close();
     }
 
     private synchronized void putTopologyNode() {
-        final Node node = new NodeBuilder().withKey(this.nodeId.getKey())
-                .setNodeId(this.nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = this.chain.newWriteOnlyTransaction();
-        LOG.trace("Put topology Node {}, value {}", this.nodeId, node);
-        t.merge(LogicalDatastoreType.OPERATIONAL, this.nodeId, node);
+        final Node node = new NodeBuilder().withKey(nodeId.getKey())
+                .setNodeId(nodeId.getKey().getNodeId()).build();
+        final WriteTransaction t = chain.newWriteOnlyTransaction();
+        LOG.trace("Put topology Node {}, value {}", nodeId, node);
+        t.merge(LogicalDatastoreType.OPERATIONAL, nodeId, node);
         t.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.trace("Topology Node stored {}, value {}", TopologyNodeState.this.nodeId, node);
+                LOG.trace("Topology Node stored {}, value {}", nodeId, node);
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Put topology Node failed {}, value {}", TopologyNodeState.this.nodeId, node, throwable);
+                LOG.error("Put topology Node failed {}, value {}", nodeId, node, throwable);
             }
         }, MoreExecutors.directExecutor());
     }
@@ -186,7 +186,7 @@ final class TopologyNodeState implements AutoCloseable, TransactionChainListener
     synchronized void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta,
             final PCEPSession session) {
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        final WriteTransaction trans = chain.newWriteOnlyTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
 
         // All set, commit the modifications
