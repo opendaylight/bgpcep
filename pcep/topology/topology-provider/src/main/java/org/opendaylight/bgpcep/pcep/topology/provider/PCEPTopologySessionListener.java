@@ -17,14 +17,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -39,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Srp1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Srp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -53,9 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PcupdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.StatefulTlv1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.lsp.TlvsBuilder;
@@ -67,7 +62,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcupd.message.pcupd.message.updates.PathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
@@ -76,7 +70,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.PcerrMessageBuilder;
@@ -100,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -118,10 +110,6 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     @GuardedBy("this")
     private final List<PlspId> staleLsps = new ArrayList<>();
-
-    private final AtomicBoolean statefulCapability = new AtomicBoolean(false);
-    private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
-    private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
     private final PceServerProvider pceServerProvider;
 
@@ -142,35 +130,6 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     .pcep.sync.optimizations.rev200720.Tlvs1.class).getLspDbVersion();
         }
         return null;
-    }
-
-    @Override
-    protected void onSessionUp(final PathComputationClientBuilder pccBuilder, final InetAddress peerAddress,
-            final Tlvs remoteTlvs) {
-        if (remoteTlvs != null) {
-            final Tlvs1 statefulTlvs = remoteTlvs.augmentation(Tlvs1.class);
-            if (statefulTlvs != null) {
-                final Stateful stateful = statefulTlvs.getStateful();
-                if (stateful != null) {
-                    setStatefulCapabilities(stateful);
-                    pccBuilder.setReportedLsp(Map.of());
-                    if (isSynchronized()) {
-                        pccBuilder.setStateSync(PccSyncState.Synchronized);
-                    } else if (isTriggeredInitialSynchro()) {
-                        pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
-                    } else if (isIncrementalSynchro()) {
-                        pccBuilder.setStateSync(PccSyncState.IncrementalSync);
-                    } else {
-                        pccBuilder.setStateSync(PccSyncState.InitialResync);
-                    }
-                    pccBuilder.setStatefulTlv(new StatefulTlvBuilder()
-                        .addAugmentation(new StatefulTlv1Builder(statefulTlvs).build())
-                        .build());
-                    return;
-                }
-            }
-        }
-        LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
     }
 
     @Override
@@ -663,34 +622,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         staleLsps.clear();
     }
 
-    @Override
-    public boolean isInitiationCapability() {
-        return initiationCapability.get();
-    }
-
-    @Override
-    public boolean isStatefulCapability() {
-        return statefulCapability.get();
-    }
-
-    @Override
-    public boolean isLspUpdateCapability() {
-        return lspUpdateCapability.get();
-    }
-
-    private synchronized void setStatefulCapabilities(final Stateful stateful) {
-        statefulCapability.set(true);
-        if (stateful.getLspUpdateCapability() != null) {
-            lspUpdateCapability.set(stateful.getLspUpdateCapability());
-        }
-        final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
-        if (stateful1 != null && stateful1.getInitiation() != null) {
-            initiationCapability.set(stateful1.getInitiation());
-        }
-    }
-
     private class ResyncLspFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
-
         private final TriggerSyncArgs input;
 
         ResyncLspFunction(final TriggerSyncArgs input) {
@@ -760,7 +692,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 LOG.debug("Node {} already contains lsp {} at {}", input.getNode(), input.getName(), lsp);
                 return OperationResults.createUnsent(PCEPErrors.USED_SYMBOLIC_PATH_NAME).future();
             }
-            if (!initiationCapability.get()) {
+            if (!isInitiationCapability()) {
                 return OperationResults.createUnsent(PCEPErrors.CAPABILITY_NOT_SUPPORTED).future();
             }
 
