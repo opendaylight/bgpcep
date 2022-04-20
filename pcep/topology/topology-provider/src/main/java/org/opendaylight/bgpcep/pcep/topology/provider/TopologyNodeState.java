@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -116,6 +117,7 @@ final class TopologyNodeState implements TransactionChainListener {
         //try to get the topology's node
         if (retrieveNode) {
             try {
+                // FIXME: we really should not be performing synchronous operations
                 final Optional<Node> prevNode = readOperationalData(nodeId).get();
                 if (!prevNode.isPresent()) {
                     putTopologyNode();
@@ -164,13 +166,15 @@ final class TopologyNodeState implements TransactionChainListener {
         chain.close();
     }
 
-    private synchronized void putTopologyNode() {
-        final Node node = new NodeBuilder().withKey(nodeId.getKey())
-                .setNodeId(nodeId.getKey().getNodeId()).build();
-        final WriteTransaction t = chain.newWriteOnlyTransaction();
+    @Holding("this")
+    private void putTopologyNode() {
+        final Node node = new NodeBuilder().withKey(nodeId.getKey()).build();
+        final WriteTransaction tx = chain.newWriteOnlyTransaction();
         LOG.trace("Put topology Node {}, value {}", nodeId, node);
-        t.merge(LogicalDatastoreType.OPERATIONAL, nodeId, node);
-        t.commit().addCallback(new FutureCallback<CommitInfo>() {
+        // FIXME: why is this a 'merge' and not a 'put'? This seems to be related to BGPCEP-739, but there is little
+        //        evidence as to what exactly was being overwritten
+        tx.merge(LogicalDatastoreType.OPERATIONAL, nodeId, node);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Topology Node stored {}, value {}", nodeId, node);
@@ -197,9 +201,8 @@ final class TopologyNodeState implements TransactionChainListener {
             }
 
             @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to store node {} for session {}, terminating it", topologyAugment, session,
-                    throwable);
+            public void onFailure(final Throwable cause) {
+                LOG.error("Failed to store node {} for session {}, terminating it", topologyAugment, session, cause);
                 session.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
