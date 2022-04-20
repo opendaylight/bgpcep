@@ -57,11 +57,10 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class TopologyProviderTest extends AbstractPCEPSessionTest {
 
-    private AbstractTopologySessionListener<SrpIdNumber, PlspId> listener;
+    private AbstractTopologySessionListener listener;
     private PCEPSession session;
 
     @Override
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         super.setUp();
