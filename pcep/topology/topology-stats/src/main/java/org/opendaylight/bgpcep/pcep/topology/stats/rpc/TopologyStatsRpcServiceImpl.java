@@ -5,10 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.stats.rpc;
-
-import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -61,22 +58,17 @@ public class TopologyStatsRpcServiceImpl
         implements PcepTopologyStatsRpcService, ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpcServiceImpl.class);
 
-    private final DataBroker dataBroker;
     private final ConcurrentMap<InstanceIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
             new ConcurrentHashMap<>();
     private ListenerRegistration<TopologyStatsRpcServiceImpl> listenerRegistration;
 
     public TopologyStatsRpcServiceImpl(final DataBroker dataBroker) {
-        this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    public synchronized void init() {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
-        this.listenerRegistration = this.dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
-                        InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
-                                .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build()),
-                this);
+        listenerRegistration = dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
+                    .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build()),
+            this);
     }
 
     @Override
@@ -99,10 +91,10 @@ public class TopologyStatsRpcServiceImpl
 
     @Override
     public synchronized void close() {
-        LOG.info("Closing PCEP Topology Stats RPC service.");
-        if (this.listenerRegistration != null) {
-            this.listenerRegistration.close();
-            this.listenerRegistration = null;
+        if (listenerRegistration != null) {
+            LOG.info("Closing PCEP Topology Stats RPC service.");
+            listenerRegistration.close();
+            listenerRegistration = null;
         }
     }
 
