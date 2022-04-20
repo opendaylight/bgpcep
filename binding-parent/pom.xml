@@ -22,9 +22,9 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 
-    <!-- FIXME: this seems to be broken by dependency plugin properties>
+    <properties>
         <odlparent.dependency.enforce>true</odlparent.dependency.enforce>
-    </properties-->
+    </properties>
 
     <dependencyManagement>
         <dependencies>
