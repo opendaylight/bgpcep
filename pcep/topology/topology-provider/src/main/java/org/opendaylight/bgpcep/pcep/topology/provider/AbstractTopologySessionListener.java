@@ -189,6 +189,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
     }
 
+    protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
+
     synchronized void updatePccState(final PccSyncState pccSyncState) {
         if (this.nodeState == null) {
             LOG.info("Server Session Manager is closed.");
@@ -329,6 +331,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             }
         }, MoreExecutors.directExecutor());
     }
+
+    /**
+     * Perform revision-specific message processing when a message arrives.
+     *
+     * @param ctx     Message processing context
+     * @param message Protocol message
+     * @return True if the message type is not handle.
+     */
+    protected abstract boolean onMessage(MessageContext ctx, Message message);
 
     @Override
     public void close() {
@@ -548,19 +559,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
         this.lspData.remove(name);
     }
-
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
-
-    /**
-     * Perform revision-specific message processing when a message arrives.
-     *
-     * @param ctx     Message processing context
-     * @param message Protocol message
-     * @return True if the message type is not handle.
-     */
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    protected abstract boolean onMessage(MessageContext ctx, Message message);
 
     @Holding("this")
     final String lookupLspName(final L id) {
