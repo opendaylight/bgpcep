@@ -110,7 +110,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // Non-final for testing
-class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdNumber, PlspId> {
+class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologySessionListener.class);
     private static final PlspId PLSPID_ZERO = new PlspId(Uint32.ZERO);
 
