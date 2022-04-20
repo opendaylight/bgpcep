@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng ODL
+Code-Review+2: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Wed, 20 Apr 2022 13:45:01 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/100651
+Project: bgpcep
+Branch: refs/heads/master
