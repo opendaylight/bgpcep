@@ -11,6 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,7 +44,15 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// This class is thread-safe
+/**
+ * Instances of this class track the state associated with a particular topology node. In particular it tracks metadata
+ * attached to LSPs (for the purposes of state sync optimizations) and interactions with the operation datastore.
+ *
+ * <p>
+ * For the most part this would be a trivial class, but there is a major wrinkle around datastore lifecycle and updating
+ * session statistics (periodically), which live under the operational datastore node tracked by this class. Both these
+ * processes are using asynchronous updates, which may even fail.
+ */
 final class TopologyNodeState implements TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
@@ -51,16 +60,33 @@ final class TopologyNodeState implements TransactionChainListener {
     private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
     private final long holdStateNanos;
+
+    @GuardedBy("this")
     private long lastReleased = 0;
+
     //cache initial node state, if any node was persisted
     @GuardedBy("this")
     private Node initialNodeState = null;
 
+    // We are tracking whether or not the node is present in the datastore for the purposes of updating session
+    // statistics -- this is flipped to 'true' when initial transaction 'put' succeeds and flipped to 'false' when we
+    // start its removal. This is necessary to synchronize datastore visibility -- we are using a transaction chain
+    // whereas session statistics is using free-standing transactions.
+    @GuardedBy("this")
+    private boolean nodeInDatastore;
+
+    // A lease for holding off datastore removal for the duration of a session statistics update. The update is driven
+    // from through external timer which operates on standalone transactions. Those need to have the node present in
+    // the datastore from start to finish. When this field is non-null, the future will complete once the current update
+    // transaction completes.
+    @GuardedBy("this")
+    private ListenableFuture<?> sessionStatsUpdating;
+
     TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id,
             final long holdStateNanos) {
-        checkArgument(holdStateNanos >= 0);
-        nodeId = topology.child(Node.class, new NodeKey(id));
+        checkArgument(holdStateNanos >= 0, "Unexpected hold state time %s ns", holdStateNanos);
         this.holdStateNanos = holdStateNanos;
+        nodeId = topology.child(Node.class, new NodeKey(id));
         chain = broker.createMergingTransactionChain(this);
     }
 
