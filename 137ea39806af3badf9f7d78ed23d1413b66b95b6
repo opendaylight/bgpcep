@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "329291e9_3f1b4c78",
         "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
@@ -20,10 +21,34 @@
         "endChar": 104
       },
       "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8809912_e4369f60",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-04-20T20:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "329291e9_3f1b4c78",
+      "range": {
+        "startLine": 346,
+        "startChar": 72,
+        "endLine": 346,
+        "endChar": 104
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
       "key": {
         "uuid": "a0bfb28a_f7ad6c0e",
         "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
@@ -43,10 +68,34 @@
         "endChar": 66
       },
       "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc9623b7_d37dd89c",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/ServerSessionManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-04-20T20:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0bfb28a_f7ad6c0e",
+      "range": {
+        "startLine": 129,
+        "startChar": 26,
+        "endLine": 129,
+        "endChar": 66
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
       "key": {
         "uuid": "34ceea45_3b5763e3",
         "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
@@ -66,10 +115,10 @@
         "endChar": 66
       },
       "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": true,
       "key": {
         "uuid": "be12b729_3fc05c4f",
         "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
@@ -90,8 +139,31 @@
         "endChar": 66
       },
       "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
-      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
-      "unresolved": true
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc2b0e69_1253f08f",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyNodeState.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-04-20T20:10:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be12b729_3fc05c4f",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 66
+      },
+      "revId": "137ea39806af3badf9f7d78ed23d1413b66b95b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
