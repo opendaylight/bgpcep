@@ -198,8 +198,8 @@ final class TopologyNodeState implements TransactionChainListener {
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to store node {} for session {}, terminating it",
-                        topologyAugment, session, throwable);
+                LOG.error("Failed to store node {} for session {}, terminating it", topologyAugment, session,
+                    throwable);
                 session.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());

@@ -95,7 +95,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         @Override
         public ProtocolVersion getVersion() {
-            return this.version;
+            return version;
         }
     };
 
@@ -178,10 +178,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                             initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
                 }
                 state.storeNode(topologyAugment,
-                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), this.session);
+                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
                 this.listenerState = new SessionStateImpl(this, psession);
-                this.serverSessionManager.bind(this.nodeState.getNodeId(), this.listenerState);
+                this.serverSessionManager.bind(state.getNodeId(), this.listenerState);
                 LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(),
                         state.getNodeId());
             }
@@ -362,7 +362,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
             final Metadata metadata) {
-        final io.netty.util.concurrent.Future<Void> f = this.session.sendMessage(message);
+        final var sendFuture = this.session.sendMessage(message);
         this.listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
         this.requests.put(requestId, req);
@@ -372,7 +372,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             setupTimeoutHandler(requestId, req, rpcTimeout);
         }
 
-        f.addListener((FutureListener<Void>) future -> {
+        sendFuture.addListener((FutureListener<Void>) future -> {
             if (!future.isSuccess()) {
                 synchronized (AbstractTopologySessionListener.this) {
                     AbstractTopologySessionListener.this.requests.remove(requestId);
@@ -464,8 +464,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             final String name, final boolean remove) {
         // just one path should be reported
         final Path path = Iterables.getOnlyElement(rlb.getPath().values());
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId reportedLspId =
-                path.getLspId();
+        final var reportedLspId = path.getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
         //remove existing tunnel's paths now, as explicit path remove will not come
@@ -648,11 +647,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
 
         void resolveRequest(final PCEPRequest req) {
-            this.requests.add(req);
+            requests.add(req);
         }
 
         private void notifyRequests() {
-            for (final PCEPRequest r : this.requests) {
+            for (final PCEPRequest r : requests) {
                 r.done(OperationResults.SUCCESS);
             }
         }
