@@ -184,11 +184,13 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                             initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
                     }
                 }
-                state.storeNode(topologyAugment,
-                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
                 this.listenerState = new SessionStateImpl(this, psession);
+                // FIXME: BGPCEP-1005: unify these two calls
+                state.storeNode(topologyAugment,
+                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
                 this.serverSessionManager.bind(state.getNodeId(), this.listenerState);
+
                 LOG.info("Session with {} attached to topology node {}", psession.getRemoteAddress(),
                         state.getNodeId());
             }
