@@ -238,7 +238,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         requireNonNull(psession);
         synchronized (serverSessionManager) {
             synchronized (this) {
-                serverSessionManager.releaseNodeState(nodeState, psession, isLspDbPersisted());
+                serverSessionManager.releaseNodeState(nodeState, psession.getRemoteAddress(), isLspDbPersisted());
                 clearNodeState();
 
                 try {

@@ -27,7 +27,6 @@ import org.opendaylight.bgpcep.pcep.topology.spi.stats.TopologySessionStatsRegis
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.AddLspArgs;
@@ -142,13 +141,13 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         return future;
     }
 
-    final synchronized void releaseNodeState(final TopologyNodeState nodeState, final PCEPSession session,
+    final synchronized void releaseNodeState(final TopologyNodeState nodeState, final InetAddress peerAddress,
             final boolean persistNode) {
         if (isClosed.get()) {
             LOG.error("Session Manager has already been closed.");
             return;
         }
-        final NodeId nodeId = createNodeId(session.getRemoteAddress());
+        final NodeId nodeId = createNodeId(peerAddress);
         nodes.remove(nodeId);
         state.remove(nodeId);
         if (nodeState != null) {
