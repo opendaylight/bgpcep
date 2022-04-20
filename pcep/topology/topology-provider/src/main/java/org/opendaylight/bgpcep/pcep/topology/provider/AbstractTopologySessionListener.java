@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
@@ -129,7 +130,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public final void onSessionUp(final PCEPSession psession) {
-        synchronized (this.serverSessionManager) {
+        synchronized (serverSessionManager) {
             synchronized (this) {
                 /*
                  * The session went up. Look up the router in Inventory model, create it if it
@@ -138,29 +139,29 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                  */
                 final InetAddress peerAddress = psession.getRemoteAddress();
 
-                this.syncOptimization = new SyncOptimization(psession);
-                final boolean haveLspDbVersion = this.syncOptimization.isDbVersionPresent();
+                syncOptimization = new SyncOptimization(psession);
+                final boolean haveLspDbVersion = syncOptimization.isDbVersionPresent();
 
                 final TopologyNodeState state =
-                        this.serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
+                        serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
 
                 // takeNodeState(..) may fail when the server session manager is being restarted
                 // due to configuration change
                 if (state == null) {
                     LOG.error("Unable to fetch topology node state for PCEP session. Closing session {}", psession);
                     psession.close(TerminationReason.UNKNOWN);
-                    this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+                    onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
                     return;
                 }
 
-                if (this.session != null || this.nodeState != null) {
+                if (session != null || nodeState != null) {
                     LOG.error("PCEP session is already up with {}. Closing session {}", peerAddress, psession);
                     psession.close(TerminationReason.UNKNOWN);
-                    this.onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
+                    onSessionTerminated(psession, new PCEPCloseTermination(TerminationReason.UNKNOWN));
                     return;
                 }
-                this.session = psession;
-                this.nodeState = state;
+                session = psession;
+                nodeState = state;
 
                 LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
 
@@ -171,15 +172,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 // Let subclass fill the details
                 onSessionUp(pccBuilder, peerAddress, psession.getRemoteTlvs());
 
-                this.synced.set(isSynchronized());
+                synced.set(isSynchronized());
 
                 final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
-                this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
+                pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
                 if (haveLspDbVersion) {
                     final Node initialNodeState = state.getInitialNodeState();
                     if (initialNodeState != null) {
-                        loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
+                        loadLspData(initialNodeState, lspData, lsps, isIncrementalSynchro());
                         pccBuilder.setReportedLsp(
                             initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
                     }
@@ -187,8 +188,8 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 state.storeNode(topologyAugment,
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
-                this.listenerState = new SessionStateImpl(this, psession);
-                this.serverSessionManager.bind(state.getNodeId(), this.listenerState);
+                listenerState = new SessionStateImpl(this, psession);
+                serverSessionManager.bind(state.getNodeId(), listenerState);
                 LOG.info("Session with {} attached to topology node {}", peerAddress, state.getNodeId());
             }
         }
@@ -198,36 +199,34 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             @Nullable Tlvs remoteTlvs);
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
-        if (this.nodeState == null) {
+        if (nodeState == null) {
             LOG.info("Server Session Manager is closed.");
-            AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
+            session.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
+        final MessageContext ctx = new MessageContext(nodeState.getChain().newWriteOnlyTransaction());
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
         if (pccSyncState != PccSyncState.Synchronized) {
-            this.synced.set(false);
-            this.triggeredResyncInProcess = true;
+            synced.set(false);
+            triggeredResyncInProcess = true;
         }
         // All set, commit the modifications
         ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.trace("Pcc Internal state for session {} updated successfully",
-                        AbstractTopologySessionListener.this.session);
+                LOG.trace("Pcc Internal state for session {} updated successfully", session);
             }
 
             @Override
-            public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to update Pcc internal state for session {}",
-                        AbstractTopologySessionListener.this.session, throwable);
-                AbstractTopologySessionListener.this.session.close(TerminationReason.UNKNOWN);
+            public void onFailure(final Throwable cause) {
+                LOG.error("Failed to update Pcc internal state for session {}", session, cause);
+                session.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
     }
 
     synchronized boolean isTriggeredSyncInProcess() {
-        return this.triggeredResyncInProcess;
+        return triggeredResyncInProcess;
     }
 
     /**
@@ -237,25 +236,25 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void tearDown(final PCEPSession psession) {
         requireNonNull(psession);
-        synchronized (this.serverSessionManager) {
+        synchronized (serverSessionManager) {
             synchronized (this) {
-                this.serverSessionManager.releaseNodeState(this.nodeState, psession, isLspDbPersisted());
+                serverSessionManager.releaseNodeState(nodeState, psession, isLspDbPersisted());
                 clearNodeState();
 
                 try {
-                    if (this.session != null) {
-                        this.session.close();
+                    if (session != null) {
+                        session.close();
                     }
                     psession.close();
                 } catch (final Exception e) {
                     LOG.error("Session {} cannot be closed.", psession, e);
                 }
-                this.session = null;
-                this.listenerState = null;
-                this.syncOptimization = null;
+                session = null;
+                listenerState = null;
+                syncOptimization = null;
 
                 // Clear all requests we know about
-                for (final Entry<S, PCEPRequest> e : this.requests.entrySet()) {
+                for (final Entry<S, PCEPRequest> e : requests.entrySet()) {
                     final PCEPRequest r = e.getValue();
                     switch (r.getState()) {
                         case DONE:
@@ -278,7 +277,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                             break;
                     }
                 }
-                this.requests.clear();
+                requests.clear();
             }
         }
     }
@@ -297,12 +296,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public final synchronized void onMessage(final PCEPSession psession, final Message message) {
-        if (this.nodeState == null) {
+        if (nodeState == null) {
             LOG.warn("Topology node state is null. Unhandled message {} on session {}", message, psession);
             psession.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(this.nodeState.getChain().newWriteOnlyTransaction());
+        final MessageContext ctx = new MessageContext(nodeState.getChain().newWriteOnlyTransaction());
 
         if (onMessage(ctx, message)) {
             LOG.warn("Unhandled message {} on session {}", message, psession);
@@ -349,12 +348,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public void close() {
-        synchronized (this.serverSessionManager) {
+        synchronized (serverSessionManager) {
             synchronized (this) {
                 clearNodeState();
-                if (this.session != null) {
+                if (session != null) {
                     LOG.info("Closing session {}", session);
-                    this.session.close(TerminationReason.UNKNOWN);
+                    session.close(TerminationReason.UNKNOWN);
                 }
             }
         }
@@ -362,17 +361,17 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Holding({"this.serverSessionManager", "this"})
     private void clearNodeState() {
-        if (this.nodeState != null) {
-            this.serverSessionManager.unbind(this.nodeState.getNodeId());
-            LOG.debug("Clear Node state: {}", this.nodeState.getNodeId());
-            this.nodeState = null;
+        if (nodeState != null) {
+            serverSessionManager.unbind(nodeState.getNodeId());
+            LOG.debug("Clear Node state: {}", nodeState.getNodeId());
+            nodeState = null;
         }
     }
 
     final synchronized PCEPRequest removeRequest(final S id) {
-        final PCEPRequest ret = this.requests.remove(id);
-        if (ret != null && this.listenerState != null) {
-            this.listenerState.processRequestStats(ret.getElapsedMillis());
+        final PCEPRequest ret = requests.remove(id);
+        if (ret != null && listenerState != null) {
+            listenerState.processRequestStats(ret.getElapsedMillis());
         }
         LOG.trace("Removed request {} object {}", id, ret);
         return ret;
@@ -380,11 +379,11 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
             final Metadata metadata) {
-        final var sendFuture = this.session.sendMessage(message);
-        this.listenerState.updateStatefulSentMsg(message);
+        final var sendFuture = session.sendMessage(message);
+        listenerState.updateStatefulSentMsg(message);
         final PCEPRequest req = new PCEPRequest(metadata);
-        this.requests.put(requestId, req);
-        final short rpcTimeout = this.serverSessionManager.getRpcTimeout();
+        requests.put(requestId, req);
+        final short rpcTimeout = serverSessionManager.getRpcTimeout();
         LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
         if (rpcTimeout > 0) {
             setupTimeoutHandler(requestId, req, rpcTimeout);
@@ -393,7 +392,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         sendFuture.addListener((FutureListener<Void>) future -> {
             if (!future.isSuccess()) {
                 synchronized (AbstractTopologySessionListener.this) {
-                    AbstractTopologySessionListener.this.requests.remove(requestId);
+                    requests.remove(requestId);
                 }
                 req.done(OperationResults.UNSENT);
                 LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
@@ -412,7 +411,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             @Override
             public void run() {
                 synchronized (AbstractTopologySessionListener.this) {
-                    AbstractTopologySessionListener.this.requests.remove(requestId);
+                    requests.remove(requestId);
                 }
                 req.done();
                 LOG.info("Request {} timed-out waiting for response", requestId);
@@ -436,7 +435,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         final String name;
         if (lspName == null) {
-            name = this.lsps.get(id);
+            name = lsps.get(id);
             if (name == null) {
                 LOG.error("PLSPID {} seen for the first time, not reporting the LSP", id);
                 return;
@@ -446,10 +445,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
 
         LOG.debug("Saved LSP {} with name {}", id, name);
-        this.lsps.put(id, name);
+        lsps.put(id, name);
 
-
-        final ReportedLsp previous = this.lspData.get(name);
+        final ReportedLsp previous = lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
             final Map<PathKey, Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
@@ -466,16 +464,16 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
         // If this is an unsolicited update. We need to make sure we retain the metadata already present
         if (solicited) {
-            this.nodeState.setLspMetadata(name, rlb.getMetadata());
+            nodeState.setLspMetadata(name, rlb.getMetadata());
         } else {
-            rlb.setMetadata(this.nodeState.getLspMetadata(name));
+            rlb.setMetadata(nodeState.getLspMetadata(name));
         }
 
         final ReportedLsp rl = rlb.build();
-        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
+        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
 
-        this.lspData.put(name, rl);
+        lspData.put(name, rl);
     }
 
     private static Map<PathKey, Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
@@ -531,26 +529,25 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param ctx Message context
      */
     protected final synchronized void stateSynchronizationAchieved(final MessageContext ctx) {
-        if (this.synced.getAndSet(true)) {
+        if (synced.getAndSet(true)) {
             LOG.debug("State synchronization achieved while synchronizing, not updating state");
             return;
         }
-        if (this.triggeredResyncInProcess) {
-            this.triggeredResyncInProcess = false;
-        }
+
+        triggeredResyncInProcess = false;
         updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(PccSyncState.Synchronized).build());
 
         // The node has completed synchronization, cleanup metadata no longer reported back
-        this.nodeState.cleanupExcept(this.lsps.values());
-        LOG.debug("Session {} achieved synchronized state", this.session);
+        nodeState.cleanupExcept(lsps.values());
+        LOG.debug("Session {} achieved synchronized state", session);
     }
 
     protected final synchronized void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
-        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, this.pccIdentifier, pcc);
+        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier, pcc);
     }
 
-    protected final InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
-        return this.pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
+    protected final @NonNull InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
+        return pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
     }
 
     /**
@@ -560,15 +557,15 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param id  Revision-specific LSP identifier
      */
     protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
-        final String name = this.lsps.remove(id);
+        final String name = lsps.remove(id);
         LOG.debug("LSP {} removed", name);
         ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
-        this.lspData.remove(name);
+        lspData.remove(name);
     }
 
     @Holding("this")
     final String lookupLspName(final L id) {
-        return this.lsps.get(requireNonNull(id, "ID parameter null."));
+        return lsps.get(requireNonNull(id, "ID parameter null."));
     }
 
     /**
@@ -578,12 +575,9 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param id InstanceIdentifier of the node
      * @return null if the node does not exists, or operational data
      */
-    final synchronized <T extends DataObject> FluentFuture<Optional<T>>
-        readOperationalData(final InstanceIdentifier<T> id) {
-        if (this.nodeState == null) {
-            return null;
-        }
-        return this.nodeState.readOperationalData(id);
+    final synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
+            final InstanceIdentifier<T> id) {
+        return nodeState == null ? null : nodeState.readOperationalData(id);
     }
 
     protected abstract Object validateReportedLsp(Optional<ReportedLsp> rep, LspId input);
@@ -592,7 +586,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
             boolean incrementalSynchro);
 
     final boolean isLspDbPersisted() {
-        return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled();
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled();
     }
 
     /**
@@ -600,25 +594,25 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled.
      */
     final synchronized boolean isIncrementalSynchro() {
-        return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled()
-                && this.syncOptimization.isDeltaSyncEnabled();
+        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled()
+                && syncOptimization.isDeltaSyncEnabled();
     }
 
     final synchronized boolean isTriggeredInitialSynchro() {
-        return this.syncOptimization != null && this.syncOptimization.isTriggeredInitSyncEnabled();
+        return syncOptimization != null && syncOptimization.isTriggeredInitSyncEnabled();
     }
 
     final synchronized boolean isTriggeredReSyncEnabled() {
-        return this.syncOptimization != null && this.syncOptimization.isTriggeredReSyncEnabled();
+        return syncOptimization != null && syncOptimization.isTriggeredReSyncEnabled();
     }
 
     protected final synchronized boolean isSynchronized() {
-        return this.syncOptimization != null && this.syncOptimization.doesLspDbMatch();
+        return syncOptimization != null && syncOptimization.doesLspDbMatch();
     }
 
     @Override
     public int getDelegatedLspsCount() {
-        return Math.toIntExact(this.lspData.values().stream()
+        return Math.toIntExact(lspData.values().stream()
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
             .map(pathList -> pathList.values().iterator().next())
@@ -630,7 +624,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     @Override
     public boolean isSessionSynchronized() {
-        return this.synced.get();
+        return synced.get();
     }
 
     @Override
