@@ -78,7 +78,6 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     @Before
     public void setUp() throws Exception {
         rpcService = new TopologyStatsRpcServiceImpl(getDataBroker());
-        rpcService.init();
 
         // PCEP topology with one PCC node
         final Topology t1 = createTopology(TOPOLOGY_ID1, BindingMap.of(createPcepNode(NODE_ID1)));

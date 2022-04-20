@@ -15,7 +15,7 @@
 
     <bean id="topologyStatsRpcService"
           class="org.opendaylight.bgpcep.pcep.topology.stats.rpc.TopologyStatsRpcServiceImpl"
-          init-method="init" destroy-method="close">
+          destroy-method="close">
         <argument ref="dataBroker"/>
     </bean>
     <odl:rpc-implementation ref="topologyStatsRpcService"/>
