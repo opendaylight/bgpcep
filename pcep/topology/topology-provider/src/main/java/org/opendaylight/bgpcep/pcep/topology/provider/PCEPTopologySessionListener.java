@@ -21,7 +21,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +31,6 @@ import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.PathComputationClient1Builder;
@@ -147,32 +145,32 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
     }
 
     @Override
-    protected void onSessionUp(final PCEPSession session, final PathComputationClientBuilder pccBuilder) {
-        final InetAddress peerAddress = session.getRemoteAddress();
-
-        final Tlvs tlvs = session.getRemoteTlvs();
-        if (tlvs != null && tlvs.augmentation(Tlvs1.class) != null) {
-            final Stateful stateful = tlvs.augmentation(Tlvs1.class).getStateful();
-            if (stateful != null) {
-                setStatefulCapabilities(stateful);
-                pccBuilder.setReportedLsp(Collections.emptyMap());
-                if (isSynchronized()) {
-                    pccBuilder.setStateSync(PccSyncState.Synchronized);
-                } else if (isTriggeredInitialSynchro()) {
-                    pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
-                } else if (isIncrementalSynchro()) {
-                    pccBuilder.setStateSync(PccSyncState.IncrementalSync);
-                } else {
-                    pccBuilder.setStateSync(PccSyncState.InitialResync);
+    protected void onSessionUp(final PathComputationClientBuilder pccBuilder, final InetAddress peerAddress,
+            final Tlvs remoteTlvs) {
+        if (remoteTlvs != null) {
+            final Tlvs1 statefulTlvs = remoteTlvs.augmentation(Tlvs1.class);
+            if (statefulTlvs != null) {
+                final Stateful stateful = statefulTlvs.getStateful();
+                if (stateful != null) {
+                    setStatefulCapabilities(stateful);
+                    pccBuilder.setReportedLsp(Map.of());
+                    if (isSynchronized()) {
+                        pccBuilder.setStateSync(PccSyncState.Synchronized);
+                    } else if (isTriggeredInitialSynchro()) {
+                        pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
+                    } else if (isIncrementalSynchro()) {
+                        pccBuilder.setStateSync(PccSyncState.IncrementalSync);
+                    } else {
+                        pccBuilder.setStateSync(PccSyncState.InitialResync);
+                    }
+                    pccBuilder.setStatefulTlv(new StatefulTlvBuilder()
+                        .addAugmentation(new StatefulTlv1Builder(statefulTlvs).build())
+                        .build());
+                    return;
                 }
-                pccBuilder.setStatefulTlv(new StatefulTlvBuilder().addAugmentation(
-                        new StatefulTlv1Builder(tlvs.augmentation(Tlvs1.class)).build()).build());
-            } else {
-                LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
             }
-        } else {
-            LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
         }
+        LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
     }
 
     @Override
@@ -232,7 +230,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
         updBuilder.setPath(pb.build());
         updBuilder.setLsp(lsp).setSrp(srp).setPath(pb.build());
 
-        pcupdMessageBuilder.setUpdates(Collections.singletonList(updBuilder.build()));
+        pcupdMessageBuilder.setUpdates(List.of(updBuilder.build()));
         return srp.getOperationId();
     }
 
@@ -475,7 +473,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                     }
                     final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
                     final Requests rb = buildRequest(rep, reportedLsp);
-                    ib.setRequests(Collections.singletonList(rb));
+                    ib.setRequests(List.of(rb));
                     return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
                         rb.getSrp().getOperationId(), null);
                 }, MoreExecutors.directExecutor());
@@ -511,7 +509,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             pb.fieldsFrom(input.getArguments());
             rb.setPath(pb.build());
             final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-            ub.setUpdates(Collections.singletonList(rb.build()));
+            ub.setUpdates(List.of(rb.build()));
             msg = new PcupdBuilder().setPcupdMessage(ub.build()).build();
         } else {
             final Lsp1 lspCreateFlag = reportedLsp.augmentation(Lsp1.class);
@@ -741,7 +739,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             final PathBuilder pb = new PathBuilder();
             rb.setPath(pb.build());
             final PcupdMessageBuilder ub = new PcupdMessageBuilder(MESSAGE_HEADER);
-            ub.setUpdates(Collections.singletonList(rb.build()));
+            ub.setUpdates(List.of(rb.build()));
             return new PcupdBuilder().setPcupdMessage(ub.build()).build();
         }
     }
@@ -829,7 +827,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
             // Send the message
             return sendMessage(new PcinitiateBuilder()
                 .setPcinitiateMessage(new PcinitiateMessageBuilder(MESSAGE_HEADER)
-                    .setRequests(Collections.singletonList(rb.build()))
+                    .setRequests(List.of(rb.build()))
                     .build())
                 .build(),
                 rb.getSrp().getOperationId(), input.getArguments().getMetadata());
@@ -888,7 +886,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                 .setPcerrMessage(new PcerrMessageBuilder()
                     .setErrorType(new RequestCaseBuilder()
                         .setRequest(new RequestBuilder()
-                            .setRps(Collections.singletonList(new RpsBuilder()
+                            .setRps(List.of(new RpsBuilder()
                                 .setRp(new RpBuilder()
                                     .setProcessingRule(false)
                                     .setIgnore(false)
@@ -897,7 +895,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener<SrpIdN
                                 .build()))
                             .build())
                         .build())
-                    .setErrors(Collections.singletonList(new ErrorsBuilder()
+                    .setErrors(List.of(new ErrorsBuilder()
                         .setErrorObject(new ErrorObjectBuilder()
                             .setType(pcepErrors.getErrorType())
                             .setValue(pcepErrors.getErrorValue())
