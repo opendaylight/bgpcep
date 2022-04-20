@@ -48,6 +48,8 @@ import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.MessageHeader;
@@ -81,11 +83,8 @@ import org.slf4j.LoggerFactory;
  * Base class for PCEP topology providers. It handles the common tasks involved in managing a PCEP server (PCE)
  * endpoint, and exposing a network topology based on it. It needs to be subclassed to form a fully functional block,
  * where the subclass provides handling of incoming messages.
- *
- * @param <S> identifier type of requests
- * @param <L> identifier type for LSPs
  */
-public abstract class AbstractTopologySessionListener<S, L> implements TopologySessionListener, TopologySessionStats {
+public abstract class AbstractTopologySessionListener implements TopologySessionListener, TopologySessionStats {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
 
     static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
@@ -104,12 +103,12 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     };
 
     @GuardedBy("this")
-    final Map<L, String> lsps = new HashMap<>();
+    final Map<PlspId, String> lsps = new HashMap<>();
     @GuardedBy("this")
     SessionStateImpl listenerState;
 
     @GuardedBy("this")
-    private final Map<S, PCEPRequest> requests = new HashMap<>();
+    private final Map<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
     private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
     private final ServerSessionManager serverSessionManager;
@@ -254,7 +253,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 syncOptimization = null;
 
                 // Clear all requests we know about
-                for (final Entry<S, PCEPRequest> e : requests.entrySet()) {
+                for (final Entry<SrpIdNumber, PCEPRequest> e : requests.entrySet()) {
                     final PCEPRequest r = e.getValue();
                     switch (r.getState()) {
                         case DONE:
@@ -368,7 +367,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
     }
 
-    final synchronized PCEPRequest removeRequest(final S id) {
+    final synchronized PCEPRequest removeRequest(final SrpIdNumber id) {
         final PCEPRequest ret = requests.remove(id);
         if (ret != null && listenerState != null) {
             listenerState.processRequestStats(ret.getElapsedMillis());
@@ -377,7 +376,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return ret;
     }
 
-    final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final S requestId,
+    final synchronized ListenableFuture<OperationResult> sendMessage(final Message message, final SrpIdNumber requestId,
             final Metadata metadata) {
         final var sendFuture = session.sendMessage(message);
         listenerState.updateStatefulSentMsg(message);
@@ -405,7 +404,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         return req.getFuture();
     }
 
-    private void setupTimeoutHandler(final S requestId, final PCEPRequest req, final short timeout) {
+    private void setupTimeoutHandler(final SrpIdNumber requestId, final PCEPRequest req, final short timeout) {
         final Timer timer = req.getTimer();
         timer.schedule(new TimerTask() {
             @Override
@@ -430,7 +429,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param solicited True if the update was solicited
      * @param remove    True if this is an LSP path removal
      */
-    protected final synchronized void updateLsp(final MessageContext ctx, final L id, final String lspName,
+    protected final synchronized void updateLsp(final MessageContext ctx, final PlspId id, final String lspName,
             final ReportedLspBuilder rlb, final boolean solicited, final boolean remove) {
 
         final String name;
@@ -556,7 +555,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
      * @param ctx Message Context
      * @param id  Revision-specific LSP identifier
      */
-    protected final synchronized void removeLsp(final MessageContext ctx, final L id) {
+    protected final synchronized void removeLsp(final MessageContext ctx, final PlspId id) {
         final String name = lsps.remove(id);
         LOG.debug("LSP {} removed", name);
         ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
@@ -564,7 +563,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
     }
 
     @Holding("this")
-    final String lookupLspName(final L id) {
+    final String lookupLspName(final PlspId id) {
         return lsps.get(requireNonNull(id, "ID parameter null."));
     }
 
@@ -582,7 +581,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     protected abstract Object validateReportedLsp(Optional<ReportedLsp> rep, LspId input);
 
-    protected abstract void loadLspData(Node node, Map<String, ReportedLsp> lspData, Map<L, String> lsps,
+    protected abstract void loadLspData(Node node, Map<String, ReportedLsp> lspData, Map<PlspId, String> lsps,
             boolean incrementalSynchro);
 
     final boolean isLspDbPersisted() {
