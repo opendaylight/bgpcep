@@ -136,9 +136,10 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 final InetAddress peerAddress = psession.getRemoteAddress();
 
                 this.syncOptimization = new SyncOptimization(psession);
+                final boolean haveLspDbVersion = this.syncOptimization.isDbVersionPresent();
 
                 final TopologyNodeState state =
-                        this.serverSessionManager.takeNodeState(peerAddress, this, isLspDbRetreived());
+                        this.serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
 
                 // takeNodeState(..) may fail when the server session manager is being restarted
                 // due to configuration change
@@ -170,12 +171,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 pccBuilder.setIpAddress(IetfInetUtil.INSTANCE.ipAddressNoZoneFor(peerAddress));
                 final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
                 this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
-                final Node initialNodeState = state.getInitialNodeState();
-                final boolean isNodePresent = isLspDbRetreived() && initialNodeState != null;
-                if (isNodePresent) {
-                    loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
-                    pccBuilder.setReportedLsp(
+
+                if (haveLspDbVersion) {
+                    final Node initialNodeState = state.getInitialNodeState();
+                    if (initialNodeState != null) {
+                        loadLspData(initialNodeState, this.lspData, this.lsps, isIncrementalSynchro());
+                        pccBuilder.setReportedLsp(
                             initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
+                    }
                 }
                 state.storeNode(topologyAugment,
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
@@ -586,10 +589,6 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
 
     final boolean isLspDbPersisted() {
         return this.syncOptimization != null && this.syncOptimization.isSyncAvoidanceEnabled();
-    }
-
-    final boolean isLspDbRetreived() {
-        return this.syncOptimization != null && this.syncOptimization.isDbVersionPresent();
     }
 
     /**
