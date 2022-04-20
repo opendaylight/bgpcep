@@ -187,14 +187,18 @@ final class TopologyNodeState implements TransactionChainListener {
         }, MoreExecutors.directExecutor());
     }
 
-    synchronized void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta,
-            final PCEPSession session) {
+    void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta, final PCEPSession session) {
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
-        final WriteTransaction trans = chain.newWriteOnlyTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
 
-        // All set, commit the modifications
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final FluentFuture<? extends CommitInfo> future;
+        synchronized (this) {
+            final WriteTransaction trans = chain.newWriteOnlyTransaction();
+            trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+            // All set, commit the modifications
+            future = trans.commit();
+        }
+
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Node stored {} for session {} updated successfully", topologyAugment, session);
