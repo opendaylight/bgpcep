@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
 import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -50,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1Builder;
@@ -163,12 +165,14 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
                 LOG.trace("Peer {} resolved to topology node {}", peerAddress, state.getNodeId());
 
                 // Our augmentation in the topology node
-                final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder();
+                final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder()
+                    .setIpAddress(IetfInetUtil.INSTANCE.ipAddressNoZoneFor(peerAddress));
 
-                onSessionUp(psession, pccBuilder);
+                // Let subclass fill the details
+                onSessionUp(pccBuilder, psession.getRemoteTlvs());
+
                 this.synced.set(isSynchronized());
 
-                pccBuilder.setIpAddress(IetfInetUtil.INSTANCE.ipAddressNoZoneFor(peerAddress));
                 final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
                 this.pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
@@ -191,7 +195,7 @@ public abstract class AbstractTopologySessionListener<S, L> implements TopologyS
         }
     }
 
-    protected abstract void onSessionUp(PCEPSession session, PathComputationClientBuilder pccBuilder);
+    protected abstract void onSessionUp(PathComputationClientBuilder pccBuilder, @Nullable Tlvs remoteTlvs);
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
         if (this.nodeState == null) {
