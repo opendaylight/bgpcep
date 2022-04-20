@@ -45,11 +45,15 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.StatefulTlv1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
@@ -67,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.ReportedLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -100,6 +105,10 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             return version;
         }
     };
+
+    private final AtomicBoolean statefulCapability = new AtomicBoolean(false);
+    private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
+    private final AtomicBoolean initiationCapability = new AtomicBoolean(false);
 
     @GuardedBy("this")
     final Map<PlspId, String> lsps = new HashMap<>();
@@ -168,7 +177,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                     .setIpAddress(IetfInetUtil.INSTANCE.ipAddressNoZoneFor(peerAddress));
 
                 // Let subclass fill the details
-                onSessionUp(pccBuilder, peerAddress, psession.getRemoteTlvs());
+                updateStatefulCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());
 
                 synced.set(isSynchronized());
 
@@ -193,8 +202,46 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
     }
 
-    protected abstract void onSessionUp(PathComputationClientBuilder pccBuilder, InetAddress peerAddress,
-            @Nullable Tlvs remoteTlvs);
+    @Holding("this")
+    private void updateStatefulCapabilities(final PathComputationClientBuilder pccBuilder,
+            final InetAddress peerAddress, final @Nullable Tlvs remoteTlvs) {
+        if (remoteTlvs != null) {
+            final Tlvs1 statefulTlvs = remoteTlvs.augmentation(Tlvs1.class);
+            if (statefulTlvs != null) {
+                final Stateful stateful = statefulTlvs.getStateful();
+                if (stateful != null) {
+                    statefulCapability.set(true);
+                    final var updateCap = stateful.getLspUpdateCapability();
+                    if (updateCap != null) {
+                        lspUpdateCapability.set(updateCap);
+                    }
+                    final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
+                    if (stateful1 != null) {
+                        final var initiation = stateful1.getInitiation();
+                        if (initiation != null) {
+                            initiationCapability.set(initiation);
+                        }
+                    }
+
+                    pccBuilder.setReportedLsp(Map.of());
+                    if (isSynchronized()) {
+                        pccBuilder.setStateSync(PccSyncState.Synchronized);
+                    } else if (isTriggeredInitialSynchro()) {
+                        pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
+                    } else if (isIncrementalSynchro()) {
+                        pccBuilder.setStateSync(PccSyncState.IncrementalSync);
+                    } else {
+                        pccBuilder.setStateSync(PccSyncState.InitialResync);
+                    }
+                    pccBuilder.setStatefulTlv(new StatefulTlvBuilder()
+                        .addAugmentation(new StatefulTlv1Builder(statefulTlvs).build())
+                        .build());
+                    return;
+                }
+            }
+        }
+        LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
+    }
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
         if (nodeState == null) {
@@ -609,7 +656,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     @Override
-    public int getDelegatedLspsCount() {
+    public final int getDelegatedLspsCount() {
         return Math.toIntExact(lspData.values().stream()
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
@@ -621,9 +668,25 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     @Override
-    public boolean isSessionSynchronized() {
+    public final boolean isSessionSynchronized() {
         return synced.get();
     }
+
+    @Override
+    public final boolean isInitiationCapability() {
+        return initiationCapability.get();
+    }
+
+    @Override
+    public final boolean isStatefulCapability() {
+        return statefulCapability.get();
+    }
+
+    @Override
+    public final boolean isLspUpdateCapability() {
+        return lspUpdateCapability.get();
+    }
+
 
     @Override
     public synchronized ListenableFuture<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
