@@ -291,12 +291,11 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         }
     }
 
-    final synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
-            final PcepSessionState sessionState) {
+    final void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final PcepSessionState sessionState) {
         dependencies.getStateRegistry().bind(nodeId, sessionState);
     }
 
-    final synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+    final void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
         dependencies.getStateRegistry().unbind(nodeId);
     }
 
