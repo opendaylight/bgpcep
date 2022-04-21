@@ -222,7 +222,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 if (!SRPID_ZERO.equals(id)) {
                     final PCEPRequest req = removeRequest(id);
                     if (req != null) {
-                        req.done(OperationResults.createFailed(errMsg.getErrors()));
+                        req.finish(OperationResults.createFailed(errMsg.getErrors()));
                     } else {
                         LOG.warn("Request ID {} not found in outstanding DB", id);
                     }
