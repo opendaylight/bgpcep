@@ -371,6 +371,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
      */
     protected abstract boolean onMessage(MessageContext ctx, Message message);
 
+    // Non-final for mocking
     @Override
     public void close() {
         synchronized (serverSessionManager) {
