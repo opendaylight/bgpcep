@@ -282,8 +282,8 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
                 // Clear all requests we know about
                 for (final Entry<SrpIdNumber, PCEPRequest> e : requests.entrySet()) {
-                    final PCEPRequest r = e.getValue();
-                    switch (r.getState()) {
+                    // FIXME: exhaustive when we have JDK17+
+                    switch (e.getValue().cancel()) {
                         case DONE:
                             // Done is done, nothing to do
                             LOG.trace("Request {} was done when session went down.", e.getKey());
@@ -292,13 +292,11 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                             // Peer has not acked: results in failure
                             LOG.info("Request {} was incomplete when session went down, failing the instruction",
                                     e.getKey());
-                            r.done(OperationResults.NOACK);
                             break;
                         case UNSENT:
                             // Peer has not been sent to the peer: results in cancellation
                             LOG.debug("Request {} was not sent when session went down, cancelling the instruction",
                                     e.getKey());
-                            r.done(OperationResults.UNSENT);
                             break;
                         default:
                             break;
@@ -421,10 +419,10 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 synchronized (AbstractTopologySessionListener.this) {
                     requests.remove(requestId);
                 }
-                req.done(OperationResults.UNSENT);
+                req.cancel();
                 LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
             } else {
-                req.sent();
+                req.markUnacked();
                 LOG.trace("Request {} sent to peer (object {})", requestId, req);
             }
         });
@@ -440,7 +438,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 synchronized (AbstractTopologySessionListener.this) {
                     requests.remove(requestId);
                 }
-                req.done();
+                req.cancel();
                 LOG.info("Request {} timed-out waiting for response", requestId);
             }
         }, TimeUnit.SECONDS.toMillis(timeout));
@@ -690,7 +688,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
         private void notifyRequests() {
             for (final PCEPRequest r : requests) {
-                r.done(OperationResults.SUCCESS);
+                r.finish(OperationResults.SUCCESS);
             }
         }
     }
