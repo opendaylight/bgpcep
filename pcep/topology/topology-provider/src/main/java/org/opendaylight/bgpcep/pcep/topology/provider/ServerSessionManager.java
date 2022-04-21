@@ -15,12 +15,15 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -61,6 +64,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
+    private final @NonNull HashedWheelTimer timer = new HashedWheelTimer();
 
     @VisibleForTesting
     final AtomicBoolean isClosed = new AtomicBoolean(false);
@@ -123,14 +127,23 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             LOG.error("Session Manager has already been closed.");
             return CommitInfo.emptyFluentFuture();
         }
-        for (final TopologySessionListener node : nodes.values()) {
-            node.close();
-        }
+
+        // Clean up sessions
+        final var nodeFutures = nodes.values().stream()
+            .map(TopologySessionListener::close)
+            .collect(Collectors.toUnmodifiableList());
         nodes.clear();
+
+        // Clean up remembered metadata
         for (final TopologyNodeState topologyNodeState : state.values()) {
             topologyNodeState.close();
         }
         state.clear();
+
+        // Stop the timer
+        // FIXME: only after all TopologySessionListeners are done
+        final var cancelledTasks = timer.stop().size();
+        LOG.debug("Stopped timer with {} remaining tasks", cancelledTasks);
 
         // Un-Register Pcep Topology into PCE Server
         final PceServerProvider server = dependencies.getPceServerProvider();
@@ -192,6 +205,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         if (existingSessionListener != null && !sessionListener.equals(existingSessionListener)) {
             LOG.error("New session listener {} is in conflict with existing session listener {} on node {},"
                     + " closing the existing one.", existingSessionListener, sessionListener, id);
+            // FIXME: hand off the returned future
             existingSessionListener.close();
         }
         ret.taken(retrieveNode);
@@ -258,6 +272,10 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         return RpcResultBuilder.<Void>failed()
             .withError(ErrorType.RPC, "Failed to find session " + nodeId)
             .buildFuture();
+    }
+
+    final @NonNull Timer timer() {
+        return timer;
     }
 
     final short getRpcTimeout() {

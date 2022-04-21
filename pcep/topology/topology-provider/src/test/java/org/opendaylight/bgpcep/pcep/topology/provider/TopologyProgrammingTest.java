@@ -57,7 +57,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        doNothing().when(listener).close();
+        doReturn(Futures.immediateVoidFuture()).when(listener).close();
 
         doReturn(true).when(instruction).checkedExecutionStart();
         doNothing().when(instruction).executionCompleted(InstructionStatus.Failed, null);

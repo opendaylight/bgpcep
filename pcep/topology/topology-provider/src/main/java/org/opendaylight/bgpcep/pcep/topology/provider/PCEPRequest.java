@@ -9,9 +9,9 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import io.netty.util.Timeout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.lsp.metadata.Metadata;
@@ -57,10 +57,11 @@ final class PCEPRequest {
     private volatile State state = State.UNSENT;
 
     // Guarded by state going to State.DONE
-    private final Timer timer = new Timer();
+    private Timeout timeout;
 
-    PCEPRequest(final Metadata metadata) {
+    PCEPRequest(final Metadata metadata, final Timeout timeout) {
         this.metadata = metadata;
+        this.timeout = timeout;
     }
 
     protected ListenableFuture<OperationResult> getFuture() {
@@ -69,10 +70,6 @@ final class PCEPRequest {
 
     public Metadata getMetadata() {
         return metadata;
-    }
-
-    Timer getTimer() {
-        return timer;
     }
 
     long getElapsedMillis() {
@@ -136,7 +133,10 @@ final class PCEPRequest {
 
     private void setFuture(final State prev, final OperationResult result) {
         LOG.debug("Request went from {} to {}", prev, State.DONE);
-        timer.cancel();
+        if (timeout != null) {
+            timeout.cancel();
+            timeout = null;
+        }
         future.set(result);
     }
 }

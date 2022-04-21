@@ -245,11 +245,12 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * inside the session or from the listener, therefore the parent of this session should be informed.
      */
     @Override
-    public void close(final TerminationReason reason) {
+    public Future<Void> close(final TerminationReason reason) {
         if (closed.getAndSet(true)) {
             LOG.debug("Session is already closed.");
-            return;
+            return channel.closeFuture();
         }
+
         // only send close message when the reason is provided
         if (reason != null) {
             LOG.info("Closing PCEP session with reason {}: {}", reason, this);
@@ -259,7 +260,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         } else {
             LOG.info("Closing PCEP session: {}", this);
         }
-        closeChannel();
+        return closeChannel();
     }
 
     @Override
@@ -288,7 +289,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     private void sendErrorMessage(final PCEPErrors value) {
-        this.sendErrorMessage(value, null);
+        sendErrorMessage(value, null);
     }
 
     /**
@@ -345,7 +346,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         if (msg instanceof KeepaliveMessage) {
             // Do nothing, the timer has been already reset
         } else if (msg instanceof OpenMessage) {
-            this.sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
+            sendErrorMessage(PCEPErrors.ATTEMPT_2ND_SESSION);
         } else if (msg instanceof CloseMessage) {
             /*
              * Session is up, we are reporting all messages to user. One notable

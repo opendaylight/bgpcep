@@ -31,7 +31,7 @@ public interface PCEPSession extends PCEPSessionState, AutoCloseable {
      */
     Future<Void> sendMessage(Message message);
 
-    void close(TerminationReason reason);
+    Future<Void> close(TerminationReason reason);
 
     /**
      * Returns session characteristics of the remote PCEP Speaker.
