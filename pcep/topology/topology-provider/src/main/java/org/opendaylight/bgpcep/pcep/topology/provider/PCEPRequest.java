@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
@@ -39,7 +38,6 @@ final class PCEPRequest {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPRequest.class);
-    private static final long MINIMUM_ELAPSED_TIME = 1;
     private static final VarHandle STATE;
 
     static {
@@ -51,7 +49,7 @@ final class PCEPRequest {
     }
 
     private final SettableFuture<OperationResult> future = SettableFuture.create();
-    private final Stopwatch stopwatch = Stopwatch.createStarted();
+    private final long startNanos = System.nanoTime();
     private final Metadata metadata;
 
     // Manipulated via STATE
@@ -75,11 +73,11 @@ final class PCEPRequest {
     }
 
     long getElapsedMillis() {
-        final long elapsedNanos = stopwatch.elapsed().toNanos();
+        final long elapsedNanos = System.nanoTime() - startNanos;
         final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsedNanos);
 
         // FIXME: this is weird: it scales (0,1) up to 1, but otherwise scales down
-        return elapsedMillis == 0 && elapsedNanos > 0 ? MINIMUM_ELAPSED_TIME : elapsedMillis;
+        return elapsedMillis == 0 && elapsedNanos > 0 ? 1 : elapsedMillis;
     }
 
     /**
