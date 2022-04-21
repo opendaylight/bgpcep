@@ -176,23 +176,19 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     }
 
     private SrpIdNumber createUpdateMessageSync(final PcupdMessageBuilder pcupdMessageBuilder) {
-        final UpdatesBuilder updBuilder = new UpdatesBuilder();
-        // LSP mandatory in Upd
-        final Lsp lsp = new LspBuilder().setPlspId(PLSPID_ZERO).setSync(Boolean.TRUE).build();
-        // SRP Mandatory in Upd
-        final SrpBuilder srpBuilder = new SrpBuilder();
-        // not sue whether use 0 instead of nextRequest() or do not insert srp == SRP-ID-number = 0
-        srpBuilder.setOperationId(nextRequest());
-        final Srp srp = srpBuilder.build();
-        //ERO Mandatory in Upd
-        final PathBuilder pb = new PathBuilder();
-        pb.setEro(new EroBuilder().build());
+        // FIXME: not sure whether use 0 instead of nextRequest() or do not insert srp == SRP-ID-number = 0
+        final var operationId = nextRequest();
 
-        updBuilder.setPath(pb.build());
-        updBuilder.setLsp(lsp).setSrp(srp).setPath(pb.build());
+        pcupdMessageBuilder.setUpdates(List.of(new UpdatesBuilder()
+            // LSP mandatory in PCUpd
+            .setLsp(new LspBuilder().setPlspId(PLSPID_ZERO).setSync(Boolean.TRUE).build())
+            // SRP Mandatory in PCUpd
+            .setSrp(new SrpBuilder().setOperationId(operationId).build())
+            // ERO Mandatory in PCUpd
+            .setPath(new PathBuilder().setEro(new EroBuilder().build()).build())
+            .build()));
 
-        pcupdMessageBuilder.setUpdates(List.of(updBuilder.build()));
-        return srp.getOperationId();
+        return operationId;
     }
 
     @Holding("this")
