@@ -13,7 +13,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.concurrent.FutureListener;
@@ -671,7 +670,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @Override
     public synchronized ListenableFuture<RpcResult<Void>> tearDownSession(final TearDownSessionInput input) {
         close();
-        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+        return RpcResultBuilder.<Void>success().buildFuture();
     }
 
     static final class MessageContext {
