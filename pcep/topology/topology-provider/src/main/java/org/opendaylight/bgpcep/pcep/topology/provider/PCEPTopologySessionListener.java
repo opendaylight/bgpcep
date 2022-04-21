@@ -67,7 +67,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.PcerrMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
@@ -98,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +109,20 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologySessionListener.class);
     private static final PlspId PLSPID_ZERO = new PlspId(Uint32.ZERO);
     private static final SrpIdNumber SRPID_ZERO = new SrpIdNumber(Uint32.ZERO);
+    private static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
+    private static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
+        private final ProtocolVersion version = new ProtocolVersion(Uint8.ONE);
+
+        @Override
+        public Class<MessageHeader> implementedInterface() {
+            return MessageHeader.class;
+        }
+
+        @Override
+        public ProtocolVersion getVersion() {
+            return version;
+        }
+    };
 
     private final AtomicLong requestId = new AtomicLong(1L);
 
