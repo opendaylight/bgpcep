@@ -56,9 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.MessageHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.Node1;
@@ -80,7 +78,6 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,21 +88,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractTopologySessionListener implements TopologySessionListener, TopologySessionStats {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologySessionListener.class);
-
-    static final String MISSING_XML_TAG = "Mandatory XML tags are missing.";
-    static final MessageHeader MESSAGE_HEADER = new MessageHeader() {
-        private final ProtocolVersion version = new ProtocolVersion(Uint8.ONE);
-
-        @Override
-        public Class<MessageHeader> implementedInterface() {
-            return MessageHeader.class;
-        }
-
-        @Override
-        public ProtocolVersion getVersion() {
-            return version;
-        }
-    };
 
     private final AtomicBoolean statefulCapability = new AtomicBoolean(false);
     private final AtomicBoolean lspUpdateCapability = new AtomicBoolean(false);
