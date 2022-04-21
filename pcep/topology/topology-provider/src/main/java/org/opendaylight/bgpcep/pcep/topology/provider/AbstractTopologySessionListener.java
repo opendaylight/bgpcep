@@ -16,7 +16,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import io.netty.util.concurrent.FutureListener;
+import io.netty.util.Timeout;
+import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -97,6 +96,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @GuardedBy("this")
     SessionStateImpl listenerState;
 
+    // FIXME: clarify lifecycle rules of this map, most notably the interaction of multiple SrpIdNumbers
     @GuardedBy("this")
     private final Map<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
@@ -406,43 +406,51 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             final Metadata metadata) {
         final var sendFuture = session.sendMessage(message);
         listenerState.updateStatefulSentMsg(message);
-        final PCEPRequest req = new PCEPRequest(metadata);
-        requests.put(requestId, req);
+
         final short rpcTimeout = serverSessionManager.getRpcTimeout();
         LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
+
+        final Timeout timeout;
         if (rpcTimeout > 0) {
-            setupTimeoutHandler(requestId, req, rpcTimeout);
+            // Note: the timeout is held back by us holding the 'this' monitor, which timeoutExpired re-acquires
+            timeout = serverSessionManager.timer().newTimeout(ignored -> timeoutExpired(requestId),
+                rpcTimeout, TimeUnit.SECONDS);
+            LOG.trace("Set up response timeout handler for request {}", requestId);
+        } else {
+            timeout = null;
         }
 
-        sendFuture.addListener((FutureListener<Void>) future -> {
-            if (!future.isSuccess()) {
-                synchronized (AbstractTopologySessionListener.this) {
-                    requests.remove(requestId);
-                }
-                req.cancel();
-                LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
-            } else {
-                req.markUnacked();
-                LOG.trace("Request {} sent to peer (object {})", requestId, req);
-            }
-        });
+        final PCEPRequest req = new PCEPRequest(metadata, timeout);
+        requests.put(requestId, req);
 
+        sendFuture.addListener(future -> sendCompleted(future, requestId, req));
         return req.getFuture();
     }
 
-    private void setupTimeoutHandler(final SrpIdNumber requestId, final PCEPRequest req, final short timeout) {
-        final Timer timer = req.getTimer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                synchronized (AbstractTopologySessionListener.this) {
-                    requests.remove(requestId);
-                }
-                req.cancel();
-                LOG.info("Request {} timed-out waiting for response", requestId);
+    private void sendCompleted(final Future<?> future, final SrpIdNumber requestId, final PCEPRequest req) {
+        if (!future.isSuccess()) {
+            // FIXME: use concurrent operations and re-validate request vs. id
+            synchronized (AbstractTopologySessionListener.this) {
+                requests.remove(requestId);
             }
-        }, TimeUnit.SECONDS.toMillis(timeout));
-        LOG.trace("Set up response timeout handler for request {}", requestId);
+            req.cancel();
+            LOG.info("Failed to send request {}, instruction cancelled", requestId, future.cause());
+        } else {
+            req.markUnacked();
+            LOG.trace("Request {} sent to peer (object {})", requestId, req);
+        }
+    }
+
+    private void timeoutExpired(final SrpIdNumber requestId) {
+        final PCEPRequest req;
+        synchronized (this) {
+            req = requests.remove(requestId);
+        }
+
+        if (req != null) {
+            LOG.info("Request {} timed-out waiting for response", requestId);
+            req.cancel();
+        }
     }
 
     /**
