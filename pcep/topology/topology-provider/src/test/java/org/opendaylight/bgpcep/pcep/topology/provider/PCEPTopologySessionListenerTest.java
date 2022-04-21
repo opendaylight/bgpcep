@@ -283,9 +283,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     public void testOnUnhandledErrorMessage() {
         final Message errorMsg = AbstractMessageParser.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Optional.empty());
         listener.onSessionUp(session);
-        assertTrue(listener.onMessage(Optional.<AbstractTopologySessionListener.MessageContext>empty()
-                .orElse(null),
-            errorMsg));
+        assertTrue(listener.onMessage((AbstractTopologySessionListener.MessageContext) null, errorMsg));
     }
 
     @Test
