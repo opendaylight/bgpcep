@@ -15,7 +15,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import com.google.common.util.concurrent.Futures;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -74,7 +73,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Test
     public void testSubmitAddLsp() {
         final var captor = ArgumentCaptor.forClass(AddLspArgs.class);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).addLsp(captor.capture());
+        doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).addLsp(captor.capture());
 
         topologyProgramming.submitAddLsp(new SubmitAddLspInputBuilder()
             .setName(NAME).setNode(nodeId)
@@ -91,7 +90,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Test
     public void testSubmitUpdateLsp() {
         final var captor = ArgumentCaptor.forClass(UpdateLspArgs.class);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).updateLsp(captor.capture());
+        doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).updateLsp(captor.capture());
 
         topologyProgramming.submitUpdateLsp(new SubmitUpdateLspInputBuilder().setName(NAME).setNode(nodeId).build());
 
@@ -104,7 +103,8 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Test
     public void testSubmitEnsureLsp() {
         final var captor = ArgumentCaptor.forClass(EnsureLspOperationalInput.class);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).ensureLspOperational(captor.capture());
+        doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener)
+            .ensureLspOperational(captor.capture());
 
         topologyProgramming.submitEnsureLspOperational(new SubmitEnsureLspOperationalInputBuilder()
             .setName(NAME)
@@ -121,7 +121,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Test
     public void testSubmitRemoveLsp() {
         final var captor = ArgumentCaptor.forClass(RemoveLspArgs.class);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).removeLsp(captor.capture());
+        doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).removeLsp(captor.capture());
 
         topologyProgramming.submitRemoveLsp(new SubmitRemoveLspInputBuilder().setName(NAME).setNode(nodeId).build());
 
@@ -134,7 +134,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Test
     public void testSubmitTriggerSync() {
         final var captor = ArgumentCaptor.forClass(TriggerSyncArgs.class);
-        doReturn(Futures.immediateFuture(Optional.empty())).when(listener).triggerSync(captor.capture());
+        doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).triggerSync(captor.capture());
 
         topologyProgramming.submitTriggerSync(new SubmitTriggerSyncInputBuilder()
             .setName(NAME)
