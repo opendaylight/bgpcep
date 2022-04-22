@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
@@ -120,7 +120,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
                     .build())
                 .setPlspId(new PlspId(Uint32.ONE)).setSync(true).setRemove(false)
                 .setOperational(OperationalStatus.Active)
-                .build(), Optional.empty(), createPath(Collections.emptyList()));
+                .build(), Optional.empty(), createPath(List.of()));
         listener.onMessage(session, pcRpt);
         readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             assertFalse(pcc.nonnullReportedLsp().isEmpty());
@@ -152,7 +152,7 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
                             .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.TWO).build())
                             .build()).build()),
                 true, false), Optional.empty(),
-                createPath(Collections.emptyList()));
+                createPath(List.of()));
         listener.onMessage(session, syncMsg);
         readDataOperational(getDataBroker(), pathComputationClientIId, pcc -> {
             //check node - synchronized
@@ -164,12 +164,18 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
     }
 
     private Open getOpen(final LspDbVersion dbVersion) {
-        return new OpenBuilder(super.getLocalPref()).setTlvs(new TlvsBuilder().addAugmentation(new Tlvs1Builder()
-            .setStateful(new StatefulBuilder()
-                .addAugmentation(new Stateful1Builder().setInitiation(Boolean.TRUE).build())
-                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep
-                    .sync.optimizations.rev200720.Stateful1Builder()
-                    .setIncludeDbVersion(Boolean.TRUE).build()).build()).build())
-            .addAugmentation(new Tlvs3Builder().setLspDbVersion(dbVersion).build()).build()).build();
+        return new OpenBuilder(super.getLocalPref())
+            .setTlvs(new TlvsBuilder()
+                .addAugmentation(new Tlvs1Builder()
+                    .setStateful(new StatefulBuilder()
+                        .addAugmentation(new Stateful1Builder().setInitiation(Boolean.TRUE).build())
+                        .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
+                            .pcep.sync.optimizations.rev200720.Stateful1Builder()
+                            .setIncludeDbVersion(Boolean.TRUE).build())
+                        .build())
+                    .build())
+                .addAugmentation(new Tlvs3Builder().setLspDbVersion(dbVersion).build())
+                .build())
+            .build();
     }
 }
