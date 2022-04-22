@@ -20,8 +20,6 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import com.google.common.collect.Lists;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -185,7 +183,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
-        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix, dstIpPrefix)));
+        updArgsBuilder.setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(FALSE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
@@ -258,7 +256,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                 testAddress, testAddress, testAddress, Optional.empty());
         final Pcrpt pcRpt3 = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req2.getLsp()).setTlvs(tlvs3)
                         .setRemove(TRUE).setSync(TRUE).setOperational(OperationalStatus.Down).build(),
-                Optional.of(MsgBuilderUtil.createSrp(srpId3)), MsgBuilderUtil.createPath(Collections.emptyList()));
+                Optional.of(MsgBuilderUtil.createSrp(srpId3)), MsgBuilderUtil.createPath(List.of()));
         listener.onMessage(session, pcRpt3);
 
         // check if lsp was removed
@@ -468,7 +466,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
 
     @Test
     public void testUnknownLsp() throws Exception {
-        final List<Reports> reports = Lists.newArrayList(new ReportsBuilder()
+        final List<Reports> reports = List.of(new ReportsBuilder()
             .setPath(new PathBuilder()
                 .setEro(new EroBuilder().build())
                 .build())
@@ -501,7 +499,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev200120.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .topology.pcep.rev200120.update.lsp.args.ArgumentsBuilder();
-        updArgsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix, dstIpPrefix)));
+        updArgsBuilder.setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
@@ -641,15 +639,24 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     }
 
     private AddLspInput createAddLspInput() {
-        final ArgumentsBuilder argsBuilder = new ArgumentsBuilder();
-        final Ipv4CaseBuilder ipv4Builder = new Ipv4CaseBuilder();
-        ipv4Builder.setIpv4(new Ipv4Builder().setSourceIpv4Address(new Ipv4AddressNoZone(testAddress))
-                .setDestinationIpv4Address(new Ipv4AddressNoZone(testAddress)).build());
-        argsBuilder.setEndpointsObj(new EndpointsObjBuilder().setAddressFamily(ipv4Builder.build()).build());
-        argsBuilder.setEro(createEroWithIpPrefixes(Lists.newArrayList(eroIpPrefix)));
-        argsBuilder.addAugmentation(new Arguments2Builder().setLsp(new LspBuilder()
-                .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
-        return new AddLspInputBuilder().setName(tunnelName).setArguments(argsBuilder.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
+        return new AddLspInputBuilder()
+            .setName(tunnelName)
+            .setArguments(new ArgumentsBuilder()
+                .setEndpointsObj(new EndpointsObjBuilder()
+                    .setAddressFamily(new Ipv4CaseBuilder()
+                        .setIpv4(new Ipv4Builder()
+                            .setSourceIpv4Address(new Ipv4AddressNoZone(testAddress))
+                            .setDestinationIpv4Address(new Ipv4AddressNoZone(testAddress))
+                            .build())
+                        .build())
+                    .build())
+                .setEro(createEroWithIpPrefixes(List.of(eroIpPrefix)))
+                .addAugmentation(new Arguments2Builder()
+                    .setLsp(new LspBuilder().setDelegate(TRUE).setAdministrative(TRUE).build())
+                    .build())
+                .build())
+            .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+            .setNode(nodeId)
+            .build();
     }
 }
