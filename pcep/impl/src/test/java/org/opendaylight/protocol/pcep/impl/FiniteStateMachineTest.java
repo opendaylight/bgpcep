@@ -9,17 +9,24 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 
 import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.util.Queue;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.protocol.util.CheckTestUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.TlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open;
@@ -32,10 +39,8 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
-
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
-    private final TestTicker ticker = new TestTicker();
 
     @Before
     public void setup() {
@@ -206,53 +211,44 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testUnknownMessage() throws Exception {
-        final SimpleSessionListener client = new SimpleSessionListener();
-        final PCEPSessionImpl session = new PCEPSessionImpl(client, 5, channel,
-            openMsg.getOpenMessage().getOpen(), openMsg.getOpenMessage().getOpen());
-        PCEPSessionImpl.setTicker(ticker);
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        final Queue<Long> qeue = session.getUnknownMessagesTimes();
-        CheckTestUtil.checkEquals(() -> assertEquals(1, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(2, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(4, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(3, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(4, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        CheckTestUtil.checkEquals(() -> assertEquals(5, qeue.size()));
-        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
-        synchronized (client) {
-            while (client.up) {
-                client.wait();
-            }
-        }
-        CheckTestUtil.checkEquals(() -> assertTrue(!client.up));
-    }
+    public void testUnknownMessage() {
+        final Ticker ticker = mock(Ticker.class);
+        doReturn(
+            // session create
+            0L,
+            // first four receive/send
+            1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L,
+            // a minute has passed since second receive/send
+            60000000004L, 60000000005L,
+            // a minute has passed since third receive/send and the the time gets stuck :)
+            60000000006L, 60000000007L).when(ticker).read();
 
-    private static final class TestTicker extends Ticker {
-        private long counter = 0L;
+        final var listener = mock(PCEPSessionListener.class);
+        final var session = new PCEPSessionImpl(listener, 5, channel, openMsg.getOpenMessage().getOpen(),
+            openMsg.getOpenMessage().getOpen(), ticker);
 
-        TestTicker() {
-        }
+        final var qeue = session.getUnknownMessagesTimes();
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(1, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(2, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(3, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(4, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(3, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(3, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(4, qeue.size());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        assertEquals(5, qeue.size());
 
-        @Override
-        public long read() {
-            if (counter == 8) {
-                counter++;
-                return 60000000003L;
-            } else if (counter == 10) {
-                counter++;
-                return 60000000006L;
-            }
-            return counter++;
-        }
+        final var captor = ArgumentCaptor.forClass(PCEPTerminationReason.class);
+        doNothing().when(listener).onSessionTerminated(eq(session), captor.capture());
+        session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
+        verify(ticker, times(20)).read();
+        assertEquals("TOO_MANY_UNKNOWN_MSGS", captor.getValue().getErrorMessage());
     }
 }
