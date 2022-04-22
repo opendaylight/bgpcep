@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Ticker;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -59,7 +58,7 @@ import org.slf4j.LoggerFactory;
 @VisibleForTesting
 public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implements PCEPSession {
     private static final long MINUTE = TimeUnit.MINUTES.toNanos(1);
-    private static Ticker TICKER = Ticker.systemTicker();
+
     /**
      * System.nanoTime value about when was sent the last message Protected to be updated also in tests.
      */
@@ -99,18 +98,26 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     private final PCEPSessionState sessionState;
 
+    private final Ticker ticker;
+
     PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
             final Open localOpen, final Open remoteOpen) {
+        this(listener, maxUnknownMessages, channel, localOpen, remoteOpen, Ticker.systemTicker());
+    }
+
+    @VisibleForTesting
+    PCEPSessionImpl(final PCEPSessionListener listener, final int maxUnknownMessages, final Channel channel,
+            final Open localOpen, final Open remoteOpen, final Ticker ticker) {
         this.listener = requireNonNull(listener);
         this.channel = requireNonNull(channel);
         this.localOpen = requireNonNull(localOpen);
         this.remoteOpen = requireNonNull(remoteOpen);
-        this.lastMessageReceivedAt = TICKER.read();
+        this.ticker = requireNonNull(ticker);
+        lastMessageReceivedAt = ticker.read();
 
         if (maxUnknownMessages != 0) {
             this.maxUnknownMessages = maxUnknownMessages;
         }
-
 
         if (getDeadTimerValue() != 0) {
             channel.eventLoop().schedule(this::handleDeadTimer, getDeadTimerValue(), TimeUnit.SECONDS);
@@ -122,15 +129,15 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
         LOG.info("Session {}[{}] <-> {}[{}] started",
             channel.localAddress(), localOpen.getSessionId(), channel.remoteAddress(), remoteOpen.getSessionId());
-        this.sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
+        sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
     public final Integer getKeepAliveTimerValue() {
-        return this.localOpen.getKeepalive().intValue();
+        return localOpen.getKeepalive().intValue();
     }
 
     public final Integer getDeadTimerValue() {
-        return this.remoteOpen.getDeadTimer().intValue();
+        return remoteOpen.getDeadTimer().intValue();
     }
 
     /**
@@ -140,16 +147,16 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * state will become IDLE), that rescheduling won't occur.
      */
     private synchronized void handleDeadTimer() {
-        final long ct = TICKER.read();
+        final long ct = ticker.read();
 
-        final long nextDead = this.lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(getDeadTimerValue());
+        final long nextDead = lastMessageReceivedAt + TimeUnit.SECONDS.toNanos(getDeadTimerValue());
 
-        if (this.channel.isActive()) {
+        if (channel.isActive()) {
             if (ct >= nextDead) {
                 LOG.debug("DeadTimer expired. {}", new Date());
-                this.terminate(TerminationReason.EXP_DEADTIMER);
+                terminate(TerminationReason.EXP_DEADTIMER);
             } else {
-                this.channel.eventLoop().schedule(this::handleDeadTimer, nextDead - ct, TimeUnit.NANOSECONDS);
+                channel.eventLoop().schedule(this::handleDeadTimer, nextDead - ct, TimeUnit.NANOSECONDS);
             }
         }
     }
@@ -161,17 +168,17 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * starts to execute (the session state will become IDLE), that rescheduling won't occur.
      */
     private void handleKeepaliveTimer() {
-        final long ct = TICKER.read();
+        final long ct = ticker.read();
 
-        long nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
+        long nextKeepalive = lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
 
-        if (this.channel.isActive()) {
+        if (channel.isActive()) {
             if (ct >= nextKeepalive) {
-                this.sendMessage(this.kaMessage);
-                nextKeepalive = this.lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
+                sendMessage(kaMessage);
+                nextKeepalive = lastMessageSentAt + TimeUnit.SECONDS.toNanos(getKeepAliveTimerValue());
             }
 
-            this.channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
+            channel.eventLoop().schedule(this::handleKeepaliveTimer, nextKeepalive - ct, TimeUnit.NANOSECONDS);
         }
     }
 
@@ -192,14 +199,14 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public Future<Void> sendMessage(final Message msg) {
-        final ChannelFuture f = this.channel.writeAndFlush(msg);
-        this.lastMessageSentAt = TICKER.read();
-        this.sessionState.updateLastSentMsg();
+        final ChannelFuture f = channel.writeAndFlush(msg);
+        lastMessageSentAt = ticker.read();
+        sessionState.updateLastSentMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP Message enqueued: {}", msg);
         }
         if (msg instanceof PcerrMessage) {
-            this.sessionState.setLastSentError(msg);
+            sessionState.setLastSentError(msg);
         }
 
         f.addListener((ChannelFutureListener) arg -> {
@@ -214,14 +221,14 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     }
 
     @VisibleForTesting
-    ChannelFuture closeChannel() {
-        LOG.info("Closing PCEP session channel: {}", this.channel);
-        return this.channel.close();
+    Future<Void> closeChannel() {
+        LOG.info("Closing PCEP session channel: {}", channel);
+        return channel.close();
     }
 
     @VisibleForTesting
     public synchronized boolean isClosed() {
-        return this.closed.get();
+        return closed.get();
     }
 
     /**
@@ -239,7 +246,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @Override
     public void close(final TerminationReason reason) {
-        if (this.closed.getAndSet(true)) {
+        if (closed.getAndSet(true)) {
             LOG.debug("Session is already closed.");
             return;
         }
@@ -257,26 +264,26 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public Tlvs getRemoteTlvs() {
-        return this.remoteOpen.getTlvs();
+        return remoteOpen.getTlvs();
     }
 
     @Override
     public InetAddress getRemoteAddress() {
-        return ((InetSocketAddress) this.channel.remoteAddress()).getAddress();
+        return ((InetSocketAddress) channel.remoteAddress()).getAddress();
     }
 
     private synchronized void terminate(final TerminationReason reason) {
-        if (this.closed.get()) {
+        if (closed.get()) {
             LOG.debug("Session {} is already closed.", this);
             return;
         }
         close(reason);
-        this.listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
+        listener.onSessionTerminated(this, new PCEPCloseTermination(reason));
     }
 
     synchronized void endOfInput() {
-        if (!this.closed.getAndSet(true)) {
-            this.listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
+        if (!closed.getAndSet(true)) {
+            listener.onSessionDown(this, new IOException("End of input detected. Close the session."));
         }
     }
 
@@ -291,7 +298,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param open Open Object
      */
     private void sendErrorMessage(final PCEPErrors value, final Open open) {
-        this.sendMessage(Util.createErrorMessage(value, open));
+        sendMessage(Util.createErrorMessage(value, open));
     }
 
     /**
@@ -304,15 +311,15 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      */
     @VisibleForTesting
     void handleMalformedMessage(final PCEPErrors error) {
-        final long ct = TICKER.read();
+        final long ct = ticker.read();
         this.sendErrorMessage(error);
         if (error == PCEPErrors.CAPABILITY_NOT_SUPPORTED) {
-            this.unknownMessagesTimes.add(ct);
-            while (ct - this.unknownMessagesTimes.peek() > MINUTE) {
-                this.unknownMessagesTimes.remove();
+            unknownMessagesTimes.add(ct);
+            while (ct - unknownMessagesTimes.peek() > MINUTE) {
+                unknownMessagesTimes.remove();
             }
-            if (this.unknownMessagesTimes.size() > this.maxUnknownMessages) {
-                this.terminate(TerminationReason.TOO_MANY_UNKNOWN_MSGS);
+            if (unknownMessagesTimes.size() > maxUnknownMessages) {
+                terminate(TerminationReason.TOO_MANY_UNKNOWN_MSGS);
             }
         }
     }
@@ -324,13 +331,13 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
      * @param msg incoming message
      */
     public synchronized void handleMessage(final Message msg) {
-        if (this.closed.get()) {
+        if (closed.get()) {
             LOG.debug("PCEP Session {} is already closed, skip handling incoming message {}", this, msg);
             return;
         }
         // Update last reception time
-        this.lastMessageReceivedAt = TICKER.read();
-        this.sessionState.updateLastReceivedMsg();
+        lastMessageReceivedAt = ticker.read();
+        sessionState.updateLastReceivedMsg();
         if (!(msg instanceof KeepaliveMessage)) {
             LOG.debug("PCEP message {} received.", msg);
         }
@@ -346,34 +353,31 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
              * session DOWN event.
              */
             close();
-            this.listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason
+            listener.onSessionTerminated(this, new PCEPCloseTermination(TerminationReason
                     .forValue(((CloseMessage) msg).getCCloseMessage().getCClose().getReason())));
         } else {
             // This message needs to be handled by the user
             if (msg instanceof PcerrMessage) {
-                this.sessionState.setLastReceivedError(msg);
+                sessionState.setLastReceivedError(msg);
             }
-            this.listener.onMessage(this, msg);
+            listener.onMessage(this, msg);
         }
     }
 
     @Override
     public final String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
-    }
-
-    private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("channel", this.channel);
-        toStringHelper.add("localOpen", this.localOpen);
-        toStringHelper.add("remoteOpen", this.remoteOpen);
-        return toStringHelper;
+        return MoreObjects.toStringHelper(this)
+            .add("channel", channel)
+            .add("localOpen", localOpen)
+            .add("remoteOpen", remoteOpen)
+            .toString();
     }
 
     @VisibleForTesting
     @SuppressWarnings("checkstyle:IllegalCatch")
     void sessionUp() {
         try {
-            this.listener.onSessionUp(this);
+            listener.onSessionUp(this);
         } catch (final RuntimeException e) {
             handleException(e);
             throw e;
@@ -382,27 +386,27 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @VisibleForTesting
     final Queue<Long> getUnknownMessagesTimes() {
-        return this.unknownMessagesTimes;
+        return unknownMessagesTimes;
     }
 
     @Override
     public Messages getMessages() {
-        return this.sessionState.getMessages(this.unknownMessagesTimes.size());
+        return sessionState.getMessages(unknownMessagesTimes.size());
     }
 
     @Override
     public LocalPref getLocalPref() {
-        return this.sessionState.getLocalPref();
+        return sessionState.getLocalPref();
     }
 
     @Override
     public PeerPref getPeerPref() {
-        return this.sessionState.getPeerPref();
+        return sessionState.getPeerPref();
     }
 
     @Override
     public Open getLocalOpen() {
-        return this.sessionState.getLocalOpen();
+        return sessionState.getLocalOpen();
     }
 
     @Override
@@ -421,7 +425,7 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public final synchronized void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
+        sessionUp();
     }
 
     @Override
@@ -431,11 +435,6 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
 
     @Override
     public Tlvs getLocalTlvs() {
-        return this.localOpen.getTlvs();
-    }
-
-    @VisibleForTesting
-    static void setTicker(final Ticker ticker) {
-        TICKER = ticker;
+        return localOpen.getTlvs();
     }
 }

@@ -32,10 +32,8 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
-
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
-    private final TestTicker ticker = new TestTicker();
 
     @Before
     public void setup() {
@@ -209,8 +207,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void testUnknownMessage() throws Exception {
         final SimpleSessionListener client = new SimpleSessionListener();
         final PCEPSessionImpl session = new PCEPSessionImpl(client, 5, channel,
-            openMsg.getOpenMessage().getOpen(), openMsg.getOpenMessage().getOpen());
-        PCEPSessionImpl.setTicker(ticker);
+            openMsg.getOpenMessage().getOpen(), openMsg.getOpenMessage().getOpen(), new TestTicker());
+
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         final Queue<Long> qeue = session.getUnknownMessagesTimes();
         CheckTestUtil.checkEquals(() -> assertEquals(1, qeue.size()));
