@@ -278,30 +278,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 session = null;
                 listenerState = null;
                 syncOptimization = null;
-
-                // Clear all requests we know about
-                for (final Entry<SrpIdNumber, PCEPRequest> e : requests.entrySet()) {
-                    // FIXME: exhaustive when we have JDK17+
-                    switch (e.getValue().cancel()) {
-                        case DONE:
-                            // Done is done, nothing to do
-                            LOG.trace("Request {} was done when session went down.", e.getKey());
-                            break;
-                        case UNACKED:
-                            // Peer has not acked: results in failure
-                            LOG.info("Request {} was incomplete when session went down, failing the instruction",
-                                    e.getKey());
-                            break;
-                        case UNSENT:
-                            // Peer has not been sent to the peer: results in cancellation
-                            LOG.debug("Request {} was not sent when session went down, cancelling the instruction",
-                                    e.getKey());
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                requests.clear();
+                clearRequests();
             }
         }
     }
@@ -379,7 +356,11 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 if (session != null) {
                     LOG.info("Closing session {}", session);
                     session.close(TerminationReason.UNKNOWN);
+                    session = null;
                 }
+                listenerState = null;
+                syncOptimization = null;
+                clearRequests();
             }
         }
     }
@@ -391,6 +372,33 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             LOG.debug("Clear Node state: {}", nodeState.getNodeId());
             nodeState = null;
         }
+    }
+
+    @Holding({"this.serverSessionManager", "this"})
+    private void clearRequests() {
+        // Clear all requests we know about
+        for (final Entry<SrpIdNumber, PCEPRequest> e : requests.entrySet()) {
+            // FIXME: exhaustive when we have JDK17+
+            switch (e.getValue().cancel()) {
+                case DONE:
+                    // Done is done, nothing to do
+                    LOG.trace("Request {} was done when session went down.", e.getKey());
+                    break;
+                case UNACKED:
+                    // Peer has not acked: results in failure
+                    LOG.info("Request {} was incomplete when session went down, failing the instruction",
+                            e.getKey());
+                    break;
+                case UNSENT:
+                    // Peer has not been sent to the peer: results in cancellation
+                    LOG.debug("Request {} was not sent when session went down, cancelling the instruction",
+                            e.getKey());
+                    break;
+                default:
+                    break;
+            }
+        }
+        requests.clear();
     }
 
     final synchronized PCEPRequest removeRequest(final SrpIdNumber id) {
