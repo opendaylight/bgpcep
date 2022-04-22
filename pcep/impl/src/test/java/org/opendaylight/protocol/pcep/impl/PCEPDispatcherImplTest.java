@@ -8,7 +8,14 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -33,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,7 +118,7 @@ public class PCEPDispatcherImplTest {
         final PCEPSessionImpl session2 = pccMock.createClient(clientAddr2,
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
-        Assert.assertTrue(futureChannel.channel().isActive());
+        assertTrue(futureChannel.channel().isActive());
         assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
         assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
         assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
@@ -123,11 +129,11 @@ public class PCEPDispatcherImplTest {
 
         session1.close();
         session2.close();
-        Assert.assertTrue(futureChannel.channel().isActive());
+        assertTrue(futureChannel.channel().isActive());
     }
 
     @Test(timeout = 20000)
-    public void testCreateDuplicateClient() throws InterruptedException {
+    public void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -142,11 +148,13 @@ public class PCEPDispatcherImplTest {
         futureClient.sync();
 
         try (PCEPSessionImpl ignored = futureClient.get()) {
-            pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
-                    SimpleSessionListener::new).get();
-            Assert.fail();
-        } catch (final ExecutionException e) {
-            Assert.assertTrue(e.getMessage().contains("A conflicting session for address"));
+            final var cause = assertThrows(ExecutionException.class,
+                () -> pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get())
+                .getCause();
+            assertThat(cause, instanceOf(IllegalStateException.class));
+            assertThat(cause.getMessage(), allOf(
+                startsWith("A conflicting session for address "),
+                endsWith(" found.")));
         }
     }
 
