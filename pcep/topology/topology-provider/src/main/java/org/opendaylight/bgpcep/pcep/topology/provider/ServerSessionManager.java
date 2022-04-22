@@ -15,6 +15,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -60,6 +62,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
+    private final @NonNull HashedWheelTimer timer = new HashedWheelTimer();
 
     @VisibleForTesting
     final AtomicBoolean isClosed = new AtomicBoolean(false);
@@ -115,14 +118,24 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             LOG.error("Session Manager has already been closed.");
             return CommitInfo.emptyFluentFuture();
         }
+
+        // Clean up sessions
         for (final TopologySessionListener node : nodes.values()) {
             node.close();
         }
         nodes.clear();
+
+        // Clean up remembered metadata
         for (final TopologyNodeState topologyNodeState : state.values()) {
             topologyNodeState.close();
         }
         state.clear();
+
+        // Stop the timer
+        final var cancelledTasks = timer.stop().size();
+        if (cancelledTasks != 0) {
+            LOG.warn("Stopped timer with {} remaining tasks", cancelledTasks);
+        }
 
         final WriteTransaction t = dependencies.getDataBroker().newWriteOnlyTransaction();
         t.delete(LogicalDatastoreType.OPERATIONAL, topology);
@@ -244,6 +257,10 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         return RpcResultBuilder.<Void>failed()
             .withError(RpcError.ErrorType.RPC, "Failed to find session " + nodeId)
             .buildFuture();
+    }
+
+    final @NonNull Timer timer() {
+        return timer;
     }
 
     final short getRpcTimeout() {

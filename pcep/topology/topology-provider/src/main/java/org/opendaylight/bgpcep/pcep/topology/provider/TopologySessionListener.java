@@ -10,6 +10,5 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 
 interface TopologySessionListener extends PCEPSessionListener, TopologySessionRPCs {
-    // FIXME: this needs to provide a future which completes when everything is cleaned up
     void close();
 }
