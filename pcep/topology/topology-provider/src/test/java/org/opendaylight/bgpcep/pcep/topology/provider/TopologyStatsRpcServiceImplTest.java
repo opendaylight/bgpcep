@@ -10,8 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -218,17 +216,17 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
 
         // Non-existing topology
         in = createGetStatsInput(NONEXISTENT_TOPOLOGY, null);
-        out = createGetStatsOutput(NONEXISTENT_TOPOLOGY, Collections.emptyList(), null);
+        out = createGetStatsOutput(NONEXISTENT_TOPOLOGY, List.of(), null);
         performTest(in, out);
 
         // Non-existent node
-        in = createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NONEXISTENT_NODE));
-        out = createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NONEXISTENT_NODE), null);
+        in = createGetStatsInput(TOPOLOGY_ID1, List.of(NONEXISTENT_NODE));
+        out = createGetStatsOutput(TOPOLOGY_ID1, List.of(NONEXISTENT_NODE), null);
         performTest(in, out);
 
         // Non-PCEP topology
-        in = createGetStatsInput(NONPCEP_TOPOLOGY, Collections.singletonList(NONPCEP_NODE));
-        out = createGetStatsOutput(NONPCEP_TOPOLOGY, Collections.singletonList(NONPCEP_NODE), null);
+        in = createGetStatsInput(NONPCEP_TOPOLOGY, List.of(NONPCEP_NODE));
+        out = createGetStatsOutput(NONPCEP_TOPOLOGY, List.of(NONPCEP_NODE), null);
         performTest(in, out);
     }
 
@@ -239,17 +237,17 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
 
         // Match one PCEP topology
         in = createGetStatsInput(TOPOLOGY_ID1, null);
-        out = createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState());
+        out = createGetStatsOutput(TOPOLOGY_ID1, List.of(NODE_ID1), createRpcSessionState());
         performTest(in, out);
 
         // Match one PCEP node in one topology
-        in = createGetStatsInput(TOPOLOGY_ID2, Collections.singletonList(NODE_ID3));
-        out = createGetStatsOutput(TOPOLOGY_ID2, Collections.singletonList(NODE_ID3), createRpcSessionState());
+        in = createGetStatsInput(TOPOLOGY_ID2, List.of(NODE_ID3));
+        out = createGetStatsOutput(TOPOLOGY_ID2, List.of(NODE_ID3), createRpcSessionState());
         performTest(in, out);
 
         // Match two PCEP nodes in one topology
-        in = createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3));
-        out = createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState());
+        in = createGetStatsInput(TOPOLOGY_ID2, List.of(NODE_ID2, NODE_ID3));
+        out = createGetStatsOutput(TOPOLOGY_ID2, List.of(NODE_ID2, NODE_ID3), createRpcSessionState());
         performCountTest(in, out);
     }
 
@@ -257,9 +255,9 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     public void testGetStatsAllMatch() throws Exception {
         GetStatsInput in;
 
-        final var ot1 = createGetStatsOutput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1), createRpcSessionState())
+        final var ot1 = createGetStatsOutput(TOPOLOGY_ID1, List.of(NODE_ID1), createRpcSessionState())
                 .getTopology().values() .iterator().next();
-        final var ot2 = createGetStatsOutput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3), createRpcSessionState())
+        final var ot2 = createGetStatsOutput(TOPOLOGY_ID2, List.of(NODE_ID2, NODE_ID3), createRpcSessionState())
                 .getTopology().values().iterator().next();
         final GetStatsOutput out = new GetStatsOutputBuilder().setTopology(BindingMap.of(ot1, ot2)).build();
 
@@ -268,9 +266,9 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         performCountTest(in, out);
 
         // Explicitly match all PCEP topologies and nodes
-        final var it1 = createGetStatsInput(TOPOLOGY_ID1, Collections.singletonList(NODE_ID1)).getTopology().values()
+        final var it1 = createGetStatsInput(TOPOLOGY_ID1, List.of(NODE_ID1)).getTopology().values()
                 .iterator().next();
-        final var it2 = createGetStatsInput(TOPOLOGY_ID2, Arrays.asList(NODE_ID2, NODE_ID3)).getTopology().values()
+        final var it2 = createGetStatsInput(TOPOLOGY_ID2, List.of(NODE_ID2, NODE_ID3)).getTopology().values()
                 .iterator().next();
         in = new GetStatsInputBuilder().setTopology(BindingMap.of(it1, it2)).build();
         performCountTest(in, out);
