@@ -14,9 +14,8 @@ import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createL
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
@@ -42,12 +41,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTest {
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
     /**
      * Test Triggered Initial Sync procedure.
      **/
@@ -114,7 +107,7 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
                     .object.lsp.TlvsBuilder().addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params
                         .xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs1Builder()
                         .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.TWO).build()).build())
-                    .build()), true, false), Optional.empty(), createPath(Collections.emptyList()));
+                    .build()), true, false), Optional.empty(), createPath(List.of()));
     }
 
     private static Pcrpt getPcrpt() {
@@ -133,6 +126,6 @@ public class PCETriggeredInitialSyncProcedureTest extends AbstractPCEPSessionTes
                                 .build())
                         .build())
             .setPlspId(new PlspId(Uint32.ONE)).setSync(true).setRemove(false)
-            .setOperational(OperationalStatus.Active).build(), Optional.empty(), createPath(Collections.emptyList()));
+            .setOperational(OperationalStatus.Active).build(), Optional.empty(), createPath(List.of()));
     }
 }
