@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
@@ -110,7 +109,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
             receivedMsgs.add(invocation.getArgument(0, Notification.class));
             return channelFuture;
         }).when(clientListener).writeAndFlush(any(Notification.class));
-        doReturn(null).when(channelFuture).addListener(Mockito.any());
+        doReturn(null).when(channelFuture).addListener(any());
         doReturn("TestingChannel").when(clientListener).toString();
         doReturn(pipeline).when(clientListener).pipeline();
         doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
