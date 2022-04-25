@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>config-loader-artifacts</artifactId>
-    <version>0.17.2-SNAPSHOT</version>
+    <version>0.17.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
