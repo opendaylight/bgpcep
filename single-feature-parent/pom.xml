@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>single-feature-parent</artifactId>
-    <version>0.17.2-SNAPSHOT</version>
+    <version>0.17.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 

@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>graph</artifactId>
-    <version>0.17.2-SNAPSHOT</version>
+    <version>0.17.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>Graph Network Topology components</description>
     <name>${project.artifactId}</name>
