@@ -77,7 +77,7 @@ import org.slf4j.LoggerFactory;
 @RequireServiceComponentRuntime
 public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
     @ObjectClassDefinition
-    public static @interface Configuration {
+    public @interface Configuration {
         @AttributeDefinition(description = "Name of the OpenConfig network instance to which to bind")
         String networkInstanceName() default "global-bgp";
 
