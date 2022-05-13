@@ -24,6 +24,10 @@
     <description>BGP Parser Mock Implementation</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
