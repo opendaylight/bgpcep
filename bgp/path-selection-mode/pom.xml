@@ -23,6 +23,9 @@
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
 
     <dependencies>
         <dependency>
