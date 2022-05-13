@@ -49,7 +49,7 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
      * Configuration for BGP linkstate extension.
      */
     @ObjectClassDefinition(description = "Configuration for the RFC7752 (BGP-LS) extension")
-    public static @interface Configuration {
+    public @interface Configuration {
         @AttributeDefinition(description = "If true (default) linkstate attribute type (=29) allocated by IANA is used,"
             + " else type (=99) is used for parsing/serialization")
         boolean ianaAttributeType() default true;
