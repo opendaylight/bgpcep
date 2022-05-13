@@ -24,6 +24,10 @@
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -67,6 +71,7 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+
         <!--Test dependencies-->
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>

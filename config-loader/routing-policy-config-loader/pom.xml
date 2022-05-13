@@ -31,10 +31,6 @@
             <artifactId>config-loader-spi</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>yang-binding</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-model-api</artifactId>
         </dependency>
@@ -80,6 +76,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>config-loader-impl</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>yang-binding</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

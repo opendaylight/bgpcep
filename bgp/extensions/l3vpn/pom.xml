@@ -22,6 +22,10 @@
     <description>BGP L3 VPN</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
