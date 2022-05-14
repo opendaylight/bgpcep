@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-config-example</artifactId>
-    <version>0.17.3-SNAPSHOT</version>
+    <version>0.17.3</version>
     <packaging>jar</packaging>
     <description>Configuration files example for PCEP protocol</description>
     <name>${project.artifactId}</name>
