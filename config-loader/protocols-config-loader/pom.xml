@@ -34,10 +34,6 @@
             <artifactId>bgp-openconfig-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>yang-binding</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>yang-model-api</artifactId>
         </dependency>
@@ -82,6 +78,11 @@
         </dependency>
 
         <!--Test dependencies-->
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>yang-binding</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-test-utils</artifactId>
