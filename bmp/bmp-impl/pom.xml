@@ -21,6 +21,10 @@
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -121,6 +125,10 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-classes-epoll</artifactId>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
