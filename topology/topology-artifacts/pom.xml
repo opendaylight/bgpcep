@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>topology-artifacts</artifactId>
-    <version>0.16.15-SNAPSHOT</version>
+    <version>0.16.16-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
