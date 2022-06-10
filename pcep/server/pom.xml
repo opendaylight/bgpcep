@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-server-parent</artifactId>
-    <version>0.17.5-SNAPSHOT</version>
+    <version>0.17.5</version>
     <packaging>pom</packaging>
     <description>Path Computation Element Server</description>
     <name>${project.artifactId}</name>
