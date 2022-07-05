@@ -31,7 +31,7 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     @Override
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return List.of(context.registerRIBSupport(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
+        return List.of(context.registerRIBSupport(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE,
                 new EvpnRibSupport(mappingService)));
     }
 }

@@ -44,7 +44,7 @@ public interface RouteEntryDependenciesContainer {
      *
      * @return TablesKey
      */
-    @NonNull Class<? extends AfiSafiType> getAfiSafType();
+    @NonNull AfiSafiType getAfiSafType();
 
     /**
      * Returns the loc-rib table to be updated and to which corresponds this Route Entry.

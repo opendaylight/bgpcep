@@ -22,7 +22,7 @@ public final class BGPActivatorTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(BGPActivator.MCAST_L3VPN_SAFI));
         act.start(context);
-        assertEquals(McastMplsLabeledVpnSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+        assertEquals(McastMplsLabeledVpnSubsequentAddressFamily.VALUE, context.getSubsequentAddressFamilyRegistry()
                 .classForFamily(BGPActivator.MCAST_L3VPN_SAFI));
     }
 }

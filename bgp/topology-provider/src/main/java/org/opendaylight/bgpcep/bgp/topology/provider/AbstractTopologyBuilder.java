@@ -58,8 +58,8 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     private final InstanceIdentifier<Topology> topology;
     private final RibReference locRibReference;
     private final DataBroker dataProvider;
-    private final Class<? extends AddressFamily> afi;
-    private final Class<? extends SubsequentAddressFamily> safi;
+    private final AddressFamily afi;
+    private final SubsequentAddressFamily safi;
     private final TopologyKey topologyKey;
     private final TopologyTypes topologyTypes;
     private final long listenerResetLimitInMillsec;
@@ -79,9 +79,9 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     protected boolean networkTopologyTransaction = true;
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
-        final Class<? extends SubsequentAddressFamily> safi, final long listenerResetLimitInMillsec,
-        final int listenerResetEnforceCounter) {
+            final TopologyId topologyId, final TopologyTypes types, final AddressFamily afi,
+            final SubsequentAddressFamily safi, final long listenerResetLimitInMillsec,
+            final int listenerResetEnforceCounter) {
         this.dataProvider = dataProvider;
         this.locRibReference = requireNonNull(locRibReference);
         this.topologyKey = new TopologyKey(requireNonNull(topologyId));
@@ -95,8 +95,8 @@ public abstract class AbstractTopologyBuilder<T extends Route> implements Cluste
     }
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-        final TopologyId topologyId, final TopologyTypes types, final Class<? extends AddressFamily> afi,
-        final Class<? extends SubsequentAddressFamily> safi) {
+        final TopologyId topologyId, final TopologyTypes types, final AddressFamily afi,
+        final SubsequentAddressFamily safi) {
         this(dataProvider, locRibReference, topologyId, types, afi, safi, LISTENER_RESET_LIMIT_IN_MILLSEC,
                 LISTENER_RESET_ENFORCE_COUNTER);
     }

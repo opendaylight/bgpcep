@@ -118,7 +118,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
 
     private static @Nullable List<EvpnDestination> parseNlri(final ByteBuf nlri,
             final PeerSpecificParserConstraint constraints,
-            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
         if (!nlri.isReadable()) {
             return null;
         }

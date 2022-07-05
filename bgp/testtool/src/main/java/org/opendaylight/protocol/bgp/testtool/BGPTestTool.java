@@ -55,15 +55,15 @@ final class BGPTestTool {
     void start(final Arguments arguments) {
         final BGPDispatcher dispatcher = initializeActivator();
 
-        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class),
-            createMPCapability(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class),
-            createMPCapability(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
-            createMPCapability(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class),
-            createMPCapability(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class),
-            createMPCapability(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class),
-            createMPCapability(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class),
-            createMPCapability(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class),
+        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.VALUE,
+                UnicastSubsequentAddressFamily.VALUE),
+            createMPCapability(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE),
+            createMPCapability(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE),
+            createMPCapability(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE),
+            createMPCapability(Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE),
+            createMPCapability(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE),
+            createMPCapability(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE),
+            createMPCapability(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE),
                 createAs4BytesMPCapability(arguments.getAs()));
         if (arguments.getMultiPathSupport()) {
             optCap.add(createAddPathCapability());
@@ -90,8 +90,8 @@ final class BGPTestTool {
             new NioEventLoopGroup(), new NioEventLoopGroup(), new StrictBGPPeerRegistry());
     }
 
-    private static OptionalCapabilities createMPCapability(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    private static OptionalCapabilities createMPCapability(final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         return new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder()
                     .addAugmentation(new CParameters1Builder()
@@ -119,8 +119,8 @@ final class BGPTestTool {
                     .addAugmentation(new CParameters1Builder()
                         .setAddPathCapability(new AddPathCapabilityBuilder()
                             .setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv4AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setSendReceive(SendReceive.Both)
                                 .build()))
                             .build())

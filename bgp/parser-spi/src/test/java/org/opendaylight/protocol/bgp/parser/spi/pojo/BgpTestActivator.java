@@ -129,9 +129,9 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
         regs.add(context.registerMessageParser(TYPE, msgParser));
         regs.add(context.registerMessageSerializer(MockNotification.class, msgSerializer));
 
-        regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, 1));
-        regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, 2));
-        regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, 1));
+        regs.add(context.registerAddressFamily(Ipv4AddressFamily.VALUE, 1));
+        regs.add(context.registerAddressFamily(Ipv6AddressFamily.VALUE, 2));
+        regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.VALUE, 1));
 
         nextHopParserSerializer = new NextHopParserSerializer() {
             @Override
@@ -149,9 +149,9 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
             }
         };
 
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, nlriParser,
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE, nlriParser,
             nextHopParserSerializer, Ipv4NextHopCase.class));
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, nlriParser,
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE, nlriParser,
             nextHopParserSerializer, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(DataObject.class, nlriSerializer));
 

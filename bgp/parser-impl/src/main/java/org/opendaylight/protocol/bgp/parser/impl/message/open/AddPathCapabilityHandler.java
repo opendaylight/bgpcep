@@ -61,10 +61,10 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
         if (families != null) {
             final ByteBuf capBuffer = Unpooled.buffer(families.size() * TRIPLET_BYTE_SIZE);
             for (final AddressFamilies addressFamily : families) {
-                final Class<? extends AddressFamily> afi = addressFamily.getAfi();
+                final AddressFamily afi = addressFamily.getAfi();
                 final Integer afival = this.afiReg.numberForClass(afi);
                 checkArgument(afival != null, "Unhandled address family " + afi);
-                final Class<? extends SubsequentAddressFamily> safi = addressFamily.getSafi();
+                final SubsequentAddressFamily safi = addressFamily.getSafi();
                 final Integer safival = this.safiReg.numberForClass(safi);
                 checkArgument(safival != null, "Unhandled subsequent address family " + safi);
                 final SendReceive sendReceive = addressFamily.getSendReceive();
@@ -82,12 +82,12 @@ public class AddPathCapabilityHandler implements CapabilityParser, CapabilitySer
         final List<AddressFamilies> families = new ArrayList<>();
         while (buffer.isReadable()) {
             final int afiVal = buffer.readUnsignedShort();
-            final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
+            final AddressFamily afi = this.afiReg.classForFamily(afiVal);
             if (afi == null) {
                 throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
             }
             final int safiVal = buffer.readUnsignedByte();
-            final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
+            final SubsequentAddressFamily safi = this.safiReg.classForFamily(safiVal);
             if (safi == null) {
                 throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
             }

@@ -37,12 +37,12 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     @Override
     public RouteAttributeContainer applyExportStatement(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final RouteAttributeContainer attributes,
             final Statement statement) {
         final Attributes att = attributes.getAttributes();
-        if (att == null || !this.conditionsRegistry.matchExportConditions(
+        if (att == null || !conditionsRegistry.matchExportConditions(
                 afiSafi,
                 routeEntryInfo,
                 routeEntryExportParameters,
@@ -50,7 +50,7 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
                 statement.getConditions())) {
             return attributes;
         }
-        return routeAttributeContainerTrue(this.actionsRegistry.applyExportAction(
+        return routeAttributeContainerTrue(actionsRegistry.applyExportAction(
                 routeEntryInfo,
                 routeEntryExportParameters,
                 attributes.getAttributes(),
@@ -60,12 +60,12 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     @Override
     public RouteAttributeContainer applyImportStatement(
             final RouteEntryBaseAttributes routeEntryInfo,
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final RouteAttributeContainer attributes,
             final Statement statement) {
         final Attributes att = attributes.getAttributes();
-        if (att == null || !this.conditionsRegistry.matchImportConditions(
+        if (att == null || !conditionsRegistry.matchImportConditions(
                 afiSafi,
                 routeEntryInfo,
                 routeEntryImportParameters,
@@ -73,7 +73,7 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
                 statement.getConditions())) {
             return attributes;
         }
-        return routeAttributeContainerTrue(this.actionsRegistry.applyImportAction(
+        return routeAttributeContainerTrue(actionsRegistry.applyImportAction(
                 routeEntryInfo,
                 routeEntryImportParameters,
                 att,
@@ -84,41 +84,41 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
     public AbstractRegistration registerConditionPolicy(
             final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
             final ConditionsAugPolicy conditionPolicy) {
-        return this.conditionsRegistry.registerConditionPolicy(conditionPolicyClass, conditionPolicy);
+        return conditionsRegistry.registerConditionPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
     public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
             final BgpConditionsPolicy<T, N> conditionPolicy) {
-        return this.conditionsRegistry.registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
+        return conditionsRegistry.registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
     public AbstractRegistration registerActionPolicy(
             final Class<? extends Augmentation<Actions>> actionPolicyClass,
             final ActionsAugPolicy actionPolicy) {
-        return this.actionsRegistry.registerActionPolicy(actionPolicyClass, actionPolicy);
+        return actionsRegistry.registerActionPolicy(actionPolicyClass, actionPolicy);
     }
 
     @Override
     public <T extends Augmentation<BgpConditions>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<T> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy<T, N> conditionPolicy) {
-        return this.conditionsRegistry.registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
+        return conditionsRegistry.registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
     public <T extends Augmentation<BgpActions>> AbstractRegistration registerBgpActionAugmentationPolicy(
             final Class<T> bgpActionPolicyClass,
             final BgpActionAugPolicy<T> bgpActionPolicy) {
-        return this.actionsRegistry.registerBgpActionAugmentationPolicy(bgpActionPolicyClass, bgpActionPolicy);
+        return actionsRegistry.registerBgpActionAugmentationPolicy(bgpActionPolicyClass, bgpActionPolicy);
     }
 
     @Override
     public <T extends ChildOf<BgpActions>> AbstractRegistration registerBgpActionPolicy(
             final Class<T> bgpActionPolicyClass,
             final BgpActionPolicy<T> bgpActionPolicy) {
-        return this.actionsRegistry.registerBgpActionPolicy(bgpActionPolicyClass, bgpActionPolicy);
+        return actionsRegistry.registerBgpActionPolicy(bgpActionPolicyClass, bgpActionPolicy);
     }
 }

@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
-import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.junit.Before;
@@ -58,38 +58,38 @@ public final class BgpPeerRpcTest {
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException {
-        this.rpc = new BgpPeerRpc(this.peerRpcs, this.session,
-                Collections.singleton(new TablesKey(Ipv4AddressFamily.class, SubsequentAddressFamily.class)));
-        final ChannelOutputLimiter limiter = new ChannelOutputLimiter(this.session);
+        rpc = new BgpPeerRpc(peerRpcs, session,
+                Set.of(new TablesKey(Ipv4AddressFamily.VALUE, SubsequentAddressFamily.VALUE)));
+        final ChannelOutputLimiter limiter = new ChannelOutputLimiter(session);
 
-        doReturn(limiter).when(this.session).getLimiter();
-        doReturn(this.future).when(this.session).writeAndFlush(any(Notification.class));
+        doReturn(limiter).when(session).getLimiter();
+        doReturn(future).when(session).writeAndFlush(any(Notification.class));
 
-        doReturn(true).when(this.future).isSuccess();
+        doReturn(true).when(future).isSuccess();
         doAnswer(invocation -> {
             GenericFutureListener<ChannelFuture> listener = invocation.getArgument(0);
-            listener.operationComplete(this.future);
+            listener.operationComplete(future);
             return null;
-        }).when(this.future).addListener(any());
+        }).when(future).addListener(any());
     }
 
     @Test
     public void testRouteRefreshRequestSuccessRequest() throws InterruptedException, ExecutionException {
         final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
-                .setAfi(Ipv4AddressFamily.class)
-                .setSafi(SubsequentAddressFamily.class)
-                .setPeerRef(this.peer).build();
-        final Future<RpcResult<RouteRefreshRequestOutput>> result = this.rpc.routeRefreshRequest(input);
+                .setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(SubsequentAddressFamily.VALUE)
+                .setPeerRef(peer).build();
+        final Future<RpcResult<RouteRefreshRequestOutput>> result = rpc.routeRefreshRequest(input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 
     @Test
     public void testRouteRefreshRequestFailedRequest() throws InterruptedException, ExecutionException {
         final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
-                .setAfi(Ipv6AddressFamily.class)
-                .setSafi(SubsequentAddressFamily.class)
-                .setPeerRef(this.peer).build();
-        final Future<RpcResult<RouteRefreshRequestOutput>> result = this.rpc.routeRefreshRequest(input);
+                .setAfi(Ipv6AddressFamily.VALUE)
+                .setSafi(SubsequentAddressFamily.VALUE)
+                .setPeerRef(peer).build();
+        final Future<RpcResult<RouteRefreshRequestOutput>> result = rpc.routeRefreshRequest(input);
         assertEquals(1, result.get().getErrors().size());
         assertEquals("Failed to send Route Refresh message due to unsupported address families.",
                 result.get().getErrors().iterator().next().getMessage());
@@ -97,10 +97,10 @@ public final class BgpPeerRpcTest {
 
     @Test
     public void testResetSessionRequestSuccessRequest() throws InterruptedException, ExecutionException {
-        doReturn(Futures.immediateFuture(null)).when(this.peerRpcs).releaseConnection();
+        doReturn(Futures.immediateFuture(null)).when(peerRpcs).releaseConnection();
         final ResetSessionInput input = new ResetSessionInputBuilder()
-                .setPeerRef(this.peer).build();
-        final Future<RpcResult<ResetSessionOutput>> result = this.rpc.resetSession(input);
+                .setPeerRef(peer).build();
+        final Future<RpcResult<ResetSessionOutput>> result = rpc.resetSession(input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 
@@ -108,11 +108,11 @@ public final class BgpPeerRpcTest {
     public void testRestartGracefullyRequestFailedRequest() throws ExecutionException, InterruptedException {
         final long referraltimerSeconds = 10L;
         doReturn(new SimpleSessionListener().restartGracefully(referraltimerSeconds))
-                .when(this.peerRpcs).restartGracefully(referraltimerSeconds);
+                .when(peerRpcs).restartGracefully(referraltimerSeconds);
         final RestartGracefullyInput input = new RestartGracefullyInputBuilder()
                 .setSelectionDeferralTime(Uint32.valueOf(referraltimerSeconds))
                 .build();
-        final ListenableFuture<RpcResult<RestartGracefullyOutput>> result = this.rpc.restartGracefully(input);
+        final ListenableFuture<RpcResult<RestartGracefullyOutput>> result = rpc.restartGracefully(input);
         assertTrue(!result.get().getErrors().isEmpty());
     }
 }

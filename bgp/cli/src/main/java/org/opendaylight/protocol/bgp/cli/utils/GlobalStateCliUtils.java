@@ -45,7 +45,7 @@ final class GlobalStateCliUtils {
         final GlobalAfiSafiStateAugmentation state = afiSafi.getState()
                 .augmentation(GlobalAfiSafiStateAugmentation.class);
         addHeader(table, "AFI/SAFI state");
-        table.addRow().addContent("Family", afiSafi.getAfiSafiName().getSimpleName());
+        table.addRow().addContent("Family", afiSafi.getAfiSafiName().implementedInterface().getSimpleName());
         if (state == null) {
             return;
         }
