@@ -164,9 +164,9 @@ public class ParserTest {
         final Update message = ParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes()
+        final AddressFamily afi = message.getAttributes()
             .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
+        final SubsequentAddressFamily safi = message.getAttributes()
             .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
 
         assertEquals(LinkstateAddressFamily.class, afi);
@@ -356,10 +356,10 @@ public class ParserTest {
         clBuilder.setProtocolId(ProtocolId.Ospf);
 
         final AttributesReachBuilder lsBuilder = new AttributesReachBuilder();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(LinkstateAddressFamily.class);
-        mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
-        mpBuilder.setCNextHop(nextHop);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(LinkstateAddressFamily.VALUE)
+            .setSafi(LinkstateSubsequentAddressFamily.VALUE)
+            .setCNextHop(nextHop);
 
         final List<CLinkstateDestination> linkstates = new ArrayList<>();
         final LinkCaseBuilder lCase = new LinkCaseBuilder()
@@ -583,10 +583,10 @@ public class ParserTest {
         linkstates.add(clBuilder.setObjectType(nCase.build()).build());
 
         final AttributesReachBuilder lsBuilder = new AttributesReachBuilder();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(LinkstateAddressFamily.class);
-        mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
-        mpBuilder.setCNextHop(nextHop);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(LinkstateAddressFamily.VALUE)
+            .setSafi(LinkstateSubsequentAddressFamily.VALUE)
+            .setCNextHop(nextHop);
 
         final DestinationLinkstateBuilder dBuilder = new DestinationLinkstateBuilder();
         dBuilder.setCLinkstateDestination(linkstates);
@@ -681,9 +681,9 @@ public class ParserTest {
             }
         }
         final Set<BgpTableType> expected = new HashSet<>();
-        expected.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        expected.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
-        expected.add(new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        expected.add(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
+        expected.add(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
+        expected.add(new BgpTableTypeImpl(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE));
         assertEquals(expected, types);
 
         final ByteBuf buffer = Unpooled.buffer();

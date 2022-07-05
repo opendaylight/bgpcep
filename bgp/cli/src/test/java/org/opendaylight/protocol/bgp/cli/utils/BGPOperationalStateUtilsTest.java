@@ -35,21 +35,21 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
     static final String RIB_ID = "test-rib";
     private static final String RIB_NOT_FOUND = "RIB not found for [test-rib]\n";
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final PrintStream stream = new PrintStream(this.output);
+    private final PrintStream stream = new PrintStream(output);
 
     @Test
     public void testDisplayBgpOperationalStateNotFound() {
-        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), this.stream, RIB_ID, null, null);
-        assertEquals(RIB_NOT_FOUND, this.output.toString());
+        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), stream, RIB_ID, null, null);
+        assertEquals(RIB_NOT_FOUND, output.toString());
     }
 
     @Test
     public void testDisplayBgpOperationalStateFound() throws IOException, ExecutionException, InterruptedException {
         createDefaultProtocol();
-        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), this.stream, RIB_ID, null, null);
+        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), stream, RIB_ID, null, null);
         final String expected = Resources.toString(getClass().getClassLoader().getResource("global.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 
     private void createDefaultProtocol() throws ExecutionException, InterruptedException {
@@ -61,7 +61,7 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
                 .build();
         GlobalStateCliUtilsTest.buildGlobal(true);
         final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
-                .child(Protocol.class, new ProtocolKey(BGP.class, RIB_ID))
+                .child(Protocol.class, new ProtocolKey(BGP.VALUE, RIB_ID))
                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
         wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp);
         wt.commit().get();
@@ -70,10 +70,10 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
     @Test
     public void testDisplayNeighborOperationalState() throws IOException, ExecutionException, InterruptedException {
         createDefaultProtocol();
-        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), this.stream, RIB_ID, null,
+        BGPOperationalStateUtils.displayBgpOperationalState(getDataBroker(), stream, RIB_ID, null,
                 NEIGHBOR_ADDRESS);
         final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 }

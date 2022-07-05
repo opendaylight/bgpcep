@@ -11,8 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,94 +35,70 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("community-statements-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("community-statements-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
     public void testComAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("community-any-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
-                Collections.singletonList(new CommunitiesBuilder()
+                List.of(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
                         .setSemantics(Uint16.TEN)
                         .build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 
     @Test
     public void testComInvert() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("community-invert-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(
-                Collections.singletonList(new CommunitiesBuilder()
+                List.of(new CommunitiesBuilder()
                         .setAsNumber(AsNumber.getDefaultInstance("65"))
                         .setSemantics(Uint16.TEN)
                         .build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
     }
 
     @Test
     public void testComAll() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("community-all-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
-        attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(Arrays.asList(
+        attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setCommunities(List.of(
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65"))
                         .setSemantics(Uint16.TEN).build(),
                 new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66"))
                         .setSemantics(Uint16.valueOf(11)).build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 }

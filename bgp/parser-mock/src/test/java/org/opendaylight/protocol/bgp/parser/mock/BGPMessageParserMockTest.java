@@ -76,9 +76,9 @@ public class BGPMessageParserMockTest {
     @Before
     public void init() throws Exception {
         // Creating input bytes and update messages
-        for (int i = 0; i < this.inputBytes.length; i++) {
-            this.inputBytes[i] = this.fillInputBytes(i);
-            this.messages.add(fillMessages(i));
+        for (int i = 0; i < inputBytes.length; i++) {
+            inputBytes[i] = fillInputBytes(i);
+            messages.add(fillMessages(i));
         }
     }
 
@@ -87,18 +87,18 @@ public class BGPMessageParserMockTest {
      */
     @Test
     public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> updateMap = new HashMap<>();
-        for (int i = 0; i < this.inputBytes.length; i++) {
-            updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
+        final Map<ByteBuf, Notification<?>> updateMap = new HashMap<>();
+        for (int i = 0; i < inputBytes.length; i++) {
+            updateMap.put(Unpooled.copiedBuffer(inputBytes[i]), messages.get(i));
         }
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
 
-        for (int i = 0; i < this.inputBytes.length; i++) {
-            assertEquals(this.messages.get(i),
-                    mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[i]), null));
+        for (int i = 0; i < inputBytes.length; i++) {
+            assertEquals(messages.get(i),
+                    mockParser.parseMessage(Unpooled.copiedBuffer(inputBytes[i]), null));
         }
-        assertNotSame(this.messages.get(3),
-                mockParser.parseMessage(Unpooled.copiedBuffer(this.inputBytes[8]), null));
+        assertNotSame(messages.get(3),
+                mockParser.parseMessage(Unpooled.copiedBuffer(inputBytes[8]), null));
     }
 
     /**
@@ -107,9 +107,9 @@ public class BGPMessageParserMockTest {
      */
     @Test(expected = IllegalArgumentException.class)
     public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> updateMap = new HashMap<>();
-        for (int i = 0; i < this.inputBytes.length; i++) {
-            updateMap.put(Unpooled.copiedBuffer(this.inputBytes[i]), this.messages.get(i));
+        final Map<ByteBuf, Notification<?>> updateMap = new HashMap<>();
+        for (int i = 0; i < inputBytes.length; i++) {
+            updateMap.put(Unpooled.copiedBuffer(inputBytes[i]), messages.get(i));
         }
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
         mockParser.parseMessage(Unpooled.copiedBuffer(new byte[]{7, 4, 6}), null);
@@ -157,11 +157,11 @@ public class BGPMessageParserMockTest {
         paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
         paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
 
-        final MpReachNlriBuilder mpReachBuilder = new MpReachNlriBuilder();
-        mpReachBuilder.setAfi(Ipv6AddressFamily.class);
-        mpReachBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        mpReachBuilder.setCNextHop(nextHop);
-        mpReachBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
+        final MpReachNlriBuilder mpReachBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
+            .setCNextHop(nextHop)
+            .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
                 new DestinationIpv6CaseBuilder().setDestinationIpv6(
                         new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(
                                 new Ipv6PrefixesBuilder().setPrefix(pref1).build(),
@@ -177,16 +177,16 @@ public class BGPMessageParserMockTest {
 
     @Test
     public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException {
-        final Map<ByteBuf, Notification> openMap = new HashMap<>();
+        final Map<ByteBuf, Notification<?>> openMap = new HashMap<>();
 
         final Set<BgpTableType> type = new HashSet<>();
-        type.add(new BgpTableTypeImpl(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class));
+        type.add(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE));
 
         final List<BgpParameters> params = new ArrayList<>();
 
         final CParameters par = new CParametersBuilder().addAugmentation(new CParameters1Builder()
-                .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
-                        .setSafi(MplsLabeledVpnSubsequentAddressFamily.class).build()).build()).build();
+                .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.VALUE)
+                        .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE).build()).build()).build();
         params.add(new BgpParametersBuilder().setOptionalCapabilities(Lists.newArrayList(
                 new OptionalCapabilitiesBuilder().setCParameters(par).build())).build());
 

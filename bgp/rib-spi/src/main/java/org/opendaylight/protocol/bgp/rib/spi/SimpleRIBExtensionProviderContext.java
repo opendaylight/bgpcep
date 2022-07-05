@@ -32,24 +32,23 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
 
     @Override
     public <T extends RIBSupport<?, ?>> RIBSupportRegistration<T> registerRIBSupport(
-            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi,
-            final T support) {
+            final AddressFamily afi, final SubsequentAddressFamily safi, final T support) {
         final TablesKey key = new TablesKey(afi, safi);
-        final RIBSupport<?, ?> prev = this.supports.putIfAbsent(key, support);
+        final RIBSupport<?, ?> prev = supports.putIfAbsent(key, support);
         checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
-        this.domSupports.put(RibSupportUtils.toYangTablesKey(afi, safi), support);
+        domSupports.put(RibSupportUtils.toYangTablesKey(afi, safi), support);
         return new AbstractRIBSupportRegistration<>(support) {
             @Override
             protected void removeRegistration() {
                 // FIXME: clean up registrations, too
-                SimpleRIBExtensionProviderContext.this.supports.remove(key);
+                supports.remove(key);
             }
         };
     }
 
     @Override
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
-            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
         return getRIBSupport(new TablesKey(afi, safi));
     }
 
@@ -57,13 +56,13 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     @SuppressWarnings("unchecked")
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
             final TablesKey key) {
-        return (RIBSupport<C, S>) this.supports.get(requireNonNull(key));
+        return (RIBSupport<C, S>) supports.get(requireNonNull(key));
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
             final NodeIdentifierWithPredicates key) {
-        return (RIBSupport<C, S>) this.domSupports.get(key);
+        return (RIBSupport<C, S>) domSupports.get(key);
     }
 }

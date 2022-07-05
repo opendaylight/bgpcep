@@ -26,7 +26,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 public class IdentifierUtilsTest {
     private static final QName TABLES_KEY_QNAME = QName.create(Tables.QNAME, "tables-key").intern();
-    private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final PeerId PEER_ID = new PeerId("127.0.0.1");
     private static final NodeIdentifierWithPredicates NIWP_PEER = NodeIdentifierWithPredicates.of(Peer.QNAME,
             PEER_ID_QNAME, PEER_ID.getValue());

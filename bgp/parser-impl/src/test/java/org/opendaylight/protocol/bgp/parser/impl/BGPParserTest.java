@@ -535,13 +535,13 @@ public class BGPParserTest {
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes()
-            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
-            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
+        final AddressFamily afi = message.getAttributes().augmentation(AttributesUnreach.class)
+            .getMpUnreachNlri().getAfi();
+        final SubsequentAddressFamily safi = message.getAttributes().augmentation(AttributesUnreach.class)
+            .getMpUnreachNlri().getSafi();
 
-        assertEquals(Ipv6AddressFamily.class, afi);
-        assertEquals(UnicastSubsequentAddressFamily.class, safi);
+        assertEquals(Ipv6AddressFamily.VALUE, afi);
+        assertEquals(UnicastSubsequentAddressFamily.VALUE, safi);
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);
@@ -570,13 +570,13 @@ public class BGPParserTest {
         final Update message = BGPParserTest.updateParser.parseMessageBody(Unpooled.copiedBuffer(body), messageLength,
             null);
 
-        final Class<? extends AddressFamily> afi = message.getAttributes()
-            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = message.getAttributes()
-            .augmentation(AttributesUnreach.class).getMpUnreachNlri().getSafi();
+        final AddressFamily afi = message.getAttributes().augmentation(AttributesUnreach.class).getMpUnreachNlri()
+            .getAfi();
+        final SubsequentAddressFamily safi = message.getAttributes().augmentation(AttributesUnreach.class)
+            .getMpUnreachNlri().getSafi();
 
-        assertEquals(Ipv6AddressFamily.class, afi);
-        assertEquals(UnicastSubsequentAddressFamily.class, safi);
+        assertEquals(Ipv6AddressFamily.VALUE, afi);
+        assertEquals(UnicastSubsequentAddressFamily.VALUE, safi);
 
         final ByteBuf buffer = Unpooled.buffer();
         BGPParserTest.updateParser.serializeMessage(message, buffer);

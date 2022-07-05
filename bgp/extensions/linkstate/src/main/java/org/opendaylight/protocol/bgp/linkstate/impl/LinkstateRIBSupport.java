@@ -54,8 +54,8 @@ public final class LinkstateRIBSupport
                 LinkstateRoutesCase.class,
                 LinkstateRoutes.class,
                 LinkstateRoute.class,
-                LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class,
+                LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE,
                 DestinationLinkstate.QNAME);
     }
 

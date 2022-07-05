@@ -33,9 +33,9 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
-            context.registerRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE,
                 new IPv4RIBSupport(mappingService)),
-            context.registerRIBSupport(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE,
                 new IPv6RIBSupport(mappingService)));
     }
 }

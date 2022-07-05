@@ -201,9 +201,9 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
     @NonNull Update buildUpdate(@NonNull Collection<MapEntryNode> advertised,
             @NonNull Collection<MapEntryNode> withdrawn, @NonNull Attributes attr);
 
-    @NonNull Class<? extends AddressFamily> getAfi();
+    @NonNull AddressFamily getAfi();
 
-    @NonNull Class<? extends SubsequentAddressFamily> getSafi();
+    @NonNull SubsequentAddressFamily getSafi();
 
     /**
      * Creates Route table Peer InstanceIdentifier.

@@ -90,17 +90,17 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
         regs.add(tunnelIdentifierReg.registerParser(mldpMp2mpLspParser));
         regs.add(tunnelIdentifierReg.registerSerializer(mldpMp2mpLspParser));
 
-        regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.class, MVPN_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(McastVpnSubsequentAddressFamily.VALUE, MVPN_SAFI));
 
         final MvpnIpv4NlriHandler mvpnIpv4NlriHandler = new MvpnIpv4NlriHandler();
         final Ipv4NextHopParserSerializer ipv4NextHopParser = new Ipv4NextHopParserSerializer();
-        regs.add(context.registerNlriParser(Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class,
+        regs.add(context.registerNlriParser(Ipv4AddressFamily.VALUE, McastVpnSubsequentAddressFamily.VALUE,
                 mvpnIpv4NlriHandler, ipv4NextHopParser, Ipv4NextHopCase.class));
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv4.class, mvpnIpv4NlriHandler));
 
         final MvpnIpv6NlriHandler mvpnIpv6NlriHandler = new MvpnIpv6NlriHandler();
         final Ipv6NextHopParserSerializer ipv6NextHopParser = new Ipv6NextHopParserSerializer();
-        regs.add(context.registerNlriParser(Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class,
+        regs.add(context.registerNlriParser(Ipv6AddressFamily.VALUE, McastVpnSubsequentAddressFamily.VALUE,
                 mvpnIpv6NlriHandler, ipv6NextHopParser, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(MvpnRoutesIpv6.class, mvpnIpv6NlriHandler));
 
