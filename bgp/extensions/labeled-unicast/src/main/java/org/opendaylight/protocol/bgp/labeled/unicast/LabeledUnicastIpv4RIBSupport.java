@@ -26,7 +26,7 @@ public final class LabeledUnicastIpv4RIBSupport
         super(mappingService,
                 LabeledUnicastRoutesCase.class,
                 LabeledUnicastRoutes.class,
-                Ipv4AddressFamily.class,
+                Ipv4AddressFamily.VALUE,
                 DestinationLabeledUnicast.QNAME);
     }
 

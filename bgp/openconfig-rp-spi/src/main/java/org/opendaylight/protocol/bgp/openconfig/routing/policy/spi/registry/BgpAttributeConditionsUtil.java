@@ -43,7 +43,7 @@ final class BgpAttributeConditionsUtil {
     }
 
     static boolean matchConditions(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final Attributes attributes,
             final BgpConditions conditions) {
         return matchAfiSafi(afiSafi, conditions.getAfiSafiIn())
@@ -54,8 +54,8 @@ final class BgpAttributeConditionsUtil {
             && matchLocalPref(attributes.getLocalPref(), conditions.getLocalPrefEq());
     }
 
-    private static boolean matchAfiSafi(final Class<? extends AfiSafiType> afiSafi,
-            final Set<Class<? extends AfiSafiType>> afiSafiIn) {
+    private static boolean matchAfiSafi(final AfiSafiType afiSafi,
+            final Set<AfiSafiType> afiSafiIn) {
         return afiSafiIn == null || afiSafiIn.contains(afiSafi);
     }
 
@@ -81,13 +81,13 @@ final class BgpAttributeConditionsUtil {
                     .filter(Objects::nonNull).mapToInt(Set::size).sum();
         }
 
-        final Class<? extends AttributeComparison> comp = asPathLength.getOperator();
+        final AttributeComparison comp = asPathLength.getOperator();
         final long asLength = asPathLength.getValue().toJava();
-        if (comp == AttributeEq.class) {
+        if (comp.equals(AttributeEq.VALUE)) {
             return total == asLength;
-        } else if (comp == AttributeGe.class) {
+        } else if (comp.equals(AttributeGe.VALUE)) {
             return total >= asLength;
-        } else if (comp == AttributeLe.class) {
+        } else if (comp.equals(AttributeLe.VALUE)) {
             return total <= asLength;
         }
         return false;

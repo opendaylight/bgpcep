@@ -233,8 +233,8 @@ public final class TestUtil {
         if (multiprotocol) {
             paramsBuilder.addAugmentation(new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                    .setAfi(Ipv4AddressFamily.class)
-                    .setSafi(UnicastSubsequentAddressFamily.class)
+                    .setAfi(Ipv4AddressFamily.VALUE)
+                    .setSafi(UnicastSubsequentAddressFamily.VALUE)
                     .build())
                 .build());
         }
@@ -385,10 +385,10 @@ public final class TestUtil {
         tlvsBuilder.setRejectedPrefixesTlv(new RejectedPrefixesTlvBuilder()
                 .setCount(new Counter32(Uint32.valueOf(8L))).build());
         tlvsBuilder.setPerAfiSafiAdjRibInTlv(new PerAfiSafiAdjRibInTlvBuilder()
-                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setCount(new Gauge64(Uint64.valueOf(9L))).build());
         tlvsBuilder.setPerAfiSafiLocRibTlv(new PerAfiSafiLocRibTlvBuilder()
-                .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+                .setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setCount(new Gauge64(Uint64.TEN)).build());
         tlvsBuilder.setUpdatesTreatedAsWithdrawTlv(new UpdatesTreatedAsWithdrawTlvBuilder()
                 .setCount(new Counter32(Uint32.valueOf(11L))).build());

@@ -22,26 +22,26 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * the map.
  */
 public class BGPMessageParserMock implements MessageRegistry {
-    private final Map<ByteBuf, Notification> messages;
+    private final Map<ByteBuf, Notification<?>> messages;
 
     /**
      * Creates a new BGPMessageParserMock with given messages.
      *
      * @param messages represents a new map of ByteBuf and Notification
      */
-    public BGPMessageParserMock(final Map<ByteBuf, Notification> messages) {
+    public BGPMessageParserMock(final Map<ByteBuf, Notification<?>> messages) {
         this.messages = messages;
     }
 
     @Override
-    public void serializeMessage(final Notification msg, final ByteBuf buffer) {
+    public void serializeMessage(final Notification<?> msg, final ByteBuf buffer) {
         // no action needed, it's a mock for parsing, not serializing
     }
 
     @Override
-    public Notification parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
+    public Notification<?> parseMessage(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPDocumentedException, BGPParsingException {
-        final Notification ret = this.messages.get(buffer);
+        final Notification<?> ret = messages.get(buffer);
         Preconditions.checkArgument(ret != null, "Undefined message encountered");
         return ret;
     }

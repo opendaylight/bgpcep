@@ -206,8 +206,8 @@ public class BGPParserTest {
         assertEquals(paBuilder.getClusterId(), attrs.getClusterId());
 
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
-                .setAfi(Ipv6AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setAfi(Ipv6AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setCNextHop(nextHop)
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                     .setDestinationType(new DestinationIpv6CaseBuilder()

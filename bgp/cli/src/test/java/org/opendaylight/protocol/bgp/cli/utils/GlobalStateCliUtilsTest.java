@@ -28,26 +28,26 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class GlobalStateCliUtilsTest {
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final PrintStream stream = new PrintStream(this.output);
+    private final PrintStream stream = new PrintStream(output);
 
     @Test
     public void testEmptyGlobalStateCliUtil() throws IOException {
         final GlobalBuilder builder = buildGlobal(false);
-        GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), this.stream);
+        GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-global.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 
     @Test
     public void testGlobalStateCliUtil() throws IOException {
         final GlobalBuilder builder = buildGlobal(true);
-        GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), this.stream);
+        GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("global.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 
     static GlobalBuilder buildGlobal(final boolean withStateAug) {
@@ -71,7 +71,7 @@ public class GlobalStateCliUtilsTest {
         return builder
                 .setAfiSafis(new AfiSafisBuilder()
                     .setAfiSafi(BindingMap.of(new AfiSafiBuilder()
-                        .setAfiSafiName(IPV4UNICAST.class)
+                        .setAfiSafiName(IPV4UNICAST.VALUE)
                         .setState(stateBuilder.build())
                         .build()))
                     .build());

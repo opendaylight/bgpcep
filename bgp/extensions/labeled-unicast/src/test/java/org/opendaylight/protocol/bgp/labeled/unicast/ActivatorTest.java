@@ -22,7 +22,7 @@ public class ActivatorTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(4));
         act.start(context);
-        assertEquals(LabeledUnicastSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+        assertEquals(LabeledUnicastSubsequentAddressFamily.VALUE, context.getSubsequentAddressFamilyRegistry()
             .classForFamily(4));
     }
 }
