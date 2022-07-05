@@ -23,7 +23,7 @@ public final class BGPActivatorTest {
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(RT_SAFI));
         act.start(context);
-        assertEquals(RouteTargetConstrainSubsequentAddressFamily.class, context.getSubsequentAddressFamilyRegistry()
+        assertEquals(RouteTargetConstrainSubsequentAddressFamily.VALUE, context.getSubsequentAddressFamilyRegistry()
                 .classForFamily(RT_SAFI));
     }
 }

@@ -39,8 +39,8 @@ public final class RibSupportUtils {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates of {@link Tables} for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    public static NodeIdentifierWithPredicates toYangTablesKey(final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         return toYangKey(Tables.QNAME, afi, safi);
     }
 
@@ -52,10 +52,11 @@ public final class RibSupportUtils {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangKey(final QName id, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    public static NodeIdentifierWithPredicates toYangKey(final QName id, final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         return NodeIdentifierWithPredicates.of(id, AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afi), BindingReflections.findQName(safi)));
+            BindingReflections.findQName(afi.implementedInterface()),
+            BindingReflections.findQName(safi.implementedInterface())));
     }
 
     /**
@@ -66,10 +67,11 @@ public final class RibSupportUtils {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         return NodeIdentifierWithPredicates.of(id, ADD_PATH_AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afi), BindingReflections.findQName(safi)));
+            BindingReflections.findQName(afi.implementedInterface()),
+            BindingReflections.findQName(safi.implementedInterface())));
     }
 
     /**

@@ -75,11 +75,11 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
             return;
         }
         for (final Tables t : tables.values()) {
-            final Class<? extends AddressFamily> afi = t.getAfi();
+            final AddressFamily afi = t.getAfi();
             final Integer afival = this.afiReg.numberForClass(afi);
             Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
             bytes.writeShort(afival);
-            final Class<? extends SubsequentAddressFamily> safi = t.getSafi();
+            final SubsequentAddressFamily safi = t.getSafi();
             final Integer safival = this.safiReg.numberForClass(safi);
             Preconditions.checkArgument(safival != null, "Unhandled subsequent address family " + safi);
             bytes.writeByte(safival);
@@ -137,14 +137,14 @@ public final class GracefulCapabilityHandler implements CapabilityParser, Capabi
         final BindingMap.Builder<TablesKey, Tables> tables = BindingMap.builder();
         while (buffer.readableBytes() != 0) {
             final int afiVal = buffer.readShort();
-            final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
+            final AddressFamily afi = this.afiReg.classForFamily(afiVal);
             if (afi == null) {
                 LOG.debug("Ignoring GR capability for unknown address family {}", afiVal);
                 buffer.skipBytes(PER_AFI_SAFI_SIZE - 2);
                 continue;
             }
             final int safiVal = buffer.readUnsignedByte();
-            final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
+            final SubsequentAddressFamily safi = this.safiReg.classForFamily(safiVal);
             if (safi == null) {
                 LOG.debug("Ignoring GR capability for unknown subsequent address family {}", safiVal);
                 buffer.skipBytes(1);

@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class MultiProtocolCapabilityHandlerTest {
-    private static final Class<Ipv6AddressFamily> AFI = Ipv6AddressFamily.class;
-    private static final Class<UnicastSubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
+    private static final Ipv6AddressFamily AFI = Ipv6AddressFamily.VALUE;
+    private static final UnicastSubsequentAddressFamily SAFI = UnicastSubsequentAddressFamily.VALUE;
 
     @Mock
     private AddressFamilyRegistry afir;

@@ -25,6 +25,6 @@ public interface BGPTableTypeRegistryProvider extends BGPTableTypeRegistryConsum
      * @param afiSafiType OpenConfig AFI/SAFI representation.
      * @return Registration ticket.
      */
-    @NonNull Registration registerBGPTableType(@NonNull Class<? extends AddressFamily> afi,
-            @NonNull Class<? extends SubsequentAddressFamily> safi, @NonNull Class<? extends AfiSafiType> afiSafiType);
+    @NonNull Registration registerBGPTableType(@NonNull AddressFamily afi, @NonNull SubsequentAddressFamily safi,
+        @NonNull Class<? extends AfiSafiType> afiSafiType);
 }

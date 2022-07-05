@@ -33,9 +33,9 @@ public final class TableTypeActivator implements BGPTableTypeRegistryProviderAct
     @Override
     public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
         return List.of(
-                provider.registerBGPTableType(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                provider.registerBGPTableType(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE,
                     IPV4UNICAST.class),
-                provider.registerBGPTableType(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class,
+                provider.registerBGPTableType(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE,
                     IPV6UNICAST.class));
     }
 }

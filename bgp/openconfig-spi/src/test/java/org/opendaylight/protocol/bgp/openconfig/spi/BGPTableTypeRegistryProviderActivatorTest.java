@@ -22,8 +22,8 @@ public class BGPTableTypeRegistryProviderActivatorTest {
     @Test
     public void testBGPTableTypeRegistryProviderActivator() {
         final BGPTableTypeRegistryProviderActivator activator =
-            provider -> List.of(provider.registerBGPTableType(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
+            provider -> List.of(provider.registerBGPTableType(Ipv4AddressFamily.VALUE,
+                UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.class));
 
         final SimpleBGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
         final List<Registration> regs = activator.startBGPTableTypeRegistryProvider(provider);

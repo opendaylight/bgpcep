@@ -31,8 +31,8 @@ final class SimpleBGPTableTypeRegistryProvider extends AbstractBGPTableTypeRegis
     private final @NonNull BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys = HashBiMap.create();
 
     @Override
-    public Registration registerBGPTableType(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final Class<? extends AfiSafiType> afiSafiType) {
+    public Registration registerBGPTableType(final AddressFamily afi, final SubsequentAddressFamily safi,
+            final Class<? extends AfiSafiType> afiSafiType) {
         final BgpTableType tableType = new BgpTableTypeImpl(afi, safi);
         final Class<? extends AfiSafiType> prev = tableTypes.putIfAbsent(tableType, afiSafiType);
         checkState(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
