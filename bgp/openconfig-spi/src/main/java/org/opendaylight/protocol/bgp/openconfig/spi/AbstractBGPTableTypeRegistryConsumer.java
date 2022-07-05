@@ -15,26 +15,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 
 abstract class AbstractBGPTableTypeRegistryConsumer implements BGPTableTypeRegistryConsumer {
     @Override
-    public final BgpTableType getTableType(final Class<? extends AfiSafiType> afiSafiType) {
+    public final BgpTableType getTableType(final AfiSafiType afiSafiType) {
         return tableTypes().inverse().get(afiSafiType);
     }
 
     @Override
-    public final TablesKey getTableKey(final Class<? extends AfiSafiType> afiSafiType) {
+    public final TablesKey getTableKey(final AfiSafiType afiSafiType) {
         return tableKeys().inverse().get(afiSafiType);
     }
 
     @Override
-    public final Class<? extends AfiSafiType> getAfiSafiType(final BgpTableType bgpTableType) {
+    public final AfiSafiType getAfiSafiType(final BgpTableType bgpTableType) {
         return tableTypes().get(bgpTableType);
     }
 
     @Override
-    public final Class<? extends AfiSafiType> getAfiSafiType(final TablesKey tablesKey) {
+    public final AfiSafiType getAfiSafiType(final TablesKey tablesKey) {
         return tableKeys().get(tablesKey);
     }
 
-    abstract @NonNull BiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes();
+    abstract @NonNull BiMap<BgpTableType, AfiSafiType> tableTypes();
 
-    abstract @NonNull BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys();
+    abstract @NonNull BiMap<TablesKey, AfiSafiType> tableKeys();
 }

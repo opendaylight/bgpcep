@@ -17,7 +17,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * exposes an interface for registration of factories for creating AdjRIBsIn instances, which handle the specifics.
  */
 public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext {
-
     /**
      * Register a RIBSupport instance for a particular AFI/SAFI combination.
      *
@@ -28,6 +27,5 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      * @throws NullPointerException if any of the arguments is null
      */
     <T extends RIBSupport<?, ?>> RIBSupportRegistration<T> registerRIBSupport(
-            @NonNull Class<? extends AddressFamily> afi, @NonNull Class<? extends SubsequentAddressFamily> safi,
-            T support);
+            @NonNull AddressFamily afi, @NonNull SubsequentAddressFamily safi, T support);
 }

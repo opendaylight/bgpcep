@@ -35,7 +35,7 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
         super(
                 mappingService,
                 Ipv4PrefixAndPathId.class,
-                Ipv4AddressFamily.class,
+                Ipv4AddressFamily.VALUE,
                 Ipv4RoutesCase.class,
                 Ipv4Routes.class,
                 Ipv4Route.class,

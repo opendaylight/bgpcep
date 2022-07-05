@@ -20,17 +20,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
 public class TableTypeActivatorTest {
-    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(IPV4UNICAST.class, registry.getAfiSafiType(IPV4));
         assertEquals(IPV6UNICAST.class, registry.getAfiSafiType(IPV6));
-        assertEquals(IPV4, registry.getTableType(IPV4UNICAST.class));
-        assertEquals(IPV6, registry.getTableType(IPV6UNICAST.class));
+        assertEquals(IPV4, registry.getTableType(IPV4UNICAST.VALUE));
+        assertEquals(IPV6, registry.getTableType(IPV6UNICAST.VALUE));
     }
 }

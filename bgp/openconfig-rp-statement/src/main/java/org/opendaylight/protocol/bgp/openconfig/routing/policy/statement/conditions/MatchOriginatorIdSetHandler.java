@@ -52,7 +52,7 @@ public final class MatchOriginatorIdSetHandler
             .child(BgpDefinedSets.class)
             .augmentation(BgpOriginatorIdSets.class)
             .child(OriginatorIdSets.class);
-    private final DataBroker dataBroker;
+
     private final LoadingCache<String, OriginatorIdSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
@@ -60,6 +60,7 @@ public final class MatchOriginatorIdSetHandler
                     return loadSets(key);
                 }
             });
+    private final DataBroker dataBroker;
 
     public MatchOriginatorIdSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
@@ -76,7 +77,7 @@ public final class MatchOriginatorIdSetHandler
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final OriginatorId originatorId,
@@ -88,7 +89,7 @@ public final class MatchOriginatorIdSetHandler
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final OriginatorId originatorId,

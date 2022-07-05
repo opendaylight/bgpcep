@@ -13,11 +13,13 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for IpAddress models type(like Originator Route Ip) serialization and parsing.
@@ -25,6 +27,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  * @author Claudio D. Gasparini
  */
 public final class IpAddressUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(IpAddressUtil.class);
+
     private IpAddressUtil() {
         // Hidden on purpose
     }
@@ -100,10 +104,19 @@ public final class IpAddressUtil {
     }
 
     public static IpAddressNoZone extractIpAddress(final DataContainerNode route, final NodeIdentifier rdNid) {
-        final NormalizedNode rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
-        if (rdNode != null) {
-            return IpAddressNoZoneBuilder.getDefaultInstance((String) rdNode.body());
+        final var rdNode = NormalizedNodes.findNode(route, rdNid).orElse(null);
+        if (rdNode == null) {
+            return null;
         }
-        return null;
+        final var body = rdNode.body();
+        if (!(body instanceof String str)) {
+            throw new IllegalArgumentException("Impected body " + body);
+        }
+        try {
+            return new IpAddressNoZone(new Ipv4AddressNoZone(str));
+        } catch (IllegalArgumentException e) {
+            LOG.debug("Failed to interpret {} as an Ipv4AddressNoZone", str);
+        }
+        return new IpAddressNoZone(new Ipv6AddressNoZone(str));
     }
 }
