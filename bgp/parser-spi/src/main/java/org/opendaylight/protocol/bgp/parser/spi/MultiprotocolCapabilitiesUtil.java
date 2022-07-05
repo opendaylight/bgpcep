@@ -36,8 +36,8 @@ public final class MultiprotocolCapabilitiesUtil {
     }
 
     public static void serializeMPAfiSafi(final AddressFamilyRegistry afiReg,
-            final SubsequentAddressFamilyRegistry safiReg, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final ByteBuf capBuffer) {
+            final SubsequentAddressFamilyRegistry safiReg, final AddressFamily afi, final SubsequentAddressFamily safi,
+            final ByteBuf capBuffer) {
         final Integer afival = afiReg.numberForClass(afi);
         Preconditions.checkArgument(afival != null, "Unhandled address family " + afi);
         capBuffer.writeShort(afival);
@@ -52,7 +52,7 @@ public final class MultiprotocolCapabilitiesUtil {
     public static Optional<BgpTableType> parseMPAfiSafi(final ByteBuf buffer, final AddressFamilyRegistry afiReg,
             final SubsequentAddressFamilyRegistry safiReg) {
         final int afiVal = buffer.readUnsignedShort();
-        final Class<? extends AddressFamily> afi = afiReg.classForFamily(afiVal);
+        final AddressFamily afi = afiReg.classForFamily(afiVal);
         if (afi == null) {
             LOG.info("Unsupported AFI {} parsed.", afiVal);
             return Optional.empty();
@@ -60,7 +60,7 @@ public final class MultiprotocolCapabilitiesUtil {
         // skip reserved
         buffer.skipBytes(RESERVED);
         final int safiVal = buffer.readUnsignedByte();
-        final Class<? extends SubsequentAddressFamily> safi = safiReg.classForFamily(safiVal);
+        final SubsequentAddressFamily safi = safiReg.classForFamily(safiVal);
         if (safi == null) {
             LOG.info("Unsupported SAFI {} parsed.", safiVal);
             return Optional.empty();

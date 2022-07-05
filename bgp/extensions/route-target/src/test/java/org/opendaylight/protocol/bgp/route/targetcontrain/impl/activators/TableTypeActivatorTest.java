@@ -19,12 +19,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class TableTypeActivatorTest {
     private static final BgpTableType RT_TP = new BgpTableTypeImpl(
-            Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class);
+            Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(ROUTETARGETCONSTRAIN.class, registry.getAfiSafiType(RT_TP));
-        assertEquals(RT_TP, registry.getTableType(ROUTETARGETCONSTRAIN.class));
+        assertEquals(RT_TP, registry.getTableType(ROUTETARGETCONSTRAIN.VALUE));
     }
 }
