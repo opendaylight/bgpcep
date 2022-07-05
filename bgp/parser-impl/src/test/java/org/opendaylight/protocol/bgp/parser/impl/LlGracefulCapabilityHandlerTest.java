@@ -54,15 +54,15 @@ public class LlGracefulCapabilityHandlerTest {
 
     @Before
     public void setUp() {
-        doReturn(Ipv4AddressFamily.class).when(this.afir).classForFamily(1);
-        doReturn(Ipv6AddressFamily.class).when(this.afir).classForFamily(2);
-        doReturn(null).when(this.afir).classForFamily(256);
-        doReturn(UnicastSubsequentAddressFamily.class).when(this.safir).classForFamily(1);
-        doReturn(null).when(this.safir).classForFamily(-123);
+        doReturn(Ipv4AddressFamily.class).when(afir).classForFamily(1);
+        doReturn(Ipv6AddressFamily.class).when(afir).classForFamily(2);
+        doReturn(null).when(afir).classForFamily(256);
+        doReturn(UnicastSubsequentAddressFamily.class).when(safir).classForFamily(1);
+        doReturn(null).when(safir).classForFamily(-123);
 
         final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow();
-        this.handler = new LlGracefulCapabilityHandler(
+        handler = new LlGracefulCapabilityHandler(
                 ctx.getAddressFamilyRegistry(), ctx.getSubsequentAddressFamilyRegistry());
     }
 
@@ -82,14 +82,14 @@ public class LlGracefulCapabilityHandlerTest {
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.ordered(new TablesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv4AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
-                                .setAfi(Ipv6AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv6AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())
@@ -99,10 +99,10 @@ public class LlGracefulCapabilityHandlerTest {
                 .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
                 .build();
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
-        this.handler.serializeCapability(cParameters, buffer);
+        handler.serializeCapability(cParameters, buffer);
 
         assertArrayEquals(capaBytes, buffer.array());
-        assertEquals(cParameters, this.handler.parseCapability(Unpooled.wrappedBuffer(capaBytes)
+        assertEquals(cParameters, handler.parseCapability(Unpooled.wrappedBuffer(capaBytes)
                 .slice(2, capaBytes.length - 2)));
     }
 
@@ -110,8 +110,8 @@ public class LlGracefulCapabilityHandlerTest {
     public void testUnsupportedAfi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.of(new TablesBuilder()
-                                .setAfi(AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(TEN)
                                 .build())).build();
@@ -120,7 +120,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
                 .build();
         final ByteBuf buffer = Unpooled.buffer();
-        this.handler.serializeCapability(cParameters, buffer);
+        handler.serializeCapability(cParameters, buffer);
     }
 
     @Test
@@ -140,14 +140,14 @@ public class LlGracefulCapabilityHandlerTest {
         };
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.ordered(new TablesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv4AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
-                                .setAfi(Ipv6AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv6AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();
@@ -165,8 +165,8 @@ public class LlGracefulCapabilityHandlerTest {
     public void testUnsupportedSafi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.of(new TablesBuilder()
-                        .setAfi(Ipv4AddressFamily.class)
-                        .setSafi(SubsequentAddressFamily.class)
+                        .setAfi(Ipv4AddressFamily.VALUE)
+                        .setSafi(SubsequentAddressFamily.VALUE)
                         .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                         .setLongLivedStaleTime(TEN)
                         .build())).build();
@@ -175,7 +175,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
                 .build();
         final ByteBuf buffer = Unpooled.buffer();
-        this.handler.serializeCapability(cParameters, buffer);
+        handler.serializeCapability(cParameters, buffer);
     }
 
     @Test
@@ -196,14 +196,14 @@ public class LlGracefulCapabilityHandlerTest {
 
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.ordered(new TablesBuilder()
-                                .setAfi(Ipv4AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv4AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
-                                .setAfi(Ipv6AddressFamily.class)
-                                .setSafi(UnicastSubsequentAddressFamily.class)
+                                .setAfi(Ipv6AddressFamily.VALUE)
+                                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();

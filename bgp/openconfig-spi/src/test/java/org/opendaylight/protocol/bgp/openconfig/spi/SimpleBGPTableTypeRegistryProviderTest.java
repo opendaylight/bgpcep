@@ -24,14 +24,14 @@ import org.opendaylight.yangtools.concepts.Registration;
 public class SimpleBGPTableTypeRegistryProviderTest {
     private final BGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
     private final Registration registration = provider.registerBGPTableType(
-        Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class, IPV4UNICAST.class);
+        Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.class);
 
     @Test
     public void testBGPTableTypeRegistryProvider() {
         assertEquals(IPV4UNICAST.class, provider.getAfiSafiType(
-            new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class)));
+            new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)));
         assertNull(provider.getAfiSafiType(
-            new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class)));
+            new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)));
 
         assertNotNull(provider.getTableType(IPV4UNICAST.class));
         assertNull(provider.getTableType(IPV6UNICAST.class));
@@ -42,7 +42,7 @@ public class SimpleBGPTableTypeRegistryProviderTest {
 
     @Test
     public void testDuplicatedRegistration() {
-        assertThrows(IllegalStateException.class, () -> provider.registerBGPTableType(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
+        assertThrows(IllegalStateException.class, () -> provider.registerBGPTableType(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.class));
     }
 }

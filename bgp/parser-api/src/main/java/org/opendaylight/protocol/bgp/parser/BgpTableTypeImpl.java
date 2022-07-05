@@ -17,10 +17,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
  * Utility class identifying a BGP table type. A table type is formed by two identifiers: AFI and SAFI.
  */
 public final class BgpTableTypeImpl implements BgpTableType {
-
-    private final Class<? extends SubsequentAddressFamily> safi;
-
-    private final Class<? extends AddressFamily> afi;
+    private final SubsequentAddressFamily safi;
+    private final AddressFamily afi;
 
     /**
      * Creates BGP Table type.
@@ -28,8 +26,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
      * @param afi Address Family Identifier
      * @param safi Subsequent Address Family Identifier
      */
-    public BgpTableTypeImpl(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    public BgpTableTypeImpl(final AddressFamily afi, final SubsequentAddressFamily safi) {
         this.afi = requireNonNull(afi, "Address family may not be null");
         this.safi = requireNonNull(safi, "Subsequent address family may not be null");
     }
@@ -67,7 +64,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
      * @return afi AFI
      */
     @Override
-    public Class<? extends AddressFamily> getAfi() {
+    public AddressFamily getAfi() {
         return this.afi;
     }
 
@@ -77,7 +74,7 @@ public final class BgpTableTypeImpl implements BgpTableType {
      * @return safi SAFI
      */
     @Override
-    public Class<? extends SubsequentAddressFamily> getSafi() {
+    public SubsequentAddressFamily getSafi() {
         return this.safi;
     }
 }

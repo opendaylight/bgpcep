@@ -33,7 +33,7 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
                 org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.Ipv6Prefix.class,
-                Ipv6AddressFamily.class,
+                Ipv6AddressFamily.VALUE,
                 Ipv6RoutesCase.class,
                 Ipv6Routes.class,
                 Ipv6Route.class,

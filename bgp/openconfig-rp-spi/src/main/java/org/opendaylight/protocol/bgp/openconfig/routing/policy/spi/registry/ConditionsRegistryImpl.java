@@ -39,15 +39,15 @@ final class ConditionsRegistryImpl {
 
     AbstractRegistration registerConditionPolicy(final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
             final ConditionsAugPolicy conditionPolicy) {
-        synchronized (this.conditionsRegistry) {
-            final ConditionsAugPolicy prev = this.conditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
+        synchronized (conditionsRegistry) {
+            final ConditionsAugPolicy prev = conditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
             Preconditions.checkState(prev == null, "Condition Policy %s already registered %s",
                     conditionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (ConditionsRegistryImpl.this.conditionsRegistry) {
-                        ConditionsRegistryImpl.this.conditionsRegistry.remove(conditionPolicyClass);
+                    synchronized (conditionsRegistry) {
+                        conditionsRegistry.remove(conditionPolicyClass);
                     }
                 }
             };
@@ -57,32 +57,32 @@ final class ConditionsRegistryImpl {
     public AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<? extends Augmentation<BgpConditions>> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy conditionPolicy) {
-        return this.bgpConditionsRegistry
+        return bgpConditionsRegistry
                 .registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
             final BgpConditionsPolicy<T, N> conditionPolicy) {
-        return this.bgpConditionsRegistry
+        return bgpConditionsRegistry
                 .registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @SuppressWarnings("unchecked")
     boolean matchExportConditions(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
             final Conditions conditions) {
 
-        if (!this.bgpConditionsRegistry
+        if (!bgpConditionsRegistry
                 .matchExportConditions(afiSafi, entryInfo, routeEntryExportParameters, attributes, conditions)) {
             return false;
         }
 
         for (final Augmentation<Conditions> entry : conditions.augmentations().values()) {
-            final ConditionsAugPolicy handler = this.conditionsRegistry.get(entry.implementedInterface());
+            final ConditionsAugPolicy handler = conditionsRegistry.get(entry.implementedInterface());
             if (handler == null) {
                 continue;
             }
@@ -96,18 +96,18 @@ final class ConditionsRegistryImpl {
 
     @SuppressWarnings("unchecked")
     boolean matchImportConditions(
-            final Class<? extends AfiSafiType> afiSafi, final RouteEntryBaseAttributes entryInfo,
+            final AfiSafiType afiSafi, final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Attributes attributes,
             final Conditions conditions) {
-        if (!this.bgpConditionsRegistry
+        if (!bgpConditionsRegistry
                 .matchImportConditions(afiSafi, entryInfo, routeEntryImportParameters, attributes, conditions)) {
             return false;
         }
 
         if (attributes != null) {
             for (final Augmentation<Conditions> condition : conditions.augmentations().values()) {
-                final ConditionsAugPolicy handler = this.conditionsRegistry.get(condition.implementedInterface());
+                final ConditionsAugPolicy handler = conditionsRegistry.get(condition.implementedInterface());
                 if (handler != null) {
                     if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
                             handler.getConditionParameter(attributes), condition)) {

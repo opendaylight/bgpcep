@@ -39,7 +39,7 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
-            context.registerRIBSupport(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE,
                 new RouteTargetConstrainRIBSupport(mappingService)));
     }
 }

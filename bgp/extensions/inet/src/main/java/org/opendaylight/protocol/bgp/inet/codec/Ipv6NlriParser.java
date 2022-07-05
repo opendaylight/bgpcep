@@ -38,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class Ipv6NlriParser implements NlriParser, NlriSerializer {
 
     private static DestinationIpv6 prefixes(final ByteBuf nlri, final PeerSpecificParserConstraint constraint,
-            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
         final List<Ipv6Prefixes> prefixes = new ArrayList<>();
         final boolean supported = MultiPathSupportUtil.isTableTypeSupported(constraint,
                 new BgpTableTypeImpl(afi, safi));

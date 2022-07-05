@@ -22,20 +22,20 @@ public class TableTypeTest {
 
     @Test
     public void testTableTypes() {
-        final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-                MplsLabeledVpnSubsequentAddressFamily.class);
-        final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-                MplsLabeledVpnSubsequentAddressFamily.class);
+        final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+                MplsLabeledVpnSubsequentAddressFamily.VALUE);
+        final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+                MplsLabeledVpnSubsequentAddressFamily.VALUE);
 
         try {
-            new BgpTableTypeImpl(null, MplsLabeledVpnSubsequentAddressFamily.class);
+            new BgpTableTypeImpl(null, MplsLabeledVpnSubsequentAddressFamily.VALUE);
             fail("Null AFI!");
         } catch (final NullPointerException e) {
             assertEquals("Address family may not be null", e.getMessage());
         }
 
         try {
-            new BgpTableTypeImpl(Ipv6AddressFamily.class, null);
+            new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, null);
             fail("Null SAFI!");
         } catch (final NullPointerException e) {
             assertEquals("Subsequent address family may not be null", e.getMessage());
