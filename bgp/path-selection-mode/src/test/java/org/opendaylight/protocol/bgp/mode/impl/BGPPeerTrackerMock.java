@@ -26,8 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class BGPPeerTrackerMock extends AbstractConcurrentDataBrokerTest {
     protected static final PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
     protected static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
-    protected static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    protected static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
     @Mock
     protected BGPPeerTracker peerTracker;
     @Mock
@@ -43,11 +43,11 @@ public class BGPPeerTrackerMock extends AbstractConcurrentDataBrokerTest {
 
     private void mockPeerTracker() {
         final PeerId pId = new PeerId("bgp://0.0.0.1");
-        doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(pId));
-        doReturn(this.peerMock).when(this.peerTracker).getPeer(eq(PEER_ID));
-        doReturn(true).when(this.peerMock).supportsTable(Mockito.eq(TABLES_KEY));
-        doReturn(PeerRole.Ibgp).when(this.peerMock).getRole();
-        doReturn(this.peerMock2).when(this.peerTracker).getPeer(eq(PEER_ID2));
-        doReturn(false).when(this.peerMock2).supportsTable(Mockito.eq(TABLES_KEY));
+        doReturn(peerMock).when(peerTracker).getPeer(eq(pId));
+        doReturn(peerMock).when(peerTracker).getPeer(eq(PEER_ID));
+        doReturn(true).when(peerMock).supportsTable(Mockito.eq(TABLES_KEY));
+        doReturn(PeerRole.Ibgp).when(peerMock).getRole();
+        doReturn(peerMock2).when(peerTracker).getPeer(eq(PEER_ID2));
+        doReturn(false).when(peerMock2).supportsTable(Mockito.eq(TABLES_KEY));
     }
 }

@@ -5,14 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,27 +39,23 @@ public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("match-afi-safi-not-in-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("match-afi-safi-not-in-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
     public void testExtComAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("match-afi-safi-not-in-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setExtendedCommunities(Collections.singletonList(new ExtendedCommunitiesBuilder()
+                .setExtendedCommunities(List.of(new ExtendedCommunitiesBuilder()
                         .setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
                                 .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()
@@ -69,12 +63,8 @@ public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest
                                                 .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV6UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV6UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 }

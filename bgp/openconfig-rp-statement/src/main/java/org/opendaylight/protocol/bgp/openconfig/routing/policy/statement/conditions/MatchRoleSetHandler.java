@@ -78,13 +78,12 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters importParameters,
             final Void attributes,
             final MatchRoleSetCondition conditions) {
-        return matchNeighborRoleSetCondition(importParameters.getFromPeerRole(), null,
-                conditions.getMatchRoleSet());
+        return matchNeighborRoleSetCondition(importParameters.getFromPeerRole(), null, conditions.getMatchRoleSet());
     }
 
     private boolean matchNeighborRoleSetCondition(final PeerRole fromPeerRole, final PeerRole toPeerRole,
@@ -121,7 +120,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters exportParameters,
             final Void attributes,
