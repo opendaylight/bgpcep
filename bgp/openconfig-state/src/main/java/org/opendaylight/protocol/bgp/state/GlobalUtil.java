@@ -90,7 +90,7 @@ public final class GlobalUtil {
      */
     public static @Nullable AfiSafi buildAfiSafi(final BGPRibState ribState, final TablesKey tablesKey,
             final BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
-        final Class<? extends AfiSafiType> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
+        final AfiSafiType afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
         return afiSafi == null ? null : new AfiSafiBuilder()
                 .setAfiSafiName(afiSafi)
                 .setState(new StateBuilder()

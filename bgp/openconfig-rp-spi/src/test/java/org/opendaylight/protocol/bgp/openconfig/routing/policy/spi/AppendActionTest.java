@@ -41,23 +41,23 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("basic-statements-test");
-        doReturn(CLUSTER).when(this.baseAttributes).getClusterId();
-        doReturn(LOCAL_AS).when(this.baseAttributes).getLocalAs();
-        doReturn(IPV4).when(this.baseAttributes).getOriginatorId();
+        basicStatements = loadStatement("basic-statements-test");
+        doReturn(CLUSTER).when(baseAttributes).getClusterId();
+        doReturn(LOCAL_AS).when(baseAttributes).getLocalAs();
+        doReturn(IPV4).when(baseAttributes).getOriginatorId();
     }
 
 
     @Test
     public void testMultipleAppend() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("multiple-append-test")).findFirst().get();
         final RouteAttributeContainer attributeContainer
                 = routeAttributeContainerFalse(new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
 
@@ -73,14 +73,14 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
 
     @Test
     public void testNextHopSelf() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("next-hop-self-append-test")).findFirst().get();
         final RouteAttributeContainer attributeContainer
                 = routeAttributeContainerFalse(new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
 

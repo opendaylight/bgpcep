@@ -25,7 +25,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,14 +82,14 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
     private final SimpleSessionListener listener = new SimpleSessionListener();
-    private final BgpParameters parameters = createParameter(false, true, Collections.singletonMap(TABLES_KEY, true));
+    private final BgpParameters parameters = createParameter(false, true, Map.of(TABLES_KEY, true));
     private static final int DEFERRAL_TIMER = 5;
     private static final RibId RIBID = new RibId("test-rib");
     private static final Ipv4Prefix PREFIX2 = new Ipv4Prefix("2.2.2.2/32");
     private static final Ipv6Prefix PREFIX3 = new Ipv6Prefix("dead:beef::/64");
     private static final Ipv6AddressNoZone IPV6_NEXT_HOP = new Ipv6AddressNoZone("dead:beef::1");
-    private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
 
     private static final InstanceIdentifier<LocRib> LOC_RIB_IID = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(RIBID))
@@ -110,7 +109,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         final Map<TablesKey, PathSelectionMode> pathTables
                 = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
         final ArrayList<BgpTableType> tableTypes = new ArrayList<>(TABLES_TYPE);
-        tableTypes.add(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        tableTypes.add(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
         ribImpl = new RIBImpl(tableRegistry, RIBID, AS_NUMBER, BGP_ID, ribExtension,
                 serverDispatcher, codecsRegistry,
                 getDomBroker(), policies, tableTypes, pathTables);
@@ -127,10 +126,10 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
         Mockito.doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
         Mockito.doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
-        Mockito.doReturn(createParameter(false, true, Collections.singletonMap(TABLES_KEY, false))
+        Mockito.doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         peer = configurePeer(tableRegistry, PEER1, ribImpl, parameters, PeerRole.Ibgp,
-                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), bgpPeer);
+                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bgpPeer);
         session = createPeerSession(PEER1, parameters, listener);
     }
 
@@ -151,9 +150,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
      */
     @Test
     public void nonIpv4PeerGracefulRestart() throws InterruptedException {
-        BgpParameters parametersv6 = PeerUtil.createBgpParameters(Collections.singletonList(IPV6_TABLES_KEY),
-                Collections.emptyList(), Collections.singletonMap(IPV6_TABLES_KEY, true),
-                GRACEFUL_RESTART_TIME);
+        BgpParameters parametersv6 = PeerUtil.createBgpParameters(List.of(IPV6_TABLES_KEY), List.of(),
+                Map.of(IPV6_TABLES_KEY, true), GRACEFUL_RESTART_TIME);
         gracefulAfiSafiAdvertised.add(IPV6_TABLES_KEY);
         nonIpv4 = configurePeer(tableRegistry, PEER2, ribImpl, parametersv6, PeerRole.Ibgp,
                 serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
@@ -189,8 +187,8 @@ public class GracefulRestartTest extends AbstractAddPathTest {
      */
     @Test
     public void retainRoutesOnPeerRestartTest() throws Exception {
-        final List<Ipv4Prefix> ipv4Prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1), new Ipv4Prefix(PREFIX2));
-        final List<Ipv6Prefix> ipv6Prefixes = Collections.singletonList(new Ipv6Prefix(PREFIX3));
+        final List<Ipv4Prefix> ipv4Prefixes = List.of(new Ipv4Prefix(PREFIX1), new Ipv4Prefix(PREFIX2));
+        final List<Ipv6Prefix> ipv6Prefixes = List.of(new Ipv6Prefix(PREFIX3));
         insertRoutes(ipv4Prefixes, ipv6Prefixes);
         checkLocRibIpv4Routes(2);
         checkLocRibIpv6Routes(1);
@@ -245,8 +243,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     @Test
     public void removeRoutesOnMissingGracefulRestartAfiSafiTest() throws Exception {
         retainRoutesOnPeerRestartTest();
-        session = createPeerSession(PEER1, createParameter(false, true,
-                Collections.singletonMap(TABLES_KEY, false)), listener);
+        session = createPeerSession(PEER1, createParameter(false, true, Map.of(TABLES_KEY, false)), listener);
         checkUpState(listener);
         checkUpState(peer);
         checkLocRibIpv4Routes(0);
@@ -263,10 +260,9 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     @Test
     public void removeStaleRoutesAfterRestartTest() throws Exception {
         retainRoutesOnPeerRestartTest();
-        session = createPeerSession(PEER1, createParameter(false, true,
-                Collections.singletonMap(TABLES_KEY, true)), listener);
+        session = createPeerSession(PEER1, createParameter(false, true, Map.of(TABLES_KEY, true)), listener);
         checkUpState(listener);
-        final List<Ipv4Prefix> ipv4prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
+        final List<Ipv4Prefix> ipv4prefixes = List.of(new Ipv4Prefix(PREFIX1));
         insertRoutes(ipv4prefixes, null);
         insertRoutes(null, null);
         checkLocRibIpv4Routes(1);
@@ -445,15 +441,13 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     }
 
     private static Open createClassicOpen(final boolean addGraceful) {
-        final Map<TablesKey, Boolean> graceful = new HashMap<>();
-        if (addGraceful) {
-            graceful.put(new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class), true);
-        }
+        final Map<TablesKey, Boolean> graceful = addGraceful
+            ? Map.of(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE), true) : Map.of();
         return new OpenBuilder()
                 .setMyAsNumber(Uint16.valueOf(AS))
                 .setHoldTimer(Uint16.valueOf(HOLDTIMER))
                 .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
-                .setBgpParameters(Collections.singletonList(createParameter(false, true, graceful)))
+                .setBgpParameters(List.of(createParameter(false, true, graceful)))
                 .setBgpIdentifier(PEER1)
                 .build();
     }

@@ -59,27 +59,27 @@ public class GracefulRestartUtilTest {
     private static final int STALE_TIME = 10;
     private static final boolean RESTARTING = true;
     private static final AfiSafi IPV4_UNICAST_AFISAFI = new AfiSafiBuilder()
-            .setAfiSafiName(IPV4UNICAST.class)
+            .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                     .setConfig(new ConfigBuilder()
                             .setEnabled(true)
                             .build()).build()).build();
     private static final AfiSafi IPV4_MULTICAST_AFISAFI = new AfiSafiBuilder()
-            .setAfiSafiName(IPV4LABELLEDUNICAST.class)
+            .setAfiSafiName(IPV4LABELLEDUNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                     .setConfig(new ConfigBuilder()
                             .setEnabled(false)
                             .build()).build()).build();
     private static final AfiSafi IPV6_AFISAFI = new AfiSafiBuilder()
-            .setAfiSafiName(IPV6UNICAST.class)
+            .setAfiSafiName(IPV6UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                     .setConfig(new ConfigBuilder()
                             .setEnabled(true)
                             .build()).build()).build();
-    private static final TablesKey IPV4_KEY = new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
-    private static final TablesKey IPV6_KEY = new TablesKey(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final TablesKey IPV4_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
+    private static final TablesKey IPV6_KEY = new TablesKey(Ipv6AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
 
     private static final List<AfiSafi> AFISAFIS = ImmutableList.of(IPV4_UNICAST_AFISAFI, IPV4_MULTICAST_AFISAFI,
         IPV6_AFISAFI);
@@ -90,8 +90,8 @@ public class GracefulRestartUtilTest {
 
     @Before
     public void setUp() {
-        doReturn(IPV4_KEY).when(tableRegistry).getTableKey(IPV4UNICAST.class);
-        doReturn(IPV6_KEY).when(tableRegistry).getTableKey(IPV6UNICAST.class);
+        doReturn(IPV4_KEY).when(tableRegistry).getTableKey(IPV4UNICAST.VALUE);
+        doReturn(IPV6_KEY).when(tableRegistry).getTableKey(IPV6UNICAST.VALUE);
     }
 
     @Test
@@ -184,7 +184,7 @@ public class GracefulRestartUtilTest {
     public void getLlGracefulTimersTest() {
         final List<AfiSafi> afiSafi = new ArrayList<>();
         afiSafi.add(new AfiSafiBuilder()
-            .setAfiSafiName(IPV4UNICAST.class)
+            .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                 .setConfig(new ConfigBuilder()
                     .addAugmentation(new Config1Builder()
@@ -198,7 +198,7 @@ public class GracefulRestartUtilTest {
                 .build())
             .build());
         final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(afiSafi,
-            this.tableRegistry);
+            tableRegistry);
         assertNotNull(llGracefulTimers);
         assertEquals(1, llGracefulTimers.size());
         assertEquals(STALE_TIME, llGracefulTimers.get(IPV4_KEY).intValue());

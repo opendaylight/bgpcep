@@ -18,13 +18,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.LINKSTATE;
 
 public class TableTypeActivatorTest {
-    private static final BgpTableType LINKSTATE = new BgpTableTypeImpl(LinkstateAddressFamily.class,
-            LinkstateSubsequentAddressFamily.class);
+    private static final BgpTableType LINKSTATE_TYPE = new BgpTableTypeImpl(LinkstateAddressFamily.VALUE,
+            LinkstateSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(LINKSTATE.class, registry.getAfiSafiType(LINKSTATE));
-        assertEquals(LINKSTATE, registry.getTableType(LINKSTATE.class));
+        assertEquals(LINKSTATE.VALUE, registry.getAfiSafiType(LINKSTATE_TYPE));
+        assertEquals(LINKSTATE_TYPE, registry.getTableType(LINKSTATE.VALUE));
     }
 }

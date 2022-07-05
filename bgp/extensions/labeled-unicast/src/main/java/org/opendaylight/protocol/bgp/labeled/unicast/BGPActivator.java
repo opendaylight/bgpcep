@@ -44,10 +44,10 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
         final OriginatorSrgbTlvParser originatorHandler = new OriginatorSrgbTlvParser();
 
         return List.of(
-            context.registerSubsequentAddressFamily(LabeledUnicastSubsequentAddressFamily.class, LABELED_UNICAST_SAFI),
-            context.registerNlriParser(Ipv4AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+            context.registerSubsequentAddressFamily(LabeledUnicastSubsequentAddressFamily.VALUE, LABELED_UNICAST_SAFI),
+            context.registerNlriParser(Ipv4AddressFamily.VALUE, LabeledUnicastSubsequentAddressFamily.VALUE,
                 luNlriParser, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class),
-            context.registerNlriParser(Ipv6AddressFamily.class, LabeledUnicastSubsequentAddressFamily.class,
+            context.registerNlriParser(Ipv6AddressFamily.VALUE, LabeledUnicastSubsequentAddressFamily.VALUE,
                 luNlriParser, new Ipv6NextHopParserSerializer(), Ipv6NextHopCase.class),
             context.registerNlriSerializer(LabeledUnicastRoutes.class, luNlriParser),
             context.registerBgpPrefixSidTlvParser(labelHandler.getType(), labelHandler),

@@ -60,17 +60,17 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
         final L3vpnMcastIpv6NlriHandler l3vpnMcastIpv6NlriHandler = new L3vpnMcastIpv6NlriHandler();
 
         return List.of(
-            context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.class, MCAST_L3VPN_SAFI),
-            context.registerNlriParser(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerSubsequentAddressFamily(McastMplsLabeledVpnSubsequentAddressFamily.VALUE, MCAST_L3VPN_SAFI),
+            context.registerNlriParser(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE,
                 vpnIpv4NlriParser, new VpnIpv4NextHopParserSerializer(), Ipv4NextHopCase.class),
             context.registerNlriSerializer(VpnIpv4Routes.class, vpnIpv4NlriParser),
-            context.registerNlriParser(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerNlriParser(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE,
                 vpnIpv6NlriParser, new VpnIpv6NextHopParserSerializer(), Ipv6NextHopCase.class),
             context.registerNlriSerializer(VpnIpv6Routes.class, vpnIpv6NlriParser),
-            context.registerNlriParser(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerNlriParser(Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE,
                 l3vpnMcastIpv4NlriHandler, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class),
             context.registerNlriSerializer(L3vpnMcastRoutesIpv4.class, l3vpnMcastIpv4NlriHandler),
-            context.registerNlriParser(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerNlriParser(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE,
                 l3vpnMcastIpv6NlriHandler, new Ipv6NextHopParserSerializer(), Ipv6NextHopCase.class),
             context.registerNlriSerializer(L3vpnMcastRoutesIpv6.class, l3vpnMcastIpv6NlriHandler));
     }

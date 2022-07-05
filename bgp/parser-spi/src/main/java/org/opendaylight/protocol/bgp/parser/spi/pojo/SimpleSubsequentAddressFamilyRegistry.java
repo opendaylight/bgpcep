@@ -16,19 +16,18 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 final class SimpleSubsequentAddressFamilyRegistry extends AbstractFamilyRegistry<SubsequentAddressFamily, Integer>
         implements SubsequentAddressFamilyRegistry {
-    Registration registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
-            final int number) {
+    Registration registerSubsequentAddressFamily(final SubsequentAddressFamily safi, final int number) {
         checkArgument(number >= 0 && number <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        return super.registerFamily(clazz, number);
+        return super.registerFamily(safi, number);
     }
 
     @Override
-    public Class<? extends SubsequentAddressFamily> classForFamily(final int number) {
+    public SubsequentAddressFamily classForFamily(final int number) {
         return super.classForFamily(number);
     }
 
     @Override
-    public Integer numberForClass(final Class<? extends SubsequentAddressFamily> clazz) {
+    public Integer numberForClass(final SubsequentAddressFamily clazz) {
         return super.numberForClass(clazz);
     }
 }

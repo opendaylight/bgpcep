@@ -156,8 +156,8 @@ public class LinkstateAttributeParserTest {
     private static AttributesBuilder createBuilder(final ObjectType type) {
         return new AttributesBuilder().addAugmentation(new AttributesReachBuilder()
             .setMpReachNlri(new MpReachNlriBuilder()
-                .setAfi(LinkstateAddressFamily.class)
-                .setSafi(LinkstateSubsequentAddressFamily.class)
+                .setAfi(LinkstateAddressFamily.VALUE)
+                .setSafi(LinkstateSubsequentAddressFamily.VALUE)
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                     .setDestinationType(new DestinationLinkstateCaseBuilder()
                         .setDestinationLinkstate(new DestinationLinkstateBuilder()
@@ -175,8 +175,8 @@ public class LinkstateAttributeParserTest {
     private static AttributesBuilder createUnreachBuilder(final ObjectType type) {
         return new AttributesBuilder().addAugmentation(new AttributesUnreachBuilder()
             .setMpUnreachNlri(new MpUnreachNlriBuilder()
-                .setAfi(LinkstateAddressFamily.class)
-                .setSafi(LinkstateSubsequentAddressFamily.class)
+                .setAfi(LinkstateAddressFamily.VALUE)
+                .setSafi(LinkstateSubsequentAddressFamily.VALUE)
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
                     .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
                         .linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type

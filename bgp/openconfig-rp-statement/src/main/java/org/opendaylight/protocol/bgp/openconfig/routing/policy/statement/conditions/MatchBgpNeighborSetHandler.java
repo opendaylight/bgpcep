@@ -77,7 +77,7 @@ public final class MatchBgpNeighborSetHandler
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters importParameters,
             final Void nonAttributres,
@@ -88,7 +88,7 @@ public final class MatchBgpNeighborSetHandler
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters exportParameters,
             final Void nonAttributres,

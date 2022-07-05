@@ -211,7 +211,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
             LOG.debug("Instruction {} not present in the graph", input.getId());
 
             final CancelInstructionOutput out = new CancelInstructionOutputBuilder()
-                    .setFailure(UnknownInstruction.class).build();
+                    .setFailure(UnknownInstruction.VALUE).build();
             return SuccessfulRpcResult.create(out);
         }
 
@@ -273,7 +273,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
          */
         if (!unmet.isEmpty()) {
             throw new SchedulerException("Instruction's dependencies are already unsuccessful", new FailureBuilder()
-                    .setType(DeadOnArrival.class).setFailedPreconditions(unmet).build());
+                    .setType(DeadOnArrival.VALUE).setFailedPreconditions(unmet).build());
         }
         return dependencies;
     }
@@ -285,7 +285,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
             if (instruction == null) {
                 LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
                 throw new SchedulerException("Unknown dependency ID specified",
-                        new FailureBuilder().setType(UnknownPreconditionId.class).build());
+                        new FailureBuilder().setType(UnknownPreconditionId.VALUE).build());
             }
             dependencies.add(instruction);
         }
@@ -320,7 +320,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         if (insns.get(id) != null) {
             LOG.info("Instruction ID {} already present", id);
             throw new SchedulerException("Instruction ID currently in use",
-                    new FailureBuilder().setType(DuplicateInstructionId.class).build());
+                    new FailureBuilder().setType(DuplicateInstructionId.VALUE).build());
         }
 
         // First things first: check the deadline
@@ -330,7 +330,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         if (left.compareTo(BigInteger.ZERO) <= 0) {
             LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
             throw new SchedulerException("Instruction arrived after specified deadline",
-                    new FailureBuilder().setType(DeadOnArrival.class).build());
+                    new FailureBuilder().setType(DeadOnArrival.VALUE).build());
         }
 
         // Resolve dependencies

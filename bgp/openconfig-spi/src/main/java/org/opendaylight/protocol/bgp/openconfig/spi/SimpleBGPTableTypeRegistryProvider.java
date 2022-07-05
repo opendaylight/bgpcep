@@ -27,14 +27,14 @@ import org.opendaylight.yangtools.concepts.Registration;
 @VisibleForTesting
 final class SimpleBGPTableTypeRegistryProvider extends AbstractBGPTableTypeRegistryConsumer
         implements BGPTableTypeRegistryProvider, Mutable {
-    private final @NonNull BiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes = HashBiMap.create();
-    private final @NonNull BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys = HashBiMap.create();
+    private final @NonNull BiMap<BgpTableType, AfiSafiType> tableTypes = HashBiMap.create();
+    private final @NonNull BiMap<TablesKey, AfiSafiType> tableKeys = HashBiMap.create();
 
     @Override
-    public Registration registerBGPTableType(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final Class<? extends AfiSafiType> afiSafiType) {
+    public Registration registerBGPTableType(final AddressFamily afi, final SubsequentAddressFamily safi,
+            final AfiSafiType afiSafiType) {
         final BgpTableType tableType = new BgpTableTypeImpl(afi, safi);
-        final Class<? extends AfiSafiType> prev = tableTypes.putIfAbsent(tableType, afiSafiType);
+        final AfiSafiType prev = tableTypes.putIfAbsent(tableType, afiSafiType);
         checkState(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
         final TablesKey tableKey = new TablesKey(afi, safi);
         tableKeys.put(tableKey, afiSafiType);
@@ -50,12 +50,12 @@ final class SimpleBGPTableTypeRegistryProvider extends AbstractBGPTableTypeRegis
     }
 
     @Override
-    BiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes() {
+    BiMap<BgpTableType, AfiSafiType> tableTypes() {
         return tableTypes;
     }
 
     @Override
-    BiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys() {
+    BiMap<TablesKey, AfiSafiType> tableKeys() {
         return tableKeys;
     }
 }

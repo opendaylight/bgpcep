@@ -38,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public final class Ipv4NlriParser implements NlriParser, NlriSerializer {
 
     private static DestinationIpv4 prefixes(final ByteBuf nlri, final PeerSpecificParserConstraint constraints,
-            final Class<? extends AddressFamily> afi, final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         while (nlri.isReadable()) {
             final Ipv4PrefixesBuilder prefixesBuilder = new Ipv4PrefixesBuilder();

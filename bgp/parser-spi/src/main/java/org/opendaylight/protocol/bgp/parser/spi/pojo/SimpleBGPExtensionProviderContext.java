@@ -69,8 +69,8 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
     }
 
     @Override
-    public Registration registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
-        return this.getAddressFamilyRegistry().registerAddressFamily(clazz, number);
+    public Registration registerAddressFamily(final AddressFamily afi, final int number) {
+        return this.getAddressFamilyRegistry().registerAddressFamily(afi, number);
     }
 
     @Override
@@ -107,10 +107,9 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
     }
 
     @Override
-    public Registration registerNlriParser(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
-            final NextHopParserSerializer nextHopParserSerializer, final Class<? extends CNextHop> cnextHopClass,
-            final Class<? extends CNextHop>... cnextHopClassList) {
+    public Registration registerNlriParser(final AddressFamily afi, final SubsequentAddressFamily safi,
+            final NlriParser parser, final NextHopParserSerializer nextHopParserSerializer,
+            final Class<? extends CNextHop> cnextHopClass, final Class<? extends CNextHop>... cnextHopClassList) {
         return this.getNlriRegistry().registerNlriParser(afi, safi, parser, nextHopParserSerializer, cnextHopClass,
             cnextHopClassList);
     }
@@ -133,9 +132,8 @@ public final class SimpleBGPExtensionProviderContext extends SimpleBGPExtensionC
     }
 
     @Override
-    public Registration registerSubsequentAddressFamily(final Class<? extends SubsequentAddressFamily> clazz,
-            final int number) {
-        return this.getSubsequentAddressFamilyRegistry().registerSubsequentAddressFamily(clazz, number);
+    public Registration registerSubsequentAddressFamily(final SubsequentAddressFamily safi, final int number) {
+        return this.getSubsequentAddressFamilyRegistry().registerSubsequentAddressFamily(safi, number);
     }
 
     @Override

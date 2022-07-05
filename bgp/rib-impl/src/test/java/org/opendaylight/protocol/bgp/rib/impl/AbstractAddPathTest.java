@@ -13,14 +13,12 @@ import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -118,10 +116,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final Update UPD_NA_100_EBGP = createSimpleUpdateEbgp(PREFIX1);
     static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
     static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1);
-    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
-    static final List<BgpTableType> TABLES_TYPE = ImmutableList.of(new BgpTableTypeImpl(TABLES_KEY.getAfi(),
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+    static final List<BgpTableType> TABLES_TYPE = List.of(new BgpTableTypeImpl(TABLES_KEY.getAfi(),
         TABLES_KEY.getSafi()));
-    static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Collections.singleton(TABLES_KEY);
+    static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Set.of(TABLES_KEY);
 
     static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     static final int GRACEFUL_RESTART_TIME = 5;
@@ -257,7 +255,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry) {
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+                AFI_SAFIS_ADVERTIZED, Set.of());
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
@@ -267,7 +265,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
         doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, Collections.emptyMap(), bgpPeer);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bgpPeer);
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4AddressNoZone peerAddress,
@@ -304,10 +302,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static BgpParameters createParameter(final boolean addPath,
                                          final boolean addIpv6,
                                          final Map<TablesKey, Boolean> gracefulTables) {
-        final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
         final List<TablesKey> advertisedTables = Lists.newArrayList(ipv4Key);
         if (addIpv6) {
-            final TablesKey ipv6Key = new TablesKey(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+            final TablesKey ipv6Key = new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
             advertisedTables.add(ipv6Key);
         }
         final List<TablesKey> addPathTables = new ArrayList<>();
@@ -322,10 +320,10 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build());
         attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
-        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
+        attBuilder.setAsPath(new AsPathBuilder().setSegments(List.of()).build());
         attBuilder.setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build());
         if (clusterId != null) {
-            attBuilder.setClusterId(new ClusterIdBuilder().setCluster(Collections.singletonList(clusterId)).build());
+            attBuilder.setClusterId(new ClusterIdBuilder().setCluster(List.of(clusterId)).build());
             attBuilder.setOriginatorId(new OriginatorIdBuilder()
                 .setOriginator(new Ipv4AddressNoZone(clusterId))
                 .build());
@@ -335,29 +333,30 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     private static Update createSimpleUpdateEbgp(final Ipv4Prefix prefix) {
-        final AttributesBuilder attBuilder = new AttributesBuilder();
-        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
-        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.singletonList(
-            new SegmentsBuilder().setAsSequence(Collections.singletonList(AS_NUMBER)).build())).build());
+        final AttributesBuilder attBuilder = new AttributesBuilder()
+            .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+            .setAsPath(new AsPathBuilder()
+                .setSegments(List.of(new SegmentsBuilder().setAsSequence(List.of(AS_NUMBER)).build()))
+                .build());
         addAttributeAugmentation(attBuilder, prefix, null);
 
         return new UpdateBuilder().setAttributes(attBuilder.build()).build();
     }
 
     private static void addAttributeAugmentation(final AttributesBuilder attBuilder, final Ipv4Prefix prefix,
-        final PathId pathId) {
-        attBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+            final PathId pathId) {
+        attBuilder.setUnrecognizedAttributes(Map.of());
         attBuilder.addAugmentation(new AttributesReachBuilder()
             .setMpReachNlri(new MpReachNlriBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder()
                     .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1).build())
                     .build())
-                .setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
                     .setDestinationType(new DestinationIpv4CaseBuilder()
                         .setDestinationIpv4(new DestinationIpv4Builder()
-                            .setIpv4Prefixes(Collections.singletonList(new Ipv4PrefixesBuilder()
+                            .setIpv4Prefixes(List.of(new Ipv4PrefixesBuilder()
                                 .setPathId(pathId)
                                 .setPrefix(new Ipv4Prefix(prefix))
                                 .build()))
@@ -369,13 +368,15 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     }
 
     private static Update createSimpleWithdrawalUpdate(final Ipv4Prefix prefix, final long localPreference) {
-        final AttributesBuilder attBuilder = new AttributesBuilder();
-        attBuilder.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build());
-        attBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
-        attBuilder.setAsPath(new AsPathBuilder().setSegments(Collections.emptyList()).build());
-        attBuilder.setUnrecognizedAttributes(Collections.emptyMap());
+        // FIXME: seems to be unused
+        final AttributesBuilder attBuilder = new AttributesBuilder()
+            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPreference)).build())
+            .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+            .setAsPath(new AsPathBuilder().setSegments(List.of()).build());
+        attBuilder.setUnrecognizedAttributes(Map.of());
+
         return new UpdateBuilder()
-                .setWithdrawnRoutes(Collections.singletonList(new WithdrawnRoutesBuilder().setPrefix(prefix).build()))
+                .setWithdrawnRoutes(List.of(new WithdrawnRoutesBuilder().setPrefix(prefix).build()))
                 .build();
     }
 }
