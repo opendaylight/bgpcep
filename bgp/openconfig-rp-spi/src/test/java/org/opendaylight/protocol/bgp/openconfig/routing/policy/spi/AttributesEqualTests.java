@@ -45,24 +45,24 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("basic-statements-test");
-        doReturn(CLUSTER).when(this.baseAttributes).getClusterId();
-        doReturn(LOCAL_AS).when(this.baseAttributes).getLocalAs();
-        doReturn(IPV4).when(this.baseAttributes).getOriginatorId();
+        basicStatements = loadStatement("basic-statements-test");
+        doReturn(CLUSTER).when(baseAttributes).getClusterId();
+        doReturn(LOCAL_AS).when(baseAttributes).getLocalAs();
+        doReturn(IPV4).when(baseAttributes).getOriginatorId();
     }
 
     @Test
     public void testMedEq() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("med-eq-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(200)).build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -71,10 +71,10 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(100)).build())
                 .build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -82,16 +82,16 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
     @Test
     public void testOriginEq() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("origin-eq-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -100,10 +100,10 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
                 .build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -111,17 +111,17 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
     @Test
     public void testNextHopIn() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("nexthop-in-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
                         .setGlobal(new Ipv6AddressNoZone("2001:db8::1")).build()).build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -131,10 +131,10 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                         .setGlobal(new Ipv4AddressNoZone("42.42.42.42")).build()).build())
                 .build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -142,16 +142,16 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
     @Test
     public void testLocalPref() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("local-pref-eq-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -160,10 +160,10 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
                 .build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -171,16 +171,16 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
 
     @Test
     public void testAfiSafiIn() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("afi-safi-in-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV6UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV6UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -189,10 +189,10 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
                 .build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());

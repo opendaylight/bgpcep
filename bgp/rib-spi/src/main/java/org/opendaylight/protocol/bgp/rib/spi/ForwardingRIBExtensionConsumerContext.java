@@ -27,8 +27,7 @@ abstract class ForwardingRIBExtensionConsumerContext implements RIBExtensionCons
 
     @Override
     public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
-            RIBSupport<C, S> getRIBSupport(final Class<? extends AddressFamily> afi,
-                final Class<? extends SubsequentAddressFamily> safi) {
+            RIBSupport<C, S> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
         return delegate().getRIBSupport(afi, safi);
     }
 

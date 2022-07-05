@@ -8,6 +8,6 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="odl-bgpcep-${project.version}">
     <feature name="odl-bgpcep-pcep-tunnel-provider" version="${project.version}">
-        <feature version="[10,11)">odl-apache-commons-lang3</feature>
+        <feature version="[11,12)">odl-apache-commons-lang3</feature>
     </feature>
 </features>

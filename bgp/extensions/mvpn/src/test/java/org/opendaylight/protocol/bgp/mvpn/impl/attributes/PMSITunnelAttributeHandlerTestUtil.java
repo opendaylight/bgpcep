@@ -313,13 +313,13 @@ final class PMSITunnelAttributeHandlerTestUtil {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         final List<OpaqueValue> nonSupported = singletonList(new OpaqueValueBuilder()
                 .setOpaque(OPAQUE_TEST).setOpaqueType(NO_SUPPORTED_OPAQUE).build());
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, nonSupported));
+        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.VALUE, nonSupported));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildNoSupportedFamilyAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, NonSupportedAddressFamily.class,
+        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IP_ADDRESS, NonSupportedAddressFamily.VALUE,
                 createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
@@ -327,7 +327,7 @@ final class PMSITunnelAttributeHandlerTestUtil {
     static Attributes buildMldpP2mpLspIpv4Attribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(
-                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, createOpaqueList()));
+                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.VALUE, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
@@ -335,19 +335,19 @@ final class PMSITunnelAttributeHandlerTestUtil {
         final PmsiTunnelBuilder pmsiTunnelBuilder = new PmsiTunnelBuilder();
         pmsiTunnelBuilder.setLeafInformationRequired(true);
         pmsiTunnelBuilder.setMplsLabel(MPLS_LABEL);
-        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IPV6, Ipv6AddressFamily.class, createOpaqueList()));
+        pmsiTunnelBuilder.setTunnelIdentifier(buildMldpP2mpLsp(IPV6, Ipv6AddressFamily.VALUE, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     static Attributes buildMldpp2MPLspL2vpnAttribute() {
         final PmsiTunnelBuilder pmsiTunnelBuilder = getPmsiTunnelBuilder();
         pmsiTunnelBuilder.setTunnelIdentifier(
-                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.class, createOpaqueList()));
+                buildMldpP2mpLsp(IP_ADDRESS, Ipv4AddressFamily.VALUE, createOpaqueList()));
         return buildAttribute(pmsiTunnelBuilder);
     }
 
     private static TunnelIdentifier buildMldpP2mpLsp(final IpAddressNoZone ipAddress,
-            final Class<? extends AddressFamily> family, final List<OpaqueValue> opaqueList) {
+            final AddressFamily family, final List<OpaqueValue> opaqueList) {
         return new MldpP2mpLspBuilder()
                 .setMldpP2mpLsp(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                     .pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder()

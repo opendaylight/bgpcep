@@ -30,7 +30,7 @@ public final class TableTypeActivator implements BGPTableTypeRegistryProviderAct
 
     @Override
     public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
-        return List.of(provider.registerBGPTableType(LinkstateAddressFamily.class,
-            LinkstateSubsequentAddressFamily.class, LINKSTATE.class));
+        return List.of(provider.registerBGPTableType(LinkstateAddressFamily.VALUE,
+            LinkstateSubsequentAddressFamily.VALUE, LINKSTATE.VALUE));
     }
 }

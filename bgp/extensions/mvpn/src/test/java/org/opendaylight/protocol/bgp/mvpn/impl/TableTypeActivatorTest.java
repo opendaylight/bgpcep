@@ -21,17 +21,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class TableTypeActivatorTest {
     private static final BgpTableType MVPN_IPV4 = new BgpTableTypeImpl(
-            Ipv4AddressFamily.class, McastVpnSubsequentAddressFamily.class);
+            Ipv4AddressFamily.VALUE, McastVpnSubsequentAddressFamily.VALUE);
     private static final BgpTableType MVPN_IPV6 = new BgpTableTypeImpl(
-            Ipv6AddressFamily.class, McastVpnSubsequentAddressFamily.class);
+            Ipv6AddressFamily.VALUE, McastVpnSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(IPV4MCASTVPN.class, registry.getAfiSafiType(MVPN_IPV4));
-        assertEquals(IPV6MCASTVPN.class, registry.getAfiSafiType(MVPN_IPV6));
+        assertEquals(IPV4MCASTVPN.VALUE, registry.getAfiSafiType(MVPN_IPV4));
+        assertEquals(IPV6MCASTVPN.VALUE, registry.getAfiSafiType(MVPN_IPV6));
 
-        assertEquals(MVPN_IPV4, registry.getTableType(IPV4MCASTVPN.class));
-        assertEquals(MVPN_IPV6, registry.getTableType(IPV6MCASTVPN.class));
+        assertEquals(MVPN_IPV4, registry.getTableType(IPV4MCASTVPN.VALUE));
+        assertEquals(MVPN_IPV6, registry.getTableType(IPV6MCASTVPN.VALUE));
     }
 }

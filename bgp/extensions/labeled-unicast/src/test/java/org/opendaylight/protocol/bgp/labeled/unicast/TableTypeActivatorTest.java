@@ -20,18 +20,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
 public class TableTypeActivatorTest {
-    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        LabeledUnicastSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-        LabeledUnicastSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+        LabeledUnicastSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+        LabeledUnicastSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(IPV4LABELLEDUNICAST.class, registry.getAfiSafiType(IPV4));
-        assertEquals(IPV6LABELLEDUNICAST.class, registry.getAfiSafiType(IPV6));
+        assertEquals(IPV4LABELLEDUNICAST.VALUE, registry.getAfiSafiType(IPV4));
+        assertEquals(IPV6LABELLEDUNICAST.VALUE, registry.getAfiSafiType(IPV6));
 
-        assertEquals(IPV4, registry.getTableType(IPV4LABELLEDUNICAST.class));
-        assertEquals(IPV6, registry.getTableType(IPV6LABELLEDUNICAST.class));
+        assertEquals(IPV4, registry.getTableType(IPV4LABELLEDUNICAST.VALUE));
+        assertEquals(IPV6, registry.getTableType(IPV6LABELLEDUNICAST.VALUE));
     }
 }

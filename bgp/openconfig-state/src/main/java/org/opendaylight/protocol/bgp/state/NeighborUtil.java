@@ -267,7 +267,7 @@ public final class NeighborUtil {
      */
     public static NeighborStateAugmentation buildCapabilityState(final @NonNull BGPSessionState neighbor) {
 
-        final Set<Class<? extends BgpCapability>> supportedCapabilities = buildSupportedCapabilities(neighbor);
+        final Set<BgpCapability> supportedCapabilities = buildSupportedCapabilities(neighbor);
         SessionState sessionState = null;
         switch (neighbor.getSessionState()) {
             case IDLE:
@@ -340,7 +340,7 @@ public final class NeighborUtil {
 
     private static @Nullable AfiSafi buildAfiSafi(final @NonNull BGPAfiSafiState neighbor,
             final @NonNull TablesKey tablesKey, final @NonNull BGPTableTypeRegistryConsumer bgpTableTypeRegistry) {
-        final Class<? extends AfiSafiType> afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
+        final AfiSafiType afiSafi = bgpTableTypeRegistry.getAfiSafiType(tablesKey);
         return afiSafi == null ? null : new AfiSafiBuilder()
             .setAfiSafiName(afiSafi)
             .setState(buildAfiSafiState(neighbor, tablesKey, neighbor.isAfiSafiSupported(tablesKey)))
@@ -389,23 +389,22 @@ public final class NeighborUtil {
      *
      * @return List containing supported capabilities
      */
-    public static @NonNull Set<Class<? extends BgpCapability>> buildSupportedCapabilities(
-            final @NonNull BGPSessionState neighbor) {
-        final var supportedCapabilities = ImmutableSet.<Class<? extends BgpCapability>>builder();
+    public static @NonNull Set<BgpCapability> buildSupportedCapabilities(final @NonNull BGPSessionState neighbor) {
+        final var supportedCapabilities = ImmutableSet.<BgpCapability>builder();
         if (neighbor.isAddPathCapabilitySupported()) {
-            supportedCapabilities.add(ADDPATHS.class);
+            supportedCapabilities.add(ADDPATHS.VALUE);
         }
         if (neighbor.isAsn32CapabilitySupported()) {
-            supportedCapabilities.add(ASN32.class);
+            supportedCapabilities.add(ASN32.VALUE);
         }
         if (neighbor.isGracefulRestartCapabilitySupported()) {
-            supportedCapabilities.add(GRACEFULRESTART.class);
+            supportedCapabilities.add(GRACEFULRESTART.VALUE);
         }
         if (neighbor.isMultiProtocolCapabilitySupported()) {
-            supportedCapabilities.add(MPBGP.class);
+            supportedCapabilities.add(MPBGP.VALUE);
         }
         if (neighbor.isRouterRefreshCapabilitySupported()) {
-            supportedCapabilities.add(ROUTEREFRESH.class);
+            supportedCapabilities.add(ROUTEREFRESH.VALUE);
         }
         return supportedCapabilities.build();
     }

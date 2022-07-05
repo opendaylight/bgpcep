@@ -146,9 +146,9 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         builder.setFlowspecType(headersCase);
         fs.add(builder.build());
 
-        final MpReachNlriBuilder result = new MpReachNlriBuilder();
-        result.setAfi(Ipv6AddressFamily.class);
-        result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
+        final MpReachNlriBuilder result = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(FlowspecL3vpnSubsequentAddressFamily.VALUE);
         fsParser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result, null);
 
         DestinationFlowspecL3vpnIpv6 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang

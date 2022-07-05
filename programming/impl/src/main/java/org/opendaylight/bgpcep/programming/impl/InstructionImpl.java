@@ -148,7 +148,7 @@ final class InstructionImpl implements Instruction {
         setStatus(InstructionStatus.Cancelled, details);
     }
 
-    synchronized Class<? extends CancelFailure> tryCancel(final Details details) {
+    synchronized CancelFailure tryCancel(final Details details) {
         switch (status) {
             case Cancelled:
             case Executing:
@@ -156,7 +156,7 @@ final class InstructionImpl implements Instruction {
             case Successful:
             case Unknown:
                 LOG.debug("Instruction {} can no longer be cancelled due to status {}", id, status);
-                return UncancellableInstruction.class;
+                return UncancellableInstruction.VALUE;
             case Queued:
             case Scheduled:
                 cancel(details);
