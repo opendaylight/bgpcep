@@ -16,7 +16,7 @@ import static org.mockito.Mockito.mock;
 
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
-import java.util.Collections;
+import java.util.Set;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -58,7 +58,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
     protected static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(73));
     protected static final RibId RIB_ID = new RibId("test");
-    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     @Mock
     protected RIB rib;
     @Mock
@@ -86,48 +86,47 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     public void setUp() throws Exception {
         super.setUp();
         doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
-                .params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(this.rib)
+                .params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(rib)
                 .getInstanceIdentifier();
-        doReturn(this.domTx).when(this.rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        doReturn(domTx).when(rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
 
-        doReturn(AS).when(this.rib).getLocalAs();
-        doReturn(mock(RIBSupportContextRegistry.class)).when(this.rib).getRibSupportContext();
-        doReturn(Collections.emptySet()).when(this.rib).getLocalTablesKeys();
-        doNothing().when(this.domTx).close();
-        doReturn(this.domDW).when(this.domTx).newWriteOnlyTransaction();
-        doNothing().when(this.domDW).put(eq(LogicalDatastoreType.OPERATIONAL),
+        doReturn(AS).when(rib).getLocalAs();
+        doReturn(mock(RIBSupportContextRegistry.class)).when(rib).getRibSupportContext();
+        doReturn(Set.of()).when(rib).getLocalTablesKeys();
+        doNothing().when(domTx).close();
+        doReturn(domDW).when(domTx).newWriteOnlyTransaction();
+        doNothing().when(domDW).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(MapEntryNode.class));
-        doNothing().when(this.domDW).delete(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(domDW).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
-        doNothing().when(this.domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(domDW).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doReturn(CommitInfo.emptyFluentFuture()).when(this.domDW).commit();
+        doReturn(CommitInfo.emptyFluentFuture()).when(domDW).commit();
 
-        doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(this.rib).getYangRibId();
-        doReturn(this.dataTreeChangeService).when(this.rib).getService();
-        doReturn(this.listener).when(this.dataTreeChangeService).registerDataTreeChangeListener(any(), any());
-        doReturn(new BgpId("127.0.0.1")).when(this.rib).getBgpIdentifier();
-        doReturn(true).when(this.future).cancel(true);
-        doReturn(this.future).when(this.dispatcher).createReconnectingClient(any(InetSocketAddress.class),
+        doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(rib).getYangRibId();
+        doReturn(dataTreeChangeService).when(rib).getService();
+        doReturn(listener).when(dataTreeChangeService).registerDataTreeChangeListener(any(), any());
+        doReturn(new BgpId("127.0.0.1")).when(rib).getBgpIdentifier();
+        doReturn(true).when(future).cancel(true);
+        doReturn(future).when(dispatcher).createReconnectingClient(any(InetSocketAddress.class),
                 any(), anyInt(), any(KeyMapping.class));
-        doReturn(this.dispatcher).when(this.rib).getDispatcher();
+        doReturn(dispatcher).when(rib).getDispatcher();
 
-        doReturn(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
-                .when(this.tableTypeRegistry).getTableType(any());
-        doReturn(TABLES_KEY).when(this.tableTypeRegistry).getTableKey(any());
-        doReturn(Collections.singleton(new BgpTableTypeImpl(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class)))
-                .when(this.rib).getLocalTables();
+        doReturn(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
+                .when(tableTypeRegistry).getTableType(any());
+        doReturn(TABLES_KEY).when(tableTypeRegistry).getTableKey(any());
+        doReturn(Set.of(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)))
+                .when(rib).getLocalTables();
 
-        doNothing().when(this.bgpPeerRegistry).addPeer(any(IpAddressNoZone.class),
+        doNothing().when(bgpPeerRegistry).addPeer(any(IpAddressNoZone.class),
                 any(BGPSessionListener.class), any(BGPSessionPreferences.class));
-        doNothing().when(this.bgpPeerRegistry).removePeer(any(IpAddressNoZone.class));
-        doReturn("registry").when(this.bgpPeerRegistry).toString();
-        doNothing().when(this.listener).close();
-        doReturn(this.bgpPeerRegistry).when(this.dispatcher).getBGPPeerRegistry();
-        doReturn(this.peerTracker).when(this.rib).getPeerTracker();
-        doReturn(this.policies).when(this.rib).getRibPolicies();
-        doReturn(null).when(this.peerGroupLoader)
+        doNothing().when(bgpPeerRegistry).removePeer(any(IpAddressNoZone.class));
+        doReturn("registry").when(bgpPeerRegistry).toString();
+        doNothing().when(listener).close();
+        doReturn(bgpPeerRegistry).when(dispatcher).getBGPPeerRegistry();
+        doReturn(peerTracker).when(rib).getPeerTracker();
+        doReturn(policies).when(rib).getRibPolicies();
+        doReturn(null).when(peerGroupLoader)
                 .getPeerGroup(any(InstanceIdentifier.class), any(String.class));
     }
 }

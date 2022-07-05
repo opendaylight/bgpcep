@@ -26,9 +26,9 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * increase the in-memory efficiency when the same objects are created over and over again.
  */
 public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext {
-    Registration registerAddressFamily(Class<? extends AddressFamily> clazz, int number);
+    Registration registerAddressFamily(AddressFamily afi, int number);
 
-    Registration registerSubsequentAddressFamily(Class<? extends SubsequentAddressFamily> clazz, int number);
+    Registration registerSubsequentAddressFamily(SubsequentAddressFamily safi, int number);
 
     Registration registerAttributeParser(int attributeType, AttributeParser parser);
 
@@ -50,8 +50,8 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
     Registration registerBgpPrefixSidTlvSerializer(Class<? extends BgpPrefixSidTlv> tlvClass,
             BgpPrefixSidTlvSerializer serializer);
 
-    Registration registerNlriParser(Class<? extends AddressFamily> afi, Class<? extends SubsequentAddressFamily> safi,
-        NlriParser parser, NextHopParserSerializer nextHopHandler, Class<? extends CNextHop> cnextHopClass,
+    Registration registerNlriParser(AddressFamily afi, SubsequentAddressFamily safi, NlriParser parser,
+        NextHopParserSerializer nextHopHandler, Class<? extends CNextHop> cnextHopClass,
         Class<? extends CNextHop>... cnextHopClassList);
 
     Registration registerNlriSerializer(Class<? extends DataObject> nlriClass, NlriSerializer serializer);

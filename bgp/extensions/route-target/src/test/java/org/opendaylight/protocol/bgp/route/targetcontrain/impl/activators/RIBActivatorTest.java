@@ -22,9 +22,9 @@ public class RIBActivatorTest extends AbstractRIBActivatorTest {
     public void testRIBActivator() {
         final RIBActivator ribAct = new RIBActivator();
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        assertNull(context.getRIBSupport(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class));
+        assertNull(context.getRIBSupport(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE));
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
-        assertNotNull(context.getRIBSupport(Ipv4AddressFamily.class,
-                RouteTargetConstrainSubsequentAddressFamily.class));
+        assertNotNull(context.getRIBSupport(Ipv4AddressFamily.VALUE,
+                RouteTargetConstrainSubsequentAddressFamily.VALUE));
     }
 }

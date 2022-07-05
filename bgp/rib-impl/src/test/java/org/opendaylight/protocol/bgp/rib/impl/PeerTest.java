@@ -142,14 +142,15 @@ public class PeerTest extends AbstractRIBTestSetup {
         classic = AbstractAddPathTest.configurePeer(tableRegistry,
             neighborAddress.getIpv4AddressNoZone(), getRib(), null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         classic.instantiateServiceInstance();
-        this.mockSession();
+        mockSession();
         assertEquals(neighborAddress.getIpv4AddressNoZone().getValue(), classic.getName());
         classic.onSessionUp(session);
-        assertEquals("BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1"
-                        + ".urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily,"
-                        + " _safi=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types"
-                        + ".rev200120.UnicastSubsequentAddressFamily}]}",
-                classic.toString());
+        assertEquals("""
+            BGPPeer{name=127.0.0.1, tables=[TablesKey{_afi=interface org.opendaylight.yang.gen.v1\
+            .urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily,\
+            _safi=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types\
+            .rev200120.UnicastSubsequentAddressFamily}]}""",
+            classic.toString());
 
         final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
         final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
@@ -207,7 +208,7 @@ public class PeerTest extends AbstractRIBTestSetup {
             .build());
         classic.onMessage(session, new RouteRefreshBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build());
         classic.onMessage(session, new RouteRefreshBuilder()
-                .setAfi(Ipv6AddressFamily.class)
+                .setAfi(Ipv6AddressFamily.VALUE)
                 .setSafi(SAFI).build());
         assertEquals(2, routes.size());
         classic.releaseConnection();
@@ -232,8 +233,8 @@ public class PeerTest extends AbstractRIBTestSetup {
                 .setCParameters(new CParametersBuilder()
                     .addAugmentation(new CParameters1Builder()
                         .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                            .setAfi(Ipv4AddressFamily.class)
-                            .setSafi(UnicastSubsequentAddressFamily.class)
+                            .setAfi(Ipv4AddressFamily.VALUE)
+                            .setSafi(UnicastSubsequentAddressFamily.VALUE)
                             .build())
                         .build())
                     .build())

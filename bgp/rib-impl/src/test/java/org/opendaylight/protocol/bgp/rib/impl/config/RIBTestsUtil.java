@@ -40,11 +40,11 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 final class RIBTestsUtil {
     private static final BgpId BGP_ID = new BgpId(new Ipv4AddressNoZone("127.0.0.1"));
     private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV4 = BindingMap.of(new AfiSafiBuilder()
-        .setAfiSafiName(IPV4UNICAST.class)
+        .setAfiSafiName(IPV4UNICAST.VALUE)
         .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
         .build());
     private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV6 = BindingMap.of(new AfiSafiBuilder()
-        .setAfiSafiName(IPV6UNICAST.class)
+        .setAfiSafiName(IPV6UNICAST.VALUE)
         .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
         .build());
 

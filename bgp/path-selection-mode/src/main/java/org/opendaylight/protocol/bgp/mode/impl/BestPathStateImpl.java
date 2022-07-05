@@ -123,8 +123,10 @@ public final class BestPathStateImpl implements BestPathState {
         final Optional<NormalizedNode> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
         if (maybeOrigin.isPresent()) {
             final String originStr = (String) maybeOrigin.get().body();
-            origin = BgpOrigin.forName(originStr)
-                .orElseThrow(() -> new IllegalArgumentException("Unhandled origin value " + originStr));
+            origin = BgpOrigin.forName(originStr);
+            if (origin == null) {
+                throw new IllegalArgumentException("Unhandled origin value " + originStr);
+            }
         } else {
             origin = null;
         }
@@ -228,10 +230,9 @@ public final class BestPathStateImpl implements BestPathState {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof BestPathStateImpl)) {
+        if (!(obj instanceof BestPathStateImpl other)) {
             return false;
         }
-        final BestPathStateImpl other = (BestPathStateImpl) obj;
         if (!attributes.equals(other.attributes)) {
             return false;
         }

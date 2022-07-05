@@ -27,8 +27,8 @@ public final class FlowspecIpv6RIBSupport
                 FlowspecIpv6RoutesCase.class,
                 FlowspecIpv6Routes.class,
                 FlowspecRoute.class,
-                Ipv6AddressFamily.class,
-                FlowspecSubsequentAddressFamily.class,
+                Ipv6AddressFamily.VALUE,
+                FlowspecSubsequentAddressFamily.VALUE,
                 DestinationFlowspecIpv6.QNAME,
                 new SimpleFlowspecIpv6NlriParser(SAFI.FLOWSPEC)
         );

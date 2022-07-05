@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static org.junit.Assert.assertNotNull;
@@ -35,120 +34,87 @@ public class MatchBgpNeighborSetTest extends AbstractStatementRegistryConsumerTe
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("bgp-neighbor-statements-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("bgp-neighbor-statements-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
-
 
     @Test
     public void testMatchFromBgpNeighborAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-from-neighbor-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
-        doReturn(new PeerId("bgp://42.42.42.42")).when(this.exportParameters).getFromPeerId();
+        doReturn(new PeerId("bgp://42.42.42.42")).when(exportParameters).getFromPeerId();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
-        doReturn(new PeerId("bgp://127.0.0.1")).when(this.exportParameters).getFromPeerId();
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        doReturn(new PeerId("bgp://127.0.0.1")).when(exportParameters).getFromPeerId();
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 
     @Test
     public void testMatchFromBgpNeighborInvert() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-from-neighbor-invert-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
-        doReturn(new PeerId("bgp://42.42.42.42")).when(this.exportParameters).getFromPeerId();
+        doReturn(new PeerId("bgp://42.42.42.42")).when(exportParameters).getFromPeerId();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
 
-        doReturn(new PeerId("bgp://127.0.0.1")).when(this.exportParameters).getFromPeerId();
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        doReturn(new PeerId("bgp://127.0.0.1")).when(exportParameters).getFromPeerId();
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
     }
 
     @Test
     public void testMatchToBgpNeighborAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-to-neighbor-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
-        doReturn(new PeerId("bgp://127.0.0.2")).when(this.exportParameters).getFromPeerId();
-        doReturn(new PeerId("bgp://42.42.42.42")).when(this.exportParameters).getToPeerId();
+        doReturn(new PeerId("bgp://127.0.0.2")).when(exportParameters).getFromPeerId();
+        doReturn(new PeerId("bgp://42.42.42.42")).when(exportParameters).getToPeerId();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
-        doReturn(new PeerId("bgp://127.0.0.1")).when(this.exportParameters).getToPeerId();
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        doReturn(new PeerId("bgp://127.0.0.1")).when(exportParameters).getToPeerId();
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 
     @Test
     public void testMatchToBgpNeighborInvert() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("reject-to-neighbor-invert-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
-        doReturn(new PeerId("bgp://127.0.0.2")).when(this.exportParameters).getFromPeerId();
-        doReturn(new PeerId("bgp://42.42.42.42")).when(this.exportParameters).getToPeerId();
+        doReturn(new PeerId("bgp://127.0.0.2")).when(exportParameters).getFromPeerId();
+        doReturn(new PeerId("bgp://42.42.42.42")).when(exportParameters).getToPeerId();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
 
-        doReturn(new PeerId("bgp://127.0.0.1")).when(this.exportParameters).getToPeerId();
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        doReturn(new PeerId("bgp://127.0.0.1")).when(exportParameters).getToPeerId();
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
     }
 }

@@ -67,10 +67,10 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
             final Class<S> containerClass, final QName containerQName,
-            final Class<? extends AddressFamily> afiClass,
+            final AddressFamily afiClass,
             final QName vpnDstContainerClassQname) {
         super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
-                MplsLabeledVpnSubsequentAddressFamily.class, vpnDstContainerClassQname);
+                MplsLabeledVpnSubsequentAddressFamily.VALUE, vpnDstContainerClassQname);
         this.nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule())
             .intern());
         this.labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());
@@ -115,8 +115,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         if (destination != null) {
             final DataContainerChild routes = destination.childByArg(this.nlriRoutesListNid);
             if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final UnkeyedListNode routeListNode = (UnkeyedListNode) routes;
+                if (routes instanceof UnkeyedListNode routeListNode) {
                     LOG.debug("{} routes are found", routeListNode.size());
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                     final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();

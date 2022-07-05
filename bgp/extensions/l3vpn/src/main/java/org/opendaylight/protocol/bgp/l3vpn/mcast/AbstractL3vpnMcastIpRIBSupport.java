@@ -75,11 +75,11 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass, final QName cazeQName,
             final Class<S> containerClass,
-            final Class<? extends AddressFamily> afiClass,
+            final AddressFamily afiClass,
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, L3vpnMcastRoute.class, afiClass,
-                McastMplsLabeledVpnSubsequentAddressFamily.class, destContainerQname);
+                McastMplsLabeledVpnSubsequentAddressFamily.VALUE, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);

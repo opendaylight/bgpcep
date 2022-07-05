@@ -60,31 +60,31 @@ public class EvpnNlriParserTest {
     @Test
     public void testSerializeNlri() {
         final ByteBuf buffer = Unpooled.buffer();
-        EvpnNlriParser.serializeNlri(this.dest, buffer);
+        EvpnNlriParser.serializeNlri(dest, buffer);
         assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
 
     }
 
     @Test
     public void testMpUnreach() throws BGPParsingException {
-        final MpUnreachNlriBuilder mpReach = new MpUnreachNlriBuilder();
-        mpReach.setAfi(L2vpnAddressFamily.class);
-        mpReach.setSafi(EvpnSubsequentAddressFamily.class);
-        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
+        final MpUnreachNlriBuilder mpReach = new MpUnreachNlriBuilder()
+            .setAfi(L2vpnAddressFamily.VALUE)
+            .setSafi(EvpnSubsequentAddressFamily.VALUE);
+        parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
         assertEquals(createUnreach(), mpReach.build());
     }
 
     private MpUnreachNlri createUnreach() {
-        final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder();
-        mpReachExpected.setAfi(L2vpnAddressFamily.class);
-        mpReachExpected.setSafi(EvpnSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder mpReachExpected = new MpUnreachNlriBuilder()
+            .setAfi(L2vpnAddressFamily.VALUE)
+            .setSafi(EvpnSubsequentAddressFamily.VALUE);
         final WithdrawnRoutes wd = new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationEvpnCaseBuilder()
                 .setDestinationEvpn(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                     .bgp.evpn.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                     .destination.evpn._case.DestinationEvpnBuilder()
-                    .setEvpnDestination(this.dest).build())
+                    .setEvpnDestination(dest).build())
                 .build())
             .build();
         return mpReachExpected.setWithdrawnRoutes(wd).build();
@@ -92,16 +92,16 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testMpReach() throws BGPParsingException {
-        final MpReachNlriBuilder mpReach = new MpReachNlriBuilder();
-        mpReach.setAfi(L2vpnAddressFamily.class);
-        mpReach.setSafi(EvpnSubsequentAddressFamily.class);
-        this.parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
+        final MpReachNlriBuilder mpReach = new MpReachNlriBuilder()
+            .setAfi(L2vpnAddressFamily.VALUE)
+            .setSafi(EvpnSubsequentAddressFamily.VALUE);
+        parser.parseNlri(Unpooled.wrappedBuffer(IncMultEthTagRParserTest.RESULT), mpReach, null);
 
-        final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder();
-        mpReachExpected.setAfi(L2vpnAddressFamily.class);
-        mpReachExpected.setSafi(EvpnSubsequentAddressFamily.class);
+        final MpReachNlriBuilder mpReachExpected = new MpReachNlriBuilder()
+            .setAfi(L2vpnAddressFamily.VALUE)
+            .setSafi(EvpnSubsequentAddressFamily.VALUE);
         final AdvertizedRoutes wd = new AdvertizedRoutesBuilder().setDestinationType(new DestinationEvpnCaseBuilder()
-                .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(this.dest).build())
+                .setDestinationEvpn(new DestinationEvpnBuilder().setEvpnDestination(dest).build())
                 .build()).build();
         mpReachExpected.setAdvertizedRoutes(wd);
         assertEquals(mpReachExpected.build(), mpReach.build());
@@ -110,14 +110,14 @@ public class EvpnNlriParserTest {
     @Test
     public void testNullMpReachNlri() throws BGPParsingException {
         final MpReachNlriBuilder mpb = new MpReachNlriBuilder();
-        this.parser.parseNlri(Unpooled.buffer(), mpb, null);
+        parser.parseNlri(Unpooled.buffer(), mpb, null);
         assertEquals(new MpReachNlriBuilder().build(), mpb.build());
     }
 
     @Test
     public void testNullMpUnReachNlri() throws BGPParsingException {
         final MpUnreachNlriBuilder mpb = new MpUnreachNlriBuilder();
-        this.parser.parseNlri(Unpooled.buffer(), mpb, null);
+        parser.parseNlri(Unpooled.buffer(), mpb, null);
         assertEquals(new MpUnreachNlriBuilder().build(), mpb.build());
     }
 

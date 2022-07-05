@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
 public class AbstractBGPDispatcherTest {
     protected static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
     static final int RETRY_TIMER = 1;
-    protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        UnicastSubsequentAddressFamily.class);
+    protected static final BgpTableType IPV_4_TT = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+        UnicastSubsequentAddressFamily.VALUE);
     private static final short HOLD_TIMER = 30;
     protected BGPDispatcherImpl clientDispatcher;
     protected StrictBGPPeerRegistry registry;
@@ -64,30 +64,30 @@ public class AbstractBGPDispatcherTest {
     @Before
     public void setUp() {
         if (!Epoll.isAvailable()) {
-            this.boss = new NioEventLoopGroup();
-            this.worker = new NioEventLoopGroup();
+            boss = new NioEventLoopGroup();
+            worker = new NioEventLoopGroup();
         }
-        this.registry = new StrictBGPPeerRegistry();
-        this.clientListener = new SimpleSessionListener();
-        this.serverListener = new SimpleSessionListener();
+        registry = new StrictBGPPeerRegistry();
+        clientListener = new SimpleSessionListener();
+        serverListener = new SimpleSessionListener();
         final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow();
-        this.serverDispatcher = new BGPDispatcherImpl(ctx, this.boss, this.worker, this.registry);
+        serverDispatcher = new BGPDispatcherImpl(ctx, boss, worker, registry);
 
-        this.clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
+        clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddressNoZone clientPeerIp = new IpAddressNoZone(new Ipv4AddressNoZone(
-            this.clientAddress.getAddress().getHostAddress()));
-        this.registry.addPeer(clientPeerIp, this.clientListener, createPreferences(this.clientAddress));
-        this.clientDispatcher = new BGPDispatcherImpl(ctx, this.boss, this.worker, this.registry);
+            clientAddress.getAddress().getHostAddress()));
+        registry.addPeer(clientPeerIp, clientListener, createPreferences(clientAddress));
+        clientDispatcher = new BGPDispatcherImpl(ctx, boss, worker, registry);
     }
 
     @After
     public void tearDown() throws Exception {
-        this.serverDispatcher.close();
-        this.registry.close();
+        serverDispatcher.close();
+        registry.close();
         if (!Epoll.isAvailable()) {
-            this.worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-            this.boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+            boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
         }
     }
 
@@ -115,10 +115,10 @@ public class AbstractBGPDispatcherTest {
     }
 
     Channel createServer(final InetSocketAddress serverAddress) {
-        this.registry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(serverAddress.getAddress().getHostAddress())),
-                this.serverListener, createPreferences(serverAddress));
+        registry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(serverAddress.getAddress().getHostAddress())),
+                serverListener, createPreferences(serverAddress));
         LoggerFactory.getLogger(AbstractBGPDispatcherTest.class).info("createServer");
-        final ChannelFuture future = this.serverDispatcher.createServer(serverAddress);
+        final ChannelFuture future = serverDispatcher.createServer(serverAddress);
         future.addListener(future1 -> Preconditions.checkArgument(future1.isSuccess(),
             "Unable to start bgp server on %s", future1.cause()));
         waitFutureSuccess(future);

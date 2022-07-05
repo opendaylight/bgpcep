@@ -16,7 +16,6 @@ import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ExportAttributeTestUtil.createPathInputWithAs;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.ImportAttributeTestUtil.AS;
 
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +38,8 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.defaultExportStatements = loadStatement("default-odl-export-policy");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        defaultExportStatements = loadStatement("default-odl-export-policy");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
@@ -49,7 +48,7 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
 
         final Attributes expectedOutput = createPathInputWithAs();
         final RouteAttributeContainer attributeContainer
-                = routeAttributeContainerFalse(createPathInput(Collections.emptyList()));
+                = routeAttributeContainerFalse(createPathInput(List.of()));
 
         assertApplyExportStatement(statement, PeerRole.Ebgp, attributeContainer, expectedOutput);
         assertApplyExportStatement(statement, PeerRole.Ibgp, attributeContainer, expectedOutput);
@@ -124,9 +123,9 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
     }
 
     private Statement getStatementAndSetToRole(final String statementName, final PeerRole toPeerRole) {
-        doReturn(toPeerRole).when(this.exportParameters).getToPeerRole();
-        doReturn(AS).when(this.exportParameters).getToPeerLocalAs();
-        return this.defaultExportStatements.stream()
+        doReturn(toPeerRole).when(exportParameters).getToPeerRole();
+        doReturn(AS).when(exportParameters).getToPeerLocalAs();
+        return defaultExportStatements.stream()
                 .filter(st -> st.getName().equals(statementName)).findFirst().get();
     }
 
@@ -134,14 +133,10 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
             final Statement statement, final PeerRole fromPeerRole,
             final RouteAttributeContainer attInput,
             final Attributes attExpected) {
-        doReturn(fromPeerRole).when(this.exportParameters).getFromPeerRole();
+        doReturn(fromPeerRole).when(exportParameters).getFromPeerRole();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attInput,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attInput, statement);
         assertEquals(attExpected, result.getAttributes());
     }
 }
