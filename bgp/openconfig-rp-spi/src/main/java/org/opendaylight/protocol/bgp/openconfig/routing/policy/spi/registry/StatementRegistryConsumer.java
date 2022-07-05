@@ -29,7 +29,7 @@ public interface StatementRegistryConsumer {
      * @return modified Route attributes
      */
     @NonNull RouteAttributeContainer applyExportStatement(@NonNull RouteEntryBaseAttributes routeEntryInfo,
-            @NonNull Class<? extends AfiSafiType> afiSafi, @NonNull BGPRouteEntryExportParameters baseExportParameters,
+            @NonNull AfiSafiType afiSafi, @NonNull BGPRouteEntryExportParameters baseExportParameters,
             @NonNull RouteAttributeContainer attributes, @NonNull Statement statement);
 
     /**
@@ -43,6 +43,6 @@ public interface StatementRegistryConsumer {
      * @return modified Route attributes
      */
     @NonNull RouteAttributeContainer applyImportStatement(@NonNull RouteEntryBaseAttributes routeEntryInfo,
-            @NonNull Class<? extends AfiSafiType> afiSafi, @NonNull BGPRouteEntryImportParameters routeBaseParameters,
+            @NonNull AfiSafiType afiSafi, @NonNull BGPRouteEntryImportParameters routeBaseParameters,
             @NonNull RouteAttributeContainer attributes, @NonNull Statement statement);
 }

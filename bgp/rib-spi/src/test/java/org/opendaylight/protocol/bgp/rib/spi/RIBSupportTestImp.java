@@ -32,8 +32,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
             QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
 
     public RIBSupportTestImp(final BindingNormalizedNodeSerializer mappingService) {
-        super(mappingService, Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class, Ipv4Prefixes.QNAME);
+        super(mappingService, Ipv4RoutesCase.class, Ipv4Routes.class, Ipv4Route.class, Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE, Ipv4Prefixes.QNAME);
     }
 
     @Override

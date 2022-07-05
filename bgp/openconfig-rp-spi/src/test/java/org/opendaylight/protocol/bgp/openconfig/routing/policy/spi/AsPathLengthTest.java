@@ -38,10 +38,10 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("basic-statements-test");
-        doReturn(CLUSTER).when(this.baseAttributes).getClusterId();
-        doReturn(LOCAL_AS).when(this.baseAttributes).getLocalAs();
-        doReturn(IPV4).when(this.baseAttributes).getOriginatorId();
+        basicStatements = loadStatement("basic-statements-test");
+        doReturn(CLUSTER).when(baseAttributes).getClusterId();
+        doReturn(LOCAL_AS).when(baseAttributes).getLocalAs();
+        doReturn(IPV4).when(baseAttributes).getOriginatorId();
     }
 
     @Test
@@ -54,16 +54,16 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("as-path-eq-length-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -75,10 +75,10 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 .build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -94,16 +94,16 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("as-path-ge-length-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());
@@ -114,10 +114,10 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 .build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -133,16 +133,16 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("as-path-le-length-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNotNull(result.getAttributes());
@@ -151,10 +151,10 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 .setAsSequence(Collections.singletonList(AsNumber.getDefaultInstance("3"))).build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertNull(result.getAttributes());

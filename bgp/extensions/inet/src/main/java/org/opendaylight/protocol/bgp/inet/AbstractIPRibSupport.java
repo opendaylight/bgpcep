@@ -55,13 +55,13 @@ abstract class AbstractIPRibSupport<
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<? extends DataObject> prefixClass,
-            final Class<? extends AddressFamily> addressFamilyClass,
+            final AddressFamily addressFamilyClass,
             final Class<C> cazeClass,
             final Class<S> containerClass,
             final Class<R> listClass,
             final QName destinationQname, final QName prefixesQname) {
         super(mappingService, cazeClass, containerClass, listClass, addressFamilyClass,
-                UnicastSubsequentAddressFamily.class, destinationQname);
+                UnicastSubsequentAddressFamily.VALUE, destinationQname);
         this.nlriRoutesList = new NodeIdentifier(prefixesQname);
         this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
         this.prefixNid = new NodeIdentifier(QName.create(routeQName(), "prefix").intern());

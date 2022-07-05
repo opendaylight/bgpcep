@@ -27,38 +27,38 @@ public class ASNumberTest {
 
     @Before
     public void setUp() {
-        this.asn1 = new AsNumber(Uint32.valueOf(4294967295L));
-        this.asn3 = new AsNumber(Uint32.valueOf(200));
-        this.asn4 = new AsNumber(Uint32.valueOf(429496335L));
+        asn1 = new AsNumber(Uint32.valueOf(4294967295L));
+        asn3 = new AsNumber(Uint32.valueOf(200));
+        asn4 = new AsNumber(Uint32.valueOf(429496335L));
     }
 
     @Test
     public void testHashCode() {
         final Set<AsNumber> set = new HashSet<>();
 
-        set.add(this.asn1);
+        set.add(asn1);
         assertEquals(1, set.size());
 
-        set.add(this.asn3);
+        set.add(asn3);
         assertEquals(2, set.size());
     }
 
     @Test
     public void testGetters() {
-        assertEquals(4294967295L, this.asn1.getValue().longValue());
+        assertEquals(4294967295L, asn1.getValue().longValue());
     }
 
     @Test
     public void testEquals() {
-        assertThat(this.asn1, not(equalTo(this.asn3)));
-        assertThat(this.asn1, not(equalTo(this.asn4)));
-        assertThat(this.asn1, not(equalTo(new Object())));
-        assertNotEquals(this.asn1, new Object());
+        assertThat(asn1, not(equalTo(asn3)));
+        assertThat(asn1, not(equalTo(asn4)));
+        assertThat(asn1, not(equalTo(new Object())));
+        assertNotEquals(asn1, new Object());
     }
 
     @Test
     public void testToString() {
-        assertEquals("AsNumber{_value=4294967295}", this.asn1.toString());
-        assertEquals("AsNumber{_value=200}", this.asn3.toString());
+        assertEquals("AsNumber{value=4294967295}", asn1.toString());
+        assertEquals("AsNumber{value=200}", asn3.toString());
     }
 }
