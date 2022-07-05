@@ -49,8 +49,8 @@ public final class GracefulRestartUtil {
     }
 
     @Beta
-    public static @NonNull Tables gracefulRestartTable(final @NonNull Class<? extends AddressFamily> afi,
-            final @NonNull Class<? extends SubsequentAddressFamily> safi, final boolean forwardingState) {
+    public static @NonNull Tables gracefulRestartTable(final @NonNull AddressFamily afi,
+            final @NonNull SubsequentAddressFamily safi, final boolean forwardingState) {
         return gracefulRestartTable(new TablesKey(afi, safi), forwardingState);
     }
 

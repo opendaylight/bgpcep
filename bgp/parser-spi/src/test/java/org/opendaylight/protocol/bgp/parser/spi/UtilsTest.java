@@ -36,13 +36,13 @@ public class UtilsTest {
 
     @Before
     public void setUp() {
-        doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
-        doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
-        doReturn(null).when(this.afiReg).classForFamily(2);
+        doReturn(1).when(afiReg).numberForClass(Ipv4AddressFamily.VALUE);
+        doReturn(Ipv4AddressFamily.VALUE).when(afiReg).classForFamily(1);
+        doReturn(null).when(afiReg).classForFamily(2);
 
-        doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
-        doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
-        doReturn(null).when(this.safiReg).classForFamily(3);
+        doReturn(1).when(safiReg).numberForClass(UnicastSubsequentAddressFamily.VALUE);
+        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safiReg).classForFamily(1);
+        doReturn(null).when(safiReg).classForFamily(3);
     }
 
     @Test
@@ -98,14 +98,14 @@ public class UtilsTest {
     public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
         final byte[] bytes = new byte[] {0, 1, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
-            this.safiReg).get();
-        assertEquals(Ipv4AddressFamily.class, parsedAfiSafi.getAfi());
-        assertEquals(UnicastSubsequentAddressFamily.class, parsedAfiSafi.getSafi());
+        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
+            safiReg).get();
+        assertEquals(Ipv4AddressFamily.VALUE, parsedAfiSafi.getAfi());
+        assertEquals(UnicastSubsequentAddressFamily.VALUE, parsedAfiSafi.getSafi());
 
         final ByteBuf serializedAfiSafi = Unpooled.buffer(4);
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class, serializedAfiSafi);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(afiReg, safiReg, Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE, serializedAfiSafi);
         assertArrayEquals(bytes, serializedAfiSafi.array());
     }
 
@@ -113,8 +113,8 @@ public class UtilsTest {
     public void testUnsupportedAfi() {
         final byte[] bytes = new byte[] {0, 2, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
-            this.safiReg);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
+            safiReg);
         assertFalse(parsedAfiSafi.isPresent());
     }
 
@@ -122,8 +122,8 @@ public class UtilsTest {
     public void testUnsupportedSafi() {
         final byte[] bytes = new byte[] {0, 1, 0, 3};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, this.afiReg,
-            this.safiReg);
+        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
+            safiReg);
         assertFalse(parsedAfiSafi.isPresent());
     }
 

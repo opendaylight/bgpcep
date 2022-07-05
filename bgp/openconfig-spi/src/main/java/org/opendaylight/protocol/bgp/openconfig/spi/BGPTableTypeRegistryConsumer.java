@@ -25,7 +25,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param afiSafiType afiSafi Type
      * @return Optional of BgpTableType or empty, if the table type is not supported.
      */
-    @Nullable BgpTableType getTableType(@NonNull Class<? extends AfiSafiType> afiSafiType);
+    @Nullable BgpTableType getTableType(@NonNull AfiSafiType afiSafiType);
 
     /**
      * Looks for BgpTableType based on OpenConfig AFI/SAFI.
@@ -33,7 +33,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param afiSafiType afiSafi Type
      * @return Optional of TableKey or empty, if the table type is not supported.
      */
-    @Nullable TablesKey getTableKey(@NonNull Class<? extends AfiSafiType> afiSafiType);
+    @Nullable TablesKey getTableKey(@NonNull AfiSafiType afiSafiType);
 
     /**
      * Looks for AfiSafiType based on BgpTableType.
@@ -41,7 +41,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param bgpTableType Bgp TableType
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
-    @Nullable Class<? extends AfiSafiType> getAfiSafiType(@NonNull BgpTableType bgpTableType);
+    @Nullable AfiSafiType getAfiSafiType(@NonNull BgpTableType bgpTableType);
 
     /**
      * Looks for AfiSafiType based on TablesKey.
@@ -49,7 +49,7 @@ public interface BGPTableTypeRegistryConsumer {
      * @param tablesKey Tables Key
      * @return Optional of OpenConfig AFI/SAFI or empty, if the table type is not supported.
      */
-    @Nullable Class<? extends AfiSafiType> getAfiSafiType(@NonNull TablesKey tablesKey);
+    @Nullable AfiSafiType getAfiSafiType(@NonNull TablesKey tablesKey);
 
     /**
      * Create an immutable BGPTableTypeRegistryConsumer.

@@ -58,104 +58,80 @@ public class SetExtCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("set-ext-community-statements-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
-        doReturn(PeerRole.Ibgp).when(this.exportParameters).getFromPeerRole();
+        basicStatements = loadStatement("set-ext-community-statements-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        doReturn(PeerRole.Ibgp).when(exportParameters).getFromPeerRole();
     }
 
     @Test
     public void testInlineAdd() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-inline-add-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.multipleExtCom, result.getAttributes());
+        assertEquals(multipleExtCom, result.getAttributes());
     }
 
     @Test
     public void testInlineReplace() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-inline-replace-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.multipleExtCom, result.getAttributes());
+        assertEquals(multipleExtCom, result.getAttributes());
     }
 
     @Test
     public void testInlineRemove() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-inline-remove-test")).findFirst().get();
 
-        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(this.multipleExtCom);
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(multipleExtCom);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.emptyExtCom, result.getAttributes());
+        assertEquals(emptyExtCom, result.getAttributes());
     }
 
     @Test
     public void testReferenceAdd() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-reference-add-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.multipleExtCom, result.getAttributes());
+        assertEquals(multipleExtCom, result.getAttributes());
     }
 
     @Test
     public void testReferenceReplace() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-reference-replace-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.multipleExtCom, result.getAttributes());
+        assertEquals(multipleExtCom, result.getAttributes());
     }
 
     @Test
     public void testReferenceRemove() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("set-ext-community-reference-remove-test")).findFirst().get();
 
-        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(this.multipleExtCom);
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(multipleExtCom);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
 
-        assertEquals(this.emptyExtCom, result.getAttributes());
+        assertEquals(emptyExtCom, result.getAttributes());
     }
 }
