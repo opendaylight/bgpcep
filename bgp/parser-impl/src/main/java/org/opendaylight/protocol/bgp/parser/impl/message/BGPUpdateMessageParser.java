@@ -128,7 +128,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
 
         final UpdateBuilder builder = new UpdateBuilder();
         final boolean isMultiPathSupported = MultiPathSupportUtil.isTableTypeSupported(constraint,
-                new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+                new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
         final RevisedErrorHandling errorHandling = RevisedErrorHandling.from(constraint);
 
         final int withdrawnRoutesLength = buffer.readUnsignedShort();

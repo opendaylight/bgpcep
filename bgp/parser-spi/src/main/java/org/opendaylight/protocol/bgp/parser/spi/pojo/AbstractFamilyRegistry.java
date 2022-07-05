@@ -16,13 +16,13 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 
 abstract class AbstractFamilyRegistry<C, N> {
-    private final Map<Class<? extends C>, N> classToNumber = new ConcurrentHashMap<>();
-    private final Map<N, Class<? extends C>> numberToClass = new ConcurrentHashMap<>();
+    private final Map<C, N> classToNumber = new ConcurrentHashMap<>();
+    private final Map<N, C> numberToClass = new ConcurrentHashMap<>();
 
-    protected synchronized Registration registerFamily(final Class<? extends C> clazz, final N number) {
+    protected synchronized Registration registerFamily(final C clazz, final N number) {
         requireNonNull(clazz);
 
-        final Class<?> c = this.numberToClass.get(number);
+        final C c = this.numberToClass.get(number);
         checkState(c == null, "Number " + number + " already registered to " + c);
 
         final N n = this.classToNumber.get(clazz);
@@ -43,11 +43,11 @@ abstract class AbstractFamilyRegistry<C, N> {
         };
     }
 
-    protected Class<? extends C> classForFamily(final N number) {
+    protected C classForFamily(final N number) {
         return this.numberToClass.get(number);
     }
 
-    protected N numberForClass(final Class<? extends C> clazz) {
+    protected N numberForClass(final C clazz) {
         return this.classToNumber.get(clazz);
     }
 }

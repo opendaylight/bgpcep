@@ -30,7 +30,7 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
     @Override
     protected final AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.adapter = customizer.getAdapterContext();
+        adapter = customizer.getAdapterContext();
         return customizer;
     }
 
@@ -38,10 +38,10 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
     public void testExtensionProvider() {
         final BindingNormalizedNodeSerializer codec = adapter.currentSerializer();
         var ctx = new DefaultRIBExtensionConsumerContext(codec);
-        assertNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        assertNull(ctx.getRIBSupport(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
 
         ctx = new DefaultRIBExtensionConsumerContext(codec, new TestActivator());
-        assertNotNull(ctx.getRIBSupport(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class));
+        assertNotNull(ctx.getRIBSupport(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
     }
 
     private static final class TestActivator implements RIBExtensionProviderActivator {
@@ -52,8 +52,8 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
             doReturn(Route.class).when(support).routesListClass();
             doReturn(DataObject.class).when(support).routesContainerClass();
             doReturn(DataObject.class).when(support).routesCaseClass();
-            return List.of(context.registerRIBSupport(Ipv4AddressFamily.class,
-                    UnicastSubsequentAddressFamily.class, support));
+            return List.of(context.registerRIBSupport(Ipv4AddressFamily.VALUE,
+                    UnicastSubsequentAddressFamily.VALUE, support));
         }
     }
 }

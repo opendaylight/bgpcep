@@ -165,14 +165,14 @@ public class SimpleRegistryTest {
     public void testAfiRegistry() throws Exception {
         final AddressFamilyRegistry afiRegistry = ctx.getAddressFamilyRegistry();
         assertEquals(Ipv4AddressFamily.class, afiRegistry.classForFamily(1));
-        assertEquals(1, afiRegistry.numberForClass(Ipv4AddressFamily.class).intValue());
+        assertEquals(1, afiRegistry.numberForClass(Ipv4AddressFamily.VALUE).intValue());
     }
 
     @Test
     public void testSafiRegistry() throws Exception {
         final SubsequentAddressFamilyRegistry safiRegistry = ctx.getSubsequentAddressFamilyRegistry();
         assertEquals(UnicastSubsequentAddressFamily.class, safiRegistry.classForFamily(1));
-        assertEquals(1, safiRegistry.numberForClass(UnicastSubsequentAddressFamily.class).intValue());
+        assertEquals(1, safiRegistry.numberForClass(UnicastSubsequentAddressFamily.VALUE).intValue());
     }
 
     @Test
@@ -182,8 +182,8 @@ public class SimpleRegistryTest {
             0x00, 0x01, 0x01, 0x04, 0x7f, 0x00, 0x00, 0x01, 0x00
         };
         final MpReachNlri mpReach = new MpReachNlriBuilder()
-            .setAfi(Ipv4AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(
                 new Ipv4AddressNoZone("127.0.0.1")).build()).build())
             .build();
@@ -201,8 +201,8 @@ public class SimpleRegistryTest {
             0x00, 0x01, 0x01, 0x00, 0x00
         };
         final MpReachNlri mpReach = new MpReachNlriBuilder()
-            .setAfi(Ipv4AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
             .build();
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
@@ -217,8 +217,8 @@ public class SimpleRegistryTest {
             0x00, 0x02, 0x01, 0x00, 0x00
         };
         final MpReachNlri mpReach = new MpReachNlriBuilder()
-            .setAfi(Ipv6AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
             .build();
         final ByteBuf buffer = Unpooled.buffer(mpReachBytes.length);
         nlriReg.serializeMpReach(mpReach, buffer);
@@ -232,8 +232,10 @@ public class SimpleRegistryTest {
         final byte[] mpUnreachBytes = {
             0x00, 0x01, 0x01
         };
-        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class).build();
+        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
+            .build();
         final ByteBuf buffer = Unpooled.buffer(mpUnreachBytes.length);
         nlriReg.serializeMpUnReach(mpUnreach, buffer);
         assertArrayEquals(mpUnreachBytes, buffer.array());

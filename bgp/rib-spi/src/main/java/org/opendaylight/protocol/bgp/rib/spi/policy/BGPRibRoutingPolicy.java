@@ -25,7 +25,7 @@ public interface BGPRibRoutingPolicy {
      * @return modified route attributes after apply policies
      */
     @NonNull Optional<Attributes> applyImportPolicies(@NonNull BGPRouteEntryImportParameters policyParameters,
-            @NonNull Attributes attributes, @NonNull Class<? extends AfiSafiType> afiSafiType);
+            @NonNull Attributes attributes, @NonNull AfiSafiType afiSafiType);
 
     /**
      * Apply export policy to route attributes.
@@ -36,5 +36,5 @@ public interface BGPRibRoutingPolicy {
      * @return modified route attributes after apply policies
      */
     @NonNull Optional<Attributes> applyExportPolicies(@NonNull BGPRouteEntryExportParameters policyParameters,
-            @NonNull Attributes attributes, @NonNull Class<? extends AfiSafiType> afiSafType);
+            @NonNull Attributes attributes, @NonNull AfiSafiType afiSafType);
 }

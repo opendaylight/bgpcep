@@ -19,7 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 public final class TableTypeActivatorTest {
     private static final BgpTableType RT_TP = new BgpTableTypeImpl(
-            Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class);
+            Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
