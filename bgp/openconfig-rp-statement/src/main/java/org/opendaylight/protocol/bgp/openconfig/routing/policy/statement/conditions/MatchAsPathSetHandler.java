@@ -82,33 +82,29 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final AsPath asPath,
             final MatchAsPathSet conditions) {
-        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(),
-                conditions.getMatchSetOptions());
+        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(), conditions.getMatchSetOptions());
     }
 
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final AsPath asPath,
             final MatchAsPathSet conditions) {
-        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(),
-                conditions.getMatchSetOptions());
-
+        return matchAsPathSetCondition(asPath, conditions.getAsPathSet(), conditions.getMatchSetOptions());
     }
 
     @Override
     public AsPath getConditionParameter(final Attributes attributes) {
         return attributes.getAsPath();
     }
-
 
     private boolean matchAsPathSetCondition(final AsPath asPath, final String asPathSetName,
             final MatchSetOptionsType matchSetOptions) {

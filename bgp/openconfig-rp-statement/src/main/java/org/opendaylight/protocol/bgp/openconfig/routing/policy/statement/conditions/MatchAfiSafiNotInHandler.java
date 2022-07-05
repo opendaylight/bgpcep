@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
 import java.util.Set;
@@ -26,22 +25,20 @@ public final class MatchAfiSafiNotInHandler implements
     private static final MatchAfiSafiNotInHandler INSTANCE = new MatchAfiSafiNotInHandler();
 
     private MatchAfiSafiNotInHandler() {
-
+        // Hidden on purpose
     }
 
     public static MatchAfiSafiNotInHandler getInstance() {
         return INSTANCE;
     }
 
-    private static boolean matchAfiSafi(
-            final Class<? extends AfiSafiType> afiSafi,
-            final Set<Class<? extends AfiSafiType>> afiSafiNotIn) {
+    private static boolean matchAfiSafi(final AfiSafiType afiSafi, final Set<AfiSafiType> afiSafiNotIn) {
         return !afiSafiNotIn.contains(afiSafi);
     }
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Void attributes,
@@ -51,7 +48,7 @@ public final class MatchAfiSafiNotInHandler implements
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Void attributes,

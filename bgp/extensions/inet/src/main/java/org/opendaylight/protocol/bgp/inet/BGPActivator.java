@@ -45,9 +45,9 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
         final Ipv6BgpPrefixSidParser tlvHandler = new Ipv6BgpPrefixSidParser();
 
         return List.of(
-            context.registerNlriParser(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class,
+            context.registerNlriParser(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE,
                 ipv4Codec, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class, Ipv6NextHopCase.class),
-            context.registerNlriParser(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class, ipv6Codec,
+            context.registerNlriParser(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE, ipv6Codec,
                 new Ipv6NextHopParserSerializer(), Ipv4NextHopCase.class, Ipv6NextHopCase.class),
             context.registerNlriSerializer(Ipv4Routes.class, ipv4Codec),
             context.registerNlriSerializer(Ipv6Routes.class, ipv6Codec),

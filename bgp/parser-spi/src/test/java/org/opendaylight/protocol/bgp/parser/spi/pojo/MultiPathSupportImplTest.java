@@ -32,14 +32,14 @@ public class MultiPathSupportImplTest {
     @Test
     public void testIsTableTypeSupported() {
         final List<AddressFamilies> supportedTables = new ArrayList<>();
-        final BgpTableType ipv4Unicast = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
-        final BgpTableType ipv4L3vpn = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
-        final BgpTableType ipv6Unicast = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
-        final BgpTableType ipv6L3vpn = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
+        final BgpTableType ipv4Unicast = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
+        final BgpTableType ipv4L3vpn = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            MplsLabeledVpnSubsequentAddressFamily.VALUE);
+        final BgpTableType ipv6Unicast = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
+        final BgpTableType ipv6L3vpn = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+            MplsLabeledVpnSubsequentAddressFamily.VALUE);
         supportedTables.add(createAddPathCapability(ipv4Unicast, SendReceive.Send));
         supportedTables.add(createAddPathCapability(ipv4L3vpn, SendReceive.Receive));
         supportedTables.add(createAddPathCapability(ipv6Unicast, SendReceive.Both));

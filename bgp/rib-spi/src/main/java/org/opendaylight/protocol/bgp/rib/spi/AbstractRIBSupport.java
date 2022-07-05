@@ -121,8 +121,8 @@ public abstract class AbstractRIBSupport<
     private final MapEntryNode emptyTable;
     private final QName routeQname;
     private final QName routeKeyQname;
-    private final Class<? extends AddressFamily> afiClass;
-    private final Class<? extends SubsequentAddressFamily> safiClass;
+    private final AddressFamily afiClass;
+    private final SubsequentAddressFamily safiClass;
     private final NodeIdentifier destinationNid;
     private final NodeIdentifier pathIdNid;
     private final NodeIdentifier prefixTypeNid;
@@ -153,8 +153,8 @@ public abstract class AbstractRIBSupport<
             final Class<C> cazeClass,
             final Class<S> containerClass,
             final Class<R> listClass,
-            final Class<? extends AddressFamily> afiClass,
-            final Class<? extends SubsequentAddressFamily> safiClass,
+            final AddressFamily afiClass,
+            final SubsequentAddressFamily safiClass,
             final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         this.routesContainerIdentifier = NodeIdentifier.create(
@@ -169,7 +169,8 @@ public abstract class AbstractRIBSupport<
         this.routesListIdentifier = NodeIdentifier.create(routeQname);
         this.tk = new TablesKey(afiClass, safiClass);
         this.tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afiClass), BindingReflections.findQName(safiClass)));
+            BindingReflections.findQName(afiClass.implementedInterface()),
+            BindingReflections.findQName(safiClass.implementedInterface())));
 
         this.emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
@@ -231,12 +232,12 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    public final Class<? extends AddressFamily> getAfi() {
+    public final AddressFamily getAfi() {
         return afiClass;
     }
 
     @Override
-    public final Class<? extends SubsequentAddressFamily> getSafi() {
+    public final SubsequentAddressFamily getSafi() {
         return safiClass;
     }
 

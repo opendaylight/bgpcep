@@ -73,14 +73,14 @@ abstract class AbstractLabeledUnicastRIBSupport<
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
             final Class<S> containerClass,
-            final Class<? extends AddressFamily> addressFamilyClass,
+            final AddressFamily addressFamilyClass,
             final QName destinationQname) {
         super(mappingService,
                 cazeClass,
                 containerClass,
                 LabeledUnicastRoute.class,
                 addressFamilyClass,
-                LabeledUnicastSubsequentAddressFamily.class,
+                LabeledUnicastSubsequentAddressFamily.VALUE,
                 destinationQname);
     }
 

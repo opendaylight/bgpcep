@@ -341,8 +341,8 @@ public class ParserTest {
 
     @Test
     public void testRouteRefreshMsg() throws BGPDocumentedException, BGPParsingException {
-        final Notification<?> rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class).build();
+        final Notification<?> rrMsg = new RouteRefreshBuilder().setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE).build();
         final ByteBuf buffer = Unpooled.buffer();
         ParserTest.reg.serializeMessage(rrMsg, buffer);
         assertArrayEquals(RR_MSG, ByteArray.getAllBytes(buffer));

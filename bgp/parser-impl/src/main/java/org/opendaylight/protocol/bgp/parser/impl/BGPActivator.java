@@ -133,11 +133,11 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     public List<Registration> start(final BGPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
-        regs.add(context.registerAddressFamily(Ipv4AddressFamily.class, IPV4_AFI));
-        regs.add(context.registerAddressFamily(Ipv6AddressFamily.class, IPV6_AFI));
+        regs.add(context.registerAddressFamily(Ipv4AddressFamily.VALUE, IPV4_AFI));
+        regs.add(context.registerAddressFamily(Ipv6AddressFamily.VALUE, IPV6_AFI));
 
-        regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.class, UNICAST_SAFI));
-        regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.class, VPN_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(UnicastSubsequentAddressFamily.VALUE, UNICAST_SAFI));
+        regs.add(context.registerSubsequentAddressFamily(MplsLabeledVpnSubsequentAddressFamily.VALUE, VPN_SAFI));
 
         registerExtendedCommunities(regs, context);
         registerCapabilityParsers(regs, context);
