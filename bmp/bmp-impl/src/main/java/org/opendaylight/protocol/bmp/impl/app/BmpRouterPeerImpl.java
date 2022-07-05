@@ -111,7 +111,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT13_QNAME = create(Stats.QNAME, "duplicate-updates").intern();
 
     private static final TablesKey DEFAULT_TABLE =
-            new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+            new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     private static final InstanceIdentifier<PeerSession> PEER_SESSION_ID = InstanceIdentifier.builder(BmpMonitor.class)
             .child(Monitor.class)
@@ -379,7 +379,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                     .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
                             tlvs.getPerAfiSafiAdjRibInTlv().getCount().getValue()))
                     .withNodeIdentifier(TablesUtil.toYangTablesKey(AF_QNAME,
-                            Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
+                            Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
                     .build()).build()).build());
         }
         if (tlvs.getPerAfiSafiLocRibTlv() != null) {
@@ -389,7 +389,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                                     .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
                                             tlvs.getPerAfiSafiLocRibTlv().getCount().getValue()))
                                     .withNodeIdentifier(TablesUtil.toYangTablesKey(AF_QNAME,
-                                            Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
+                                            Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
                                     .build()).build()).build());
         }
         if (tlvs.getUpdatesTreatedAsWithdrawTlv() != null) {

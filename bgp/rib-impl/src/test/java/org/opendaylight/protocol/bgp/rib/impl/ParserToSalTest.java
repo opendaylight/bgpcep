@@ -18,14 +18,13 @@ import static org.opendaylight.protocol.bgp.rib.impl.AbstractAddPathTest.BGP_ID;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
 import com.google.common.collect.Collections2;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
@@ -64,7 +63,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
     private static final TablesKey TABLE_KEY
-            = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+            = new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE);
     private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
     private final IpAddressNoZone localAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));
     private BGPMock mock;
@@ -83,52 +82,50 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final String hexMessages = "/bgp_hex.txt";
         final List<byte[]> bgpMessages = HexDumpBGPFileParser
                 .parseMessages(ParserToSalTest.class.getResourceAsStream(hexMessages));
-        this.mock = new BGPMock(new EventBus("test"),
+        mock = new BGPMock(new EventBus("test"),
             ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow().getMessageRegistry(),
             Lists.newArrayList(fixMessages(bgpMessages)));
 
-        doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(this.dispatcher)
+        doReturn(GlobalEventExecutor.INSTANCE.newSucceededFuture(null)).when(dispatcher)
                 .createReconnectingClient(any(InetSocketAddress.class), any(InetSocketAddress.class),
                         anyInt(), any(KeyMapping.class));
 
         final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
-        this.baseact.startRIBExtensionProvider(this.ext1, serializer);
-        this.lsact.startRIBExtensionProvider(this.ext2, serializer);
-        this.codecsRegistry = new ConstantCodecsRegistry(serializer);
+        baseact.startRIBExtensionProvider(ext1, serializer);
+        lsact.startRIBExtensionProvider(ext2, serializer);
+        codecsRegistry = new ConstantCodecsRegistry(serializer);
     }
 
     @Test
     public void testWithLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class));
+        final List<BgpTableType> tables = List.of(new BgpTableTypeImpl(LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE));
 
-        final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext2,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), this.policies,
-                tables, Collections.singletonMap(TABLE_KEY, BasePathSelectionModeFactory
-                .createBestPathSelectionStrategy()));
+        final RIBImpl rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext2,
+                dispatcher, codecsRegistry, getDomBroker(), policies,
+                tables, Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
-            this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
+            localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
+        final ListenerRegistration<?> reg = mock.registerUpdateListener(peer);
         reg.close();
     }
 
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = ImmutableList.of(new BgpTableTypeImpl(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class));
-        final RIBImpl rib = new RIBImpl(this.tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, this.ext1,
-                this.dispatcher, this.codecsRegistry, getDomBroker(), this.policies,
-                tables, Collections.singletonMap(TABLE_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+        final List<BgpTableType> tables = List.of(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+                UnicastSubsequentAddressFamily.VALUE));
+        final RIBImpl rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext1,
+                dispatcher, codecsRegistry, getDomBroker(), policies,
+                tables, Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(this.tableRegistry,
-            this.localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
+            localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final ListenerRegistration<?> reg = this.mock.registerUpdateListener(peer);
+        final ListenerRegistration<?> reg = mock.registerUpdateListener(peer);
         reg.close();
     }
 

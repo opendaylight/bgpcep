@@ -88,8 +88,8 @@ public class BGPSessionImplTest {
     @Mock
     private ChannelPipeline pipeline;
 
-    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        UnicastSubsequentAddressFamily.class);
+    private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+        UnicastSubsequentAddressFamily.VALUE);
 
     private final List<Notification<?>> receivedMsgs = new ArrayList<>();
 

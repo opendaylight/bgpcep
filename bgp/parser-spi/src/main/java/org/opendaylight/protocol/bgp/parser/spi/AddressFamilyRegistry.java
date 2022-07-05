@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 
 public interface AddressFamilyRegistry {
-    Class<? extends AddressFamily> classForFamily(int number);
+    AddressFamily classForFamily(int number);
 
-    Integer numberForClass(Class<? extends AddressFamily> clazz);
+    Integer numberForClass(AddressFamily clazz);
 }

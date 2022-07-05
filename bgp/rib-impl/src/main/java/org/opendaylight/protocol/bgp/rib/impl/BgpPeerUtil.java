@@ -33,17 +33,20 @@ public final class BgpPeerUtil {
      * @return UPDATE message with EOR marker
      */
     public static Update createEndOfRib(final TablesKey key) {
-        return key.getAfi() == Ipv4AddressFamily.class && key.getSafi() == UnicastSubsequentAddressFamily.class
-                ? new UpdateBuilder().build() : new UpdateBuilder()
-                        .setAttributes(new AttributesBuilder()
-                            .addAugmentation(new AttributesUnreachBuilder()
-                                .setMpUnreachNlri(new MpUnreachNlriBuilder()
-                                    .setAfi(key.getAfi())
-                                    .setSafi(key.getSafi())
-                                    .build())
-                                .build())
-                            .build())
-                        .build();
+        final var builder = new UpdateBuilder();
+        final var afi = key.getAfi();
+        final var safi = key.getSafi();
+        if (!Ipv4AddressFamily.VALUE.equals(afi) || !UnicastSubsequentAddressFamily.VALUE.equals(safi)) {
+            builder.setAttributes(new AttributesBuilder()
+                .addAugmentation(new AttributesUnreachBuilder()
+                    .setMpUnreachNlri(new MpUnreachNlriBuilder()
+                        .setAfi(key.getAfi())
+                        .setSafi(key.getSafi())
+                        .build())
+                    .build())
+                .build());
+        }
+        return builder.build();
     }
 
     /**

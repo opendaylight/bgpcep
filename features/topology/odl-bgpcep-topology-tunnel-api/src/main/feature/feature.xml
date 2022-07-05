@@ -8,6 +8,6 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="odl-bgpcep-topology-tunnel-api-${project.version}">
     <feature name="odl-bgpcep-topology-tunnel-api" version="${project.version}">
-        <feature version="[9,10)">odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</feature>
+        <feature version="[10,11)">odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</feature>
     </feature>
 </features>

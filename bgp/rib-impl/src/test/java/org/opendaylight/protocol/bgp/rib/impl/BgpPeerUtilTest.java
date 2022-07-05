@@ -32,11 +32,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
 public class BgpPeerUtilTest {
-
-    private static final TablesKey IPV4_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
-    private static final TablesKey IPV6_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final TablesKey IPV4_TABLE_KEY =
+        new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+    private static final TablesKey IPV6_TABLE_KEY =
+        new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     @Test
     public void createIpv4EORTest() {

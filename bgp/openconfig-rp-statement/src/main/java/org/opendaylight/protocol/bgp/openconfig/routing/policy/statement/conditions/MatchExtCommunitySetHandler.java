@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandler
         implements BgpConditionsPolicy<MatchExtCommunitySet, List<ExtendedCommunities>> {
-
     public MatchExtCommunitySetHandler(final DataBroker databroker) {
         super(databroker);
     }
@@ -37,7 +36,7 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
 
         final String setKey = StringUtils
                 .substringBetween(matchExtCommunitySetName, "=\"", "\"");
-        final List<ExtendedCommunities> extCommunityfilter = this.extCommunitySets.getUnchecked(setKey);
+        final List<ExtendedCommunities> extCommunityfilter = extCommunitySets.getUnchecked(setKey);
 
         if (extCommunityfilter == null || extCommunityfilter.isEmpty()) {
             return false;
@@ -45,15 +44,13 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
 
         List<ExtendedCommunities> extCommList;
         if (extendedCommunities == null) {
-            extCommList = Collections.emptyList();
+            extCommList = List.of();
         } else {
             extCommList = extendedCommunities;
         }
 
-
         if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
-            return extCommList.containsAll(extCommunityfilter)
-                    && extCommunityfilter.containsAll(extCommList);
+            return extCommList.containsAll(extCommunityfilter) && extCommunityfilter.containsAll(extCommList);
         }
         final boolean noneInCommon = Collections.disjoint(extCommList, extCommunityfilter);
         if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {
@@ -65,7 +62,7 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final List<ExtendedCommunities> extendedCommunities,
@@ -76,7 +73,7 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final List<ExtendedCommunities> extendedCommunities,

@@ -43,7 +43,7 @@ public interface RIBExtensionConsumerContext {
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
-            @NonNull Class<? extends AddressFamily> afi, @NonNull Class<? extends SubsequentAddressFamily> safi);
+            @NonNull AddressFamily afi, @NonNull SubsequentAddressFamily safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.

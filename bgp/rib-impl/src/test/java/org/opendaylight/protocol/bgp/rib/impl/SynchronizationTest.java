@@ -11,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.collect.Sets;
-import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -32,9 +32,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 public class SynchronizationTest {
 
     private final TablesKey ipv4
-            = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+            = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private final TablesKey linkstate
-            = new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+            = new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE);
 
     private BGPSynchronization bs;
 
@@ -50,65 +50,64 @@ public class SynchronizationTest {
 
     @Before
     public void setUp() {
-        this.listener = new SimpleSessionListener();
-        this.ipv4m = new UpdateBuilder()
-                .setNlri(Collections.singletonList(new NlriBuilder()
-                .setPrefix(new Ipv4Prefix("1.1.1.1/32")).build()))
+        listener = new SimpleSessionListener();
+        ipv4m = new UpdateBuilder()
+                .setNlri(List.of(new NlriBuilder().setPrefix(new Ipv4Prefix("1.1.1.1/32")).build()))
                 .build();
 
-        MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(UnicastSubsequentAddressFamily.class);
+        MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE);
 
         AttributesBuilder paBuilder = new AttributesBuilder()
                 .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpBuilder.build()).build());
 
-        this.ipv6m = new UpdateBuilder().setAttributes(paBuilder.build()).build();
+        ipv6m = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 
-        mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(LinkstateAddressFamily.class);
-        mpBuilder.setSafi(LinkstateSubsequentAddressFamily.class);
+        mpBuilder = new MpReachNlriBuilder()
+            .setAfi(LinkstateAddressFamily.VALUE)
+            .setSafi(LinkstateSubsequentAddressFamily.VALUE);
 
         paBuilder = new AttributesBuilder()
                 .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpBuilder.build()).build());
 
-        this.lsm = new UpdateBuilder().setAttributes(paBuilder.build()).build();
+        lsm = new UpdateBuilder().setAttributes(paBuilder.build()).build();
 
-        this.eorm = new UpdateBuilder().build();
+        eorm = new UpdateBuilder().build();
 
-        this.bs = new BGPSynchronization(this.listener, Sets.newHashSet(this.ipv4, this.linkstate));
+        bs = new BGPSynchronization(listener, Set.of(ipv4, linkstate));
     }
 
     @Test
     public void testSynchronize() {
         // simulate sync
-        this.bs.updReceived(this.ipv6m);
-        this.bs.updReceived(this.ipv4m);
-        this.bs.updReceived(this.lsm);
-        this.bs.kaReceived(); // nothing yet
-        assertFalse(this.bs.syncStorage.get(this.linkstate).getEor());
-        assertFalse(this.bs.syncStorage.get(this.ipv4).getEor());
-        this.bs.updReceived(this.ipv4m);
-        this.bs.kaReceived(); // linkstate
-        assertTrue(this.bs.syncStorage.get(this.linkstate).getEor());
-        this.bs.kaReceived(); // ipv4 sync
-        assertTrue(this.bs.syncStorage.get(this.ipv4).getEor());
+        bs.updReceived(ipv6m);
+        bs.updReceived(ipv4m);
+        bs.updReceived(lsm);
+        bs.kaReceived(); // nothing yet
+        assertFalse(bs.syncStorage.get(linkstate).getEor());
+        assertFalse(bs.syncStorage.get(ipv4).getEor());
+        bs.updReceived(ipv4m);
+        bs.kaReceived(); // linkstate
+        assertTrue(bs.syncStorage.get(linkstate).getEor());
+        bs.kaReceived(); // ipv4 sync
+        assertTrue(bs.syncStorage.get(ipv4).getEor());
     }
 
     @Test
     public void testSynchronizeWithEOR() {
-        this.bs.updReceived(this.ipv4m);
-        this.bs.updReceived(this.lsm);
+        bs.updReceived(ipv4m);
+        bs.updReceived(lsm);
         // Ipv4 Unicast synchronized by EOR message
-        assertFalse(this.bs.syncStorage.get(this.ipv4).getEor());
-        this.bs.updReceived(this.eorm);
-        assertTrue(this.bs.syncStorage.get(this.ipv4).getEor());
+        assertFalse(bs.syncStorage.get(ipv4).getEor());
+        bs.updReceived(eorm);
+        assertTrue(bs.syncStorage.get(ipv4).getEor());
         // Linkstate not synchronized yet
-        assertFalse(this.bs.syncStorage.get(this.linkstate).getEor());
-        this.bs.kaReceived();
+        assertFalse(bs.syncStorage.get(linkstate).getEor());
+        bs.kaReceived();
         // no message sent by BGPSychchronization
-        assertEquals(0, this.listener.getListMsg().size());
-        this.bs.kaReceived();
-        assertTrue(this.bs.syncStorage.get(this.linkstate).getEor());
+        assertEquals(0, listener.getListMsg().size());
+        bs.kaReceived();
+        assertTrue(bs.syncStorage.get(linkstate).getEor());
     }
 }

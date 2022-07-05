@@ -16,8 +16,8 @@ import static org.mockito.Mockito.verify;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,11 +54,11 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public class RibImplTest extends AbstractConfig {
     private static final Map<AfiSafiKey, AfiSafi> AFISAFIS = BindingMap.of(new AfiSafiBuilder()
-        .setAfiSafiName(IPV4UNICAST.class)
+        .setAfiSafiName(IPV4UNICAST.VALUE)
         .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
         .build());
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
     private static final BgpId BGP_ID = new BgpId(new Ipv4AddressNoZone("127.0.0.1"));
 
     @Mock
@@ -98,18 +98,20 @@ public class RibImplTest extends AbstractConfig {
                 new BGPStateCollector(), domDataBroker);
         ribImpl.start(createGlobal(), "rib-test", tableTypeRegistry);
         verify(domDataBroker).getExtensions();
-        assertEquals("RIBImpl{bgpId=Ipv4Address{_value=127.0.0.1}, localTables=[BgpTableTypeImpl ["
-                + "getAfi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
-                + "rev200120.Ipv4AddressFamily, "
-                + "getSafi()=interface org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types."
-                + "rev200120.UnicastSubsequentAddressFamily]]}", ribImpl.toString());
-        assertEquals(Collections.singleton(new TablesKey(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class)), ribImpl.getLocalTablesKeys());
+        assertEquals("""
+            RIBImpl{bgpId=Ipv4Address{value=127.0.0.1}, localTables=[BgpTableTypeImpl [\
+            getAfi()=Ipv4AddressFamily{qname=\
+            (urn:opendaylight:params:xml:ns:yang:bgp-types?revision=2020-01-20)ipv4-address-family}, \
+            getSafi()=UnicastSubsequentAddressFamily{qname=\
+            (urn:opendaylight:params:xml:ns:yang:bgp-types?revision=2020-01-20)unicast-subsequent-address-family}]]}""",
+            ribImpl.toString());
+        assertEquals(Set.of(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)),
+            ribImpl.getLocalTablesKeys());
         assertNotNull(ribImpl.getService());
         assertNotNull(ribImpl.getInstanceIdentifier());
         assertEquals(AS, ribImpl.getLocalAs());
         assertEquals(BGP_ID, ribImpl.getBgpIdentifier());
-        assertEquals(Collections.singleton(TABLE_TYPE), ribImpl.getLocalTables());
+        assertEquals(Set.of(TABLE_TYPE), ribImpl.getLocalTables());
         assertEquals(dispatcher, ribImpl.getDispatcher());
         assertEquals(extension, ribImpl.getRibExtensions());
         assertNotNull(ribImpl.getRibSupportContext());

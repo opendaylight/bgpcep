@@ -30,8 +30,8 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 @MetaInfServices(value = BGPTableTypeRegistryConsumer.class)
 public final class DefaultBGPTableTypeRegistryConsumer extends AbstractBGPTableTypeRegistryConsumer
         implements Immutable {
-    private final @NonNull ImmutableBiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes;
-    private final @NonNull ImmutableBiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys;
+    private final @NonNull ImmutableBiMap<BgpTableType, AfiSafiType> tableTypes;
+    private final @NonNull ImmutableBiMap<TablesKey, AfiSafiType> tableKeys;
 
     public DefaultBGPTableTypeRegistryConsumer() {
         this(ServiceLoader.load(BGPTableTypeRegistryProviderActivator.class));
@@ -54,12 +54,12 @@ public final class DefaultBGPTableTypeRegistryConsumer extends AbstractBGPTableT
     }
 
     @Override
-    ImmutableBiMap<BgpTableType, Class<? extends AfiSafiType>> tableTypes() {
+    ImmutableBiMap<BgpTableType, AfiSafiType> tableTypes() {
         return tableTypes;
     }
 
     @Override
-    ImmutableBiMap<TablesKey, Class<? extends AfiSafiType>> tableKeys() {
+    ImmutableBiMap<TablesKey, AfiSafiType> tableKeys() {
         return tableKeys;
     }
 }
