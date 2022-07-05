@@ -23,26 +23,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
 public class TableTypeActivatorTest {
-    private static final BgpTableType IPV4_FLOW = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        FlowspecSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6_FLOW = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-        FlowspecSubsequentAddressFamily.class);
-    private static final BgpTableType IPV4_VPN_FLOW = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-        FlowspecL3vpnSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6_VPN_FLOW = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-        FlowspecL3vpnSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4_FLOW = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+        FlowspecSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV6_FLOW = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+        FlowspecSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV4_VPN_FLOW = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+        FlowspecL3vpnSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV6_VPN_FLOW = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+        FlowspecL3vpnSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(IPV4FLOW.class, registry.getAfiSafiType(IPV4_FLOW));
-        assertEquals(IPV6FLOW.class, registry.getAfiSafiType(IPV6_FLOW));
-        assertEquals(IPV4L3VPNFLOW.class, registry.getAfiSafiType(IPV4_VPN_FLOW));
-        assertEquals(IPV6L3VPNFLOW.class, registry.getAfiSafiType(IPV6_VPN_FLOW));
+        assertEquals(IPV4FLOW.VALUE, registry.getAfiSafiType(IPV4_FLOW));
+        assertEquals(IPV6FLOW.VALUE, registry.getAfiSafiType(IPV6_FLOW));
+        assertEquals(IPV4L3VPNFLOW.VALUE, registry.getAfiSafiType(IPV4_VPN_FLOW));
+        assertEquals(IPV6L3VPNFLOW.VALUE, registry.getAfiSafiType(IPV6_VPN_FLOW));
 
-        assertEquals(IPV4_FLOW, registry.getTableType(IPV4FLOW.class));
-        assertEquals(IPV6_FLOW, registry.getTableType(IPV6FLOW.class));
-        assertEquals(IPV4_VPN_FLOW, registry.getTableType(IPV4L3VPNFLOW.class));
-        assertEquals(IPV6_VPN_FLOW, registry.getTableType(IPV6L3VPNFLOW.class));
+        assertEquals(IPV4_FLOW, registry.getTableType(IPV4FLOW.VALUE));
+        assertEquals(IPV6_FLOW, registry.getTableType(IPV6FLOW.VALUE));
+        assertEquals(IPV4_VPN_FLOW, registry.getTableType(IPV4L3VPNFLOW.VALUE));
+        assertEquals(IPV6_VPN_FLOW, registry.getTableType(IPV6L3VPNFLOW.VALUE));
     }
 }

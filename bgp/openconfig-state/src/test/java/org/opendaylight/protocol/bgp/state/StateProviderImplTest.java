@@ -157,15 +157,15 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
             .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
             .child(Protocols.class)
-            .child(Protocol.class, new ProtocolKey(BGP.class, ribId))
+            .child(Protocol.class, new ProtocolKey(BGP.VALUE, ribId))
             .augmentation(NetworkInstanceProtocol.class)
             .child(Bgp.class);
-    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private final AsNumber as = new AsNumber(Uint32.valueOf(72));
     private final BgpId bgpId = new BgpId("127.0.0.1");
     private final IpAddressNoZone neighborAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.2"));
-    private final List<Class<? extends BgpCapability>> supportedCap = List.of(ASN32.class, ROUTEREFRESH.class,
-            MPBGP.class, ADDPATHS.class, GRACEFULRESTART.class);
+    private final List<BgpCapability> supportedCap = List.of(ASN32.VALUE, ROUTEREFRESH.VALUE, MPBGP.VALUE,
+            ADDPATHS.VALUE, GRACEFULRESTART.VALUE);
     @Mock
     private BGPStateProvider stateProvider;
     @Mock
@@ -197,7 +197,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
 
     @Before
     public void setUp() {
-        doReturn(IPV4UNICAST.class).when(tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
+        doReturn(IPV4UNICAST.VALUE).when(tableTypeRegistry).getAfiSafiType(eq(TABLES_KEY));
 
         doReturn(bgpRibStates).when(stateProvider).getRibStats();
         doReturn(bgpPeerStates).when(stateProvider).getPeerStats();
@@ -358,7 +358,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 assertEquals(expectedBgpNeighborState, stateResult.augmentation(BgpNeighborStateAugmentation.class));
                 assertEquals(BgpNeighborState.SessionState.ESTABLISHED, stateResult
                     .augmentation(NeighborStateAugmentation.class).getSessionState());
-                final Set<Class<? extends BgpCapability>> supportedCapabilitiesResult = stateResult
+                final Set<BgpCapability> supportedCapabilitiesResult = stateResult
                     .augmentation(NeighborStateAugmentation.class).getSupportedCapabilities();
                 assertTrue(supportedCapabilitiesResult.containsAll(supportedCap));
                 return bgpRib;
@@ -479,7 +479,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     .setInstalled(Uint32.ONE)
                     .build());
         final AfiSafi afiSafi = new AfiSafiBuilder()
-                .setAfiSafiName(IPV4UNICAST.class)
+                .setAfiSafiName(IPV4UNICAST.VALUE)
                 .setGracefulRestart(new GracefulRestartBuilder()
                     .setState(new StateBuilder().setEnabled(false)
                         .addAugmentation(new NeighborAfiSafiGracefulRestartStateAugmentationBuilder()
@@ -567,7 +567,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                 .setAfiSafis(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                         .AfiSafisBuilder()
                             .setAfiSafi(BindingMap.of(new AfiSafiBuilder()
-                                .setAfiSafiName(IPV4UNICAST.class)
+                                .setAfiSafiName(IPV4UNICAST.VALUE)
                                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol
                                     .rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
                                         .setEnabled(false)

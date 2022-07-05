@@ -31,7 +31,7 @@ public final class VpnIpv6RIBSupport extends AbstractVpnRIBSupport<VpnIpv6Routes
         super(mappingService,
                 VpnIpv6RoutesCase.class,
                 VpnIpv6Routes.class, VpnIpv6Routes.QNAME,
-                Ipv6AddressFamily.class,
+                Ipv6AddressFamily.VALUE,
                 VpnIpv6Destination.QNAME);
     }
 

@@ -45,15 +45,15 @@ public class BGPSynchronization {
         }
 
         public void setEorTrue() {
-            this.eor = true;
+            eor = true;
         }
 
         public boolean getEor() {
-            return this.eor;
+            return eor;
         }
 
         public boolean getUpd() {
-            return this.upd;
+            return upd;
         }
     }
 
@@ -66,7 +66,7 @@ public class BGPSynchronization {
         this.listener = requireNonNull(listener);
 
         for (final TablesKey type : types) {
-            this.syncStorage.put(type, new SyncVariables());
+            syncStorage.put(type, new SyncVariables());
         }
     }
 
@@ -79,7 +79,7 @@ public class BGPSynchronization {
      * @param msg received Update message
      */
     public void updReceived(final Update msg) {
-        TablesKey type = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        TablesKey type = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             final Attributes attrs = msg.getAttributes();
@@ -108,7 +108,7 @@ public class BGPSynchronization {
     }
 
     private void syncType(final TablesKey type, final boolean isEOR) {
-        final SyncVariables s = this.syncStorage.get(type);
+        final SyncVariables s = syncStorage.get(type);
         if (s == null) {
             LOG.warn("BGPTableType was not present in open message : {}", type);
             return;
@@ -116,7 +116,7 @@ public class BGPSynchronization {
         s.setUpd(true);
         if (isEOR) {
             s.setEorTrue();
-            this.listener.markUptodate(type);
+            listener.markUptodate(type);
             LOG.info("BGP Synchronization finished for table {} ", type);
         }
     }
@@ -127,13 +127,13 @@ public class BGPSynchronization {
      * session.
      */
     public void kaReceived() {
-        for (final Entry<TablesKey, SyncVariables> entry : this.syncStorage.entrySet()) {
+        for (final Entry<TablesKey, SyncVariables> entry : syncStorage.entrySet()) {
             final SyncVariables s = entry.getValue();
             if (!s.getEor()) {
                 if (!s.getUpd()) {
                     s.setEorTrue();
                     LOG.info("BGP Synchronization finished for table {} ", entry.getKey());
-                    this.listener.markUptodate(entry.getKey());
+                    listener.markUptodate(entry.getKey());
                 }
                 s.setUpd(false);
             }

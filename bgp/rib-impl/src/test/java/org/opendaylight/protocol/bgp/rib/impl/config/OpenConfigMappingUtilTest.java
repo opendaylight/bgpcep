@@ -118,7 +118,7 @@ public class OpenConfigMappingUtilTest {
         InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
         .child(NetworkInstance.class, new NetworkInstanceKey("identifier-test"))
         .child(Protocols.class)
-        .child(Protocol.class, new ProtocolKey(BGP.class, KEY))
+        .child(Protocol.class, new ProtocolKey(BGP.VALUE, KEY))
         .augmentation(NetworkInstanceProtocol.class)
         .child(Bgp.class);
     private static final NeighborKey NEIGHBOR_KEY = new NeighborKey(NEIGHBOR_ADDRESS);
@@ -131,22 +131,22 @@ public class OpenConfigMappingUtilTest {
     private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION =
             new AddPathBestNPathSelection(N_PATHS.toJava());
     private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
-    private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
     private static final BgpTableType BGP_TABLE_TYPE_IPV6
-            = new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class);
+            = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     private static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
     private static final AsNumber GLOBAL_AS = new AsNumber(Uint32.valueOf(73));
     private static final List<AddressFamilies> FAMILIES = List.of(
         new AddressFamiliesBuilder()
-            .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
             .setSendReceive(SendReceive.Both).build(),
         new AddressFamiliesBuilder()
-            .setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv6AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
             .setSendReceive(SendReceive.Send).build(),
         new AddressFamiliesBuilder()
-            .setAfi(Ipv6AddressFamily.class).setSafi(MplsLabeledVpnSubsequentAddressFamily.class)
+            .setAfi(Ipv6AddressFamily.VALUE).setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE)
             .setSendReceive(SendReceive.Receive).build());
     private static final BigDecimal DEFAULT_TIMERS = BigDecimal.valueOf(30);
 
@@ -158,10 +158,10 @@ public class OpenConfigMappingUtilTest {
 
     @Before
     public void setUp() {
-        doReturn(BGP_TABLE_TYPE_IPV4).when(tableTypeRegistry).getTableType(IPV4UNICAST.class);
-        doReturn(BGP_TABLE_TYPE_IPV6).when(tableTypeRegistry).getTableType(IPV6UNICAST.class);
-        doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class))
-            .when(tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.class);
+        doReturn(BGP_TABLE_TYPE_IPV4).when(tableTypeRegistry).getTableType(IPV4UNICAST.VALUE);
+        doReturn(BGP_TABLE_TYPE_IPV6).when(tableTypeRegistry).getTableType(IPV6UNICAST.VALUE);
+        doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE))
+            .when(tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.VALUE);
         doReturn(AS).when(rib).getLocalAs();
     }
 
@@ -303,13 +303,13 @@ public class OpenConfigMappingUtilTest {
 
     @Test
     public void testGetAfiSafiWithDefault() {
-        final AfiSafi v4afi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
+        final AfiSafi v4afi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE).build();
         final ImmutableMap<AfiSafiKey, AfiSafi> defaultValue = ImmutableMap.of(v4afi.key(), v4afi);
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(null, true));
         final AfiSafis afiSafi = new AfiSafisBuilder().build();
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(afiSafi, true));
 
-        final AfiSafi afiSafiIpv6 = new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
+        final AfiSafi afiSafiIpv6 = new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.VALUE)
                 .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(SHORT).build())
                 .build();
         final Map<AfiSafiKey, AfiSafi> afiSafiIpv6List = BindingMap.of(afiSafiIpv6);
@@ -318,7 +318,7 @@ public class OpenConfigMappingUtilTest {
             .setAfiSafi(afiSafiIpv6List).build(), true);
         assertEquals(2, v6.size());
         assertTrue(v6.containsValue(afiSafiIpv6));
-        assertTrue(v6.containsValue(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build()));
+        assertTrue(v6.containsValue(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE).build()));
         assertEquals(AFI_SAFI, OpenConfigMappingUtil.getAfiSafiWithDefault(createAfiSafi(), true));
 
         assertTrue(OpenConfigMappingUtil.getAfiSafiWithDefault(null, false).isEmpty());
@@ -378,16 +378,16 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void toPathSelectionMode() {
         final List<AfiSafi> families = new ArrayList<>();
-        families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+        families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
             .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(N_PATHS).build()).build());
-        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
+        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.VALUE)
             .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(ALL_PATHS).build()).build());
         final Map<BgpTableType, PathSelectionMode> result = OpenConfigMappingUtil
                 .toPathSelectionMode(families, tableTypeRegistry);
         final Map<BgpTableType, PathSelectionMode> expected = new HashMap<>();
-        expected.put(new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class),
+        expected.put(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
                 ADD_PATH_BEST_N_PATH_SELECTION);
-        expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.class, UnicastSubsequentAddressFamily.class),
+        expected.put(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
                 ADD_PATH_BEST_ALL_PATH_SELECTION);
         // FIXME: these assertions are wrong, as they perform lookup on non-existing keys
         assertEquals(expected.get(0), result.get(0));
@@ -418,13 +418,13 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void toAddPathCapability() {
         final List<AfiSafi> families = new ArrayList<>();
-        families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+        families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
             .addAugmentation(new NeighborAddPathsConfigBuilder()
                 .setReceive(Boolean.TRUE).setSendMax(ALL_PATHS).build()).build());
-        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.class)
+        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6UNICAST.VALUE)
             .addAugmentation(new NeighborAddPathsConfigBuilder()
                 .setReceive(Boolean.FALSE).setSendMax(N_PATHS).build()).build());
-        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.class)
+        families.add(new AfiSafiBuilder().setAfiSafiName(IPV6LABELLEDUNICAST.VALUE)
             .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(Boolean.FALSE).build()).build());
         final List<AddressFamilies> result = OpenConfigMappingUtil .toAddPathCapability(families, tableTypeRegistry);
         assertEquals(FAMILIES, result);

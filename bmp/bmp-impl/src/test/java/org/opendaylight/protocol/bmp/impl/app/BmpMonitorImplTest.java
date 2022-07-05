@@ -323,15 +323,15 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             assertNotNull(peer.getPrePolicyRib());
             assertEquals(1, peer.getPrePolicyRib().nonnullTables().size());
             final Tables prePolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
-            assertEquals(Ipv4AddressFamily.class, prePolicyTable.getAfi());
-            assertEquals(UnicastSubsequentAddressFamily.class, prePolicyTable.getSafi());
+            assertEquals(Ipv4AddressFamily.VALUE, prePolicyTable.getAfi());
+            assertEquals(UnicastSubsequentAddressFamily.VALUE, prePolicyTable.getSafi());
             assertFalse(prePolicyTable.getAttributes().getUptodate());
 
             assertNotNull(peer.getPostPolicyRib());
             assertEquals(1, peer.getPostPolicyRib().nonnullTables().size());
             final Tables postPolicyTable = peer.getPrePolicyRib().nonnullTables().values().iterator().next();
-            assertEquals(Ipv4AddressFamily.class, postPolicyTable.getAfi());
-            assertEquals(UnicastSubsequentAddressFamily.class, postPolicyTable.getSafi());
+            assertEquals(Ipv4AddressFamily.VALUE, postPolicyTable.getAfi());
+            assertEquals(UnicastSubsequentAddressFamily.VALUE, postPolicyTable.getSafi());
             assertFalse(postPolicyTable.getAttributes().getUptodate());
 
             assertNotNull(peer.getPeerSession());

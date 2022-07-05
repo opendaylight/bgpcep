@@ -37,11 +37,11 @@ public final class TablesUtil {
      * @param safi Class representing SAFI
      * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+    public static NodeIdentifierWithPredicates toYangTablesKey(final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         return NodeIdentifierWithPredicates.of(BMP_TABLES_QNAME, ImmutableMap.of(
-            BMP_AFI_QNAME, BindingReflections.findQName(afi),
-            BMP_SAFI_QNAME, BindingReflections.findQName(safi)));
+            BMP_AFI_QNAME, BindingReflections.findQName(afi.implementedInterface()),
+            BMP_SAFI_QNAME, BindingReflections.findQName(safi.implementedInterface())));
     }
 
     /**
@@ -53,13 +53,12 @@ public final class TablesUtil {
      * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName,
-            final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
         final QName afiQname = QName.create(nodeName, AFI).intern();
         final QName safiQname = QName.create(nodeName, SAFI).intern();
         return NodeIdentifierWithPredicates.of(nodeName, ImmutableMap.of(
-            afiQname, BindingReflections.findQName(afi),
-            safiQname, BindingReflections.findQName(safi)));
+            afiQname, BindingReflections.findQName(afi.implementedInterface()),
+            safiQname, BindingReflections.findQName(safi.implementedInterface())));
     }
 
     /**

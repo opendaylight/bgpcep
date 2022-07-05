@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
-import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
@@ -44,20 +44,20 @@ public class DefaultRibPoliciesMockTest extends AbstractStatementRegistryConsume
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        doReturn(DefaultPolicyType.REJECTROUTE).when(this.config).getDefaultImportPolicy();
-        doReturn(DefaultPolicyType.REJECTROUTE).when(this.config).getDefaultExportPolicy();
-        doReturn(Collections.singletonList("default-odl-import-policy")).when(this.config).getImportPolicy();
-        doReturn(Collections.singletonList("default-odl-export-policy")).when(this.config).getExportPolicy();
-        doReturn(IPV4UNICAST.class).when(this.tableRegistry).getAfiSafiType(any(TablesKey.class));
+        doReturn(DefaultPolicyType.REJECTROUTE).when(config).getDefaultImportPolicy();
+        doReturn(DefaultPolicyType.REJECTROUTE).when(config).getDefaultExportPolicy();
+        doReturn(List.of("default-odl-import-policy")).when(config).getImportPolicy();
+        doReturn(List.of("default-odl-export-policy")).when(config).getExportPolicy();
+        doReturn(IPV4UNICAST.VALUE).when(tableRegistry).getAfiSafiType(any(TablesKey.class));
 
-        this.policyProvider = new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), this.statementRegistry);
-        this.policies = this.policyProvider.buildBGPRibPolicy(AS, this.bgpID, this.ci, this.config);
+        policyProvider = new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), statementRegistry);
+        policies = policyProvider.buildBGPRibPolicy(AS, bgpID, ci, config);
     }
 
     @Override
     protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
         final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.mappingService = customizer.getAdapterContext();
+        mappingService = customizer.getAdapterContext();
         return customizer;
     }
 }

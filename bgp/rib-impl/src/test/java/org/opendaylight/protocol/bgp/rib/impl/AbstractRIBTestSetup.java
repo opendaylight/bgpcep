@@ -53,11 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -77,9 +75,9 @@ import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
 
-    static final Class<? extends AddressFamily> IPV4_AFI = Ipv4AddressFamily.class;
-    private static final Class<? extends AddressFamily> IPV6_AFI = Ipv6AddressFamily.class;
-    static final Class<? extends SubsequentAddressFamily> SAFI = UnicastSubsequentAddressFamily.class;
+    static final Ipv4AddressFamily IPV4_AFI = Ipv4AddressFamily.VALUE;
+    private static final Ipv6AddressFamily IPV6_AFI = Ipv6AddressFamily.VALUE;
+    static final UnicastSubsequentAddressFamily SAFI = UnicastSubsequentAddressFamily.VALUE;
     static final TablesKey KEY = new TablesKey(IPV4_AFI, SAFI);
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");

@@ -80,11 +80,11 @@ public class FSMTest {
     @Mock
     private ChannelPipeline pipeline;
 
-    private final BgpTableType ipv4tt
-            = new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private final BgpTableType ipv4tt =
+        new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
-    private final BgpTableType linkstatett
-            = new BgpTableTypeImpl(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class);
+    private final BgpTableType linkstatett =
+        new BgpTableTypeImpl(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE);
 
     private final List<Notification<?>> receivedMsgs = new ArrayList<>();
 

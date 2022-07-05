@@ -29,7 +29,7 @@ public interface ConditionsPolicy<T, N> {
      * @param conditions                 configured conditions
      * @return true if all defined condition matches
      */
-    boolean matchImportCondition(@NonNull Class<? extends AfiSafiType> afiSafiType,
+    boolean matchImportCondition(@NonNull AfiSafiType afiSafiType,
             @NonNull RouteEntryBaseAttributes routeEntryInfo,
             @NonNull BGPRouteEntryImportParameters routeEntryImportParameters,
             @Nullable N attributes, @NonNull T conditions);
@@ -44,7 +44,7 @@ public interface ConditionsPolicy<T, N> {
      * @param conditions                 configured conditions
      * @return true if all defined condition matches
      */
-    boolean matchExportCondition(@NonNull Class<? extends AfiSafiType> afiSafiType,
+    boolean matchExportCondition(@NonNull AfiSafiType afiSafiType,
             @NonNull RouteEntryBaseAttributes routeEntryInfo,
             @NonNull BGPRouteEntryExportParameters routeEntryExportParameters,
             @Nullable N attributes,

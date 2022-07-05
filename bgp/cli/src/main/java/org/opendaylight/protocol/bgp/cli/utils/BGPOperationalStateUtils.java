@@ -63,17 +63,15 @@ public final class BGPOperationalStateUtils {
         }
         if (neighbor == null && group == null) {
             GlobalStateCliUtils.displayRibOperationalState(ribId, globalBgp.getGlobal(), stream);
+        } else if (neighbor != null) {
+            globalBgp.getNeighbors().nonnullNeighbor().values().stream()
+                .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
+                .findFirst()
+                .ifPresent(neighbor1 -> NeighborStateCliUtils.displayNeighborOperationalState(neighbor,
+                    neighbor1, stream));
         } else {
-            if (neighbor != null) {
-                globalBgp.getNeighbors().nonnullNeighbor().values().stream()
-                    .filter(neig -> toString(neig.key().getNeighborAddress()).matches(neighbor))
-                    .findFirst()
-                    .ifPresent(neighbor1 -> NeighborStateCliUtils.displayNeighborOperationalState(neighbor,
-                        neighbor1, stream));
-            } else {
-                PeerGroupStateCliUtils.displayPeerOperationalState(
-                    globalBgp.getPeerGroups().nonnullPeerGroup().values(), stream);
-            }
+            PeerGroupStateCliUtils.displayPeerOperationalState(
+                globalBgp.getPeerGroups().nonnullPeerGroup().values(), stream);
         }
     }
 
@@ -86,7 +84,7 @@ public final class BGPOperationalStateUtils {
 
     private static Bgp readGlobalFromDataStore(final DataBroker dataBroker, final String ribId) {
         final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
-                .child(Protocol.class, new ProtocolKey(BGP.class, ribId))
+                .child(Protocol.class, new ProtocolKey(BGP.VALUE, ribId))
                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
 
         final ReadTransaction rot = dataBroker.newReadOnlyTransaction();

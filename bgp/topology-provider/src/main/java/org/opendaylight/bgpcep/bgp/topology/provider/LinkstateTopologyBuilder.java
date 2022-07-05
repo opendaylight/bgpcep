@@ -472,16 +472,16 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
     public LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class);
+        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE);
     }
 
     @VisibleForTesting
     LinkstateTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final long listenerResetLimitInMillsec,
             final int listenerResetEnforceCounter) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class,
+        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE,
                 listenerResetLimitInMillsec, listenerResetEnforceCounter);
     }
 

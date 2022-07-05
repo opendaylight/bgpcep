@@ -47,8 +47,8 @@ public abstract class AbstractFlowspecRIBSupport<
             final Class<C> cazeClass,
             final Class<S> containerClass,
             final Class<R> listClass,
-            final Class<? extends AddressFamily> afiClass,
-            final Class<? extends SubsequentAddressFamily> safiClass,
+            final AddressFamily afiClass,
+            final SubsequentAddressFamily safiClass,
             final QName dstContainerClassQName,
             final T nlriParser
     ) {

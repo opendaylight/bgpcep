@@ -26,14 +26,14 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
     private final RIBSupport<?, ?> ribSupport;
     private final YangInstanceIdentifier locRibTarget;
     private final BGPRibRoutingPolicy routingPolicies;
-    private final Class<? extends AfiSafiType> afiSafiType;
+    private final AfiSafiType afiSafiType;
     private final BGPPeerTracker peerTracker;
 
     RouteEntryDependenciesContainerImpl(
             final RIBSupport<?, ?> ribSupport,
             final BGPPeerTracker peerTracker,
             final BGPRibRoutingPolicy routingPolicies,
-            final Class<? extends AfiSafiType> afiSafiType,
+            final AfiSafiType afiSafiType,
             final YangInstanceIdentifier locRibTarget) {
         this.ribSupport = requireNonNull(ribSupport);
         this.peerTracker = requireNonNull(peerTracker);
@@ -46,31 +46,31 @@ final class RouteEntryDependenciesContainerImpl implements RouteEntryDependencie
     @SuppressWarnings("unchecked")
     public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
             RIBSupport<C, S> getRIBSupport() {
-        return (RIBSupport<C, S>) this.ribSupport;
+        return (RIBSupport<C, S>) ribSupport;
     }
 
     @Override
     public TablesKey getLocalTablesKey() {
-        return this.ribSupport.getTablesKey();
+        return ribSupport.getTablesKey();
     }
 
     @Override
-    public Class<? extends AfiSafiType> getAfiSafType() {
-        return this.afiSafiType;
+    public AfiSafiType getAfiSafType() {
+        return afiSafiType;
     }
 
     @Override
     public YangInstanceIdentifier getLocRibTableTarget() {
-        return this.locRibTarget;
+        return locRibTarget;
     }
 
     @Override
     public BGPRibRoutingPolicy getRoutingPolicies() {
-        return this.routingPolicies;
+        return routingPolicies;
     }
 
     @Override
     public BGPPeerTracker getPeerTracker() {
-        return this.peerTracker;
+        return peerTracker;
     }
 }
