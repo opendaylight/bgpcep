@@ -8,7 +8,8 @@
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZoneBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.tag.id.EthernetTagId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.tag.id.EthernetTagIdBuilder;
@@ -21,8 +22,12 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class NlriModelUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(NlriModelUtil.class);
+
     static final NodeIdentifier ETI_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
             "ethernet-tag-id").intern());
     static final NodeIdentifier VLAN_NID = NodeIdentifier.create(QName.create(EvpnChoice.QNAME,
@@ -51,7 +56,7 @@ final class NlriModelUtil {
     }
 
     static IpAddressNoZone extractOrigRouteIp(final DataContainerNode evpn) {
-        return IpAddressNoZoneBuilder.getDefaultInstance((String) evpn.findChildByArg(ORI_NID).get().body());
+        return parseIpAddress((String) evpn.findChildByArg(ORI_NID).get().body());
     }
 
     static EthernetTagId extractETI(final ContainerNode evpn) {
@@ -65,11 +70,20 @@ final class NlriModelUtil {
 
     static IpAddressNoZone extractIp(final DataContainerNode evpn) {
         return evpn.findChildByArg(IP_NID)
-            .map(child -> IpAddressNoZoneBuilder.getDefaultInstance((String) child.body()))
+            .map(child -> parseIpAddress((String) child.body()))
             .orElse(null);
     }
 
     static MplsLabel extractMplsLabel(final DataContainerNode evpn, final NodeIdentifier mplsNid) {
         return evpn.findChildByArg(mplsNid).map(child -> new MplsLabel((Uint32) child.body())).orElse(null);
+    }
+
+    private static IpAddressNoZone parseIpAddress(final String str) {
+        try {
+            return new IpAddressNoZone(new Ipv4AddressNoZone(str));
+        } catch (IllegalArgumentException e) {
+            LOG.debug("Failed to interpret {} as an Ipv4AddressNoZone", str, e);
+        }
+        return new IpAddressNoZone(new Ipv6AddressNoZone(str));
     }
 }

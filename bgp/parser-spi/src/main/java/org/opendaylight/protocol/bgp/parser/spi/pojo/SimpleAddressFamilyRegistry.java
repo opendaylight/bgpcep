@@ -16,18 +16,18 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 final class SimpleAddressFamilyRegistry extends AbstractFamilyRegistry<AddressFamily, Integer>
         implements AddressFamilyRegistry {
-    Registration registerAddressFamily(final Class<? extends AddressFamily> clazz, final int number) {
+    Registration registerAddressFamily(final AddressFamily afi, final int number) {
         checkArgument(number >= 0 && number <= Values.UNSIGNED_SHORT_MAX_VALUE);
-        return super.registerFamily(clazz, number);
+        return super.registerFamily(afi, number);
     }
 
     @Override
-    public Class<? extends AddressFamily> classForFamily(final int number) {
+    public AddressFamily classForFamily(final int number) {
         return super.classForFamily(number);
     }
 
     @Override
-    public Integer numberForClass(final Class<? extends AddressFamily> clazz) {
+    public Integer numberForClass(final AddressFamily clazz) {
         return super.numberForClass(clazz);
     }
 }

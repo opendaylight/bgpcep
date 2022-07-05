@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.n
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.CommunityType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.RrClusterIdTypeBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.RrClusterIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -60,7 +60,7 @@ public class BgpPeerTest extends AbstractConfig {
     static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));
     static final String MD5_PASSWORD = "123";
     static final PortNumber PORT = new PortNumber(Uint16.valueOf(179));
-    static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+    static final AfiSafi AFI_SAFI_IPV4 = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
             .addAugmentation(new NeighborAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
             .build();
     static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Map.of(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
@@ -101,7 +101,7 @@ public class BgpPeerTest extends AbstractConfig {
     private static RouteReflector createRR() {
         return new RouteReflectorBuilder().setConfig(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp
                 .rev151009.bgp.neighbor.group.route.reflector.ConfigBuilder()
-                .setRouteReflectorClusterId(RrClusterIdTypeBuilder.getDefaultInstance("127.0.0.1"))
+                .setRouteReflectorClusterId(new RrClusterIdType(new Ipv4Address("127.0.0.1")))
                 .setRouteReflectorClient(false).build()).build();
     }
 

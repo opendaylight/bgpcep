@@ -39,7 +39,7 @@ public class GracefulCapabilityHandlerTest {
     @Test
     public void testGracefulCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(
-            this.ctx.getAddressFamilyRegistry(),this.ctx.getSubsequentAddressFamilyRegistry());
+            ctx.getAddressFamilyRegistry(),ctx.getSubsequentAddressFamilyRegistry());
 
         final byte[] capaBytes = {
             (byte) 0x40, (byte) 0x06, (byte) 0x81, (byte) 0xf4,
@@ -51,8 +51,8 @@ public class GracefulCapabilityHandlerTest {
                 .setRestartTime(Uint16.valueOf(500));
         final TablesBuilder tablesBuilder = new TablesBuilder()
                 .setAfiFlags(new AfiFlags(true))
-                .setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class);
+                .setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE);
         capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
 
         final ByteBuf buffer = Unpooled.buffer(capaBytes.length);
@@ -133,18 +133,17 @@ public class GracefulCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnhandledAfi() {
-        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
-            this.ctx.getSubsequentAddressFamilyRegistry());
+        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
+            ctx.getSubsequentAddressFamilyRegistry());
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
         capaBuilder.setRestartFlags(new RestartFlags(true));
         capaBuilder.setRestartTime(Uint16.valueOf(50));
-        final TablesBuilder tablesBuilder = new TablesBuilder();
-        tablesBuilder.setAfiFlags(new AfiFlags(true));
-
-        tablesBuilder.setAfi(AddressFamily.class);
-        tablesBuilder.setSafi(UnicastSubsequentAddressFamily.class);
-        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(new TablesBuilder()
+            .setAfiFlags(new AfiFlags(true))
+            .setAfi(AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
+            .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         handler.serializeCapability(new CParametersBuilder()
@@ -154,17 +153,17 @@ public class GracefulCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnhandledSafi() {
-        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
-            this.ctx.getSubsequentAddressFamilyRegistry());
+        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
+            ctx.getSubsequentAddressFamilyRegistry());
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder();
         capaBuilder.setRestartFlags(new RestartFlags(true));
         capaBuilder.setRestartTime(Uint16.valueOf(50));
-        final TablesBuilder tablesBuilder = new TablesBuilder();
-        tablesBuilder.setAfiFlags(new AfiFlags(true));
-        tablesBuilder.setAfi(Ipv4AddressFamily.class);
-        tablesBuilder.setSafi(SubsequentAddressFamily.class);
-        capaBuilder.setTables(BindingMap.of(tablesBuilder.build()));
+        capaBuilder.setTables(BindingMap.of(new TablesBuilder()
+            .setAfiFlags(new AfiFlags(true))
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(SubsequentAddressFamily.VALUE)
+            .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         handler.serializeCapability(new CParametersBuilder()
@@ -174,8 +173,8 @@ public class GracefulCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testRestartTimeMinValue() {
-        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
-            this.ctx.getSubsequentAddressFamilyRegistry());
+        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
+            ctx.getSubsequentAddressFamilyRegistry());
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
                 .setRestartFlags(new RestartFlags(true))
@@ -183,8 +182,8 @@ public class GracefulCapabilityHandlerTest {
                 .setRestartTime(Uint16.MAX_VALUE)
                 .setTables(BindingMap.of(new TablesBuilder()
                     .setAfiFlags(new AfiFlags(true))
-                    .setAfi(Ipv4AddressFamily.class)
-                    .setSafi(UnicastSubsequentAddressFamily.class)
+                    .setAfi(Ipv4AddressFamily.VALUE)
+                    .setSafi(UnicastSubsequentAddressFamily.VALUE)
                     .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
@@ -195,8 +194,8 @@ public class GracefulCapabilityHandlerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testRestartTimeMaxValue() {
-        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(this.ctx.getAddressFamilyRegistry(),
-            this.ctx.getSubsequentAddressFamilyRegistry());
+        final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
+            ctx.getSubsequentAddressFamilyRegistry());
 
         final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
                 .setRestartFlags(new RestartFlags(true))
@@ -204,8 +203,8 @@ public class GracefulCapabilityHandlerTest {
 
         capaBuilder.setTables(BindingMap.of(new TablesBuilder()
             .setAfiFlags(new AfiFlags(true))
-            .setAfi(Ipv4AddressFamily.class)
-            .setSafi(UnicastSubsequentAddressFamily.class)
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
             .build()));
 
         final ByteBuf buffer = Unpooled.buffer();

@@ -63,13 +63,14 @@ final class NeighborStateCliUtils {
         table.print(stream, StandardCharsets.UTF_8, true);
     }
 
-    private static void printCapabilitiesState(final Set<Class<? extends BgpCapability>> supportedCapabilities,
+    private static void printCapabilitiesState(final Set<BgpCapability> supportedCapabilities,
             final ShellTable table) {
         if (supportedCapabilities == null) {
             return;
         }
         addHeader(table, "Supported Capabilities");
-        supportedCapabilities.forEach(capa -> table.addRow().addContent("", capa.getSimpleName()));
+        supportedCapabilities.forEach(
+            capa -> table.addRow().addContent("", capa.implementedInterface().getSimpleName()));
     }
 
     static void addHeader(final ShellTable table, final String header) {
@@ -87,7 +88,7 @@ final class NeighborStateCliUtils {
         final NeighborAfiSafiStateAugmentation state = afiSafi.getState()
                 .augmentation(NeighborAfiSafiStateAugmentation.class);
         addHeader(table, "AFI state");
-        table.addRow().addContent("Family", afiSafi.getAfiSafiName().getSimpleName());
+        table.addRow().addContent("Family", afiSafi.getAfiSafiName().implementedInterface().getSimpleName());
         table.addRow().addContent("Active", state.getActive());
         final Prefixes prefixes = state.getPrefixes();
         if (prefixes == null) {

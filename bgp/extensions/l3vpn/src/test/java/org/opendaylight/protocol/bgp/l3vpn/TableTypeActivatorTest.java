@@ -23,27 +23,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 
 public class TableTypeActivatorTest {
-    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
-    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
+    private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            MplsLabeledVpnSubsequentAddressFamily.VALUE);
+    private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+            MplsLabeledVpnSubsequentAddressFamily.VALUE);
 
     private static final BgpTableType MCAST_L3VPN_IPV4 = new BgpTableTypeImpl(
-            Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class);
+            Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE);
     private static final BgpTableType MCAST_L3VPN_IPV6 = new BgpTableTypeImpl(
-            Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class);
+            Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(L3VPNIPV4UNICAST.class, registry.getAfiSafiType(IPV4));
-        assertEquals(L3VPNIPV6UNICAST.class, registry.getAfiSafiType(IPV6));
-        assertEquals(IPV4, registry.getTableType(L3VPNIPV4UNICAST.class));
-        assertEquals(IPV6, registry.getTableType(L3VPNIPV6UNICAST.class));
+        assertEquals(L3VPNIPV4UNICAST.VALUE, registry.getAfiSafiType(IPV4));
+        assertEquals(L3VPNIPV6UNICAST.VALUE, registry.getAfiSafiType(IPV6));
+        assertEquals(IPV4, registry.getTableType(L3VPNIPV4UNICAST.VALUE));
+        assertEquals(IPV6, registry.getTableType(L3VPNIPV6UNICAST.VALUE));
 
-        assertEquals(L3VPNIPV4MULTICAST.class, registry.getAfiSafiType(MCAST_L3VPN_IPV4));
-        assertEquals(L3VPNIPV6MULTICAST.class, registry.getAfiSafiType(MCAST_L3VPN_IPV6));
-        assertEquals(MCAST_L3VPN_IPV4, registry.getTableType(L3VPNIPV4MULTICAST.class));
-        assertEquals(MCAST_L3VPN_IPV6, registry.getTableType(L3VPNIPV6MULTICAST.class));
+        assertEquals(L3VPNIPV4MULTICAST.VALUE, registry.getAfiSafiType(MCAST_L3VPN_IPV4));
+        assertEquals(L3VPNIPV6MULTICAST.VALUE, registry.getAfiSafiType(MCAST_L3VPN_IPV6));
+        assertEquals(MCAST_L3VPN_IPV4, registry.getTableType(L3VPNIPV4MULTICAST.VALUE));
+        assertEquals(MCAST_L3VPN_IPV6, registry.getTableType(L3VPNIPV6MULTICAST.VALUE));
     }
 }

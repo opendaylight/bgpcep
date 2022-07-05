@@ -44,22 +44,18 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("ext-community-statements-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("ext-community-statements-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
     public void testExtComAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("ext-community-any-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
@@ -72,27 +68,19 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                                                 .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 
     @Test
     public void testExtComAll() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("ext-community-all-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
@@ -108,27 +96,19 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                         .setEncapsulationExtendedCommunity(new EncapsulationExtendedCommunityBuilder()
                                 .setTunnelType(Vxlan).build()).build()).build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 
     @Test
     public void testExtComInvert() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("ext-community-invert-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
@@ -140,12 +120,8 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
                                                 .setLocalAdministrator(Uint16.valueOf(123))
                                                 .build()).build()).build()).build())).build());
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
     }
 }

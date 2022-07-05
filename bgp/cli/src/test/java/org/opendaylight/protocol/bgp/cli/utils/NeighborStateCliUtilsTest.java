@@ -61,7 +61,7 @@ public class NeighborStateCliUtilsTest {
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder();
 
         builder.addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build());
-        final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class)
+        final AfiSafi afiSafi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
                 .setState(builder.build()).build();
 
         return new NeighborBuilder()
@@ -93,7 +93,7 @@ public class NeighborStateCliUtilsTest {
             .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
             .setState(new StateBuilder()
                 .addAugmentation(new NeighborStateAugmentationBuilder()
-                    .setSupportedCapabilities(Set.of(ADDPATHS.class))
+                    .setSupportedCapabilities(Set.of(ADDPATHS.VALUE))
                     .setSessionState(BgpNeighborState.SessionState.ACTIVE)
                     .build())
                 .addAugmentation(new BgpNeighborStateAugmentationBuilder()
@@ -105,7 +105,7 @@ public class NeighborStateCliUtilsTest {
                 .build())
             .setAfiSafis(new AfiSafisBuilder()
                 .setAfiSafi(BindingMap.of(new AfiSafiBuilder()
-                    .setAfiSafiName(IPV4UNICAST.class)
+                    .setAfiSafiName(IPV4UNICAST.VALUE)
                     .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp
                         .common.afi.safi.list.afi.safi.StateBuilder()
                         .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder()

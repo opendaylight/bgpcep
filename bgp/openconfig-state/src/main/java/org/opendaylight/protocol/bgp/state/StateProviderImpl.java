@@ -188,7 +188,7 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
         final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, bgpTableTypeRegistry);
         InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.get(ribId);
         if (bgpIID == null) {
-            final ProtocolKey protocolKey = new ProtocolKey(BGP.class, bgpStateConsumer.getInstanceIdentifier()
+            final ProtocolKey protocolKey = new ProtocolKey(BGP.VALUE, bgpStateConsumer.getInstanceIdentifier()
                     .getKey().getId().getValue());
             final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = networkInstanceIId
                     .child(Protocols.class).child(Protocol.class, protocolKey);

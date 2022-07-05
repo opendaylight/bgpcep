@@ -37,7 +37,7 @@ public final class TableTypeActivator implements BGPTableTypeRegistryProviderAct
     @Override
     public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
         return List.of(
-            provider.registerBGPTableType(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
-                ROUTETARGETCONSTRAIN.class));
+            provider.registerBGPTableType(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE,
+                ROUTETARGETCONSTRAIN.VALUE));
     }
 }

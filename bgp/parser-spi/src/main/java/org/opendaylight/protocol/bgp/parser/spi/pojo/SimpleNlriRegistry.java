@@ -62,11 +62,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
         this.safiReg = requireNonNull(safiReg);
     }
 
-    private static BgpTableType createKey(final Class<? extends AddressFamily> afi,
-        final Class<? extends SubsequentAddressFamily> safi) {
-        requireNonNull(afi);
-        requireNonNull(safi);
-        return new BgpTableTypeImpl(afi, safi);
+    private static BgpTableType createKey(final AddressFamily afi, final SubsequentAddressFamily safi) {
+        return new BgpTableTypeImpl(requireNonNull(afi, "afi"), requireNonNull(safi, "safi"));
     }
 
     synchronized Registration registerNlriSerializer(final Class<? extends DataObject> nlriClass,
@@ -87,10 +84,9 @@ final class SimpleNlriRegistry implements NlriRegistry {
         };
     }
 
-    synchronized Registration registerNlriParser(final Class<? extends AddressFamily> afi,
-        final Class<? extends SubsequentAddressFamily> safi, final NlriParser parser,
-        final NextHopParserSerializer nextHopSerializer, final Class<? extends CNextHop> cnextHopClass,
-        final Class<? extends CNextHop>... cnextHopClassList) {
+    synchronized Registration registerNlriParser(final AddressFamily afi, final SubsequentAddressFamily safi,
+            final NlriParser parser, final NextHopParserSerializer nextHopSerializer,
+            final Class<? extends CNextHop> cnextHopClass, final Class<? extends CNextHop>... cnextHopClassList) {
         final BgpTableType key = createKey(afi, safi);
         final NlriParser prev = this.handlers.get(key);
         checkState(prev == null, "AFI/SAFI is already bound to parser " + prev);
@@ -129,18 +125,18 @@ final class SimpleNlriRegistry implements NlriRegistry {
         };
     }
 
-    private Class<? extends AddressFamily> getAfi(final ByteBuf buffer) throws BGPParsingException {
+    private AddressFamily getAfi(final ByteBuf buffer) throws BGPParsingException {
         final int afiVal = buffer.readUnsignedShort();
-        final Class<? extends AddressFamily> afi = this.afiReg.classForFamily(afiVal);
+        final AddressFamily afi = this.afiReg.classForFamily(afiVal);
         if (afi == null) {
             throw new BGPParsingException("Address Family Identifier: '" + afiVal + "' not supported.");
         }
         return afi;
     }
 
-    private Class<? extends SubsequentAddressFamily> getSafi(final ByteBuf buffer) throws BGPParsingException {
+    private SubsequentAddressFamily getSafi(final ByteBuf buffer) throws BGPParsingException {
         final int safiVal = buffer.readUnsignedByte();
-        final Class<? extends SubsequentAddressFamily> safi = this.safiReg.classForFamily(safiVal);
+        final SubsequentAddressFamily safi = this.safiReg.classForFamily(safiVal);
         if (safi == null) {
             throw new BGPParsingException("Subsequent Address Family Identifier: '" + safiVal + "' not supported.");
         }
@@ -169,8 +165,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
 
     @Override
     public void serializeMpReach(final MpReachNlri mpReachNlri, final ByteBuf byteAggregator) {
-        final Class<? extends AddressFamily> afi = mpReachNlri.getAfi();
-        final Class<? extends SubsequentAddressFamily> safi = mpReachNlri.getSafi();
+        final AddressFamily afi = mpReachNlri.getAfi();
+        final SubsequentAddressFamily safi = mpReachNlri.getSafi();
         byteAggregator.writeShort(this.afiReg.numberForClass(afi));
         byteAggregator.writeByte(this.safiReg.numberForClass(safi));
 
@@ -205,8 +201,8 @@ final class SimpleNlriRegistry implements NlriRegistry {
     public MpReachNlri parseMpReach(final ByteBuf buffer, final PeerSpecificParserConstraint constraint)
             throws BGPParsingException {
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        final Class<? extends AddressFamily> afi = getAfi(buffer);
-        final Class<? extends SubsequentAddressFamily> safi = getSafi(buffer);
+        final AddressFamily afi = getAfi(buffer);
+        final SubsequentAddressFamily safi = getSafi(buffer);
         builder.setAfi(afi);
         builder.setSafi(safi);
 

@@ -83,73 +83,75 @@ public class Ipv4NlriParserTest {
 
     @Before
     public void setUp() {
-        final Ipv4Prefix prefix1 = new Ipv4Prefix(this.ipPrefix1);
-        final Ipv4Prefix prefix2 = new Ipv4Prefix(this.ipPrefix2);
-        final Ipv4Prefix wrongPrefix = new Ipv4Prefix(this.additionalIpWD);
-        this.prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix1).build());
-        this.prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix2).build());
+        final Ipv4Prefix prefix1 = new Ipv4Prefix(ipPrefix1);
+        final Ipv4Prefix prefix2 = new Ipv4Prefix(ipPrefix2);
+        final Ipv4Prefix wrongPrefix = new Ipv4Prefix(additionalIpWD);
+        prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix1).build());
+        prefixes.add(new Ipv4PrefixesBuilder().setPrefix(prefix2).build());
 
-        this.ip4caseWD = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
+        ip4caseWD = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
                 .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
-                .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(this.prefixes).build()).build();
-        this.ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
-                .setIpv4Prefixes(this.prefixes).build()).build();
+                .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build();
+        ip4caseAD = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+                .setIpv4Prefixes(prefixes).build()).build();
 
-        final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<>(this.prefixes);
+        final ArrayList<Ipv4Prefixes> fakePrefixes = new ArrayList<>(prefixes);
         fakePrefixes.add(new Ipv4PrefixesBuilder().setPrefix(wrongPrefix).build());
-        this.ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
+        ip4caseWDWrong = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329
                 .update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationIpv4CaseBuilder()
                 .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(fakePrefixes).build()).build();
-        this.ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
+        ip4caseADWrong = new DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
                 .setIpv4Prefixes(fakePrefixes).build()).build();
 
         final ByteBuf buffer1 = Unpooled.buffer(5);
         Ipv4Util.writeMinimalPrefix(prefix1, buffer1);
-        this.inputBytes.writeBytes(buffer1.array());
+        inputBytes.writeBytes(buffer1.array());
 
         final ByteBuf buffer2 = Unpooled.buffer(5);
         Ipv4Util.writeMinimalPrefix(prefix2, buffer2);
-        this.inputBytes.writeBytes(buffer2.array());
+        inputBytes.writeBytes(buffer2.array());
 
-        Mockito.doReturn(Optional.of(this.muliPathSupport)).when(this.constraint).getPeerConstraint(Mockito.any());
-        Mockito.doReturn(true).when(this.muliPathSupport).isTableTypeSupported(Mockito.any());
+        Mockito.doReturn(Optional.of(muliPathSupport)).when(constraint).getPeerConstraint(Mockito.any());
+        Mockito.doReturn(true).when(muliPathSupport).isTableTypeSupported(Mockito.any());
     }
 
     @Test
     public void prefixesTest() {
-        assertEquals(this.ipPrefix1, this.prefixes.get(0).getPrefix().getValue());
-        assertEquals(this.ipPrefix2, this.prefixes.get(1).getPrefix().getValue());
-        assertEquals(2, this.prefixes.size());
+        assertEquals(ipPrefix1, prefixes.get(0).getPrefix().getValue());
+        assertEquals(ipPrefix2, prefixes.get(1).getPrefix().getValue());
+        assertEquals(2, prefixes.size());
     }
 
     @Test
     public void parseUnreachedNlriTest() {
-        final MpUnreachNlriBuilder b = new MpUnreachNlriBuilder();
-        b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(this.inputBytes, b, null);
+        final MpUnreachNlriBuilder b = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE);
+        parser.parseNlri(inputBytes, b, null);
         assertNotNull("Withdrawn routes, destination type should not be null", b.getWithdrawnRoutes()
                 .getDestinationType());
 
-        assertEquals(this.ip4caseWD.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
-        assertNotEquals(this.ip4caseWDWrong.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
+        assertEquals(ip4caseWD.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
+        assertNotEquals(ip4caseWDWrong.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
 
-        assertEquals(this.ip4caseWD.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
-        assertNotEquals(this.ip4caseWDWrong.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
+        assertEquals(ip4caseWD.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
+        assertNotEquals(ip4caseWDWrong.toString(), b.getWithdrawnRoutes().getDestinationType().toString());
     }
 
     @Test
     public void parseReachedNlriTest() throws BGPParsingException {
-        final MpReachNlriBuilder b = new MpReachNlriBuilder();
-        b.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(this.inputBytes, b, null);
+        final MpReachNlriBuilder b = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE);
+        parser.parseNlri(inputBytes, b, null);
         assertNotNull("Advertized routes, destination type should not be null", b.getAdvertizedRoutes()
                 .getDestinationType());
 
-        assertEquals(this.ip4caseAD.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
-        assertNotEquals(this.ip4caseADWrong.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
+        assertEquals(ip4caseAD.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
+        assertNotEquals(ip4caseADWrong.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
 
-        assertEquals(this.ip4caseAD.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
-        assertNotEquals(this.ip4caseADWrong.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
+        assertEquals(ip4caseAD.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
+        assertNotEquals(ip4caseADWrong.toString(), b.getAdvertizedRoutes().getDestinationType().toString());
     }
 
     @Test
@@ -159,9 +161,10 @@ public class Ipv4NlriParserTest {
                         new DestinationIpv4CaseBuilder().setDestinationIpv4(
                                 new DestinationIpv4Builder().setIpv4Prefixes(
                                         PREFIXES).build()).build()).build()).build();
-        final MpReachNlriBuilder mpReachNlriBuilder = new MpReachNlriBuilder();
-        mpReachNlriBuilder.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpReachNlriBuilder, this.constraint);
+        final MpReachNlriBuilder mpReachNlriBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE);
+        parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpReachNlriBuilder, constraint);
         mpReachNlriBuilder.setAfi(null).setSafi(null);
         Assert.assertEquals(mpReachNlri, mpReachNlriBuilder.build());
 
@@ -182,9 +185,10 @@ public class Ipv4NlriParserTest {
                                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                                 .DestinationIpv4CaseBuilder().setDestinationIpv4(new DestinationIpv4Builder()
                                 .setIpv4Prefixes(PREFIXES).build()).build()).build()).build();
-        final MpUnreachNlriBuilder mpUnreachNlriBuilder = new MpUnreachNlriBuilder();
-        mpUnreachNlriBuilder.setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class);
-        this.parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpUnreachNlriBuilder, this.constraint);
+        final MpUnreachNlriBuilder mpUnreachNlriBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE);
+        parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpUnreachNlriBuilder, constraint);
         mpUnreachNlriBuilder.setAfi(null).setSafi(null);
         Assert.assertEquals(mpUnreachNlri, mpUnreachNlriBuilder.build());
 

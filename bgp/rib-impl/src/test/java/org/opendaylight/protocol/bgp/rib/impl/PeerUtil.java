@@ -74,11 +74,11 @@ final class PeerUtil {
     }
 
     static MpReachNlri createMpReachNlri(final IpAddressNoZone nextHop, final List<IpPrefix> prefixes) {
-        final Class<? extends AddressFamily> afi;
+        final AddressFamily afi;
         final CNextHop cNextHop;
         final DestinationType destinationType;
         if (nextHop.getIpv4AddressNoZone() != null) {
-            afi = Ipv4AddressFamily.class;
+            afi = Ipv4AddressFamily.VALUE;
             cNextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                     .setGlobal(nextHop.getIpv4AddressNoZone())
                     .build()).build();
@@ -90,7 +90,7 @@ final class PeerUtil {
                             .collect(Collectors.toList()))
                             .build()).build();
         } else {
-            afi = Ipv6AddressFamily.class;
+            afi = Ipv6AddressFamily.VALUE;
             cNextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
                     .setGlobal(nextHop.getIpv6AddressNoZone())
                     .build()).build();
@@ -106,7 +106,7 @@ final class PeerUtil {
         return new MpReachNlriBuilder()
                 .setCNextHop(cNextHop)
                 .setAfi(afi)
-                .setSafi(UnicastSubsequentAddressFamily.class)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destinationType).build())
                 .build();
     }

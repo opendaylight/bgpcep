@@ -77,7 +77,7 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     }
 
     public BGPActivator(final RSVPExtensionConsumerContext rsvpExtensions, final boolean ianaLinkstateAttributeType) {
-        this.rsvpTeObjectRegistry = rsvpExtensions.getRsvpRegistry();
+        rsvpTeObjectRegistry = rsvpExtensions.getRsvpRegistry();
         this.ianaLinkstateAttributeType = ianaLinkstateAttributeType;
     }
 
@@ -86,20 +86,20 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
         final List<Registration> regs = new ArrayList<>();
 
 
-        regs.add(context.registerAddressFamily(LinkstateAddressFamily.class, LINKSTATE_AFI));
-        regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.class, LINKSTATE_SAFI));
+        regs.add(context.registerAddressFamily(LinkstateAddressFamily.VALUE, LINKSTATE_AFI));
+        regs.add(context.registerSubsequentAddressFamily(LinkstateSubsequentAddressFamily.VALUE, LINKSTATE_SAFI));
 
         final NextHopParserSerializer linkstateNextHopParser = new NextHopParserSerializer() {
         };
         final LinkstateNlriParser parser = new LinkstateNlriParser();
-        regs.add(context.registerNlriParser(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class,
+        regs.add(context.registerNlriParser(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE,
             parser, linkstateNextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(LinkstateRoutes.class, parser));
 
         regs.add(context.registerAttributeSerializer(Attributes1.class,
-            new LinkstateAttributeParser(this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry)));
+            new LinkstateAttributeParser(ianaLinkstateAttributeType, rsvpTeObjectRegistry)));
         final LinkstateAttributeParser linkstateAttributeParser = new LinkstateAttributeParser(
-            this.ianaLinkstateAttributeType, this.rsvpTeObjectRegistry);
+            ianaLinkstateAttributeType, rsvpTeObjectRegistry);
         regs.add(context.registerAttributeParser(linkstateAttributeParser.getType(), linkstateAttributeParser));
 
         return regs;

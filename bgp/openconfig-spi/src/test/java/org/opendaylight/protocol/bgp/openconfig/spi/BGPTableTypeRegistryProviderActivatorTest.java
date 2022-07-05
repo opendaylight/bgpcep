@@ -22,15 +22,15 @@ public class BGPTableTypeRegistryProviderActivatorTest {
     @Test
     public void testBGPTableTypeRegistryProviderActivator() {
         final BGPTableTypeRegistryProviderActivator activator =
-            provider -> List.of(provider.registerBGPTableType(Ipv4AddressFamily.class,
-                UnicastSubsequentAddressFamily.class, IPV4UNICAST.class));
+            provider -> List.of(provider.registerBGPTableType(Ipv4AddressFamily.VALUE,
+                UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.VALUE));
 
         final SimpleBGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
         final List<Registration> regs = activator.startBGPTableTypeRegistryProvider(provider);
-        assertNotNull(provider.getTableType(IPV4UNICAST.class));
+        assertNotNull(provider.getTableType(IPV4UNICAST.VALUE));
         assertEquals(1, regs.size());
 
         regs.get(0).close();
-        assertNull(provider.getTableType(IPV4UNICAST.class));
+        assertNull(provider.getTableType(IPV4UNICAST.VALUE));
     }
 }

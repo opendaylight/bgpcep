@@ -45,29 +45,29 @@ public class ClientAttributePrependHandlerTest extends AbstractStatementRegistry
     public void setUp() throws Exception {
         super.setUp();
         final StatementActivator act = new StatementActivator();
-        act.start(this.statementRegistry);
-        this.basicStatements = loadStatement("basic-statements-test");
-        doReturn(CLUSTER).when(this.baseAttributes).getClusterId();
-        doReturn(LOCAL_AS).when(this.baseAttributes).getLocalAs();
-        doReturn(IPV4).when(this.baseAttributes).getOriginatorId();
+        act.start(statementRegistry);
+        basicStatements = loadStatement("basic-statements-test");
+        doReturn(CLUSTER).when(baseAttributes).getClusterId();
+        doReturn(LOCAL_AS).when(baseAttributes).getLocalAs();
+        doReturn(IPV4).when(baseAttributes).getOriginatorId();
     }
 
 
     @Test
     public void testPreprendClientAttribute() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("client-attribute-append-test")).findFirst().get();
         final Attributes att = new AttributesBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                         .setGlobal(IPV4).build()).build())
                 .build();
         final RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(att);
-        doReturn(Collections.emptyList()).when(this.exportParameters).getClientRouteTargetContrainCache();
+        doReturn(Collections.emptyList()).when(exportParameters).getClientRouteTargetContrainCache();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertEquals(att, result.getAttributes());
@@ -82,13 +82,13 @@ public class ClientAttributePrependHandlerTest extends AbstractStatementRegistry
                 .setPathId(new PathId(Uint32.ZERO))
                 .setAttributes(expected)
                 .build();
-        doReturn(Collections.singletonList(rtRoute)).when(this.exportParameters).getClientRouteTargetContrainCache();
-        doReturn(rk).when(this.exportParameters).getRouteKey();
+        doReturn(Collections.singletonList(rtRoute)).when(exportParameters).getClientRouteTargetContrainCache();
+        doReturn(rk).when(exportParameters).getRouteKey();
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
+        result = statementRegistry.applyExportStatement(
+                baseAttributes,
+                IPV4UNICAST.VALUE,
+                exportParameters,
                 attributeContainer,
                 statement);
         assertEquals(expected, result.getAttributes());

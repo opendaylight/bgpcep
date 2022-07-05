@@ -236,9 +236,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpReachNlriIpv4() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPV4_PREFIX)
             .setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
@@ -248,9 +248,9 @@ public class LUNlriParserTest {
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
-        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
-        testBuilder.setAfi(Ipv4AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPV4), testBuilder, null);
         assertEquals(mpReachExpected, testBuilder.build());
 
@@ -265,9 +265,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpReachNlriIpv4Constraint() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID)
             .setPrefix(IPV4_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
@@ -277,9 +277,9 @@ public class LUNlriParserTest {
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
-        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
-        testBuilder.setAfi(Ipv4AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPV4_ADD_PATH), testBuilder, constraint);
         assertEquals(mpReachExpected, testBuilder.build());
 
@@ -294,9 +294,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpUnreachNlriIpv4() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
-        mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
 
         final CLabeledUnicastDestination lu1 = new CLabeledUnicastDestinationBuilder().setPrefix(IPV4_PREFIX).build();
         mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
@@ -322,9 +322,9 @@ public class LUNlriParserTest {
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         //test parser
-        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
-        testBuilder.setAfi(Ipv4AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPV4), testBuilder, null);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 
@@ -345,9 +345,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpUnreachNlriIpv4Constraint() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
-        mpBuilder.setAfi(Ipv4AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
 
         final CLabeledUnicastDestination lu1 = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID)
             .setPrefix(IPV4_PREFIX).build();
@@ -374,9 +374,9 @@ public class LUNlriParserTest {
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         //test parser
-        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
-        testBuilder.setAfi(Ipv4AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPV4_ADD_PATH), testBuilder, constraint);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 
@@ -397,9 +397,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpReachNlriIpv6() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPrefix(IPV6_PREFIX)
             .setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
@@ -410,9 +410,9 @@ public class LUNlriParserTest {
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
-        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
-        testBuilder.setAfi(Ipv6AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPV6), testBuilder, null);
         assertEquals(mpReachExpected, testBuilder.build());
 
@@ -427,9 +427,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpReachNlriIpv6Constraint() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         final CLabeledUnicastDestination lu = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID)
             .setPrefix(IPV6_PREFIX).setLabelStack(LABEL_STACK).build();
         mpBuilder.setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
@@ -440,9 +440,9 @@ public class LUNlriParserTest {
         final MpReachNlri mpReachExpected = mpBuilder.build();
 
         //test parser
-        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder();
-        testBuilder.setAfi(Ipv6AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpReachNlriBuilder testBuilder = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_REACH_NLRI_IPV6_ADD_PATH), testBuilder, constraint);
         assertEquals(mpReachExpected, testBuilder.build());
 
@@ -457,9 +457,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpUnreachNlriIpv6() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
 
         final CLabeledUnicastDestination lu1 = new CLabeledUnicastDestinationBuilder().setPrefix(IPV6_PREFIX).build();
         mpBuilder.setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
@@ -483,9 +483,9 @@ public class LUNlriParserTest {
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         //test parser
-        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
-        testBuilder.setAfi(Ipv6AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPV6), testBuilder, null);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 
@@ -506,9 +506,9 @@ public class LUNlriParserTest {
     @Test
     public void testMpUnreachNlriIpv6Constraint() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
-        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder();
-        mpBuilder.setAfi(Ipv6AddressFamily.class);
-        mpBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
 
         final CLabeledUnicastDestination lu1 = new CLabeledUnicastDestinationBuilder().setPathId(PATH_ID)
             .setPrefix(IPV6_PREFIX).build();
@@ -534,9 +534,9 @@ public class LUNlriParserTest {
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
 
         //test parser
-        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder();
-        testBuilder.setAfi(Ipv6AddressFamily.class);
-        testBuilder.setSafi(LabeledUnicastSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder testBuilder = new MpUnreachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(LabeledUnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.copiedBuffer(LU_UNREACH_NLRI_IPV6_ADD_PATH), testBuilder, constraint);
         assertEquals(mpUnreachExpected1, testBuilder.build());
 

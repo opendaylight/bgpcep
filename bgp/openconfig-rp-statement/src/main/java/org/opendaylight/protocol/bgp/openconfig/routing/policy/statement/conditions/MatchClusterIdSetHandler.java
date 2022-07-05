@@ -79,7 +79,7 @@ public final class MatchClusterIdSetHandler
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters importParameters,
             final ClusterId clusterIdAtt,
@@ -92,7 +92,7 @@ public final class MatchClusterIdSetHandler
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters exportParameters,
             final ClusterId clusterIdAtt,

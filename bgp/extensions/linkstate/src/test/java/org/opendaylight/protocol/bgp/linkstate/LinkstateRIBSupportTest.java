@@ -112,8 +112,8 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
-        assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
-        assertEquals(LinkstateSubsequentAddressFamily.class,
+        assertEquals(LinkstateAddressFamily.VALUE, context.getAddressFamilyRegistry().classForFamily(16388));
+        assertEquals(LinkstateSubsequentAddressFamily.VALUE,
             context.getSubsequentAddressFamilyRegistry().classForFamily(71));
         final ByteBuf buffer = Unpooled.buffer();
         SimpleNlriTypeRegistry.getInstance().serializeNlriType(LINKSTATE_DESTINATION, buffer);

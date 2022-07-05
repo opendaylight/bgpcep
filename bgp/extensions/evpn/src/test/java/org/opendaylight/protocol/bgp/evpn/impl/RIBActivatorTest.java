@@ -22,8 +22,8 @@ public class RIBActivatorTest extends AbstractRIBActivatorTest {
     public void testRIBActivator() {
         final RIBActivator ribAct = new RIBActivator();
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        assertNull(context.getRIBSupport(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class));
+        assertNull(context.getRIBSupport(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE));
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
-        assertNotNull(context.getRIBSupport(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class));
+        assertNotNull(context.getRIBSupport(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE));
     }
 }

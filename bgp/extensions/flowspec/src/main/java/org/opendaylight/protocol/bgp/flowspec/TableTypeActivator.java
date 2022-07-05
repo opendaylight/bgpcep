@@ -36,13 +36,13 @@ public final class TableTypeActivator implements BGPTableTypeRegistryProviderAct
     @Override
     public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
         return List.of(
-            provider.registerBGPTableType(Ipv4AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                IPV4FLOW.class),
-            provider.registerBGPTableType(Ipv6AddressFamily.class, FlowspecSubsequentAddressFamily.class,
-                IPV6FLOW.class),
-            provider.registerBGPTableType(Ipv4AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                IPV4L3VPNFLOW.class),
-            provider.registerBGPTableType(Ipv6AddressFamily.class, FlowspecL3vpnSubsequentAddressFamily.class,
-                IPV6L3VPNFLOW.class));
+            provider.registerBGPTableType(Ipv4AddressFamily.VALUE, FlowspecSubsequentAddressFamily.VALUE,
+                IPV4FLOW.VALUE),
+            provider.registerBGPTableType(Ipv6AddressFamily.VALUE, FlowspecSubsequentAddressFamily.VALUE,
+                IPV6FLOW.VALUE),
+            provider.registerBGPTableType(Ipv4AddressFamily.VALUE, FlowspecL3vpnSubsequentAddressFamily.VALUE,
+                IPV4L3VPNFLOW.VALUE),
+            provider.registerBGPTableType(Ipv6AddressFamily.VALUE, FlowspecL3vpnSubsequentAddressFamily.VALUE,
+                IPV6L3VPNFLOW.VALUE));
     }
 }

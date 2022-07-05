@@ -71,7 +71,7 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
         return PmsiTunnelType.MldpP2mpLsp.getIntValue();
     }
 
-    private int getAddressFamilyValue(final Class<? extends AddressFamily> addressFamily) {
+    private int getAddressFamilyValue(final AddressFamily addressFamily) {
         final Integer type = this.addressFamilyRegistry.numberForClass(addressFamily);
         return type == null ? 0 : type;
     }
@@ -83,8 +83,7 @@ public final class MldpP2mpLspParser extends AbstractTunnelIdentifier<MldpP2mpLs
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel
                         .pmsi.tunnel.tunnel.identifier.mldp.p2mp.lsp.MldpP2mpLspBuilder();
         buffer.skipBytes(RESERVED);
-        final Class<? extends AddressFamily> addressFamily = this.addressFamilyRegistry
-                .classForFamily(buffer.readUnsignedShort());
+        final AddressFamily addressFamily = this.addressFamilyRegistry.classForFamily(buffer.readUnsignedShort());
         if (addressFamily == null) {
             LOG.debug("Skipping serialization of TunnelIdentifier {}, address family type  supported",
                     ByteBufUtil.hexDump(buffer));

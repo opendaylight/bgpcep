@@ -77,8 +77,8 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
         QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
     private RIBSupportTestImp ribSupportTestImp;
-    private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
     private static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier
             .create(YangInstanceIdentifier.of(BgpRib.QNAME)
         .node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
@@ -179,12 +179,12 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void getAfi() {
-        assertEquals(Ipv4AddressFamily.class,ribSupportTestImp.getAfi());
+        assertEquals(Ipv4AddressFamily.VALUE, ribSupportTestImp.getAfi());
     }
 
     @Test
     public void getSafi() {
-        assertEquals(UnicastSubsequentAddressFamily.class,ribSupportTestImp.getSafi());
+        assertEquals(UnicastSubsequentAddressFamily.VALUE, ribSupportTestImp.getSafi());
     }
 
     @Test
@@ -237,8 +237,8 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                ribSupportTestImp.buildUpdate(routes, routes, attr));
 
         routes.add(mapEntryNode);
-        final MpReachNlri mpReach = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class)
+        final MpReachNlri mpReach = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setCNextHop(nextHop).setAdvertizedRoutes(new AdvertizedRoutesBuilder().build()).build();
 
         final Attributes attMpR = new AttributesBuilder().addAugmentation(
@@ -246,9 +246,11 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         assertEquals(new UpdateBuilder().setAttributes(attMpR).build(),
                ribSupportTestImp.buildUpdate(routes, Set.of(), attr));
 
-        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class)
-                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().build()).build();
+        final MpUnreachNlri mpUnreach = new MpUnreachNlriBuilder()
+                .setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                .setWithdrawnRoutes(new WithdrawnRoutesBuilder().build())
+                .build();
 
         final Attributes attMpU = new AttributesBuilder().addAugmentation(
                 new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreach).build()).build();

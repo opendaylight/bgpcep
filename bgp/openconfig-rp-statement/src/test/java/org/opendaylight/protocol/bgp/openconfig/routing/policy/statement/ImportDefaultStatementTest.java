@@ -34,8 +34,8 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.defaultImportStatements = loadStatement("default-odl-import-policy");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        defaultImportStatements = loadStatement("default-odl-import-policy");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
     }
 
     private Statement getStatement(final String statementName) {
-        return this.defaultImportStatements.stream()
+        return defaultImportStatements.stream()
                 .filter(st -> st.getName().equals(statementName)).findFirst().get();
     }
 
@@ -73,15 +73,11 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
             final RouteAttributeContainer attInput,
             final Attributes attExpected) {
 
-        doReturn(fromPeerRole).when(this.importParameters).getFromPeerRole();
-        doReturn(AS).when(this.importParameters).getFromPeerLocalAs();
+        doReturn(fromPeerRole).when(importParameters).getFromPeerRole();
+        doReturn(AS).when(importParameters).getFromPeerLocalAs();
 
-        RouteAttributeContainer result = this.statementRegistry.applyImportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.importParameters,
-                attInput,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyImportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, importParameters, attInput, statement);
         assertEquals(attExpected, result.getAttributes());
     }
 }
