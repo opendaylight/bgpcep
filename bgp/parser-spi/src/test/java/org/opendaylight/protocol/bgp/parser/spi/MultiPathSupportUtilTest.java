@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class MultiPathSupportUtilTest {
     private static final BgpTableType AFI_SAFI =
-        new BgpTableTypeImpl(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     @Mock
     private PeerSpecificParserConstraint constraints;

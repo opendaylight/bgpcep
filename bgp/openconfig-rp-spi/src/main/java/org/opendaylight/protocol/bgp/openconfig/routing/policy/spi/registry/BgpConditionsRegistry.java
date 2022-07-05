@@ -40,16 +40,16 @@ final class BgpConditionsRegistry {
     AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<? extends Augmentation<BgpConditions>> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy conditionPolicy) {
-        synchronized (this.bgpConditionsAugRegistry) {
+        synchronized (bgpConditionsAugRegistry) {
             final BgpConditionsAugmentationPolicy prev
-                    = this.bgpConditionsAugRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
+                    = bgpConditionsAugRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
             Preconditions.checkState(prev == null, "Condition Policy %s already registered %s",
                     conditionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (BgpConditionsRegistry.this.bgpConditionsAugRegistry) {
-                        BgpConditionsRegistry.this.bgpConditionsAugRegistry.remove(conditionPolicyClass);
+                    synchronized (bgpConditionsAugRegistry) {
+                        bgpConditionsAugRegistry.remove(conditionPolicyClass);
                     }
                 }
             };
@@ -59,16 +59,16 @@ final class BgpConditionsRegistry {
     <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
             final Class<T> conditionPolicyClass,
             final BgpConditionsPolicy<T, N> conditionPolicy) {
-        synchronized (this.bgpConditionsRegistry) {
+        synchronized (bgpConditionsRegistry) {
             final BgpConditionsPolicy prev
-                    = this.bgpConditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
+                    = bgpConditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
             Preconditions.checkState(prev == null, "Condition Policy %s already registered %s",
                     conditionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (BgpConditionsRegistry.this.bgpConditionsRegistry) {
-                        BgpConditionsRegistry.this.bgpConditionsRegistry.remove(conditionPolicyClass);
+                    synchronized (bgpConditionsRegistry) {
+                        bgpConditionsRegistry.remove(conditionPolicyClass);
                     }
                 }
             };
@@ -77,7 +77,7 @@ final class BgpConditionsRegistry {
 
     @SuppressWarnings("unchecked")
     boolean matchExportConditions(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
@@ -92,7 +92,7 @@ final class BgpConditionsRegistry {
             }
             for (final Augmentation<BgpConditions> condition : bgpConditions.augmentations().values()) {
                 final BgpConditionsAugmentationPolicy handler =
-                    this.bgpConditionsAugRegistry.get(condition.implementedInterface());
+                    bgpConditionsAugRegistry.get(condition.implementedInterface());
                 if (handler == null) {
                     continue;
                 }
@@ -107,7 +107,7 @@ final class BgpConditionsRegistry {
 
 
     boolean matchImportConditions(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes entryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Attributes attributes,
@@ -124,7 +124,7 @@ final class BgpConditionsRegistry {
             }
             for (final Augmentation<BgpConditions> condition : bgpConditions.augmentations().values()) {
                 final BgpConditionsAugmentationPolicy handler =
-                    this.bgpConditionsAugRegistry.get(condition.implementedInterface());
+                    bgpConditionsAugRegistry.get(condition.implementedInterface());
                 if (handler == null) {
                     continue;
                 }
@@ -139,7 +139,7 @@ final class BgpConditionsRegistry {
 
     @SuppressWarnings("unchecked")
     private boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final Attributes attributes,
@@ -151,7 +151,7 @@ final class BgpConditionsRegistry {
 
         final MatchCommunitySet matchCond = conditions.getMatchCommunitySet();
         if (matchCond != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchCommunitySet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchCommunitySet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
                     handler.getConditionParameter(attributes), matchCond)) {
                 return false;
@@ -160,7 +160,7 @@ final class BgpConditionsRegistry {
 
         final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
         if (matchCond != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchAsPathSet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
                     handler.getConditionParameter(attributes), matchAsPathSet)) {
                 return false;
@@ -169,7 +169,7 @@ final class BgpConditionsRegistry {
 
         final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
         if (matchExtCommSet != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchAsPathSet.class);
             if (!handler.matchImportCondition(afiSafi, routeEntryInfo, routeEntryImportParameters,
                     handler.getConditionParameter(attributes), matchExtCommSet)) {
                 return false;
@@ -181,7 +181,7 @@ final class BgpConditionsRegistry {
 
     @SuppressWarnings("unchecked")
     private boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final Attributes attributes,
@@ -192,7 +192,7 @@ final class BgpConditionsRegistry {
 
         final MatchCommunitySet matchCond = conditions.getMatchCommunitySet();
         if (matchCond != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchCommunitySet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchCommunitySet.class);
             if (!handler.matchExportCondition(afiSafi, routeEntryInfo, routeEntryExportParameters,
                     handler.getConditionParameter(attributes), matchCond)) {
                 return false;
@@ -201,7 +201,7 @@ final class BgpConditionsRegistry {
 
         final MatchAsPathSet matchAsPathSet = conditions.getMatchAsPathSet();
         if (matchAsPathSet != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchAsPathSet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchAsPathSet.class);
             if (!handler.matchExportCondition(afiSafi, routeEntryInfo, routeEntryExportParameters,
                     handler.getConditionParameter(attributes), matchAsPathSet)) {
                 return false;
@@ -210,7 +210,7 @@ final class BgpConditionsRegistry {
 
         final MatchExtCommunitySet matchExtCommSet = conditions.getMatchExtCommunitySet();
         if (matchExtCommSet != null) {
-            final BgpConditionsPolicy handler = this.bgpConditionsRegistry.get(MatchExtCommunitySet.class);
+            final BgpConditionsPolicy handler = bgpConditionsRegistry.get(MatchExtCommunitySet.class);
             if (!handler.matchExportCondition(afiSafi, routeEntryInfo, routeEntryExportParameters,
                     handler.getConditionParameter(attributes), matchExtCommSet)) {
                 return false;

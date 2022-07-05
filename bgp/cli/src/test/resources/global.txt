@@ -1,10 +1,10 @@
 Attribute              │ Value
-───────────────────────┼─────────────────────
+───────────────────────┼────────────────────
                        │
 RIB state              │
 ====================== │
 Router Id              │ test-rib
-As                     │ AsNumber{_value=100}
+As                     │ AsNumber{value=100}
 Total Paths            │ 1
 Total Prefixes         │ 2
                        │

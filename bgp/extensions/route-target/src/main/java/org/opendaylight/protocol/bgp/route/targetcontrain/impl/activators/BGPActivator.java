@@ -46,8 +46,8 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     public List<Registration> start(final BGPExtensionProviderContext context) {
         final RouteTargetConstrainNlriHandler routeTargetNlriHandler = new RouteTargetConstrainNlriHandler();
         return List.of(
-            context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.class, RT_SAFI),
-            context.registerNlriParser(Ipv4AddressFamily.class, RouteTargetConstrainSubsequentAddressFamily.class,
+            context.registerSubsequentAddressFamily(RouteTargetConstrainSubsequentAddressFamily.VALUE, RT_SAFI),
+            context.registerNlriParser(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE,
                 routeTargetNlriHandler, new Ipv4NextHopParserSerializer(), Ipv4NextHopCase.class,
                 Ipv6NextHopCase.class),
             context.registerNlriSerializer(RouteTargetConstrainRoutes.class, routeTargetNlriHandler));

@@ -12,7 +12,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,38 +47,30 @@ public class VpnNonMemberHandlerTest extends AbstractStatementRegistryConsumerTe
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        this.basicStatements = loadStatement("vpn-non-member-test");
-        this.baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
+        basicStatements = loadStatement("vpn-non-member-test");
+        baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
     @Test
     public void testExtComAny() {
-        Statement statement = this.basicStatements.stream()
+        Statement statement = basicStatements.stream()
                 .filter(st -> st.getName().equals("vpn-non-member-test")).findFirst().get();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder()
-                        .setExtendedCommunities(Collections.singletonList(new ExtendedCommunitiesBuilder()
+                        .setExtendedCommunities(List.of(new ExtendedCommunitiesBuilder()
                                 .setExtendedCommunity(new As4RouteTargetExtendedCommunityCaseBuilder()
                                         .setAs4RouteTargetExtendedCommunity(RT).build()).build())).build());
 
-        doReturn(Collections.singletonList(RT)).when(this.exportParameters).getMemberships();
+        doReturn(List.of(RT)).when(exportParameters).getMemberships();
 
-        RouteAttributeContainer result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        RouteAttributeContainer result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
-        doReturn(Collections.emptyList()).when(this.exportParameters).getMemberships();
+        doReturn(List.of()).when(exportParameters).getMemberships();
 
-        result = this.statementRegistry.applyExportStatement(
-                this.baseAttributes,
-                IPV4UNICAST.class,
-                this.exportParameters,
-                attributeContainer,
-                statement);
+        result = statementRegistry.applyExportStatement(
+                baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNull(result.getAttributes());
     }
 }
