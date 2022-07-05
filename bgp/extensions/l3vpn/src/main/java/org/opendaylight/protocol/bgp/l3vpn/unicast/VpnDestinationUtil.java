@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.l3vpn.unicast;
 
 import com.google.common.base.Preconditions;
@@ -32,8 +31,8 @@ final class VpnDestinationUtil {
     static List<VpnDestination> parseNlri(
             final ByteBuf nlri,
             final PeerSpecificParserConstraint constraints,
-            final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+            final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         if (!nlri.isReadable()) {
             return null;
         }
@@ -48,8 +47,8 @@ final class VpnDestinationUtil {
             final List<LabelStack> labels = LUNlriParser.parseLabel(nlri);
             builder.setLabelStack(labels);
             final int labelNum = labels != null ? labels.size() : 1;
-            final int prefixLen = length - (LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum)
-                    - (RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE);
+            final int prefixLen = length - LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum
+                    - RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE;
             builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
             Preconditions.checkState(prefixLen > 0, "A valid VPN IP prefix is required.");
             builder.setPrefix(LUNlriParser.parseIpPrefix(nlri, prefixLen, afi));

@@ -34,7 +34,7 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     @Override
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return List.of(context.registerRIBSupport(LinkstateAddressFamily.class,
-            LinkstateSubsequentAddressFamily.class, new LinkstateRIBSupport(mappingService)));
+        return List.of(context.registerRIBSupport(LinkstateAddressFamily.VALUE,
+            LinkstateSubsequentAddressFamily.VALUE, new LinkstateRIBSupport(mappingService)));
     }
 }

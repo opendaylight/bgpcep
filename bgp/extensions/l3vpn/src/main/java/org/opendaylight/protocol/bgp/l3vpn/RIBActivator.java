@@ -43,13 +43,13 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
-            context.registerRIBSupport(Ipv4AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE,
                 new VpnIpv4RIBSupport(mappingService)),
-            context.registerRIBSupport(Ipv6AddressFamily.class, MplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE,
                 new VpnIpv6RIBSupport(mappingService)),
-            context.registerRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE,
                 new L3VpnMcastIpv4RIBSupport(mappingService)),
-            context.registerRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class,
+            context.registerRIBSupport(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE,
                 new L3VpnMcastIpv6RIBSupport(mappingService)));
     }
 }

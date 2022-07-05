@@ -30,7 +30,7 @@ public final class TableTypeActivator implements BGPTableTypeRegistryProviderAct
 
     @Override
     public List<Registration> startBGPTableTypeRegistryProvider(final BGPTableTypeRegistryProvider provider) {
-        return List.of(provider.registerBGPTableType(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
-            L2VPNEVPN.class));
+        return List.of(provider.registerBGPTableType(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE,
+            L2VPNEVPN.VALUE));
     }
 }

@@ -66,11 +66,11 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass,
             final Class<S> containerClass,
-            final Class<? extends AddressFamily> afiClass,
+            final AddressFamily afiClass,
             final QName destContainerQname,
             final QName destListQname) {
         super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
-                McastVpnSubsequentAddressFamily.class, destContainerQname);
+                McastVpnSubsequentAddressFamily.VALUE, destContainerQname);
         this.nlriRoutesList = NodeIdentifier.create(destListQname);
         this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
 

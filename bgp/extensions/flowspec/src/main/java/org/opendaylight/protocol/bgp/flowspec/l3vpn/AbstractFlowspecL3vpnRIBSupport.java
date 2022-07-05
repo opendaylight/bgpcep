@@ -38,11 +38,11 @@ public abstract class AbstractFlowspecL3vpnRIBSupport
             final Class<S> containerClass,
             final Class<R> listClass,
             final QName dstContainerClassQName,
-            final Class<? extends AddressFamily> afiClass,
+            final AddressFamily afiClass,
             final T flowspecNlriParser
     ) {
         super(mappingService, cazeClass, containerClass, listClass, afiClass,
-            FlowspecL3vpnSubsequentAddressFamily.class, dstContainerClassQName, flowspecNlriParser);
+            FlowspecL3vpnSubsequentAddressFamily.VALUE, dstContainerClassQName, flowspecNlriParser);
     }
 
     @Override

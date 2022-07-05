@@ -111,8 +111,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     public LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final ConnectedGraphProvider provider) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class);
+        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE);
         cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
@@ -125,8 +125,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId, final ConnectedGraphProvider provider, final long listenerResetLimitInMillsec,
             final int listenerResetEnforceCounter) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.class,
-                LinkstateSubsequentAddressFamily.class, listenerResetLimitInMillsec, listenerResetEnforceCounter);
+        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.VALUE,
+                LinkstateSubsequentAddressFamily.VALUE, listenerResetLimitInMillsec, listenerResetEnforceCounter);
         cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
                 DomainScope.IntraDomain);
         /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.

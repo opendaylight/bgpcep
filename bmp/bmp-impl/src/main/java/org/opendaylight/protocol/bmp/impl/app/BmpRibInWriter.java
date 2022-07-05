@@ -181,8 +181,8 @@ final class BmpRibInWriter {
         final List<Ipv4Prefixes> prefixes = message.getNlri().stream()
                 .map(n -> new Ipv4PrefixesBuilder().setPrefix(n.getPrefix()).setPathId(n.getPathId()).build())
                 .collect(Collectors.toList());
-        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-            UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
+        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.VALUE).setSafi(
+            UnicastSubsequentAddressFamily.VALUE).setAdvertizedRoutes(
                 new AdvertizedRoutesBuilder().setDestinationType(
                     new DestinationIpv4CaseBuilder().setDestinationIpv4(
                         new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
@@ -226,7 +226,7 @@ final class BmpRibInWriter {
         final List<Ipv4Prefixes> prefixes = new ArrayList<>();
         message.getWithdrawnRoutes().forEach(
             w -> prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build()));
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update
                                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type
@@ -243,7 +243,7 @@ final class BmpRibInWriter {
      * @param msg received Update message
      */
     private boolean checkEndOfRib(final UpdateMessage msg) {
-        TablesKey type = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        TablesKey type = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
         boolean isEOR = false;
         if (msg.getNlri() == null && msg.getWithdrawnRoutes() == null) {
             if (msg.getAttributes() != null) {

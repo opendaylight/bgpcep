@@ -104,12 +104,12 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         AutoCloseable, ClusteredDOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
-    private static final TablesKey IVP4_VPN_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
-    private static final TablesKey IVP6_VPN_TABLE_KEY = new TablesKey(Ipv6AddressFamily.class,
-            MplsLabeledVpnSubsequentAddressFamily.class);
-    private static final ImmutableList<Communities> STALE_LLGR_COMMUNUTIES = ImmutableList.of(
-        StaleCommunities.STALE_LLGR);
+    private static final TablesKey IVP4_VPN_TABLE_KEY =
+        new TablesKey(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
+    private static final TablesKey IVP6_VPN_TABLE_KEY =
+        new TablesKey(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
+    private static final ImmutableList<Communities> STALE_LLGR_COMMUNUTIES =
+        ImmutableList.of(StaleCommunities.STALE_LLGR);
     private static final Attributes STALE_LLGR_ATTRIBUTES = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
             .xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
@@ -434,7 +434,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void onRoutesDeleted(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
             final Collection<MapEntryNode> deletedRoutes) {
-        if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
+        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getSafi())) {
             final YangInstanceIdentifier routesPath = routeMapPath(ribSupport, effectiveTablePath);
             for (final MapEntryNode routeBefore : deletedRoutes) {
                 deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
@@ -542,9 +542,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
-        if (ribSupport.getSafi() == RouteTargetConstrainSubsequentAddressFamily.class) {
-            final RouteTargetConstrainRoute rtc =
-                (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
+        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getSafi())) {
+            final var rtc = (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
             if (ModificationType.DELETE == modificationType) {
                 deleteRouteTarget(rtc);
             } else {

@@ -36,14 +36,14 @@ abstract class ForwardingStatementRegistry extends ForwardingObject
         implements StatementRegistryConsumer, StatementRegistryProvider {
     @Override
     public final RouteAttributeContainer applyExportStatement(final RouteEntryBaseAttributes routeEntryInfo,
-            final Class<? extends AfiSafiType> afiSafi, final BGPRouteEntryExportParameters baseExportParameters,
+            final AfiSafiType afiSafi, final BGPRouteEntryExportParameters baseExportParameters,
             final RouteAttributeContainer attributes, final Statement statement) {
         return delegate().applyExportStatement(routeEntryInfo, afiSafi, baseExportParameters, attributes, statement);
     }
 
     @Override
     public final RouteAttributeContainer applyImportStatement(final RouteEntryBaseAttributes routeEntryInfo,
-            final Class<? extends AfiSafiType> afiSafi, final BGPRouteEntryImportParameters routeBaseParameters,
+            final AfiSafiType afiSafi, final BGPRouteEntryImportParameters routeBaseParameters,
             final RouteAttributeContainer attributes, final Statement statement) {
         return delegate().applyImportStatement(routeEntryInfo, afiSafi, routeBaseParameters, attributes, statement);
     }

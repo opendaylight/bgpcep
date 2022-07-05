@@ -33,8 +33,8 @@ public class ActivatorTest extends AbstractRIBActivatorTest {
 
         act.start(context);
 
-        assertEquals(LinkstateAddressFamily.class, context.getAddressFamilyRegistry().classForFamily(16388));
-        assertEquals(LinkstateSubsequentAddressFamily.class,
+        assertEquals(LinkstateAddressFamily.VALUE, context.getAddressFamilyRegistry().classForFamily(16388));
+        assertEquals(LinkstateSubsequentAddressFamily.VALUE,
                 context.getSubsequentAddressFamilyRegistry().classForFamily(71));
     }
 
@@ -43,10 +43,10 @@ public class ActivatorTest extends AbstractRIBActivatorTest {
         final RIBActivator ribAct = new RIBActivator();
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
 
-        assertNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        assertNull(context.getRIBSupport(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE));
 
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
 
-        assertNotNull(context.getRIBSupport(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class));
+        assertNotNull(context.getRIBSupport(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE));
     }
 }

@@ -33,7 +33,7 @@ public final class MatchCommunitySetHandler
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final List<Communities> communities,
@@ -43,7 +43,7 @@ public final class MatchCommunitySetHandler
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafi,
+            final AfiSafiType afiSafi,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final List<Communities> communities,
@@ -64,7 +64,7 @@ public final class MatchCommunitySetHandler
 
         final String setKey = StringUtils
                 .substringBetween(communitySetName, "=\"", "\"");
-        final List<Communities> communityFilter = this.communitySets.getUnchecked(setKey);
+        final List<Communities> communityFilter = communitySets.getUnchecked(setKey);
 
         if (communityFilter == null || communityFilter.isEmpty()) {
             return false;
@@ -72,7 +72,7 @@ public final class MatchCommunitySetHandler
 
         List<Communities> commAttributeList;
         if (communities == null) {
-            commAttributeList = Collections.emptyList();
+            commAttributeList = List.of();
         } else {
             commAttributeList = communities;
         }

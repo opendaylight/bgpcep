@@ -28,7 +28,7 @@ public final class FlowspecL3vpnIpv4RIBSupport
                 FlowspecL3vpnIpv4Routes.class,
                 FlowspecL3vpnRoute.class,
                 DestinationFlowspecL3vpnIpv4.QNAME,
-                Ipv4AddressFamily.class,
+                Ipv4AddressFamily.VALUE,
                 new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN)
         );
     }

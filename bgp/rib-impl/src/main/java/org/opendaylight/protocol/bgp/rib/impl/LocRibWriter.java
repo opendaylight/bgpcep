@@ -103,7 +103,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final DOMDataTreeChangeService dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
-            final Class<? extends AfiSafiType> afiSafiType,
+            final AfiSafiType afiSafiType,
             final PathSelectionMode pathSelectionMode) {
         this.chain = requireNonNull(chain);
         this.ribIId = requireNonNull(ribIId);
@@ -123,7 +123,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     public static <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
                 LocRibWriter<C, S> create(
             final @NonNull RIBSupport<C, S> ribSupport,
-            final @NonNull Class<? extends AfiSafiType> afiSafiType,
+            final @NonNull AfiSafiType afiSafiType,
             final @NonNull DOMTransactionChain chain,
             final @NonNull YangInstanceIdentifier ribIId,
             final @NonNull AsNumber ourAs,
@@ -282,12 +282,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final RouterId routerId, final Map<RouteUpdateKey, RouteEntry<C, S>> routes) {
         for (final DataTreeCandidateNode route : collection) {
             final PathArgument routeArg = route.getIdentifier();
-            if (!(routeArg instanceof NodeIdentifierWithPredicates)) {
+            if (!(routeArg instanceof NodeIdentifierWithPredicates routeId)) {
                 LOG.debug("Route {} already deleted", routeArg);
                 return;
             }
 
-            final NodeIdentifierWithPredicates routeId = (NodeIdentifierWithPredicates) routeArg;
             final String routeKey = ribSupport.extractRouteKey(routeId);
             final Uint32 pathId = ribSupport.extractPathId(routeId);
 

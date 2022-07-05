@@ -89,11 +89,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -110,8 +108,8 @@ import org.slf4j.LoggerFactory;
  */
 public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
-    private static final TablesKey IPV4_UCAST_TABLE_KEY = new TablesKey(Ipv4AddressFamily.class,
-        UnicastSubsequentAddressFamily.class);
+    private static final TablesKey IPV4_UCAST_TABLE_KEY =
+        new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     private final RIB rib;
 
@@ -196,11 +194,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final List<Ipv4Prefixes> prefixes = message.getNlri().stream()
                 .map(n -> new Ipv4PrefixesBuilder().setPrefix(n.getPrefix()).setPathId(n.getPathId()).build())
                 .collect(Collectors.toList());
-        final MpReachNlriBuilder b = new MpReachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(
-                UnicastSubsequentAddressFamily.class).setAdvertizedRoutes(
-                    new AdvertizedRoutesBuilder().setDestinationType(
-                        new DestinationIpv4CaseBuilder().setDestinationIpv4(
-                                new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build());
+        final MpReachNlriBuilder b = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
+            .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                .setDestinationType(new DestinationIpv4CaseBuilder()
+                    .setDestinationIpv4(new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build())
+                    .build())
+                .build());
         if (message.getAttributes() != null) {
             b.setCNextHop(message.getAttributes().getCNextHop());
         }
@@ -228,7 +229,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 prefixes.add(new Ipv4PrefixesBuilder().setPrefix(w.getPrefix()).setPathId(w.getPathId()).build());
             }
         });
-        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class)
+        return new MpUnreachNlriBuilder().setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE)
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(new org.opendaylight.yang.gen.v1
                         .urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.unreach.nlri
                         .withdrawn.routes.destination.type.DestinationIpv4CaseBuilder().setDestinationIpv4(
@@ -266,8 +267,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private void onRouteRefreshMessage(final RouteRefresh message) {
-        final Class<? extends AddressFamily> rrAfi = message.getAfi();
-        final Class<? extends SubsequentAddressFamily> rrSafi = message.getSafi();
+        final var rrAfi = message.getAfi();
+        final var rrSafi = message.getSafi();
 
         final TablesKey key = new TablesKey(rrAfi, rrSafi);
         synchronized (this) {
