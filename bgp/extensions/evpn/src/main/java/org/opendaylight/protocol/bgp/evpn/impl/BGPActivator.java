@@ -53,8 +53,8 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     public List<Registration> start(final BGPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
 
-        regs.add(context.registerSubsequentAddressFamily(EvpnSubsequentAddressFamily.class, EVPN_SAFI));
-        regs.add(context.registerAddressFamily(L2vpnAddressFamily.class, L2VPN_AFI));
+        regs.add(context.registerSubsequentAddressFamily(EvpnSubsequentAddressFamily.VALUE, EVPN_SAFI));
+        regs.add(context.registerAddressFamily(L2vpnAddressFamily.VALUE, L2VPN_AFI));
 
         registerNlriHandler(context, regs);
         registerExtendedCommunities(context, regs);
@@ -65,7 +65,7 @@ public final class BGPActivator implements BGPExtensionProviderActivator {
     private static void registerNlriHandler(final BGPExtensionProviderContext context, final List<Registration> regs) {
         final NextHopParserSerializer nextHopParser = new NextHopParserSerializer() {};
         final EvpnNlriParser nlriHandler = new EvpnNlriParser();
-        regs.add(context.registerNlriParser(L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class,
+        regs.add(context.registerNlriParser(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE,
             nlriHandler, nextHopParser, Ipv4NextHopCase.class, Ipv6NextHopCase.class));
         regs.add(context.registerNlriSerializer(EvpnRoutes.class, nlriHandler));
     }

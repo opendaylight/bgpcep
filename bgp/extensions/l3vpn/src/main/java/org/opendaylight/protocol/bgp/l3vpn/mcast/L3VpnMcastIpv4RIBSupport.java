@@ -42,7 +42,7 @@ public final class L3VpnMcastIpv4RIBSupport
         super(mappingService,
                 L3vpnMcastRoutesIpv4Case.class, L3vpnMcastRoutesIpv4Case.QNAME,
                 L3vpnMcastRoutesIpv4.class,
-                Ipv4AddressFamily.class,
+                Ipv4AddressFamily.VALUE,
                 DestinationIpv4L3vpnMcast.QNAME,
                 L3vpnMcastDestination.QNAME);
     }

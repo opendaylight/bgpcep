@@ -42,18 +42,18 @@ public class ComplementaryTest {
     @Test
     public void testBGPParameter() {
 
-        final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class).build();
+        final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE).build();
         final CParameters tlv1 = new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setMultiprotocolCapability(cap).build()).build();
-        final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.class)
-                .setSafi(UnicastSubsequentAddressFamily.class).build();
+        final MultiprotocolCapability cap1 = new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE).build();
         final CParameters tlv2 = new CParametersBuilder().addAugmentation(new CParameters1Builder()
             .setMultiprotocolCapability(cap1).build()).build();
 
         final Map<TablesKey, Tables> tt = BindingMap.of(
-            new TablesBuilder().setAfi(Ipv6AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build(),
-            new TablesBuilder().setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).build());
+            new TablesBuilder().setAfi(Ipv6AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE).build(),
+            new TablesBuilder().setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE).build());
 
         final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder()
             .setRestartFlags(new RestartFlags(Boolean.FALSE)).setRestartTime(Uint16.ZERO).setTables(tt).build();

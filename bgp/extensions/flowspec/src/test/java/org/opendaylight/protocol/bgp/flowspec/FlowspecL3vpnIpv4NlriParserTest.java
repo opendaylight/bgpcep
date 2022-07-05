@@ -206,9 +206,9 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN);
 
-        final MpReachNlriBuilder result = new MpReachNlriBuilder();
-        result.setAfi(Ipv4AddressFamily.class);
-        result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
+        final MpReachNlriBuilder result = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(FlowspecL3vpnSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI), result, null);
 
         final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
@@ -236,15 +236,17 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
             .addAugmentation(new AttributesReachBuilder()
-                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build())
+                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.VALUE).build())
                 .build())
             .build(), buffer);
         assertArrayEquals(REACHED_NLRI, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port "
-                + "is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where "
-                + "destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ",
-                fsParser.stringNlri(flows));
+        assertEquals("""
+            all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port \
+            is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where \
+            destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 \
+            """,
+            fsParser.stringNlri(flows));
     }
 
     private static void testFlows(
@@ -321,9 +323,9 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN);
 
-        final MpReachNlriBuilder result = new MpReachNlriBuilder();
-        result.setAfi(Ipv4AddressFamily.class);
-        result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
+        final MpReachNlriBuilder result = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(FlowspecL3vpnSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(REACHED_NLRI_ADD_PATH), result, constraint);
 
         final DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
@@ -352,15 +354,17 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeAttribute(new AttributesBuilder()
             .addAugmentation(new AttributesReachBuilder()
-                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.class).build())
+                .setMpReachNlri(mp.setAfi(Ipv4AddressFamily.VALUE).build())
                 .build())
             .build(), buffer);
         assertArrayEquals(REACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port "
-                + "is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where "
-                + "destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 ",
-                fsParser.stringNlri(flows));
+        assertEquals("""
+            all packets to 10.0.1.0/32 AND from 1.2.3.4/32 AND where IP protocol equals to 6 AND where port \
+            is greater than or equals to 137 and is less than or equals to 139 or equals to 8080 AND where \
+            destination port is greater than 4089 or equals to 179 AND where source port equals to 8080 \
+            """,
+            fsParser.stringNlri(flows));
     }
 
     private static PortCase createPorts() {
@@ -408,9 +412,9 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN);
 
-        final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
-        result.setAfi(Ipv4AddressFamily.class);
-        result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(FlowspecL3vpnSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI), result, null);
 
         DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
@@ -422,7 +426,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
-        mp.setAfi(Ipv4AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+        mp.setAfi(Ipv4AddressFamily.VALUE).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
             .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
                 .setDestinationFlowspecL3vpnIpv4(
@@ -443,11 +447,12 @@ public class FlowspecL3vpnIpv4NlriParserTest {
             .build(), buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 "
-                + "or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 "
-                + "AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ",
-                fsParser.stringNlri(flows));
-
+        assertEquals("""
+            all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 \
+            or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 \
+            AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' \
+            """,
+            fsParser.stringNlri(flows));
     }
 
     private static FlowspecType createFragment() {
@@ -540,9 +545,9 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final FlowspecL3vpnIpv4NlriParser parser = new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN);
 
-        final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder();
-        result.setAfi(Ipv4AddressFamily.class);
-        result.setSafi(FlowspecL3vpnSubsequentAddressFamily.class);
+        final MpUnreachNlriBuilder result = new MpUnreachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(FlowspecL3vpnSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(UNREACHED_NLRI_ADD_PATH), result, constraint);
 
         DestinationFlowspecL3vpnIpv4 flowspecDst = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
@@ -554,7 +559,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
         final RouteDistinguisher rd = flowspecDst.getRouteDistinguisher();
 
-        mp.setAfi(Ipv4AddressFamily.class).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
+        mp.setAfi(Ipv4AddressFamily.VALUE).setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
             .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv4CaseBuilder()
                 .setDestinationFlowspecL3vpnIpv4(
@@ -576,11 +581,12 @@ public class FlowspecL3vpnIpv4NlriParserTest {
             .build(), buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
-        assertEquals("all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 "
-                + "or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 "
-                + "AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' ",
-                fsParser.stringNlri(flows));
-
+        assertEquals("""
+            all packets where ICMP type is less than 2 or is less than 3 AND where ICMP code is less than 4 \
+            or 5 AND where TCP flags is not 1025 or does match 22193 AND where packet length is less than 57005 \
+            AND where DSCP is greater than 42 AND where fragment does match 'IS FIRST' 'IS LAST' 'IS A' \
+            """,
+            fsParser.stringNlri(flows));
     }
 
     @Test

@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
 import java.util.Collections;
@@ -33,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  *
  * @author Claudio D. Gasparini
  */
-public final class VpnNonMemberHandler implements
-        BgpConditionsAugmentationPolicy<VpnNonMemberCondition, List<ExtendedCommunities>> {
+public final class VpnNonMemberHandler
+        implements BgpConditionsAugmentationPolicy<VpnNonMemberCondition, List<ExtendedCommunities>> {
     private static final VpnNonMemberHandler INSTANCE = new VpnNonMemberHandler();
     private static final RouteTargetConstrainDefaultRoute DEFAULT = new RouteTargetConstrainDefaultRouteBuilder()
             .build();
@@ -49,7 +48,7 @@ public final class VpnNonMemberHandler implements
 
     @Override
     public boolean matchImportCondition(
-            final Class<? extends AfiSafiType> afiSafiType,
+            final AfiSafiType afiSafiType,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final List<ExtendedCommunities> attributes,
@@ -59,7 +58,7 @@ public final class VpnNonMemberHandler implements
 
     @Override
     public boolean matchExportCondition(
-            final Class<? extends AfiSafiType> afiSafiType,
+            final AfiSafiType afiSafiType,
             final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final List<ExtendedCommunities> attributes,
@@ -69,7 +68,7 @@ public final class VpnNonMemberHandler implements
             return false;
         }
         final List<RouteTarget> toRT = attributes.stream()
-                .map(ext -> ext.getExtendedCommunity())
+                .map(ExtendedCommunities::getExtendedCommunity)
                 .filter(Objects::nonNull)
                 .filter(this::filterRTExtComm)
                 .map(this::extendedCommunityToRouteTarget)
@@ -94,6 +93,6 @@ public final class VpnNonMemberHandler implements
     @Override
     public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
         final List<ExtendedCommunities> ext = attributes.getExtendedCommunities();
-        return ext == null ? Collections.emptyList() : ext;
+        return ext == null ? List.of() : ext;
     }
 }

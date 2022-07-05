@@ -37,25 +37,23 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final TablesKey tk = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+        final TablesKey tk = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
         final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(tk,
             BasePathSelectionModeFactory.createBestPathSelectionStrategy());
 
-        this.ribImpl = new RIBImpl(this.tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID),
-                this.ribExtension,
-                this.serverDispatcher, this.codecsRegistry, getDomBroker(), this.policies,
-                TABLES_TYPE, pathTables);
-        this.ribImpl.instantiateServiceInstance();
-        final ChannelFuture channelFuture = this.serverDispatcher.createServer(
+        ribImpl = new RIBImpl(tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), ribExtension,
+                serverDispatcher, codecsRegistry, getDomBroker(), policies, TABLES_TYPE, pathTables);
+        ribImpl.instantiateServiceInstance();
+        final ChannelFuture channelFuture = serverDispatcher.createServer(
             new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
-        this.serverChannel = channelFuture.channel();
+        serverChannel = channelFuture.channel();
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
-        waitFutureSuccess(this.serverChannel.close());
+        waitFutureSuccess(serverChannel.close());
         super.tearDown();
     }
 
@@ -73,22 +71,22 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
     public void testUseCase1() throws Exception {
         final BgpParameters nonAddPathParams = createParameter(false);
 
-        configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(tableRegistry, PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
         final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(tableRegistry, PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
         final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
+        configurePeer(tableRegistry, PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
         final BGPSessionImpl session3 = createPeerSession(PEER3,nonAddPathParams, new SimpleSessionListener());
 
         final SimpleSessionListener listener4 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
-                this.serverRegistry);
+        configurePeer(tableRegistry, PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient,
+                serverRegistry);
         final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
         final SimpleSessionListener listener5 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER5, this.ribImpl, nonAddPathParams, PeerRole.Ebgp, this.serverRegistry);
+        configurePeer(tableRegistry, PEER5, ribImpl, nonAddPathParams, PeerRole.Ebgp, serverRegistry);
         final BGPSessionImpl session5 = createPeerSession(PEER5, nonAddPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
@@ -112,8 +110,8 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         assertEquals(UPD_NA_200_EBGP, listener5.getListMsg().get(2));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams, PeerRole.RrClient,
-                this.serverRegistry);
+        configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient,
+                serverRegistry);
         final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
 
         checkPeersPresentOnDataStore(6);

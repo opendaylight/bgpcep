@@ -56,7 +56,7 @@ public class NeighborUtilTest {
     @Mock
     private BGPAfiSafiState bgpAfiSafiState;
     private State state = State.IDLE;
-    private Class<? extends AfiSafiType> afiSafi = null;
+    private AfiSafiType afiSafi = null;
 
     @Before
     public void setUp() throws Exception {
@@ -155,8 +155,9 @@ public class NeighborUtilTest {
                 .multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.StateBuilder()
                 .addAugmentation(new NeighborAfiSafiStateAugmentationBuilder().setActive(false).build()).build();
 
-        afiSafi = IPV4UNICAST.class;
-        final AfiSafi expected = new AfiSafiBuilder().setAfiSafiName(afiSafi)
+        afiSafi = IPV4UNICAST.VALUE;
+        final AfiSafi expected = new AfiSafiBuilder()
+                .setAfiSafiName(afiSafi)
                 .setState(afiSafiState)
                 .setGracefulRestart(graceful).build();
         assertEquals(BindingMap.of(expected), NeighborUtil.buildAfisSafisState(bgpAfiSafiState, tableRegistry));

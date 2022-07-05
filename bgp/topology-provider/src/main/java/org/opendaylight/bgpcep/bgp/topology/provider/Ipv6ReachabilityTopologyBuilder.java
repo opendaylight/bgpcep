@@ -31,8 +31,8 @@ public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityT
 
     public Ipv6ReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
             final TopologyId topologyId) {
-        super(dataProvider, locRibReference, topologyId, IPV6_TOPOLOGY_TYPE, Ipv6AddressFamily.class,
-                UnicastSubsequentAddressFamily.class);
+        super(dataProvider, locRibReference, topologyId, IPV6_TOPOLOGY_TYPE, Ipv6AddressFamily.VALUE,
+                UnicastSubsequentAddressFamily.VALUE);
     }
 
     @Override

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static com.google.common.base.Preconditions.checkState;
 import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,8 +81,8 @@ final class OpenConfigMappingUtil {
     static final String APPLICATION_PEER_GROUP_NAME = "application-peers";
     static final Optional<String> APPLICATION_PEER_GROUP_NAME_OPT = Optional.of(APPLICATION_PEER_GROUP_NAME);
     static final int HOLDTIMER = 90;
-    private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.class).build();
-    private static final Map<AfiSafiKey, AfiSafi> DEFAULT_AFISAFI = ImmutableMap.of(IPV4_AFISAFI.key(), IPV4_AFISAFI);
+    private static final AfiSafi IPV4_AFISAFI = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE).build();
+    private static final Map<AfiSafiKey, AfiSafi> DEFAULT_AFISAFI = Map.of(IPV4_AFISAFI.key(), IPV4_AFISAFI);
     private static final int CONNECT_RETRY = 30;
     private static final PortNumber PORT = new PortNumber(Uint16.valueOf(179).intern());
 

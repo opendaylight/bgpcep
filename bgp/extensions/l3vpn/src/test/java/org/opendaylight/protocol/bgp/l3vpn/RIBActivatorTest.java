@@ -23,10 +23,10 @@ public class RIBActivatorTest extends AbstractRIBActivatorTest {
     public void testRIBActivator() {
         final RIBActivator ribAct = new RIBActivator();
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        assertNull(context.getRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
-        assertNull(context.getRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
+        assertNull(context.getRIBSupport(Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE));
+        assertNull(context.getRIBSupport(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE));
         ribAct.startRIBExtensionProvider(context, this.context.currentSerializer());
-        assertNotNull(context.getRIBSupport(Ipv4AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
-        assertNotNull(context.getRIBSupport(Ipv6AddressFamily.class, McastMplsLabeledVpnSubsequentAddressFamily.class));
+        assertNotNull(context.getRIBSupport(Ipv4AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE));
+        assertNotNull(context.getRIBSupport(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE));
     }
 }

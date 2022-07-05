@@ -632,8 +632,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         );
     }
 
-    protected static @Nullable PathId readPathId(final @NonNull ByteBuf nlri, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi, final PeerSpecificParserConstraint constraint) {
+    protected static @Nullable PathId readPathId(final @NonNull ByteBuf nlri, final AddressFamily afi,
+            final SubsequentAddressFamily safi, final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);
         }

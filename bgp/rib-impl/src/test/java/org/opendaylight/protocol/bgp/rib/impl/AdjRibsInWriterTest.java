@@ -52,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public class AdjRibsInWriterTest {
 
-    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class);
+    private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS
             = Collections.singletonMap(K4, SendReceive.Both);
     private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
@@ -72,29 +72,29 @@ public class AdjRibsInWriterTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        doReturn("MockedTrans").when(this.tx).toString();
-        doReturn(this.tx).when(this.chain).newWriteOnlyTransaction();
-        doReturn(CommitInfo.emptyFluentFuture()).when(this.tx).commit();
-        doNothing().when(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL),
+        doReturn("MockedTrans").when(tx).toString();
+        doReturn(tx).when(chain).newWriteOnlyTransaction();
+        doReturn(CommitInfo.emptyFluentFuture()).when(tx).commit();
+        doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doNothing().when(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        doNothing().when(tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doReturn(this.context).when(this.registry).getRIBSupportContext(any(TablesKey.class));
-        doReturn(this.chain).when(this.ptc).getDomChain();
-        doNothing().when(this.context).createEmptyTableStructure(eq(this.tx), any(YangInstanceIdentifier.class));
+        doReturn(context).when(registry).getRIBSupportContext(any(TablesKey.class));
+        doReturn(chain).when(ptc).getDomChain();
+        doNothing().when(context).createEmptyTableStructure(eq(tx), any(YangInstanceIdentifier.class));
     }
 
     @Test
     public void testTransform() {
-        this.writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, this.ptc);
-        assertNotNull(this.writer);
+        writer = AdjRibInWriter.create(YangInstanceIdentifier.of(Rib.QNAME), PeerRole.Ebgp, ptc);
+        assertNotNull(writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)
                 .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-                        RIBQNames.PEER_ID_QNAME, this.peerIp).build();
-        this.writer.transform(new PeerId(this.peerIp), peerPath, this.registry, this.tableTypes, ADD_PATH_TABLE_MAPS);
+                        RIBQNames.PEER_ID_QNAME, peerIp).build();
+        writer.transform(new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
-        verify(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)
+        verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)
                 .node(RibSupportUtils.toYangKey(SupportedTables.QNAME, K4))), any(NormalizedNode.class));
         verifyUptodateSetToFalse(peerPath);
     }
@@ -103,12 +103,12 @@ public class AdjRibsInWriterTest {
         final YangInstanceIdentifier path = peerPath.node(ADJRIBIN_NID)
                 .node(TABLES_NID).node(RibSupportUtils.toYangTablesKey(K4))
                 .node(ATTRIBUTES_NID).node(UPTODATE_NID);
-        verify(this.tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path),
+        verify(tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path),
                 eq(RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE));
     }
 
     private void verifyPeerSkeletonInsertedCorrectly(final YangInstanceIdentifier peerPath) {
-        verify(this.tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath),
-                eq(this.writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), this.peerIp)));
+        verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath),
+                eq(writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), peerIp)));
     }
 }

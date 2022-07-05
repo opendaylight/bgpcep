@@ -51,8 +51,8 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
                 EvpnRoutesCase.class,
                 EvpnRoutes.class,
                 EvpnRoute.class,
-                L2vpnAddressFamily.class,
-                EvpnSubsequentAddressFamily.class,
+                L2vpnAddressFamily.VALUE,
+                EvpnSubsequentAddressFamily.VALUE,
                 DestinationEvpn.QNAME);
     }
 

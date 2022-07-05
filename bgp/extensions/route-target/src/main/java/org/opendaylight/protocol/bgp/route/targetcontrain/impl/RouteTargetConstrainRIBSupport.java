@@ -84,15 +84,15 @@ public final class RouteTargetConstrainRIBSupport
                 RouteTargetConstrainRoutesCase.class,
                 RouteTargetConstrainRoutes.class,
                 RouteTargetConstrainRoute.class,
-                Ipv4AddressFamily.class,
-                RouteTargetConstrainSubsequentAddressFamily.class,
+                Ipv4AddressFamily.VALUE,
+                RouteTargetConstrainSubsequentAddressFamily.VALUE,
                 DestinationRouteTargetConstrain.QNAME);
-        this.originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
+        originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 
     @Override
     public ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
-        return this.cacheableNlriObjects;
+        return cacheableNlriObjects;
     }
 
     @Override
@@ -121,13 +121,13 @@ public final class RouteTargetConstrainRIBSupport
                 .setPathId(PathIdUtil.buildPathId(rtDest, routePathIdNid()))
                 .setRouteTargetConstrainChoice(extractRouteTargetChoice(rtDest));
         final Optional<Object> originAs = NormalizedNodes
-                .findNode(rtDest, this.originAsNid).map(NormalizedNode::body);
+                .findNode(rtDest, originAsNid).map(NormalizedNode::body);
         originAs.ifPresent(o -> builder.setOriginAs(new AsNumber((Uint32) o)));
         return builder.build();
     }
 
     private RouteTargetConstrainChoice extractRouteTargetChoice(final DataContainerNode route) {
-        final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
+        final DataObject nn = mappingService.fromNormalizedNode(routeDefaultYii, route).getValue();
         return ((RouteTargetConstrainRoute) nn).getRouteTargetConstrainChoice();
     }
 

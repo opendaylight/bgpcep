@@ -86,7 +86,7 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
     private static final MultiExitDisc MED = new MultiExitDiscBuilder().setMed(Uint32.ZERO).build();
     private static final LocalPref LOC_PREF = new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build();
     private static final Map<TablesKey, Tables> EMPTY_TABLES = BindingMap.of(new TablesBuilder()
-        .setAfi(Ipv4AddressFamily.class).setSafi(UnicastSubsequentAddressFamily.class).setRoutes(
+        .setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE).setRoutes(
             new Ipv4RoutesCaseBuilder().setIpv4Routes(new Ipv4RoutesBuilder().setIpv4Route(Map.of())
                 .build()).build()).build());
 
@@ -107,7 +107,7 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
         appIID = InstanceIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
         routesIId = appIID
-            .child(Tables.class, new TablesKey(Ipv4AddressFamily.class, UnicastSubsequentAddressFamily.class))
+            .child(Tables.class, new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
             .child(Ipv4RoutesCase.class, Ipv4Routes.class);
         rpcRegistration = rpcProviderRegistry.registerRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
         LOG.info("BGP Application Peer Benchmark Application started.");

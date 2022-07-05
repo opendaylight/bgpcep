@@ -147,7 +147,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         tablePathIID =
                 LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
                         .child(Tables.class,
-                                new TablesKey(LinkstateAddressFamily.class, LinkstateSubsequentAddressFamily.class))
+                                new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE))
                         .build();
         linkstateNodeRouteKey = getLinkstateRouteKey("node-route");
         linkstatePrefixRouteKey = getLinkstateRouteKey("prefix-route");

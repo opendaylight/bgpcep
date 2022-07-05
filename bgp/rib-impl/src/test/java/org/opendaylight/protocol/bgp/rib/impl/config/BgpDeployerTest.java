@@ -67,15 +67,15 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
 
-    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class);
+    private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE);
     private static final String NETWORK_INSTANCE_NAME = "network-test";
     private static final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> NETWORK_II =
         InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
             .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME));
     private static final String KEY = "bgp";
     private static final InstanceIdentifier<Bgp> BGP_II = NETWORK_II.child(Protocols.class)
-            .child(Protocol.class, new ProtocolKey(BGP.class, KEY))
+            .child(Protocol.class, new ProtocolKey(BGP.VALUE, KEY))
             .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
     private static final InstanceIdentifier<Global> GLOBAL_II = BGP_II.child(Global.class);
     private static final InstanceIdentifier<Neighbors> NEIGHBORS_II = BGP_II.child(Neighbors.class);

@@ -62,8 +62,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     protected AbstractReachabilityTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final TopologyTypes topologyTypes, final Class<? extends AddressFamily> afi,
-            final Class<? extends SubsequentAddressFamily> safi) {
+            final TopologyId topologyId, final TopologyTypes topologyTypes, final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
         super(dataProvider, locRibReference, topologyId, topologyTypes, afi, safi);
     }
 

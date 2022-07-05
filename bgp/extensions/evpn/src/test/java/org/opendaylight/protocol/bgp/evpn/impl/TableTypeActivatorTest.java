@@ -19,12 +19,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 
 public class TableTypeActivatorTest {
     private static final BgpTableType EVPN = new BgpTableTypeImpl(
-            L2vpnAddressFamily.class, EvpnSubsequentAddressFamily.class);
+            L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE);
 
     @Test
     public void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
-        assertEquals(L2VPNEVPN.class, registry.getAfiSafiType(EVPN));
-        assertEquals(EVPN, registry.getTableType(L2VPNEVPN.class));
+        assertEquals(L2VPNEVPN.VALUE, registry.getAfiSafiType(EVPN));
+        assertEquals(EVPN, registry.getTableType(L2VPNEVPN.VALUE));
     }
 }

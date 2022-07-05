@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSet;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -132,6 +133,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
     }
 
+    @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+        justification = "Class not final for mocking and SpotBugs is confused by lambdas around line 200")
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
             final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
         this.listener = requireNonNull(listener);
@@ -252,10 +255,10 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     public synchronized void close() {
         if (state != State.IDLE) {
             if (!terminationReasonNotified) {
-                this.writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode())
+                writeAndFlush(new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode())
                         .setErrorSubcode(BGPError.CEASE.getSubcode()).build());
             }
-            this.closeWithoutMessage();
+            closeWithoutMessage();
         }
     }
 
@@ -278,8 +281,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
                     if (msg instanceof Open) {
                         // Open messages should not be present here
                         terminate(new BGPDocumentedException(null, BGPError.FSM_ERROR));
-                    } else if (msg instanceof Notify) {
-                        final Notify notify = (Notify) msg;
+                    } else if (msg instanceof Notify notify) {
                         // Notifications are handled internally
                         LOG.info("Session closed because Notification message received: {} / {}, data={}",
                                 notify.getErrorCode(),
@@ -313,14 +315,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @Holding({"this.listener", "this"})
     private void notifyTerminationReasonAndCloseWithoutMessage(final BGPError error) {
         terminationReasonNotified = true;
-        this.closeWithoutMessage();
+        closeWithoutMessage();
         listener.onSessionTerminated(this, new BGPTerminationReason(error));
     }
 
     @Holding({"this.listener", "this"})
     private void notifyTerminationReasonAndCloseWithoutMessage(final Uint8 errorCode, final Uint8 errorSubcode) {
         terminationReasonNotified = true;
-        this.closeWithoutMessage();
+        closeWithoutMessage();
         listener.onSessionTerminated(this, new BGPTerminationReason(BGPError.forValue(errorCode, errorSubcode)));
     }
 
@@ -459,7 +461,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         long nextNanos = nextKeepalive - ct;
 
         if (nextNanos <= 0) {
-            final ChannelFuture future = this.writeAndFlush(KEEP_ALIVE);
+            final ChannelFuture future = writeAndFlush(KEEP_ALIVE);
             LOG.debug("Enqueued session {} keepalive as {}", this, future);
             nextNanos = keepAliveNanos;
             if (LOG.isDebugEnabled()) {
@@ -480,7 +482,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
 
     protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
         toStringHelper.add("channel", channel);
-        toStringHelper.add("state", this.getState());
+        toStringHelper.add("state", getState());
         return toStringHelper;
     }
 
@@ -550,12 +552,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @Override
     protected final void channelRead0(final ChannelHandlerContext ctx, final Notification<?> msg) {
         LOG.trace("Message was received: {} from {}", msg, channel.remoteAddress());
-        this.handleMessage(msg);
+        handleMessage(msg);
     }
 
     @Override
     public final void handlerAdded(final ChannelHandlerContext ctx) {
-        this.sessionUp();
+        sessionUp();
     }
 
     @Override
