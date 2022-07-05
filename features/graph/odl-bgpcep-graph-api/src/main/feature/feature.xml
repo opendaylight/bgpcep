@@ -11,7 +11,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-bgpcep-graph-api" version="${project.version}">
-        <feature version="[9,10)">odl-mdsal-model-rfc6991</feature>
-        <feature version="[9,10)">odl-mdsal-model-rfc8294</feature>
+        <feature version="[10,11)">odl-mdsal-model-rfc6991</feature>
+        <feature version="[10,11)">odl-mdsal-model-rfc8294</feature>
     </feature>
 </features>

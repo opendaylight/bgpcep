@@ -36,11 +36,11 @@ public class UtilsTest {
 
     @Before
     public void setUp() {
-        doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.class);
+        doReturn(1).when(this.afiReg).numberForClass(Ipv4AddressFamily.VALUE);
         doReturn(Ipv4AddressFamily.class).when(this.afiReg).classForFamily(1);
         doReturn(null).when(this.afiReg).classForFamily(2);
 
-        doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.class);
+        doReturn(1).when(this.safiReg).numberForClass(UnicastSubsequentAddressFamily.VALUE);
         doReturn(UnicastSubsequentAddressFamily.class).when(this.safiReg).classForFamily(1);
         doReturn(null).when(this.safiReg).classForFamily(3);
     }
@@ -104,8 +104,8 @@ public class UtilsTest {
         assertEquals(UnicastSubsequentAddressFamily.class, parsedAfiSafi.getSafi());
 
         final ByteBuf serializedAfiSafi = Unpooled.buffer(4);
-        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.class,
-            UnicastSubsequentAddressFamily.class, serializedAfiSafi);
+        MultiprotocolCapabilitiesUtil.serializeMPAfiSafi(this.afiReg, this.safiReg, Ipv4AddressFamily.VALUE,
+            UnicastSubsequentAddressFamily.VALUE, serializedAfiSafi);
         assertArrayEquals(bytes, serializedAfiSafi.array());
     }
 
