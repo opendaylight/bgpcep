@@ -11,12 +11,11 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
-import java.util.Collections;
 import java.util.Dictionary;
-import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.gaul.modernizer_maven_annotations.SuppressModernizer;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -31,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.ServiceTracker;
@@ -82,26 +82,24 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
 
         final InstanceIdentifier<Topology> tunnelTopology = InstanceIdentifier.builder(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(tunnelTopologyId)).build();
-        this.ttp = new PCEPTunnelTopologyProvider(dependencies.getDataBroker(), pcepTopology, pcepTopologyId,
+        ttp = new PCEPTunnelTopologyProvider(dependencies.getDataBroker(), pcepTopology, pcepTopologyId,
                 tunnelTopology, tunnelTopologyId);
 
 
-        this.sgi = scheduler.getIdentifier();
-        this.tp = new TunnelProgramming(scheduler, dependencies);
+        sgi = scheduler.getIdentifier();
+        tp = new TunnelProgramming(scheduler, dependencies);
 
 
-        this.serviceRegistration = dependencies.getBundleContext()
-                .registerService(DefaultTopologyReference.class.getName(), this.ttp, props(tunnelTopologyId));
+        serviceRegistration = dependencies.getBundleContext()
+                .registerService(DefaultTopologyReference.class.getName(), ttp, props(tunnelTopologyId));
 
         LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getName());
-        this.pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
+        pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
     }
 
-    @SuppressModernizer
     private static Dictionary<String, String> props(final TopologyId tunnelTopologyId) {
-        final Dictionary<String, String> ret = new Hashtable<>();
-        ret.put(PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue());
-        return ret;
+        return FrameworkUtil.asDictionary(Map.of(
+            PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue()));
     }
 
     @Override
@@ -109,26 +107,25 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
 
         final InstanceIdentifier<Topology> topology = InstanceIdentifier
-                .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(this.tunnelTopologyId)).build();
-        this.reg = this.dependencies.getRpcProviderRegistry()
-                .registerRpcImplementation(TopologyTunnelPcepProgrammingService.class,
-                        this.tp, Collections.singleton(topology));
-        this.ttp.init();
+                .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(tunnelTopologyId)).build();
+        reg = dependencies.getRpcProviderRegistry()
+                .registerRpcImplementation(TopologyTunnelPcepProgrammingService.class, tp, Set.of(topology));
+        ttp.init();
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}",
                 getIdentifier().getName());
-        this.reg.close();
-        this.tp.close();
-        this.ttp.close();
+        reg.close();
+        tp.close();
+        ttp.close();
         return CommitInfo.emptyFluentFuture();
     }
 
     @Override
     public ServiceGroupIdentifier getIdentifier() {
-        return this.sgi;
+        return sgi;
     }
 
     @Override
@@ -136,17 +133,17 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     public synchronized void close() {
         LOG.info("Close PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
 
-        if (this.pcepTunnelCssReg != null) {
+        if (pcepTunnelCssReg != null) {
             try {
-                this.pcepTunnelCssReg.close();
+                pcepTunnelCssReg.close();
             } catch (final Exception e) {
-                LOG.debug("Failed to close PCEP Tunnel Topology service {}", this.sgi.getName(), e);
+                LOG.debug("Failed to close PCEP Tunnel Topology service {}", sgi.getName(), e);
             }
-            this.pcepTunnelCssReg = null;
+            pcepTunnelCssReg = null;
         }
-        if (this.serviceRegistration != null) {
-            this.serviceRegistration.unregister();
-            this.serviceRegistration = null;
+        if (serviceRegistration != null) {
+            serviceRegistration.unregister();
+            serviceRegistration = null;
         }
     }
 }
