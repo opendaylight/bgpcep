@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -20,8 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<IpPrefix>,
         LinkstateTlvParser<IpPrefix> {
@@ -29,12 +26,30 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
         "ip-reachability-information").intern();
     @VisibleForTesting
     public static final NodeIdentifier IP_REACH_NID = NodeIdentifier.create(IP_REACHABILITY_QNAME);
-    private static final Logger LOG = LoggerFactory.getLogger(ReachTlvParser.class);
     private static final int IP_REACHABILITY = 265;
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * IP Reachability TLV serves to convey both an IPV4 or an IPV6 prefix as per
+     * <a href="https://datatracker.ietf.org/doc/html/rfc7752#section-3.2.3.2">RFC7752 Section 3.2.3.2</a>. However, the
+     * Length of the IP Reachability TLV could not be used to distinguish the two types of prefixes as it will be the
+     * same: for example {@code byteBuffer == [24][192][168][01]} could be parsed as IPv4 prefix {@code 192.168.1.0/24}
+     * or as IPv6 prefix {@code c0a8:100::/24}.
+     *
+     * <p>
+     * Thus, we could just verify if the length is greater than 4 bytes. In this case, it is certain that the prefix is
+     * IPv6. For a length less than or equal to 4 bytes, the parser assumes that the prefix is IPv4. In addition, the
+     * probability that an IS-IS domain advertises an IPv6 prefix with a length lower than /32 is very low.
+     */
+    // FIXME: perhaps we need a dedicated type, or just always use IPv6?
     @Override
     public IpPrefix parseTlvBody(final ByteBuf value) {
-        return new IpPrefix(Ipv4Util.prefixForByteBuf(value));
+        // Get address length to determine if it is an IPv4 or an IPv6 prefix
+        final int length = value.readableBytes() - 1;
+        return length <= Ipv4Util.IP4_LENGTH ? new IpPrefix(Ipv4Util.prefixForByteBuf(value))
+            : new IpPrefix(Ipv6Util.prefixForByteBuf(value));
     }
 
     @Override
@@ -60,14 +75,10 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
         return prefixDesc.findChildByArg(IP_REACH_NID)
                 .map(child -> {
                     final String prefix = (String) child.body();
-                    try {
-                        final ByteBuf buffer = Unpooled.buffer(5);
-                        Ipv4Util.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
-                        return new IpPrefix(new Ipv4Prefix(prefix));
-                    } catch (final IllegalArgumentException e) {
-                        LOG.debug("Creating Ipv6 prefix because", e);
-                        return new IpPrefix(new Ipv6Prefix(prefix));
-                    }
+                    // Get the prefix length from the string to determine if it is an IPv4 or an IPv6 prefix
+                    final int length = Ipv4Util.getPrefixLengthBytes(prefix);
+                    return length <= Ipv4Util.IP4_LENGTH ? new IpPrefix(new Ipv4Prefix(prefix))
+                        : new IpPrefix(new Ipv6Prefix(prefix));
                 })
                 .orElse(null);
     }
