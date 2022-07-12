@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -32,9 +31,22 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     private static final Logger LOG = LoggerFactory.getLogger(ReachTlvParser.class);
     private static final int IP_REACHABILITY = 265;
 
+    /**
+     * Note: IP Reachability TLV serves to transport both an IPV4 or an IPV6 prefix.
+     * Only the Length of the IP Reachability TLV could be used to discriminate both type of prefix.
+     * However, the Length of the TLV is not transmit to the parser. Thus, only the length of ByteBuf could be used.
+     */
     @Override
     public IpPrefix parseTlvBody(final ByteBuf value) {
-        return new IpPrefix(Ipv4Util.prefixForByteBuf(value));
+        /* Get address length to determine if it is an IPV4 or an IPV6 prefix */
+        final int length = value.readableBytes() - 1;
+        if (length == Ipv4Util.IP4_LENGTH) {
+            return new IpPrefix(Ipv4Util.prefixForByteBuf(value));
+        } else if (length == Ipv6Util.IPV6_LENGTH) {
+            return new IpPrefix(Ipv6Util.prefixForByteBuf(value));
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -60,13 +72,14 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
         return prefixDesc.findChildByArg(IP_REACH_NID)
                 .map(child -> {
                     final String prefix = (String) child.body();
-                    try {
-                        final ByteBuf buffer = Unpooled.buffer(5);
-                        Ipv4Util.writeMinimalPrefix(new Ipv4Prefix(prefix), buffer);
+                    /* Get the prefix length from the string to determine if it is an IPV4 or an IPV6 prefix */
+                    final int length = Ipv4Util.getPrefixLengthBytes(prefix);
+                    if (length == Ipv4Util.IP4_LENGTH) {
                         return new IpPrefix(new Ipv4Prefix(prefix));
-                    } catch (final IllegalArgumentException e) {
-                        LOG.debug("Creating Ipv6 prefix because", e);
+                    } else if (length == Ipv6Util.IPV6_LENGTH) {
                         return new IpPrefix(new Ipv6Prefix(prefix));
+                    } else {
+                        return null;
                     }
                 })
                 .orElse(null);
