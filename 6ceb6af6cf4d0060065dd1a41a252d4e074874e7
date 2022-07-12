@@ -16,6 +16,98 @@
       "message": "Thanks to review this patch",
       "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec2f3a2d_88ce584f",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-07-12T14:50:46Z",
+      "side": 1,
+      "message": "okay, this seems to be a problem unless of course the ByteBuf is actually a slice of the TLV, at any rate ...",
+      "range": {
+        "startLine": 37,
+        "startChar": 7,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c886ef48_2de2f0ee",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-07-12T14:50:46Z",
+      "side": 1,
+      "message": "this does not work, as the length is variable -- i.e. for a /8 both IPv4 and IPv6 will have a length of 2. See https://datatracker.ietf.org/doc/html/rfc7752#section-3.2.3.2",
+      "range": {
+        "startLine": 42,
+        "startChar": 27,
+        "endLine": 42,
+        "endChar": 53
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc0dd2b7_39284bc7",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-07-12T14:50:46Z",
+      "side": 1,
+      "message": "null return is not valid, IIRC",
+      "range": {
+        "startLine": 48,
+        "startChar": 18,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "052fce08_e333dc0c",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-07-12T14:50:46Z",
+      "side": 1,
+      "message": "Optional.map() to a null?!",
+      "range": {
+        "startLine": 82,
+        "startChar": 24,
+        "endLine": 82,
+        "endChar": 36
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
