@@ -18,6 +18,23 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dade2975_63901f6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T09:12:56Z",
+      "side": 1,
+      "message": "Hello Robert,\n\nI agree with your remarks, but, if the ByteBuf is variable length like mention in the RFC (which seems not regarding the tested BGP-LS speaker), I don\u0027t know how to handle IPv6 prefix versus IPv4 prefix? Raising exception is not my favourite way to code and if the parser failed, this finally raised a BGPDocumentedExceprion which close the BGP session. Perhaps, we also need to change that.\n\nI\u0027ll propose another solution but advices are welcome.\n\nRegards\n\nOlivier",
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec2f3a2d_88ce584f",
@@ -31,6 +48,30 @@
       "writtenOn": "2022-07-12T14:50:46Z",
       "side": 1,
       "message": "okay, this seems to be a problem unless of course the ByteBuf is actually a slice of the TLV, at any rate ...",
+      "range": {
+        "startLine": 37,
+        "startChar": 7,
+        "endLine": 37,
+        "endChar": 67
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "927da2c6_8ddb1275",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T09:12:56Z",
+      "side": 1,
+      "message": "That\u0027s right. And the proposed patch uses this feature to get the length of the TLV i.e. got the size of the ByteBuf",
+      "parentUuid": "ec2f3a2d_88ce584f",
       "range": {
         "startLine": 37,
         "startChar": 7,
@@ -66,6 +107,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "73e9cfe1_9d5ffbad",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T09:12:56Z",
+      "side": 1,
+      "message": "Agree, but practically, BGP-LS speaker, at least Cisco and Juniper I\u0027m using, pad the IP part of the prefix and send 4 or 16 bytes disregarding the prefix length.\n\nWithout such padding, there is no way to distinguish an IPv4 from an IPv6 prefix with a prefix length less than /32\n\nIs the only way to go is to try an IPv4prefix and catch the exception to determine if it is an IPv6prefix ? or like for the IPv4Util.prefixForByteBuf() method determine the prefix length ?",
+      "parentUuid": "c886ef48_2de2f0ee",
+      "range": {
+        "startLine": 42,
+        "startChar": 27,
+        "endLine": 42,
+        "endChar": 53
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fc0dd2b7_39284bc7",
         "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
         "patchSetId": 1
@@ -89,6 +154,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c77aa37e_83346fec",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T09:12:56Z",
+      "side": 1,
+      "message": "OK. I will remove that. But, what\u0027s happen if the ByteBuf is not conform to an IPv4 prefix or an IPv6 prefix? Can we consider that the caller of ReachTlvParser has verify that the received bytes are correct and contains an IP prefix?",
+      "parentUuid": "fc0dd2b7_39284bc7",
+      "range": {
+        "startLine": 48,
+        "startChar": 18,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "052fce08_e333dc0c",
         "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
         "patchSetId": 1
@@ -100,6 +189,30 @@
       "writtenOn": "2022-07-12T14:50:46Z",
       "side": 1,
       "message": "Optional.map() to a null?!",
+      "range": {
+        "startLine": 82,
+        "startChar": 24,
+        "endLine": 82,
+        "endChar": 36
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "494f219e_3d29fb13",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T09:12:56Z",
+      "side": 1,
+      "message": "OK. I\u0027ll removed it. But, again, what\u0027s happen if the String doesn\u0027t contain a valid IP prefix? Do we need to raise an exception?",
+      "parentUuid": "052fce08_e333dc0c",
       "range": {
         "startLine": 82,
         "startChar": 24,
