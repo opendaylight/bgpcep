@@ -129,6 +129,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c62f424_a80e2551",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T16:29:13Z",
+      "side": 1,
+      "message": "Finally, I got some cases where prefixes are not padded and parse as IPv6 instead of IPv4 prefix. Thus, I modify the condition to determine if it is an IPv4 or an IPv6 prefix i.e. if length \u003e 32 it is certain that the prefix is IPv6.\nI also changed the comment accordingly.",
+      "parentUuid": "73e9cfe1_9d5ffbad",
+      "range": {
+        "startLine": 42,
+        "startChar": 27,
+        "endLine": 42,
+        "endChar": 53
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc0dd2b7_39284bc7",
@@ -176,6 +200,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "99f0cc3d_ac02715b",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T16:29:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c77aa37e_83346fec",
+      "range": {
+        "startLine": 48,
+        "startChar": 18,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "052fce08_e333dc0c",
@@ -213,6 +261,30 @@
       "side": 1,
       "message": "OK. I\u0027ll removed it. But, again, what\u0027s happen if the String doesn\u0027t contain a valid IP prefix? Do we need to raise an exception?",
       "parentUuid": "052fce08_e333dc0c",
+      "range": {
+        "startLine": 82,
+        "startChar": 24,
+        "endLine": 82,
+        "endChar": 36
+      },
+      "revId": "6ceb6af6cf4d0060065dd1a41a252d4e074874e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf3931ca_5ead7f04",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-13T16:29:13Z",
+      "side": 1,
+      "message": "Done. This also solved the test problem.",
+      "parentUuid": "494f219e_3d29fb13",
       "range": {
         "startLine": 82,
         "startChar": 24,
