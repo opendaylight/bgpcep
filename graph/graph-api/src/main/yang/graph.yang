@@ -22,7 +22,13 @@ module graph {
 
     revision "2019-11-25" {
         description
-             "Initial revision.";
+            "Initial revision.";
+        reference "";
+    }
+
+    revision "2022-07-20" {
+        description
+            "Multi-Topology (IPv4 + IPv6) support";
         reference "";
     }
 
@@ -63,10 +69,16 @@ module graph {
             type uint32;
         }
         leaf local-address {
-            type inet:ip-address;
+            type inet:ipv4-address;
         }
         leaf remote-address {
-            type inet:ip-address;
+            type inet:ipv4-address;
+        }
+        leaf local-address6 {
+            type inet:ipv6-address;
+        }
+        leaf remote-address6 {
+            type inet:ipv6-address;
         }
         leaf local-identifier {
             type uint32;
@@ -131,12 +143,22 @@ module graph {
             type decimal-bandwidth;
         }
         leaf adj-sid {
-            description "Segment Routing Adjacency Identifier";
+            description "Segment Routing Adjacency Identifier for IPv4";
             units "MPLS label";
             type uint32;
         }
         leaf backup-adj-sid {
-            description "Segment Routing Backup Adjacency Identifier";
+            description "Segment Routing Backup Adjacency Identifier for IPv4";
+            units "MPLS label";
+            type uint32;
+        }
+        leaf adj-sid6 {
+            description "Segment Routing Adjacency Identifier for IPv6";
+            units "MPLS label";
+            type uint32;
+        }
+        leaf backup-adj-sid6 {
+            description "Segment Routing Backup Adjacency Identifier for IPv6";
             units "MPLS label";
             type uint32;
         }
@@ -194,8 +216,12 @@ module graph {
             type string;
         }
         leaf router-id {
-            description "Global unique IP Trafic Engineering Router ID";
-            type inet:ip-address;
+            description "Global unique IPv4 Trafic Engineering Router ID";
+            type inet:ipv4-address;
+        }
+        leaf router-id6 {
+            description "Global unique IPv6 Trafic Engineering Router ID";
+            type inet:ipv6-address;
         }
         leaf vertex-type {
             type enumeration {
