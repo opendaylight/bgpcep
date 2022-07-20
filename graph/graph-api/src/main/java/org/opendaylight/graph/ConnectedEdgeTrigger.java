@@ -8,7 +8,7 @@
 package org.opendaylight.graph;
 
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Edge;
 
 /**
  * Connected Edge Trigger class aims to trigger action when major modification(s) take place on an Edge.
