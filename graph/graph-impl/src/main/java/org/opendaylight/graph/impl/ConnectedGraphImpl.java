@@ -27,14 +27,16 @@ import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.Graph;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Edge;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.EdgeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.Graph;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.EdgeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -212,17 +214,32 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         if (address == null) {
             return null;
         }
-        Uint64 key;
         if (address.getIpv4Address() != null) {
-            key = Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressBits(address.getIpv4Address())).toUint64();
-            return getConnectedEdge(key.longValue());
+            return getConnectedEdge(address.getIpv4Address());
         }
         if (address.getIpv6Address() != null) {
-            final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressBytes(address.getIpv6Address());
-            key = Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
-            return getConnectedEdge(key.longValue());
+            return getConnectedEdge(address.getIpv6Address());
         }
         return null;
+    }
+
+    @Override
+    public ConnectedEdge getConnectedEdge(final Ipv4Address address) {
+        if (address == null) {
+            return null;
+        }
+        final Uint64 key = Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressBits(address)).toUint64();
+        return getConnectedEdge(key.longValue());
+    }
+
+    @Override
+    public ConnectedEdge getConnectedEdge(final Ipv6Address address) {
+        if (address == null) {
+            return null;
+        }
+        final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressBytes(address);
+        final Uint64 key = Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
+        return getConnectedEdge(key.longValue());
     }
 
     @Override
