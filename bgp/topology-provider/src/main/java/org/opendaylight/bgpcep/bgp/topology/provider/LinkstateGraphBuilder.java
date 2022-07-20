@@ -23,7 +23,6 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv4InterfaceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv6InterfaceIdentifier;
@@ -51,33 +50,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.OspfNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.isis.adj.flags._case.IsisAdjFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.ospf.adj.flags._case.OspfAdjFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.OspfAdjFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.DecimalBandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Delay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Loss;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.Vertex.VertexType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.EdgeAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.EdgeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.MinMaxDelay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.MinMaxDelayBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidthBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidthKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.Graph.DomainScope;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Edge;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.EdgeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.EdgeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.PrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Vertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.vertex.SrgbBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.DecimalBandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Delay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Loss;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Vertex.VertexType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.EdgeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.EdgeAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.MinMaxDelay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.MinMaxDelayBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidthKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.Graph.DomainScope;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.EdgeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.EdgeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.PrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.vertex.SrgbBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopologyBuilder;
@@ -209,24 +208,24 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     /**
      * Determine the Source Edge Key from the link descriptor.
      * There is several case: IPv4, IPv6 address or Unnumbered Interface.
+     * For Multi-Topology i.e. IPv4 + IPv6, Edge Key is build from IPv4 address.
      *
      * @param linkCase The Link part of the Linkstate route
      *
      * @return Unique key
      */
     private static Uint64 getEdgeId(final LinkCase linkCase) {
-        Uint64 key = Uint64.ZERO;
         final LinkDescriptors linkDescriptors = linkCase.getLinkDescriptors();
         if (linkDescriptors.getIpv4InterfaceAddress() != null) {
-            key = ipv4ToKey(linkDescriptors.getIpv4InterfaceAddress());
+            return ipv4ToKey(linkDescriptors.getIpv4InterfaceAddress());
         }
         if (linkDescriptors.getIpv6InterfaceAddress() != null) {
-            key = ipv6ToKey(linkDescriptors.getIpv6InterfaceAddress());
+            return ipv6ToKey(linkDescriptors.getIpv6InterfaceAddress());
         }
         if (linkDescriptors.getLinkLocalIdentifier() != null) {
-            key = linkDescriptors.getLinkLocalIdentifier().toUint64();
+            return linkDescriptors.getLinkLocalIdentifier().toUint64();
         }
-        return key;
+        return Uint64.ZERO;
     }
 
     /**
@@ -268,13 +267,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
         /*
          * Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
-        final var localAddress = edge.getEdgeAttributes().getLocalAddress();
+        final var attr = edge.getEdgeAttributes();
         PrefixBuilder prefBuilder = new PrefixBuilder().setVertexId(srcId);
-        if (localAddress.getIpv4Address() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv4PrefixFor(localAddress.getIpv4Address())));
+        if (attr.getLocalAddress() != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv4PrefixFor(attr.getLocalAddress())));
         }
-        if (localAddress.getIpv6Address() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv6PrefixFor(localAddress.getIpv6Address())));
+        if (attr.getLocalAddress6() != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv6PrefixFor(attr.getLocalAddress6())));
         }
         Prefix prefix = prefBuilder.build();
 
@@ -296,16 +295,16 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         EdgeAttributesBuilder builder = new EdgeAttributesBuilder();
 
         if (linkDesc.getIpv4InterfaceAddress() != null) {
-            builder.setLocalAddress(new IpAddress(linkDesc.getIpv4InterfaceAddress()));
+            builder.setLocalAddress(linkDesc.getIpv4InterfaceAddress());
         }
         if (linkDesc.getIpv6InterfaceAddress() != null) {
-            builder.setLocalAddress(new IpAddress(linkDesc.getIpv6InterfaceAddress()));
+            builder.setLocalAddress6(linkDesc.getIpv6InterfaceAddress());
         }
         if (linkDesc.getIpv4NeighborAddress() != null) {
-            builder.setRemoteAddress(new IpAddress(linkDesc.getIpv4NeighborAddress()));
+            builder.setRemoteAddress(linkDesc.getIpv4NeighborAddress());
         }
         if (linkDesc.getIpv6NeighborAddress() != null) {
-            builder.setRemoteAddress(new IpAddress(linkDesc.getIpv6NeighborAddress()));
+            builder.setRemoteAddress6(linkDesc.getIpv6NeighborAddress());
         }
         if (linkDesc.getLinkLocalIdentifier() != null) {
             builder.setLocalIdentifier(linkDesc.getLinkLocalIdentifier());
@@ -374,16 +373,27 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         for (SrAdjIds adj : la.nonnullSrAdjIds()) {
             if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
                 boolean backup = false;
-                if (adj.getFlags() instanceof OspfAdjFlags) {
-                    backup = ((OspfAdjFlags) adj.getFlags()).getBackup();
+                boolean ipv6 = false;
+                if (adj.getFlags() instanceof OspfAdjFlagsCase) {
+                    backup = ((OspfAdjFlagsCase) adj.getFlags()).getOspfAdjFlags().getBackup();
                 }
-                if (adj.getFlags() instanceof IsisAdjFlags) {
-                    backup = ((IsisAdjFlags) adj.getFlags()).getBackup();
+                if (adj.getFlags() instanceof IsisAdjFlagsCase) {
+                    backup = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getBackup();
+                    ipv6 = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getAddressFamily();
                 }
+                final Uint32 adjSid = ((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue();
                 if (!backup) {
-                    builder.setAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
+                    if (!ipv6) {
+                        builder.setAdjSid(adjSid);
+                    } else {
+                        builder.setAdjSid6(adjSid);
+                    }
                 } else {
-                    builder.setBackupAdjSid(((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue());
+                    if (!ipv6) {
+                        builder.setBackupAdjSid(adjSid);
+                    } else {
+                        builder.setBackupAdjSid6(adjSid);
+                    }
                 }
             }
         }
@@ -425,10 +435,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     private static Vertex getVertex(final NodeAttributes na, final Uint64 id, final Uint32 as) {
         VertexBuilder builder = new VertexBuilder().setVertexId(id).setAsn(as);
         if (na.getIpv4RouterId() != null) {
-            builder.setRouterId(new IpAddress(na.getIpv4RouterId()));
+            builder.setRouterId(na.getIpv4RouterId());
         }
         if (na.getIpv6RouterId() != null) {
-            builder.setRouterId(new IpAddress(na.getIpv6RouterId()));
+            builder.setRouterId6(na.getIpv6RouterId());
         }
         /*
          * Set Router Name with dynamic hostname (IS-IS) or IPv4 address in dot decimal format (OSPF)

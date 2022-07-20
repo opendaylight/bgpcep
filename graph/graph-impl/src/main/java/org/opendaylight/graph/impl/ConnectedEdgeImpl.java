@@ -18,7 +18,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedVertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
 
 /**
  * This Class implements the Connected Edge used by the Connected Graph for path computation algorithms.

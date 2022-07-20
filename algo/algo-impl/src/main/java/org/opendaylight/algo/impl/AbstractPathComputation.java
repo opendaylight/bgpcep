@@ -19,10 +19,10 @@ import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.EdgeAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.edge.attributes.UnreservedBandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev191125.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.EdgeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
@@ -119,13 +119,13 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /* Check that Edge belongs to the Address Family of the requested path */
         switch (constraints.getAddressFamily()) {
             case Ipv4:
-                if (attributes.getRemoteAddress() == null || attributes.getRemoteAddress().getIpv4Address() == null) {
+                if (attributes.getRemoteAddress() == null) {
                     LOG.debug("No Ipv4 address");
                     return true;
                 }
                 break;
             case Ipv6:
-                if (attributes.getRemoteAddress() == null || attributes.getRemoteAddress().getIpv6Address() == null) {
+                if (attributes.getRemoteAddress6() == null) {
                     LOG.debug("No Ipv6 address");
                     return true;
                 }
@@ -136,7 +136,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     return true;
                 }
                 if (attributes.getAdjSid() == null) {
-                    LOG.debug("No Adjacency-SID");
+                    LOG.debug("No SR Adjacency-SID for IPv4");
                     return true;
                 }
                 break;
@@ -145,8 +145,8 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     LOG.debug("No Node-SID for IPv6");
                     return true;
                 }
-                if (attributes.getAdjSid() == null) {
-                    LOG.debug("No SR Adjacency-SID");
+                if (attributes.getAdjSid6() == null) {
+                    LOG.debug("No SR Adjacency-SID for IPv6");
                     return true;
                 }
                 break;
@@ -243,10 +243,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             case SrIpv4:
                 for (int i = 0; i < xro.size(); i++) {
                     final Ipv4Address address = xro.get(i).getIpv4();
-                    if (address.equals(attributes.getRemoteAddress().getIpv4Address())
-                            || address.equals(attributes.getLocalAddress().getIpv4Address())
-                            || address.equals(edge.getSource().getVertex().getRouterId().getIpv4Address())
-                            || address.equals(edge.getDestination().getVertex().getRouterId().getIpv4Address())) {
+                    if (address.equals(attributes.getRemoteAddress())
+                            || address.equals(attributes.getLocalAddress())
+                            || address.equals(edge.getSource().getVertex().getRouterId())
+                            || address.equals(edge.getDestination().getVertex().getRouterId())) {
                         return true;
                     }
                 }
@@ -255,10 +255,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             case SrIpv6:
                 for (int i = 0; i < xro.size(); i++) {
                     final Ipv6Address address = xro.get(i).getIpv6();
-                    if (address.equals(attributes.getRemoteAddress().getIpv6Address())
-                            || address.equals(attributes.getLocalAddress().getIpv6Address())
-                            || address.equals(edge.getSource().getVertex().getRouterId().getIpv6Address())
-                            || address.equals(edge.getDestination().getVertex().getRouterId().getIpv6Address())) {
+                    if (address.equals(attributes.getRemoteAddress6())
+                            || address.equals(attributes.getLocalAddress6())
+                            || address.equals(edge.getSource().getVertex().getRouterId6())
+                            || address.equals(edge.getDestination().getVertex().getRouterId6())) {
                         return true;
                     }
                 }
@@ -427,27 +427,27 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             switch (constraints.getAddressFamily()) {
                 case Ipv4:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
-                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address())
+                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress())
+                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress())
                             .build();
                     break;
                 case Ipv6:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
-                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address())
+                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress6())
+                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress6())
                             .build();
                     break;
                 case SrIpv4:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv4Address())
-                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv4Address())
+                            .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress())
+                            .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
                     break;
                 case SrIpv6:
                     pathDesc = new PathDescriptionBuilder()
-                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress().getIpv6Address())
-                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress().getIpv6Address())
+                            .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress6())
+                            .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress6())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
                     break;

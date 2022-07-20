@@ -4,7 +4,7 @@ module path-computation {
     prefix "algo";
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import graph { prefix gr; revision-date 2019-11-25; }
+    import graph { prefix gr; revision-date 2022-07-20; }
 
     organization "Orange";
     contact "Olivier Dugeon <olivier.dugeon@orange.com>";
