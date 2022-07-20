@@ -96,7 +96,8 @@ The yand model for the Graph is as follow:
                 +--rw vertex* [vertex-id]
                 |  +--rw vertex-id      uint64
                 |  +--rw name?          string
-                |  +--rw router-id?     inet:ip-address
+                |  +--rw router-id?     inet:ipv4-address
+                |  +--rw router-id6?    inet:ipv6-address
                 |  +--rw vertex-type?   enumeration
                 |  +--rw srgb
                 |  |  +--rw lower-bound?   uint32
@@ -111,8 +112,10 @@ The yand model for the Graph is as follow:
                 |     +--rw metric?                    uint32
                 |     +--rw te-metric?                 uint32
                 |     +--rw admin-group?               uint32
-                |     +--rw local-address?             inet:ip-address
-                |     +--rw remote-address?            inet:ip-address
+                |     +--rw local-address?             inet:ipv4-address
+                |     +--rw remote-address?            inet:ipv4-address
+                |     +--rw local-address6?            inet:ipv6-address
+                |     +--rw remote-address6?           inet:ipv6-address
                 |     +--rw local-identifier?          uint32
                 |     +--rw remote-identifier?         uint32
                 |     +--rw max-link-bandwidth?        decimal-bandwidth
@@ -131,6 +134,8 @@ The yand model for the Graph is as follow:
                 |     +--rw utilized-bandwidth?        decimal-bandwidth
                 |     +--rw adj-sid?                   uint32
                 |     +--rw backup-adj-sid?            uint32
+                |     +--rw adj-sid6?                  uint32
+                |     +--rw backup-adj-sid6?           uint32
                 |     +--rw srlgs*                     uint32
                 +--rw prefix* [prefix]
                 +--rw prefix        inet:ip-prefix
