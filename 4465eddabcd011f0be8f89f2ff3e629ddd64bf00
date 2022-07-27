@@ -16,6 +16,23 @@
       "message": "Here it is a new version. I tested against various prefix IPv4 and IPv6 on my testbed.\n\nHope this new version is correct.",
       "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23153880_e9df006b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2022-07-27T15:21:07Z",
+      "side": 1,
+      "message": "Hi Guillaume,\n\nCan you have a look to this patch?\n\nThanks\n\nOlivier",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
