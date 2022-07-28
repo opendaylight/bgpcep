@@ -1,6 +1,57 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "146dabfc_8cd019cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T07:31:09Z",
+      "side": 1,
+      "message": "supports",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39aed1de_97b833a8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T07:31:09Z",
+      "side": 1,
+      "message": "deals only / is only dealt with ?",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4d23acc_2b54234b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T07:31:09Z",
+      "side": 1,
+      "message": "tense\nif sends \u003d\u003e fails (and not failed)",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "e0d0572e_c30f3ed3",
@@ -31,6 +82,40 @@
       "writtenOn": "2022-07-27T15:21:07Z",
       "side": 1,
       "message": "Hi Guillaume,\n\nCan you have a look to this patch?\n\nThanks\n\nOlivier",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c070cab_ea775feb",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T07:31:09Z",
+      "side": 1,
+      "message": "what about this ?\n\nreturn new IpPrefix(\n     length \u003e Ipv4Util.IP4_LENGTH\n          ? Ipv6Util.prefixForByteBuf(value)\n          : Ipv4Util.prefixForByteBuf(value));",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d20fc2c0_2a0079d8",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T07:31:09Z",
+      "side": 1,
+      "message": "idem",
       "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
