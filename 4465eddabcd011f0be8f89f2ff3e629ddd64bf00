@@ -86,6 +86,23 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ebb31dd_fea7f979",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T09:45:09Z",
+      "side": 1,
+      "message": "Is there a known issue on the gate ?\n\nThe build is successful but returns an error because of target site problem (jdk17 migration ?)\n\n18:36:41 [INFO] bgpcep ............................................. SUCCESS [ 38.755 s]\n18:36:41 [INFO] ------------------------------------------------------------------------\n18:36:41 [INFO] BUILD SUCCESS\n18:36:41 [INFO] ------------------------------------------------------------------------\n18:36:41 [INFO] Total time:  06:19 min\n18:36:41 [INFO] Finished at: 2022-07-13T16:36:41Z\n18:36:41 [INFO] ------------------------------------------------------------------------\n18:36:41 mv: cannot stat \u0027/w/workspace/bgpcep-maven-javadoc-verify-master-openjdk17/./target/site/apidocs\u0027: No such file or directory\n18:36:41 \nBuild step \u0027Execute shell\u0027 marked build as failure\n18:36:41 $ ssh-agent -k",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "368fcd6e_74e6a060",
