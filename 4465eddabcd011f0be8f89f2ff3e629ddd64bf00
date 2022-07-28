@@ -229,6 +229,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "31c2745e_f84db6e9",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6731
+      },
+      "writtenOn": "2022-07-28T14:09:33Z",
+      "side": 1,
+      "message": "Correct\nMaybe this would make more sense if so\n\nreturn length \u003e Ipv4Util.IP4_LENGTH\n          ? new IpPrefix(Ipv6Util.prefixForByteBuf(value))\n          : new IpPrefix(Ipv4Util.prefixForByteBuf(value));",
+      "parentUuid": "b6361150_7777eb3b",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d20fc2c0_2a0079d8",
         "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/ReachTlvParser.java",
         "patchSetId": 2
