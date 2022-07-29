@@ -20,8 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<IpPrefix>,
         LinkstateTlvParser<IpPrefix> {
@@ -29,7 +27,6 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
         "ip-reachability-information").intern();
     @VisibleForTesting
     public static final NodeIdentifier IP_REACH_NID = NodeIdentifier.create(IP_REACHABILITY_QNAME);
-    private static final Logger LOG = LoggerFactory.getLogger(ReachTlvParser.class);
     private static final int IP_REACHABILITY = 265;
 
     @Override
