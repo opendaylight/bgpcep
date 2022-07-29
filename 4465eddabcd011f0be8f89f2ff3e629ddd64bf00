@@ -157,6 +157,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9cc4c10_08001cff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2022-07-29T14:22:45Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/101904/3/pom.xml",
+      "parentUuid": "9ebb31dd_fea7f979",
+      "revId": "4465eddabcd011f0be8f89f2ff3e629ddd64bf00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "368fcd6e_74e6a060",
