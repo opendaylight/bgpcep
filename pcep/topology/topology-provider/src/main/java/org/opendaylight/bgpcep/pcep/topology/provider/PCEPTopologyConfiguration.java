@@ -21,25 +21,30 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.concepts.Immutable;
+import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class PCEPTopologyConfiguration implements Immutable {
     private final @NonNull InetSocketAddress address;
     private final @NonNull KeyMapping keys;
+    private final @NonNull GraphKey graphKey;
+    private final int statsUpdatePeriod;
     private final short rpcTimeout;
-    private final GraphKey graphKey;
 
     PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final short rpcTimeout,
-            final @NonNull KeyMapping keys, final @NonNull GraphKey graphKey) {
+            final @NonNull Uint16 statsUpdatePeriod, final @NonNull KeyMapping keys, final @NonNull GraphKey graphKey) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
-        this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
+        this.rpcTimeout = rpcTimeout;
+        this.statsUpdatePeriod = statsUpdatePeriod.toJava();
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -60,14 +65,30 @@ final class PCEPTopologyConfiguration implements Immutable {
             return null;
         }
 
+        // FIXME: purely-default augmentation: MD-SAL should give us a default view
+        var implConfig = topologyPcep.augmentation(TopologyPcep1.class);
+        if (implConfig == null) {
+            // TODO: '5' here is the default value in module, but we have no cross-reference
+            //       MD-SAL should provide a default value from the builder. This needs to be realized by defining
+            //       a TopologyPcep1.DEFAULT_TIMER (or somesuch) constant. Typedefs, obviously have their
+            //       FooType.DEFAULT value as well.
+            implConfig = new TopologyPcep1Builder().setTimer(Uint16.valueOf(5)).build();
+        }
+
+        // FIXME: lazy init from the Topology snapshot
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
-            sessionConfig.getRpcTimeout(), constructKeys(topology.getNode()),
+            sessionConfig.getRpcTimeout(), implConfig.getTimer(),
+            constructKeys(topology.getNode()),
             constructGraphKey(sessionConfig.getTedName()));
     }
 
     short getRpcTimeout() {
         return rpcTimeout;
+    }
+
+    int getStatsUpdatePeriod() {
+        return statsUpdatePeriod;
     }
 
     @NonNull InetSocketAddress getAddress() {
