@@ -48,7 +48,7 @@ final class TopologyNodeState implements TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
     private final Map<String, Metadata> metadata = new HashMap<>();
-    private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+    private final @NonNull KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;

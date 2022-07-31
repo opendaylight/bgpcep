@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -55,7 +56,6 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
-    private final @NonNull TopologySessionStatsRegistry stateRegistry;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
@@ -75,6 +75,9 @@ public final class PCEPTopologyTracker
             throw new UnsupportedOperationException();
         }
     };
+
+    // Internal scheduler
+    private final @NonNull TopologyStatsScheduler scheduler;
 
     // We are reusing our monitor as the universal lock. We have to account for three distinct threads competing for
     // our state:
@@ -99,16 +102,15 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory,
-            final TopologySessionStatsRegistry stateRegistry, final PceServerProvider pceServerProvider) {
+            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
-        this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
 
+        scheduler = new TopologyStatsScheduler(privateTimer, ForkJoinPool.commonPool(), 0, null);
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build()), this);
@@ -131,11 +133,6 @@ public final class PCEPTopologyTracker
     }
 
     @Override
-    public TopologySessionStatsRegistry getStateRegistry() {
-        return stateRegistry;
-    }
-
-    @Override
     public PceServerProvider getPceServerProvider() {
         return pceServerProvider;
     }
@@ -143,6 +140,11 @@ public final class PCEPTopologyTracker
     @Override
     public Timer getTimer() {
         return timer;
+    }
+
+    @Override
+    public TopologyStatsScheduler getStatsScheduler() {
+        return scheduler;
     }
 
     @Override

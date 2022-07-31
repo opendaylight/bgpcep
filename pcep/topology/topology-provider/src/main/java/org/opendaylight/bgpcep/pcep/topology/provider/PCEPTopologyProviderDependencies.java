@@ -41,13 +41,6 @@ interface PCEPTopologyProviderDependencies {
     DataBroker getDataBroker();
 
     /**
-     * Topology Session State Registry.
-     *
-     * @return TopologySessionStateRegistry
-     */
-    TopologySessionStatsRegistry getStateRegistry();
-
-    /**
      * PCE Server Provider.
      *
      * @return PceServerProvider
@@ -60,4 +53,6 @@ interface PCEPTopologyProviderDependencies {
      * @return A Timer.
      */
     Timer getTimer();
+
+    TopologyStatsScheduler getStatsScheduler();
 }
