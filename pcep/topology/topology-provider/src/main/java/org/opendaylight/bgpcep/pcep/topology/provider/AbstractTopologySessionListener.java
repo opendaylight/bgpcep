@@ -50,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
@@ -69,8 +70,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -163,6 +166,8 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 final InstanceIdentifier<Node1> topologyAugment = state.getNodeId().augmentation(Node1.class);
                 pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
+                // FIXME: this part needs to be asynchronous, up to and including final bind
+
                 if (haveLspDbVersion) {
                     final Node initialNodeState = state.getInitialNodeState();
                     if (initialNodeState != null) {
@@ -175,10 +180,33 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
                 listenerState = new SessionStateImpl(this, psession);
-                serverSessionManager.bind(state.getNodeId(), listenerState);
+                bind(state.getNodeId(), listenerState);
                 LOG.info("Session with {} attached to topology node {}", peerAddress, state.getNodeId());
             }
         }
+    }
+
+    final void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final PcepSessionState sessionState) {
+        final var scheduler = dependencies.getStatsScheduler();
+        statsReg = scheduler.registerTask(() -> {
+
+         // FIXME: produces immutable PcepSessionState view and updates it
+//          tx.put(LogicalDatastoreType.OPERATIONAL,
+//              entry.getKey().augmentation(PcepTopologyNodeStatsAug.class),
+//              new PcepTopologyNodeStatsAugBuilder()
+//                      .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build())
+//                      .build());
+//          return tx.commit()
+
+
+
+            dependencies.getStateRegistry().bind(nodeId, sessionState);
+            return CommitInfo.emptyFluentFuture();
+        });
+    }
+
+    final void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+        dependencies.getStateRegistry().unbind(nodeId);
     }
 
     @Holding("this")
@@ -366,7 +394,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @Holding({"this.serverSessionManager", "this"})
     private void clearNodeState() {
         if (nodeState != null) {
-            serverSessionManager.unbind(nodeState.getNodeId());
+            unbind(nodeState.getNodeId());
             LOG.debug("Clear Node state: {}", nodeState.getNodeId());
             nodeState = null;
         }

@@ -131,11 +131,10 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(mock(ChannelFuture.class)).when(clientListener).close();
 
         doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
-        doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT,
+        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT, 5,
                 new GraphKey("graph-test")));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
