@@ -141,11 +141,6 @@ public final class PCEPTopologyTracker
     }
 
     @Override
-    public SessionStateRegistry getStateRegistry() {
-        return statsProvider;
-    }
-
-    @Override
     public PceServerProvider getPceServerProvider() {
         return pceServerProvider;
     }
