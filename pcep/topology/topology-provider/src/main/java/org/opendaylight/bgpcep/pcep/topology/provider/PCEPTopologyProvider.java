@@ -152,6 +152,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             .collect(Collectors.toUnmodifiableList());
 
         manager.setRpcTimeout(newConfiguration.getRpcTimeout());
+        manager.setStatsUpdatePeriod(newConfiguration.getStatsUpdatePeriod());
         if (!outdatedNodes.isEmpty()) {
             LOG.info("Topology Provider {} updating {} TCP-MD5 keys", topologyId(), outdatedNodes.size());
             if (channel.config().setOption(EpollChannelOption.TCP_MD5SIG, newKeys)) {
@@ -173,7 +174,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         // First start the manager
         manager = new ServerSessionManager(instanceIdentifier, dependencies, newConfiguration.getRpcTimeout(),
-                newConfiguration.getGraphKey());
+                newConfiguration.getStatsUpdatePeriod(), newConfiguration.getGraphKey());
         final var managerStart = manager.start();
         managerStart.addListener(() -> enableChannel(future, Futures.getUnchecked(managerStart)),
             MoreExecutors.directExecutor());

@@ -55,7 +55,6 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
-    private final @NonNull TopologySessionStatsRegistry stateRegistry;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
@@ -99,14 +98,12 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory,
-            final TopologySessionStatsRegistry stateRegistry, final PceServerProvider pceServerProvider) {
+            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
-        this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
@@ -128,11 +125,6 @@ public final class PCEPTopologyTracker
     @Override
     public DataBroker getDataBroker() {
         return dataBroker;
-    }
-
-    @Override
-    public TopologySessionStatsRegistry getStateRegistry() {
-        return stateRegistry;
     }
 
     @Override

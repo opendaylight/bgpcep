@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -32,7 +33,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
@@ -47,8 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.ErrorType;
@@ -79,14 +77,17 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private volatile short rpcTimeout;
 
+    private final TopologyStatsScheduler scheduler;
     private final GraphKey graphKey;
 
     ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
-            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final GraphKey graphKey) {
+            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final int statsUpdateSeconds,
+            final GraphKey graphKey) {
         this.dependencies = requireNonNull(dependencies);
         topology = requireNonNull(instanceIdentifier);
         this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
+        scheduler = new TopologyStatsScheduler(dependencies.getTimer(), ForkJoinPool.commonPool(), statsUpdateSeconds);
     }
 
     // Initialize the operational view of the topology.
@@ -282,18 +283,14 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         this.rpcTimeout = rpcTimeout;
     }
 
+    final void setStatsUpdatePeriod(final int statsUpdateSeconds) {
+        scheduler.setPeriod(statsUpdateSeconds);
+    }
+
     final void tearDownSessions(final List<InetAddress> outdatedNodes) {
         for (var address : outdatedNodes) {
             tearDownSession(new TearDownSessionInputBuilder().setNode(createNodeId(address)).build());
         }
-    }
-
-    final void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final PcepSessionState sessionState) {
-        dependencies.getStateRegistry().bind(nodeId, sessionState);
-    }
-
-    final void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
-        dependencies.getStateRegistry().unbind(nodeId);
     }
 
     final PCEPTopologyProviderDependencies getPCEPTopologyProviderDependencies() {
