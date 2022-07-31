@@ -12,16 +12,14 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -58,32 +56,29 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     private final Set<KeyedInstanceIdentifier<Node, NodeKey>> statsPendingDelete = ConcurrentHashMap.newKeySet();
     @GuardedBy("this")
     private final Map<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> statsMap = new HashMap<>();
+    private final Timer timer;
+    private final long updateIntervalNanos;
     // Note: null indicates we have been shut down
     @GuardedBy("this")
     private DataBroker dataBroker;
     @GuardedBy("this")
     private TransactionChain transactionChain;
-    @GuardedBy("this")
-    private final ScheduledFuture<?> scheduleTask;
 
-    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds) {
-        this(dataBroker, updateIntervalSeconds, Executors.newScheduledThreadPool(1));
-    }
+    private final Timeout timeout;
 
-    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds,
-            final ScheduledExecutorService scheduler) {
+    TopologyStatsProviderImpl(final DataBroker dataBroker, final Timer timer, final int updateIntervalSeconds) {
         this.dataBroker = requireNonNull(dataBroker);
+        this.timer = requireNonNull(timer);
+        updateIntervalNanos = TimeUnit.SECONDS.toNanos(updateIntervalSeconds);
         LOG.info("Initializing TopologyStatsProvider service.");
-        scheduleTask = scheduler.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                updateStats();
-            }
-        }, 0, updateIntervalSeconds, TimeUnit.SECONDS);
+
+        timeout = timer.newTimeout(this::updateStats, 0, TimeUnit.SECONDS);
     }
 
     @Override
-    public void close() throws InterruptedException, ExecutionException {
+    public synchronized void close() throws InterruptedException, ExecutionException {
+
+
         if (scheduleTask.cancel(true)) {
             LOG.info("Closing TopologyStatsProvider service.");
             shutdown();
@@ -130,7 +125,7 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private synchronized void updateStats() {
+    private synchronized void updateStats(final Timeout myTimeout) {
         final TransactionChain chain = accessChain();
         if (chain == null) {
             // Already closed, do not bother
