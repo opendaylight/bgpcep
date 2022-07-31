@@ -20,6 +20,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -76,14 +77,17 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private volatile short rpcTimeout;
 
+    private final TopologyStatsScheduler scheduler;
     private final GraphKey graphKey;
 
     ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
-            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final GraphKey graphKey) {
+            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final int statsUpdateSeconds,
+            final GraphKey graphKey) {
         this.dependencies = requireNonNull(dependencies);
         topology = requireNonNull(instanceIdentifier);
         this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
+        scheduler = new TopologyStatsScheduler(dependencies.getTimer(), ForkJoinPool.commonPool(), statsUpdateSeconds);
     }
 
     // Initialize the operational view of the topology.
@@ -278,6 +282,10 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     final void setRpcTimeout(final short rpcTimeout) {
         this.rpcTimeout = rpcTimeout;
+    }
+
+    final void setStatsUpdatePeriod(final int statsUpdateSeconds) {
+        scheduler.setPeriod(statsUpdateSeconds);
     }
 
     final void tearDownSessions(final List<InetAddress> outdatedNodes) {
