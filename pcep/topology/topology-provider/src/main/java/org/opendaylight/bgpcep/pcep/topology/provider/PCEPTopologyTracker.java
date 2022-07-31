@@ -102,8 +102,8 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory,
-            final PceServerProvider pceServerProvider, final int updateIntervalSeconds) {
+            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider,
+            final int updateIntervalSeconds) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
@@ -131,11 +131,6 @@ public final class PCEPTopologyTracker
     @Override
     public DataBroker getDataBroker() {
         return dataBroker;
-    }
-
-    @Override
-    public SessionStateRegistry getStateRegistry() {
-        return statsProvider;
     }
 
     @Override
