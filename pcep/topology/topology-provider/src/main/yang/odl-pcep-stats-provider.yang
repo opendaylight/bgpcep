@@ -4,6 +4,9 @@ module odl-pcep-stats-provider {
     namespace "urn:opendaylight:params:xml:ns:yang:odl:pcep:stats:provider:config";
     prefix pspc;
 
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import network-topology-pcep { prefix pn; revision-date 2022-07-30; }
+
     description
         "This module contains the base YANG definitions for
          PCEP Stats Provider Configuration.
@@ -14,17 +17,17 @@ module odl-pcep-stats-provider {
          accompanies this distribution, and is available at
          http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2022-07-30" {
+        description 
+            "Integrated with PCEP network topology";
+    }
+
     revision "2017-11-13" {
         description
             "Initial revision.";
     }
 
-    container pcep-provider {
-        leaf config-name {
-            type string;
-            mandatory true;
-        }
-
+    augment "/nt:network-topology/nt:topology/nt:topology-types/pn:topology-pcep" {
         leaf timer {
             type uint16;
             default 5;
