@@ -48,9 +48,11 @@ final class TopologyNodeState implements TransactionChainListener {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
     private final Map<String, Metadata> metadata = new HashMap<>();
-    private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+    private final @NonNull KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
     private final long holdStateNanos;
+
+    @GuardedBy("this")
     private long lastReleased = 0;
     //cache initial node state, if any node was persisted
     @GuardedBy("this")
@@ -59,8 +61,8 @@ final class TopologyNodeState implements TransactionChainListener {
     TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id,
             final long holdStateNanos) {
         checkArgument(holdStateNanos >= 0);
-        nodeId = topology.child(Node.class, new NodeKey(id));
         this.holdStateNanos = holdStateNanos;
+        nodeId = topology.child(Node.class, new NodeKey(id));
         chain = broker.createMergingTransactionChain(this);
     }
 
