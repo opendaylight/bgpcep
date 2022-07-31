@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.bgpcep.pcep.topology.provider.TopologyStatsScheduler.StatsUpdateCallback;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.Transaction;
@@ -44,11 +45,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-final class TopologyNodeState implements TransactionChainListener {
+final class TopologyNodeState implements TransactionChainListener, StatsUpdateCallback {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
     private final Map<String, Metadata> metadata = new HashMap<>();
-    private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+    private final @NonNull KeyedInstanceIdentifier<Node, NodeKey> nodeId;
     private final TransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
@@ -82,6 +83,13 @@ final class TopologyNodeState implements TransactionChainListener {
 
     synchronized void cleanupExcept(final Collection<String> values) {
         metadata.keySet().removeIf(s -> !values.contains(s));
+    }
+
+
+    @Override
+    public synchronized FluentFuture<? extends CommitInfo> updateStats() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     synchronized void released(final boolean persist) {

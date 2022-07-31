@@ -566,7 +566,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
-        final Path1 ra = rep.get().getPath().values().iterator().next().augmentation(Path1.class);
+        final Path1 ra = rep.orElseThrow().getPath().values().iterator().next().augmentation(Path1.class);
         checkState(ra != null, "Reported LSP reported null from data-store.");
         final Lsp reportedLsp = ra.getLsp();
         checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");

@@ -131,7 +131,6 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(mock(ChannelFuture.class)).when(clientListener).close();
 
         doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
-        doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
