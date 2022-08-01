@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -70,7 +69,6 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
-    private final @NonNull HashedWheelTimer timer = new HashedWheelTimer();
 
     @VisibleForTesting
     final AtomicBoolean isClosed = new AtomicBoolean(false);
@@ -145,12 +143,6 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             topologyNodeState.close();
         }
         state.clear();
-
-        // Stop the timer
-        final var cancelledTasks = timer.stop().size();
-        if (cancelledTasks != 0) {
-            LOG.warn("Stopped timer with {} remaining tasks", cancelledTasks);
-        }
 
         // Un-Register Pcep Topology into PCE Server
         final PceServerProvider server = dependencies.getPceServerProvider();
@@ -283,7 +275,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     final @Nullable Timeout newRpcTimeout(final RpcTimeout task, final SrpIdNumber requestId) {
         final short localTimeout = rpcTimeout;
         return localTimeout <= 0 ? null
-            : timer.newTimeout(ignored -> task.run(requestId), localTimeout, TimeUnit.SECONDS);
+            : dependencies.getTimer().newTimeout(ignored -> task.run(requestId), localTimeout, TimeUnit.SECONDS);
     }
 
     final void setRpcTimeout(final short rpcTimeout) {
