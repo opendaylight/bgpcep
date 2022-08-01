@@ -11,9 +11,15 @@ import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgpcep.pcep.topology.provider.TopologyUtils.friendlyId;
 
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -54,6 +60,21 @@ public final class PCEPTopologyTracker
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
     private final @NonNull DataBroker dataBroker;
+
+    // Timer used for RPC timeouts and session statistics scheduling
+    private final @NonNull HashedWheelTimer privateTimer = new HashedWheelTimer();
+    private final @NonNull Timer timer = new Timer() {
+        @Override
+        public Timeout newTimeout(final TimerTask task, final long delay, final TimeUnit unit) {
+            return privateTimer.newTimeout(task, delay, unit);
+        }
+
+        @Override
+        public Set<Timeout> stop() {
+            // Do not allow the timer to be shut down
+            throw new UnsupportedOperationException();
+        }
+    };
 
     // We are reusing our monitor as the universal lock. We have to account for three distinct threads competing for
     // our state:
@@ -120,6 +141,11 @@ public final class PCEPTopologyTracker
     }
 
     @Override
+    public Timer getTimer() {
+        return timer;
+    }
+
+    @Override
     public synchronized void close() {
         if (reg == null) {
             // Already closed, bail out
@@ -134,6 +160,13 @@ public final class PCEPTopologyTracker
         instances.values().forEach(PCEPTopologySingleton::destroy);
         // Second pass: wait for cleanup
         instances.values().forEach(PCEPTopologySingleton::awaitCleanup);
+
+        // Stop the timer
+        final var cancelledTasks = privateTimer.stop().size();
+        if (cancelledTasks != 0) {
+            LOG.warn("Stopped timer with {} remaining tasks", cancelledTasks);
+        }
+
         LOG.info("PCEP Topology tracker shut down");
     }
 

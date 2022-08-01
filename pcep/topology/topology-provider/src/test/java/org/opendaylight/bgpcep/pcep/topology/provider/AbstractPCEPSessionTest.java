@@ -20,6 +20,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoop;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timer;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -99,6 +101,8 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     private PCEPTopologyProviderDependencies topologyDependencies;
     @Mock
     private Promise<PCEPSessionImpl> promise;
+
+    private final Timer timer = new HashedWheelTimer();
     private DefaultPCEPSessionNegotiator neg;
 
     @Before
@@ -128,6 +132,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
 
         doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
         doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
+        doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
         manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies, RPC_TIMEOUT,
@@ -155,6 +160,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     @After
     public void tearDown() {
         stopSessionManager();
+        timer.stop();
     }
 
     Ero createEroWithIpPrefixes(final List<String> ipPrefixes) {

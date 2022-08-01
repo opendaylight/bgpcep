@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import io.netty.util.Timer;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -52,4 +53,11 @@ interface PCEPTopologyProviderDependencies {
      * @return PceServerProvider
      */
     PceServerProvider getPceServerProvider();
+
+    /**
+     * Return the timer to use used for scheduling various timeouts.
+     *
+     * @return A Timer.
+     */
+    Timer getTimer();
 }
