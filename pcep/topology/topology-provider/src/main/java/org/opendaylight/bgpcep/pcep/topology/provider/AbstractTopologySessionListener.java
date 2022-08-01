@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import io.netty.util.Timeout;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -415,17 +413,10 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         final var sendFuture = session.sendMessage(message);
         listenerState.updateStatefulSentMsg(message);
 
-        final short rpcTimeout = serverSessionManager.getRpcTimeout();
-        LOG.trace("RPC response timeout value is {} seconds", rpcTimeout);
-
-        final Timeout timeout;
-        if (rpcTimeout > 0) {
-            // Note: the timeout is held back by us holding the 'this' monitor, which timeoutExpired re-acquires
-            timeout = serverSessionManager.timer().newTimeout(ignored -> timeoutExpired(requestId),
-                rpcTimeout, TimeUnit.SECONDS);
+        // Note: the timeout is held back by us holding the 'this' monitor, which timeoutExpired re-acquires
+        final var timeout = serverSessionManager.newRpcTimeout(this::timeoutExpired, requestId);
+        if (timeout != null) {
             LOG.trace("Set up response timeout handler for request {}", requestId);
-        } else {
-            timeout = null;
         }
 
         final PCEPRequest req = new PCEPRequest(metadata, timeout);

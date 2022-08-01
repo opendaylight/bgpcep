@@ -16,7 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
+import io.netty.util.Timeout;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -25,12 +25,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInput;
@@ -58,6 +60,11 @@ import org.slf4j.LoggerFactory;
 
 // Non-final for testing
 class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessionRPCs {
+    @FunctionalInterface
+    interface RpcTimeout {
+        void run(SrpIdNumber requestId);
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
 
@@ -273,12 +280,10 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             .buildFuture();
     }
 
-    final @NonNull Timer timer() {
-        return timer;
-    }
-
-    final short getRpcTimeout() {
-        return rpcTimeout;
+    final @Nullable Timeout newRpcTimeout(final RpcTimeout task, final SrpIdNumber requestId) {
+        final short localTimeout = rpcTimeout;
+        return localTimeout <= 0 ? null
+            : timer.newTimeout(ignored -> task.run(requestId), localTimeout, TimeUnit.SECONDS);
     }
 
     final void setRpcTimeout(final short rpcTimeout) {
