@@ -16,7 +16,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.Timer;
+import io.netty.util.Timeout;
+import io.netty.util.TimerTask;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -273,12 +275,12 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             .buildFuture();
     }
 
-    final @NonNull Timer timer() {
-        return timer;
-    }
-
-    final short getRpcTimeout() {
-        return rpcTimeout;
+    final @Nullable Timeout newRpcTimeout(final TimerTask task) {
+        final short localTimeout = rpcTimeout;
+        if (localTimeout <= 0) {
+            return null;
+        }
+        return timer.newTimeout(task, localTimeout, TimeUnit.SECONDS);
     }
 
     final void setRpcTimeout(final short rpcTimeout) {
