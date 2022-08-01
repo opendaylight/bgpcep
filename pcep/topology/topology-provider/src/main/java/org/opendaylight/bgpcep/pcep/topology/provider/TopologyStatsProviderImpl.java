@@ -74,15 +74,12 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
             final ScheduledExecutorService scheduler) {
         this.dataBroker = requireNonNull(dataBroker);
         LOG.info("Initializing TopologyStatsProvider service.");
-        final TimerTask task = new TimerTask() {
+        scheduleTask = scheduler.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                synchronized (TopologyStatsProviderImpl.this) {
-                    updateStats();
-                }
+                updateStats();
             }
-        };
-        scheduleTask = scheduler.scheduleAtFixedRate(task, 0, updateIntervalSeconds, TimeUnit.SECONDS);
+        }, 0, updateIntervalSeconds, TimeUnit.SECONDS);
     }
 
     @Override
@@ -133,7 +130,7 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public synchronized void updateStats() {
+    private synchronized void updateStats() {
         final TransactionChain chain = accessChain();
         if (chain == null) {
             // Already closed, do not bother
