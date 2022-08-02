@@ -132,7 +132,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 final InetAddress peerAddress = psession.getRemoteAddress();
 
                 syncOptimization = new SyncOptimization(psession.getLocalTlvs(), psession.getRemoteTlvs());
-                final boolean haveLspDbVersion = syncOptimization.isDbVersionPresent();
+                final boolean haveLspDbVersion = syncOptimization.dbVersionPresent();
 
                 final TopologyNodeState state =
                         serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
@@ -627,7 +627,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             boolean incrementalSynchro);
 
     final boolean isLspDbPersisted() {
-        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled();
+        return syncOptimization != null && syncOptimization.syncAvoidanceEnabled();
     }
 
     /**
@@ -635,20 +635,20 @@ public abstract class AbstractTopologySessionListener implements TopologySession
      * LSP-DB-VERSION TLV values doesnt match, and  LSP-SYNC-CAPABILITY is enabled.
      */
     final synchronized boolean isIncrementalSynchro() {
-        return syncOptimization != null && syncOptimization.isSyncAvoidanceEnabled()
-                && syncOptimization.isDeltaSyncEnabled();
+        return syncOptimization != null && syncOptimization.syncAvoidanceEnabled()
+                && syncOptimization.deltaSyncEnabled();
     }
 
     final synchronized boolean isTriggeredInitialSynchro() {
-        return syncOptimization != null && syncOptimization.isTriggeredInitSyncEnabled();
+        return syncOptimization != null && syncOptimization.triggeredInitialSyncEnabled();
     }
 
     final synchronized boolean isTriggeredReSyncEnabled() {
-        return syncOptimization != null && syncOptimization.isTriggeredReSyncEnabled();
+        return syncOptimization != null && syncOptimization.triggeredReSyncEnabled();
     }
 
     protected final synchronized boolean isSynchronized() {
-        return syncOptimization != null && syncOptimization.doesLspDbMatch();
+        return syncOptimization != null && syncOptimization.dbVersionMatch();
     }
 
     @Override

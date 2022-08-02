@@ -7,59 +7,37 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
-import org.opendaylight.yangtools.concepts.Immutable;
 
-final class SyncOptimization implements Immutable {
-    private final boolean dbVersionMatch;
-    private final boolean isSyncAvoidanceEnabled;
-    private final boolean isDeltaSyncEnabled;
-    private final boolean isDbVersionPresent;
-    private final boolean isTriggeredInitialSyncEnable;
-    private final boolean isTriggeredReSyncEnable;
-
-    SyncOptimization(final Tlvs local, final Tlvs remote) {
+record SyncOptimization(
+        boolean dbVersionMatch,
+        boolean syncAvoidanceEnabled,
+        boolean deltaSyncEnabled,
+        boolean dbVersionPresent,
+        boolean triggeredInitialSyncEnabled,
+        boolean triggeredReSyncEnabled) {
+    static @NonNull SyncOptimization of(final Tlvs local, final Tlvs remote) {
         final var localLspDbVersion = lspDbVersion(local);
         final var remoteLspDbVersion = lspDbVersion(remote);
-        dbVersionMatch = localLspDbVersion != null && localLspDbVersion.equals(remoteLspDbVersion);
-        isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
-
         final var localStateful = stateful(local);
         final var removeStateful = stateful(remote);
-        isSyncAvoidanceEnabled = isSyncAvoidance(localStateful) && isSyncAvoidance(removeStateful);
-        isDeltaSyncEnabled = isDeltaSync(localStateful) && isDeltaSync(removeStateful);
-        isTriggeredInitialSyncEnable = isTriggeredInitialSync(localStateful) && isTriggeredInitialSync(removeStateful)
-                && (isDeltaSyncEnabled || isSyncAvoidanceEnabled);
-        isTriggeredReSyncEnable = isTriggeredReSync(localStateful) && isTriggeredReSync(removeStateful);
-    }
 
-    boolean doesLspDbMatch() {
-        return dbVersionMatch;
-    }
+        final var syncAvoidanceEnabled = syncAvoidance(localStateful) && syncAvoidance(removeStateful);
+        final var deltaSyncEnabled = deltaSync(localStateful) && deltaSync(removeStateful);
 
-    boolean isSyncAvoidanceEnabled() {
-        return isSyncAvoidanceEnabled;
-    }
-
-    boolean isDeltaSyncEnabled() {
-        return isDeltaSyncEnabled;
-    }
-
-    boolean isTriggeredInitSyncEnabled() {
-        return isTriggeredInitialSyncEnable;
-    }
-
-    boolean isTriggeredReSyncEnabled() {
-        return isTriggeredReSyncEnable;
-    }
-
-    boolean isDbVersionPresent() {
-        return isDbVersionPresent;
+        return new SyncOptimization(
+            localLspDbVersion != null && localLspDbVersion.equals(remoteLspDbVersion),
+            syncAvoidanceEnabled, deltaSyncEnabled,
+            localLspDbVersion != null || remoteLspDbVersion != null,
+            (deltaSyncEnabled || syncAvoidanceEnabled)
+                && triggeredInitialSync(localStateful) && triggeredInitialSync(removeStateful),
+            triggeredReSync(localStateful) && triggeredReSync(removeStateful));
     }
 
     private static @Nullable LspDbVersion lspDbVersion(final Tlvs openTlvs) {
@@ -88,19 +66,19 @@ final class SyncOptimization implements Immutable {
         return null;
     }
 
-    private static boolean isSyncAvoidance(final Stateful1 stateful) {
+    private static boolean syncAvoidance(final Stateful1 stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getIncludeDbVersion());
     }
 
-    private static boolean isDeltaSync(final Stateful1 stateful) {
+    private static boolean deltaSync(final Stateful1 stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getDeltaLspSyncCapability());
     }
 
-    private static boolean isTriggeredInitialSync(final Stateful1 stateful) {
+    private static boolean triggeredInitialSync(final Stateful1 stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredInitialSync());
     }
 
-    private static boolean isTriggeredReSync(final Stateful1 stateful) {
+    private static boolean triggeredReSync(final Stateful1 stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredResync());
     }
 }

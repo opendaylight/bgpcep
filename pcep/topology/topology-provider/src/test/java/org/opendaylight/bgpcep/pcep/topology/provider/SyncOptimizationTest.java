@@ -24,48 +24,47 @@ public class SyncOptimizationTest {
     @Test
     public void testDoesLspDbMatchPositive() {
         final var tlvs = createTlvs(1L, false, false);
-        assertTrue(new SyncOptimization(tlvs, tlvs).doesLspDbMatch());
+        assertTrue(SyncOptimization.of(tlvs, tlvs).dbVersionMatch());
     }
 
     @Test
     public void testDoesLspDbMatchNegative() {
-        assertFalse(new SyncOptimization(createTlvs(1L, false, false), createTlvs(2L, false, false)).doesLspDbMatch());
+        assertFalse(SyncOptimization.of(createTlvs(1L, false, false), createTlvs(2L, false, false)).dbVersionMatch());
     }
 
     @Test
     public void testIsSyncAvoidanceEnabledPositive() {
         final var tlvs = createTlvs(1L, true, false);
-        assertTrue(new SyncOptimization(tlvs, tlvs).isSyncAvoidanceEnabled());
+        assertTrue(SyncOptimization.of(tlvs, tlvs).syncAvoidanceEnabled());
     }
 
     @Test
     public void testIsSyncAvoidanceEnabledNegative() {
-        assertFalse(new SyncOptimization(createTlvs(1L, true, false), createTlvs(2L, false, false))
-            .isSyncAvoidanceEnabled());
+        assertFalse(SyncOptimization.of(createTlvs(1L, true, false), createTlvs(2L, false, false))
+            .syncAvoidanceEnabled());
     }
 
     @Test
     public void testIsDeltaSyncEnabledPositive() {
         final var tlvs = createTlvs(1L, true, true);
-        assertTrue(new SyncOptimization(tlvs, tlvs).isDeltaSyncEnabled());
+        assertTrue(SyncOptimization.of(tlvs, tlvs).deltaSyncEnabled());
     }
 
     @Test
     public void testIsDeltaSyncEnabledNegative() {
-        assertFalse(new SyncOptimization(createTlvs(1L, true, true), createTlvs(2L, false, false))
-            .isDeltaSyncEnabled());
+        assertFalse(SyncOptimization.of(createTlvs(1L, true, true), createTlvs(2L, false, false)).deltaSyncEnabled());
     }
 
     @Test
     public void testIsDbVersionPresentPositive() {
-        assertTrue(new SyncOptimization(createTlvs(null, false, false), createTlvs(2L, false, false))
-            .isDbVersionPresent());
+        assertTrue(SyncOptimization.of(createTlvs(null, false, false), createTlvs(2L, false, false))
+            .dbVersionPresent());
     }
 
     @Test
     public void testIsDbVersionPresentNegative() {
         final var tlvs = createTlvs(null, true, false);
-        assertFalse(new SyncOptimization(tlvs, tlvs).isDbVersionPresent());
+        assertFalse(SyncOptimization.of(tlvs, tlvs).dbVersionPresent());
     }
 
     private static Tlvs createTlvs(final Long lspDbVersion, final boolean includeDbVresion,
