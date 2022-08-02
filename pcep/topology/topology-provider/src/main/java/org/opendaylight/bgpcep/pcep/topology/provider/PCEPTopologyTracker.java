@@ -115,7 +115,7 @@ public final class PCEPTopologyTracker
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        statsProvider = new TopologyStatsProvider(dataBroker, updateIntervalSeconds);
+        statsProvider = new TopologyStatsProvider(dataBroker, privateTimer, updateIntervalSeconds);
         statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
         statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
 
