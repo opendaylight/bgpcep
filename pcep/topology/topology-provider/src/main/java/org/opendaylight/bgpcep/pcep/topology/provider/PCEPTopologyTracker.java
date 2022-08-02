@@ -110,7 +110,7 @@ public final class PCEPTopologyTracker
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        statsProvider = new TopologyStatsProvider(dataBroker, updateIntervalSeconds);
+        statsProvider = new TopologyStatsProvider(dataBroker, privateTimer, updateIntervalSeconds);
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
