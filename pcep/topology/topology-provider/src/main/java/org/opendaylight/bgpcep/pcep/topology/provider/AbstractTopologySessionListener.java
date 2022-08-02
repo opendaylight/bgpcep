@@ -98,7 +98,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private final Map<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
     private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
+    private final TopologySessionStatsRegistry statsProvider;
     private final ServerSessionManager serverSessionManager;
+
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
     private TopologyNodeState nodeState;
@@ -110,7 +112,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @GuardedBy("this")
     private boolean triggeredResyncInProcess;
 
-    AbstractTopologySessionListener(final ServerSessionManager serverSessionManager) {
+    AbstractTopologySessionListener(final TopologySessionStatsRegistry statsProvider,
+            final ServerSessionManager serverSessionManager) {
+        this.statsProvider = requireNonNull(statsProvider);
         this.serverSessionManager = requireNonNull(serverSessionManager);
     }
 
@@ -174,8 +178,10 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 state.storeNode(topologyAugment,
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
-                listenerState = new SessionStateImpl(this, psession);
-                serverSessionManager.bind(state.getNodeId(), listenerState);
+                // TODO: collapse assignment? needs to be verified through bytecode
+                final var sessionState = new SessionStateImpl(this, psession);
+                listenerState = sessionState;
+                statsProvider.bind(state.getNodeId(), sessionState);
                 LOG.info("Session with {} attached to topology node {}", peerAddress, state.getNodeId());
             }
         }
@@ -366,7 +372,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @Holding({"this.serverSessionManager", "this"})
     private void clearNodeState() {
         if (nodeState != null) {
-            serverSessionManager.unbind(nodeState.getNodeId());
+            statsProvider.unbind(nodeState.getNodeId());
             LOG.debug("Clear Node state: {}", nodeState.getNodeId());
             nodeState = null;
         }
