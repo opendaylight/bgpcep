@@ -97,7 +97,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     @Mock
     private ChannelFuture channelFuture;
     @Mock
-    private TopologySessionStatsRegistry statsRegistry;
+    private SessionStateRegistry stateRegistry;
     @Mock
     private PCEPTopologyProviderDependencies topologyDependencies;
     @Mock
@@ -121,7 +121,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
             any(ChannelHandler.class));
         doReturn(eventLoop).when(clientListener).eventLoop();
         doAnswer(inv -> NoOpObjectRegistration.of(inv.getArgument(1, PcepSessionState.class)))
-            .when(statsRegistry).bind(any(), any());
+            .when(stateRegistry).bind(any(), any());
         doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(clientListener).isActive();
         final InetSocketAddress ra = new InetSocketAddress(testAddress, 4189);
@@ -132,7 +132,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(mock(ChannelFuture.class)).when(clientListener).close();
 
         doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
-        doReturn(statsRegistry).when(topologyDependencies).getStateRegistry();
+        doReturn(stateRegistry).when(topologyDependencies).getStateRegistry();
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 

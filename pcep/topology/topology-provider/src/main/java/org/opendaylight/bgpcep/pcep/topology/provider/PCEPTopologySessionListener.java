@@ -134,9 +134,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
-    PCEPTopologySessionListener(final TopologySessionStatsRegistry statsProvider,
+    PCEPTopologySessionListener(final SessionStateRegistry stateRegistry,
             final ServerSessionManager serverSessionManager, final PceServerProvider pceServerProvider) {
-        super(statsProvider, serverSessionManager);
+        super(stateRegistry, serverSessionManager);
         // FIXME: requireNonNull(), except tests need to be updated
         this.pceServerProvider = pceServerProvider;
     }
