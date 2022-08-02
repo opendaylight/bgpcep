@@ -9,13 +9,8 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
@@ -25,85 +20,52 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SyncOptimizationTest {
-    @Mock
-    private PCEPSession pcepSession;
-
     @Test
     public void testDoesLspDbMatchPositive() {
-        final Tlvs tlvs = createTlvs(1L, false, false);
-        doReturn(tlvs).when(pcepSession).getLocalTlvs();
-        doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertTrue(syncOpt.doesLspDbMatch());
+        final var tlvs = createTlvs(1L, false, false);
+        assertTrue(new SyncOptimization(tlvs, tlvs).doesLspDbMatch());
     }
 
     @Test
     public void testDoesLspDbMatchNegative() {
-        final Tlvs localTlvs = createTlvs(1L, false, false);
-        final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        doReturn(localTlvs).when(pcepSession).getLocalTlvs();
-        doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertFalse(syncOpt.doesLspDbMatch());
+        assertFalse(new SyncOptimization(createTlvs(1L, false, false), createTlvs(2L, false, false)).doesLspDbMatch());
     }
 
     @Test
     public void testIsSyncAvoidanceEnabledPositive() {
-        final Tlvs tlvs = createTlvs(1L, true, false);
-        doReturn(tlvs).when(pcepSession).getLocalTlvs();
-        doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertTrue(syncOpt.isSyncAvoidanceEnabled());
+        final var tlvs = createTlvs(1L, true, false);
+        assertTrue(new SyncOptimization(tlvs, tlvs).isSyncAvoidanceEnabled());
     }
 
     @Test
     public void testIsSyncAvoidanceEnabledNegative() {
-        final Tlvs localTlvs = createTlvs(1L, true, false);
-        final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        doReturn(localTlvs).when(pcepSession).getLocalTlvs();
-        doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertFalse(syncOpt.isSyncAvoidanceEnabled());
+        assertFalse(new SyncOptimization(createTlvs(1L, true, false), createTlvs(2L, false, false))
+            .isSyncAvoidanceEnabled());
     }
 
     @Test
     public void testIsDeltaSyncEnabledPositive() {
-        final Tlvs tlvs = createTlvs(1L, true, true);
-        doReturn(tlvs).when(pcepSession).getLocalTlvs();
-        doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertTrue(syncOpt.isDeltaSyncEnabled());
+        final var tlvs = createTlvs(1L, true, true);
+        assertTrue(new SyncOptimization(tlvs, tlvs).isDeltaSyncEnabled());
     }
 
     @Test
     public void testIsDeltaSyncEnabledNegative() {
-        final Tlvs localTlvs = createTlvs(1L, true, true);
-        final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        doReturn(localTlvs).when(pcepSession).getLocalTlvs();
-        doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertFalse(syncOpt.isDeltaSyncEnabled());
+        assertFalse(new SyncOptimization(createTlvs(1L, true, true), createTlvs(2L, false, false))
+            .isDeltaSyncEnabled());
     }
 
     @Test
     public void testIsDbVersionPresentPositive() {
-        final Tlvs localTlvs = createTlvs(null, false, false);
-        final Tlvs remoteTlvs = createTlvs(2L, false, false);
-        doReturn(localTlvs).when(pcepSession).getLocalTlvs();
-        doReturn(remoteTlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertTrue(syncOpt.isDbVersionPresent());
+        assertTrue(new SyncOptimization(createTlvs(null, false, false), createTlvs(2L, false, false))
+            .isDbVersionPresent());
     }
 
     @Test
     public void testIsDbVersionPresentNegative() {
-        final Tlvs tlvs = createTlvs(null, true, false);
-        doReturn(tlvs).when(pcepSession).getLocalTlvs();
-        doReturn(tlvs).when(pcepSession).getRemoteTlvs();
-        final SyncOptimization syncOpt = new SyncOptimization(pcepSession);
-        assertFalse(syncOpt.isDbVersionPresent());
+        final var tlvs = createTlvs(null, true, false);
+        assertFalse(new SyncOptimization(tlvs, tlvs).isDbVersionPresent());
     }
 
     private static Tlvs createTlvs(final Long lspDbVersion, final boolean includeDbVresion,

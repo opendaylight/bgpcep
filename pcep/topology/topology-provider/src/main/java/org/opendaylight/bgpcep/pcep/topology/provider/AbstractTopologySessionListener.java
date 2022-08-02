@@ -131,7 +131,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                  */
                 final InetAddress peerAddress = psession.getRemoteAddress();
 
-                syncOptimization = new SyncOptimization(psession);
+                syncOptimization = new SyncOptimization(psession.getLocalTlvs(), psession.getRemoteTlvs());
                 final boolean haveLspDbVersion = syncOptimization.isDbVersionPresent();
 
                 final TopologyNodeState state =
