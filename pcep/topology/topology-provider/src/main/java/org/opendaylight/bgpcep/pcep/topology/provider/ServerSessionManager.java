@@ -32,7 +32,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
@@ -47,8 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.ErrorType;
@@ -215,7 +212,8 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     // Non-final for testing
     @Override
     public PCEPTopologySessionListener getSessionListener() {
-        return new PCEPTopologySessionListener(this);
+        return new PCEPTopologySessionListener(dependencies.getStateRegistry(), this,
+            dependencies.getPceServerProvider());
     }
 
     private synchronized TopologySessionListener checkSessionPresence(final NodeId nodeId) {
@@ -286,14 +284,6 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         for (var address : outdatedNodes) {
             tearDownSession(new TearDownSessionInputBuilder().setNode(createNodeId(address)).build());
         }
-    }
-
-    final void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final PcepSessionState sessionState) {
-        dependencies.getStateRegistry().bind(nodeId, sessionState);
-    }
-
-    final void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
-        dependencies.getStateRegistry().unbind(nodeId);
     }
 
     final PCEPTopologyProviderDependencies getPCEPTopologyProviderDependencies() {

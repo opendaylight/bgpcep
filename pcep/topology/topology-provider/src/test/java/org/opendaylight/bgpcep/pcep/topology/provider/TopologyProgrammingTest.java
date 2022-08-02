@@ -157,7 +157,9 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     @Override
     ServerSessionManager customizeSessionManager(final ServerSessionManager original) {
         final var customized = spy(original);
-        listener = spy(new PCEPTopologySessionListener(original));
+        final var deps = original.getPCEPTopologyProviderDependencies();
+        listener = spy(new PCEPTopologySessionListener(deps.getStateRegistry(), original,
+            deps.getPceServerProvider()));
         doReturn(listener).when(customized).getSessionListener();
         return customized;
     }

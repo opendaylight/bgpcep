@@ -134,9 +134,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     /**
      * Creates a new stateful topology session listener for given server session manager.
      */
-    PCEPTopologySessionListener(final ServerSessionManager serverSessionManager) {
-        super(serverSessionManager);
-        pceServerProvider = serverSessionManager.getPCEPTopologyProviderDependencies().getPceServerProvider();
+    PCEPTopologySessionListener(final TopologySessionStatsRegistry statsProvider,
+            final ServerSessionManager serverSessionManager, final PceServerProvider pceServerProvider) {
+        super(statsProvider, serverSessionManager);
+        // FIXME: requireNonNull(), except tests need to be updated
+        this.pceServerProvider = pceServerProvider;
     }
 
     private static LspDbVersion geLspDbVersionTlv(final Lsp lsp) {
