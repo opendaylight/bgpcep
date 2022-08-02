@@ -5,20 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static java.util.Objects.requireNonNull;
-
-import org.opendaylight.protocol.pcep.PCEPSession;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
+import org.opendaylight.yangtools.concepts.Immutable;
 
-final class SyncOptimization {
-
+final class SyncOptimization implements Immutable {
     private final boolean dbVersionMatch;
     private final boolean isSyncAvoidanceEnabled;
     private final boolean isDeltaSyncEnabled;
@@ -26,90 +23,84 @@ final class SyncOptimization {
     private final boolean isTriggeredInitialSyncEnable;
     private final boolean isTriggeredReSyncEnable;
 
-    SyncOptimization(final PCEPSession session) {
-        requireNonNull(session);
-        final Tlvs remote = session.getRemoteTlvs();
-        final Tlvs local = session.getLocalTlvs();
-        final LspDbVersion localLspDbVersion = getLspDbVersion(local);
-        final LspDbVersion remoteLspDbVersion = getLspDbVersion(remote);
-        this.dbVersionMatch = compareLspDbVersion(localLspDbVersion, remoteLspDbVersion);
-        this.isSyncAvoidanceEnabled = isSyncAvoidance(local) && isSyncAvoidance(remote);
-        this.isDeltaSyncEnabled = isDeltaSync(local) && isDeltaSync(remote);
-        this.isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
-        this.isTriggeredInitialSyncEnable = isTriggeredInitialSync(local) && isTriggeredInitialSync(remote)
-                && (this.isDeltaSyncEnabled || this.isSyncAvoidanceEnabled);
-        this.isTriggeredReSyncEnable = isTriggeredReSync(local) && isTriggeredReSync(remote);
+    SyncOptimization(final Tlvs local, final Tlvs remote) {
+        final var localLspDbVersion = lspDbVersion(local);
+        final var remoteLspDbVersion = lspDbVersion(remote);
+        dbVersionMatch = localLspDbVersion != null && localLspDbVersion.equals(remoteLspDbVersion);
+        isDbVersionPresent = localLspDbVersion != null || remoteLspDbVersion != null;
+
+        final var localStateful = stateful(local);
+        final var removeStateful = stateful(remote);
+        isSyncAvoidanceEnabled = isSyncAvoidance(localStateful) && isSyncAvoidance(removeStateful);
+        isDeltaSyncEnabled = isDeltaSync(localStateful) && isDeltaSync(removeStateful);
+        isTriggeredInitialSyncEnable = isTriggeredInitialSync(localStateful) && isTriggeredInitialSync(removeStateful)
+                && (isDeltaSyncEnabled || isSyncAvoidanceEnabled);
+        isTriggeredReSyncEnable = isTriggeredReSync(localStateful) && isTriggeredReSync(removeStateful);
     }
 
     boolean doesLspDbMatch() {
-        return this.dbVersionMatch;
+        return dbVersionMatch;
     }
 
     boolean isSyncAvoidanceEnabled() {
-        return this.isSyncAvoidanceEnabled;
+        return isSyncAvoidanceEnabled;
     }
 
     boolean isDeltaSyncEnabled() {
-        return this.isDeltaSyncEnabled;
+        return isDeltaSyncEnabled;
     }
 
     boolean isTriggeredInitSyncEnabled() {
-        return this.isTriggeredInitialSyncEnable;
+        return isTriggeredInitialSyncEnable;
     }
 
     boolean isTriggeredReSyncEnabled() {
-        return this.isTriggeredReSyncEnable;
+        return isTriggeredReSyncEnable;
     }
 
     boolean isDbVersionPresent() {
-        return this.isDbVersionPresent;
+        return isDbVersionPresent;
     }
 
-    private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
+    private static @Nullable LspDbVersion lspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs3 tlvs3 = openTlvs.augmentation(Tlvs3.class);
-            if (tlvs3 != null && tlvs3.getLspDbVersion() != null
-                    && tlvs3.getLspDbVersion().getLspDbVersionValue() != null) {
-                return tlvs3.getLspDbVersion();
+            final var tlvs3 = openTlvs.augmentation(Tlvs3.class);
+            if (tlvs3 != null) {
+                final var dbVersion = tlvs3.getLspDbVersion();
+                if (dbVersion != null && dbVersion.getLspDbVersionValue() != null) {
+                    return dbVersion;
+                }
             }
         }
         return null;
     }
 
-    private static boolean compareLspDbVersion(final LspDbVersion local, final LspDbVersion remote) {
-        if (local != null && remote != null) {
-            return local.equals(remote);
-        }
-        return false;
-    }
-
-    private static Stateful1 getStateful1(final Tlvs openTlvs) {
+    private static @Nullable Stateful1 stateful(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs1 tlvs1 = openTlvs.augmentation(Tlvs1.class);
-            if (tlvs1 != null && tlvs1.getStateful() != null) {
-                return tlvs1.getStateful().augmentation(Stateful1.class);
+            final var tlvs1 = openTlvs.augmentation(Tlvs1.class);
+            if (tlvs1 != null) {
+                final var stateful = tlvs1.getStateful();
+                if (stateful != null) {
+                    return stateful.augmentation(Stateful1.class);
+                }
             }
         }
         return null;
     }
 
-    private static boolean isSyncAvoidance(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getIncludeDbVersion());
+    private static boolean isSyncAvoidance(final Stateful1 stateful) {
+        return stateful != null && Boolean.TRUE.equals(stateful.getIncludeDbVersion());
     }
 
-    private static boolean isDeltaSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getDeltaLspSyncCapability());
+    private static boolean isDeltaSync(final Stateful1 stateful) {
+        return stateful != null && Boolean.TRUE.equals(stateful.getDeltaLspSyncCapability());
     }
 
-    private static boolean isTriggeredInitialSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredInitialSync());
+    private static boolean isTriggeredInitialSync(final Stateful1 stateful) {
+        return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredInitialSync());
     }
 
-    private static boolean isTriggeredReSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredResync());
+    private static boolean isTriggeredReSync(final Stateful1 stateful) {
+        return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredResync());
     }
 }
