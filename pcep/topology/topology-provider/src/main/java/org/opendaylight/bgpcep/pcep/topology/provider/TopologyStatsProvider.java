@@ -46,9 +46,8 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TopologyStatsProviderImpl implements TopologySessionStatsRegistry, TransactionChainListener,
-        AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProviderImpl.class);
+final class TopologyStatsProvider implements SessionStateRegistry, TransactionChainListener {
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProvider.class);
 
     // This tracking looks weird. It essentially tracks when there is a pending delete transaction and skips updates --
     // which is the okay part. The problem is that if the remove operation fails for some reason, we do not retry
@@ -69,11 +68,11 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     @GuardedBy("this")
     private final ScheduledFuture<?> scheduleTask;
 
-    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds) {
+    TopologyStatsProvider(final DataBroker dataBroker, final int updateIntervalSeconds) {
         this(dataBroker, updateIntervalSeconds, Executors.newScheduledThreadPool(1));
     }
 
-    public TopologyStatsProviderImpl(final DataBroker dataBroker, final int updateIntervalSeconds,
+    TopologyStatsProvider(final DataBroker dataBroker, final int updateIntervalSeconds,
             final ScheduledExecutorService scheduler) {
         this.dataBroker = requireNonNull(dataBroker);
         LOG.info("Initializing TopologyStatsProvider service.");
@@ -85,17 +84,18 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
         }, 0, updateIntervalSeconds, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void close() throws InterruptedException, ExecutionException {
+    // FIXME: there should be no further tasks, hence this should not be needed
+    // FIXME: if it ends up being needed, it needs to be asynchronous
+    void shutdown() throws InterruptedException, ExecutionException {
         if (scheduleTask.cancel(true)) {
             LOG.info("Closing TopologyStatsProvider service.");
-            shutdown();
+            lockedShutdown();
         } else {
             LOG.debug("TopologyStatsProvider already shut down");
         }
     }
 
-    private synchronized void shutdown() throws InterruptedException, ExecutionException {
+    private synchronized void lockedShutdown() throws InterruptedException, ExecutionException {
         // Try to get a transaction chain and indicate we are done
         final TransactionChain chain = accessChain();
         transactionChain = null;
@@ -250,7 +250,7 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
 
         @Override
         protected void removeRegistration() {
-            TopologyStatsProviderImpl.this.removeRegistration(this);
+            TopologyStatsProvider.this.removeRegistration(this);
         }
     }
 }

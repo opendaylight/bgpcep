@@ -16,6 +16,9 @@
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
 
+    <odl:clustered-app-config id="pcepStatsConfig"
+        binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
+
     <bean id="pcepTopologyTracker"
           class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyTracker"
           destroy-method="close">
@@ -24,8 +27,10 @@
         <argument ref="rpcProviderService"/>
         <argument ref="pcepDispatcher"/>
         <argument ref="intructionFactory"/>
-        <argument ref="topologyStatsRegistry"/>
         <argument ref="pceServerProvider"/>
+        <argument>
+            <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
+        </argument>
     </bean>
 
     <bean id="topologyStatsRpcService"
@@ -34,16 +39,4 @@
         <argument ref="dataBroker"/>
     </bean>
     <odl:rpc-implementation ref="topologyStatsRpcService"/>
-
-    <odl:clustered-app-config id="pcepStatsConfig"
-        binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
-
-    <bean id="topologyStatsRegistry"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.TopologyStatsProviderImpl"
-          destroy-method="close">
-        <argument ref="dataBroker"/>
-        <argument>
-            <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
-        </argument>
-    </bean>
 </blueprint>

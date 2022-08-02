@@ -100,8 +100,8 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private final Map<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
     private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
-    private final TopologySessionStatsRegistry statsProvider;
     private final ServerSessionManager serverSessionManager;
+    private final SessionStateRegistry stateRegistry;
 
     private InstanceIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
@@ -114,9 +114,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @GuardedBy("this")
     private boolean triggeredResyncInProcess;
 
-    AbstractTopologySessionListener(final TopologySessionStatsRegistry statsProvider,
+    AbstractTopologySessionListener(final SessionStateRegistry stateRegistry,
             final ServerSessionManager serverSessionManager) {
-        this.statsProvider = requireNonNull(statsProvider);
+        this.stateRegistry = requireNonNull(stateRegistry);
         this.serverSessionManager = requireNonNull(serverSessionManager);
     }
 
@@ -181,7 +181,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 state.storeNode(topologyAugment,
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
-                listenerState = statsProvider.bind(nodeId, new SessionStateImpl(this, psession));
+                listenerState = stateRegistry.bind(nodeId, new SessionStateImpl(this, psession));
                 LOG.info("Session with {} attached to topology node {}", peerAddress, nodeId);
             }
         }

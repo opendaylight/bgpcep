@@ -18,7 +18,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 /**
  * Topology Node Sessions stats handler. Will store Session stats on DS per each Topology Node registered.
  */
-interface TopologySessionStatsRegistry {
+interface SessionStateRegistry {
     /**
      * Register session to Session stats Registry handler.
      *

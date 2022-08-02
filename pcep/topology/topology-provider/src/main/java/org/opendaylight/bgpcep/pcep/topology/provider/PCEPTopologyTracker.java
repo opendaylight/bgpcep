@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -55,11 +56,13 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
-    private final @NonNull TopologySessionStatsRegistry stateRegistry;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
     private final @NonNull DataBroker dataBroker;
+
+    // Statistics provider
+    private final @NonNull TopologyStatsProvider statsProvider;
 
     // Timer used for RPC timeouts and session statistics scheduling
     private final @NonNull HashedWheelTimer privateTimer = new HashedWheelTimer();
@@ -100,14 +103,14 @@ public final class PCEPTopologyTracker
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
             final InstructionSchedulerFactory instructionSchedulerFactory,
-            final TopologySessionStatsRegistry stateRegistry, final PceServerProvider pceServerProvider) {
+            final PceServerProvider pceServerProvider, final int updateIntervalSeconds) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
-        this.stateRegistry = requireNonNull(stateRegistry);
         this.pceServerProvider = requireNonNull(pceServerProvider);
+        statsProvider = new TopologyStatsProvider(dataBroker, updateIntervalSeconds);
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
@@ -131,8 +134,8 @@ public final class PCEPTopologyTracker
     }
 
     @Override
-    public TopologySessionStatsRegistry getStateRegistry() {
-        return stateRegistry;
+    public SessionStateRegistry getStateRegistry() {
+        return statsProvider;
     }
 
     @Override
@@ -165,6 +168,15 @@ public final class PCEPTopologyTracker
         final var cancelledTasks = privateTimer.stop().size();
         if (cancelledTasks != 0) {
             LOG.warn("Stopped timer with {} remaining tasks", cancelledTasks);
+        }
+
+        try {
+            statsProvider.shutdown();
+        } catch (ExecutionException e) {
+            LOG.warn("Failed to close statistics provider", e);
+        } catch (InterruptedException e) {
+            LOG.warn("Interrupted while waiting for statistics provider shutdown", e);
+            Thread.currentThread().interrupt();
         }
 
         LOG.info("PCEP Topology tracker shut down");

@@ -45,7 +45,7 @@ interface PCEPTopologyProviderDependencies {
      *
      * @return TopologySessionStateRegistry
      */
-    TopologySessionStatsRegistry getStateRegistry();
+    SessionStateRegistry getStateRegistry();
 
     /**
      * PCE Server Provider.
