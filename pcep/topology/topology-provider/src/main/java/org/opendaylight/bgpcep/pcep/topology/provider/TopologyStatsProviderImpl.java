@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +24,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.Transaction;
@@ -39,6 +39,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
+import org.opendaylight.yangtools.concepts.NoOpObjectRegistration;
+import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +60,7 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     //        retry in face of failing transactions.
     private final Set<KeyedInstanceIdentifier<Node, NodeKey>> statsPendingDelete = ConcurrentHashMap.newKeySet();
     @GuardedBy("this")
-    private final Map<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> statsMap = new HashMap<>();
+    private final Map<KeyedInstanceIdentifier<Node, NodeKey>, Reg<?>> statsMap = new HashMap<>();
     // Note: null indicates we have been shut down
     @GuardedBy("this")
     private DataBroker dataBroker;
@@ -139,13 +142,16 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
 
         final WriteTransaction tx = chain.newWriteOnlyTransaction();
         try {
-            for (Entry<KeyedInstanceIdentifier<Node, NodeKey>, PcepSessionState> entry : statsMap.entrySet()) {
+            for (var entry : statsMap.entrySet()) {
                 if (!statsPendingDelete.contains(entry.getKey())) {
-                    tx.put(LogicalDatastoreType.OPERATIONAL,
+                    final var reg = entry.getValue();
+                    if (reg.notClosed()) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL,
                             entry.getKey().augmentation(PcepTopologyNodeStatsAug.class),
                             new PcepTopologyNodeStatsAugBuilder()
-                                    .setPcepSessionState(new PcepSessionStateBuilder(entry.getValue()).build())
-                                    .build());
+                                .setPcepSessionState(new PcepSessionStateBuilder(reg.getInstance()).build())
+                                .build());
+                    }
                 }
             }
         } catch (Exception e) {
@@ -186,27 +192,33 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
     }
 
     @Override
-    public synchronized void bind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId,
-            final PcepSessionState sessionState) {
-        if (dataBroker != null) {
-            statsMap.put(nodeId, sessionState);
-        } else {
+    public synchronized <T extends PcepSessionState> ObjectRegistration<T> bind(
+            final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final T sessionState) {
+        if (dataBroker == null) {
             LOG.debug("Ignoring bind of Pcep Node {}", nodeId);
+            return NoOpObjectRegistration.of(sessionState);
         }
+
+        final var ret = new Reg<>(sessionState, nodeId);
+        // FIXME: a replace should never happen, and hence regs are just a Set (which can be concurrent and this method
+        //        does not need synchronization
+        statsMap.put(nodeId, ret);
+        return ret;
     }
 
-    @Override
-    public synchronized void unbind(final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+    private synchronized void removeRegistration(final @NonNull Reg<?> reg) {
+        final var nodeId = reg.nodeId;
+
+        if (!statsMap.remove(nodeId, reg)) {
+            // Already replaced by a subsequent bind()
+            LOG.debug("Ignoring overridden unbind of Pcep Node {}", nodeId);
+            return;
+        }
+
         final TransactionChain chain = accessChain();
         if (chain == null) {
             // Already closed, do not bother
             LOG.debug("Ignoring unbind of Pcep Node {}", nodeId);
-            return;
-        }
-
-        final PcepSessionState node = statsMap.remove(nodeId);
-        if (node == null) {
-            LOG.debug("Ignoring duplicate unbind of Pcep Node {}", nodeId);
             return;
         }
 
@@ -226,5 +238,19 @@ public final class TopologyStatsProviderImpl implements TopologySessionStatsRegi
                 statsPendingDelete.remove(nodeId);
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    private final class Reg<T extends PcepSessionState> extends AbstractObjectRegistration<T> {
+        private final @NonNull KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+
+        Reg(final @NonNull T instance, final KeyedInstanceIdentifier<Node, NodeKey> nodeId) {
+            super(instance);
+            this.nodeId = requireNonNull(nodeId);
+        }
+
+        @Override
+        protected void removeRegistration() {
+            TopologyStatsProviderImpl.this.removeRegistration(this);
+        }
     }
 }

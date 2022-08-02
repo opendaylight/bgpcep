@@ -402,7 +402,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         if (!(message instanceof PcrptMessage)) {
             return true;
         }
-        listenerState.updateLastReceivedRptMsg();
+        // FIXME: update just a field
+        listenerState().updateLastReceivedRptMsg();
         final var rpt = ((PcrptMessage) message).getPcrptMessage();
         for (final Reports report : rpt.nonnullReports()) {
             if (!manageNextReport(report, ctx)) {

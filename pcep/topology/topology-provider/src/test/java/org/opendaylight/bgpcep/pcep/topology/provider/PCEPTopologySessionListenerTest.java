@@ -95,6 +95,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
@@ -117,20 +118,19 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testPCEPTopologySessionListener() throws Exception {
         listener.onSessionUp(session);
-        final PcepSessionState listenerState = listener.listenerState;
-        assertEquals(testAddress, listenerState.getPeerPref().getIpAddress());
-        final LocalPref state = listener.listenerState.getLocalPref();
+        final PcepSessionState listenerState = listener.listenerState();
+        final LocalPref state = listenerState.getLocalPref();
         assertNotNull(state);
         assertEquals(DEAD_TIMER, state.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, state.getKeepalive().shortValue());
-        assertEquals(0, state.getSessionId().intValue());
+        assertEquals(Uint16.ZERO, state.getSessionId());
         assertEquals(testAddress, state.getIpAddress());
 
         final PeerPref peerState = listenerState.getPeerPref();
-
+        assertEquals(testAddress, peerState.getIpAddress());
         assertEquals(DEAD_TIMER, peerState.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, peerState.getKeepalive().shortValue());
-        assertEquals(0, peerState.getSessionId().intValue());
+        assertEquals(Uint16.ZERO, peerState.getSessionId());
         assertEquals(testAddress, peerState.getIpAddress());
 
         // add-lsp
@@ -610,7 +610,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                 .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(
                 req.getEro().getSubobject()));
         listener.onMessage(session, pcRpt);
-        checkEquals(() -> assertEquals(1, listener.listenerState.getDelegatedLspsCount().intValue()));
+        checkEquals(() -> assertEquals(Uint16.ONE, listener.listenerState().getDelegatedLspsCount()));
     }
 
     @Test
@@ -634,7 +634,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                         .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)),
                 MsgBuilderUtil.createPath(req.getEro().getSubobject()));
         listener.onMessage(session, pcRpt);
-        checkEquals(() -> assertEquals(0, listener.listenerState.getDelegatedLspsCount().intValue()));
+        checkEquals(() -> assertEquals(Uint16.ZERO, listener.listenerState().getDelegatedLspsCount()));
     }
 
     @Override
