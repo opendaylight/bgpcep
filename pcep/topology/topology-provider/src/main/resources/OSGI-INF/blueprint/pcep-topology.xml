@@ -6,8 +6,7 @@
   terms of the Eclipse Public License v1.0 which accompanies this distribution,
   and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
@@ -15,9 +14,6 @@
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
-
-    <odl:clustered-app-config id="pcepStatsConfig"
-        binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev171113.PcepProvider"/>
 
     <bean id="pcepTopologyTracker"
           class="org.opendaylight.bgpcep.pcep.topology.provider.PCEPTopologyTracker"
@@ -28,8 +24,5 @@
         <argument ref="pcepDispatcher"/>
         <argument ref="intructionFactory"/>
         <argument ref="pceServerProvider"/>
-        <argument>
-            <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
-        </argument>
     </bean>
 </blueprint>
