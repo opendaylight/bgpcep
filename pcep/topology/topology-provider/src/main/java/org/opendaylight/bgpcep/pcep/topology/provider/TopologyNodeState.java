@@ -28,8 +28,6 @@ import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -187,28 +185,14 @@ final class TopologyNodeState implements TransactionChainListener {
         }, MoreExecutors.directExecutor());
     }
 
-    void storeNode(final InstanceIdentifier<Node1> topologyAugment, final Node1 ta, final PCEPSession session) {
+    @NonNull FluentFuture<? extends @NonNull CommitInfo> storeNode(final InstanceIdentifier<Node1> topologyAugment,
+            final Node1 ta) {
         LOG.trace("Peer data {} set to {}", topologyAugment, ta);
-
-        final FluentFuture<? extends CommitInfo> future;
         synchronized (this) {
             final WriteTransaction trans = chain.newWriteOnlyTransaction();
             trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
             // All set, commit the modifications
-            future = trans.commit();
+            return trans.commit();
         }
-
-        future.addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.trace("Node stored {} for session {} updated successfully", topologyAugment, session);
-            }
-
-            @Override
-            public void onFailure(final Throwable cause) {
-                LOG.error("Failed to store node {} for session {}, terminating it", topologyAugment, session, cause);
-                session.close(TerminationReason.UNKNOWN);
-            }
-        }, MoreExecutors.directExecutor());
     }
 }
