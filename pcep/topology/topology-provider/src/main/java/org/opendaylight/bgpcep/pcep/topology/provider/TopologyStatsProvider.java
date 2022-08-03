@@ -251,18 +251,19 @@ final class TopologyStatsProvider implements SessionStateRegistry, TransactionCh
     }
 
     @Override
-    public synchronized <T extends PcepSessionState> ObjectRegistration<T> bind(
-            final KeyedInstanceIdentifier<Node, NodeKey> nodeId, final T sessionState) {
+    public ObjectRegistration<SessionStateUpdater> bind(final SessionStateUpdater sessionState) {
         if (nextTimeout == null) {
-            LOG.debug("Ignoring bind of Pcep Node {}", nodeId);
+            LOG.debug("Ignoring bind of Pcep Node {}", sessionState);
             return NoOpObjectRegistration.of(sessionState);
         }
 
-        final var ret = new Reg<>(sessionState, nodeId);
-        // FIXME: a replace should never happen, and hence regs are just a Set (which can be concurrent and this method
-        //        does not need synchronization
-        statsMap.put(nodeId, ret);
-        return ret;
+        synchronized (this) {
+            final var ret = new Reg<>(sessionState, nodeId);
+            // FIXME: a replace should never happen, and hence regs are just a Set (which can be concurrent and this
+            //        method does not need synchronization
+            statsMap.put(nodeId, ret);
+            return ret;
+        }
     }
 
     private synchronized void removeRegistration(final @NonNull Reg<?> reg) {

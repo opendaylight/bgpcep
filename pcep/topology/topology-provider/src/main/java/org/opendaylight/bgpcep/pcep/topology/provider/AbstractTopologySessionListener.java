@@ -32,8 +32,6 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.SessionStateImpl;
-import org.opendaylight.bgpcep.pcep.topology.provider.session.stats.TopologySessionStats;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -93,7 +91,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     @GuardedBy("this")
     final Map<PlspId, String> lsps = new HashMap<>();
     @GuardedBy("this")
-    private ObjectRegistration<SessionStateImpl> listenerState;
+    private ObjectRegistration<SessionStateUpdater> listenerState;
 
     // FIXME: clarify lifecycle rules of this map, most notably the interaction of multiple SrpIdNumbers
     @GuardedBy("this")
@@ -181,7 +179,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
                 final var storeFuture = state.storeNode(topologyAugment,
                         new Node1Builder().setPathComputationClient(pccBuilder.build()).build());
-                listenerState = stateRegistry.bind(nodeId, new SessionStateImpl(this, psession));
+                listenerState = stateRegistry.bind(new SessionStateUpdater(this, psession));
                 LOG.info("Session with {} attached to topology node {}", peerAddress, nodeId);
 
                 storeFuture.addCallback(new FutureCallback<CommitInfo>() {
@@ -703,7 +701,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         return RpcResultBuilder.<Void>success().buildFuture();
     }
 
-    final synchronized @NonNull SessionStateImpl listenerState() {
+    final synchronized @NonNull SessionStateUpdater listenerState() {
         return verifyNotNull(listenerState).getInstance();
     }
 

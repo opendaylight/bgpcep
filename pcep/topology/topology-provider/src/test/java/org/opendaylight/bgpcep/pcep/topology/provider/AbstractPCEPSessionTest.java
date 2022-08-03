@@ -121,7 +121,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
             any(ChannelHandler.class));
         doReturn(eventLoop).when(clientListener).eventLoop();
         doAnswer(inv -> NoOpObjectRegistration.of(inv.getArgument(1, PcepSessionState.class)))
-            .when(stateRegistry).bind(any(), any());
+            .when(stateRegistry).bind(any());
         doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn(true).when(clientListener).isActive();
         final InetSocketAddress ra = new InetSocketAddress(testAddress, 4189);
