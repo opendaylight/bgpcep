@@ -8,14 +8,10 @@
 
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Provide access to topology session stats without expose variables.
  */
-@Beta
-public interface TopologySessionStats {
-
+interface TopologySessionStats {
     /**
      * Returns true if session is synchronized.
      *
@@ -50,4 +46,6 @@ public interface TopologySessionStats {
      * @return status
      */
     int getDelegatedLspsCount();
+
+    long updateInterval();
 }

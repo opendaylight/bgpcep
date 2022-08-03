@@ -676,6 +676,11 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     @Override
+    public final long updateInterval() {
+        return serverSessionManager.updateInterval();
+    }
+
+    @Override
     public final boolean isSessionSynchronized() {
         return synced.get();
     }

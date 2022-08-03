@@ -82,15 +82,18 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     @GuardedBy("this")
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
 
+    private volatile long updateInterval;
     private volatile short rpcTimeout;
     private volatile boolean closed;
 
     ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
-            final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final GraphKey graphKey) {
+            final PCEPTopologyProviderDependencies dependencies, final GraphKey graphKey,
+            final short rpcTimeout, final long updateInterval) {
         this.dependencies = requireNonNull(dependencies);
         this.topology = requireNonNull(topology);
-        this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
+        this.rpcTimeout = rpcTimeout;
+        this.updateInterval = updateInterval;
     }
 
     // Initialize the operational view of the topology.
@@ -287,8 +290,16 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             : dependencies.getTimer().newTimeout(ignored -> task.run(requestId), localTimeout, TimeUnit.SECONDS);
     }
 
+    final long updateInterval() {
+        return isClosed() ? 0 : updateInterval;
+    }
+
     final void setRpcTimeout(final short rpcTimeout) {
         this.rpcTimeout = rpcTimeout;
+    }
+
+    final void setUpdateInterval(final long updateInterval) {
+        this.updateInterval = updateInterval;
     }
 
     final void tearDownSessions(final List<InetAddress> outdatedNodes) {

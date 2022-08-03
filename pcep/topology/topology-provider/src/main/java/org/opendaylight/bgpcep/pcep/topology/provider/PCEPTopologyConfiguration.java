@@ -14,6 +14,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -21,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -29,17 +31,21 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.Immutable;
 
 final class PCEPTopologyConfiguration implements Immutable {
-    private final @NonNull InetSocketAddress address;
-    private final @NonNull KeyMapping keys;
-    private final short rpcTimeout;
-    private final GraphKey graphKey;
+    private static final long DEFAULT_UPDATE_INTERVAL = TimeUnit.SECONDS.toNanos(5);
 
-    PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final short rpcTimeout,
-            final @NonNull KeyMapping keys, final @NonNull GraphKey graphKey) {
+    private final @NonNull InetSocketAddress address;
+    private final @NonNull GraphKey graphKey;
+    private final @NonNull KeyMapping keys;
+    private final long updateIntervalNanos;
+    private final short rpcTimeout;
+
+    PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final @NonNull KeyMapping keys,
+            final @NonNull GraphKey graphKey, final short rpcTimeout, final long updateIntervalNanos) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
-        this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
+        this.rpcTimeout = rpcTimeout;
+        this.updateIntervalNanos = updateIntervalNanos;
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -60,14 +66,22 @@ final class PCEPTopologyConfiguration implements Immutable {
             return null;
         }
 
+        final var updateAug = topologyPcep.augmentation(TopologyPcep1.class);
+        final long updateInterval = updateAug != null ? TimeUnit.SECONDS.toNanos(updateAug.requireTimer().toJava())
+            : DEFAULT_UPDATE_INTERVAL;
+
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
-            sessionConfig.getRpcTimeout(), constructKeys(topology.getNode()),
-            constructGraphKey(sessionConfig.getTedName()));
+            constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
+            sessionConfig.getRpcTimeout(), updateInterval);
     }
 
     short getRpcTimeout() {
         return rpcTimeout;
+    }
+
+    long getUpdateInterval() {
+        return updateIntervalNanos;
     }
 
     @NonNull InetSocketAddress getAddress() {
@@ -96,7 +110,7 @@ final class PCEPTopologyConfiguration implements Immutable {
                     if (sessionConfig != null) {
                         final var rfc2385KeyPassword = sessionConfig.getPassword();
                         if (rfc2385KeyPassword != null) {
-                            final String password = rfc2385KeyPassword.getValue();
+                            final var password = rfc2385KeyPassword.getValue();
                             if (!password.isEmpty()) {
                                 passwords.put(nodeAddress(node), password);
                             }
