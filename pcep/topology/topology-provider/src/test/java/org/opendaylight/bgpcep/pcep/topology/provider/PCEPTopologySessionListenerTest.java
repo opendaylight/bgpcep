@@ -118,7 +118,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testPCEPTopologySessionListener() throws Exception {
         listener.onSessionUp(session);
-        final PcepSessionState listenerState = listener.listenerState();
+        final PcepSessionState listenerState = listener.listenerState().toPcepSessionState();
         final LocalPref state = listenerState.getLocalPref();
         assertNotNull(state);
         assertEquals(DEAD_TIMER, state.getDeadtimer().shortValue());
