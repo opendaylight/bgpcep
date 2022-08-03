@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -115,7 +114,7 @@ public final class PCEPTopologyTracker
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        statsProvider = new TopologyStatsProvider(dataBroker, timer, updateIntervalSeconds);
+        statsProvider = new TopologyStatsProvider(timer, updateIntervalSeconds);
         statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
         statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
 
@@ -181,15 +180,7 @@ public final class PCEPTopologyTracker
             LOG.warn("Stopped timer with {} remaining tasks", cancelledTasks);
         }
 
-        try {
-            statsProvider.shutdown();
-        } catch (ExecutionException e) {
-            LOG.warn("Failed to close statistics provider", e);
-        } catch (InterruptedException e) {
-            LOG.warn("Interrupted while waiting for statistics provider shutdown", e);
-            Thread.currentThread().interrupt();
-        }
-
+        statsProvider.shutdown();
         LOG.info("PCEP Topology tracker shut down");
     }
 

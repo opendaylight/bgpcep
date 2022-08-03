@@ -6,7 +6,7 @@
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
 
-package org.opendaylight.bgpcep.pcep.topology.provider.session.stats;
+package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.annotations.Beta;
 
