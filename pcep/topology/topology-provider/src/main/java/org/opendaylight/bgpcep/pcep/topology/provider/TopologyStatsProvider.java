@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Stopwatch;
@@ -39,20 +38,16 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
     private final Set<Task> tasks = ConcurrentHashMap.newKeySet();
     private final ExecutorService executor;
-    private final long updateIntervalNanos;
     private final Timer timer;
 
-    TopologyStatsProvider(final Timer timer, final int updateIntervalSeconds) {
+    TopologyStatsProvider(final Timer timer) {
         this.timer = requireNonNull(timer);
-        updateIntervalNanos = TimeUnit.SECONDS.toNanos(updateIntervalSeconds);
-        checkArgument(updateIntervalNanos > 0, "Invalid update interval %s", updateIntervalNanos);
-
         executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat("odl-pcep-stats-%d")
             .build());
 
-        LOG.info("TopologyStatsProvider updating every {} seconds", updateIntervalSeconds);
+        LOG.info("TopologyStatsProvider started");
     }
 
     void shutdown() {

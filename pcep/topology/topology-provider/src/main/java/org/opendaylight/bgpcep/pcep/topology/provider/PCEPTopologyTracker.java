@@ -106,15 +106,14 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider,
-            final int updateIntervalSeconds) {
+            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        statsProvider = new TopologyStatsProvider(timer, updateIntervalSeconds);
+        statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
         statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
 
