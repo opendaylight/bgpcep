@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Stopwatch;
@@ -39,20 +38,16 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
     private final Set<Task> tasks = ConcurrentHashMap.newKeySet();
     private final ExecutorService executor;
-    private final long updateIntervalNanos;
     private final Timer timer;
 
-    TopologyStatsProvider(final Timer timer, final int updateIntervalSeconds) {
+    TopologyStatsProvider(final Timer timer) {
         this.timer = requireNonNull(timer);
-        updateIntervalNanos = TimeUnit.SECONDS.toNanos(updateIntervalSeconds);
-        checkArgument(updateIntervalNanos > 0, "Invalid update interval %s", updateIntervalNanos);
-
         executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
             .setDaemon(true)
             .setNameFormat("odl-pcep-stats-%d")
             .build());
 
-        LOG.info("TopologyStatsProvider updating every {} seconds", updateIntervalSeconds);
+        LOG.info("TopologyStatsProvider started");
     }
 
     void shutdown() {
@@ -96,7 +91,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
         Task(final @NonNull SessionStateUpdater instance) {
             super(instance);
-            state = timer.newTimeout(this, updateIntervalNanos, TimeUnit.NANOSECONDS);
+
+            final long updateInterval = instance.updateInterval();
+            if (updateInterval > 0) {
+                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
+            } else {
+                LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
+            }
         }
 
         @Override
@@ -157,11 +158,16 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            long remainingNanos = updateIntervalNanos - elapsedNanos;
-            if (remainingNanos < 0) {
-                remainingNanos = updateIntervalNanos;
+            final var updateInterval = getInstance().updateInterval();
+            if (updateInterval > 0) {
+                long remainingNanos = updateInterval - elapsedNanos;
+                if (remainingNanos < 0) {
+                    remainingNanos = updateInterval;
+                }
+                state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
+            } else {
+                LOG.debug("Task {} has non-positive interval {}, skipping reschedule", this, updateInterval);
             }
-            state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
         }
 
         @Override

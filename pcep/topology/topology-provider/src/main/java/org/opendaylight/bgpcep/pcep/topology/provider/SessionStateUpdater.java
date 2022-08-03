@@ -99,6 +99,10 @@ final class SessionStateUpdater {
         return null;
     }
 
+    long updateInterval() {
+        return topologySessionStats.updateInterval();
+    }
+
     @NonNull FluentFuture<? extends @NonNull CommitInfo> updateStatistics() {
         // Lockless
         final var aug = new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(toPcepSessionState()).build();
