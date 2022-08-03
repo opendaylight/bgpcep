@@ -178,11 +178,25 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                             initialNodeState.augmentation(Node1.class).getPathComputationClient().getReportedLsp());
                     }
                 }
-                state.storeNode(topologyAugment,
-                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build(), psession);
 
+                final var storeFuture = state.storeNode(topologyAugment,
+                        new Node1Builder().setPathComputationClient(pccBuilder.build()).build());
                 listenerState = stateRegistry.bind(nodeId, new SessionStateImpl(this, psession));
                 LOG.info("Session with {} attached to topology node {}", peerAddress, nodeId);
+
+                storeFuture.addCallback(new FutureCallback<CommitInfo>() {
+                    @Override
+                    public void onSuccess(final CommitInfo result) {
+                        LOG.trace("Node stored {} for session {} updated successfully", topologyAugment, psession);
+                    }
+
+                    @Override
+                    public void onFailure(final Throwable cause) {
+                        LOG.error("Failed to store node {} for session {}, terminating it", topologyAugment, psession,
+                            cause);
+                        session.close(TerminationReason.UNKNOWN);
+                    }
+                }, MoreExecutors.directExecutor());
             }
         }
     }
