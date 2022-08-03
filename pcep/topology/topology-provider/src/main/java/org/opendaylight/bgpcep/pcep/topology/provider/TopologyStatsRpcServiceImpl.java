@@ -54,7 +54,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TopologyStatsRpcServiceImpl
+final class TopologyStatsRpcServiceImpl
         implements PcepTopologyStatsRpcService, ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpcServiceImpl.class);
 
@@ -62,7 +62,7 @@ public final class TopologyStatsRpcServiceImpl
             new ConcurrentHashMap<>();
     private ListenerRegistration<TopologyStatsRpcServiceImpl> listenerRegistration;
 
-    public TopologyStatsRpcServiceImpl(final DataBroker dataBroker) {
+    TopologyStatsRpcServiceImpl(final DataBroker dataBroker) {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
         listenerRegistration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,

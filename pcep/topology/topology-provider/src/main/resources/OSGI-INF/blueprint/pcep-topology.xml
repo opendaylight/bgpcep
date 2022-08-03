@@ -32,11 +32,4 @@
             <bean factory-ref="pcepStatsConfig" factory-method="getTimer"/>
         </argument>
     </bean>
-
-    <bean id="topologyStatsRpcService"
-          class="org.opendaylight.bgpcep.pcep.topology.provider.TopologyStatsRpcServiceImpl"
-          destroy-method="close">
-        <argument ref="dataBroker"/>
-    </bean>
-    <odl:rpc-implementation ref="topologyStatsRpcService"/>
 </blueprint>

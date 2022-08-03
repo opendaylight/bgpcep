@@ -33,6 +33,7 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.topology.pcep.type.TopologyPcep;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -61,9 +62,6 @@ public final class PCEPTopologyTracker
     private final @NonNull PCEPDispatcher pcepDispatcher;
     private final @NonNull DataBroker dataBroker;
 
-    // Statistics provider
-    private final @NonNull TopologyStatsProvider statsProvider;
-
     // Timer used for RPC timeouts and session statistics scheduling
     private final @NonNull HashedWheelTimer privateTimer = new HashedWheelTimer();
     private final @NonNull Timer timer = new Timer() {
@@ -78,6 +76,11 @@ public final class PCEPTopologyTracker
             throw new UnsupportedOperationException();
         }
     };
+
+    // Statistics provider
+    private final @NonNull TopologyStatsProvider statsProvider;
+    // Statistics RPCs
+    private final @NonNull TopologyStatsRpcServiceImpl statsRpcs;
 
     // We are reusing our monitor as the universal lock. We have to account for three distinct threads competing for
     // our state:
@@ -99,6 +102,8 @@ public final class PCEPTopologyTracker
     private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
     @GuardedBy("this")
     private Registration reg;
+    @GuardedBy("this")
+    private Registration statsReg;
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
@@ -111,6 +116,8 @@ public final class PCEPTopologyTracker
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
         statsProvider = new TopologyStatsProvider(dataBroker, updateIntervalSeconds);
+        statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
+        statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
@@ -158,6 +165,10 @@ public final class PCEPTopologyTracker
         LOG.info("PCEP Topology tracker shutting down");
         reg.close();
         reg = null;
+
+        statsReg.close();
+        statsReg = null;
+        statsRpcs.close();
 
         // First pass: destroy all tracked instances
         instances.values().forEach(PCEPTopologySingleton::destroy);
