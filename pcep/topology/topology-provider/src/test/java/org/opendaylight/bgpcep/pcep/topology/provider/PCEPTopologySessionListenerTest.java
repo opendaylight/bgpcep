@@ -65,9 +65,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerPref;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4CaseBuilder;
@@ -118,15 +118,16 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testPCEPTopologySessionListener() throws Exception {
         listener.onSessionUp(session);
-        final PcepSessionState listenerState = listener.listenerState();
-        final LocalPref state = listenerState.getLocalPref();
+        final SessionStateUpdater listenerState = listener.listenerState();
+        final PcepSessionState sessionState = listenerState.toPcepSessionState();
+        final LocalPref state = sessionState.getLocalPref();
         assertNotNull(state);
         assertEquals(DEAD_TIMER, state.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, state.getKeepalive().shortValue());
         assertEquals(Uint16.ZERO, state.getSessionId());
         assertEquals(testAddress, state.getIpAddress());
 
-        final PeerPref peerState = listenerState.getPeerPref();
+        final PeerPref peerState = sessionState.getPeerPref();
         assertEquals(testAddress, peerState.getIpAddress());
         assertEquals(DEAD_TIMER, peerState.getDeadtimer().shortValue());
         assertEquals(KEEP_ALIVE, peerState.getKeepalive().shortValue());
@@ -170,16 +171,16 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         });
 
         // check stats
-        checkEquals(() -> assertEquals(1, listenerState.getDelegatedLspsCount().intValue()));
+        checkEquals(() -> assertEquals(Uint16.ONE, listenerState.getDelegatedLspsCount()));
         checkEquals(() -> assertTrue(listener.isSessionSynchronized()));
-        checkEquals(() -> assertTrue(listenerState.getMessages()
+        checkEquals(() -> assertTrue(listenerState.toPcepSessionState().getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
-        checkEquals(() -> assertEquals(2, listenerState.getMessages()
-                .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
-        checkEquals(() -> assertEquals(1, listenerState.getMessages()
-                .augmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
-        checkEquals(() -> assertEquals(0, listenerState.getMessages()
-                .augmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
+        checkEquals(() -> assertEquals(Uint32.TWO, listenerState.toPcepSessionState().getMessages()
+                .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount()));
+        checkEquals(() -> assertEquals(Uint32.ONE, listenerState.toPcepSessionState().getMessages()
+                .augmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount()));
+        checkEquals(() -> assertEquals(Uint32.ZERO, listenerState.toPcepSessionState().getMessages()
+                .augmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount()));
 
         // update-lsp
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.update.lsp.args
@@ -214,18 +215,18 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
             final Path path = reportedLsp.getPath().values().iterator().next();
             assertEquals(2, path.getEro().getSubobject().size());
             assertEquals(dstIpPrefix, getLastEroIpPrefix(path.getEro()));
-            assertEquals(1, listenerState.getDelegatedLspsCount().intValue());
+            assertEquals(Uint16.ONE, listenerState.getDelegatedLspsCount());
             assertTrue(listener.isSessionSynchronized());
-            final StatefulMessagesStatsAug statefulstate = listenerState.getMessages()
+            final StatefulMessagesStatsAug statefulstate = listenerState.toPcepSessionState().getMessages()
                     .augmentation(StatefulMessagesStatsAug.class);
             assertTrue(statefulstate.getLastReceivedRptMsgTimestamp().toJava() > 0);
             assertEquals(3, statefulstate.getReceivedRptMsgCount().intValue());
             assertEquals(1, statefulstate.getSentInitMsgCount().intValue());
             assertEquals(1, statefulstate.getSentUpdMsgCount().intValue());
-            final ReplyTime replyTime = listenerState.getMessages().getReplyTime();
+            final ReplyTime replyTime = listenerState.toPcepSessionState().getMessages().getReplyTime();
             assertTrue(replyTime.getAverageTime().toJava() > 0);
             assertTrue(replyTime.getMaxTime().toJava() > 0);
-            final StatefulCapabilitiesStatsAug statefulCapabilities = listenerState
+            final StatefulCapabilitiesStatsAug statefulCapabilities = listenerState.toPcepSessionState()
                     .getPeerCapabilities().augmentation(StatefulCapabilitiesStatsAug.class);
             assertFalse(statefulCapabilities.getActive());
             assertTrue(statefulCapabilities.getInstantiation());
@@ -269,13 +270,13 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         // check stats
         checkEquals(() -> assertEquals(0, listenerState.getDelegatedLspsCount().intValue()));
         checkEquals(() -> assertTrue(listener.isSessionSynchronized()));
-        checkEquals(() -> assertTrue(listenerState.getMessages()
+        checkEquals(() -> assertTrue(listenerState.toPcepSessionState().getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getLastReceivedRptMsgTimestamp().toJava() > 0));
-        checkEquals(() -> assertEquals(4, listenerState.getMessages()
+        checkEquals(() -> assertEquals(4, listenerState.toPcepSessionState().getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getReceivedRptMsgCount().intValue()));
-        checkEquals(() -> assertEquals(2, listenerState.getMessages()
+        checkEquals(() -> assertEquals(2, listenerState.toPcepSessionState().getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getSentInitMsgCount().intValue()));
-        checkEquals(() -> assertEquals(1, listenerState.getMessages()
+        checkEquals(() -> assertEquals(1, listenerState.toPcepSessionState().getMessages()
                 .augmentation(StatefulMessagesStatsAug.class).getSentUpdMsgCount().intValue()));
     }
 
