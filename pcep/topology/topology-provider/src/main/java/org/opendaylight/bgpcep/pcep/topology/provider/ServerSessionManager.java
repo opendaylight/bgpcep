@@ -9,19 +9,19 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -63,25 +63,32 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerSessionManager.class);
     private static final long DEFAULT_HOLD_STATE_NANOS = TimeUnit.MINUTES.toNanos(5);
+    private static final VarHandle CLOSED;
+
+    static {
+        try {
+            CLOSED = MethodHandles.lookup().findVarHandle(ServerSessionManager.class, "closed", int.class);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
+    private final @NonNull GraphKey graphKey;
 
-    @VisibleForTesting
-    final AtomicBoolean isClosed = new AtomicBoolean(false);
     @GuardedBy("this")
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
     @GuardedBy("this")
     private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
 
+    private volatile int closed;
     private volatile short rpcTimeout;
 
-    private final GraphKey graphKey;
-
-    ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
+    ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
             final PCEPTopologyProviderDependencies dependencies, final short rpcTimeout, final GraphKey graphKey) {
         this.dependencies = requireNonNull(dependencies);
-        topology = requireNonNull(instanceIdentifier);
+        this.topology = requireNonNull(topology);
         this.rpcTimeout = rpcTimeout;
         this.graphKey = requireNonNull(graphKey);
     }
@@ -103,14 +110,14 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.info("PCEP Topology {} created successfully.", topologyId());
-                isClosed.set(false);
+                closed = 0;
                 future.set(Boolean.TRUE);
             }
 
             @Override
             public void onFailure(final Throwable failure) {
                 LOG.error("Failed to create PCEP Topology {}.", topologyId(), failure);
-                isClosed.set(true);
+                closed = 1;
                 future.set(Boolean.FALSE);
             }
         }, MoreExecutors.directExecutor());
@@ -123,8 +130,12 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         return future;
     }
 
+    final boolean isClosed() {
+        return closed == 1;
+    }
+
     final synchronized FluentFuture<? extends CommitInfo> stop() {
-        if (isClosed.getAndSet(true)) {
+        if (!CLOSED.compareAndSet(this, 0, 1)) {
             LOG.error("Session Manager has already been closed.");
             return CommitInfo.emptyFluentFuture();
         }
@@ -166,7 +177,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     final synchronized void releaseNodeState(final TopologyNodeState nodeState, final InetAddress peerAddress,
             final boolean persistNode) {
-        if (isClosed.get()) {
+        if (isClosed()) {
             LOG.error("Session Manager has already been closed.");
             return;
         }
@@ -182,7 +193,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     final synchronized TopologyNodeState takeNodeState(final InetAddress address,
             final TopologySessionListener sessionListener, final boolean retrieveNode) {
         final NodeId id = createNodeId(address);
-        if (isClosed.get()) {
+        if (isClosed()) {
             LOG.error("Server Session Manager is closed. Unable to create topology node {} with listener {}", id,
                 sessionListener);
             return null;
