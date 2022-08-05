@@ -151,7 +151,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
 
     void startSessionManager() throws Exception {
         assertTrue(manager.start().get());
-        assertFalse(manager.isClosed.get());
+        assertFalse(manager.isClosed());
     }
 
     void stopSessionManager() {
