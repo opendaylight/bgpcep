@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>topology-parent</artifactId>
-    <version>0.18.1-SNAPSHOT</version>
+    <version>0.18.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>Topology parent</description>
     <name>${project.artifactId}</name>
