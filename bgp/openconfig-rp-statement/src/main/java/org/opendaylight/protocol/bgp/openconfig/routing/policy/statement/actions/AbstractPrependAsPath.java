@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.protocol.util.Values;
@@ -44,22 +43,23 @@ abstract class AbstractPrependAsPath {
         final Segments firstSegment = it.next();
         final List<AsNumber> firstAsSequence = firstSegment.getAsSequence();
 
-        final List<Segments> newSegments;
+        final ImmutableList.Builder<Segments> newSegments;
         if (firstAsSequence != null && firstAsSequence.size() < Values.UNSIGNED_BYTE_MAX_VALUE) {
-            final ArrayList<AsNumber> newAsSequence = new ArrayList<>(firstAsSequence.size() + 1);
-            newAsSequence.add(as);
-            newAsSequence.addAll(firstAsSequence);
-
-            newSegments = new ArrayList<>(oldSegments.size());
-            newSegments.add(new SegmentsBuilder().setAsSequence(newAsSequence).build());
+            newSegments = ImmutableList.<Segments>builderWithExpectedSize(oldSegments.size())
+                .add(new SegmentsBuilder()
+                    .setAsSequence(ImmutableList.<AsNumber>builderWithExpectedSize(firstAsSequence.size() + 1)
+                        .add(as)
+                        .addAll(firstAsSequence)
+                        .build())
+                    .build());
         } else {
-            newSegments = new ArrayList<>(oldSegments.size() + 1);
-            newSegments.add(singleSequence(as));
-            newSegments.add(firstSegment);
+            newSegments = ImmutableList.<Segments>builderWithExpectedSize(oldSegments.size() + 1)
+                .add(singleSequence(as))
+                .add(firstSegment);
         }
 
         it.forEachRemaining(newSegments::add);
-        return newSegments;
+        return newSegments.build();
     }
 
     private static Segments singleSequence(final AsNumber as) {
