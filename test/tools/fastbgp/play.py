@@ -12,16 +12,15 @@ EXABGP in this type of scenario."""
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 
 from copy import deepcopy
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCServer
 import argparse
 import binascii
 import ipaddr
 import logging
-import Queue
+import queue
 import select
 import socket
 import struct
-import thread
 import threading
 import time
 
@@ -299,8 +298,8 @@ def get_short_int_from_message(message, offset=16):
     Notes:
         default offset value is the BGP message size offset.
     """
-    high_byte_int = ord(message[offset])
-    low_byte_int = ord(message[offset + 1])
+    high_byte_int = message[offset]
+    low_byte_int = message[offset + 1]
     short_int = high_byte_int * 256 + low_byte_int
     return short_int
 
@@ -316,9 +315,9 @@ def get_prefix_list_from_hex(prefixes_hex):
     prefix_list = []
     offset = 0
     while offset < len(prefixes_hex):
-        prefix_bit_len_hex = prefixes_hex[offset]
+        prefix_bit_len_hex = prefixes_hex[offset : offset + 1]
         prefix_bit_len = int(binascii.b2a_hex(prefix_bit_len_hex), 16)
-        prefix_len = ((prefix_bit_len - 1) / 8) + 1
+        prefix_len = int((prefix_bit_len - 1) / 8) + 1
         prefix_hex = prefixes_hex[offset + 1 : offset + 1 + prefix_len]
         prefix = ".".join(str(i) for i in struct.unpack("BBBB", prefix_hex))
         offset += 1 + prefix_len
@@ -347,7 +346,7 @@ class MessageError(ValueError):
         Notes:
             Use a placeholder string if the message is to be empty.
         """
-        message = binascii.hexlify(self.msg)
+        message = binascii.hexlify(self.msg).decode()
         if message == "":
             message = "(empty message)"
         return self.text + ": " + message
@@ -372,7 +371,7 @@ def read_open_message(bgp_socket):
             "Message length (" + str(len(msg_in)) + ") is smaller than "
             "minimal length of OPEN message with 4-byte AS number (37)"
         )
-        logger.error(error_msg + ": " + binascii.hexlify(msg_in))
+        logger.error(error_msg + ": " + binascii.hexlify(msg_in).decode())
         raise MessageError(error_msg, msg_in)
     # TODO: We could check BGP marker, but it is defined only later;
     # decide what to do.
@@ -385,7 +384,7 @@ def read_open_message(bgp_socket):
             + str(len(msg_in))
             + ")"
         )
-        logger.error(error_msg + binascii.hexlify(msg_in))
+        logger.error(error_msg + binascii.hexlify(msg_in).decode())
         raise MessageError(error_msg, msg_in)
     logger.info("Open message received.")
     return msg_in
@@ -465,11 +464,19 @@ class MessageGenerator(object):
         self.lsteaddr_step = args.lsteaddrstep
         # Default values used for randomized part
         s1_slots = (
-            self.total_prefix_amount - self.remaining_prefixes_threshold - 1
-        ) / self.prefix_count_to_add_default + 1
-        s2_slots = (self.remaining_prefixes_threshold - 1) / (
-            self.prefix_count_to_add_default - self.prefix_count_to_del_default
-        ) + 1
+            int(
+                (self.total_prefix_amount - self.remaining_prefixes_threshold - 1)
+                / self.prefix_count_to_add_default
+            )
+            + 1
+        )
+        s2_slots = (
+            int(
+                (self.remaining_prefixes_threshold - 1)
+                / (self.prefix_count_to_add_default - self.prefix_count_to_del_default)
+            )
+            + 1
+        )
         # S1_First_Index = 0
         # S1_Last_Index = s1_slots * self.prefix_count_to_add_default - 1
         s2_first_index = s1_slots * self.prefix_count_to_add_default
@@ -480,8 +487,12 @@ class MessageGenerator(object):
             - 1
         )
         self.slot_gap_default = (
-            self.total_prefix_amount - self.remaining_prefixes_threshold - 1
-        ) / self.prefix_count_to_add_default + 1
+            int(
+                (self.total_prefix_amount - self.remaining_prefixes_threshold - 1)
+                / self.prefix_count_to_add_default
+            )
+            + 1
+        )
         self.randomize_lowest_default = s2_first_index
         self.randomize_highest_default = s2_last_index
         # Initialising counters
@@ -720,16 +731,15 @@ class MessageGenerator(object):
             :return: dictionary of LS NLRI parameters and values
         """
         # generating list of LS NLRI parameters
-        identifier = self.ls_nlri_default["Identifier"] + index / self.lsid_step
-        ipv4_tunnel_sender_address = (
-            self.ls_nlri_default["IPv4TunnelSenderAddress"] + index / self.lstsaddr_step
-        )
-        tunnel_id = self.ls_nlri_default["TunnelID"] + index / self.lstid_step
-        lsp_id = self.ls_nlri_default["LSPID"] + index / self.lspid_step
-        ipv4_tunnel_endpoint_address = (
-            self.ls_nlri_default["IPv4TunnelEndPointAddress"]
-            + index / self.lsteaddr_step
-        )
+        identifier = self.ls_nlri_default["Identifier"] + int(index / self.lsid_step)
+        ipv4_tunnel_sender_address = self.ls_nlri_default[
+            "IPv4TunnelSenderAddress"
+        ] + int(index / self.lstsaddr_step)
+        tunnel_id = self.ls_nlri_default["TunnelID"] + int(index / self.lstid_step)
+        lsp_id = self.ls_nlri_default["LSPID"] + int(index / self.lspid_step)
+        ipv4_tunnel_endpoint_address = self.ls_nlri_default[
+            "IPv4TunnelEndPointAddress"
+        ] + int(index / self.lsteaddr_step)
         ls_nlri_values = {
             "Identifier": identifier,
             "IPv4TunnelSenderAddress": ipv4_tunnel_sender_address,
@@ -928,7 +938,7 @@ class MessageGenerator(object):
             bgp_identifier = self.bgp_identifier_default
 
         # Marker
-        marker_hex = "\xFF" * 16
+        marker_hex = b"\xFF" * 16
 
         # Type
         type = 1
@@ -952,141 +962,141 @@ class MessageGenerator(object):
         bgp_identifier_hex = struct.pack(">I", bgp_identifier)
 
         # Optional Parameters
-        optional_parameters_hex = ""
+        optional_parameters_hex = b""
         if self.rfc4760 or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Capability type (NLRI Unicast),
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Capability type (NLRI Unicast),
                 # see RFC 4760, secton 8
-                "\x04"  # Capability value length
-                "\x00\x01"  # AFI (Ipv4)
-                "\x00"  # (reserved)
-                "\x01"  # SAFI (Unicast)
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (Ipv4)
+                b"\x00"  # (reserved)
+                b"\x01"  # SAFI (Unicast)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.ipv6 or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x02"  # AFI (IPV6)
-                "\x00"  # (reserved)
-                "\x01"  # SAFI (UNICAST)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x02"  # AFI (IPV6)
+                b"\x00"  # (reserved)
+                b"\x01"  # SAFI (UNICAST)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.bgpls or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Capability type (NLRI Unicast),
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Capability type (NLRI Unicast),
                 # see RFC 4760, secton 8
-                "\x04"  # Capability value length
-                "\x40\x04"  # AFI (BGP-LS)
-                "\x00"  # (reserved)
-                "\x47"  # SAFI (BGP-LS)
+                b"\x04"  # Capability value length
+                b"\x40\x04"  # AFI (BGP-LS)
+                b"\x00"  # (reserved)
+                b"\x47"  # SAFI (BGP-LS)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.evpn or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x19"  # AFI (L2-VPN)
-                "\x00"  # (reserved)
-                "\x46"  # SAFI (EVPN)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x19"  # AFI (L2-VPN)
+                b"\x00"  # (reserved)
+                b"\x46"  # SAFI (EVPN)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.mvpn or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x01"  # AFI (IPV4)
-                "\x00"  # (reserved)
-                "\x05"  # SAFI (MCAST-VPN)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (IPV4)
+                b"\x00"  # (reserved)
+                b"\x05"  # SAFI (MCAST-VPN)
             )
             optional_parameters_hex += optional_parameter_hex
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x02"  # AFI (IPV6)
-                "\x00"  # (reserved)
-                "\x05"  # SAFI (MCAST-VPN)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x02"  # AFI (IPV6)
+                b"\x00"  # (reserved)
+                b"\x05"  # SAFI (MCAST-VPN)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.l3vpn_mcast or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x01"  # AFI (IPV4)
-                "\x00"  # (reserved)
-                "\x81"  # SAFI (L3VPN-MCAST)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (IPV4)
+                b"\x00"  # (reserved)
+                b"\x81"  # SAFI (L3VPN-MCAST)
             )
             optional_parameters_hex += optional_parameter_hex
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x02"  # AFI (IPV6)
-                "\x00"  # (reserved)
-                "\x81"  # SAFI (L3VPN-MCAST)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x02"  # AFI (IPV6)
+                b"\x00"  # (reserved)
+                b"\x81"  # SAFI (L3VPN-MCAST)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.l3vpn or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x01"  # AFI (IPV4)
-                "\x00"  # (reserved)
-                "\x80"  # SAFI (L3VPN-UNICAST)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (IPV4)
+                b"\x00"  # (reserved)
+                b"\x80"  # SAFI (L3VPN-UNICAST)
             )
             optional_parameters_hex += optional_parameter_hex
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x02"  # AFI (IPV6)
-                "\x00"  # (reserved)
-                "\x80"  # SAFI (L3VPN-UNICAST)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x02"  # AFI (IPV6)
+                b"\x00"  # (reserved)
+                b"\x80"  # SAFI (L3VPN-UNICAST)
             )
             optional_parameters_hex += optional_parameter_hex
 
         if self.rt_constrain or self.allf:
             optional_parameter_hex = (
-                "\x02"  # Param type ("Capability Ad")
-                "\x06"  # Length (6 bytes)
-                "\x01"  # Multiprotocol extetension capability,
-                "\x04"  # Capability value length
-                "\x00\x01"  # AFI (IPV4)
-                "\x00"  # (reserved)
-                "\x84"  # SAFI (ROUTE-TARGET-CONSTRAIN)
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extetension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (IPV4)
+                b"\x00"  # (reserved)
+                b"\x84"  # SAFI (ROUTE-TARGET-CONSTRAIN)
             )
             optional_parameters_hex += optional_parameter_hex
 
         optional_parameter_hex = (
-            "\x02"  # Param type ("Capability Ad")
-            "\x06"  # Length (6 bytes)
-            "\x41"  # "32 bit AS Numbers Support"
+            b"\x02"  # Param type ("Capability Ad")
+            b"\x06"  # Length (6 bytes)
+            b"\x41"  # "32 bit AS Numbers Support"
             # (see RFC 6793, section 3)
-            "\x04"  # Capability value length
+            b"\x04"  # Capability value length
         )
         optional_parameter_hex += struct.pack(
             ">I", my_autonomous_system
@@ -1096,20 +1106,20 @@ class MessageGenerator(object):
         if self.grace != 8:
             b = list(bin(self.grace)[2:])
             b = b + [0] * (3 - len(b))
-            length = "\x08"
+            length = b"\x08"
             if b[1] == "1":
-                restart_flag = "\x80\x05"
+                restart_flag = b"\x80\x05"
             else:
-                restart_flag = "\x00\x05"
+                restart_flag = b"\x00\x05"
             if b[2] == "1":
-                ipv4_flag = "\x80"
+                ipv4_flag = b"\x80"
             else:
-                ipv4_flag = "\x00"
+                ipv4_flag = b"\x00"
             if b[0] == "1":
-                ll_gr = "\x47\x07\x00\x01\x01\x00\x00\x00\x1e"
-                length = "\x11"
+                ll_gr = b"\x47\x07\x00\x01\x01\x00\x00\x00\x1e"
+                length = b"\x11"
             else:
-                ll_gr = ""
+                ll_gr = b""
             logger.debug("Grace parameters list: {}".format(b))
             # "\x02" Param type ("Capability Ad")
             # :param length: Length of whole message
@@ -1122,8 +1132,8 @@ class MessageGenerator(object):
             # "\x00"  Ipv4 Flag (customizable - turned on when grace == 1,3,5,7)
             # "\x47\x07\x00\x01\x01\x00\x00\x00\x1e" ipv4 ll-graceful-restart capability, timer 30sec
             # ll-gr turned on when grace is between 4-7
-            optional_parameter_hex = "\x02{}\x40\x06{}\x00\x01\x01{}{}".format(
-                length, restart_flag, ipv4_flag, ll_gr
+            optional_parameter_hex = (
+                f"\x02{length}\x40\x06{restart_flag}\x00\x01\x01{ipv4_flag}{ll_gr}"
             )
             optional_parameters_hex += optional_parameter_hex
 
@@ -1160,50 +1170,59 @@ class MessageGenerator(object):
 
         if self.log_debug:
             logger.debug("OPEN message encoding")
-            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex).decode())
             logger.debug(
-                "  Length=" + str(length) + " (0x" + binascii.hexlify(length_hex) + ")"
+                "  Length="
+                + str(length)
+                + " (0x"
+                + binascii.hexlify(length_hex).decode()
+                + ")"
             )
             logger.debug(
-                "  Type=" + str(type) + " (0x" + binascii.hexlify(type_hex) + ")"
+                "  Type="
+                + str(type)
+                + " (0x"
+                + binascii.hexlify(type_hex).decode()
+                + ")"
             )
             logger.debug(
                 "  Version="
                 + str(version)
                 + " (0x"
-                + binascii.hexlify(version_hex)
+                + binascii.hexlify(version_hex).decode()
                 + ")"
             )
             logger.debug(
                 "  My Autonomous System="
                 + str(my_autonomous_system_2_bytes)
                 + " (0x"
-                + binascii.hexlify(my_autonomous_system_hex_2_bytes)
+                + binascii.hexlify(my_autonomous_system_hex_2_bytes).decode()
                 + ")"
             )
             logger.debug(
                 "  Hold Time="
                 + str(hold_time)
                 + " (0x"
-                + binascii.hexlify(hold_time_hex)
+                + binascii.hexlify(hold_time_hex).decode()
                 + ")"
             )
             logger.debug(
                 "  BGP Identifier="
                 + str(bgp_identifier)
                 + " (0x"
-                + binascii.hexlify(bgp_identifier_hex)
+                + binascii.hexlify(bgp_identifier_hex).decode()
                 + ")"
             )
             logger.debug(
                 "  Optional Parameters Length="
                 + str(optional_parameters_length)
                 + " (0x"
-                + binascii.hexlify(optional_parameters_length_hex)
+                + binascii.hexlify(optional_parameters_length_hex).decode()
                 + ")"
             )
             logger.debug(
-                "  Optional Parameters=0x" + binascii.hexlify(optional_parameters_hex)
+                "  Optional Parameters=0x"
+                + binascii.hexlify(optional_parameters_hex).decode()
             )
             logger.debug("OPEN message encoded: 0x%s", binascii.b2a_hex(message_hex))
 
@@ -1220,7 +1239,7 @@ class MessageGenerator(object):
         originator_id=None,
         cluster_list_item=None,
         end_of_rib=False,
-        **ls_nlri_params
+        **ls_nlri_params,
     ):
         """Generates an UPDATE Message (rfc4271#section-4.3)
 
@@ -1257,16 +1276,16 @@ class MessageGenerator(object):
         ls_nlri.update(ls_nlri_params)
 
         # Marker
-        marker_hex = "\xFF" * 16
+        marker_hex = b"\xFF" * 16
 
         # Type
         type = 2
         type_hex = struct.pack("B", type)
 
         # Withdrawn Routes
-        withdrawn_routes_hex = ""
+        withdrawn_routes_hex = b""
         if not self.bgpls:
-            bytes = ((wr_prefix_length - 1) / 8) + 1
+            bytes = int((wr_prefix_length - 1) / 8) + 1
             for prefix in wr_prefixes:
                 withdrawn_route_hex = (
                     struct.pack("B", wr_prefix_length)
@@ -1280,67 +1299,67 @@ class MessageGenerator(object):
 
         # TODO: to replace hardcoded string by encoding?
         # Path Attributes
-        path_attributes_hex = ""
+        path_attributes_hex = b""
         if not self.skipattr:
             path_attributes_hex += (
-                "\x40"  # Flags ("Well-Known")
-                "\x01"  # Type (ORIGIN)
-                "\x01"  # Length (1)
-                "\x00"  # Origin: IGP
+                b"\x40"  # Flags ("Well-Known")
+                b"\x01"  # Type (ORIGIN)
+                b"\x01"  # Length (1)
+                b"\x00"  # Origin: IGP
             )
             path_attributes_hex += (
-                "\x40"  # Flags ("Well-Known")
-                "\x02"  # Type (AS_PATH)
-                "\x06"  # Length (6)
-                "\x02"  # AS segment type (AS_SEQUENCE)
-                "\x01"  # AS segment length (1)
+                b"\x40"  # Flags ("Well-Known")
+                b"\x02"  # Type (AS_PATH)
+                b"\x06"  # Length (6)
+                b"\x02"  # AS segment type (AS_SEQUENCE)
+                b"\x01"  # AS segment length (1)
             )
             my_as_hex = struct.pack(">I", my_autonomous_system)
             path_attributes_hex += my_as_hex  # AS segment (4 bytes)
             path_attributes_hex += (
-                "\x40"  # Flags ("Well-Known")
-                "\x05"  # Type (LOCAL_PREF)
-                "\x04"  # Length (4)
-                "\x00\x00\x00\x64"  # (100)
+                b"\x40"  # Flags ("Well-Known")
+                b"\x05"  # Type (LOCAL_PREF)
+                b"\x04"  # Length (4)
+                b"\x00\x00\x00\x64"  # (100)
             )
         if nlri_prefixes != []:
             path_attributes_hex += (
-                "\x40"  # Flags ("Well-Known")
-                "\x03"  # Type (NEXT_HOP)
-                "\x04"  # Length (4)
+                b"\x40"  # Flags ("Well-Known")
+                b"\x03"  # Type (NEXT_HOP)
+                b"\x04"  # Length (4)
             )
             next_hop_hex = struct.pack(">I", int(next_hop))
             path_attributes_hex += next_hop_hex  # IP address of the next hop (4 bytes)
             if originator_id is not None:
                 path_attributes_hex += (
-                    "\x80"  # Flags ("Optional, non-transitive")
-                    "\x09"  # Type (ORIGINATOR_ID)
-                    "\x04"  # Length (4)
+                    b"\x80"  # Flags ("Optional, non-transitive")
+                    b"\x09"  # Type (ORIGINATOR_ID)
+                    b"\x04"  # Length (4)
                 )  # ORIGINATOR_ID (4 bytes)
                 path_attributes_hex += struct.pack(">I", int(originator_id))
             if cluster_list_item is not None:
                 path_attributes_hex += (
-                    "\x80"  # Flags ("Optional, non-transitive")
-                    "\x0a"  # Type (CLUSTER_LIST)
-                    "\x04"  # Length (4)
+                    b"\x80"  # Flags ("Optional, non-transitive")
+                    b"\x0a"  # Type (CLUSTER_LIST)
+                    b"\x04"  # Length (4)
                 )  # one CLUSTER_LIST item (4 bytes)
                 path_attributes_hex += struct.pack(">I", int(cluster_list_item))
 
         if self.bgpls and not end_of_rib:
             path_attributes_hex += (
-                "\x80"  # Flags ("Optional, non-transitive")
-                "\x0e"  # Type (MP_REACH_NLRI)
-                "\x22"  # Length (34)
-                "\x40\x04"  # AFI (BGP-LS)
-                "\x47"  # SAFI (BGP-LS)
-                "\x04"  # Next Hop Length (4)
+                b"\x80"  # Flags ("Optional, non-transitive")
+                b"\x0e"  # Type (MP_REACH_NLRI)
+                b"\x22"  # Length (34)
+                b"\x40\x04"  # AFI (BGP-LS)
+                b"\x47"  # SAFI (BGP-LS)
+                b"\x04"  # Next Hop Length (4)
             )
             path_attributes_hex += struct.pack(">I", int(next_hop))
-            path_attributes_hex += "\x00"  # Reserved
+            path_attributes_hex += b"\x00"  # Reserved
             path_attributes_hex += (
-                "\x00\x05"  # LS-NLRI.NLRIType (IPv4 TE LSP NLRI)
-                "\x00\x15"  # LS-NLRI.TotalNLRILength (21)
-                "\x07"  # LS-NLRI.Variable.ProtocolID (RSVP-TE)
+                b"\x00\x05"  # LS-NLRI.NLRIType (IPv4 TE LSP NLRI)
+                b"\x00\x15"  # LS-NLRI.TotalNLRILength (21)
+                b"\x07"  # LS-NLRI.Variable.ProtocolID (RSVP-TE)
             )
             path_attributes_hex += struct.pack(">Q", int(ls_nlri["Identifier"]))
             path_attributes_hex += struct.pack(
@@ -1359,9 +1378,9 @@ class MessageGenerator(object):
         )
 
         # Network Layer Reachability Information
-        nlri_hex = ""
+        nlri_hex = b""
         if not self.bgpls:
-            bytes = ((nlri_prefix_length - 1) / 8) + 1
+            bytes = int((nlri_prefix_length - 1) / 8) + 1
             for prefix in nlri_prefixes:
                 nlri_prefix_hex = (
                     struct.pack("B", nlri_prefix_length)
@@ -1399,18 +1418,26 @@ class MessageGenerator(object):
 
         if self.log_debug:
             logger.debug("UPDATE message encoding")
-            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex).decode())
             logger.debug(
-                "  Length=" + str(length) + " (0x" + binascii.hexlify(length_hex) + ")"
+                "  Length="
+                + str(length)
+                + " (0x"
+                + binascii.hexlify(length_hex).decode()
+                + ")"
             )
             logger.debug(
-                "  Type=" + str(type) + " (0x" + binascii.hexlify(type_hex) + ")"
+                "  Type="
+                + str(type)
+                + " (0x"
+                + binascii.hexlify(type_hex).decode()
+                + ")"
             )
             logger.debug(
                 "  withdrawn_routes_length="
                 + str(withdrawn_routes_length)
                 + " (0x"
-                + binascii.hexlify(withdrawn_routes_length_hex)
+                + binascii.hexlify(withdrawn_routes_length_hex).decode()
                 + ")"
             )
             logger.debug(
@@ -1419,7 +1446,7 @@ class MessageGenerator(object):
                 + "/"
                 + str(wr_prefix_length)
                 + " (0x"
-                + binascii.hexlify(withdrawn_routes_hex)
+                + binascii.hexlify(withdrawn_routes_hex).decode()
                 + ")"
             )
             if total_path_attributes_length:
@@ -1427,13 +1454,13 @@ class MessageGenerator(object):
                     "  Total Path Attributes Length="
                     + str(total_path_attributes_length)
                     + " (0x"
-                    + binascii.hexlify(total_path_attributes_length_hex)
+                    + binascii.hexlify(total_path_attributes_length_hex).decode()
                     + ")"
                 )
                 logger.debug(
                     "  Path Attributes="
                     + "(0x"
-                    + binascii.hexlify(path_attributes_hex)
+                    + binascii.hexlify(path_attributes_hex).decode()
                     + ")"
                 )
                 logger.debug("    Origin=IGP")
@@ -1451,17 +1478,19 @@ class MessageGenerator(object):
                 + "/"
                 + str(nlri_prefix_length)
                 + " (0x"
-                + binascii.hexlify(nlri_hex)
+                + binascii.hexlify(nlri_hex).decode()
                 + ")"
             )
-            logger.debug("UPDATE message encoded: 0x" + binascii.b2a_hex(message_hex))
+            logger.debug(
+                "UPDATE message encoded: 0x" + binascii.b2a_hex(message_hex).decode()
+            )
 
         # updating counter
         self.updates_sent += 1
         # returning encoded message
         return message_hex
 
-    def notification_message(self, error_code, error_subcode, data_hex=""):
+    def notification_message(self, error_code, error_subcode, data_hex=b""):
         """Generates a NOTIFICATION Message (rfc4271#section-4.5)
 
         Arguments:
@@ -1473,7 +1502,7 @@ class MessageGenerator(object):
         """
 
         # Marker
-        marker_hex = "\xFF" * 16
+        marker_hex = b"\xFF" * 16
 
         # Type
         type = 3
@@ -1508,28 +1537,36 @@ class MessageGenerator(object):
 
         if self.log_debug:
             logger.debug("NOTIFICATION message encoding")
-            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex).decode())
             logger.debug(
-                "  Length=" + str(length) + " (0x" + binascii.hexlify(length_hex) + ")"
+                "  Length="
+                + str(length)
+                + " (0x"
+                + binascii.hexlify(length_hex).decode()
+                + ")"
             )
             logger.debug(
-                "  Type=" + str(type) + " (0x" + binascii.hexlify(type_hex) + ")"
+                "  Type="
+                + str(type)
+                + " (0x"
+                + binascii.hexlify(type_hex).decode()
+                + ")"
             )
             logger.debug(
                 "  Error Code="
                 + str(error_code)
                 + " (0x"
-                + binascii.hexlify(error_code_hex)
+                + binascii.hexlify(error_code_hex).decode()
                 + ")"
             )
             logger.debug(
                 "  Error Subode="
                 + str(error_subcode)
                 + " (0x"
-                + binascii.hexlify(error_subcode_hex)
+                + binascii.hexlify(error_subcode_hex).decode()
                 + ")"
             )
-            logger.debug("  Data=" + " (0x" + binascii.hexlify(data_hex) + ")")
+            logger.debug("  Data=" + " (0x" + binascii.hexlify(data_hex).decode() + ")")
             logger.debug(
                 "NOTIFICATION message encoded: 0x%s", binascii.b2a_hex(message_hex)
             )
@@ -1544,7 +1581,7 @@ class MessageGenerator(object):
         """
 
         # Marker
-        marker_hex = "\xFF" * 16
+        marker_hex = b"\xFF" * 16
 
         # Type
         type = 4
@@ -1559,15 +1596,24 @@ class MessageGenerator(object):
 
         if self.log_debug:
             logger.debug("KEEP ALIVE message encoding")
-            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex))
+            logger.debug("  Marker=0x" + binascii.hexlify(marker_hex).decode())
             logger.debug(
-                "  Length=" + str(length) + " (0x" + binascii.hexlify(length_hex) + ")"
+                "  Length="
+                + str(length)
+                + " (0x"
+                + binascii.hexlify(length_hex).decode()
+                + ")"
             )
             logger.debug(
-                "  Type=" + str(type) + " (0x" + binascii.hexlify(type_hex) + ")"
+                "  Type="
+                + str(type)
+                + " (0x"
+                + binascii.hexlify(type_hex).decode()
+                + ")"
             )
             logger.debug(
-                "KEEP ALIVE message encoded: 0x%s", binascii.b2a_hex(message_hex)
+                "KEEP ALIVE message encoded: 0x%s",
+                binascii.b2a_hex(message_hex).decode(),
             )
 
         return message_hex
@@ -1704,7 +1750,7 @@ class ReadTracker(object):
         # Countdown towards next size computation.
         self.bytes_to_read = self.header_length
         # Incremental buffer for message under read.
-        self.msg_in = ""
+        self.msg_in = b""
         # Initialising counters
         self.updates_received = 0
         self.prefixes_introduced = 0
@@ -1751,32 +1797,36 @@ class ReadTracker(object):
                 # TODO: Should we do validation and exit on anything
                 # besides update or keepalive?
                 # Prepare state for reading another message.
-                message_type_hex = self.msg_in[self.header_length]
-                if message_type_hex == "\x01":
+                message_type_hex = self.msg_in[
+                    self.header_length : self.header_length + 1
+                ]
+                if message_type_hex == b"\x01":
                     logger.info(
-                        "OPEN message received: 0x%s", binascii.b2a_hex(self.msg_in)
+                        "OPEN message received: 0x%s",
+                        binascii.b2a_hex(self.msg_in).decode(),
                     )
-                elif message_type_hex == "\x02":
+                elif message_type_hex == b"\x02":
                     logger.debug(
-                        "UPDATE message received: 0x%s", binascii.b2a_hex(self.msg_in)
+                        "UPDATE message received: 0x%s",
+                        binascii.b2a_hex(self.msg_in).decode(),
                     )
                     self.decode_update_message(self.msg_in)
-                elif message_type_hex == "\x03":
+                elif message_type_hex == b"\x03":
                     logger.info(
                         "NOTIFICATION message received: 0x%s",
-                        binascii.b2a_hex(self.msg_in),
+                        binascii.b2a_hex(self.msg_in).decode(),
                     )
-                elif message_type_hex == "\x04":
+                elif message_type_hex == b"\x04":
                     logger.info(
                         "KEEP ALIVE message received: 0x%s",
-                        binascii.b2a_hex(self.msg_in),
+                        binascii.b2a_hex(self.msg_in).decode(),
                     )
                 else:
                     logger.warning(
                         "Unexpected message received: 0x%s",
-                        binascii.b2a_hex(self.msg_in),
+                        binascii.b2a_hex(self.msg_in).decode(),
                     )
-                self.msg_in = ""
+                self.msg_in = b""
                 self.reading_header = True
                 self.bytes_to_read = self.header_length
         # We should not act upon peer_hold_time if we are reading
@@ -1794,14 +1844,14 @@ class ReadTracker(object):
         hex_to_decode = path_attributes_hex
 
         while len(hex_to_decode):
-            attr_flags_hex = hex_to_decode[0]
+            attr_flags_hex = hex_to_decode[0:1]
             attr_flags = int(binascii.b2a_hex(attr_flags_hex), 16)
             #            attr_optional_bit = attr_flags & 128
             #            attr_transitive_bit = attr_flags & 64
             #            attr_partial_bit = attr_flags & 32
             attr_extended_length_bit = attr_flags & 16
 
-            attr_type_code_hex = hex_to_decode[1]
+            attr_type_code_hex = hex_to_decode[1:2]
             attr_type_code = int(binascii.b2a_hex(attr_type_code_hex), 16)
 
             if attr_extended_length_bit:
@@ -1810,7 +1860,7 @@ class ReadTracker(object):
                 attr_value_hex = hex_to_decode[4 : 4 + attr_length]
                 hex_to_decode = hex_to_decode[4 + attr_length :]
             else:
-                attr_length_hex = hex_to_decode[2]
+                attr_length_hex = hex_to_decode[2:3]
                 attr_length = int(binascii.b2a_hex(attr_length_hex), 16)
                 attr_value_hex = hex_to_decode[3 : 3 + attr_length]
                 hex_to_decode = hex_to_decode[3 + attr_length :]
@@ -1880,12 +1930,12 @@ class ReadTracker(object):
                     "  Address Family Identifier=0x%s",
                     binascii.b2a_hex(address_family_identifier_hex),
                 )
-                subsequent_address_family_identifier_hex = attr_value_hex[2]
+                subsequent_address_family_identifier_hex = attr_value_hex[2:3]
                 logger.debug(
                     "  Subsequent Address Family Identifier=0x%s",
                     binascii.b2a_hex(subsequent_address_family_identifier_hex),
                 )
-                next_hop_netaddr_len_hex = attr_value_hex[3]
+                next_hop_netaddr_len_hex = attr_value_hex[3:4]
                 next_hop_netaddr_len = int(
                     binascii.b2a_hex(next_hop_netaddr_len_hex), 16
                 )
@@ -1903,7 +1953,8 @@ class ReadTracker(object):
                     next_hop_netaddr,
                     binascii.b2a_hex(next_hop_netaddr_hex),
                 )
-                reserved_hex = attr_value_hex[4 + next_hop_netaddr_len]
+                reserved_byte_pos = 4 + next_hop_netaddr_len
+                reserved_hex = attr_value_hex[reserved_byte_pos : reserved_byte_pos + 1]
                 logger.debug("  Reserved=0x%s", binascii.b2a_hex(reserved_hex))
                 nlri_hex = attr_value_hex[4 + next_hop_netaddr_len + 1 :]
                 logger.debug(
@@ -1926,7 +1977,7 @@ class ReadTracker(object):
                     "  Address Family Identifier=0x%s",
                     binascii.b2a_hex(address_family_identifier_hex),
                 )
-                subsequent_address_family_identifier_hex = attr_value_hex[2]
+                subsequent_address_family_identifier_hex = attr_value_hex[2:3]
                 logger.debug(
                     "  Subsequent Address Family Identifier=0x%s",
                     binascii.b2a_hex(subsequent_address_family_identifier_hex),
@@ -1973,7 +2024,7 @@ class ReadTracker(object):
 
         with self.storage as stor:
             # this will replace the previously stored message
-            stor["update"] = binascii.hexlify(msg)
+            stor["update"] = binascii.hexlify(msg).decode()
 
         logger.debug("Evpn {}".format(self.evpn))
         if self.evpn:
@@ -2140,7 +2191,7 @@ class WriteTracker(object):
         # TODO: Would attribute docstrings add anything substantial?
         self.sending_message = False
         self.bytes_to_send = 0
-        self.msg_out = ""
+        self.msg_out = b""
 
     def enqueue_message_for_sending(self, message):
         """Enqueue message and change state.
@@ -2245,7 +2296,7 @@ class StateTracker(object):
             logger.info("Received message: {}".format(msg))
             msgbin = binascii.unhexlify(msg)
             self.writer.enqueue_message_for_sending(msgbin)
-        except Queue.Empty:
+        except queue.Empty:
             pass
         # Now we know what our priorities are, we have to check
         # which actions are available.
@@ -2358,12 +2409,12 @@ def job(arguments, inqueue, storage):
     # FIXME: Add parameter to send default open message first,
     # to work with "you first" peers.
     msg_in = read_open_message(bgp_socket)
-    logger.info(binascii.hexlify(msg_in))
-    storage["open"] = binascii.hexlify(msg_in)
+    logger.info(binascii.hexlify(msg_in).decode())
+    storage["open"] = binascii.hexlify(msg_in).decode()
     timer = TimeTracker(msg_in)
     generator = MessageGenerator(arguments)
     msg_out = generator.open_message()
-    logger.debug("Sending the OPEN message: " + binascii.hexlify(msg_out))
+    logger.debug("Sending the OPEN message: " + binascii.hexlify(msg_out).decode())
     # Send our open message to the peer.
     bgp_socket.send(msg_out)
     # Wait for confirming keepalive.
@@ -2372,13 +2423,13 @@ def job(arguments, inqueue, storage):
     msg_in = bgp_socket.recv(19)
     if msg_in != generator.keepalive_message():
         error_msg = "Open not confirmed by keepalive, instead got"
-        logger.error(error_msg + ": " + binascii.hexlify(msg_in))
+        logger.error(error_msg + ": " + binascii.hexlify(msg_in).decode())
         raise MessageError(error_msg, msg_in)
     timer.reset_peer_hold_time()
     # Send the keepalive to indicate the connection is accepted.
     timer.snapshot()  # Remember this time.
     msg_out = generator.keepalive_message()
-    logger.debug("Sending a KEEP ALIVE message: " + binascii.hexlify(msg_out))
+    logger.debug("Sending a KEEP ALIVE message: " + binascii.hexlify(msg_out).decode())
     bgp_socket.send(msg_out)
     # Use the remembered time.
     timer.reset_my_keepalive_time(timer.snapshot_time)
@@ -2448,11 +2499,11 @@ def threaded_job(arguments):
     myip_current = arguments.myip
     port = arguments.port
     thread_args = []
-    rpcqueue = Queue.Queue()
+    rpcqueue = queue.Queue()
     storage = SafeDict()
 
     while 1:
-        amount_per_util = (amount_left - 1) / utils_left + 1  # round up
+        amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
         amount_left -= amount_per_util
         utils_left -= 1
 
@@ -2470,7 +2521,9 @@ def threaded_job(arguments):
     try:
         # Create threads
         for t in thread_args:
-            thread.start_new_thread(job, (t, rpcqueue, storage))
+            threading.Thread(
+                target=job, args=(t, rpcqueue, storage), daemon=True
+            ).start()
     except Exception:
         print("Error: unable to start thread.")
         raise SystemExit(2)
