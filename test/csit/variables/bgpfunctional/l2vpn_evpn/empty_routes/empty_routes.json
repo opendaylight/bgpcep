@@ -1,5 +1,5 @@
 {
-  "tables": [
+  "bgp-rib:tables": [
     {
       "afi": "odl-bgp-evpn:l2vpn-address-family",
       "safi": "odl-bgp-evpn:evpn-subsequent-address-family",$EVPN_ROUTES
