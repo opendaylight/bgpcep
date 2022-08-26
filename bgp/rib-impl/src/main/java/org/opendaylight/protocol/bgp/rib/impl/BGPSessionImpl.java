@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableSet;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -132,6 +133,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
     }
 
+    @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
+        justification = "Class not final for mocking and SpotBugs is confused by lambdas around line 200")
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
             final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
         this.listener = requireNonNull(listener);
