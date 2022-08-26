@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-parent</artifactId>
-    <version>0.17.6-SNAPSHOT</version>
+    <version>0.17.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>BGP-related components</description>
     <name>${project.artifactId}</name>
