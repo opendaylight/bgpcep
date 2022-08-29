@@ -37,10 +37,7 @@ import ipaddr
 import threading
 import time
 
-try:
-    from collections import Counter
-except ImportError:  # Python 2.6 does not have Counter in collections.
-    from Counter import Counter  # Assumes that user copies Counter.py around.
+from collections import Counter
 import AuthStandalone
 
 
@@ -225,8 +222,8 @@ def queued_send(session, queue_messages, queue_responses):
         # The response perhaps points to some data stored in session,
         # and the session implementation may explicitly call close() to free that data.
         # To be sure, we clone information before further processing.
-        status = int(response.status_code)  # copy constructor
-        content = str(response.content)  # copy constructor
+        status = int(response.status_code)
+        content = response.content.decode()
         resp_tuple = (status, content)
         queue_responses.append(resp_tuple)
 
@@ -235,11 +232,11 @@ def classify(resp_tuple):
     """Return 'pass' or a reason what is wrong with response."""
     prepend = ""
     status = resp_tuple[0]
-    if (status != 200) and (status != 204):  # is it int?
-        prepend = "status: " + str(status) + " "
+    if (status != 200) and (status != 204):
+        prepend = f"status: {status}"
     content = resp_tuple[1]
     if prepend or (content != expected and content != ""):
-        return prepend + "content: " + str(content)
+        return f"{prepend} content: {content}"
     return "pass"
 
 
