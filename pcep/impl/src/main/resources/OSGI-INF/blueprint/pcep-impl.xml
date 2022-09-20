@@ -18,12 +18,7 @@
       binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepSessionConfig"/>
 
   <bean id="sessionProposalFactory" class="org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory">
-    <argument>
-      <bean factory-ref="pcepSessionConfig" factory-method="getDeadTimerValue"/>
-    </argument>
-    <argument>
-      <bean factory-ref="pcepSessionConfig" factory-method="getKeepAliveTimerValue"/>
-    </argument>
+    <argument ref="pcepSessionConfig"/>
     <argument ref="pcepCapabilities"/>
   </bean>
 
