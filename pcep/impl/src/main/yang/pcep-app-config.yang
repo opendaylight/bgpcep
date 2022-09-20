@@ -1,33 +1,28 @@
 module pcep-app-config {
-    yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:app-config";
     prefix "pcep-app-config";
 
     description
-      "Configuration for the PCEP implementation.";
+        "Configuration for the PCEP implementation.
+
+         Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
+
+         This program and the accompanying materials are made available
+         under the terms of the Eclipse Public License v1.0 which
+         accompanies this distribution, and is available at
+         http://www.eclipse.org/legal/epl-v10.html";
 
     revision "2016-07-07" {
         description
-            "Initial revision.
-
-            Copyright (c) 2016 Brocade Communications Systems, Inc. All rights reserved.
-
-            This program and the accompanying materials are made available
-            under the terms of the Eclipse Public License v1.0 which
-            accompanies this distribution, and is available at
-            http://www.eclipse.org/legal/epl-v10.html";
+            "Initial revision.";
     }
 
-    container pcep-session-config {
-        leaf dead-timer-value {
-            type uint16;
-            default 120;
-        }
+    import pcep-config { prefix pc; }
 
-        leaf keep-alive-timer-value {
-            type uint16;
-            default 30;
-        }
+    container pcep-session-config {
+        // FIXME: remove this container
+        status obsolete;
+        uses pc:pcep-session-timers;
     }
 
     typedef path-type {
