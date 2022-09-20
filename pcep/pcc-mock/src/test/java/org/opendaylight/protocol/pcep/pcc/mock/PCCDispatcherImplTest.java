@@ -18,7 +18,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -38,12 +38,13 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
 
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(10, 40,
-        new ArrayList<>());
+    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(Uint8.TEN,
+        Uint8.valueOf(40), List.of());
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL, 0);
 
     private PCCDispatcherImpl dispatcher;

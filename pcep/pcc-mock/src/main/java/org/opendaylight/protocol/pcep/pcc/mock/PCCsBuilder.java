@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
@@ -29,6 +31,7 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 final class PCCsBuilder {
     private final int lsps;
@@ -36,8 +39,8 @@ final class PCCsBuilder {
     private final int pccCount;
     private final InetSocketAddress localAddress;
     private final List<InetSocketAddress> remoteAddress;
-    private final short keepAlive;
-    private final short deadTimer;
+    private final Uint8 keepAlive;
+    private final Uint8 deadTimer;
     private final String password;
     private final long reconnectTime;
     private final int redelegationTimeout;
@@ -48,15 +51,16 @@ final class PCCsBuilder {
 
     PCCsBuilder(final int lsps, final boolean pcError, final int pccCount,
             final @NonNull InetSocketAddress localAddress, final @NonNull List<InetSocketAddress> remoteAddress,
-            final short keepAlive, final short deadTimer, final @Nullable String password, final long reconnectTime,
-            final int redelegationTimeout, final int stateTimeout, final @NonNull PCEPCapability pcepCapabilities) {
+            final @NonNull Uint8 keepAlive, final @NonNull Uint8 deadTimer, final @Nullable String password,
+            final long reconnectTime, final int redelegationTimeout, final int stateTimeout,
+            final @NonNull PCEPCapability pcepCapabilities) {
         this.lsps = lsps;
         this.pcError = pcError;
         this.pccCount = pccCount;
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
-        this.keepAlive = keepAlive;
-        this.deadTimer = deadTimer;
+        this.keepAlive = requireNonNull(keepAlive);
+        this.deadTimer = requireNonNull(deadTimer);
         this.password = password;
         this.reconnectTime = reconnectTime;
         this.redelegationTimeout = redelegationTimeout;

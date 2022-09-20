@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -120,12 +121,13 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
             this.maxUnknownMessages = maxUnknownMessages;
         }
 
-        if (getDeadTimerValue() != 0) {
-            channel.eventLoop().schedule(this::handleDeadTimer, getDeadTimerValue(), TimeUnit.SECONDS);
+        final var deadValue = getDeadTimerValue();
+        if (deadValue != 0) {
+            channel.eventLoop().schedule(this::handleDeadTimer, deadValue, TimeUnit.SECONDS);
         }
-
-        if (getKeepAliveTimerValue() != 0) {
-            channel.eventLoop().schedule(this::handleKeepaliveTimer, getKeepAliveTimerValue(), TimeUnit.SECONDS);
+        final var keepAliveValue = getKeepAliveTimerValue();
+        if (keepAliveValue != 0) {
+            channel.eventLoop().schedule(this::handleKeepaliveTimer, keepAliveValue, TimeUnit.SECONDS);
         }
 
         LOG.info("Session {}[{}] <-> {}[{}] started",
@@ -133,12 +135,12 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
-    public final Integer getKeepAliveTimerValue() {
-        return localOpen.getKeepalive().intValue();
+    public final @NonNegative short getKeepAliveTimerValue() {
+        return localOpen.getKeepalive().toJava();
     }
 
-    public final Integer getDeadTimerValue() {
-        return remoteOpen.getDeadTimer().intValue();
+    public final @NonNegative short getDeadTimerValue() {
+        return remoteOpen.getDeadTimer().toJava();
     }
 
     /**
