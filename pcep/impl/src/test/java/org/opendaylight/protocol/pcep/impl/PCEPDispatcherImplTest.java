@@ -53,11 +53,12 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCEPDispatcherImplTest {
-    private static final short DEAD_TIMER = 120;
-    private static final short KEEP_ALIVE = 30;
+    private static final Uint8 DEAD_TIMER = Uint8.valueOf(120);
+    private static final Uint8 KEEP_ALIVE = Uint8.valueOf(30);
     private static final int RETRY_TIMER = 0;
     private static final int CONNECT_TIMEOUT = 500;
 
@@ -120,12 +121,12 @@ public class PCEPDispatcherImplTest {
 
         assertTrue(futureChannel.channel().isActive());
         assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
-        assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
-        assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
+        assertEquals(DEAD_TIMER.toJava(), session1.getDeadTimerValue());
+        assertEquals(KEEP_ALIVE.toJava(), session1.getKeepAliveTimerValue());
 
         assertEquals(clientAddr2.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
-        assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
-        assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
+        assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
+        assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
 
         session1.close();
         session2.close();
@@ -171,16 +172,16 @@ public class PCEPDispatcherImplTest {
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
-        assertEquals(DEAD_TIMER, session1.getDeadTimerValue().shortValue());
-        assertEquals(KEEP_ALIVE, session1.getKeepAliveTimerValue().shortValue());
+        assertEquals(DEAD_TIMER.toJava(), session1.getDeadTimerValue());
+        assertEquals(KEEP_ALIVE.toJava(), session1.getKeepAliveTimerValue());
         session1.closeChannel().sync();
 
         final PCEPSessionImpl session2 = pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
-        assertEquals(DEAD_TIMER, session2.getDeadTimerValue().shortValue());
-        assertEquals(KEEP_ALIVE, session2.getKeepAliveTimerValue().shortValue());
+        assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
+        assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
 
         session2.close();
     }
