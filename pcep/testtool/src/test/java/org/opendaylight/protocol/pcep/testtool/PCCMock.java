@@ -7,22 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.net.HostAndPort;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class PCCMock {
     private PCCMock() {
@@ -30,17 +27,15 @@ public final class PCCMock {
     }
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {
-        Preconditions.checkArgument(args.length > 0, "Host and port of server must be provided.");
-        final List<PCEPCapability> caps = new ArrayList<>();
-        final PCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory((short) 120, (short) 30, caps);
-        final PCEPSessionNegotiatorFactory<? extends PCEPSession> snf
-            = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
-        final HostAndPort serverHostAndPort = HostAndPort.fromString(args[0]);
-        final InetSocketAddress serverAddr = new InetSocketAddress(serverHostAndPort.getHost(), serverHostAndPort
-                .getPortOrDefault(12345));
-        final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
+        checkArgument(args.length > 0, "Host and port of server must be provided.");
+        final var proposal = new BasePCEPSessionProposalFactory(Uint8.valueOf(120), Uint8.valueOf(30), List.of());
+        final var snf = new DefaultPCEPSessionNegotiatorFactory(proposal, 0);
+        final var serverHostAndPort = HostAndPort.fromString(args[0]);
+        final var serverAddr = new InetSocketAddress(serverHostAndPort.getHost(),
+            serverHostAndPort.getPortOrDefault(12345));
+        final var clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
-        try (PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(
+        try (var pccDispatcher = new PCCDispatcherImpl(
                 new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry())) {
             pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, KeyMapping.of(), clientAddr)
                 .get();

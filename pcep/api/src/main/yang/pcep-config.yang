@@ -40,15 +40,13 @@ module pcep-config {
 
     grouping pcep-session-timers {
         leaf dead-timer-value {
-            // FIXME: uint8
-            type uint16;
+            type uint8;
             default 120;
             units seconds;
         }
 
         leaf keep-alive-timer-value {
-            // FIXME: uint8
-            type uint16;
+            type uint8;
             default 30;
             units seconds;
         }
