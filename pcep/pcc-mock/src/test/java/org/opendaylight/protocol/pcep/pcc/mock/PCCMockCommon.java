@@ -60,10 +60,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public abstract class PCCMockCommon {
-    private static final short KEEP_ALIVE = 30;
-    private static final short DEAD_TIMER = 120;
+    private static final Uint8 KEEP_ALIVE = Uint8.valueOf(30);
+    private static final Uint8 DEAD_TIMER = Uint8.valueOf(120);
     private static final long SLEEP_FOR = 50;
     private final int port = InetSocketAddressUtil.getRandomPort();
     final InetSocketAddress remoteAddress = InetSocketAddressUtil
@@ -180,11 +181,11 @@ public abstract class PCCMockCommon {
         assertEquals(startingDBVersion, pceDBVersion);
     }
 
-    static void checkSession(final PCEPSession session, final int expectedDeadTimer,
-            final int expectedKeepAlive) {
+    static void checkSession(final PCEPSession session, final Uint8 expectedDeadTimer,
+            final Uint8 expectedKeepAlive) {
         assertNotNull(session);
-        assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer().shortValue());
-        assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive().shortValue());
+        assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer());
+        assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive());
         final Stateful1 stateful = session.getRemoteTlvs().augmentation(Tlvs1.class)
                 .getStateful().augmentation(Stateful1.class);
         assertTrue(stateful.getInitiation());
