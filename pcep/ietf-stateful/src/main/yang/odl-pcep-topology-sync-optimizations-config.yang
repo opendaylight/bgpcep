@@ -7,7 +7,6 @@ module odl-pcep-topology-sync-optimizations-config {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2022-07-30; }
     import yang-ext { prefix ext; revision-date 2013-07-09; }
-    import pcep-config { prefix pc; revision-date 2022-03-28; }
     import odl-pcep-sync-optimizations { prefix opso; revision-date 2020-07-20; }
 
     description
