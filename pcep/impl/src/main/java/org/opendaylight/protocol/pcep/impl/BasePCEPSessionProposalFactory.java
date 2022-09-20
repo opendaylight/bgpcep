@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.net.InetSocketAddress;
@@ -29,53 +28,47 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     private static final int KA_TO_DEADTIMER_RATIO = 4;
 
     private final @NonNull List<PCEPCapability> capabilities;
-    private final int keepAlive;
-    private final int deadTimer;
+    private final @NonNull Uint8 keepAlive;
+    private final @NonNull Uint8 deadTimer;
 
     public BasePCEPSessionProposalFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities) {
-        this(timers.getDeadTimerValue().toJava(), timers.getKeepAliveTimerValue().toJava(), capabilities);
+        this(timers.getDeadTimerValue(), timers.getKeepAliveTimerValue(), capabilities);
     }
 
-    public BasePCEPSessionProposalFactory(final int deadTimer, final int keepAlive,
+    public BasePCEPSessionProposalFactory(final Uint8 deadTimer, final Uint8 keepAlive,
             final List<PCEPCapability> capabilities) {
-        if (keepAlive != 0) {
-            checkArgument(keepAlive >= 1, "Minimum value for keep-alive-timer-value is 1");
-            if (deadTimer != 0 && deadTimer / keepAlive != KA_TO_DEADTIMER_RATIO) {
-                LOG.warn("dead-timer-value should be {} times greater than keep-alive-timer-value",
-                    KA_TO_DEADTIMER_RATIO);
-            }
-        }
-
-        this.deadTimer = deadTimer;
-        this.keepAlive = keepAlive;
+        this.keepAlive = requireNonNull(keepAlive);
         this.capabilities = requireNonNull(capabilities);
-    }
 
-    private void addTlvs(final InetSocketAddress address, final TlvsBuilder builder) {
-        for (final PCEPCapability capability : capabilities) {
-            capability.setCapabilityProposal(address, builder);
+        if (!Uint8.ZERO.equals(keepAlive)) {
+            this.deadTimer = requireNonNull(deadTimer);
+            if (!Uint8.ZERO.equals(deadTimer) && deadTimer.toJava() / keepAlive.toJava() != KA_TO_DEADTIMER_RATIO) {
+                LOG.warn("dead-timer-value ({}) should be {} times greater than keep-alive-timer-value ({}}",
+                    deadTimer, KA_TO_DEADTIMER_RATIO, keepAlive);
+            }
+        } else {
+            this.deadTimer = Uint8.ZERO;
         }
     }
 
     @Override
     public Open getSessionProposal(final InetSocketAddress address, final int sessionId,
             final PCEPPeerProposal peerProposal) {
-        final OpenBuilder oBuilder = new OpenBuilder()
-                .setSessionId(Uint8.valueOf(sessionId))
-                .setKeepalive(Uint8.valueOf(keepAlive));
-        if (keepAlive == 0) {
-            oBuilder.setDeadTimer(Uint8.ZERO);
-        } else {
-            oBuilder.setDeadTimer(Uint8.valueOf(deadTimer));
+        final var builder = new TlvsBuilder();
+        for (final var capability : capabilities) {
+            capability.setCapabilityProposal(address, builder);
         }
-
-        final TlvsBuilder builder = new TlvsBuilder();
-        addTlvs(address, builder);
 
         if (peerProposal != null) {
             peerProposal.setPeerSpecificProposal(address, builder);
         }
-        return oBuilder.setTlvs(builder.build()).build();
+
+        return new OpenBuilder()
+            .setSessionId(Uint8.valueOf(sessionId))
+            .setKeepalive(keepAlive)
+            .setDeadTimer(deadTimer)
+            .setTlvs(builder.build())
+            .build();
     }
 
     @Override
