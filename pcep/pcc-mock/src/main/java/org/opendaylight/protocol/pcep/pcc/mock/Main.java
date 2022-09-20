@@ -20,6 +20,7 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.common.Uint64;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +29,13 @@ public final class Main {
 
     private static final int DEFAULT_REMOTE_PORT = 4189;
     private static final int DEFAULT_LOCAL_PORT = 0;
-    private static final short DEFAULT_KEEP_ALIVE = 30;
-    private static final short DEFAULT_DEAD_TIMER = 120;
+    private static final Uint8 DEFAULT_KEEP_ALIVE = Uint8.valueOf(30);
+    private static final Uint8 DEFAULT_DEAD_TIMER = Uint8.valueOf(120);
     private static final InetAddress LOCALHOST = InetAddresses.forString("127.0.0.1");
-    private static boolean triggeredInitSync = Boolean.FALSE;
-    private static boolean includeDbv = Boolean.FALSE;
-    private static boolean incrementalSync = Boolean.FALSE;
-    private static boolean triggeredResync = Boolean.FALSE;
+    private static boolean triggeredInitSync = false;
+    private static boolean includeDbv = false;
+    private static boolean incrementalSync = false;
+    private static boolean triggeredResync = false;
     private static Uint64 syncOptDBVersion;
     private static int reconnectAfterXSeconds;
     private static int disonnectAfterXSeconds;
@@ -51,8 +52,8 @@ public final class Main {
         int lsps = 1;
         boolean pcError = false;
         final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        short ka = DEFAULT_KEEP_ALIVE;
-        short dt = DEFAULT_DEAD_TIMER;
+        Uint8 ka = DEFAULT_KEEP_ALIVE;
+        Uint8 dt = DEFAULT_DEAD_TIMER;
         String password = null;
         long reconnectTime = -1;
         int redelegationTimeout = 0;
@@ -82,11 +83,11 @@ public final class Main {
                     break;
                 case "--keepalive":
                 case "-ka":
-                    ka = Short.valueOf(args[++argIdx]);
+                    ka = Uint8.valueOf(args[++argIdx]);
                     break;
                 case "--deadtimer":
                 case "-d":
-                    dt = Short.valueOf(args[++argIdx]);
+                    dt = Uint8.valueOf(args[++argIdx]);
                     break;
                 case "--password":
                     password = args[++argIdx];
@@ -102,7 +103,7 @@ public final class Main {
                     break;
                 case "--state-sync-avoidance":
                     //"--state-sync-avoidance 10, 5, 10
-                    includeDbv = Boolean.TRUE;
+                    includeDbv = true;
                     final Long dbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
                     disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
                     reconnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
@@ -110,8 +111,8 @@ public final class Main {
                     break;
                 case "--incremental-sync-procedure":
                     //TODO Check that DBv > Lsp always ??
-                    includeDbv = Boolean.TRUE;
-                    incrementalSync = Boolean.TRUE;
+                    includeDbv = true;
+                    incrementalSync = true;
                     //Version of database to be used after restart
                     final Long initialDbVersionAfterReconnect = Long.valueOf(args[++argIdx]);
                     disonnectAfterXSeconds = Integer.parseInt(args[++argIdx]);
@@ -119,10 +120,10 @@ public final class Main {
                     syncOptDBVersion = Uint64.valueOf(initialDbVersionAfterReconnect);
                     break;
                 case "--triggered-initial-sync":
-                    triggeredInitSync = Boolean.TRUE;
+                    triggeredInitSync = true;
                     break;
                 case "--triggered-re-sync":
-                    triggeredResync = Boolean.TRUE;
+                    triggeredResync = true;
                     break;
                 default:
                     LOG.warn("WARNING: Unrecognized argument: {}", args[argIdx]);

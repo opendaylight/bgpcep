@@ -23,6 +23,7 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public final class Main {
 
             + "With no parameters, this help is printed.";
     private static final int KA_TO_DEADTIMER_RATIO = 4;
-    private static final int KA_DEFAULT = 30;
+    private static final Uint8 KA_DEFAULT = Uint8.valueOf(30);
     private static final int MAX_UNKNOWN_MESSAGES = 5;
 
     private Main() {
@@ -83,8 +84,8 @@ public final class Main {
         }
 
         InetSocketAddress address = null;
-        int keepAliveValue = KA_DEFAULT;
-        int deadTimerValue = 0;
+        Uint8 keepAliveValue = KA_DEFAULT;
+        Uint8 deadTimerValue = Uint8.ZERO;
         boolean stateful = false;
         boolean active = false;
         boolean instant = false;
@@ -96,10 +97,10 @@ public final class Main {
                 address = new InetSocketAddress(InetAddress.getByName(ip[0]), Integer.parseInt(ip[1]));
                 pos++;
             } else if (args[pos].equalsIgnoreCase("-d") || args[pos].equalsIgnoreCase("--deadtimer")) {
-                deadTimerValue = Integer.parseInt(args[pos + 1]);
+                deadTimerValue = Uint8.valueOf(args[pos + 1]);
                 pos++;
             } else if (args[pos].equalsIgnoreCase("-ka") || args[pos].equalsIgnoreCase("--keepalive")) {
-                keepAliveValue = Integer.parseInt(args[pos + 1]);
+                keepAliveValue = Uint8.valueOf(args[pos + 1]);
                 pos++;
             } else if (args[pos].equalsIgnoreCase("--stateful")) {
                 stateful = true;
@@ -114,11 +115,11 @@ public final class Main {
             }
             pos++;
         }
-        if (deadTimerValue != 0 && deadTimerValue != keepAliveValue * KA_TO_DEADTIMER_RATIO) {
+        if (Uint8.ZERO.equals(deadTimerValue)) {
+            final var newValue = keepAliveValue.toJava() * KA_TO_DEADTIMER_RATIO;
+            deadTimerValue = newValue <= Uint8.MAX_VALUE.toJava() ? Uint8.valueOf(newValue) : Uint8.MAX_VALUE;
+        } else if (deadTimerValue.toJava() != keepAliveValue.toJava() * KA_TO_DEADTIMER_RATIO) {
             LOG.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
-        }
-        if (deadTimerValue == 0) {
-            deadTimerValue = keepAliveValue * KA_TO_DEADTIMER_RATIO;
         }
 
         final List<PCEPCapability> caps = new ArrayList<>();
