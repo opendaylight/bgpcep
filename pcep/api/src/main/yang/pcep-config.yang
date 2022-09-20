@@ -20,6 +20,11 @@ module pcep-config {
          accompanies this distribution, and is available at
          http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2023-01-12 {
+        description "Updated timer definitions to uint8 and split them off
+                     into pcep-session-timers grouping";
+    }
+
     revision 2022-03-28 {
         description "Add ted-name key";
     }
@@ -31,6 +36,22 @@ module pcep-config {
     revision "2017-10-25" {
         description
             "Initial revision.";
+    }
+
+    grouping pcep-session-timers {
+        leaf dead-timer-value {
+            // FIXME: uint8
+            type uint16;
+            default 120;
+            units seconds;
+        }
+
+        leaf keep-alive-timer-value {
+            // FIXME: uint8
+            type uint16;
+            default 30;
+            units seconds;
+        }
     }
 
     grouping pcep-config {
@@ -53,22 +74,12 @@ module pcep-config {
                 default 4189;
             }
 
-            leaf dead-timer-value {
-                type uint16;
-                default 120;
-                units seconds;
-            }
-
-            leaf keep-alive-timer-value {
-                type uint16;
-                default 30;
-                units seconds;
-            }
-
             leaf ted-name {
                 type string;
                 default "example-linkstate-topology";
             }
+
+            uses pcep-session-timers;
         }
     }
 
