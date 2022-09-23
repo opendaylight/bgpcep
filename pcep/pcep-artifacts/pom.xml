@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-artifacts</artifactId>
-    <version>0.18.2-SNAPSHOT</version>
+    <version>0.18.2</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
