@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
@@ -334,41 +333,36 @@ public class GracefulRestartTest extends AbstractAddPathTest {
      */
     @Test
     public void verifySendEORafterRestartTest() throws Exception {
-        final SimpleSessionListener listener2 = new SimpleSessionListener();
-        configurePeer(tableRegistry, PEER2, ribImpl, parameters, PeerRole.Ebgp,
+        configurePeer(tableRegistry, PEER2, ribImpl, parameters, PeerRole.Ibgp,
                 serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
-        final BGPSessionImpl session2 = createPeerSession(PEER2, parameters, listener2);
         final List<Ipv4Prefix> ipv4Prefixes = Arrays.asList(new Ipv4Prefix(PREFIX1));
         final List<Ipv4Prefix> ipv4Prefixes2 = Arrays.asList(new Ipv4Prefix(PREFIX2));
         final List<Ipv6Prefix> ipv6Prefixes = Collections.singletonList(new Ipv6Prefix(PREFIX3));
         insertRoutes(ipv4Prefixes, ipv6Prefixes);
-        insertRoutes(ipv4Prefixes2, PEER2, null, null, session2, BgpOrigin.Egp);
+        insertRoutes(ipv4Prefixes2, null);
         checkLocRibIpv4Routes(2);
         checkLocRibIpv6Routes(1);
-        org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages(listener, 3);
-        // verify sending of Ipv4 EOT, Ipv6 EOT and Ipv4 update with route
-        checkReceivedMessages(listener, 3);
+        // verify sending of Ipv4 EOT, Ipv6 EOT
+        checkReceivedMessages(listener, 2);
         assertTrue(listener.getListMsg().get(0) instanceof Update);
         assertTrue(BgpPeerUtil.isEndOfRib((Update)listener.getListMsg().get(0)));
         assertTrue(listener.getListMsg().get(1) instanceof Update);
         assertTrue(BgpPeerUtil.isEndOfRib((Update)listener.getListMsg().get(1)));
-        assertTrue(listener.getListMsg().get(2) instanceof Update);
-        assertFalse(BgpPeerUtil.isEndOfRib((Update)listener.getListMsg().get(2)));
 
         session.close();
         checkIdleState(peer);
         checkLocRibIpv4Routes(2);
         checkLocRibIpv6Routes(0);
         // verify nothing new was sent
-        checkReceivedMessages(listener, 3);
+        checkReceivedMessages(listener, 2);
 
         session = createPeerSession(PEER1, createParameter(false, true,
                 Collections.singletonMap(TABLES_KEY, true)), listener);
         checkUpState(listener);
         checkUpState(peer);
-        org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages(listener, 6);
-        // verify sending of Ipv4 update with route, Ipv4 EOT and Ipv6 EOT; order can vary based on ODTC order
-        final List<Notification<?>> subList = listener.getListMsg().subList(3, 6);
+        checkReceivedMessages(listener, 4);
+        // verify sending of Ipv4 EOT and Ipv6 EOT; order can vary based on ODTC order
+        final List<Notification<?>> subList = listener.getListMsg().subList(2, 4);
         int eotCount = 0;
         int routeUpdateCount = 0;
         for (Notification<?> message : subList) {
@@ -379,7 +373,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
             }
         }
         assertEquals(2, eotCount);
-        assertEquals(1, routeUpdateCount);
+        assertEquals(0, routeUpdateCount);
     }
 
     private void checkLocRibIpv4Routes(final int expectedRoutesOnDS) throws Exception {
