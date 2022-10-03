@@ -5,7 +5,7 @@ RIB Policy Configuration
 
 The OpenDaylight BGP implementation supports configurable RIB policies that allow the modification of import and export policies.
 
-.. note:: Default ODL BGP RIB Config Policy is provided. Any config policy to be used by Protocol must be configured and present before than Protocol configuration is added. If policy is reconfigured, protocol must be re configured again.
+.. note:: Default ODL BGP RIB Config Policy is provided. Default policy is compliant with default behaviour from `RFC8212 <https://tools.ietf.org/html/rfc8212>`_. Any config policy to be used by Protocol must be configured and present before than Protocol configuration is added. If policy is reconfigured, protocol must be re configured again.
 
 **URL:** ``/restconf/config/openconfig-routing-policy:routing-policy``
 

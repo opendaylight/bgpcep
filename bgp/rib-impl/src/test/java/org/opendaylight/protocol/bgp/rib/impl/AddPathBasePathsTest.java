@@ -93,21 +93,19 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         //new best route so far
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
         checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 2);
+        checkReceivedMessages(listener5, 1);
         assertEquals(UPD_NA_100, listener4.getListMsg().get(1));
-        assertEquals(UPD_NA_100_EBGP, listener5.getListMsg().get(1));
 
         //the second best route
         sendRouteAndCheckIsOnLocRib(session2, PREFIX1, 100, 1);
         checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 2);
+        checkReceivedMessages(listener5, 1);
 
         //new best route
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 200, 1);
         checkReceivedMessages(listener4, 3);
-        checkReceivedMessages(listener5, 3);
+        checkReceivedMessages(listener5, 1);
         assertEquals(UPD_NA_200, listener4.getListMsg().get(2));
-        assertEquals(UPD_NA_200_EBGP, listener5.getListMsg().get(2));
 
         final SimpleSessionListener listener6 = new SimpleSessionListener();
         configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient,
@@ -123,24 +121,23 @@ public class AddPathBasePathsTest extends AbstractAddPathTest {
         //best route updated to be the worse one
         sendRouteAndCheckIsOnLocRib(session3, PREFIX1, 20, 1);
         checkReceivedMessages(listener4, 4);
-        checkReceivedMessages(listener5, 4);
+        checkReceivedMessages(listener5, 1);
         assertEquals(UPD_NA_100, listener4.getListMsg().get(3));
-        assertEquals(UPD_NA_100_EBGP, listener5.getListMsg().get(3));
 
         //Remove second best, no advertisement should be done
         sendWithdrawalRouteAndCheckIsOnLocRib(session2, PREFIX1, 50, 1);
         checkReceivedMessages(listener4, 4);
-        checkReceivedMessages(listener5, 4);
+        checkReceivedMessages(listener5, 1);
 
         //Remove best, 1 advertisement
         sendWithdrawalRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
         checkReceivedMessages(listener4, 5);
-        checkReceivedMessages(listener5, 5);
+        checkReceivedMessages(listener5, 1);
 
         //Remove best, 1 withdrawal
         sendWithdrawalRouteAndCheckIsOnLocRib(session3, PREFIX1, 20, 0);
         checkReceivedMessages(listener4, 6);
-        checkReceivedMessages(listener5, 6);
+        checkReceivedMessages(listener5, 1);
 
         session1.close();
         session2.close();
