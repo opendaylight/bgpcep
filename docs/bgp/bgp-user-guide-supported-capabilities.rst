@@ -42,3 +42,4 @@ In addition to the base protocol implementation, the plugin provides many extens
 * `RFC4724 <https://tools.ietf.org/html/rfc4724>`_  - Graceful Restart Mechanism for BGP
    * `draft-uttaro-idr-bgp-persistence-04 <https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04>`_ - Support for Long-lived BGP Graceful Restart
 * `RFC7606 <https://tools.ietf.org/html/rfc7606>`_ - Revised Error Handling for BGP UPDATE Messages
+* `RFC8212 <https://tools.ietf.org/html/rfc8212>`_ - Default External BGP (EBGP) Route Propagation Behavior without Policies

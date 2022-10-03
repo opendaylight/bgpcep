@@ -24,10 +24,7 @@
                         </bgp-conditions>
                     </conditions>
                     <actions>
-                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                            <local-as-path-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                        </bgp-actions>
+                        <reject-route/>
                     </actions>
                 </statement>
                 <statement>
@@ -76,27 +73,6 @@
                     </actions>
                 </statement>
                 <statement>
-                    <name>from-external-to-external-RTC</name>
-                    <conditions>
-                        <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <afi-safi-in xmlns:x="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">x:ROUTE-TARGET-CONSTRAIN</afi-safi-in>
-                            <match-role-set xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy">
-                                <from-role>
-                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                                </from-role>
-                                <to-role>
-                                    <role-set>/rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets/role-sets/role-set[role-set-name="only-ebgp"]</role-set>
-                                </to-role>
-                            </match-role-set>
-                        </bgp-conditions>
-                    </conditions>
-                    <actions>
-                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <client-attribute-prepend xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain"/>
-                        </bgp-actions>
-                    </actions>
-                </statement>
-                <statement>
                     <name>to-external</name>
                     <conditions>
                         <bgp-conditions xmlns="http://openconfig.net/yang/bgp-policy">
@@ -111,11 +87,7 @@
                         </bgp-conditions>
                     </conditions>
                     <actions>
-                        <bgp-actions xmlns="http://openconfig.net/yang/bgp-policy">
-                            <non-transitive-attributes-filter xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                            <local-as-path-prepend xmlns="urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy"/>
-                            <set-as-path-prepend/>
-                        </bgp-actions>
+                        <reject-route/>
                     </actions>
                 </statement>
                 <statement>
