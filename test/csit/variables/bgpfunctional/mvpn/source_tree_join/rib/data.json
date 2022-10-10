@@ -10,7 +10,7 @@
           },
           "multi-exit-disc": {
             "med": 0
-          },$AS_PATH
+          },
           "origin": {
             "value": "egp"
           },

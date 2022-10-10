@@ -2,7 +2,7 @@
     "bgp-inet:ipv4-routes": {
         "ipv4-route": [
             {
-                "attributes": {$AS_PATH
+                "attributes": {
                     "communities": [
                         {
                             "as-number": 30741,

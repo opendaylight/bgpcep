@@ -2,7 +2,7 @@
     "bgp-inet:ipv4-routes": {
         "ipv4-route": [
             {
-                "attributes": {$AS_PATH
+                "attributes": {
                     "ipv4-next-hop": {
                         "global": "10.11.1.1"
                     },

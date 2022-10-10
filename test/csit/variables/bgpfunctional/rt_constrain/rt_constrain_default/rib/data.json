@@ -4,7 +4,7 @@
             {
                 "route-key": "",
                 "path-id": 0,
-                "attributes": {$AS_PATH
+                "attributes": {
                     "ipv4-next-hop": {
                         "global": "199.20.166.41"
                     },

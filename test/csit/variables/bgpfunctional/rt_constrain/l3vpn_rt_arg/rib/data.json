@@ -25,7 +25,7 @@
                     ],
                     "ipv4-next-hop": {
                         "global": "10.0.255.254"
-                    },$AS_PATH
+                    },
                     "origin": {
                         "value": "igp"
                     }
