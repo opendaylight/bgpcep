@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>testtool-parent</artifactId>
-        <version>0.16.16-SNAPSHOT</version>
+        <version>0.16.17-SNAPSHOT</version>
         <relativePath>../testtool-parent</relativePath>
     </parent>
 

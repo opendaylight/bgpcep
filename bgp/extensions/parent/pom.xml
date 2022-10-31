@@ -14,12 +14,12 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>binding-parent</artifactId>
-        <version>0.16.16-SNAPSHOT</version>
+        <version>0.16.17-SNAPSHOT</version>
         <relativePath>../../../binding-parent</relativePath>
     </parent>
 
     <artifactId>bgp-extension-parent</artifactId>
-    <version>0.16.16-SNAPSHOT</version>
+    <version>0.16.17-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>BGP Extensions Parent</description>
     <name>${project.artifactId}</name>
