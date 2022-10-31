@@ -19,7 +19,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bmp-artifacts</artifactId>
-    <version>0.16.16-SNAPSHOT</version>
+    <version>0.16.16</version>
     <packaging>pom</packaging>
 
     <dependencyManagement>
