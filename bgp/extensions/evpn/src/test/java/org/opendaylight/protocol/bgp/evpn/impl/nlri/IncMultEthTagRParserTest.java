@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETI;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ROUDE_DISTIN;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.WRONG_VALUE;
@@ -45,33 +45,37 @@ public class IncMultEthTagRParserTest {
     @Test
     public void parserTest() {
         final IncMultiEthernetTagResCase expected = IncMultEthTagRParserTest.createIncMultiCase();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
 
         final ContainerNode incMult = createContBuilder(IncMultEthTagRParser.INC_MULT_ROUTE_NID).addChild(createEti())
-            .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(incMult);
+            .addChild(createValue(IP_MODEL, ORI_NID)).build();
+        final EvpnChoice modelResult = parser.serializeEvpnModel(incMult);
         assertEquals(expected, modelResult);
 
-        final EvpnChoice keyResult = this.parser.createRouteKey(incMult);
+        final EvpnChoice keyResult = parser.createRouteKey(incMult);
         assertEquals(expected, keyResult);
     }
 
     static IncMultiEthernetTagResCase createIncMultiCase() {
-        return new IncMultiEthernetTagResCaseBuilder().setIncMultiEthernetTagRes(
-                new IncMultiEthernetTagResBuilder().setEthernetTagId(ETI).setOrigRouteIp(IP).build()).build();
+        return new IncMultiEthernetTagResCaseBuilder()
+            .setIncMultiEthernetTagRes(new IncMultiEthernetTagResBuilder()
+                .setEthernetTagId(ETI)
+                .setOrigRouteIp(IP)
+                .build())
+            .build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongSizeTest() {
-        this.parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
+        parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
     }
 }

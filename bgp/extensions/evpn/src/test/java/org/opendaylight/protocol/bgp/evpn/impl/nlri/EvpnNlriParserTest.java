@@ -11,7 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD_MODEL;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.RD_NID;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistryTest.EVPN_NID;
 
@@ -37,10 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
 
 public class EvpnNlriParserTest {
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
@@ -62,7 +59,6 @@ public class EvpnNlriParserTest {
         final ByteBuf buffer = Unpooled.buffer();
         EvpnNlriParser.serializeNlri(dest, buffer);
         assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
-
     }
 
     @Test
@@ -123,28 +119,29 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testExtractEvpnDestination() {
-        final DataContainerNodeBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        evpnBI.withNodeIdentifier(EVPN_NID);
-        evpnBI.withChild(createMACIpAdvChoice());
-        evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
-        final EvpnDestination destResult = EvpnNlriParser.extractEvpnDestination(evpnBI.build());
+        final EvpnDestination destResult = EvpnNlriParser.extractEvpnDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(EVPN_NID)
+            .withChild(createMACIpAdvChoice())
+            .withChild(createValue(RD_MODEL, RD_NID))
+            .build());
         final EvpnDestination expected = new EvpnDestinationBuilder()
-                .setRouteDistinguisher(RD)
-                .setEvpnChoice(MACIpAdvRParserTest.createdExpectedResult()).build();
+            .setRouteDistinguisher(RD)
+            .setEvpnChoice(MACIpAdvRParserTest.createdExpectedResult())
+            .build();
         assertEquals(expected, destResult);
     }
 
     @Test
     public void testExtractRouteKey() {
-        final DataContainerNodeBuilder<NodeIdentifier, UnkeyedListEntryNode> evpnBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        evpnBI.withNodeIdentifier(EVPN_CHOICE_NID);
-        evpnBI.withChild(createValueBuilder(RD_MODEL, RD_NID).build());
-        evpnBI.withChild(createMACIpAdvChoice());
-        final EvpnDestination destResult = EvpnNlriParser.extractRouteKeyDestination(evpnBI.build());
-        final EvpnDestination expected = new EvpnDestinationBuilder().setRouteDistinguisher(RD)
-                .setEvpnChoice(MACIpAdvRParserTest.createdExpectedRouteKey()).build();
+        final EvpnDestination destResult = EvpnNlriParser.extractRouteKeyDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(EVPN_CHOICE_NID)
+            .withChild(createValue(RD_MODEL, RD_NID))
+            .withChild(createMACIpAdvChoice())
+            .build());
+        final EvpnDestination expected = new EvpnDestinationBuilder()
+            .setRouteDistinguisher(RD)
+            .setEvpnChoice(MACIpAdvRParserTest.createdExpectedRouteKey())
+            .build();
         assertEquals(expected, destResult);
     }
 }

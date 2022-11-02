@@ -67,7 +67,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 
 public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
@@ -116,9 +116,10 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
 
         tx = Mockito.mock(DOMDataTreeWriteTransaction.class);
         nlri = Mockito.mock(ContainerNode.class);
-        attributes = ImmutableContainerNodeBuilder.create()
+        attributes = Builders.containerBuilder()
                 .withNodeIdentifier(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME
-            .getLocalName().intern()))).build();
+                    .getLocalName().intern())))
+                .build();
         final ContainerNode destination = Mockito.mock(ContainerNode.class);
         final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
         final ContainerNode route = Mockito.mock(ContainerNode.class);

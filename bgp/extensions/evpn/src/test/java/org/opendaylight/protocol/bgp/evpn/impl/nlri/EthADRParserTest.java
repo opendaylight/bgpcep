@@ -13,7 +13,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VLAN;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest.LAN_AUT_GEN_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.MACIpAdvRParserTest.createEti;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.MPLS_NID;
@@ -65,16 +65,16 @@ public class EthADRParserTest {
 
     @Test
     public void parserTest() {
-        final ByteBuf buff = this.parser.serializeEvpn(ETHERNET_AD_ROUTE_CASE, Unpooled.wrappedBuffer(ROUDE_DISTIN));
+        final ByteBuf buff = parser.serializeEvpn(ETHERNET_AD_ROUTE_CASE, Unpooled.wrappedBuffer(ROUDE_DISTIN));
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(ETHERNET_AD_ROUTE_CASE, result);
 
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(EthADRParserTest.createArbitraryContainer());
+        final EvpnChoice modelResult = parser.serializeEvpnModel(EthADRParserTest.createArbitraryContainer());
         assertEquals(ETHERNET_AD_ROUTE_CASE, modelResult);
 
-        final EvpnChoice keyResult = this.parser.createRouteKey(EthADRParserTest.createArbitraryContainer());
+        final EvpnChoice keyResult = parser.createRouteKey(EthADRParserTest.createArbitraryContainer());
         assertEquals(ETHERNET_AD_ROUTE_CASE_KEY, keyResult);
     }
 
@@ -87,16 +87,16 @@ public class EthADRParserTest {
     private static ContainerNode createArbitraryContainer() {
         final ChoiceNode esiModel = LanParserTest.createLanChoice();
         return createContBuilder(EthADRParser.ETH_AD_ROUTE_NID).addChild(esiModel).addChild(createEti())
-            .addChild(createValueBuilder(MPLS_LABEL_MODEL, MPLS_NID).build()).build();
+            .addChild(createValue(MPLS_LABEL_MODEL, MPLS_NID)).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongSizeTest() {
-        this.parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
+        parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
     }
 }
