@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.LD;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.LD_NID;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.RD_NID;
 
@@ -47,20 +47,20 @@ public class RouterIdParserTest {
 
     @Before
     public void setUp() {
-        this.parser = new RouterIdParser();
+        parser = new RouterIdParser();
     }
 
     @Test
     public void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
 
-        this.parser.serializeEsi(ROUTE_ID_CASE, buff);
+        parser.serializeEsi(ROUTE_ID_CASE, buff);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 
-        final Esi acResult = this.parser.parseEsi(Unpooled.wrappedBuffer(VALUE));
+        final Esi acResult = parser.parseEsi(Unpooled.wrappedBuffer(VALUE));
         assertEquals(ROUTE_ID_CASE, acResult);
 
-        final Esi acmResult = this.parser.serializeEsi(RouterIdParserTest.createRouteContainer());
+        final Esi acmResult = parser.serializeEsi(RouterIdParserTest.createRouteContainer());
         assertEquals(ROUTE_ID_CASE, acmResult);
     }
 
@@ -73,13 +73,13 @@ public class RouterIdParserTest {
 
     private static ContainerNode createRouteContainer() {
         return createContBuilder(new NodeIdentifier(RouterIdGenerated.QNAME))
-            .addChild(createValueBuilder(ROUTE_ID_MODEL, RD_NID).build())
-            .addChild(createValueBuilder(LD, LD_NID).build())
+            .addChild(createValue(ROUTE_ID_MODEL, RD_NID))
+            .addChild(createValue(LD, LD_NID))
             .build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
+        parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
     }
 }

@@ -21,7 +21,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL2_M
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VLAN;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest.LAN_AUT_GEN_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETI;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ROUDE_DISTIN;
@@ -92,15 +92,15 @@ public class MACIpAdvRParserTest {
     @Test
     public void parserCase1Test() {
         final MacIpAdvRouteCase expected = createdExpectedResult();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(createMacIpCont());
+        final EvpnChoice modelResult = parser.serializeEvpnModel(createMacIpCont());
         assertEquals(expected, modelResult);
 
-        final EvpnChoice keyResult = this.parser.createRouteKey(createMacIpCont());
+        final EvpnChoice keyResult = parser.createRouteKey(createMacIpCont());
         assertEquals(createdExpectedRouteKey(), keyResult);
     }
 
@@ -119,15 +119,15 @@ public class MACIpAdvRParserTest {
         return createContBuilder(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID)
             .addChild(LanParserTest.createLanChoice())
             .addChild(createEti())
-            .addChild(createValueBuilder(MAC_MODEL, MAC_NID).build())
-            .addChild(createValueBuilder(IP_MODEL, IP_NID).build())
-            .addChild(createValueBuilder(MPLS_LABEL_MODEL, MPLS1_NID).build())
-            .addChild(createValueBuilder(MPLS_LABEL2_MODEL, MPLS2_NID).build())
+            .addChild(createValue(MAC_MODEL, MAC_NID))
+            .addChild(createValue(IP_MODEL, IP_NID))
+            .addChild(createValue(MPLS_LABEL_MODEL, MPLS1_NID))
+            .addChild(createValue(MPLS_LABEL2_MODEL, MPLS2_NID))
             .build();
     }
 
     public static ContainerNode createEti() {
-        return createContBuilder(ETI_NID).withChild(createValueBuilder(VLAN, VLAN_NID).build()).build();
+        return createContBuilder(ETI_NID).withChild(createValue(VLAN, VLAN_NID)).build();
     }
 
     @Test
@@ -136,24 +136,25 @@ public class MACIpAdvRParserTest {
         final MacIpAdvRouteCase expected = new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder()
                 .setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).setMacAddress(MAC).setIpAddress(IPV6)
                 .setMplsLabel1(MPLS_LABEL).build()).build();
-        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+        assertArrayEquals(RESULT2, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
         assertEquals(expected, result);
 
         final ContainerNode macIp = createContBuilder(MACIpAdvRParser.MAC_IP_ADV_ROUTE_NID)
-                .addChild(LanParserTest.createLanChoice()).addChild(createEti())
-            .addChild(createValueBuilder(MAC_MODEL, MAC_NID).build())
-                .addChild(createValueBuilder(IPV6_MODEL, IP_NID).build())
-            .addChild(createValueBuilder(MPLS_LABEL_MODEL, MPLS1_NID).build()).build();
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(macIp);
+            .addChild(LanParserTest.createLanChoice()).addChild(createEti())
+            .addChild(createValue(MAC_MODEL, MAC_NID))
+            .addChild(createValue(IPV6_MODEL, IP_NID))
+            .addChild(createValue(MPLS_LABEL_MODEL, MPLS1_NID))
+            .build();
+        final EvpnChoice modelResult = parser.serializeEvpnModel(macIp);
 
         assertEquals(expected, modelResult);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
     }
 }

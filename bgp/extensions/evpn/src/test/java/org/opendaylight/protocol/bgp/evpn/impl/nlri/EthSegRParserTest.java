@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest.LAN_AUT_GEN_CASE;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ROUDE_DISTIN;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.WRONG_VALUE;
@@ -29,11 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.MacIpAdvRouteCaseBuilder;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 
 public class EthSegRParserTest {
     private static final byte[] VALUE = {
@@ -72,19 +68,19 @@ public class EthSegRParserTest {
     public void parserTest() {
         final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder()
                 .setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IP).build()).build();
-        assertArrayEquals(RESULT, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+        assertArrayEquals(RESULT, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE));
         assertEquals(expected, result);
 
         final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID)
                 .addChild(LanParserTest.createLanChoice())
-                .addChild(createValueBuilder(IP_MODEL, ORI_NID).build()).build();
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(arbitraryC);
+                .addChild(createValue(IP_MODEL, ORI_NID)).build();
+        final EvpnChoice modelResult = parser.serializeEvpnModel(arbitraryC);
         assertEquals(expected, modelResult);
 
-        final EvpnChoice keyResult = this.parser.createRouteKey(arbitraryC);
+        final EvpnChoice keyResult = parser.createRouteKey(arbitraryC);
         assertEquals(expected, keyResult);
     }
 
@@ -92,32 +88,29 @@ public class EthSegRParserTest {
     public void parser2Test() {
         final EsRouteCase expected = new EsRouteCaseBuilder().setEsRoute(new EsRouteBuilder()
                 .setEsi(LAN_AUT_GEN_CASE).setOrigRouteIp(IPV6).build()).build();
-        assertArrayEquals(RESULT2, ByteArray.getAllBytes(this.parser.serializeEvpn(expected,
+        assertArrayEquals(RESULT2, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
 
-        final EvpnChoice result = this.parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
+        final EvpnChoice result = parser.parseEvpn(Unpooled.wrappedBuffer(VALUE2));
         assertEquals(expected, result);
 
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, ChoiceNode> choice = Builders
-                .choiceBuilder();
-        choice.withNodeIdentifier(EthSegRParser.ES_ROUTE_NID);
         final ContainerNode arbitraryC = createContBuilder(EthSegRParser.ES_ROUTE_NID)
                 .addChild(LanParserTest.createLanChoice())
-                .addChild(createValueBuilder(IPV6_MODEL, ORI_NID).build()).build();
-        final EvpnChoice modelResult = this.parser.serializeEvpnModel(arbitraryC);
+                .addChild(createValue(IPV6_MODEL, ORI_NID)).build();
+        final EvpnChoice modelResult = parser.serializeEvpnModel(arbitraryC);
         assertEquals(expected, modelResult);
 
-        final EvpnChoice keyResult = this.parser.createRouteKey(arbitraryC);
+        final EvpnChoice keyResult = parser.createRouteKey(arbitraryC);
         assertEquals(expected, keyResult);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEvpn(new MacIpAdvRouteCaseBuilder().build(), null);
+        parser.serializeEvpn(new MacIpAdvRouteCaseBuilder().build(), null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongSizeTest() {
-        this.parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
+        parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
     }
 }

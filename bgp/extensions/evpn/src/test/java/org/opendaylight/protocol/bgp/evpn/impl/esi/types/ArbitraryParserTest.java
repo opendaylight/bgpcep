@@ -11,7 +11,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
-import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValueBuilder;
+import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ARB_NID;
 
 import io.netty.buffer.ByteBuf;
@@ -37,7 +37,7 @@ public final class ArbitraryParserTest {
 
     @Before
     public void setUp() {
-        this.parser = new ArbitraryParser();
+        parser = new ArbitraryParser();
     }
 
     @Test
@@ -46,20 +46,20 @@ public final class ArbitraryParserTest {
 
         final ArbitraryCase arbitrary = new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder()
                 .setArbitrary(ARB_VALUE).build()).build();
-        this.parser.serializeEsi(arbitrary, buff);
+        parser.serializeEsi(arbitrary, buff);
         assertArrayEquals(ARB_RESULT, ByteArray.getAllBytes(buff));
 
-        final Esi acResult = this.parser.parseEsi(Unpooled.wrappedBuffer(ARB_VALUE));
+        final Esi acResult = parser.parseEsi(Unpooled.wrappedBuffer(ARB_VALUE));
         assertEquals(arbitrary, acResult);
 
         final ContainerNode cont = createContBuilder(new NodeIdentifier(Arbitrary.QNAME))
-                .addChild(createValueBuilder(ARB_VALUE, ARB_NID).build()).build();
-        final Esi acmResult = this.parser.serializeEsi(cont);
+                .addChild(createValue(ARB_VALUE, ARB_NID)).build();
+        final Esi acmResult = parser.serializeEsi(cont);
         assertEquals(arbitrary, acmResult);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void wrongCaseTest() {
-        this.parser.serializeEsi(new AsGeneratedCaseBuilder().build(), null);
+        parser.serializeEsi(new AsGeneratedCaseBuilder().build(), null);
     }
 }

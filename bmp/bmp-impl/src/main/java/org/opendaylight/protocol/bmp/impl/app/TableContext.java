@@ -33,10 +33,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableChoiceNodeBuilder;
 
 // This class is NOT thread-safe
 final class TableContext {
@@ -81,21 +79,21 @@ final class TableContext {
     }
 
     void createTable(final DOMDataTreeWriteTransaction tx) {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> tb =
-                ImmutableNodes.mapEntryBuilder();
-        tb.withNodeIdentifier((NodeIdentifierWithPredicates) tableId.getLastPathArgument());
-        tb.withChild(EMPTY_TABLE_ATTRIBUTES);
+        final var tb = ImmutableNodes.mapEntryBuilder()
+            .withNodeIdentifier((NodeIdentifierWithPredicates) tableId.getLastPathArgument())
+            .withChild(EMPTY_TABLE_ATTRIBUTES);
 
         // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
-        final NodeIdentifierWithPredicates tableKey =
-                (NodeIdentifierWithPredicates) tableId.getLastPathArgument();
+        final var tableKey = (NodeIdentifierWithPredicates) tableId.getLastPathArgument();
         for (final Map.Entry<QName, Object> e : tableKey.entrySet()) {
             tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
 
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId,
-                tb.withChild(ImmutableChoiceNodeBuilder.create().withNodeIdentifier(
-                        new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME)).build()).build());
+                tb.withChild(Builders.choiceBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME))
+                    .build())
+                .build());
     }
 
     void writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {

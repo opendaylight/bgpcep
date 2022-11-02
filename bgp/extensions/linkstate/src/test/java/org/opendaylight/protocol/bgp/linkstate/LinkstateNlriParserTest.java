@@ -13,7 +13,6 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -78,15 +77,9 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableLeafNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.builder.impl.ImmutableUnkeyedListEntryNodeBuilder;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 public class LinkstateNlriParserTest {
 
@@ -159,7 +152,7 @@ public class LinkstateNlriParserTest {
     private void setUp(final byte[] data) throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
-        this.registry = SimpleNlriTypeRegistry.getInstance();
+        registry = SimpleNlriTypeRegistry.getInstance();
         final BGPActivator act = new BGPActivator(new SimpleRSVPExtensionProviderContext());
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
@@ -170,18 +163,18 @@ public class LinkstateNlriParserTest {
                 .getDestinationLinkstate();
         assertEquals(1, ls.getCLinkstateDestination().size());
 
-        this.dest = ls.getCLinkstateDestination().get(0);
+        dest = ls.getCLinkstateDestination().get(0);
     }
 
     @Test
     public void testNodeNlri() throws BGPParsingException {
-        setUp(this.nodeNlri);
+        setUp(nodeNlri);
 
         // test BA form
-        assertNull(this.dest.getRouteDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
-        assertEquals(Uint64.ONE, this.dest.getIdentifier().getValue());
-        final NodeCase nCase = (NodeCase) this.dest.getObjectType();
+        assertNull(dest.getRouteDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
+        assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
+        final NodeCase nCase = (NodeCase) dest.getObjectType();
 
         final NodeDescriptors nodeD = nCase.getNodeDescriptors();
         assertEquals(new AsNumber(Uint32.valueOf(72)), nodeD.getAsNumber());
@@ -193,82 +186,48 @@ public class LinkstateNlriParserTest {
             nodeD.getCRouterIdentifier());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.registry.serializeNlriType(this.dest, buffer);
-        assertArrayEquals(this.nodeNlri, ByteArray.readAllBytes(buffer));
+        registry.serializeNlriType(dest, buffer);
+        assertArrayEquals(nodeNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeBuilder<NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
-
-        final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
-        protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
-        protocolId.withValue("isis-level2");
-        linkstateBI.addChild(protocolId.build());
-
-        final ImmutableLeafNodeBuilder<Uint64> identifier = new ImmutableLeafNodeBuilder<>();
-        identifier.withNodeIdentifier(LinkstateNlriParser.IDENTIFIER_NID);
-        identifier.withValue(Uint64.ONE);
-        linkstateBI.addChild(identifier.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
-        objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> nodeDescriptors = Builders.containerBuilder();
-        nodeDescriptors.withNodeIdentifier(LinkstateNlriParser.NODE_DESCRIPTORS_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> asNumber = new ImmutableLeafNodeBuilder<>();
-        asNumber.withNodeIdentifier(NodeNlriParser.AS_NUMBER_NID);
-        asNumber.withValue(Uint32.valueOf(72));
-        nodeDescriptors.addChild(asNumber.build());
-
-        final ImmutableLeafNodeBuilder<Uint32> areaID = new ImmutableLeafNodeBuilder<>();
-        areaID.withNodeIdentifier(NodeNlriParser.AREA_NID);
-        areaID.withValue(Uint32.valueOf(2697513L));
-        nodeDescriptors.addChild(areaID.build());
-
-        final ImmutableLeafNodeBuilder<Uint32> domainID = new ImmutableLeafNodeBuilder<>();
-        domainID.withNodeIdentifier(NodeNlriParser.DOMAIN_NID);
-        domainID.withValue(Uint32.valueOf(0x28282828L));
-        nodeDescriptors.addChild(domainID.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
-        crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
-        isisNode.withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID);
-
-        final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
-        isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[]{0, 0, 0, 0, 0, (byte) 0x39});
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisPseudoRouter =
-                Builders.containerBuilder();
-        isisPseudoRouter.withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID);
-        isisPseudoRouter.addChild(isoSystemID.build());
-
-        isisNode.addChild(isisPseudoRouter.build());
-        isisNode.addChild(Builders.leafBuilder().withNodeIdentifier(NodeNlriParser.PSN_NID).withValue(Uint8.valueOf(5))
-            .build());
-        crouterId.addChild(isisNode.build());
-
-        nodeDescriptors.addChild(crouterId.build());
-        objectType.addChild(nodeDescriptors.build());
-        linkstateBI.addChild(objectType.build());
-
-        assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(C_LINKSTATE_NID)
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
+            .withChild(Builders.choiceBuilder()
+                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.NODE_DESCRIPTORS_NID)
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72)))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.AREA_NID, Uint32.valueOf(2697513L)))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(0x28282828L)))
+                    .withChild(Builders.choiceBuilder()
+                        .withNodeIdentifier(C_ROUTER_ID_NID)
+                        .withChild(Builders.containerBuilder()
+                            .withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID)
+                            .withChild(Builders.containerBuilder()
+                                .withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID)
+                                .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
+                                    new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 }))
+                                .build())
+                            .withChild(ImmutableNodes.leafNode(NodeNlriParser.PSN_NID, Uint8.valueOf(5)))
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build()));
     }
 
     @Test
     public void testLinkNlri() throws BGPParsingException {
-        setUp(this.linkNlri);
+        setUp(linkNlri);
 
         // test BA form
-        assertNull(this.dest.getRouteDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
-        assertEquals(Uint64.ONE, this.dest.getIdentifier().getValue());
+        assertNull(dest.getRouteDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
+        assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
 
-        final LinkCase lCase = (LinkCase) this.dest.getObjectType();
+        final LinkCase lCase = (LinkCase) dest.getObjectType();
 
         final LocalNodeDescriptors local = lCase.getLocalNodeDescriptors();
         assertEquals(new AsNumber(Uint32.valueOf(72)), local.getAsNumber());
@@ -295,144 +254,74 @@ public class LinkstateNlriParserTest {
         assertEquals("197.20.160.40", ld.getIpv4NeighborAddress().getValue());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.registry.serializeNlriType(this.dest, buffer);
-        assertArrayEquals(this.linkNlri, ByteArray.readAllBytes(buffer));
+        registry.serializeNlriType(dest, buffer);
+        assertArrayEquals(linkNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
+        final var asNumber = ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72));
+        final var domainID = ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(0x28282828L));
 
-        final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
-        protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
-        protocolId.withValue("isis-level2");
-        linkstateBI.addChild(protocolId.build());
-
-        final ImmutableLeafNodeBuilder<Uint64> identifier = new ImmutableLeafNodeBuilder<>();
-        identifier.withNodeIdentifier(LinkstateNlriParser.IDENTIFIER_NID);
-        identifier.withValue(Uint64.ONE);
-        linkstateBI.addChild(identifier.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
-        objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
-
-        // local node descriptors
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> localNodeDescriptors =
-                Builders.containerBuilder();
-        localNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.LOCAL_NODE_DESCRIPTORS_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> asNumber = new ImmutableLeafNodeBuilder<>();
-        asNumber.withNodeIdentifier(NodeNlriParser.AS_NUMBER_NID);
-        asNumber.withValue(Uint32.valueOf(72));
-        localNodeDescriptors.addChild(asNumber.build());
-
-        final ImmutableLeafNodeBuilder<Uint32> domainID = new ImmutableLeafNodeBuilder<>();
-        domainID.withNodeIdentifier(NodeNlriParser.DOMAIN_NID);
-        domainID.withValue(Uint32.valueOf(0x28282828L));
-        localNodeDescriptors.addChild(domainID.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
-        crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
-        isisNode.withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID);
-
-        final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
-        isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 });
-
-        isisNode.addChild(isoSystemID.build());
-        crouterId.addChild(isisNode.build());
-        localNodeDescriptors.addChild(crouterId.build());
-
-        final ImmutableLeafNodeBuilder<String> bgpRouterId = new ImmutableLeafNodeBuilder<>();
-        bgpRouterId.withNodeIdentifier(NodeNlriParser.BGP_ROUTER_NID);
-        bgpRouterId.withValue("1.1.1.1");
-
-        final ImmutableLeafNodeBuilder<Uint32> memberAsn = new ImmutableLeafNodeBuilder<>();
-        memberAsn.withNodeIdentifier(NodeNlriParser.MEMBER_ASN_NID);
-        memberAsn.withValue(Uint32.valueOf(258L));
-
-        localNodeDescriptors.addChild(bgpRouterId.build());
-        localNodeDescriptors.addChild(memberAsn.build());
-
-        // remote descriptors
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> remoteNodeDescriptors =
-                Builders.containerBuilder();
-        remoteNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.REMOTE_NODE_DESCRIPTORS_NID);
-        remoteNodeDescriptors.addChild(asNumber.build());
-        remoteNodeDescriptors.addChild(domainID.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId2 = Builders.choiceBuilder();
-        crouterId2.withNodeIdentifier(C_ROUTER_ID_NID);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> ospfNode = Builders.containerBuilder();
-        ospfNode.withNodeIdentifier(NodeNlriParser.OSPF_NODE_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> ospfRouterId = new ImmutableLeafNodeBuilder<>();
-        ospfRouterId.withNodeIdentifier(NodeNlriParser.OSPF_ROUTER_NID);
-        ospfRouterId.withValue(Uint32.valueOf(0x00000040L));
-        ospfNode.addChild(ospfRouterId.build());
-        crouterId2.addChild(ospfNode.build());
-        remoteNodeDescriptors.addChild(crouterId2.build());
-        final ImmutableLeafNodeBuilder<String> bgpRouterIdRemote = new ImmutableLeafNodeBuilder<>();
-        bgpRouterIdRemote.withNodeIdentifier(NodeNlriParser.BGP_ROUTER_NID);
-        bgpRouterIdRemote.withValue("1.1.1.2");
-        remoteNodeDescriptors.addChild(bgpRouterIdRemote.build());
-
-        final ImmutableLeafNodeBuilder<Uint32> memberAsnRemote = new ImmutableLeafNodeBuilder<>();
-        memberAsnRemote.withNodeIdentifier(NodeNlriParser.MEMBER_ASN_NID);
-        memberAsnRemote.withValue(Uint32.valueOf(259));
-        remoteNodeDescriptors.addChild(memberAsnRemote.build());
-
-        // link descritpors
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> linkDescriptors = Builders.containerBuilder();
-        linkDescriptors.withNodeIdentifier(LinkstateNlriParser.LINK_DESCRIPTORS_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> linkLocalIdentifier = new ImmutableLeafNodeBuilder<>();
-        linkLocalIdentifier.withNodeIdentifier(LinkNlriParser.LINK_LOCAL_NID);
-        linkLocalIdentifier.withValue(Uint32.valueOf(16909060L));
-
-        final ImmutableLeafNodeBuilder<Uint32> linkRemoteIdentifier = new ImmutableLeafNodeBuilder<>();
-        linkRemoteIdentifier.withNodeIdentifier(LinkNlriParser.LINK_REMOTE_NID);
-        linkRemoteIdentifier.withValue(Uint32.valueOf(168496141L));
-
-        final ImmutableLeafNodeBuilder<String> ipv4InterfaceAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4InterfaceAddress.withNodeIdentifier(LinkNlriParser.IPV4_IFACE_NID);
-        ipv4InterfaceAddress.withValue("197.20.160.42");
-
-        final ImmutableLeafNodeBuilder<String> ipv4NeighborAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4NeighborAddress.withNodeIdentifier(LinkNlriParser.IPV4_NEIGHBOR_NID);
-        ipv4NeighborAddress.withValue("197.20.160.40");
-
-        final ImmutableLeafNodeBuilder<Uint16> multiTopologyId = new ImmutableLeafNodeBuilder<>();
-        multiTopologyId.withNodeIdentifier(TlvUtil.MULTI_TOPOLOGY_NID);
-        multiTopologyId.withValue(Uint16.valueOf(3));
-
-        linkDescriptors.addChild(linkLocalIdentifier.build());
-        linkDescriptors.addChild(linkRemoteIdentifier.build());
-        linkDescriptors.addChild(ipv4InterfaceAddress.build());
-        linkDescriptors.addChild(ipv4NeighborAddress.build());
-        linkDescriptors.addChild(multiTopologyId.build());
-
-        objectType.addChild(localNodeDescriptors.build());
-        objectType.addChild(remoteNodeDescriptors.build());
-        objectType.addChild(linkDescriptors.build());
-
-        linkstateBI.addChild(objectType.build());
-        assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(C_LINKSTATE_NID)
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
+            .withChild(Builders.choiceBuilder()
+                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
+                // local node descriptors
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.LOCAL_NODE_DESCRIPTORS_NID)
+                    .withChild(asNumber)
+                    .withChild(domainID)
+                    .withChild(Builders.choiceBuilder()
+                        .withNodeIdentifier(C_ROUTER_ID_NID)
+                        .withChild(Builders.containerBuilder()
+                            .withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID)
+                            .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
+                                new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 }))
+                            .build())
+                        .build())
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.BGP_ROUTER_NID, "1.1.1.1"))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.MEMBER_ASN_NID, Uint32.valueOf(258L)))
+                    .build())
+                // remote descriptors
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.REMOTE_NODE_DESCRIPTORS_NID)
+                    .withChild(asNumber)
+                    .withChild(domainID)
+                    .withChild(Builders.choiceBuilder()
+                        .withNodeIdentifier(C_ROUTER_ID_NID)
+                        .withChild(Builders.containerBuilder()
+                            .withNodeIdentifier(NodeNlriParser.OSPF_NODE_NID)
+                            .withChild(
+                                ImmutableNodes.leafNode(NodeNlriParser.OSPF_ROUTER_NID, Uint32.valueOf(0x00000040L)))
+                            .build())
+                        .build())
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.BGP_ROUTER_NID, "1.1.1.2"))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.MEMBER_ASN_NID, Uint32.valueOf(259)))
+                    .build())
+                // link descriptors
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.LINK_DESCRIPTORS_NID)
+                    .withChild(ImmutableNodes.leafNode(LinkNlriParser.LINK_LOCAL_NID, Uint32.valueOf(16909060L)))
+                    .withChild(ImmutableNodes.leafNode(LinkNlriParser.LINK_REMOTE_NID, Uint32.valueOf(168496141L)))
+                    .withChild(ImmutableNodes.leafNode(LinkNlriParser.IPV4_IFACE_NID, "197.20.160.42"))
+                    .withChild(ImmutableNodes.leafNode(LinkNlriParser.IPV4_NEIGHBOR_NID, "197.20.160.40"))
+                    .withChild(ImmutableNodes.leafNode(TlvUtil.MULTI_TOPOLOGY_NID, Uint16.valueOf(3)))
+                    .build())
+                .build())
+            .build()));
     }
 
     @Test
     public void testPrefixNlri() throws BGPParsingException {
-        setUp(this.prefixNlri);
+        setUp(prefixNlri);
 
         // test BA form
-        assertNull(this.dest.getRouteDistinguisher());
-        assertEquals(ProtocolId.IsisLevel2, this.dest.getProtocolId());
-        assertEquals(Uint64.ONE, this.dest.getIdentifier().getValue());
+        assertNull(dest.getRouteDistinguisher());
+        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
+        assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
 
-        final PrefixCase pCase = (PrefixCase) this.dest.getObjectType();
+        final PrefixCase pCase = (PrefixCase) dest.getObjectType();
 
         final AdvertisingNodeDescriptors local = pCase.getAdvertisingNodeDescriptors();
         assertEquals(new AsNumber(Uint32.valueOf(72)), local.getAsNumber());
@@ -448,96 +337,54 @@ public class LinkstateNlriParserTest {
         assertEquals(new Ipv4Prefix("255.255.0.0/16"), pd.getIpReachabilityInformation().getIpv4Prefix());
 
         final ByteBuf buffer = Unpooled.buffer();
-        this.registry.serializeNlriType(this.dest, buffer);
-        assertArrayEquals(this.prefixNlri, ByteArray.readAllBytes(buffer));
+        registry.serializeNlriType(dest, buffer);
+        assertArrayEquals(prefixNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
+        final var asNumber = ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72));
+        final var domainID = ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(673720360L));
 
-        final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
-        protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
-        protocolId.withValue("isis-level2");
-        linkstateBI.addChild(protocolId.build());
-
-        final ImmutableLeafNodeBuilder<Uint64> identifier = new ImmutableLeafNodeBuilder<>();
-        identifier.withNodeIdentifier(LinkstateNlriParser.IDENTIFIER_NID);
-        identifier.withValue(Uint64.ONE);
-        linkstateBI.addChild(identifier.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
-        objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
-
-        // advertising node descriptors
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> advertisingNodeDescriptors =
-                Builders.containerBuilder();
-        advertisingNodeDescriptors.withNodeIdentifier(LinkstateNlriParser.ADVERTISING_NODE_DESCRIPTORS_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> asNumber = new ImmutableLeafNodeBuilder<>();
-        asNumber.withNodeIdentifier(NodeNlriParser.AS_NUMBER_NID);
-        asNumber.withValue(Uint32.valueOf(72));
-        advertisingNodeDescriptors.addChild(asNumber.build());
-
-        final ImmutableLeafNodeBuilder<Uint32> domainID = new ImmutableLeafNodeBuilder<>();
-        domainID.withNodeIdentifier(NodeNlriParser.DOMAIN_NID);
-        domainID.withValue(Uint32.valueOf(673720360L));
-        advertisingNodeDescriptors.addChild(domainID.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> crouterId = Builders.choiceBuilder();
-        crouterId.withNodeIdentifier(C_ROUTER_ID_NID);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> isisNode = Builders.containerBuilder();
-        isisNode.withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID);
-
-        final ImmutableLeafNodeBuilder<byte[]> isoSystemID = new ImmutableLeafNodeBuilder<>();
-        isoSystemID.withNodeIdentifier(NodeNlriParser.ISO_SYSTEM_NID);
-        isoSystemID.withValue(new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 });
-
-        isisNode.addChild(isoSystemID.build());
-        crouterId.addChild(isisNode.build());
-        advertisingNodeDescriptors.addChild(crouterId.build());
-
-        // prefix descriptors
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> prefixDescriptors =
-                Builders.containerBuilder();
-        prefixDescriptors.withNodeIdentifier(LinkstateNlriParser.PREFIX_DESCRIPTORS_NID);
-        prefixDescriptors.addChild(asNumber.build());
-        prefixDescriptors.addChild(domainID.build());
-
-        final ImmutableLeafNodeBuilder<Uint16> multiTopologyId = new ImmutableLeafNodeBuilder<>();
-        multiTopologyId.withNodeIdentifier(TlvUtil.MULTI_TOPOLOGY_NID);
-        multiTopologyId.withValue(Uint16.valueOf(15));
-
-        prefixDescriptors.addChild(multiTopologyId.build());
-
-        final ImmutableLeafNodeBuilder<String> ipReachabilityInformation = new ImmutableLeafNodeBuilder<>();
-        ipReachabilityInformation.withNodeIdentifier(IP_REACH_NID);
-        ipReachabilityInformation.withValue("255.255.0.0/16");
-
-        prefixDescriptors.addChild(ipReachabilityInformation.build());
-
-        final ImmutableLeafNodeBuilder<String> ospfRouteType = new ImmutableLeafNodeBuilder<>();
-        ospfRouteType.withNodeIdentifier(OSPF_ROUTE_NID);
-        ospfRouteType.withValue("external1");
-
-        prefixDescriptors.addChild(ospfRouteType.build());
-
-        objectType.addChild(advertisingNodeDescriptors.build());
-        objectType.addChild(prefixDescriptors.build());
-
-        linkstateBI.addChild(objectType.build());
-        assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(C_LINKSTATE_NID)
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
+            .withChild(Builders.choiceBuilder()
+                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
+                // advertising node descriptors
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.ADVERTISING_NODE_DESCRIPTORS_NID)
+                    .withChild(asNumber)
+                    .withChild(domainID)
+                    .withChild(Builders.choiceBuilder()
+                        .withNodeIdentifier(C_ROUTER_ID_NID)
+                        .withChild(Builders.containerBuilder()
+                            .withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID)
+                            .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
+                                new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 }))
+                            .build())
+                        .build())
+                    .build())
+                // prefix descriptors
+                .withChild(Builders.containerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.PREFIX_DESCRIPTORS_NID)
+                    .withChild(asNumber)
+                    .withChild(domainID)
+                    .withChild(ImmutableNodes.leafNode(TlvUtil.MULTI_TOPOLOGY_NID, Uint16.valueOf(15)))
+                    .withChild(ImmutableNodes.leafNode(IP_REACH_NID, "255.255.0.0/16"))
+                    .withChild(ImmutableNodes.leafNode(OSPF_ROUTE_NID, "external1"))
+                    .build())
+                .build())
+            .build()));
     }
 
     @Test
     public void testTELspNlri() throws BGPParsingException {
-        setUp(this.teLspNlri);
+        setUp(teLspNlri);
         // test BA form
-        assertNull(this.dest.getRouteDistinguisher());
-        assertEquals(ProtocolId.RsvpTe, this.dest.getProtocolId());
-        assertEquals(Uint64.ONE, this.dest.getIdentifier().getValue());
-        final TeLspCase teCase = (TeLspCase) this.dest.getObjectType();
+        assertNull(dest.getRouteDistinguisher());
+        assertEquals(ProtocolId.RsvpTe, dest.getProtocolId());
+        assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
+        final TeLspCase teCase = (TeLspCase) dest.getObjectType();
 
         assertEquals(new LspId(Uint32.ONE), teCase.getLspId());
         assertEquals(new TunnelId(Uint16.ONE), teCase.getTunnelId());
@@ -545,60 +392,29 @@ public class LinkstateNlriParserTest {
         assertEquals(new Ipv4Address("4.3.2.1"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelEndpointAddress());
 
         // test BI form
-        final DataContainerNodeBuilder<YangInstanceIdentifier.NodeIdentifier, UnkeyedListEntryNode> linkstateBI =
-                ImmutableUnkeyedListEntryNodeBuilder.create();
-        linkstateBI.withNodeIdentifier(C_LINKSTATE_NID);
-
-        final ImmutableLeafNodeBuilder<String> protocolId = new ImmutableLeafNodeBuilder<>();
-        protocolId.withNodeIdentifier(LinkstateNlriParser.PROTOCOL_ID_NID);
-        protocolId.withValue("rsvp-te");
-        linkstateBI.addChild(protocolId.build());
-
-        final ImmutableLeafNodeBuilder<Uint64> identifier = new ImmutableLeafNodeBuilder<>();
-        identifier.withNodeIdentifier(LinkstateNlriParser.IDENTIFIER_NID);
-        identifier.withValue(Uint64.ONE);
-        linkstateBI.addChild(identifier.build());
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> objectType = Builders.choiceBuilder();
-        objectType.withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID);
-
-        final ImmutableLeafNodeBuilder<Uint32> lspId = new ImmutableLeafNodeBuilder<>();
-        lspId.withNodeIdentifier(AbstractTeLspNlriCodec.LSP_ID);
-        lspId.withValue(Uint32.ONE);
-
-        final ImmutableLeafNodeBuilder<Uint16> tunnelId = new ImmutableLeafNodeBuilder<>();
-        tunnelId.withNodeIdentifier(AbstractTeLspNlriCodec.TUNNEL_ID);
-        tunnelId.withValue(Uint16.ONE);
-
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> addressFamily = Builders.choiceBuilder();
-        addressFamily.withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY);
-
-        final ImmutableLeafNodeBuilder<String> ipv4TunnelSenderAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4TunnelSenderAddress.withNodeIdentifier(AbstractTeLspNlriCodec.IPV4_TUNNEL_SENDER_ADDRESS);
-        ipv4TunnelSenderAddress.withValue("1.2.3.4");
-
-        final ImmutableLeafNodeBuilder<String> ipv4TunnelEndPointAddress = new ImmutableLeafNodeBuilder<>();
-        ipv4TunnelEndPointAddress.withNodeIdentifier(AbstractTeLspNlriCodec.IPV4_TUNNEL_ENDPOINT_ADDRESS);
-        ipv4TunnelEndPointAddress.withValue("4.3.2.1");
-
-        addressFamily.addChild(ipv4TunnelSenderAddress.build());
-        addressFamily.addChild(ipv4TunnelEndPointAddress.build());
-
-        objectType.addChild(lspId.build());
-        objectType.addChild(tunnelId.build());
-        objectType.addChild(addressFamily.build());
-
-        linkstateBI.addChild(objectType.build());
-        assertEquals(this.dest, LinkstateNlriParser.extractLinkstateDestination(linkstateBI.build()));
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+            .withNodeIdentifier(C_LINKSTATE_NID)
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "rsvp-te"))
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
+            .withChild(Builders.choiceBuilder()
+                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
+                .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.LSP_ID, Uint32.ONE))
+                .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.TUNNEL_ID, Uint16.ONE))
+                .withChild(Builders.choiceBuilder()
+                    .withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY)
+                    .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_SENDER_ADDRESS, "1.2.3.4"))
+                    .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_ENDPOINT_ADDRESS, "4.3.2.1"))
+                    .build())
+                .build())
+            .build()));
     }
 
     @Test
     public void testSerializeAttribute() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
-        setUp(this.prefixNlri);
-        final List<CLinkstateDestination> dests = Lists.newArrayList(this.dest);
+        setUp(prefixNlri);
         final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
-            new DestinationLinkstateBuilder().setCLinkstateDestination(dests).build()).build();
+            new DestinationLinkstateBuilder().setCLinkstateDestination(List.of(dest)).build()).build();
         final AdvertizedRoutes aroutes = new AdvertizedRoutesBuilder().setDestinationType(dlc).build();
 
         Attributes pa = new AttributesBuilder()
@@ -609,17 +425,17 @@ public class LinkstateNlriParserTest {
 
         ByteBuf result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);
-        assertArrayEquals(this.prefixNlri, ByteArray.getAllBytes(result));
+        assertArrayEquals(prefixNlri, ByteArray.getAllBytes(result));
 
-        setUp(this.nodeNlri);
-        final List<CLinkstateDestination> destsU = Lists.newArrayList(this.dest);
+        setUp(nodeNlri);
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update
             .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase dlcU =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update
                 .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCaseBuilder()
                     .setDestinationLinkstate(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                         .bgp.linkstate.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
-                        .destination.linkstate._case.DestinationLinkstateBuilder().setCLinkstateDestination(destsU)
+                        .destination.linkstate._case.DestinationLinkstateBuilder()
+                            .setCLinkstateDestination(List.of(dest))
                         .build()).build();
         final WithdrawnRoutes wroutes = new WithdrawnRoutesBuilder().setDestinationType(dlcU).build();
 
@@ -631,6 +447,6 @@ public class LinkstateNlriParserTest {
 
         result = Unpooled.buffer();
         parser.serializeAttribute(pa, result);
-        assertArrayEquals(this.nodeNlri, ByteArray.getAllBytes(result));
+        assertArrayEquals(nodeNlri, ByteArray.getAllBytes(result));
     }
 }
