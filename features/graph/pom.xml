@@ -17,7 +17,7 @@
 
     <artifactId>features-aggregator-graph</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.17.7-SNAPSHOT</version>
+    <version>0.17.7</version>
     <packaging>pom</packaging>
 
     <modules>
