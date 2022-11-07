@@ -22,7 +22,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bmp-parent</artifactId>
-    <version>0.18.3-SNAPSHOT</version>
+    <version>0.18.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>BMP-related components</description>
     <name>${project.artifactId}</name>
