@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features-aggregator-bgpcep-extras</artifactId>
-    <version>0.18.3-SNAPSHOT</version>
+    <version>0.18.3</version>
     <packaging>pom</packaging>
 
     <modules>
