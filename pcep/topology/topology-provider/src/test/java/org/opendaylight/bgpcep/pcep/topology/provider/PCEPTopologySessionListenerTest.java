@@ -534,6 +534,45 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertEquals(PCEPErrors.UNKNOWN_PLSP_ID, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
     }
 
+    /**
+     * Test send update-lsp RPC without LSP object in payload.
+     */
+    @Test
+    public void testUpdateEmptyLsp() throws InterruptedException, ExecutionException {
+        // create LSP
+        listener.onSessionUp(session);
+        final var addLsp = topologyRpcs.addLsp(createAddLspInput());
+        assertEquals(1, receivedMsgs.size());
+        final var pcinitiate =  receivedMsgs.get(0);
+        assertThat(pcinitiate, instanceOf(Pcinitiate.class));
+        final var req = ((Pcinitiate) pcinitiate).getPcinitiateMessage().getRequests().get(0);
+        final var srpId = req.getSrp().getOperationId().getValue();
+        final var tlvs = createLspTlvs(req.getLsp().getPlspId().getValue(), true,
+                testAddress, testAddress, testAddress, Optional.empty());
+        final var pcRpt = MsgBuilderUtil.createPcRtpMessage(new LspBuilder(req.getLsp()).setTlvs(tlvs)
+                .setPlspId(new PlspId(Uint32.ONE))
+                .setSync(FALSE)
+                .setRemove(FALSE)
+                .setOperational(OperationalStatus.Active)
+                .build(), Optional.of(MsgBuilderUtil.createSrp(srpId)), MsgBuilderUtil.createPath(req.getEro()
+                .getSubobject()));
+        listener.onMessage(session, pcRpt);
+
+        // update LSP
+        final var builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep
+                .rev220730.update.lsp.args.ArgumentsBuilder()
+                .setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
+        final var input = new UpdateLspInputBuilder().setArguments(builder.build())
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
+                .build();
+        final var result = topologyRpcs.updateLsp(input).get().getResult();
+        assertEquals(FailureType.Unsent, result.getFailure());
+        assertEquals(1, result.getError().size());
+        final ErrorObject errorObject = result.getError().get(0).getErrorObject();
+        assertNotNull(errorObject);
+        assertEquals(PCEPErrors.LSP_MISSING, PCEPErrors.forValue(errorObject.getType(), errorObject.getValue()));
+    }
+
     @Test
     public void testRemoveUnknownLsp() throws InterruptedException, ExecutionException {
         listener.onSessionUp(session);

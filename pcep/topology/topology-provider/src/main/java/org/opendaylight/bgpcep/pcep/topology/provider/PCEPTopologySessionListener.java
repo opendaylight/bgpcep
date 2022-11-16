@@ -815,11 +815,12 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             final Srp srp = srpBuilder.build();
             final Lsp inputLsp = args != null ? args.getLsp() : null;
             final LspBuilder lspBuilder = new LspBuilder().setPlspId(reportedLsp.getPlspId());
-            if (inputLsp != null) {
-                lspBuilder.setDelegate(Boolean.TRUE.equals(inputLsp.getDelegate()))
-                        .setTlvs(inputLsp.getTlvs())
-                        .setAdministrative(Boolean.TRUE.equals(inputLsp.getAdministrative()));
+            if (inputLsp == null) {
+                return OperationResults.createUnsent(PCEPErrors.LSP_MISSING).future();
             }
+            lspBuilder.setDelegate(Boolean.TRUE.equals(inputLsp.getDelegate()))
+                    .setTlvs(inputLsp.getTlvs())
+                    .setAdministrative(Boolean.TRUE.equals(inputLsp.getAdministrative()));
             return redelegate(reportedLsp, srp, lspBuilder.build(), input);
         }
     }
