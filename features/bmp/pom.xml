@@ -17,7 +17,7 @@
 
     <artifactId>features-aggregator-bmp</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.17.8-SNAPSHOT</version>
+    <version>0.17.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

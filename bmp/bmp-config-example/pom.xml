@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgp-bmp-config-example</artifactId>
-    <version>0.17.8-SNAPSHOT</version>
+    <version>0.17.9-SNAPSHOT</version>
     <packaging>jar</packaging>
     <description>Configuration files examples for BMP protocol</description>
     <name>${project.artifactId}</name>
