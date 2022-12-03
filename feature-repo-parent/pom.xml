@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>feature-repo-parent</artifactId>
-    <version>0.17.8-SNAPSHOT</version>
+    <version>0.17.8</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 
