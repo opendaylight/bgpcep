@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>testtool-parent</artifactId>
-    <version>0.18.4-SNAPSHOT</version>
+    <version>0.18.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
 
