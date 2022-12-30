@@ -196,11 +196,10 @@ public final class ProtocolUtil {
                 // TODO: what should we do with in.getOspfRouterId()?
 
                 final NodeFlagBits nf = na.getNodeFlags();
-                if (nf.getAbr() != null) {
-                    ab.setRouterType(new AbrBuilder().setAbr(nf.getAbr() ? Empty.value() : null).build());
-                } else if (nf.getExternal() != null) {
-                    ab.setRouterType(new InternalBuilder().setInternal(nf.getExternal() ? null : Empty.value())
-                        .build());
+                if (nf.getAbr()) {
+                    ab.setRouterType(new AbrBuilder().setAbr(Empty.value()).build());
+                } else if (nf.getExternal()) {
+                    ab.setRouterType(new InternalBuilder().setInternal(Empty.value()).build());
                 }
             }
         }
