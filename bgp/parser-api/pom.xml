@@ -23,6 +23,11 @@
     <description>BGP Parser API</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <!-- yang-ext is not used for classes, but still needs to be dependent on -->
+        <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
