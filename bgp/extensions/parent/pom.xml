@@ -127,4 +127,17 @@
             <type>test-jar</type>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <ignoredUnusedDeclaredDependencies>
+                        <ignoredUnusedDeclaredDependency>org.opendaylight.bgpcep:bgp-bmp-api</ignoredUnusedDeclaredDependency>
+                    </ignoredUnusedDeclaredDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
