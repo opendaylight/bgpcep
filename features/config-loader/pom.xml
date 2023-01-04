@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>features-aggregator-config-loader</artifactId>
-    <version>0.18.5-SNAPSHOT</version>
+    <version>0.18.6-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
