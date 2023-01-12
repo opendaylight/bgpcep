@@ -20,16 +20,15 @@ import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class Main {
-
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+    // FIXME: inline as a text block
     private static final String USAGE = "DESCRIPTION:\n"
             + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
             + "from PCCs.\n" + "USAGE:\n"
@@ -69,18 +68,6 @@ public final class Main {
 
             + "With no parameters, this help is printed.";
     private static final int KA_TO_DEADTIMER_RATIO = 4;
-    private static final Uint8 KA_DEFAULT = Uint8.valueOf(30);
-    private static final PcepSessionErrorPolicy ERROR_POLICY = new PcepSessionErrorPolicy() {
-        @Override
-        public Uint16 getMaxUnknownMessages() {
-            return Uint16.valueOf(5);
-        }
-
-        @Override
-        public Class<? extends PcepSessionErrorPolicy> implementedInterface() {
-            throw new UnsupportedOperationException();
-        }
-    };
 
     private Main() {
 
@@ -93,8 +80,10 @@ public final class Main {
         }
 
         InetSocketAddress address = null;
-        Uint8 keepAliveValue = KA_DEFAULT;
+        Uint8 keepAliveValue = Uint8.valueOf(30);
         Uint8 deadTimerValue = Uint8.ZERO;
+        // FIXME: add a command-line option for this
+        Uint16 maxUnknownMessages = Uint16.valueOf(5);
         boolean stateful = false;
         boolean active = false;
         boolean instant = false;
@@ -138,6 +127,6 @@ public final class Main {
         dispatcher.createServer(address, KeyMapping.of(), handlerRegistry,
             new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAliveValue, deadTimerValue),
                 List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
-                ERROR_POLICY, null), new TestToolPCEPNegotiatorDependencies()).get();
+                maxUnknownMessages, null), new TestToolPCEPNegotiatorDependencies()).get();
     }
 }

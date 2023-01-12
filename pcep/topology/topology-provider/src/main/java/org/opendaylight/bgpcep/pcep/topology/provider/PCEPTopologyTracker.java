@@ -11,11 +11,13 @@ import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgpcep.pcep.topology.provider.TopologyUtils.friendlyId;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -32,8 +34,8 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.MessageRegistry;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
@@ -59,7 +61,6 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
-    private final @NonNull PCEPSessionNegotiatorFactory sessionNegotiatorFactory;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull MessageRegistry messageRegistry;
@@ -86,6 +87,9 @@ public final class PCEPTopologyTracker
     // Statistics RPCs
     private final @NonNull TopologyStatsRpcServiceImpl statsRpcs;
 
+    // FIXME: route to org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory
+    private final @NonNull ImmutableList<PCEPCapability> capabilities;
+
     // We are reusing our monitor as the universal lock. We have to account for three distinct threads competing for
     // our state:
     //   1) the typical DTCL callback thread invoking onDataTreeChanged()
@@ -111,17 +115,16 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPExtensionConsumerContext extensions,
-            final PCEPSessionNegotiatorFactory sessionNegotiatorFactory,
-            final PCEPDispatcher pcepDispatcher, final InstructionSchedulerFactory instructionSchedulerFactory,
-            final PceServerProvider pceServerProvider) {
+            final List<PCEPCapability> capabilities, final PCEPDispatcher pcepDispatcher,
+            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         messageRegistry = extensions.getMessageHandlerRegistry();
-        this.sessionNegotiatorFactory = requireNonNull(sessionNegotiatorFactory);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
+        this.capabilities = ImmutableList.copyOf(capabilities);
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
         statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
@@ -138,8 +141,8 @@ public final class PCEPTopologyTracker
     }
 
     @Override
-    public PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
-        return sessionNegotiatorFactory;
+    public List<PCEPCapability> getCapabilities() {
+        return capabilities;
     }
 
     @Override

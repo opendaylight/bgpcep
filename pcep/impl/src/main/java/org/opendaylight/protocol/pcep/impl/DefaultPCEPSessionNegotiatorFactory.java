@@ -18,42 +18,35 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
-import org.opendaylight.protocol.pcep.impl.spi.Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTimers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
-    private final PCEPTimerProposal timers;
+    private final @NonNull PCEPTimerProposal timers;
     private final @NonNull List<PCEPCapability> capabilities;
-    private final PcepSessionErrorPolicy errorPolicy;
+    private final @NonNull Uint16 maxUnknownMessages;
     private final PcepSessionTls tlsConfiguration;
 
     public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
-            final PcepSessionErrorPolicy errorPolicy) {
-        this(timers, capabilities, errorPolicy, errorPolicy instanceof PcepDispatcherConfig dc ? dc.getTls() : null);
+            final Uint16 maxUnknownMessages) {
+        this(timers, capabilities, maxUnknownMessages, null);
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
-            final PcepSessionErrorPolicy errorPolicy, final PcepSessionTls tlsConfiguration) {
-        this(new PCEPTimerProposal(timers), capabilities, errorPolicy, tlsConfiguration);
+            final Uint16 maxUnknownMessages, final PcepSessionTls tlsConfiguration) {
+        this(new PCEPTimerProposal(timers), capabilities, maxUnknownMessages, tlsConfiguration);
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPTimerProposal timers, final List<PCEPCapability> capabilities,
-            final PcepSessionErrorPolicy errorPolicy, final PcepSessionTls tlsConfiguration) {
+            final Uint16 maxUnknownMessages, final PcepSessionTls tlsConfiguration) {
         this.timers = requireNonNull(timers);
         this.capabilities = requireNonNull(capabilities);
-        this.errorPolicy = requireNonNull(errorPolicy);
+        this.maxUnknownMessages = requireNonNull(maxUnknownMessages);
         this.tlsConfiguration = tlsConfiguration;
-    }
-
-    @Deprecated(forRemoval = true)
-    @Override
-    public List<PCEPCapability> getCapabilities() {
-        return capabilities;
     }
 
     @Override
@@ -62,17 +55,24 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
             final Promise<PCEPSession> promise,
             final Channel channel,
             final Uint8 sessionId) {
+        final var address = (InetSocketAddress) channel.remoteAddress();
+        final var peerProposal = sessionNegotiatorDependencies.getPeerProposal();
 
-        final Open proposal = Util.createOpenObject((InetSocketAddress) channel.remoteAddress(), sessionId, timers,
-            capabilities, sessionNegotiatorDependencies.getPeerProposal());
+        final var builder = new TlvsBuilder();
+        for (final var capability : capabilities) {
+            capability.setCapabilityProposal(address, builder);
+        }
 
-        return new DefaultPCEPSessionNegotiator(
-                promise,
-                channel,
-                sessionNegotiatorDependencies.getListenerFactory().getSessionListener(),
-                sessionId,
-                proposal,
-                errorPolicy,
-                tlsConfiguration);
+        if (peerProposal != null) {
+            peerProposal.setPeerSpecificProposal(address, builder);
+        }
+
+        return new DefaultPCEPSessionNegotiator(promise, channel,
+            sessionNegotiatorDependencies.getListenerFactory().getSessionListener(), sessionId, new OpenBuilder()
+                .setSessionId(sessionId)
+                .setKeepalive(timers.keepAlive())
+                .setDeadTimer(timers.deadTimer())
+                .setTlvs(builder.build())
+                .build(), maxUnknownMessages, tlsConfiguration);
     }
 }

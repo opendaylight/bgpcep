@@ -53,7 +53,6 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -73,8 +72,6 @@ public class PCEPDispatcherImplTest {
     private PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies;
     @Mock
     private PCEPSessionListenerFactory listenerFactory;
-    @Mock
-    private PcepSessionErrorPolicy errorPolicy;
 
     private MessageRegistry msgReg;
     private PCEPSessionNegotiatorFactory negotiatorFactory;
@@ -82,11 +79,10 @@ public class PCEPDispatcherImplTest {
 
     @Before
     public void setUp() {
-        doReturn(Uint16.ZERO).when(errorPolicy).requireMaxUnknownMessages();
 
         msgReg = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
         negotiatorFactory = new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
-            List.of(), errorPolicy, null);
+            List.of(), Uint16.ZERO, null);
 
         dispatcher = new PCEPDispatcherImpl();
 

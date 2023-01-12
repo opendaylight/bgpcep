@@ -38,7 +38,6 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -106,8 +105,6 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     private PCEPTopologyProviderDependencies topologyDependencies;
     @Mock
     private Promise<PCEPSession> promise;
-    @Mock
-    private PcepSessionErrorPolicy errorPolicy;
 
     private final Timer timer = new HashedWheelTimer();
     private DefaultPCEPSessionNegotiator neg;
@@ -142,13 +139,11 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        doReturn(Uint16.valueOf(5)).when(errorPolicy).requireMaxUnknownMessages();
-
         manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
                 new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,
-            localPrefs, errorPolicy);
+            localPrefs, Uint16.valueOf(5));
         topologyRpcs = new TopologyRPCs(manager);
     }
 

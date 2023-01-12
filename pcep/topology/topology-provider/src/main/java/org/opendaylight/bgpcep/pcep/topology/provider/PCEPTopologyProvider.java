@@ -18,6 +18,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.epoll.EpollChannelOption;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -96,8 +98,8 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     synchronized void updateConfiguration(final @Nullable PCEPTopologyConfiguration newConfiguration) {
         // FIXME: BGPCEP-960: this check should be a one-time thing in PCEPTopologyTracker startup once we have OSGi DS
-        final var effectiveConfig = dependencies.getPCEPSessionNegotiatorFactory().getCapabilities().stream()
-            .anyMatch(PCEPCapability::isStateful) ? newConfiguration : null;
+        final var effectiveConfig = dependencies.getCapabilities().stream().anyMatch(PCEPCapability::isStateful)
+            ? newConfiguration : null;
 
         applyConfiguration(effectiveConfig);
     }
@@ -136,6 +138,38 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         if (!currentAddress.equals(newAddress)) {
             LOG.info("Topology Provider {} listen address changed from {} to {}, restarting", topologyId(),
                 currentAddress, newAddress);
+            applyConfiguration(null);
+            applyConfiguration(newConfiguration);
+            return;
+        }
+
+        // FIXME: can we apply this less aggressively to just routing it through manager to the negotiator factory?
+        final var currentTimerProposal = currentConfig.getTimerProposal();
+        final var newTimerProposal = newConfiguration.getTimerProposal();
+        if (!currentTimerProposal.equals(newTimerProposal)) {
+            LOG.info("Topology Provider {} timer proposal changed from {} to {}, restarting", topologyId(),
+                currentTimerProposal, newTimerProposal);
+            applyConfiguration(null);
+            applyConfiguration(newConfiguration);
+            return;
+        }
+
+        // FIXME: can we apply this less aggressively to just routing it through manager to the negotiator factory?
+        final var currentMaxUnkownMessages = currentConfig.getMaxUnknownMessages();
+        final var newMaxUnknownMessages = newConfiguration.getMaxUnknownMessages();
+        if (!currentMaxUnkownMessages.equals(newMaxUnknownMessages)) {
+            LOG.info("Topology Provider {} max-unknown-messages changed from {} to {}, restarting", topologyId(),
+                currentMaxUnkownMessages, newMaxUnknownMessages);
+            applyConfiguration(null);
+            applyConfiguration(newConfiguration);
+            return;
+        }
+
+        // FIXME: can we apply this less aggressively to just routing it through manager to the negotiator factory?
+        final var currentTls = currentConfig.getTls();
+        final var newTls = newConfiguration.getTls();
+        if (!Objects.equals(currentTls, newTls)) {
+            LOG.info("Topology Provider {} TLS changed from {} to {}, restarting", topologyId(), currentTls, newTls);
             applyConfiguration(null);
             applyConfiguration(newConfiguration);
             return;
@@ -192,7 +226,8 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         LOG.info("PCEP Topology Provider {} starting server channel", topologyId());
         final var channelFuture = dependencies.getPCEPDispatcher().createServer(currentConfig.getAddress(),
             currentConfig.getKeys(), dependencies.getMessageRegistry(),
-            dependencies.getPCEPSessionNegotiatorFactory(),
+            new DefaultPCEPSessionNegotiatorFactory(currentConfig.getTimerProposal(), dependencies.getCapabilities(),
+                currentConfig.getMaxUnknownMessages(), currentConfig.getTls()),
             new PCEPSessionNegotiatorFactoryDependenciesImpl(manager, proposal));
         channelFuture.addListener(ignored -> enableRPCs(future, channelFuture));
     }

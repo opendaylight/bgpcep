@@ -43,7 +43,6 @@ import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
-import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
@@ -58,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -225,7 +225,7 @@ public abstract class PCCMockCommon {
 
     private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
         return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
-            getCapabilities(), MockPcepSessionErrorPolicy.ZERO, null);
+            getCapabilities(), Uint16.ZERO, null);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
