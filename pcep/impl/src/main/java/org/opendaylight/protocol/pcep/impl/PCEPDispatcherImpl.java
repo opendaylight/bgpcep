@@ -18,7 +18,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.FixedRecvByteBufAllocator;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
@@ -27,9 +26,7 @@ import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-import java.io.Closeable;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -43,15 +40,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
+public class PCEPDispatcherImpl implements PCEPDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
-    private static final Integer SOCKET_BACKLOG_SIZE = 128;
-    private static final long TIMEOUT = 10;
+
     private final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf;
     private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
+
     @GuardedBy("this")
     private KeyMapping keys;
 
@@ -67,14 +64,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
             final @NonNull PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
             final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
         snf = requireNonNull(negotiatorFactory);
+        this.bossGroup = requireNonNull(bossGroup);
+        this.workerGroup = requireNonNull(workerGroup);
         hf = new PCEPHandlerFactory(registry);
-        if (Epoll.isAvailable()) {
-            this.bossGroup = new EpollEventLoopGroup();
-            this.workerGroup = new EpollEventLoopGroup();
-        } else {
-            this.bossGroup = requireNonNull(bossGroup);
-            this.workerGroup = requireNonNull(workerGroup);
-        }
         executor = requireNonNull(GlobalEventExecutor.INSTANCE);
     }
 
@@ -107,7 +99,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
                 initializer.initializeChannel(ch, new DefaultPromise<>(executor));
             }
         });
-        b.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
+        b.option(ChannelOption.SO_BACKLOG, 128);
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
@@ -134,14 +126,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         }
 
         return b;
-    }
-
-    @Override
-    public final void close() {
-        if (Epoll.isAvailable()) {
-            workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-            bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-        }
     }
 
     @Override
