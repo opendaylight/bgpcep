@@ -20,25 +20,13 @@ module pcep-app-config {
     import pcep-config { prefix pc; }
 
     container pcep-session-config {
-        // FIXME: remove this container
+        // FIXME: BGPCEP-962: remove this container
         uses pc:pcep-session-timers;
     }
 
-    typedef path-type {
-        type enumeration {
-            enum "PATH";
-            enum "CLASSPATH";
-        }
-    }
-
-    typedef store-type {
-        type enumeration {
-            enum "JKS";
-            enum "PKCS12";
-        }
-    }
-
     container pcep-dispatcher-config {
+        // FIXME: BGPCEP-962: remove this container
+
         leaf max-unknown-messages {
             type uint16 {
                 range "1..max";
@@ -48,51 +36,7 @@ module pcep-app-config {
 
         container tls {
             presence true;
-            leaf keystore {
-                description "keystore location";
-                type string;
-                mandatory true;
-            }
-            leaf keystore-type {
-                description "keystore type (JKS or PKCS12)";
-                type store-type;
-                mandatory true;
-            }
-            leaf keystore-path-type {
-                description "keystore path type (CLASSPATH or PATH)";
-                type path-type;
-                mandatory true;
-            }
-            leaf keystore-password {
-                description "password protecting keystore";
-                type string;
-                mandatory true;
-            }
-            leaf certificate-password {
-                description "password protecting certificate";
-                type string;
-                mandatory true;
-            }
-            leaf truststore {
-                description "truststore location";
-                type string;
-                mandatory true;
-            }
-            leaf truststore-type {
-                description "truststore type (JKS or PKCS12)";
-                type store-type;
-                mandatory true;
-            }
-            leaf truststore-path-type {
-                description "truststore path type (CLASSPATH or PATH)";
-                type path-type;
-                mandatory true;
-            }
-            leaf truststore-password {
-                description "password protecting truststore";
-                type string;
-                mandatory true;
-            }
+            uses pc:pcep-session-tls;
         }
     }
 }
