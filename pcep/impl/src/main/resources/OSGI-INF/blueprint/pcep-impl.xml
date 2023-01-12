@@ -34,6 +34,9 @@
   <bean id="pcepSessionNegotiatorFactory" class="org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory">
     <argument ref="sessionProposalFactory"/>
     <argument ref="pcepDispatcherConfig"/>
+    <argument>
+      <bean factory-ref="pcepDispatcherConfig" factory-method="getTls"/>
+    </argument>
   </bean>
 
   <bean id="pcepDispatcher" class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
