@@ -22,7 +22,7 @@ import javax.net.ssl.SSLEngine;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.OpenBuilder;
@@ -85,7 +85,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private static final Keepalive KEEPALIVE =
         new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
-    private final Tls tlsConfiguration;
+    private final PcepSessionTls tlsConfiguration;
 
     private volatile boolean localOK;
     private volatile boolean openRetry;
@@ -96,7 +96,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Open remotePrefs;
 
     protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final Tls tlsConfiguration) {
+            final PcepSessionTls tlsConfiguration) {
         super(promise, channel);
         this.tlsConfiguration = tlsConfiguration;
     }

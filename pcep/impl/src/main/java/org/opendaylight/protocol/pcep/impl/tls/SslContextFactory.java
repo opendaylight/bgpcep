@@ -19,7 +19,7 @@ import java.security.cert.CertificateException;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,14 +30,14 @@ public class SslContextFactory {
     private static final Logger LOG = LoggerFactory.getLogger(SslContextFactory.class);
     private static final String PROTOCOL = "TLS";
 
-    private final Tls tlsConfig;
+    private final PcepSessionTls tlsConfig;
 
     /**
      * SslContextFactory provides information about the TLS context and configuration.
      * @param tlsConfig
      *            TLS configuration object, contains keystore locations and keystore types
      */
-    public SslContextFactory(final Tls tlsConfig) {
+    public SslContextFactory(final PcepSessionTls tlsConfig) {
         this.tlsConfig = requireNonNull(tlsConfig);
     }
 

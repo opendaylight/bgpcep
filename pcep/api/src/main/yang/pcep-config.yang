@@ -21,8 +21,11 @@ module pcep-config {
          http://www.eclipse.org/legal/epl-v10.html";
 
     revision 2023-01-12 {
-        description "Updated timer definitions to uint8 and split them off
-                     into pcep-session-timers grouping";
+        description
+            "Updated timer definitions to uint8 and split them off into
+             pcep-session-timers grouping.
+
+             Introduced pcep-session-tls to hold TLS-related configuration.";
     }
 
     revision 2022-03-28 {
@@ -36,6 +39,68 @@ module pcep-config {
     revision "2017-10-25" {
         description
             "Initial revision.";
+    }
+
+    grouping pcep-session-tls {
+        typedef path-type {
+            type enumeration {
+                enum PATH;
+                enum CLASSPATH;
+            }
+        }
+
+        typedef store-type {
+            type enumeration {
+                enum JKS;
+                enum PKCS12;
+            }
+        }
+
+        leaf keystore {
+            description "keystore location";
+            type string;
+            mandatory true;
+        }
+        leaf keystore-type {
+            description "keystore type (JKS or PKCS12)";
+            type store-type;
+            mandatory true;
+        }
+        leaf keystore-path-type {
+            description "keystore path type (CLASSPATH or PATH)";
+            type path-type;
+            mandatory true;
+        }
+        leaf keystore-password {
+            description "password protecting keystore";
+            type string;
+            mandatory true;
+        }
+        leaf certificate-password {
+            description "password protecting certificate";
+            type string;
+            mandatory true;
+        }
+        leaf truststore {
+            description "truststore location";
+            type string;
+            mandatory true;
+        }
+        leaf truststore-type {
+            description "truststore type (JKS or PKCS12)";
+            type store-type;
+            mandatory true;
+        }
+        leaf truststore-path-type {
+            description "truststore path type (CLASSPATH or PATH)";
+            type path-type;
+            mandatory true;
+        }
+        leaf truststore-password {
+            description "password protecting truststore";
+            type string;
+            mandatory true;
+        }
     }
 
     grouping pcep-session-timers {
@@ -78,6 +143,11 @@ module pcep-config {
             }
 
             uses pcep-session-timers;
+
+            container tls {
+                presence "Indicates TLS-enabled (PCEPS) operation";
+                uses pcep-session-tls;
+            }
         }
     }
 
