@@ -40,7 +40,6 @@ import java.nio.channels.Channel;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -202,12 +201,6 @@ public class PCEPDispatcherImplTest {
         final ChannelFuture futureChannel = disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port),
             keys, msgReg, negotiatorFactory, negotiatorDependencies).sync();
         verify(disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class), same(keys));
-    }
-
-    @After
-    public void tearDown() {
-        dispatcher.close();
-        disp2Spy.close();
     }
 
     private static class PCCMock {
