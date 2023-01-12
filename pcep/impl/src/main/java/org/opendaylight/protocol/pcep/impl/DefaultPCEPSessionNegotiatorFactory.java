@@ -15,21 +15,21 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
     private final PCEPSessionProposalFactory spf;
     private final int maxUnknownMessages;
-    private final Tls tlsConfiguration;
+    private final PcepSessionTls tlsConfiguration;
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages) {
         this(spf, maxUnknownMessages, null);
     }
 
     private DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages,
-            final Tls tlsConfiguration) {
+            final PcepSessionTls tlsConfiguration) {
         this.spf = requireNonNull(spf);
         this.maxUnknownMessages = maxUnknownMessages;
         this.tlsConfiguration = tlsConfiguration;
