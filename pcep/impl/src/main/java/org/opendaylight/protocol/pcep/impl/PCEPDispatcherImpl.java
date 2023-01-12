@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -22,51 +23,88 @@ import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollMode;
 import io.netty.channel.epoll.EpollServerSocketChannel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import org.eclipse.jdt.annotation.NonNull;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of PCEPDispatcher.
  */
-public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
+@Singleton
+@Component(service = PCEPDispatcher.class)
+@MetaInfServices
+@Designate(ocd = PCEPDispatcherImpl.Configuration.class)
+public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
+    @ObjectClassDefinition(description = "Configuration of the OSGiBgpDeployer")
+    public @interface Configuration {
+        @AttributeDefinition(
+            description = "Maximum number of threads servicing the socket, 0 means as many as there are process cores",
+            min = "0")
+        int bossThreads() default 0;
+
+        @AttributeDefinition(
+            description = "Maximum number of threads servicing sessions, 0 means as many as there are process cores",
+            min = "0")
+        int workerThreads() default 0;
+
+        @AttributeDefinition(description = "Maximum time (seconds) to wait for shutdown", min = "0")
+        int shutdownTimeSeconds() default DEFAULT_SHUTDOWN_SECONDS;
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
-    private static final long TIMEOUT = 10;
+    private static final int DEFAULT_SHUTDOWN_SECONDS = 10;
 
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
-    private final EventExecutor executor;
+    private final EventExecutor executor  = requireNonNull(GlobalEventExecutor.INSTANCE);
+    private final int shutdownTimeSeconds;
 
-    /**
-     * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
-     *
-     * @param bossGroup         accepts an incoming connection
-     * @param workerGroup       handles the traffic of accepted connection
-     */
-    public PCEPDispatcherImpl(final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
+    public PCEPDispatcherImpl() {
+        this(0, 0, DEFAULT_SHUTDOWN_SECONDS);
+    }
+
+    @Activate
+    public PCEPDispatcherImpl(final Configuration config) {
+        this(config.bossThreads(), config.workerThreads(), config.shutdownTimeSeconds());
+    }
+
+    @Inject
+    public PCEPDispatcherImpl(final int bossThreads, final int workerThreads, final int shutdownTimeSeconds) {
+        final var bossTf = new ThreadFactoryBuilder().setNameFormat("pcep-boss-%d").build();
+        final var workerTf = new ThreadFactoryBuilder().setNameFormat("pcep-worker-%d").build();
+
         if (Epoll.isAvailable()) {
-            this.bossGroup = new EpollEventLoopGroup();
-            this.workerGroup = new EpollEventLoopGroup();
+            bossGroup = new EpollEventLoopGroup(bossThreads, bossTf);
+            workerGroup = new EpollEventLoopGroup(workerThreads, workerTf);
         } else {
-            this.bossGroup = requireNonNull(bossGroup);
-            this.workerGroup = requireNonNull(workerGroup);
+            bossGroup = new NioEventLoopGroup(bossThreads, bossTf);
+            workerGroup = new NioEventLoopGroup(workerThreads, workerTf);
         }
-        executor = requireNonNull(GlobalEventExecutor.INSTANCE);
+        this.shutdownTimeSeconds = shutdownTimeSeconds;
     }
 
     @Override
@@ -130,10 +168,16 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final void close() {
-        if (Epoll.isAvailable()) {
-            workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-            bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
+    @Deactivate
+    @PreDestroy
+    public void close() {
+        final long now = System.nanoTime();
+        final long deadline = now + TimeUnit.SECONDS.toNanos(shutdownTimeSeconds);
+
+        try {
+            bossGroup.shutdownGracefully(0, deadline - now, TimeUnit.NANOSECONDS);
+        } finally {
+            workerGroup.shutdownGracefully(0, deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
         }
     }
 

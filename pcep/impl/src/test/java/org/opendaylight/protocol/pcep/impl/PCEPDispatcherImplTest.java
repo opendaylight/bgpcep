@@ -27,8 +27,6 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -40,7 +38,6 @@ import java.nio.channels.Channel;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,18 +86,11 @@ public class PCEPDispatcherImplTest {
         msgReg = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
         negotiatorFactory = new DefaultPCEPSessionNegotiatorFactory(sessionProposal, errorPolicy);
 
-        final EventLoopGroup eventLoopGroup;
-        if (Epoll.isAvailable()) {
-            eventLoopGroup = new EpollEventLoopGroup();
-        } else {
-            eventLoopGroup = new NioEventLoopGroup();
-        }
-
-        dispatcher = new PCEPDispatcherImpl(eventLoopGroup, eventLoopGroup);
+        dispatcher = new PCEPDispatcherImpl();
 
         doReturn(null).when(negotiatorDependencies).getPeerProposal();
 
-        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(eventLoopGroup, eventLoopGroup);
+        final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl();
         disp2Spy = spy(dispatcher2);
 
         pccMock = new PCCMock(negotiatorFactory, new PCEPHandlerFactory(msgReg));
@@ -202,12 +192,6 @@ public class PCEPDispatcherImplTest {
         final ChannelFuture futureChannel = disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port),
             keys, msgReg, negotiatorFactory, negotiatorDependencies).sync();
         verify(disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class), same(keys));
-    }
-
-    @After
-    public void tearDown() {
-        dispatcher.close();
-        disp2Spy.close();
     }
 
     private static class PCCMock {

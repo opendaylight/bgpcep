@@ -20,7 +20,6 @@ import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
@@ -29,11 +28,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
@@ -67,12 +66,10 @@ public abstract class PCCMockCommon {
     private static final Uint8 DEAD_TIMER = Uint8.valueOf(120);
     private static final long SLEEP_FOR = 50;
     private final int port = InetSocketAddressUtil.getRandomPort();
-    final InetSocketAddress remoteAddress = InetSocketAddressUtil
-            .getRandomLoopbackInetSocketAddress(port);
-    final InetSocketAddress localAddress = InetSocketAddressUtil
-            .getRandomLoopbackInetSocketAddress(port);
+    final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+    final InetSocketAddress localAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
     PCCSessionListener pccSessionListener;
-    private PCEPDispatcher pceDispatcher;
+    private PCEPDispatcherImpl pceDispatcher;
     private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
     private PCEPSessionNegotiatorFactory negotiatorFactory;
     private MessageRegistry messageRegistry;
@@ -88,7 +85,12 @@ public abstract class PCCMockCommon {
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
 
         messageRegistry = extensionProvider.getMessageHandlerRegistry();
-        pceDispatcher = new PCEPDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup());
+        pceDispatcher = new PCEPDispatcherImpl();
+    }
+
+    @After
+    public void after() {
+        pceDispatcher.close();
     }
 
     static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel,
