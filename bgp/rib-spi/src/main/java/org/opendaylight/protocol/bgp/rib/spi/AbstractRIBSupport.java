@@ -167,6 +167,8 @@ public abstract class AbstractRIBSupport<
         this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
         this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         this.routesListIdentifier = NodeIdentifier.create(routeQname);
+        this.afiClass = requireNonNull(afiClass);
+        this.safiClass = requireNonNull(safiClass);
         this.tk = new TablesKey(afiClass, safiClass);
         this.tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
             BindingReflections.findQName(afiClass.implementedInterface()),
@@ -176,8 +178,6 @@ public abstract class AbstractRIBSupport<
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
                         .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                                 .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
-        this.afiClass = afiClass;
-        this.safiClass = safiClass;
         this.destinationNid = NodeIdentifier.create(destContainerQname);
         this.pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         this.prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
@@ -186,7 +186,7 @@ public abstract class AbstractRIBSupport<
             TABLES_NID, TABLES_NID, ROUTES_NID, routesContainerIdentifier, routesListIdentifier, routesListIdentifier);
         this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
-            ImmutableList.of(this.pathIdNid.getNodeType(), routeKeyQname));
+            ImmutableList.of(pathIdNid.getNodeType(), routeKeyQname));
     }
 
     @Override
