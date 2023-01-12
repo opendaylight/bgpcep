@@ -14,12 +14,9 @@ import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSession
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +25,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
-import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
@@ -50,11 +46,9 @@ public class PCCDispatcherImplTest {
         MockPcepSessionErrorPolicy.ZERO);
 
     private PCCDispatcherImpl dispatcher;
-    private PCEPDispatcher pcepDispatcher;
+    private PCEPDispatcherImpl pcepDispatcher;
     private InetSocketAddress serverAddress;
     private InetSocketAddress clientAddress;
-    private EventLoopGroup workerGroup;
-    private EventLoopGroup bossGroup;
     private MessageRegistry registry;
 
     @Mock
@@ -62,13 +56,10 @@ public class PCCDispatcherImplTest {
 
     @Before
     public void setUp() {
-        workerGroup = new NioEventLoopGroup();
-        bossGroup = new NioEventLoopGroup();
-
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
 
         dispatcher = new PCCDispatcherImpl(registry);
-        pcepDispatcher = new PCEPDispatcherImpl(bossGroup, workerGroup);
+        pcepDispatcher = new PCEPDispatcherImpl();
         serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
         doReturn(null).when(negotiatorDependencies).getPeerProposal();
@@ -77,12 +68,7 @@ public class PCCDispatcherImplTest {
     @After
     public void tearDown() {
         dispatcher.close();
-        closeEventLoopGroups();
-    }
-
-    private void closeEventLoopGroups() {
-        workerGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-        bossGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS);
+        pcepDispatcher.close();
     }
 
     @Test(timeout = 20000)
@@ -102,11 +88,9 @@ public class PCCDispatcherImplTest {
         assertNotNull(sl.getSession());
         assertTrue(sl.isUp());
         channel.close().get();
-        closeEventLoopGroups();
+        pcepDispatcher.close();
 
-        workerGroup = new NioEventLoopGroup();
-        bossGroup = new NioEventLoopGroup();
-        pcepDispatcher = new PCEPDispatcherImpl(bossGroup, workerGroup);
+        pcepDispatcher = new PCEPDispatcherImpl();
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         doReturn(slf2).when(negotiatorDependencies).getListenerFactory();

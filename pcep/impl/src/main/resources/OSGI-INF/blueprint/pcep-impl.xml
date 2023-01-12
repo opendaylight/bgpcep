@@ -24,11 +24,6 @@
 
   <service ref="sessionProposalFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionProposalFactory"/>
 
-  <!-- PCEPDispatcher -->
-
-  <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
-  <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
-
   <odl:clustered-app-config id="pcepDispatcherConfig"
       binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig"/>
 
@@ -38,11 +33,4 @@
   </bean>
 
   <service ref="pcepSessionNegotiatorFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory"/>
-
-  <bean id="pcepDispatcher" class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
-    <argument ref="globalBossGroup"/>
-    <argument ref="globalWorkerGroup"/>
-  </bean>
-
-  <service ref="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
 </blueprint>
