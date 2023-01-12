@@ -26,14 +26,7 @@ module pcep-app-config {
 
     container pcep-dispatcher-config {
         // FIXME: BGPCEP-962: remove this container
-
-        leaf max-unknown-messages {
-            type uint16 {
-                range "1..max";
-            }
-            default 5;
-        }
-
+        uses pc:pcep-session-error-policy;
         container tls {
             presence true;
             uses pc:pcep-session-tls;

@@ -53,6 +53,8 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -71,11 +73,15 @@ public class PCEPDispatcherImplTest {
     private PCEPDispatcherDependencies dispatcherDependencies;
     @Mock
     private PCEPSessionListenerFactory listenerFactory;
+    @Mock
+    private PcepSessionErrorPolicy errorPolicy;
 
     private PCCMock pccMock;
 
     @Before
     public void setUp() {
+        doReturn(Uint16.ZERO).when(errorPolicy).requireMaxUnknownMessages();
+
         final PCEPSessionProposalFactory sessionProposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
                 List.of());
         final EventLoopGroup eventLoopGroup;
@@ -86,18 +92,18 @@ public class PCEPDispatcherImplTest {
         }
         final MessageRegistry msgReg = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
         dispatcher = new PCEPDispatcherImpl(msgReg,
-                new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
+                new DefaultPCEPSessionNegotiatorFactory(sessionProposal, errorPolicy),
                 eventLoopGroup, eventLoopGroup);
 
         doReturn(KeyMapping.of()).when(dispatcherDependencies).getKeys();
         doReturn(null).when(dispatcherDependencies).getPeerProposal();
 
         final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl(msgReg,
-                new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
+                new DefaultPCEPSessionNegotiatorFactory(sessionProposal, errorPolicy),
                 eventLoopGroup, eventLoopGroup);
         disp2Spy = spy(dispatcher2);
 
-        pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, 0),
+        pccMock = new PCCMock(new DefaultPCEPSessionNegotiatorFactory(sessionProposal, errorPolicy),
                 new PCEPHandlerFactory(msgReg));
     }
 

@@ -15,29 +15,31 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
+    private final PcepSessionErrorPolicy errorPolicy;
     private final PCEPSessionProposalFactory spf;
-    private final int maxUnknownMessages;
     private final PcepSessionTls tlsConfiguration;
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages) {
-        this(spf, maxUnknownMessages, null);
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
+            final PcepSessionErrorPolicy errorPolicy) {
+        this(spf, errorPolicy, null);
     }
 
-    private DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf, final int maxUnknownMessages,
-            final PcepSessionTls tlsConfiguration) {
+    private DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
+            final PcepSessionErrorPolicy errorPolicy, final PcepSessionTls tlsConfiguration) {
         this.spf = requireNonNull(spf);
-        this.maxUnknownMessages = maxUnknownMessages;
+        this.errorPolicy = requireNonNull(errorPolicy);
         this.tlsConfiguration = tlsConfiguration;
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
             final PcepDispatcherConfig config) {
-        this(spf, config.getMaxUnknownMessages().toJava(), config.getTls());
+        this(spf, config, config.getTls());
     }
 
     @Override
@@ -54,8 +56,8 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
                 channel,
                 sessionNegotiatorDependencies.getListenerFactory().getSessionListener(),
                 sessionId,
-                maxUnknownMessages,
                 proposal,
+                errorPolicy,
                 tlsConfiguration);
     }
 
