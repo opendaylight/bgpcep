@@ -15,7 +15,6 @@ import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
@@ -28,7 +27,7 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
             final PcepSessionErrorPolicy errorPolicy) {
-        this(spf, errorPolicy, errorPolicy instanceof PcepDispatcherConfig dc ? dc.getTls() : null);
+        this(spf, errorPolicy, null);
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
