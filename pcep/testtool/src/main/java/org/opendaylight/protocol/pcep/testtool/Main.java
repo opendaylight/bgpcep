@@ -23,6 +23,8 @@ import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +73,17 @@ public final class Main {
             + "With no parameters, this help is printed.";
     private static final int KA_TO_DEADTIMER_RATIO = 4;
     private static final Uint8 KA_DEFAULT = Uint8.valueOf(30);
-    private static final int MAX_UNKNOWN_MESSAGES = 5;
+    private static final PcepSessionErrorPolicy ERROR_POLICY = new PcepSessionErrorPolicy() {
+        @Override
+        public Uint16 getMaxUnknownMessages() {
+            return Uint16.valueOf(5);
+        }
+
+        @Override
+        public Class<? extends PcepSessionErrorPolicy> implementedInterface() {
+            throw new UnsupportedOperationException();
+        }
+    };
 
     private Main() {
 
@@ -130,7 +142,7 @@ public final class Main {
             .orElseThrow()
             .getMessageHandlerRegistry();
         final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(handlerRegistry,
-            new DefaultPCEPSessionNegotiatorFactory(spf, MAX_UNKNOWN_MESSAGES),
+            new DefaultPCEPSessionNegotiatorFactory(spf, ERROR_POLICY),
             new NioEventLoopGroup(), new NioEventLoopGroup());
         dispatcher.createServer(new TestToolPCEPDispatcherDependencies(address)).get();
     }
