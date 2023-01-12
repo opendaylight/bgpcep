@@ -27,6 +27,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.pcep.config.session.config.TlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open;
@@ -36,20 +37,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.Errors;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
+    private PcepSessionErrorPolicy errorPolicy;
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
 
     @Before
     public void setup() {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open
-            localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
+        doReturn(Uint16.valueOf(20)).when(errorPolicy).requireMaxUnknownMessages();
+
+        final var localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
         serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                channel, listener, Uint8.ONE, 20, localPrefs);
+                channel, listener, Uint8.ONE, localPrefs, errorPolicy);
         tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                channel, listener, Uint8.ONE, 20, localPrefs, new TlsBuilder().build());
+                channel, listener, Uint8.ONE, localPrefs, errorPolicy, new TlsBuilder().build());
     }
 
     /**
@@ -75,8 +79,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     public void testEstablishTLS() {
         final DefaultPCEPSessionNegotiator negotiator =
             new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                channel, listener, Uint8.ONE, 20, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
-                SslContextFactoryTest.createTlsConfig());
+                channel, listener, Uint8.ONE, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
+                errorPolicy, SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Starttls);
