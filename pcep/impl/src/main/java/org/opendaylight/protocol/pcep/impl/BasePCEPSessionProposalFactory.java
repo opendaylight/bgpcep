@@ -52,7 +52,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
     }
 
     @Override
-    public Open getSessionProposal(final InetSocketAddress address, final int sessionId,
+    public Open getSessionProposal(final InetSocketAddress address, final Uint8 sessionId,
             final PCEPPeerProposal peerProposal) {
         final var builder = new TlvsBuilder();
         for (final var capability : capabilities) {
@@ -64,7 +64,7 @@ public final class BasePCEPSessionProposalFactory implements PCEPSessionProposal
         }
 
         return new OpenBuilder()
-            .setSessionId(Uint8.valueOf(sessionId))
+            .setSessionId(sessionId)
             .setKeepalive(keepAlive)
             .setDeadTimer(deadTimer)
             .setTlvs(builder.build())

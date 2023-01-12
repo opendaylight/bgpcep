@@ -138,7 +138,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
                 new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
         startSessionManager();
-        neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), (short) 1, 5,
+        neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE, 5,
             localPrefs);
         topologyRpcs = new TopologyRPCs(manager);
     }

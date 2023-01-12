@@ -18,6 +18,7 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
             final PCEPSessionNegotiatorFactoryDependencies dependencies,
             final AbstractPCEPSessionNegotiatorFactory negFactory) {
         super(promise, channel);
-        this.nfd = dependencies;
+        nfd = dependencies;
         this.negFactory = negFactory;
     }
 
@@ -43,19 +44,19 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
     protected void startNegotiation() throws ExecutionException {
         final Object lock = this;
 
-        LOG.debug("Bootstrap negotiation for channel {} started", this.channel);
+        LOG.debug("Bootstrap negotiation for channel {} started", channel);
 
         /*
          * We have a chance to see if there's a client session already
          * registered for this client.
          */
-        final byte[] clientAddress = ((InetSocketAddress) this.channel.remoteAddress()).getAddress().getAddress();
-        final PCEPPeerRegistry sessionReg = this.negFactory.getSessionRegistry();
+        final byte[] clientAddress = ((InetSocketAddress) channel.remoteAddress()).getAddress().getAddress();
+        final PCEPPeerRegistry sessionReg = negFactory.getSessionRegistry();
 
         synchronized (lock) {
             if (sessionReg.getSessionReference(clientAddress).isPresent()) {
                 final byte[] serverAddress =
-                    ((InetSocketAddress) this.channel.localAddress()).getAddress().getAddress();
+                    ((InetSocketAddress) channel.localAddress()).getAddress().getAddress();
                 if (COMPARATOR.compare(serverAddress, clientAddress) > 0) {
                     final Optional<SessionReference> sessionRefMaybe = sessionReg.removeSessionReference(clientAddress);
                     try {
@@ -67,14 +68,13 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
                     }
                 } else {
                     negotiationFailed(new IllegalStateException("A conflicting session for address "
-                            + ((InetSocketAddress) this.channel.remoteAddress()).getAddress() + " found."));
+                            + ((InetSocketAddress) channel.remoteAddress()).getAddress() + " found."));
                     return;
                 }
             }
 
-            final Short sessionId = sessionReg.nextSession(clientAddress);
-            final AbstractPCEPSessionNegotiator n = this.negFactory
-                    .createNegotiator(this.nfd, this.promise, this.channel, sessionId);
+            final Uint8 sessionId = sessionReg.nextSession(clientAddress);
+            final AbstractPCEPSessionNegotiator n = negFactory.createNegotiator(nfd, promise, channel, sessionId);
 
             sessionReg.putSessionReference(clientAddress, new SessionReference() {
                 @Override
@@ -87,19 +87,19 @@ public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
                 }
 
                 @Override
-                public Short getSessionId() {
+                public Uint8 getSessionId() {
                     return sessionId;
                 }
             });
 
-            this.channel.closeFuture().addListener((ChannelFutureListener) future -> {
+            channel.closeFuture().addListener((ChannelFutureListener) future -> {
                 synchronized (lock) {
                     sessionReg.removeSessionReference(clientAddress);
                 }
             });
 
-            LOG.info("Replacing bootstrap negotiator for channel {}", this.channel);
-            this.channel.pipeline().replace(this, "negotiator", n);
+            LOG.info("Replacing bootstrap negotiator for channel {}", channel);
+            channel.pipeline().replace(this, "negotiator", n);
             n.startNegotiation();
         }
     }

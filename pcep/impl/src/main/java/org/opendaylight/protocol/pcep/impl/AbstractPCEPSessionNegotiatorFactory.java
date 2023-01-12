@@ -12,6 +12,7 @@ import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
     protected abstract AbstractPCEPSessionNegotiator createNegotiator(
             PCEPSessionNegotiatorFactoryDependencies snd,
             Promise<PCEPSessionImpl> promise,
-            Channel channel, short sessionId);
+            Channel channel, Uint8 sessionId);
 
     @Override
     public final SessionNegotiator getSessionNegotiator(final PCEPSessionNegotiatorFactoryDependencies dependencies,
@@ -48,6 +49,6 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
     }
 
     public PCEPPeerRegistry getSessionRegistry() {
-        return this.sessionRegistry;
+        return sessionRegistry;
     }
 }
