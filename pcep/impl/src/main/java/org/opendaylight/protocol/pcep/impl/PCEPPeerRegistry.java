@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PCEPPeerRegistry {
@@ -47,12 +48,12 @@ final class PCEPPeerRegistry {
     private final Map<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
 
     protected interface SessionReference extends AutoCloseable {
-        Short getSessionId();
+        Uint8 getSessionId();
     }
 
 
     protected synchronized Optional<SessionReference> getSessionReference(final byte[] clientAddress) {
-        final SessionReference sessionReference = this.sessions.get(new ByteArrayWrapper(clientAddress));
+        final SessionReference sessionReference = sessions.get(new ByteArrayWrapper(clientAddress));
         if (sessionReference != null) {
             return Optional.of(sessionReference);
         }
@@ -60,32 +61,27 @@ final class PCEPPeerRegistry {
     }
 
     protected synchronized Optional<SessionReference> removeSessionReference(final byte[] clientAddress) {
-        final SessionReference sessionReference = this.sessions.remove(new ByteArrayWrapper(clientAddress));
-        if (sessionReference != null) {
-            return Optional.of(sessionReference);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(sessions.remove(new ByteArrayWrapper(clientAddress)));
     }
 
     protected synchronized void putSessionReference(final byte[] clientAddress,
             final SessionReference sessionReference) {
-        this.sessions.put(new ByteArrayWrapper(clientAddress), sessionReference);
+        sessions.put(new ByteArrayWrapper(clientAddress), sessionReference);
     }
 
-    protected synchronized Short nextSession(final byte[] clientAddress) throws ExecutionException {
+    protected synchronized Uint8 nextSession(final byte[] clientAddress) throws ExecutionException {
         final PeerRecord peer =
-            this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, null));
+            formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, null));
 
         return peer.allocId();
     }
 
-    protected synchronized void releaseSession(final byte[] clientAddress, final short sessionId)
+    protected synchronized void releaseSession(final byte[] clientAddress, final Uint8 sessionId)
             throws ExecutionException {
-        this.formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, sessionId));
+        formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, sessionId));
     }
 
     private static final class ByteArrayWrapper {
-
         private final byte[] byteArray;
 
         ByteArrayWrapper(final byte[] byteArray) {
@@ -94,18 +90,12 @@ final class PCEPPeerRegistry {
 
         @Override
         public int hashCode() {
-            return Arrays.hashCode(this.byteArray);
+            return Arrays.hashCode(byteArray);
         }
 
         @Override
         public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof ByteArrayWrapper)) {
-                return false;
-            }
-            return Arrays.equals(this.byteArray, ((ByteArrayWrapper) obj).byteArray);
+            return this == obj || obj instanceof ByteArrayWrapper other && Arrays.equals(byteArray, other.byteArray);
         }
     }
 }

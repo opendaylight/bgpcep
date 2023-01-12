@@ -17,6 +17,7 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.pcep.dispatcher.config.Tls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
     private final PCEPSessionProposalFactory spf;
@@ -44,22 +45,22 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
             final PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
             final Promise<PCEPSessionImpl> promise,
             final Channel channel,
-            final short sessionId) {
+            final Uint8 sessionId) {
 
-        final Open proposal = this.spf.getSessionProposal((InetSocketAddress) channel.remoteAddress(), sessionId,
+        final Open proposal = spf.getSessionProposal((InetSocketAddress) channel.remoteAddress(), sessionId,
                 sessionNegotiatorDependencies.getPeerProposal());
         return new DefaultPCEPSessionNegotiator(
                 promise,
                 channel,
                 sessionNegotiatorDependencies.getListenerFactory().getSessionListener(),
                 sessionId,
-                this.maxUnknownMessages,
+                maxUnknownMessages,
                 proposal,
-                this.tlsConfiguration);
+                tlsConfiguration);
     }
 
     @Override
     public PCEPSessionProposalFactory getPCEPSessionProposalFactory() {
-        return this.spf;
+        return spf;
     }
 }

@@ -23,7 +23,7 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     private final int maxUnknownMessages;
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages,
+            final PCEPSessionListener listener, final Uint8 sessionId, final int maxUnknownMessages,
             final Open localPrefs, final Tls tlsConfiguration) {
         super(promise, channel, tlsConfiguration);
         this.listener = requireNonNull(listener);
@@ -31,13 +31,13 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
         myLocalPrefs = new OpenBuilder()
                 .setKeepalive(localPrefs.getKeepalive())
                 .setDeadTimer(localPrefs.getDeadTimer())
-                .setSessionId(Uint8.valueOf(sessionId))
+                .setSessionId(requireNonNull(sessionId))
                 .setTlvs(localPrefs.getTlvs())
                 .build();
     }
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages,
+            final PCEPSessionListener listener, final Uint8 sessionId, final int maxUnknownMessages,
             final Open localPrefs) {
         this(promise, channel, listener, sessionId, maxUnknownMessages, localPrefs, null);
     }

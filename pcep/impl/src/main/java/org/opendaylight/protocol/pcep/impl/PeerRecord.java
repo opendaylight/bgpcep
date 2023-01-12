@@ -12,6 +12,7 @@ import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.util.Values;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PeerRecord {
@@ -20,25 +21,27 @@ final class PeerRecord {
     private final Cache<Short, Short> pastIds;
 
     @GuardedBy("this")
-    private Short lastId;
+    private Uint8 lastId;
 
-    PeerRecord(final long idLifetimeSeconds, final Short lastId) {
+    PeerRecord(final long idLifetimeSeconds, final Uint8 lastId) {
         // Note that the cache is limited to 255 entries -- which means we will always have
         // a single entry available. That number will be the Last Recently Used ID.
-        this.pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS)
+        pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS)
                 .maximumSize(Values.UNSIGNED_BYTE_MAX_VALUE).build();
         this.lastId = lastId;
     }
 
-    synchronized Short allocId() {
-        short id = this.lastId == null ? 0 : this.lastId;
+    synchronized Uint8 allocId() {
+        short id = lastId == null ? 0 : lastId.toJava();
 
-        while (this.pastIds.getIfPresent(id) != null) {
+        while (pastIds.getIfPresent(id) != null) {
             id = (short) ((id + 1) % Values.UNSIGNED_BYTE_MAX_VALUE);
         }
 
-        this.pastIds.put(id, id);
-        this.lastId = id;
-        return id;
+        pastIds.put(id, id);
+
+        final var ret = Uint8.valueOf(id);
+        lastId = ret;
+        return ret;
     }
 }
