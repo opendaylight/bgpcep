@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.ssl.SslHandler;
@@ -84,6 +85,8 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private static final Keepalive KEEPALIVE =
         new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build();
 
+    private final Tls tlsConfiguration;
+
     private volatile boolean localOK;
     private volatile boolean openRetry;
     private volatile boolean remoteOK;
@@ -91,10 +94,11 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Future<?> failTimer;
     private Open localPrefs;
     private Open remotePrefs;
-    private Tls tlsConfiguration;
 
-    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
+    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
+            final Tls tlsConfiguration) {
         super(promise, channel);
+        this.tlsConfiguration = tlsConfiguration;
     }
 
     /**
@@ -146,11 +150,11 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
      */
     private void sendErrorMessage(final PCEPErrors value) {
 
-        this.sendMessage(Util.createErrorMessage(value, null));
+        sendMessage(Util.createErrorMessage(value, null));
     }
 
     private void scheduleFailTimer() {
-        this.failTimer = this.channel.eventLoop().schedule(() -> {
+        failTimer = channel.eventLoop().schedule(() -> {
             switch (AbstractPCEPSessionNegotiator.this.state) {
                 case FINISHED:
                 case IDLE:
@@ -178,32 +182,32 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
 
     @Override
     protected final void startNegotiation() {
-        Preconditions.checkState(this.state == State.IDLE);
-        if (this.tlsConfiguration != null) {
-            this.sendMessage(new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build());
-            this.state = State.START_TLS_WAIT;
+        checkState(state == State.IDLE, "Unexpected state %s", state);
+        if (tlsConfiguration != null) {
+            sendMessage(new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build()).build());
+            state = State.START_TLS_WAIT;
             scheduleFailTimer();
-            LOG.info("Started TLS connection negotiation with peer {}", this.channel);
+            LOG.info("Started TLS connection negotiation with peer {}", channel);
         } else {
             startNegotiationWithOpen();
         }
-        this.channel.closeFuture().addListener((ChannelFutureListener) f -> cancelTimers());
+        channel.closeFuture().addListener((ChannelFutureListener) f -> cancelTimers());
     }
 
     private void cancelTimers() {
-        this.failTimer.cancel(false);
+        failTimer.cancel(false);
     }
 
     private void startNegotiationWithOpen() {
-        this.localPrefs = getInitialProposal();
+        localPrefs = getInitialProposal();
         final OpenMessage m =
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.OpenBuilder()
-                .setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs).build()).build();
-        this.sendMessage(m);
-        this.state = State.OPEN_WAIT;
+                .setOpenMessage(new OpenMessageBuilder().setOpen(localPrefs).build()).build();
+        sendMessage(m);
+        state = State.OPEN_WAIT;
         scheduleFailTimer();
 
-        LOG.info("PCEP session with {} started, sent proposal {}", this.channel, this.localPrefs);
+        LOG.info("PCEP session with {} started, sent proposal {}", channel, localPrefs);
     }
 
     private boolean handleMessageKeepWait(final Message msg) {
@@ -216,15 +220,15 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     }
 
     private boolean handleMessageKeepAlive() {
-        this.localOK = true;
-        if (this.remoteOK) {
-            LOG.info("PCEP peer {} completed negotiation", this.channel);
-            negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-            this.state = State.FINISHED;
+        localOK = true;
+        if (remoteOK) {
+            LOG.info("PCEP peer {} completed negotiation", channel);
+            negotiationSuccessful(createSession(channel, localPrefs, remotePrefs));
+            state = State.FINISHED;
         } else {
             scheduleFailTimer();
-            this.state = State.OPEN_WAIT;
-            LOG.debug("Channel {} moved to OpenWait state with localOK=1", this.channel);
+            state = State.OPEN_WAIT;
+            LOG.debug("Channel {} moved to OpenWait state with localOK=1", channel);
         }
         return true;
     }
@@ -236,20 +240,20 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             final ErrorObject obj = err.getErrors().get(0).getErrorObject();
             LOG.warn("Unexpected error received from PCC: type {} value {}", obj.getType(), obj.getValue());
             negotiationFailed(new IllegalStateException("Unexpected error received from PCC."));
-            this.state = State.IDLE;
+            state = State.IDLE;
             return true;
         }
-        this.localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
-        if (this.localPrefs == null) {
+        localPrefs = getRevisedProposal(((SessionCase) err.getErrorType()).getSession().getOpen());
+        if (localPrefs == null) {
             sendErrorMessage(PCEPErrors.PCERR_NON_ACC_SESSION_CHAR);
             negotiationFailed(new IllegalStateException("Peer suggested unacceptable retry proposal"));
-            this.state = State.FINISHED;
+            state = State.FINISHED;
             return true;
         }
-        this.sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(this.localPrefs)
+        sendMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().setOpen(localPrefs)
             .build()).build());
-        if (!this.remoteOK) {
-            this.state = State.OPEN_WAIT;
+        if (!remoteOK) {
+            state = State.OPEN_WAIT;
         }
         scheduleFailTimer();
         return true;
@@ -266,61 +270,61 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
                 .getOpenMessage();
         final Open open = o.getOpen();
         if (isProposalAcceptable(open)) {
-            this.sendMessage(KEEPALIVE);
-            this.remotePrefs = open;
-            this.remoteOK = true;
-            if (this.localOK) {
-                negotiationSuccessful(createSession(this.channel, this.localPrefs, this.remotePrefs));
-                LOG.info("PCEP peer {} completed negotiation", this.channel);
-                this.state = State.FINISHED;
+            sendMessage(KEEPALIVE);
+            remotePrefs = open;
+            remoteOK = true;
+            if (localOK) {
+                negotiationSuccessful(createSession(channel, localPrefs, remotePrefs));
+                LOG.info("PCEP peer {} completed negotiation", channel);
+                state = State.FINISHED;
             } else {
                 scheduleFailTimer();
-                this.state = State.KEEP_WAIT;
-                LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", this.channel);
+                state = State.KEEP_WAIT;
+                LOG.debug("Channel {} moved to KeepWait state with remoteOK=1", channel);
             }
             return true;
         }
-        if (this.openRetry) {
+        if (openRetry) {
             sendErrorMessage(PCEPErrors.SECOND_OPEN_MSG);
             negotiationFailed(new IllegalStateException("OPEN renegotiation failed"));
-            this.state = State.FINISHED;
+            state = State.FINISHED;
             return true;
         }
         final Open newPrefs = getCounterProposal(open);
         if (newPrefs == null) {
             sendErrorMessage(PCEPErrors.NON_ACC_NON_NEG_SESSION_CHAR);
             negotiationFailed(new IllegalStateException("Peer sent unacceptable session parameters"));
-            this.state = State.FINISHED;
+            state = State.FINISHED;
             return true;
         }
-        this.sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
-        this.openRetry = true;
-        this.state = this.localOK ? State.OPEN_WAIT : State.KEEP_WAIT;
+        sendMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR, newPrefs));
+        openRetry = true;
+        state = localOK ? State.OPEN_WAIT : State.KEEP_WAIT;
         scheduleFailTimer();
         return true;
     }
 
     private boolean handleMessageStartTlsWait(final Message msg) {
         if (msg instanceof Starttls) {
-            final SslContextFactory sslFactory = new SslContextFactory(this.tlsConfiguration);
+            final SslContextFactory sslFactory = new SslContextFactory(tlsConfiguration);
             final SSLContext sslContext = sslFactory.getServerContext();
             if (sslContext == null) {
-                this.sendErrorMessage(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS);
+                sendErrorMessage(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS);
                 negotiationFailed(new IllegalStateException("Failed to establish a TLS connection."));
-                this.state = State.FINISHED;
+                state = State.FINISHED;
                 return true;
             }
             final SSLEngine engine = sslContext.createSSLEngine();
             engine.setNeedClientAuth(true);
             engine.setUseClientMode(false);
-            this.channel.pipeline().addFirst(new SslHandler(engine));
-            LOG.info("PCEPS TLS connection with peer: {} established succesfully.", this.channel);
+            channel.pipeline().addFirst(new SslHandler(engine));
+            LOG.info("PCEPS TLS connection with peer: {} established succesfully.", channel);
             startNegotiationWithOpen();
             return true;
         } else if (!(msg instanceof Pcerr)) {
-            this.sendErrorMessage(PCEPErrors.NON_STARTTLS_MSG_RCVD);
+            sendErrorMessage(PCEPErrors.NON_STARTTLS_MSG_RCVD);
             negotiationFailed(new IllegalStateException("Unexpected message recieved."));
-            this.state = State.FINISHED;
+            state = State.FINISHED;
             return true;
         }
         return false;
@@ -330,12 +334,12 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     protected final void handleMessage(final Message msg) {
         cancelTimers();
 
-        LOG.debug("Channel {} handling message {} in state {}", this.channel, msg, this.state);
+        LOG.debug("Channel {} handling message {} in state {}", channel, msg, state);
 
-        switch (this.state) {
+        switch (state) {
             case FINISHED:
             case IDLE:
-                throw new IllegalStateException("Unexpected handleMessage in state " + this.state);
+                throw new IllegalStateException("Unexpected handleMessage in state " + state);
             case START_TLS_WAIT:
                 if (handleMessageStartTlsWait(msg)) {
                     return;
@@ -354,25 +358,21 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
             default:
                 break;
         }
-        LOG.warn("Channel {} in state {} received unexpected message {}", this.channel, this.state, msg);
+        LOG.warn("Channel {} in state {} received unexpected message {}", channel, state, msg);
         sendErrorMessage(PCEPErrors.NON_OR_INVALID_OPEN_MSG);
         negotiationFailed(new Exception("Illegal message encountered"));
-        this.state = State.FINISHED;
+        state = State.FINISHED;
     }
 
     @VisibleForTesting
     State getState() {
-        return this.state;
-    }
-
-    public void setTlsConfiguration(final Tls tlsConfiguration) {
-        this.tlsConfiguration = tlsConfiguration;
+        return state;
     }
 
     @Override
     protected void negotiationFailed(final Throwable cause) {
-        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
-        this.channel.close();
-        this.promise.setFailure(cause);
+        LOG.debug("Negotiation on channel {} failed", channel, cause);
+        channel.close();
+        promise.setFailure(cause);
     }
 }

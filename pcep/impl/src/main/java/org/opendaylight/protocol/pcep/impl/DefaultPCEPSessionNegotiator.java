@@ -25,16 +25,15 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
             final PCEPSessionListener listener, final short sessionId, final int maxUnknownMessages,
             final Open localPrefs, final Tls tlsConfiguration) {
-        super(promise, channel);
-        super.setTlsConfiguration(tlsConfiguration);
+        super(promise, channel, tlsConfiguration);
+        this.listener = requireNonNull(listener);
         this.maxUnknownMessages = maxUnknownMessages;
-        this.myLocalPrefs = new OpenBuilder()
+        myLocalPrefs = new OpenBuilder()
                 .setKeepalive(localPrefs.getKeepalive())
                 .setDeadTimer(localPrefs.getDeadTimer())
                 .setSessionId(Uint8.valueOf(sessionId))
                 .setTlvs(localPrefs.getTlvs())
                 .build();
-        this.listener = requireNonNull(listener);
     }
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
@@ -47,13 +46,13 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
 
     @Override
     protected Open getInitialProposal() {
-        return this.myLocalPrefs;
+        return myLocalPrefs;
     }
 
     @Override
     @VisibleForTesting
     public PCEPSessionImpl createSession(final Channel channel, final Open localPrefs, final Open remotePrefs) {
-        return new PCEPSessionImpl(this.listener, this.maxUnknownMessages, channel, localPrefs, remotePrefs);
+        return new PCEPSessionImpl(listener, maxUnknownMessages, channel, localPrefs, remotePrefs);
     }
 
     @Override
@@ -68,6 +67,6 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
 
     @Override
     protected Open getRevisedProposal(final Open suggestion) {
-        return this.myLocalPrefs;
+        return myLocalPrefs;
     }
 }
