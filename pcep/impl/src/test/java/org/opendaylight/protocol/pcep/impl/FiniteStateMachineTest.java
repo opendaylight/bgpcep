@@ -20,17 +20,16 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.pcep.config.session.config.TlsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Open;
@@ -45,21 +44,18 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
-    @Mock
-    private PcepSessionErrorPolicy errorPolicy;
+    private static final @NonNull Uint16 MAX_UNKNOWN_MESSAGES = Uint16.valueOf(20);
 
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
 
     @Before
     public void setup() {
-        doReturn(Uint16.valueOf(20)).when(errorPolicy).requireMaxUnknownMessages();
-
         final var localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
         serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                channel, listener, Uint8.ONE, localPrefs, errorPolicy);
+                channel, listener, Uint8.ONE, localPrefs, MAX_UNKNOWN_MESSAGES);
         tlsSessionNegotiator = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                channel, listener, Uint8.ONE, localPrefs, errorPolicy, new TlsBuilder().build());
+                channel, listener, Uint8.ONE, localPrefs, MAX_UNKNOWN_MESSAGES, new TlsBuilder().build());
     }
 
     /**
@@ -86,7 +82,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         final DefaultPCEPSessionNegotiator negotiator =
             new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 channel, listener, Uint8.ONE, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
-                errorPolicy, SslContextFactoryTest.createTlsConfig());
+                MAX_UNKNOWN_MESSAGES, SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Starttls);
@@ -168,8 +164,8 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
         serverSession.handleMessage(kaMsg);
         checkEquals(() -> {
             for (final Notification<?> m : msgsSend) {
-                if (m instanceof Pcerr) {
-                    final Errors obj = ((Pcerr) m).getPcerrMessage().getErrors().get(0);
+                if (m instanceof Pcerr pcErr) {
+                    final Errors obj = pcErr.getPcerrMessage().getErrors().get(0);
                     assertEquals(Uint8.ONE, obj.getErrorObject().getType());
                     assertEquals(Uint8.ONE, obj.getErrorObject().getValue());
                 }

@@ -25,10 +25,10 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
-import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -98,6 +98,6 @@ final class PCCsBuilder {
 
     private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
         return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAlive, deadTimer),
-            List.of(pcepCapabilities), MockPcepSessionErrorPolicy.ZERO, null);
+            List.of(pcepCapabilities), Uint16.ZERO, null);
     }
 }

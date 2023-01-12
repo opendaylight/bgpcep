@@ -18,11 +18,13 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -36,16 +38,21 @@ final class PCEPTopologyConfiguration implements Immutable {
     private final @NonNull InetSocketAddress address;
     private final @NonNull GraphKey graphKey;
     private final @NonNull KeyMapping keys;
+    private final @NonNull PCEPTimerProposal timerProposal;
+    private final @Nullable PcepSessionTls tls;
     private final long updateIntervalNanos;
     private final short rpcTimeout;
 
     PCEPTopologyConfiguration(final @NonNull InetSocketAddress address, final @NonNull KeyMapping keys,
-            final @NonNull GraphKey graphKey, final short rpcTimeout, final long updateIntervalNanos) {
+            final @NonNull GraphKey graphKey, final short rpcTimeout, final long updateIntervalNanos,
+            final PCEPTimerProposal timerProposal, final @Nullable PcepSessionTls tls) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
         this.graphKey = requireNonNull(graphKey);
         this.rpcTimeout = rpcTimeout;
         this.updateIntervalNanos = updateIntervalNanos;
+        this.timerProposal = requireNonNull(timerProposal);
+        this.tls = tls;
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -73,7 +80,8 @@ final class PCEPTopologyConfiguration implements Immutable {
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
             constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
-            sessionConfig.getRpcTimeout(), updateInterval);
+            sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
+            sessionConfig.getTls());
     }
 
     short getRpcTimeout() {
@@ -94,6 +102,14 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     @NonNull GraphKey getGraphKey() {
         return graphKey;
+    }
+
+    @NonNull PCEPTimerProposal getTimerProposal() {
+        return timerProposal;
+    }
+
+    @Nullable PcepSessionTls getTls() {
+        return tls;
     }
 
     private static @NonNull KeyMapping constructKeys(final @Nullable Map<NodeKey, Node> nodes) {

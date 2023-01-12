@@ -30,16 +30,16 @@ import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
     private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
-        new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), MockPcepSessionErrorPolicy.ZERO, null);
+        new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
 
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcherImpl pcepDispatcher;

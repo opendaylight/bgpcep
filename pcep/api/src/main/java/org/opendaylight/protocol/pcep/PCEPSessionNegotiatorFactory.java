@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep;
 
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
-import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 
 /**
@@ -27,12 +26,4 @@ public interface PCEPSessionNegotiatorFactory {
     @NonNull SessionNegotiator getSessionNegotiator(
             @NonNull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
             @NonNull Channel channel, @NonNull Promise<PCEPSession> promise);
-
-    /**
-     * Returns list containing PCEP Capabilities.
-     *
-     * @return PCEPCapabilities
-     */
-    @Deprecated(forRemoval = true)
-    @NonNull List<PCEPCapability> getCapabilities();
 }
