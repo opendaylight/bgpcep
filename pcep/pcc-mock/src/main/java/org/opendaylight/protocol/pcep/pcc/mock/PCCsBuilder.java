@@ -26,6 +26,7 @@ import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
+import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
@@ -100,6 +101,6 @@ final class PCCsBuilder {
     private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
         final List<PCEPCapability> capabilities = Lists.newArrayList(pcepCapabilities);
         return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(deadTimer,
-            keepAlive, capabilities), 0);
+            keepAlive, capabilities), MockPcepSessionErrorPolicy.ZERO);
     }
 }
