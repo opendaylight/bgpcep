@@ -19,7 +19,6 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTimers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
@@ -34,7 +33,7 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
 
     public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
             final PcepSessionErrorPolicy errorPolicy) {
-        this(timers, capabilities, errorPolicy, errorPolicy instanceof PcepDispatcherConfig dc ? dc.getTls() : null);
+        this(timers, capabilities, errorPolicy, null);
     }
 
     public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
@@ -48,12 +47,6 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this.capabilities = requireNonNull(capabilities);
         this.errorPolicy = requireNonNull(errorPolicy);
         this.tlsConfiguration = tlsConfiguration;
-    }
-
-    @Deprecated(forRemoval = true)
-    @Override
-    public List<PCEPCapability> getCapabilities() {
-        return capabilities;
     }
 
     @Override
