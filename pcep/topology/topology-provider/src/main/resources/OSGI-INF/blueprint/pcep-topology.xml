@@ -6,10 +6,20 @@
   terms of the Eclipse Public License v1.0 which accompanies this distribution,
   and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
+    <!--
+         Obtains the specific list of PCEPCapability OSGi services announced via
+         META-INF/services/org.opendaylight.protocol.pcep.PCEPCapability resources.
+     -->
+    <odl:specific-reference-list id="pcepCapabilities" interface="org.opendaylight.protocol.pcep.PCEPCapability"/>
+
+    <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>
+    <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
+    <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
+
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
-    <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
     <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
@@ -21,7 +31,26 @@
         <argument ref="dataBroker"/>
         <argument ref="clusterSingletonServiceProvider"/>
         <argument ref="rpcProviderService"/>
-        <argument ref="pcepDispatcher"/>
+        <argument ref="pcepCapabilities"/>
+            
+        <argument>
+            <bean class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
+                <argument>
+                    <bean factory-ref="pcepExtensionContext" factory-method="getMessageHandlerRegistry"/>
+                </argument>
+                <argument ref="globalBossGroup"/>
+                <argument ref="globalWorkerGroup"/>
+                <argument>
+                    <bean class="org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory">
+                        <argument>
+                            <bean class="org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory">
+                            </bean>
+                        </argument>
+                        <argument ref="pcepDispatcherConfig"/>
+                    </bean>
+                </argument>
+            </bean>
+        </argument>
         <argument ref="intructionFactory"/>
         <argument ref="pceServerProvider"/>
     </bean>
