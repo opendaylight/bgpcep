@@ -22,10 +22,13 @@ module pcep-config {
 
     revision 2023-01-12 {
         description
-            "Updated timer definitions to uint8 and split them off into
+            "Updates timer definitions to uint8 and split them off into
              pcep-session-timers grouping.
 
-             Introduced pcep-session-tls to hold TLS-related configuration.";
+             Introduces pcep-session-error-policy to configure things like
+             max-unknown-messages.
+
+             Introduces pcep-session-tls to hold TLS-related configuration.";
     }
 
     revision 2022-03-28 {
@@ -39,6 +42,15 @@ module pcep-config {
     revision "2017-10-25" {
         description
             "Initial revision.";
+    }
+
+    grouping pcep-session-error-policy {
+        leaf max-unknown-messages {
+            type uint16 {
+                range "1..max";
+            }
+            default 5;
+        }
     }
 
     grouping pcep-session-timers {
@@ -137,11 +149,13 @@ module pcep-config {
                 default 4189;
             }
 
+            // FIXME: this should live in topology-api
             leaf ted-name {
                 type string;
                 default "example-linkstate-topology";
             }
 
+            uses pcep-session-error-policy;
             uses pcep-session-timers;
 
             container tls {

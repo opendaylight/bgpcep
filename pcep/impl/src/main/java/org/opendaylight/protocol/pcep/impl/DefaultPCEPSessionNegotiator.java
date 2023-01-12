@@ -13,21 +13,22 @@ import com.google.common.annotations.VisibleForTesting;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegotiator {
+    private final PcepSessionErrorPolicy errorPolicy;
     private final PCEPSessionListener listener;
-    private final int maxUnknownMessages;
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final Uint8 sessionId, final int maxUnknownMessages,
-            final Open localPrefs, final PcepSessionTls tlsConfiguration) {
+            final PCEPSessionListener listener, final Uint8 sessionId, final Open localPrefs,
+            final PcepSessionErrorPolicy errorPolicy, final PcepSessionTls tlsConfiguration) {
         super(promise, channel, tlsConfiguration);
         this.listener = requireNonNull(listener);
-        this.maxUnknownMessages = maxUnknownMessages;
+        this.errorPolicy = requireNonNull(errorPolicy);
         myLocalPrefs = new OpenBuilder()
                 .setKeepalive(localPrefs.getKeepalive())
                 .setDeadTimer(localPrefs.getDeadTimer())
@@ -37,9 +38,9 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     }
 
     public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
-            final PCEPSessionListener listener, final Uint8 sessionId, final int maxUnknownMessages,
-            final Open localPrefs) {
-        this(promise, channel, listener, sessionId, maxUnknownMessages, localPrefs, null);
+            final PCEPSessionListener listener, final Uint8 sessionId, final Open localPrefs,
+            final PcepSessionErrorPolicy errorPolicy) {
+        this(promise, channel, listener, sessionId, localPrefs, errorPolicy, null);
     }
 
     private final Open myLocalPrefs;
@@ -52,7 +53,8 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     @Override
     @VisibleForTesting
     public PCEPSessionImpl createSession(final Channel channel, final Open localPrefs, final Open remotePrefs) {
-        return new PCEPSessionImpl(listener, maxUnknownMessages, channel, localPrefs, remotePrefs);
+        return new PCEPSessionImpl(listener, errorPolicy.requireMaxUnknownMessages().toJava(), channel, localPrefs,
+            remotePrefs);
     }
 
     @Override
