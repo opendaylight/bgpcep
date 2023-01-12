@@ -14,7 +14,6 @@ import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
@@ -35,12 +34,6 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
         this.spf = requireNonNull(spf);
         this.errorPolicy = requireNonNull(errorPolicy);
         this.tlsConfiguration = tlsConfiguration;
-    }
-
-    @Deprecated(forRemoval = true)
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionProposalFactory spf,
-            final PcepDispatcherConfig config) {
-        this(spf, config.getMaxUnknownMessages().toJava(), config.getTls());
     }
 
     @Override
