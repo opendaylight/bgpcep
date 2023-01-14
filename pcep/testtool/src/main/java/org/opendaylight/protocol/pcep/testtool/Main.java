@@ -142,9 +142,8 @@ public final class Main {
         final MessageRegistry handlerRegistry = ServiceLoader.load(PCEPExtensionConsumerContext.class).findFirst()
             .orElseThrow()
             .getMessageHandlerRegistry();
-        final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(handlerRegistry,
-            new DefaultPCEPSessionNegotiatorFactory(spf, ERROR_POLICY),
-            new NioEventLoopGroup(), new NioEventLoopGroup());
-        dispatcher.createServer(address, KeyMapping.of(), new TestToolPCEPNegotiatorDependencies()).get();
+        final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup());
+        dispatcher.createServer(address, KeyMapping.of(), handlerRegistry,
+            new DefaultPCEPSessionNegotiatorFactory(spf, ERROR_POLICY), new TestToolPCEPNegotiatorDependencies()).get();
     }
 }

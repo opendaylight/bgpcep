@@ -12,6 +12,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
+import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
@@ -21,6 +22,13 @@ import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
  */
 @NonNullByDefault
 interface PCEPTopologyProviderDependencies {
+    /**
+     * Returns the {@link MessageRegistry} for parsing PCEP messages.
+     *
+     * @return message registry
+     */
+    MessageRegistry getMessageRegistry();
+
     /**
      * Returns a PCEPSessionProposalFactory.
      *

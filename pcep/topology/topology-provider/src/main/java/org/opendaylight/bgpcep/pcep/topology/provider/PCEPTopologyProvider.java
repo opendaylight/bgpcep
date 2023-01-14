@@ -191,7 +191,9 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         LOG.info("PCEP Topology Provider {} starting server channel", topologyId());
         final var channelFuture = dependencies.getPCEPDispatcher().createServer(currentConfig.getAddress(),
-            currentConfig.getKeys(), new PCEPSessionNegotiatorFactoryDependenciesImpl(manager, proposal));
+            currentConfig.getKeys(), dependencies.getMessageRegistry(),
+            dependencies.getPCEPSessionNegotiatorFactory(),
+            new PCEPSessionNegotiatorFactoryDependenciesImpl(manager, proposal));
         channelFuture.addListener(ignored -> enableRPCs(future, channelFuture));
     }
 
