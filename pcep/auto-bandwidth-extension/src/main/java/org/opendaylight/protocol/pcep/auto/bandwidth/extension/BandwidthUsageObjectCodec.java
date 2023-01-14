@@ -8,17 +8,17 @@
 
 package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.bandwidth.usage.object.BandwidthUsage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.bandwidth.usage.object.BandwidthUsageBuilder;
@@ -38,8 +38,7 @@ public final class BandwidthUsageObjectCodec extends CommonObjectParser implemen
 
     @Override
     public BandwidthUsage parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() % BW_LENGTH != 0) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
                     + "; Expected multiple of " + BW_LENGTH + ".");
@@ -57,7 +56,7 @@ public final class BandwidthUsageObjectCodec extends CommonObjectParser implemen
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof BandwidthUsage,
+        checkArgument(object instanceof BandwidthUsage,
                 "Wrong instance of PCEPObject. Passed %s. Needed BandwidthUsage.", object.getClass());
         final List<Bandwidth> bwSample = ((BandwidthUsage) object).getBwSample();
         final ByteBuf body = Unpooled.buffer(bwSample.size() * BW_LENGTH);

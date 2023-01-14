@@ -7,17 +7,17 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
 
     protected List<Subobject> parseSubobjects(final ByteBuf buffer) throws PCEPDeserializerException {
         // Explicit approval of empty ERO
-        Preconditions.checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
+        checkArgument(buffer != null, "Array of bytes is mandatory. Can't be null.");
         final List<Subobject> subs = new ArrayList<>();
         while (buffer.isReadable()) {
             final boolean loose = (buffer.getUnsignedByte(buffer.readerIndex()) & 1 << Values.FIRST_BIT_OFFSET) != 0;
@@ -49,7 +49,7 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
                         "Wrong length specified. Passed: " + length + "; Expected: <= " + buffer.readableBytes());
             }
             LOG.debug("Attempt to parse subobject from bytes: {}", ByteBufUtil.hexDump(buffer));
-            final Subobject sub = this.subobjReg.parseSubobject(type, buffer.readSlice(length), loose);
+            final Subobject sub = subobjReg.parseSubobject(type, buffer.readSlice(length), loose);
             if (sub == null) {
                 LOG.warn("Parsing failed for subobject type: {}. Ignoring subobject.", type);
             } else {
@@ -63,7 +63,7 @@ public abstract class AbstractEROWithSubobjectsParser extends CommonObjectParser
     protected final void serializeSubobject(final List<Subobject> subobjects, final ByteBuf buffer) {
         if (subobjects != null) {
             for (final Subobject subobject : subobjects) {
-                this.subobjReg.serializeSubobject(subobject, buffer);
+                subobjReg.serializeSubobject(subobject, buffer);
             }
         }
     }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
@@ -65,7 +66,6 @@ import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv4UnreachDesti
 import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPIpv6UnreachDestinationParser;
 import org.opendaylight.protocol.pcep.parser.object.unreach.PCEPUnreachDestinationSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;

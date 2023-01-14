@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcrpt;
@@ -92,8 +92,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Pcrpt message cannot be empty.");
         }
 
-        final List<Reports> reports = new ArrayList<>();
-
+        final var reports = new ArrayList<Reports>();
         while (!objects.isEmpty()) {
             final Reports report = getValidReports(objects, errors);
             if (report != null) {
@@ -108,8 +107,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
 
         boolean lspViaSR = false;
         Object object = objects.remove();
-        if (object instanceof Srp) {
-            final Srp srp = (Srp) object;
+        if (object instanceof Srp srp) {
             final Tlvs tlvs = srp.getTlvs();
             if (tlvs != null) {
                 lspViaSR = PSTUtil.isDefaultPST(tlvs.getPathSetupType());
@@ -132,8 +130,7 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
 
     private static boolean validateLsp(final Object object, final boolean lspViaSR, final List<Message> errors,
             final ReportsBuilder builder) {
-        if (object instanceof Lsp) {
-            final Lsp lsp = (Lsp) object;
+        if (object instanceof Lsp lsp) {
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp
                 .object.lsp.Tlvs tlvs = lsp.getTlvs();
             if (!lspViaSR && lsp.getPlspId().getValue().toJava() != 0
@@ -155,8 +152,8 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
             final ReportsBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
         Object object = objects.remove();
-        if (object instanceof Ero) {
-            pBuilder.setEro((Ero) object);
+        if (object instanceof Ero ero) {
+            pBuilder.setEro(ero);
         } else {
             errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.empty()));
             return false;
@@ -207,46 +204,45 @@ public class StatefulPCReportMessageParser extends AbstractMessageParser {
             final List<Metrics> pathMetrics) {
         switch (state) {
             case INIT:
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
+                if (obj instanceof Lspa lspa) {
+                    builder.setLspa(lspa);
                     return State.LSPA_IN;
                 }
                 // fall through
             case LSPA_IN:
                 // Check presence for <intended-attribute-list> i.e LSPA, Bandwidth, Metrics, IRO ... as per old draft
-                if (obj instanceof Bandwidth) {
-                    builder.setBandwidth((Bandwidth) obj);
+                if (obj instanceof Bandwidth bandwidth) {
+                    builder.setBandwidth(bandwidth);
                     return State.LSPA_IN;
                 }
                 if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                        .reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                    builder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                            .pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                        .reoptimization.bandwidth.object.ReoptimizationBandwidth reoptBandwidth) {
+                    builder.setReoptimizationBandwidth(reoptBandwidth);
                     return State.LSPA_IN;
                 }
                 // fall through
             case BANDWIDTH_IN:
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                if (obj instanceof Metric metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric(metric).build());
                     return State.BANDWIDTH_IN;
                 }
                 // fall through
             case METRIC_IN:
-                if (obj instanceof Iro) {
-                    builder.setIro((Iro) obj);
+                if (obj instanceof Iro iro) {
+                    builder.setIro(iro);
                     return State.IRO_IN;
                 }
                 // fall through
             case IRO_IN:
-                if (obj instanceof Rro) {
-                    builder.setRro((Rro) obj);
+                if (obj instanceof Rro rro) {
+                    builder.setRro(rro);
                     return State.RRO_IN;
                 }
                 // fall through
             case RRO_IN:
                 // Check presence for <intended-attribute-list> i.e LSPA, Bandwidth, Metrics, IRO ... as per RFC8231
-                if (obj instanceof Lspa) {
-                    builder.setLspa((Lspa) obj);
+                if (obj instanceof Lspa lspa) {
+                    builder.setLspa(lspa);
                     return State.LSPA_IN;
                 }
                 // fall through

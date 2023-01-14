@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.pcep.parser.object.bnc;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.object.AbstractEROWithSubobjectsParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeList;
@@ -30,9 +31,8 @@ public final class BranchNodeListObjectParser extends AbstractEROWithSubobjectsP
 
     @Override
     public BranchNodeList parseObject(final ObjectHeader header, final ByteBuf bytes)
-        throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+            throws PCEPDeserializerException {
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         return new BranchNodeListBuilder()
             .setIgnore(header.getIgnore())
             .setProcessingRule(header.getProcessingRule())
@@ -42,7 +42,7 @@ public final class BranchNodeListObjectParser extends AbstractEROWithSubobjectsP
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof BranchNodeList,
+        checkArgument(object instanceof BranchNodeList,
             "Wrong instance of PCEPObject. Passed %s. Needed BranchNodeList.", object.getClass());
         final BranchNodeList nbnc = (BranchNodeList) object;
         final ByteBuf body = Unpooled.buffer();

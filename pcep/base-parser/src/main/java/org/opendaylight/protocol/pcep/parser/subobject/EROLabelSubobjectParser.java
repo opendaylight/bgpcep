@@ -12,11 +12,11 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.SubobjectBuilder;
@@ -46,7 +46,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
     private final LabelRegistry registry;
 
     public EROLabelSubobjectParser(final LabelRegistry labelReg) {
-        this.registry = requireNonNull(labelReg);
+        registry = requireNonNull(labelReg);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
         final BitArray reserved = BitArray.valueOf(buffer, FLAGS_SIZE);
         final short cType = buffer.readUnsignedByte();
 
-        final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
+        final LabelType labelType = registry.parseLabel(cType, buffer.slice());
         if (labelType == null) {
             LOG.warn("Ignoring ERO label subobject with unknown C-TYPE: {}", cType);
             return null;
@@ -81,7 +81,7 @@ public class EROLabelSubobjectParser implements EROSubobjectParser, EROSubobject
                 "Unknown subobject instance. Passed %s. Needed LabelCase.", subobject.getSubobjectType().getClass());
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
-        this.registry.serializeLabel(label.getUniDirectional(), false, label.getLabelType(), body);
+        registry.serializeLabel(label.getUniDirectional(), false, label.getLabelType(), body);
         EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 }

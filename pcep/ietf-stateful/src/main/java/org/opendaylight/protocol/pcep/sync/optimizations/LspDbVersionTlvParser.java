@@ -13,7 +13,7 @@ import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeOrZ
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
@@ -34,9 +34,6 @@ public class LspDbVersionTlvParser implements TlvParser, TlvSerializer {
 
     @Override
     public Tlv parseTlv(final ByteBuf buffer) throws PCEPDeserializerException {
-        if (buffer == null) {
-            return null;
-        }
-        return new LspDbVersionBuilder().setLspDbVersionValue(readUint64(buffer)).build();
+        return buffer == null ? null : new LspDbVersionBuilder().setLspDbVersionValue(readUint64(buffer)).build();
     }
 }

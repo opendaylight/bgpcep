@@ -15,11 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.util.Util;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcrepBuilder;
@@ -153,7 +153,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
         final List<Replies> replies = new ArrayList<>();
         while (!objects.isEmpty()) {
-            final Replies r = this.getValidReply(objects, errors);
+            final Replies r = getValidReply(objects, errors);
             if (r != null) {
                 replies.add(r);
             }
@@ -218,7 +218,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
     private Result handleNoPath(final NoPath noPath, final Queue<Object> objects) {
         final FailureCaseBuilder builder = new FailureCaseBuilder().setNoPath(noPath);
         for (Object obj = objects.peek(); obj != null && !(obj instanceof PceId); obj = objects.peek()) {
-            this.parseAttributes(builder, objects);
+            parseAttributes(builder, objects);
         }
         return builder.build();
     }
@@ -237,7 +237,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
             if (!vendorInfoObjects.isEmpty()) {
                 builder.setVendorInformationObject(vendorInfoObjects);
             }
-            this.parsePath(pBuilder, objects);
+            parsePath(pBuilder, objects);
             paths.add(pBuilder.build());
         }
         builder.setPaths(paths);

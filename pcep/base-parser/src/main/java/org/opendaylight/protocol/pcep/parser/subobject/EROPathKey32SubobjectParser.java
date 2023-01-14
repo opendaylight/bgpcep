@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.pcep.parser.subobject;
 
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractEROPathKeySubobjectParser;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 
 public final class EROPathKey32SubobjectParser extends AbstractEROPathKeySubobjectParser {

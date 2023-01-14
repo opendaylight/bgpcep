@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -29,23 +30,23 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
     private final int type;
 
     SrEroSubobjectParser() {
-        this.type = IANA_TYPE;
+        type = IANA_TYPE;
     }
 
     @Deprecated
     SrEroSubobjectParser(final boolean isIanaAssignedType) {
-        this.type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
+        type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
+        checkArgument(subobject.getSubobjectType() instanceof SrSubobject,
                 "Unknown subobject instance. Passed %s. Needed SrSubobject.", subobject.getSubobjectType()
                         .getClass());
 
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        EROSubobjectUtil.formatSubobject(this.type, subobject.getLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(type, subobject.getLoose(), body, buffer);
     }
 
     @Override
@@ -59,6 +60,6 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
 
     @Deprecated
     public int getCodePoint() {
-        return this.type;
+        return type;
     }
 }

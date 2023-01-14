@@ -9,17 +9,16 @@ package org.opendaylight.protocol.pcep.parser.message;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcreqBuilder;
@@ -218,7 +217,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     @Override
     protected Message validate(final Queue<Object> objects, final List<Message> errors)
             throws PCEPDeserializerException {
-        Preconditions.checkArgument(objects != null, "Passed list can't be null.");
+        checkArgument(objects != null, "Passed list can't be null.");
         if (objects.isEmpty()) {
             throw new PCEPDeserializerException("Pcrep message cannot be empty.");
         }
@@ -431,8 +430,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
                 }
                 // fallthrough
             case OF_IN:
-                if (obj instanceof ClassType) {
-                    final ClassType classType = (ClassType) obj;
+                if (obj instanceof ClassType classType) {
                     if (!classType.getProcessingRule()) {
                         errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.of(rp)));
                     } else {

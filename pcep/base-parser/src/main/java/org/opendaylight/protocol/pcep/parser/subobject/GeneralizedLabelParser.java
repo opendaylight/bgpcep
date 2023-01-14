@@ -7,13 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.LabelParser;
 import org.opendaylight.protocol.pcep.spi.LabelSerializer;
 import org.opendaylight.protocol.pcep.spi.LabelUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.GeneralizedLabelCase;
@@ -30,8 +32,7 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
 
     @Override
     public LabelType parseLabel(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         return new GeneralizedLabelCaseBuilder()
                 .setGeneralizedLabel(
                         new GeneralizedLabelBuilder().setGeneralizedLabel(ByteArray.readAllBytes(buffer)).build())
@@ -41,7 +42,7 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
     @Override
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
             final ByteBuf buffer) {
-        Preconditions.checkArgument(subobject instanceof GeneralizedLabelCase,
+        checkArgument(subobject instanceof GeneralizedLabelCase,
                 "Unknown Label Subobject instance. Passed {}. Needed GeneralizedLabelCase.", subobject.getClass());
         final GeneralizedLabel gl = ((GeneralizedLabelCase) subobject).getGeneralizedLabel();
         Preconditions.checkArgument(gl != null, "GeneralizedLabel is mandatory.");

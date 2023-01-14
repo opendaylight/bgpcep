@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.segment.routing;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
@@ -31,34 +31,31 @@ public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements R
     private final int type;
 
     SrRroSubobjectParser() {
-        this.type = IANA_TYPE;
+        type = IANA_TYPE;
     }
 
     @Deprecated
     SrRroSubobjectParser(final boolean isIanaAssignedType) {
-        this.type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
+        type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
     }
 
     @Override
-    public void serializeSubobject(Subobject subobject, ByteBuf buffer) {
+    public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         final SubobjectType subobjType = subobject.getSubobjectType();
         checkArgument(subobjType instanceof SrSubobject, "Unknown subobject instance. Passed %s. Needed SrSubobject.",
             subobjType.getClass());
         final SrSubobject srSubobject = (SrSubobject) subobjType;
         final ByteBuf body = serializeSubobject(srSubobject);
-        RROSubobjectUtil.formatSubobject(this.type, body, buffer);
+        RROSubobjectUtil.formatSubobject(type, body, buffer);
     }
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        final SrRroTypeBuilder srRroSubobjectBuilder = new SrRroTypeBuilder(parseSrSubobject(buffer));
-        final SubobjectBuilder subobjectBuilder = new SubobjectBuilder();
-        subobjectBuilder.setSubobjectType(srRroSubobjectBuilder.build());
-        return subobjectBuilder.build();
+        return new SubobjectBuilder().setSubobjectType(new SrRroTypeBuilder(parseSrSubobject(buffer)).build()).build();
     }
 
     @Deprecated
     public int getCodePoint() {
-        return this.type;
+        return type;
     }
 }

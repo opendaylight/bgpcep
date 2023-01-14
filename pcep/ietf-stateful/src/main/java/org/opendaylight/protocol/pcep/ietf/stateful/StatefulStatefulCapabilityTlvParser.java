@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
@@ -51,7 +52,7 @@ public class StatefulStatefulCapabilityTlvParser implements TlvParser, TlvSerial
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
+        checkArgument(tlv instanceof Stateful, "StatefulCapabilityTlv is mandatory.");
         final Stateful sct = (Stateful) tlv;
         TlvUtil.formatTlv(TYPE, Unpooled.wrappedBuffer(serializeFlags(sct).array()), buffer);
     }

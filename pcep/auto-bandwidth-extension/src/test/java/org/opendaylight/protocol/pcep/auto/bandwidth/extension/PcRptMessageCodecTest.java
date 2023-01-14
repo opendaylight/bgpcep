@@ -21,9 +21,9 @@ import java.util.Queue;
 import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.auto.bandwidth.rev181109.Bandwidth1;
@@ -59,14 +59,14 @@ public class PcRptMessageCodecTest {
 
     @Before
     public void setUp() {
-        new BaseParserExtensionActivator().start(this.ctx);
-        new StatefulActivator().start(this.ctx);
-        new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator().start(this.ctx);
+        new BaseParserExtensionActivator().start(ctx);
+        new StatefulActivator().start(ctx);
+        new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator().start(ctx);
     }
 
     @Test
     public void testGetValidReportsPositive() {
-        final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
+        final PcRptMessageCodec codec = new PcRptMessageCodec(ctx.getObjectHandlerRegistry());
         final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4AddressNoZone("127.0.1.1"));
@@ -88,7 +88,7 @@ public class PcRptMessageCodecTest {
 
     @Test
     public void testGetValidReportsNegative() {
-        final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
+        final PcRptMessageCodec codec = new PcRptMessageCodec(ctx.getObjectHandlerRegistry());
         final BandwidthUsage bw = new BandwidthUsageBuilder().setBwSample(BW).build();
         final Ipv4Builder builder = new Ipv4Builder();
         builder.setIpv4TunnelSenderAddress(new Ipv4AddressNoZone("127.0.1.1"));
@@ -103,7 +103,7 @@ public class PcRptMessageCodecTest {
 
     @Test
     public void testserializeObject() {
-        final PcRptMessageCodec codec = new PcRptMessageCodec(this.ctx.getObjectHandlerRegistry());
+        final PcRptMessageCodec codec = new PcRptMessageCodec(ctx.getObjectHandlerRegistry());
         final ByteBuf buffer = Unpooled.buffer();
         codec.serializeObject(new BandwidthBuilder()
             .addAugmentation(new Bandwidth1Builder().setBwSample(BW).build())
@@ -118,7 +118,7 @@ public class PcRptMessageCodecTest {
                         + "000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420"
                         + "000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a000"
                         + "0d42020030801010000000001080a00070620000308010100000000");
-        final Pcrpt msg = (Pcrpt) this.ctx.getMessageHandlerRegistry().parseMessage(10,
+        final Pcrpt msg = (Pcrpt) ctx.getMessageHandlerRegistry().parseMessage(10,
                 Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
         assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
                 .getBandwidth().augmentation(Bandwidth1.class));

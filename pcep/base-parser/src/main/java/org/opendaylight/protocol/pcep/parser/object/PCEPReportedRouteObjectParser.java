@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -31,8 +32,7 @@ public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjec
 
     @Override
     public Rro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         return new RroBuilder()
                 .setIgnore(header.getIgnore())
                 .setProcessingRule(header.getProcessingRule())
@@ -42,8 +42,8 @@ public final class PCEPReportedRouteObjectParser extends AbstractRROWithSubobjec
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Rro,
-            "Wrong instance of PCEPObject. Passed %s. Needed RroObject.", object.getClass());
+        checkArgument(object instanceof Rro, "Wrong instance of PCEPObject. Passed %s. Needed RroObject.",
+            object.getClass());
         final Rro obj = (Rro) object;
         final ByteBuf body = Unpooled.buffer();
         serializeSubobject(obj.getSubobject(), body);

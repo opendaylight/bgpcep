@@ -12,9 +12,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.SrpIdNumber;
@@ -68,11 +68,11 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
 
     @Override
     public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-        if (tlv instanceof SymbolicPathName) {
-            builder.setSymbolicPathName((SymbolicPathName) tlv);
+        if (tlv instanceof SymbolicPathName symbolic) {
+            builder.setSymbolicPathName(symbolic);
         }
-        if (tlv instanceof PathSetupType) {
-            builder.setPathSetupType((PathSetupType) tlv);
+        if (tlv instanceof PathSetupType setup) {
+            builder.setPathSetupType(setup);
         }
     }
 

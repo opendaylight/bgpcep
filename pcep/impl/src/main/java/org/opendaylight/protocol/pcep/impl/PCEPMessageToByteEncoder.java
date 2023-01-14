@@ -14,7 +14,7 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcntfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
@@ -68,8 +68,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
             throw new PCEPDeserializerException("Notification message cannot be empty.");
         }
 
-        final List<Notifications> compositeNotifications = new ArrayList<>();
-
+        final var compositeNotifications = new ArrayList<Notifications>();
         while (!objects.isEmpty()) {
             final Notifications comObj = getValidNotificationComposite(objects, errors);
             if (comObj == null) {
@@ -121,8 +120,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                 .message.pcntf.message.notifications.Notifications> notifications) {
         switch (state) {
             case INIT:
-                if (obj instanceof Rp) {
-                    final Rp rp = (Rp) obj;
+                if (obj instanceof Rp rp) {
                     if (rp.getProcessingRule()) {
                         errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                         return null;
@@ -132,8 +130,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                 }
                 // fallthrough
             case RP_IN:
-                if (obj instanceof CNotification) {
-                    final CNotification n = (CNotification) obj;
+                if (obj instanceof CNotification n) {
                     notifications.add(new NotificationsBuilder().setCNotification(n).build());
                     return State.RP_IN;
                 }

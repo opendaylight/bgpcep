@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.spi.pojo;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import org.opendaylight.protocol.concepts.HandlerRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;

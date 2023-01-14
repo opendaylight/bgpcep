@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcerr.pcerr.message.error.type.StatefulCase;
@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Parser for {@link PcerrMessage}.
  */
 public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
-
     public StatefulErrorMessageParser(final ObjectRegistry registry) {
         super(registry);
     }
@@ -55,15 +54,13 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
     @Override
     protected void serializeCases(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types
             .rev181109.pcerr.message.PcerrMessage err, final ByteBuf buffer) {
-        if (err.getErrorType() instanceof RequestCase) {
-            final List<Rps> rps = ((RequestCase) err.getErrorType()).getRequest().getRps();
-            for (final Rps r : rps) {
+        if (err.getErrorType() instanceof RequestCase request) {
+            for (final Rps r : request.getRequest().nonnullRps()) {
                 serializeObject(r.getRp(), buffer);
             }
         }
-        if (err.getErrorType() instanceof StatefulCase) {
-            final List<Srps> srps = ((StatefulCase) err.getErrorType()).getStateful().getSrps();
-            for (final Srps s : srps) {
+        if (err.getErrorType() instanceof StatefulCase stateful) {
+            for (final Srps s : stateful.getStateful().nonnullSrps()) {
                 serializeObject(s.getSrp(), buffer);
             }
         }
@@ -78,16 +75,15 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
         if (first == null) {
             throw new PCEPDeserializerException("Error message is empty.");
         }
-        final List<Rps> requestParameters = new ArrayList<>();
-        final List<Srps> srps = new ArrayList<>();
-        final List<Errors> errorObjects = new ArrayList<>();
+        final var requestParameters = new ArrayList<Rps>();
+        final var srps = new ArrayList<Srps>();
+        final var errorObjects = new ArrayList<Errors>();
         final PcerrMessageBuilder b = new PcerrMessageBuilder();
         State state = State.INIT;
         if (first instanceof ErrorObject) {
             errorObjects.add(new ErrorsBuilder().setErrorObject((ErrorObject) first).build());
             state = State.ERROR_IN;
-        } else if (first instanceof Rp) {
-            final Rp rp = (Rp) first;
+        } else if (first instanceof Rp rp) {
             if (rp.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
@@ -135,22 +131,19 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
             final List<Rps> requestParameters, final List<Srps> srps, final PcerrMessageBuilder builder) {
         switch (state) {
             case ERROR_IN:
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
+                if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR_IN;
                 }
                 // fall through
             case RP_IN:
-                if (obj instanceof Rp) {
-                    final Rp o = (Rp) obj;
+                if (obj instanceof Rp o) {
                     requestParameters.add(new RpsBuilder().setRp(o).build());
                     return State.RP_IN;
                 }
                 // fall through
             case SRP_IN:
-                if (obj instanceof Srp) {
-                    final Srp o = (Srp) obj;
+                if (obj instanceof Srp o) {
                     srps.add(new SrpsBuilder().setSrp(o).build());
                     return State.SRP_IN;
                 }
@@ -163,8 +156,7 @@ public final class StatefulErrorMessageParser extends PCEPErrorMessageParser {
                 }
                 // fall through
             case ERROR:
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
+                if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR;
                 }
