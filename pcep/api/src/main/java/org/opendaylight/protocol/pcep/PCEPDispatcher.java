@@ -21,9 +21,12 @@ public interface PCEPDispatcher {
      *
      * @param listenAddress Server listen address
      * @param tcpKeys RFC2385 TCP-MD5 keys
+     * @param registry a message registry
+     * @param negotiatorFactory a negotiation factory
      * @param negotiatorDependencies PCEPSessionNegotiatorFactoryDependencies
      * @return A future completing when the PCEP server is created
      */
     @NonNull ChannelFuture createServer(@NonNull InetSocketAddress listenAddress, @NonNull KeyMapping tcpKeys,
+        @NonNull MessageRegistry registry, @NonNull PCEPSessionNegotiatorFactory negotiatorFactory,
         @NonNull PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies);
 }

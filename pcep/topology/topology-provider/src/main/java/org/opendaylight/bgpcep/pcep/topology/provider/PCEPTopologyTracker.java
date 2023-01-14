@@ -31,9 +31,11 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.topology.pcep.type.TopologyPcep;
@@ -64,6 +66,7 @@ public final class PCEPTopologyTracker
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
     private final @NonNull DataBroker dataBroker;
+    private final MessageRegistry messageRegistry;
 
     // Timer used for RPC timeouts and session statistics scheduling
     private final @NonNull HashedWheelTimer privateTimer = new HashedWheelTimer();
@@ -109,13 +112,15 @@ public final class PCEPTopologyTracker
     private Registration statsReg;
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
-            final RpcProviderService rpcProviderRegistry, final PCEPSessionProposalFactory sessionProposalFactory,
+            final RpcProviderService rpcProviderRegistry, final PCEPExtensionConsumerContext extensions,
+            final PCEPSessionProposalFactory sessionProposalFactory,
             final PCEPSessionNegotiatorFactory sessionNegotiatorFactory,
             final PCEPDispatcher pcepDispatcher, final InstructionSchedulerFactory instructionSchedulerFactory,
             final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        messageRegistry = extensions.getMessageHandlerRegistry();
         this.sessionProposalFactory = requireNonNull(sessionProposalFactory);
         this.sessionNegotiatorFactory = requireNonNull(sessionNegotiatorFactory);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);

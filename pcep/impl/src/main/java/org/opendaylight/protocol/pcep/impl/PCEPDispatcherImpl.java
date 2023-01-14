@@ -46,11 +46,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
-    private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private static final long TIMEOUT = 10;
 
-    private final PCEPSessionNegotiatorFactory snf;
-    private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
@@ -58,16 +55,10 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
      *
-     * @param registry          a message registry
-     * @param negotiatorFactory a negotiation factory
      * @param bossGroup         accepts an incoming connection
      * @param workerGroup       handles the traffic of accepted connection
      */
-    public PCEPDispatcherImpl(final @NonNull MessageRegistry registry,
-            final @NonNull PCEPSessionNegotiatorFactory negotiatorFactory,
-            final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
-        snf = requireNonNull(negotiatorFactory);
-        hf = new PCEPHandlerFactory(registry);
+    public PCEPDispatcherImpl(final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
         if (Epoll.isAvailable()) {
             this.bossGroup = new EpollEventLoopGroup();
             this.workerGroup = new EpollEventLoopGroup();
@@ -80,10 +71,15 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
 
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress listenAddress,
-            final KeyMapping tcpKeys, final PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies) {
+            final KeyMapping tcpKeys, final MessageRegistry registry,
+            final PCEPSessionNegotiatorFactory negotiatorFactory,
+            final PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies) {
+        final var hf = new PCEPHandlerFactory(registry);
+
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(hf.getDecoders());
-            ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(negotiatorDependencies, ch, promise));
+            ch.pipeline().addLast("negotiator",
+                negotiatorFactory.getSessionNegotiator(negotiatorDependencies, ch, promise));
             ch.pipeline().addLast(hf.getEncoders());
         };
 
@@ -104,7 +100,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
                 initializer.initializeChannel(ch, new DefaultPromise<>(executor));
             }
         });
-        b.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
+        b.option(ChannelOption.SO_BACKLOG, 128);
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
