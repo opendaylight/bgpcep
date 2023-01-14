@@ -68,7 +68,7 @@ public class PCCDispatcherImplTest {
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
 
         dispatcher = new PCCDispatcherImpl(registry);
-        pcepDispatcher = new PCEPDispatcherImpl(registry, nf, bossGroup, workerGroup);
+        pcepDispatcher = new PCEPDispatcherImpl(bossGroup, workerGroup);
         serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
         doReturn(null).when(negotiatorDependencies).getPeerProposal();
@@ -92,7 +92,7 @@ public class PCCDispatcherImplTest {
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         doReturn(slf).when(negotiatorDependencies).getListenerFactory();
 
-        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(),
+        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
             negotiatorDependencies);
         futureServer.sync();
         final Channel channel = futureServer.channel();
@@ -106,11 +106,11 @@ public class PCCDispatcherImplTest {
 
         workerGroup = new NioEventLoopGroup();
         bossGroup = new NioEventLoopGroup();
-        pcepDispatcher = new PCEPDispatcherImpl(registry, nf, bossGroup, workerGroup);
+        pcepDispatcher = new PCEPDispatcherImpl(bossGroup, workerGroup);
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
         doReturn(slf2).when(negotiatorDependencies).getListenerFactory();
-        final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(),
+        final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
             negotiatorDependencies);
         future2.sync();
         final Channel channel2 = future2.channel();

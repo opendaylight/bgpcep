@@ -74,22 +74,21 @@ public abstract class PCCMockCommon {
     PCCSessionListener pccSessionListener;
     private PCEPDispatcher pceDispatcher;
     private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
+    private PCEPSessionNegotiatorFactory negotiatorFactory;
     private MessageRegistry messageRegistry;
 
     protected abstract List<PCEPCapability> getCapabilities();
 
     @Before
     public void setUp() {
-        final BasePCEPSessionProposalFactory proposal = new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
-                getCapabilities());
-        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(proposal,
+        negotiatorFactory = new DefaultPCEPSessionNegotiatorFactory(
+            new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, getCapabilities()),
             MockPcepSessionErrorPolicy.ZERO);
 
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
 
         messageRegistry = extensionProvider.getMessageHandlerRegistry();
-        pceDispatcher = new PCEPDispatcherImpl(messageRegistry, nf, new NioEventLoopGroup(),
-                new NioEventLoopGroup());
+        pceDispatcher = new PCEPDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup());
     }
 
     static TestingSessionListener checkSessionListener(final int numMessages, final Channel channel,
@@ -130,8 +129,8 @@ public abstract class PCCMockCommon {
         activator07.start(extensionProvider);
         optimizationsActivator.start(extensionProvider);
 
-        final ChannelFuture future = pceDispatcher
-                .createServer(serverAddress2, KeyMapping.of(), new NegotiatorDependencies(factory, peerProposal));
+        final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
+            negotiatorFactory, new NegotiatorDependencies(factory, peerProposal));
         waitFutureSuccess(future);
         return future.channel();
     }

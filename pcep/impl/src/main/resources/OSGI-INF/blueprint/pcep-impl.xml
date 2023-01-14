@@ -26,7 +26,6 @@
 
   <!-- PCEPDispatcher -->
 
-  <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>
   <reference id="globalBossGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-boss-group"/>
   <reference id="globalWorkerGroup" interface="io.netty.channel.EventLoopGroup" odl:type="global-worker-group"/>
 
@@ -41,10 +40,6 @@
   <service ref="pcepSessionNegotiatorFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory"/>
 
   <bean id="pcepDispatcher" class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
-    <argument>
-      <bean factory-ref="pcepExtensionContext" factory-method="getMessageHandlerRegistry"/>
-    </argument>
-    <argument ref="pcepSessionNegotiatorFactory"/>
     <argument ref="globalBossGroup"/>
     <argument ref="globalWorkerGroup"/>
   </bean>
