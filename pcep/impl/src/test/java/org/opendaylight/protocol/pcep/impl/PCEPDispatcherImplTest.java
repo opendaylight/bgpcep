@@ -47,6 +47,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
@@ -119,23 +120,23 @@ public class PCEPDispatcherImplTest {
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
         final ChannelFuture futureChannel = dispatcher.createServer(dispatcherDependencies);
         futureChannel.sync();
-        final PCEPSessionImpl session1 = pccMock.createClient(clientAddr1,
-                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
-        final PCEPSessionImpl session2 = pccMock.createClient(clientAddr2,
-                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+        try (var session1 = (PCEPSessionImpl) pccMock.createClient(clientAddr1,
+            RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get()) {
 
-        assertTrue(futureChannel.channel().isActive());
-        assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
-        assertEquals(DEAD_TIMER.toJava(), session1.getDeadTimerValue());
-        assertEquals(KEEP_ALIVE.toJava(), session1.getKeepAliveTimerValue());
+            try (var session2 = (PCEPSessionImpl) pccMock.createClient(clientAddr2,
+                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get()) {
 
-        assertEquals(clientAddr2.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
-        assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
-        assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
+                assertTrue(futureChannel.channel().isActive());
+                assertEquals(clientAddr1.getAddress().getHostAddress(), session1.getPeerPref().getIpAddress());
+                assertEquals(DEAD_TIMER.toJava(), session1.getDeadTimerValue());
+                assertEquals(KEEP_ALIVE.toJava(), session1.getKeepAliveTimerValue());
 
-        session1.close();
-        session2.close();
+                assertEquals(clientAddr2.getAddress().getHostAddress(), session2.getPeerPref().getIpAddress());
+                assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
+                assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
+            }
+        }
         assertTrue(futureChannel.channel().isActive());
     }
 
@@ -150,11 +151,11 @@ public class PCEPDispatcherImplTest {
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
 
         dispatcher.createServer(dispatcherDependencies).sync();
-        final Future<PCEPSessionImpl> futureClient = pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
+        final Future<PCEPSession> futureClient = pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
                 SimpleSessionListener::new);
         futureClient.sync();
 
-        try (PCEPSessionImpl ignored = futureClient.get()) {
+        try (PCEPSession ignored = futureClient.get()) {
             final var cause = assertThrows(ExecutionException.class,
                 () -> pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get())
                 .getCause();
@@ -174,7 +175,7 @@ public class PCEPDispatcherImplTest {
         doReturn(listenerFactory).when(dispatcherDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
         dispatcher.createServer(dispatcherDependencies).sync();
-        final PCEPSessionImpl session1 = pccMock.createClient(clientAddr,
+        final PCEPSessionImpl session1 = (PCEPSessionImpl) pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
@@ -182,14 +183,13 @@ public class PCEPDispatcherImplTest {
         assertEquals(KEEP_ALIVE.toJava(), session1.getKeepAliveTimerValue());
         session1.closeChannel().sync();
 
-        final PCEPSessionImpl session2 = pccMock.createClient(clientAddr,
-                RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
+        try (var session2 = (PCEPSessionImpl) pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
+            SimpleSessionListener::new).get()) {
 
-        assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
-        assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
-        assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
-
-        session2.close();
+            assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
+            assertEquals(DEAD_TIMER.toJava(), session2.getDeadTimerValue());
+            assertEquals(KEEP_ALIVE.toJava(), session2.getKeepAliveTimerValue());
+        }
     }
 
     @Test(timeout = 20000)
@@ -215,12 +215,12 @@ public class PCEPDispatcherImplTest {
     }
 
     private static class PCCMock {
-        private final PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory;
+        private final PCEPSessionNegotiatorFactory negotiatorFactory;
         private final PCEPHandlerFactory factory;
         private final EventExecutor executor;
         private final EventLoopGroup workerGroup;
 
-        PCCMock(final PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
+        PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory,
                 final PCEPHandlerFactory factory) {
             workerGroup = new NioEventLoopGroup();
             this.negotiatorFactory = requireNonNull(negotiatorFactory);
@@ -228,7 +228,7 @@ public class PCEPDispatcherImplTest {
             executor = requireNonNull(GlobalEventExecutor.INSTANCE);
         }
 
-        Future<PCEPSessionImpl> createClient(final InetSocketAddress address, final int retryTimer,
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
             return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
                 ch.pipeline().addLast(factory.getDecoders());
@@ -238,10 +238,10 @@ public class PCEPDispatcherImplTest {
             });
         }
 
-        Future<PCEPSessionImpl> createClient(final InetSocketAddress address, final int retryTimer,
+        Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout, final PCEPDispatcherImpl.ChannelPipelineInitializer initializer) {
             final Bootstrap b = new Bootstrap();
-            final PCEPProtocolSessionPromise<PCEPSessionImpl> p = new PCEPProtocolSessionPromise<>(executor,
+            final PCEPProtocolSessionPromise<PCEPSession> p = new PCEPProtocolSessionPromise<>(executor,
                     address, retryTimer, connectTimeout, b);
             b.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE).handler(new ChannelInitializer<SocketChannel>() {
                 @Override

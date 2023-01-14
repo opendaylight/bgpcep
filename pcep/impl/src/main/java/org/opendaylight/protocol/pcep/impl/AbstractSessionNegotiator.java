@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.slf4j.Logger;
@@ -22,28 +23,29 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAdapter implements SessionNegotiator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSessionNegotiator.class);
-    protected final Channel channel;
-    protected final Promise<PCEPSessionImpl> promise;
 
-    protected AbstractSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel) {
+    protected final Channel channel;
+    protected final Promise<PCEPSession> promise;
+
+    protected AbstractSessionNegotiator(final Promise<PCEPSession> promise, final Channel channel) {
         this.promise = requireNonNull(promise);
         this.channel = requireNonNull(channel);
     }
 
     protected final void negotiationSuccessful(final PCEPSessionImpl session) {
-        LOG.debug("Negotiation on channel {} successful with session {}", this.channel, session);
-        this.channel.pipeline().replace(this, "session", session);
-        this.promise.setSuccess(session);
+        LOG.debug("Negotiation on channel {} successful with session {}", channel, session);
+        channel.pipeline().replace(this, "session", session);
+        promise.setSuccess(session);
     }
 
     protected void negotiationFailed(final Throwable cause) {
-        LOG.debug("Negotiation on channel {} failed", this.channel, cause);
-        this.channel.close();
-        this.promise.setFailure(cause);
+        LOG.debug("Negotiation on channel {} failed", channel, cause);
+        channel.close();
+        promise.setFailure(cause);
     }
 
     protected final void sendMessage(final Message msg) {
-        this.channel.writeAndFlush(msg).addListener((ChannelFutureListener) f -> {
+        channel.writeAndFlush(msg).addListener((ChannelFutureListener) f -> {
             if (!f.isSuccess()) {
                 LOG.info("Failed to send message {}", msg, f.cause());
                 negotiationFailed(f.cause());
@@ -57,27 +59,26 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public final void channelActive(final ChannelHandlerContext ctx) {
-        LOG.debug("Starting session negotiation on channel {}", this.channel);
+        LOG.debug("Starting session negotiation on channel {}", channel);
 
         try {
-            this.startNegotiation();
+            startNegotiation();
         } catch (final Exception e) {
             LOG.warn("Unexpected negotiation failure", e);
-            this.negotiationFailed(e);
+            negotiationFailed(e);
         }
-
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        LOG.debug("Negotiation read invoked on channel {}", this.channel);
+        LOG.debug("Negotiation read invoked on channel {}", channel);
 
         try {
-            this.handleMessage((Message) msg);
+            handleMessage((Message) msg);
         } catch (Exception e) {
             LOG.debug("Unexpected error while handling negotiation message {}", msg, e);
-            this.negotiationFailed(e);
+            negotiationFailed(e);
         }
 
     }
@@ -85,7 +86,7 @@ public abstract class AbstractSessionNegotiator extends ChannelInboundHandlerAda
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) {
         LOG.info("Unexpected error during negotiation", cause);
-        this.negotiationFailed(cause);
+        negotiationFailed(cause);
     }
 
     protected abstract void startNegotiation() throws ExecutionException;

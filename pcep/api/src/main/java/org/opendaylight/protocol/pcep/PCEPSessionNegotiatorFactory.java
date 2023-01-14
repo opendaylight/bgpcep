@@ -13,10 +13,8 @@ import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Factory for creating PCEP session negotiator.
- *
- * @param <S> PCEPSession implementation
  */
-public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
+public interface PCEPSessionNegotiatorFactory {
 
     /**
      * Creates PCEPSessionNegotiator instance for income attributes.
@@ -28,7 +26,7 @@ public interface PCEPSessionNegotiatorFactory<S extends PCEPSession> {
      */
     @NonNull SessionNegotiator getSessionNegotiator(
             @NonNull PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
-            @NonNull Channel channel, @NonNull Promise<S> promise);
+            @NonNull Channel channel, @NonNull Promise<PCEPSession> promise);
 
     /**
      * Returns a PCEPSessionProposalFactory.

@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiator;
 import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -104,7 +105,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
     @Mock
     private PCEPTopologyProviderDependencies topologyDependencies;
     @Mock
-    private Promise<PCEPSessionImpl> promise;
+    private Promise<PCEPSession> promise;
     @Mock
     private PcepSessionErrorPolicy errorPolicy;
 

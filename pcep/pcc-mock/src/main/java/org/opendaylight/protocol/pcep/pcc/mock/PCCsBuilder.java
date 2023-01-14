@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -24,7 +23,6 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
@@ -89,7 +87,7 @@ final class PCCsBuilder {
 
     private void createPCC(final PCCDispatcherImpl pccDispatcher, final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
-        final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
+        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : remoteAddress) {
             pccDispatcher.createClient(pceAddress, reconnectTime,
                 () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError), snf,
@@ -98,9 +96,8 @@ final class PCCsBuilder {
         }
     }
 
-    private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
-        final List<PCEPCapability> capabilities = Lists.newArrayList(pcepCapabilities);
+    private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
         return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(deadTimer,
-            keepAlive, capabilities), MockPcepSessionErrorPolicy.ZERO);
+            keepAlive, List.of(pcepCapabilities)), MockPcepSessionErrorPolicy.ZERO);
     }
 }

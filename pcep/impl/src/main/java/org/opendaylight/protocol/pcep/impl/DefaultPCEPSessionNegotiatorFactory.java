@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig;
@@ -40,7 +41,7 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     @Override
     protected AbstractPCEPSessionNegotiator createNegotiator(
             final PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
-            final Promise<PCEPSessionImpl> promise,
+            final Promise<PCEPSession> promise,
             final Channel channel,
             final Uint8 sessionId) {
 

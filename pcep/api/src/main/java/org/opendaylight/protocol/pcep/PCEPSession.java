@@ -63,4 +63,7 @@ public interface PCEPSession extends PCEPSessionState, AutoCloseable {
     default Tlvs localSessionCharacteristics() {
         return getLocalTlvs();
     }
+
+    @Override
+    void close();
 }
