@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -30,14 +31,13 @@ import io.netty.util.concurrent.Promise;
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +48,12 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private static final long TIMEOUT = 10;
+
     private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor;
-    @GuardedBy("this")
-    private KeyMapping keys;
 
     /**
      * Creates an instance of PCEPDispatcherImpl, gets the default selector and opens it.
@@ -80,27 +79,24 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final synchronized ChannelFuture createServer(final PCEPDispatcherDependencies dispatcherDependencies) {
-        keys = dispatcherDependencies.getKeys();
-
+    public final synchronized ChannelFuture createServer(final InetSocketAddress listenAddress,
+            final KeyMapping tcpKeys, final PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies) {
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(hf.getDecoders());
-            ch.pipeline().addLast("negotiator", snf
-                    .getSessionNegotiator(dispatcherDependencies, ch, promise));
+            ch.pipeline().addLast("negotiator", snf.getSessionNegotiator(negotiatorDependencies, ch, promise));
             ch.pipeline().addLast(hf.getEncoders());
         };
 
-        final ServerBootstrap b = createServerBootstrap(initializer);
-        final InetSocketAddress address = dispatcherDependencies.getAddress();
-        final ChannelFuture f = b.bind(address);
-        LOG.debug("Initiated server {} at {}.", f, address);
+        final ServerBootstrap b = createServerBootstrap(initializer, tcpKeys);
+        final ChannelFuture f = b.bind(listenAddress);
+        LOG.debug("Initiated server {} at {}.", f, listenAddress);
 
-        // FIXME: err, why are we resetting this?
-        keys = KeyMapping.of();
         return f;
     }
 
-    synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer) {
+    @VisibleForTesting
+    ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer,
+            final KeyMapping tcpKeys) {
         final ServerBootstrap b = new ServerBootstrap();
         b.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
@@ -118,9 +114,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         } else {
             b.channel(NioServerSocketChannel.class);
         }
-        if (!keys.isEmpty()) {
+        if (!tcpKeys.isEmpty()) {
             if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
+                b.option(EpollChannelOption.TCP_MD5SIG, tcpKeys.asMap());
             } else {
                 throw new UnsupportedOperationException("Setting TCP-MD5 signatures is not supported",
                         Epoll.unavailabilityCause().getCause());

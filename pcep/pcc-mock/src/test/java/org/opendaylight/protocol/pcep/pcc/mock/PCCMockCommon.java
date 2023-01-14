@@ -34,11 +34,11 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
-import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
@@ -131,7 +131,7 @@ public abstract class PCCMockCommon {
         optimizationsActivator.start(extensionProvider);
 
         final ChannelFuture future = pceDispatcher
-                .createServer(new DispatcherDependencies(serverAddress2, factory, peerProposal));
+                .createServer(serverAddress2, KeyMapping.of(), new NegotiatorDependencies(factory, peerProposal));
         waitFutureSuccess(future);
         return future.channel();
     }
@@ -233,29 +233,14 @@ public abstract class PCCMockCommon {
         return checkSessionListenerNotNull(factory, localAddress.getHostString());
     }
 
-    private static class DispatcherDependencies implements PCEPDispatcherDependencies {
-        private final KeyMapping keys = KeyMapping.of();
-        private final InetSocketAddress address;
+    private static class NegotiatorDependencies implements PCEPSessionNegotiatorFactoryDependencies {
         private final TestingSessionListenerFactory listenerFactory;
         private final PCEPPeerProposal peerProposal;
 
-        DispatcherDependencies(
-                final InetSocketAddress address,
-                final TestingSessionListenerFactory listenerFactory,
+        NegotiatorDependencies(final TestingSessionListenerFactory listenerFactory,
                 final PCEPPeerProposal peerProposal) {
-            this.address = address;
             this.listenerFactory = listenerFactory;
             this.peerProposal = peerProposal;
-        }
-
-        @Override
-        public InetSocketAddress getAddress() {
-            return address;
-        }
-
-        @Override
-        public KeyMapping getKeys() {
-            return keys;
         }
 
         @Override

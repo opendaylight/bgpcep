@@ -9,24 +9,19 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 
-final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies {
+final class PCEPSessionNegotiatorFactoryDependenciesImpl implements PCEPSessionNegotiatorFactoryDependencies {
     private final @NonNull PCEPSessionListenerFactory listenerFactory;
     private final @NonNull PCEPPeerProposal peerProposal;
 
-    private final @NonNull PCEPTopologyConfiguration topologyConfig;
-
-    PCEPDispatcherDependenciesImpl(final PCEPSessionListenerFactory listenerFactory,
-            final PCEPPeerProposal peerProposal, final PCEPTopologyConfiguration topologyConfig) {
+    PCEPSessionNegotiatorFactoryDependenciesImpl(final PCEPSessionListenerFactory listenerFactory,
+            final PCEPPeerProposal peerProposal) {
         this.listenerFactory = requireNonNull(listenerFactory);
         this.peerProposal = requireNonNull(peerProposal);
-        this.topologyConfig = requireNonNull(topologyConfig);
     }
 
     @Override
@@ -37,15 +32,5 @@ final class PCEPDispatcherDependenciesImpl implements PCEPDispatcherDependencies
     @Override
     public PCEPPeerProposal getPeerProposal() {
         return peerProposal;
-    }
-
-    @Override
-    public InetSocketAddress getAddress() {
-        return topologyConfig.getAddress();
-    }
-
-    @Override
-    public KeyMapping getKeys() {
-        return topologyConfig.getKeys();
     }
 }

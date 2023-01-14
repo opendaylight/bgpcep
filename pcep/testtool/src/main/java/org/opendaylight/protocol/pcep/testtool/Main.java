@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
@@ -144,6 +145,6 @@ public final class Main {
         final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl(handlerRegistry,
             new DefaultPCEPSessionNegotiatorFactory(spf, ERROR_POLICY),
             new NioEventLoopGroup(), new NioEventLoopGroup());
-        dispatcher.createServer(new TestToolPCEPDispatcherDependencies(address)).get();
+        dispatcher.createServer(address, KeyMapping.of(), new TestToolPCEPNegotiatorDependencies()).get();
     }
 }
