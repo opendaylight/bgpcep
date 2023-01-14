@@ -22,6 +22,8 @@
     <argument ref="pcepCapabilities"/>
   </bean>
 
+  <service ref="sessionProposalFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionProposalFactory"/>
+
   <!-- PCEPDispatcher -->
 
   <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>

@@ -56,9 +56,4 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
                 errorPolicy,
                 tlsConfiguration);
     }
-
-    @Override
-    public PCEPSessionProposalFactory getPCEPSessionProposalFactory() {
-        return spf;
-    }
 }

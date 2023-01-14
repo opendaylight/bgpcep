@@ -96,8 +96,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     synchronized void updateConfiguration(final @Nullable PCEPTopologyConfiguration newConfiguration) {
         // FIXME: BGPCEP-960: this check should be a one-time thing in PCEPTopologyTracker startup once we have OSGi DS
-        final var effectiveConfig = dependencies.getPCEPSessionNegotiatorFactory()
-            .getPCEPSessionProposalFactory().getCapabilities().stream()
+        final var effectiveConfig = dependencies.getPCEPSessionProposalFactory().getCapabilities().stream()
             .anyMatch(PCEPCapability::isStateful) ? newConfiguration : null;
 
         applyConfiguration(effectiveConfig);
