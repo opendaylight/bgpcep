@@ -15,12 +15,12 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.ietf.initiated.InitiatedSrpObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLspObjectParser;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
@@ -78,7 +78,7 @@ public class PCEPObjectParserTest {
 
     @Before
     public void setUp() {
-        new BaseParserExtensionActivator().start(this.ctx);
+        new BaseParserExtensionActivator().start(ctx);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class PCEPObjectParserTest {
         new SyncOptimizationsActivator().start(ctx);
 
         final SyncOptimizationsOpenObjectParser parser = new SyncOptimizationsOpenObjectParser(
-            this.ctx.getTlvHandlerRegistry(), this.ctx.getVendorInformationTlvRegistry());
+            ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
             "src/test/resources/PCEPOpenObject1.bin"));
 
@@ -128,7 +128,7 @@ public class PCEPObjectParserTest {
         new SyncOptimizationsActivator().start(ctx);
 
         final SyncOptimizationsLspObjectParser parser = new SyncOptimizationsLspObjectParser(
-            this.ctx.getTlvHandlerRegistry(), this.ctx.getVendorInformationTlvRegistry());
+            ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
             "src/test/resources/PCEPLspObject1WithTLV.bin"));
 
@@ -165,7 +165,7 @@ public class PCEPObjectParserTest {
     public void testStatefulLspObjectWithTlv() throws IOException, PCEPDeserializerException {
         new StatefulActivator().start(ctx);
 
-        final StatefulLspObjectParser parser = new StatefulLspObjectParser(this.tlvRegistry, this.viTlvRegistry);
+        final StatefulLspObjectParser parser = new StatefulLspObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
             "src/test/resources/PCEPLspObject2WithTLV.bin"));
 
@@ -220,8 +220,8 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testSrpObject() throws PCEPDeserializerException {
-        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(this.tlvRegistry,
-            this.viTlvRegistry);
+        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(tlvRegistry,
+            viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] {
             (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01
         });
@@ -246,8 +246,8 @@ public class PCEPObjectParserTest {
             0x0, 0x01,
             /* pst-tlv */
             0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
-        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(this.tlvRegistry,
-            this.viTlvRegistry);
+        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(tlvRegistry,
+            viTlvRegistry);
         final SrpBuilder builder = new SrpBuilder()
                 .setProcessingRule(false)
                 .setIgnore(false)

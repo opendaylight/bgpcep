@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.PcupdBuilder;
@@ -55,9 +55,8 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
         checkArgument(message instanceof Pcupd, "Wrong instance of Message. Passed instance of %s. Need Pcupd.",
             message.getClass());
         final Pcupd msg = (Pcupd) message;
-        final List<Updates> updates = msg.getPcupdMessage().getUpdates();
         final ByteBuf buffer = Unpooled.buffer();
-        for (final Updates update : updates) {
+        for (final Updates update : msg.getPcupdMessage().nonnullUpdates()) {
             serializeUpdate(update, buffer);
         }
         MessageUtil.formatMessage(TYPE, buffer, out);
@@ -87,8 +86,7 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
             throw new PCEPDeserializerException("Pcup message cannot be empty.");
         }
 
-        final List<Updates> updateRequests = new ArrayList<>();
-
+        final var updateRequests = new ArrayList<Updates>();
         while (!objects.isEmpty()) {
             final Updates upd = getValidUpdates(objects, errors);
             if (upd != null) {
@@ -105,8 +103,8 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
         final UpdatesBuilder builder = new UpdatesBuilder();
 
         Object object = objects.remove();
-        if (object instanceof Srp) {
-            builder.setSrp((Srp) object);
+        if (object instanceof Srp srp) {
+            builder.setSrp(srp);
             object = objects.poll();
         } else {
             errors.add(createErrorMsg(PCEPErrors.SRP_MISSING, Optional.empty()));
@@ -125,8 +123,8 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
     }
 
     private static boolean validateLsp(final Object object, final List<Message> errors, final UpdatesBuilder builder) {
-        if (object instanceof Lsp) {
-            builder.setLsp((Lsp) object);
+        if (object instanceof Lsp lsp) {
+            builder.setLsp(lsp);
         } else {
             errors.add(createErrorMsg(PCEPErrors.LSP_MISSING, Optional.empty()));
             return false;
@@ -138,8 +136,8 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
             final UpdatesBuilder builder) {
         final PathBuilder pBuilder = new PathBuilder();
         Object object = objects.remove();
-        if (object instanceof Ero) {
-            pBuilder.setEro((Ero) object);
+        if (object instanceof Ero ero) {
+            pBuilder.setEro(ero);
         } else {
             errors.add(createErrorMsg(PCEPErrors.ERO_MISSING, Optional.empty()));
             return false;
@@ -150,7 +148,7 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
     }
 
     private static void parsePath(final Queue<Object> objects, final PathBuilder pathBuilder) {
-        final List<Metrics> pathMetrics = new ArrayList<>();
+        final var pathMetrics = new ArrayList<Metrics>();
         State state = State.INIT;
         for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertObject(state, obj, pathBuilder, pathMetrics);
@@ -170,32 +168,32 @@ public class StatefulPCUpdateRequestMessageParser extends AbstractMessageParser 
             final List<Metrics> pathMetrics) {
         switch (state) {
             case INIT:
-                if (obj instanceof Lspa) {
-                    pathBuilder.setLspa((Lspa) obj);
+                if (obj instanceof Lspa lspa) {
+                    pathBuilder.setLspa(lspa);
                     return State.LSPA_IN;
                 }
                 // fall through
             case LSPA_IN:
-                if (obj instanceof Bandwidth) {
-                    pathBuilder.setBandwidth((Bandwidth) obj);
+                if (obj instanceof Bandwidth bandwidth) {
+                    pathBuilder.setBandwidth(bandwidth);
                     return State.LSPA_IN;
                 }
-                if (obj instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
-                        .reoptimization.bandwidth.object.ReoptimizationBandwidth) {
-                    pathBuilder.setReoptimizationBandwidth((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                            .yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth) obj);
+                if (obj
+                        instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
+                            .reoptimization.bandwidth.object.ReoptimizationBandwidth reoptBandwidth) {
+                    pathBuilder.setReoptimizationBandwidth(reoptBandwidth);
                     return State.LSPA_IN;
                 }
                 // fall through
             case BANDWIDTH_IN:
-                if (obj instanceof Metric) {
-                    pathMetrics.add(new MetricsBuilder().setMetric((Metric) obj).build());
+                if (obj instanceof Metric metric) {
+                    pathMetrics.add(new MetricsBuilder().setMetric(metric).build());
                     return State.BANDWIDTH_IN;
                 }
                 // fall through
             case METRIC_IN:
-                if (obj instanceof Iro) {
-                    pathBuilder.setIro((Iro) obj);
+                if (obj instanceof Iro iro) {
+                    pathBuilder.setIro(iro);
                     return State.IRO_IN;
                 }
                 // fall through

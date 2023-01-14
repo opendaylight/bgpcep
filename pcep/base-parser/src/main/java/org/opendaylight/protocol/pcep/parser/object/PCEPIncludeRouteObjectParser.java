@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.include.route.object.Iro;
@@ -36,8 +37,7 @@ public final class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobject
 
     @Override
     public Iro parseObject(final ObjectHeader header, final ByteBuf bytes) throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-            "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final List<Subobject> subs = new ArrayList<>();
         for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit
                 .route.object.ero.Subobject s : parseSubobjects(bytes)) {
@@ -55,8 +55,8 @@ public final class PCEPIncludeRouteObjectParser extends AbstractEROWithSubobject
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Iro,
-            "Wrong instance of PCEPObject. Passed %s. Needed IroObject.", object.getClass());
+        checkArgument(object instanceof Iro, "Wrong instance of PCEPObject. Passed %s. Needed IroObject.",
+            object.getClass());
         final Iro iro = (Iro) object;
         final ByteBuf body = Unpooled.buffer();
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit

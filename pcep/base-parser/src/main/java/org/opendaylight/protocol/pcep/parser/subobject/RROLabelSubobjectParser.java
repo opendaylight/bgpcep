@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.parser.subobject;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
@@ -47,13 +47,12 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
     private final LabelRegistry registry;
 
     public RROLabelSubobjectParser(final LabelRegistry labelReg) {
-        this.registry = requireNonNull(labelReg);
+        registry = requireNonNull(labelReg);
     }
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (buffer.readableBytes() < HEADER_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + buffer.readableBytes()
                     + "; Expected: >" + HEADER_LENGTH + ".");
@@ -62,7 +61,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
 
         final short cType = buffer.readUnsignedByte();
 
-        final LabelType labelType = this.registry.parseLabel(cType, buffer.slice());
+        final LabelType labelType = registry.parseLabel(cType, buffer.slice());
         if (labelType == null) {
             LOG.warn("Ignoring RRO label subobject with unknown C-TYPE: {}", cType);
             return null;
@@ -82,7 +81,7 @@ public class RROLabelSubobjectParser implements RROSubobjectParser, RROSubobject
         requireNonNull(subobject.getSubobjectType(), "Subobject type cannot be empty.");
         final Label label = ((LabelCase) subobject.getSubobjectType()).getLabel();
         final ByteBuf body = Unpooled.buffer();
-        this.registry.serializeLabel(label.getUniDirectional(), label.getGlobal(), label.getLabelType(), body);
+        registry.serializeLabel(label.getUniDirectional(), label.getGlobal(), label.getLabelType(), body);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 }

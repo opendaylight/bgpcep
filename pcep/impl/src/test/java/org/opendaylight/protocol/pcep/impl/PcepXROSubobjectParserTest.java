@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv4PrefixSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv6PrefixSubobjectParser;
@@ -21,7 +22,6 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey128SubobjectPar
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;

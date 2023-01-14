@@ -5,17 +5,17 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
@@ -34,7 +34,7 @@ public final class PCEPSecondaryExplicitRouteObjecParser extends AbstractEROWith
 
     @Override
     public Sero parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
+        checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
 
         final SeroBuilder builder = new SeroBuilder();
         builder.setIgnore(header.getIgnore());
@@ -50,7 +50,7 @@ public final class PCEPSecondaryExplicitRouteObjecParser extends AbstractEROWith
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Sero,
+        checkArgument(object instanceof Sero,
             "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
         final Sero sero = (Sero) object;
         final ByteBuf body = Unpooled.buffer();

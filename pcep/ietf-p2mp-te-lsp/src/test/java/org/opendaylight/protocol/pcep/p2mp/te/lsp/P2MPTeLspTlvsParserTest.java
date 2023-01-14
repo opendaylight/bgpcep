@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapabilityPars
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 
 public class P2MPTeLspTlvsParserTest {

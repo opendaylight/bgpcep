@@ -11,7 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelOutboundHandler;
-import org.opendaylight.protocol.pcep.spi.MessageRegistry;
+import org.opendaylight.protocol.pcep.MessageRegistry;
 
 /**
  * PCEP specific factory for protocol inbound/outbound handlers.

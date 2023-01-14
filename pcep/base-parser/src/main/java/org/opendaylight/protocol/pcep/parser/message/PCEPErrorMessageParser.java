@@ -9,17 +9,16 @@ package org.opendaylight.protocol.pcep.parser.message;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
@@ -54,11 +53,11 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof PcerrMessage,
+        checkArgument(message instanceof PcerrMessage,
                 "Wrong instance of Message. Passed instance of %s. Need PcerrMessage.", message.getClass());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message
             .PcerrMessage err = ((PcerrMessage) message).getPcerrMessage();
-        Preconditions.checkArgument(err.getErrors() != null && !err.nonnullErrors().isEmpty(),
+        checkArgument(err.getErrors() != null && !err.nonnullErrors().isEmpty(),
                 "Errors should not be empty.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeCases(err, buffer);
@@ -98,8 +97,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         if (first instanceof ErrorObject) {
             errorObjects.add(new ErrorsBuilder().setErrorObject((ErrorObject) first).build());
             initialState = State.ERROR_IN;
-        } else if (first instanceof Rp) {
-            final Rp rp = (Rp) first;
+        } else if (first instanceof Rp rp) {
             if (rp.getProcessingRule()) {
                 errors.add(createErrorMsg(PCEPErrors.P_FLAG_NOT_SET, Optional.empty()));
                 return null;
@@ -146,15 +144,13 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             final List<Rps> requestParameters, final PcerrMessageBuilder msgBuilder) {
         switch (state) {
             case RP_IN:
-                if (obj instanceof Rp) {
-                    final Rp o = (Rp) obj;
+                if (obj instanceof Rp o) {
                     requestParameters.add(new RpsBuilder().setRp(o).build());
                     return State.RP_IN;
                 }
                 // fallthrough
             case ERROR_IN:
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
+                if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR_IN;
                 }
@@ -167,8 +163,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 }
                 // fallthrough
             case ERROR:
-                if (obj instanceof ErrorObject) {
-                    final ErrorObject o = (ErrorObject) obj;
+                if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR;
                 }

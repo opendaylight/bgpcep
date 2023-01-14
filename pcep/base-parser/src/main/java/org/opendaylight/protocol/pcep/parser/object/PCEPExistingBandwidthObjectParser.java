@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.parser.object;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.protocol.util.ByteBufWriteUtil.writeFloat32;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reoptimization.bandwidth.object.ReoptimizationBandwidth;
@@ -37,8 +37,7 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
     @Override
     public ReoptimizationBandwidth parseObject(final ObjectHeader header, final ByteBuf bytes)
             throws PCEPDeserializerException {
-        Preconditions.checkArgument(bytes != null && bytes.isReadable(),
-                "Array of bytes is mandatory. Can't be null or empty.");
+        checkArgument(bytes != null && bytes.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         if (bytes.readableBytes() != PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH) {
             throw new PCEPDeserializerException("Wrong length of array of bytes. Passed: " + bytes.readableBytes()
                     + "; Expected: " + PCEPBandwidthObjectParser.BANDWIDTH_F_LENGTH + ".");
@@ -56,7 +55,7 @@ public class PCEPExistingBandwidthObjectParser extends CommonObjectParser implem
     public void serializeObject(
             final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object object,
             final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof ReoptimizationBandwidth,
+        checkArgument(object instanceof ReoptimizationBandwidth,
                 "Wrong instance of PCEPObject. Passed " + "%s. Needed ReoptimizationBandwidthObject.",
                 object.getClass());
         final ByteBuf body = Unpooled.buffer();

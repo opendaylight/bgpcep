@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -64,27 +64,27 @@ public abstract class AbstractSrSubobjectParser {
 
         @Override
         public Boolean getMFlag() {
-            return this.mflag;
+            return mflag;
         }
 
         @Override
         public Boolean getCFlag() {
-            return this.cflag;
+            return cflag;
         }
 
         @Override
         public NaiType getNaiType() {
-            return this.naiType;
+            return naiType;
         }
 
         @Override
         public Uint32 getSid() {
-            return this.sid;
+            return sid;
         }
 
         @Override
         public Nai getNai() {
-            return this.nai;
+            return nai;
         }
     }
 
@@ -172,36 +172,35 @@ public abstract class AbstractSrSubobjectParser {
     }
 
     private static Nai parseNai(final NaiType naiType, final ByteBuf buffer) {
-        switch (naiType) {
-            case Ipv4NodeId:
-                return new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
-                        .build();
-            case Ipv6NodeId:
-                return new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
-                        .build();
-            case Ipv4Adjacency:
-                return new IpAdjacencyBuilder()
-                        .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
-                        .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer))).build();
-            case Ipv6Adjacency:
-                return new IpAdjacencyBuilder()
-                        .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
-                        .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer))).build();
-            case Unnumbered:
-                return new UnnumberedAdjacencyBuilder()
-                        .setLocalNodeId(ByteBufUtils.readUint32(buffer))
-                        .setLocalInterfaceId(ByteBufUtils.readUint32(buffer))
-                        .setRemoteNodeId(ByteBufUtils.readUint32(buffer))
-                        .setRemoteInterfaceId(ByteBufUtils.readUint32(buffer)).build();
-            case Ipv6Local:
-                return new Ipv6LocalBuilder()
-                        .setLocalIpv6Address(Ipv6Util.addressForByteBuf(buffer))
-                        .setLocalId(ByteBufUtils.readUint32(buffer))
-                        .setRemoteIpv6Address(Ipv6Util.addressForByteBuf(buffer))
-                        .setRemoteId(ByteBufUtils.readUint32(buffer)).build();
-            default:
-                return null;
-        }
+        return switch (naiType) {
+            case Ipv4NodeId -> new IpNodeIdBuilder()
+                .setIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                .build();
+            case Ipv6NodeId -> new IpNodeIdBuilder()
+                .setIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                .build();
+            case Ipv4Adjacency -> new IpAdjacencyBuilder()
+                .setLocalIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                .setRemoteIpAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                .build();
+            case Ipv6Adjacency -> new IpAdjacencyBuilder()
+                .setLocalIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                .setRemoteIpAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                .build();
+            case Unnumbered -> new UnnumberedAdjacencyBuilder()
+                .setLocalNodeId(ByteBufUtils.readUint32(buffer))
+                .setLocalInterfaceId(ByteBufUtils.readUint32(buffer))
+                .setRemoteNodeId(ByteBufUtils.readUint32(buffer))
+                .setRemoteInterfaceId(ByteBufUtils.readUint32(buffer))
+                .build();
+            case Ipv6Local -> new Ipv6LocalBuilder()
+                .setLocalIpv6Address(Ipv6Util.addressForByteBuf(buffer))
+                .setLocalId(ByteBufUtils.readUint32(buffer))
+                .setRemoteIpv6Address(Ipv6Util.addressForByteBuf(buffer))
+                .setRemoteId(ByteBufUtils.readUint32(buffer))
+                .build();
+            default -> null;
+        };
     }
 
     protected static SrSubobject parseSrSubobject(final ByteBuf buffer) throws PCEPDeserializerException {

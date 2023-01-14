@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractMessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.PcinitiateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.PcinitiateMessageBuilder;
@@ -79,9 +79,9 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
             throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
         final PcinitiateMessageBuilder builder = new PcinitiateMessageBuilder();
-        final List<Requests> reqs = new ArrayList<>();
+        final var reqs = new ArrayList<Requests>();
         while (!objects.isEmpty()) {
-            reqs.add(this.getValidRequest(objects));
+            reqs.add(getValidRequest(objects));
         }
         builder.setRequests(reqs);
         return new PcinitiateBuilder().setPcinitiateMessage(builder.build()).build();
@@ -92,7 +92,7 @@ public class InitiatedPCInitiateMessageParser extends AbstractMessageParser {
             .setSrp(consumeObject(objects, Srp.class))
             .setLsp(consumeObject(objects, Lsp.class));
 
-        final List<Metrics> metrics = new ArrayList<>();
+        final var metrics = new ArrayList<Metrics>();
         State state = State.INIT;
         for (Object obj = objects.peek(); obj != null; obj = objects.peek()) {
             state = insertObject(state, obj, builder, metrics);

@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
@@ -66,17 +66,17 @@ public class SrObjectParserTest {
 
     @Before
     public void setUp() {
-        this.ctx = new SimplePCEPExtensionProviderContext();
-        this.act = new SegmentRoutingActivator();
-        this.act.start(this.ctx);
-        this.tlvRegistry = this.ctx.getTlvHandlerRegistry();
-        this.viTlvRegistry = this.ctx.getVendorInformationTlvRegistry();
+        ctx = new SimplePCEPExtensionProviderContext();
+        act = new SegmentRoutingActivator();
+        act.start(ctx);
+        tlvRegistry = ctx.getTlvHandlerRegistry();
+        viTlvRegistry = ctx.getVendorInformationTlvRegistry();
     }
 
     @Test
     public void testOpenObjectWithSpcTlv() throws PCEPDeserializerException {
-        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(this.tlvRegistry,
-            this.viTlvRegistry);
+        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(tlvRegistry,
+            viTlvRegistry);
 
         final OpenBuilder builder = new OpenBuilder()
                 .setProcessingRule(false)
@@ -108,7 +108,7 @@ public class SrObjectParserTest {
     @Test
     public void testSrEroObjectWithSubobjects() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
-            this.ctx.getEROSubobjectHandlerRegistry());
+            ctx.getEROSubobjectHandlerRegistry());
 
         final EroBuilder builder = new EroBuilder();
         builder.setProcessingRule(false);
@@ -139,7 +139,7 @@ public class SrObjectParserTest {
     @Test
     public void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
-            this.ctx.getEROSubobjectHandlerRegistry());
+            ctx.getEROSubobjectHandlerRegistry());
 
         final EroBuilder builder = new EroBuilder();
         builder.setProcessingRule(false);

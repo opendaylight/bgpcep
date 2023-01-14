@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.ietf.stateful.PathBindingTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLSPIdentifierIpv6TlvParser;
@@ -21,7 +22,6 @@ import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLspSymbolicNameTlvPa
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLspUpdateErrorTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulRSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulStatefulCapabilityTlvParser;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsCapabilityTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;

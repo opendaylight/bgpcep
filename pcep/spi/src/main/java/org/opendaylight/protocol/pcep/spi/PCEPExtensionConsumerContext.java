@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import org.opendaylight.protocol.pcep.MessageRegistry;
+
 public interface PCEPExtensionConsumerContext {
 
     LabelRegistry getLabelHandlerRegistry();

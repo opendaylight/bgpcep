@@ -7,11 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.p2mp.te.lsp;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
@@ -27,7 +28,7 @@ public final class P2MPTeLspCapabilityParser implements TlvParser, TlvSerializer
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
-        Preconditions.checkArgument(tlv instanceof P2mpPceCapability, "P2mpPceCapability is mandatory.");
+        checkArgument(tlv instanceof P2mpPceCapability, "P2mpPceCapability is mandatory.");
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         body.writeShort(0);
         TlvUtil.formatTlv(TYPE, body, buffer);

@@ -5,8 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.message;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
@@ -14,9 +15,9 @@ import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.MessageUtil;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcmonreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcmonreqBuilder;
@@ -42,10 +43,10 @@ public class PCEPMonitoringRequestMessageParser extends PCEPRequestMessageParser
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf out) {
-        Preconditions.checkArgument(message instanceof Pcmonreq,
+        checkArgument(message instanceof Pcmonreq,
                 "Wrong instance of Message. Passed instance of %s. Need Pcmonreq.", message.getClass());
         final PcreqMessage msg = ((Pcmonreq) message).getPcreqMessage();
-        Preconditions.checkArgument(msg.getMonitoringRequest() != null, "MONITORING object MUST be present.");
+        checkArgument(msg.getMonitoringRequest() != null, "MONITORING object MUST be present.");
         final ByteBuf buffer = Unpooled.buffer();
         serializeMonitoringRequest(msg.getMonitoringRequest(), buffer);
         if (msg.getSvec() != null) {

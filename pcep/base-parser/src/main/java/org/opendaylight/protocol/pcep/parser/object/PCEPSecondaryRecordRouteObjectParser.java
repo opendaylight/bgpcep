@@ -5,16 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.parser.object;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
-import org.opendaylight.protocol.pcep.spi.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
@@ -34,7 +34,7 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
 
     @Override
     public Srro parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
-        Preconditions.checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
+        checkArgument(buffer != null && buffer.isReadable(), EMPTY_ARRAY_ERROR);
 
         final SrroBuilder builder = new SrroBuilder();
         builder.setIgnore(header.getIgnore());
@@ -54,7 +54,7 @@ public final class PCEPSecondaryRecordRouteObjectParser extends AbstractRROWithS
 
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
-        Preconditions.checkArgument(object instanceof Srro,
+        checkArgument(object instanceof Srro,
             "Wrong instance of PCEPObject. Passed %s. Needed EroObject.", object.getClass());
         final Srro sero = (Srro) object;
         final ByteBuf body = Unpooled.buffer();
