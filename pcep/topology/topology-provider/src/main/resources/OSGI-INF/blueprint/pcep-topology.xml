@@ -9,6 +9,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
+    <reference id="sessionNegotiatorFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
@@ -21,6 +22,7 @@
         <argument ref="dataBroker"/>
         <argument ref="clusterSingletonServiceProvider"/>
         <argument ref="rpcProviderService"/>
+        <argument ref="sessionNegotiatorFactory"/>
         <argument ref="pcepDispatcher"/>
         <argument ref="intructionFactory"/>
         <argument ref="pceServerProvider"/>

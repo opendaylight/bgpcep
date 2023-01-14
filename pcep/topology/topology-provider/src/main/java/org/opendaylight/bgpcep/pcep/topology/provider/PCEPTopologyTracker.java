@@ -32,6 +32,7 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.topology.pcep.type.TopologyPcep;
@@ -56,6 +57,7 @@ public final class PCEPTopologyTracker
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
+    private final @NonNull PCEPSessionNegotiatorFactory sessionNegotiatorFactory;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull PCEPDispatcher pcepDispatcher;
@@ -105,11 +107,13 @@ public final class PCEPTopologyTracker
     private Registration statsReg;
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
-            final RpcProviderService rpcProviderRegistry, final PCEPDispatcher pcepDispatcher,
-            final InstructionSchedulerFactory instructionSchedulerFactory, final PceServerProvider pceServerProvider) {
+            final RpcProviderService rpcProviderRegistry, final PCEPSessionNegotiatorFactory sessionNegotiatorFactory,
+            final PCEPDispatcher pcepDispatcher, final InstructionSchedulerFactory instructionSchedulerFactory,
+            final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
+        this.sessionNegotiatorFactory = requireNonNull(sessionNegotiatorFactory);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
@@ -121,6 +125,11 @@ public final class PCEPTopologyTracker
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build()), this);
         LOG.info("PCEP Topology tracker initialized");
+    }
+
+    @Override
+    public PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
+        return sessionNegotiatorFactory;
     }
 
     @Override

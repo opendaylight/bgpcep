@@ -26,6 +26,4 @@ public interface PCEPDispatcher {
      */
     @NonNull ChannelFuture createServer(@NonNull InetSocketAddress listenAddress, @NonNull KeyMapping tcpKeys,
         @NonNull PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies);
-
-    @NonNull PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
 }

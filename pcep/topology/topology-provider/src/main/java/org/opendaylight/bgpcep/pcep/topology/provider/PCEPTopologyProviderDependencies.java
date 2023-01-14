@@ -13,12 +13,20 @@ import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 
 /**
  * Provides required dependencies for PCEPTopologyProviderProvider instantiation.
  */
 @NonNullByDefault
 interface PCEPTopologyProviderDependencies {
+    /**
+     * PCEP Session Negotiator Factory.
+     *
+     * @return Negotiator factory
+     */
+    PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
+
     /**
      * PCEP Dispatcher.
      *

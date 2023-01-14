@@ -141,11 +141,6 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
         }
     }
 
-    @Override
-    public final PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
-        return snf;
-    }
-
     protected interface ChannelPipelineInitializer {
         void initializeChannel(SocketChannel socketChannel, Promise<PCEPSession> promise);
     }

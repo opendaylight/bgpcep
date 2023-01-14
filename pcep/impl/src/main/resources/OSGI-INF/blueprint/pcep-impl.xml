@@ -36,6 +36,8 @@
     <argument ref="pcepDispatcherConfig"/>
   </bean>
 
+  <service ref="pcepSessionNegotiatorFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory"/>
+
   <bean id="pcepDispatcher" class="org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl">
     <argument>
       <bean factory-ref="pcepExtensionContext" factory-method="getMessageHandlerRegistry"/>
