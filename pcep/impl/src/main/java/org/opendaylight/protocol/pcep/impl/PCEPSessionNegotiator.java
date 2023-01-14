@@ -15,6 +15,7 @@ import java.net.InetSocketAddress;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
@@ -23,14 +24,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PCEPSessionNegotiator extends AbstractSessionNegotiator {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPSessionNegotiator.class);
 
     private static final Comparator<byte[]> COMPARATOR = UnsignedBytes.lexicographicalComparator();
     private final AbstractPCEPSessionNegotiatorFactory negFactory;
     private final PCEPSessionNegotiatorFactoryDependencies nfd;
 
-    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSessionImpl> promise,
+    public PCEPSessionNegotiator(final Channel channel, final Promise<PCEPSession> promise,
             final PCEPSessionNegotiatorFactoryDependencies dependencies,
             final AbstractPCEPSessionNegotiatorFactory negFactory) {
         super(promise, channel);

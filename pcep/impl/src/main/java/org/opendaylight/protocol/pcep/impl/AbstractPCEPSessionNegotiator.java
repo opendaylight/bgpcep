@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -95,7 +96,7 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     private Open localPrefs;
     private Open remotePrefs;
 
-    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
+    protected AbstractPCEPSessionNegotiator(final Promise<PCEPSession> promise, final Channel channel,
             final PcepSessionTls tlsConfiguration) {
         super(promise, channel);
         this.tlsConfiguration = tlsConfiguration;

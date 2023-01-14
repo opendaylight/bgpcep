@@ -35,6 +35,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPDispatcherDependencies;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.spi.MessageRegistry;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
     private static final Integer SOCKET_BACKLOG_SIZE = 128;
     private static final long TIMEOUT = 10;
-    private final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf;
+    private final PCEPSessionNegotiatorFactory snf;
     private final PCEPHandlerFactory hf;
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
@@ -64,7 +65,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
      * @param workerGroup       handles the traffic of accepted connection
      */
     public PCEPDispatcherImpl(final @NonNull MessageRegistry registry,
-            final @NonNull PCEPSessionNegotiatorFactory<PCEPSessionImpl> negotiatorFactory,
+            final @NonNull PCEPSessionNegotiatorFactory negotiatorFactory,
             final @NonNull EventLoopGroup bossGroup, final @NonNull EventLoopGroup workerGroup) {
         snf = requireNonNull(negotiatorFactory);
         hf = new PCEPHandlerFactory(registry);
@@ -145,11 +146,11 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, Closeable {
     }
 
     @Override
-    public final PCEPSessionNegotiatorFactory<PCEPSessionImpl> getPCEPSessionNegotiatorFactory() {
+    public final PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory() {
         return snf;
     }
 
     protected interface ChannelPipelineInitializer {
-        void initializeChannel(SocketChannel socketChannel, Promise<PCEPSessionImpl> promise);
+        void initializeChannel(SocketChannel socketChannel, Promise<PCEPSession> promise);
     }
 }

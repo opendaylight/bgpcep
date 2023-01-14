@@ -31,6 +31,9 @@ public interface PCEPSession extends PCEPSessionState, AutoCloseable {
      */
     Future<Void> sendMessage(Message message);
 
+    @Override
+    void close();
+
     void close(TerminationReason reason);
 
     /**

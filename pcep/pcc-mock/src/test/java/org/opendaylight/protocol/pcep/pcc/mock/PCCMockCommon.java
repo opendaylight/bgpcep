@@ -42,7 +42,6 @@ import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
-import org.opendaylight.protocol.pcep.impl.PCEPSessionImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
@@ -215,7 +214,7 @@ public abstract class PCCMockCommon {
 
     Future<PCEPSession> createPCCSession(final Uint64 dbVersion) {
         final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(messageRegistry);
-        final PCEPSessionNegotiatorFactory<PCEPSessionImpl> snf = getSessionNegotiatorFactory();
+        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, localAddress.getAddress(),
                 0, -1, new HashedWheelTimer(), Optional.empty());
 
@@ -225,7 +224,7 @@ public abstract class PCCMockCommon {
         }, snf, KeyMapping.of(), localAddress, dbVersion);
     }
 
-    private PCEPSessionNegotiatorFactory<PCEPSessionImpl> getSessionNegotiatorFactory() {
+    private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
         return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
                 getCapabilities()), MockPcepSessionErrorPolicy.ZERO);
     }

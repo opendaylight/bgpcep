@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.Promise;
+import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionErrorPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
@@ -23,7 +24,7 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
     private final PcepSessionErrorPolicy errorPolicy;
     private final PCEPSessionListener listener;
 
-    public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
+    public DefaultPCEPSessionNegotiator(final Promise<PCEPSession> promise, final Channel channel,
             final PCEPSessionListener listener, final Uint8 sessionId, final Open localPrefs,
             final PcepSessionErrorPolicy errorPolicy, final PcepSessionTls tlsConfiguration) {
         super(promise, channel, tlsConfiguration);
@@ -37,7 +38,7 @@ public final class DefaultPCEPSessionNegotiator extends AbstractPCEPSessionNegot
                 .build();
     }
 
-    public DefaultPCEPSessionNegotiator(final Promise<PCEPSessionImpl> promise, final Channel channel,
+    public DefaultPCEPSessionNegotiator(final Promise<PCEPSession> promise, final Channel channel,
             final PCEPSessionListener listener, final Uint8 sessionId, final Open localPrefs,
             final PcepSessionErrorPolicy errorPolicy) {
         this(promise, channel, listener, sessionId, localPrefs, errorPolicy, null);

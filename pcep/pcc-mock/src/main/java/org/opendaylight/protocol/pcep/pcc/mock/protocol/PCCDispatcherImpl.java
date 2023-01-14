@@ -59,9 +59,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     @Override
     public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
-            final PCEPSessionListenerFactory listenerFactory,
-            final PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, final KeyMapping keys,
-            final InetSocketAddress localAddress) {
+            final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
+            final KeyMapping keys, final InetSocketAddress localAddress) {
         return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress,
             Uint64.ONE);
     }

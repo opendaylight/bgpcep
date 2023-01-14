@@ -22,5 +22,5 @@ public interface PCEPDispatcher {
      */
     @NonNull ChannelFuture createServer(@NonNull PCEPDispatcherDependencies dispatcherDependencies);
 
-    @NonNull PCEPSessionNegotiatorFactory<?> getPCEPSessionNegotiatorFactory();
+    @NonNull PCEPSessionNegotiatorFactory getPCEPSessionNegotiatorFactory();
 }

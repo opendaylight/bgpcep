@@ -20,11 +20,11 @@ public interface PCCDispatcher {
 
     @NonNull Future<PCEPSession> createClient(@NonNull InetSocketAddress remoteAddress,
             long reconnectTime, @NonNull PCEPSessionListenerFactory listenerFactory,
-            @NonNull PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, @NonNull KeyMapping keys,
+            @NonNull PCEPSessionNegotiatorFactory negotiatorFactory, @NonNull KeyMapping keys,
             @NonNull InetSocketAddress localAddress, @NonNull Uint64 dbVersion);
 
     @NonNull Future<PCEPSession> createClient(@NonNull InetSocketAddress remoteAddress,
             long reconnectTime, @NonNull PCEPSessionListenerFactory listenerFactory,
-            @NonNull PCEPSessionNegotiatorFactory<? extends PCEPSession> negotiatorFactory, @NonNull KeyMapping keys,
+            @NonNull PCEPSessionNegotiatorFactory negotiatorFactory, @NonNull KeyMapping keys,
             @NonNull InetSocketAddress localAddress);
 }
