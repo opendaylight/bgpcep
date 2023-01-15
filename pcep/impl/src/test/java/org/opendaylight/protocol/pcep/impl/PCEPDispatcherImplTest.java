@@ -49,7 +49,6 @@ import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
@@ -69,8 +68,6 @@ public class PCEPDispatcherImplTest {
     @Mock
     private Channel mockChannel;
     @Mock
-    private PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies;
-    @Mock
     private PCEPSessionListenerFactory listenerFactory;
 
     private MessageRegistry msgReg;
@@ -85,8 +82,6 @@ public class PCEPDispatcherImplTest {
             List.of(), Uint16.ZERO, null);
 
         dispatcher = new PCEPDispatcherImpl();
-
-        doReturn(null).when(negotiatorDependencies).getPeerProposal();
 
         final PCEPDispatcherImpl dispatcher2 = new PCEPDispatcherImpl();
         disp2Spy = spy(dispatcher2);
@@ -107,10 +102,9 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        doReturn(listenerFactory).when(negotiatorDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
         final ChannelFuture futureChannel = dispatcher.createServer(serverAddr, KeyMapping.of(), msgReg,
-            negotiatorFactory, negotiatorDependencies);
+            negotiatorFactory, listenerFactory, null);
         futureChannel.sync();
 
         try (var session1 = (PCEPSessionImpl) pccMock.createClient(clientAddr1,
@@ -138,10 +132,9 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        doReturn(listenerFactory).when(negotiatorDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
 
-        dispatcher.createServer(serverAddr, KeyMapping.of(), msgReg, negotiatorFactory, negotiatorDependencies)
+        dispatcher.createServer(serverAddr, KeyMapping.of(), msgReg, negotiatorFactory, listenerFactory, null)
             .sync();
         final Future<PCEPSession> futureClient = pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT,
                 SimpleSessionListener::new);
@@ -163,10 +156,9 @@ public class PCEPDispatcherImplTest {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        doReturn(listenerFactory).when(negotiatorDependencies).getListenerFactory();
         doReturn(new SimpleSessionListener()).when(listenerFactory).getSessionListener();
         dispatcher.createServer(new InetSocketAddress("0.0.0.0", port), KeyMapping.of(), msgReg, negotiatorFactory,
-            negotiatorDependencies).sync();
+            listenerFactory, null).sync();
         final PCEPSessionImpl session1 = (PCEPSessionImpl) pccMock.createClient(clientAddr,
                 RETRY_TIMER, CONNECT_TIMEOUT, SimpleSessionListener::new).get();
 
@@ -194,7 +186,7 @@ public class PCEPDispatcherImplTest {
             clientAddr2.getAddress(), "CLIENT2_ADDRESS"));
 
         final ChannelFuture futureChannel = disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port),
-            keys, msgReg, negotiatorFactory, negotiatorDependencies).sync();
+            keys, msgReg, negotiatorFactory, null, null).sync();
         verify(disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class), same(keys));
     }
 
@@ -216,8 +208,8 @@ public class PCEPDispatcherImplTest {
                 final int connectTimeout, final PCEPSessionListenerFactory listenerFactory) {
             return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
                 ch.pipeline().addLast(factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(
-                    () -> listenerFactory, ch, promise));
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise, listenerFactory,
+                    null));
                 ch.pipeline().addLast(factory.getEncoders());
             });
         }

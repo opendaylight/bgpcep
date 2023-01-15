@@ -35,9 +35,7 @@ import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
@@ -130,7 +128,7 @@ public abstract class PCCMockCommon {
         optimizationsActivator.start(extensionProvider);
 
         final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
-            negotiatorFactory, new NegotiatorDependencies(factory, peerProposal));
+            negotiatorFactory, factory, peerProposal);
         waitFutureSuccess(future);
         return future.channel();
     }
@@ -230,26 +228,5 @@ public abstract class PCCMockCommon {
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
         return checkSessionListenerNotNull(factory, localAddress.getHostString());
-    }
-
-    private static class NegotiatorDependencies implements PCEPSessionNegotiatorFactoryDependencies {
-        private final TestingSessionListenerFactory listenerFactory;
-        private final PCEPPeerProposal peerProposal;
-
-        NegotiatorDependencies(final TestingSessionListenerFactory listenerFactory,
-                final PCEPPeerProposal peerProposal) {
-            this.listenerFactory = listenerFactory;
-            this.peerProposal = peerProposal;
-        }
-
-        @Override
-        public PCEPSessionListenerFactory getListenerFactory() {
-            return listenerFactory;
-        }
-
-        @Override
-        public PCEPPeerProposal getPeerProposal() {
-            return peerProposal;
-        }
     }
 }
