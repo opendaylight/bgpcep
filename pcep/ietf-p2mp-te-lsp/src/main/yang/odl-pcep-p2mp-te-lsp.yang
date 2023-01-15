@@ -1,5 +1,6 @@
 module odl-pcep-p2mp-te-lsp {
     yang-version 1;
+    // FIXME: rename module/namespace to odl-pcep-rfc8306
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:p2mp:te:lsp";
     prefix "pcep-p2mp";
 
@@ -9,7 +10,8 @@ module odl-pcep-p2mp-te-lsp {
 
     description
         "This module contains the data model of PCEP extensions defined
-                 in rfc8306.
+         in RFC8306.
+
          Copyright (c)2018 AT&T Services, Inc. All rights reserved.;
 
          This program and the accompanying materials are made available
