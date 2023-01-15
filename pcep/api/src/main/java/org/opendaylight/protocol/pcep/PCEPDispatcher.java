@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
@@ -28,6 +27,5 @@ public interface PCEPDispatcher {
      * @return A future completing when the PCEP server is created
      */
     @NonNull ChannelFuture createServer(@NonNull InetSocketAddress listenAddress, @NonNull KeyMapping tcpKeys,
-        @NonNull MessageRegistry registry, @NonNull PCEPSessionNegotiatorFactory negotiatorFactory,
-        @NonNull PCEPSessionListenerFactory listenerFactory, @Nullable PCEPPeerProposal peerProposal);
+        @NonNull MessageRegistry registry, @NonNull PCEPSessionNegotiatorFactory negotiatorFactory);
 }

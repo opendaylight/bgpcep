@@ -35,7 +35,9 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
-    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
+    private final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
+
+    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(slf,
         new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
 
     private PCCDispatcherImpl dispatcher;
@@ -62,12 +64,10 @@ public class PCCDispatcherImplTest {
 
     @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1,
-            new TestingSessionListenerFactory(), nf, KeyMapping.of(), clientAddress);
-        final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
+        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1, nf, KeyMapping.of(),
+            clientAddress);
 
-        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
-            slf, null);
+        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf);
         futureServer.sync();
         final Channel channel = futureServer.channel();
         assertNotNull(futureSession.get());

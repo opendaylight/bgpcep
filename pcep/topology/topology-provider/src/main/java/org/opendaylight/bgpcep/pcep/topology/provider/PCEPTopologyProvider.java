@@ -31,7 +31,6 @@ import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -66,7 +65,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
     @GuardedBy("this")
     private ServerSessionManager manager;
     @GuardedBy("this")
-    private PCEPStatefulPeerProposal proposal;
+    private TopologyPCEPSessionNegotiatorFactory negotiatorFactory;
     @GuardedBy("this")
     private Channel channel;
     @GuardedBy("this")
@@ -221,13 +220,13 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             return;
         }
 
-        proposal = new PCEPStatefulPeerProposal(dependencies.getDataBroker(), instanceIdentifier);
+        negotiatorFactory = new TopologyPCEPSessionNegotiatorFactory(manager, currentConfig.getTimerProposal(),
+            dependencies.getCapabilities(), currentConfig.getMaxUnknownMessages(), currentConfig.getTls(),
+            dependencies.getDataBroker(), instanceIdentifier);
 
         LOG.info("PCEP Topology Provider {} starting server channel", topologyId());
         final var channelFuture = dependencies.getPCEPDispatcher().createServer(currentConfig.getAddress(),
-            currentConfig.getKeys(), dependencies.getMessageRegistry(),
-            new DefaultPCEPSessionNegotiatorFactory(currentConfig.getTimerProposal(), dependencies.getCapabilities(),
-                currentConfig.getMaxUnknownMessages(), currentConfig.getTls()), manager, proposal);
+            currentConfig.getKeys(), dependencies.getMessageRegistry(), negotiatorFactory);
         channelFuture.addListener(ignored -> enableRPCs(future, channelFuture));
     }
 
@@ -275,8 +274,8 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     @Holding("this")
     private void disableManager(final SettableFuture<Empty> future) {
-        proposal.close();
-        proposal = null;
+        negotiatorFactory.close();
+        negotiatorFactory = null;
         final var managerStop = manager.stop();
         manager = null;
         managerStop.addListener(() -> finishStopManager(future), MoreExecutors.directExecutor());
