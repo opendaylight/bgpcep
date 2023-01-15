@@ -1,0 +1,40 @@
+module odl-pcep-topology-provider {
+    namespace "urn:opendaylight:params:xml:ns:yang:odl:pcep:topology-provider";
+    prefix optp;
+
+    import network-topology { prefix nt; }
+    import network-topology-pcep { prefix pn; }
+    import pcep-ietf-stateful-app-config { prefix opisc; }
+
+    description
+        "This module contains the base YANG definitions for configuring
+         the PCEP Topology provider.
+
+         Copyright (c)2023 PANTHEON.tech, s.r.o. and others.  All rights reserved.
+
+         This program and the accompanying materials are made available
+         under the terms of the Eclipse Public License v1.0 which
+         accompanies this distribution, and is available at
+         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2023-01-15" {
+        description "Initial revision";
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:topology-types/pn:topology-pcep" {
+        container capabilities {
+            container stateful {
+                uses opisc:stateful-capabilities;
+            }
+            leaf p2mp {
+                type boolean;
+                default true;
+            }
+            leaf segment-routing {
+                type boolean;
+                default true;
+            }
+        }
+    }
+}
+
