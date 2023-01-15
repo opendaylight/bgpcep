@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,12 +19,18 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
+import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
+import org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability;
+import org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.PcepTopologyNodeStatsProviderAug;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.rev230115.TopologyPcep1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.topology.provider.rev230115.network.topology.topology.topology.types.topology.pcep.Capabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
@@ -35,11 +42,14 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class PCEPTopologyConfiguration implements Immutable {
     private static final long DEFAULT_UPDATE_INTERVAL = TimeUnit.SECONDS.toNanos(5);
+    private static final @NonNull ImmutableList<PCEPCapability> DEFAULT_CAPABILITIES = ImmutableList.of(
+        new PCEPStatefulCapability(), new P2MPTeLspCapability(), new PCEPSegmentRoutingCapability());
 
     private final @NonNull InetSocketAddress address;
     private final @NonNull GraphKey graphKey;
     private final @NonNull KeyMapping keys;
     private final @NonNull PCEPTimerProposal timerProposal;
+    private final @NonNull ImmutableList<PCEPCapability> capabilities;
     private final @NonNull Uint16 maxUnknownMessages;
     private final @Nullable PcepSessionTls tls;
     private final long updateIntervalNanos;
@@ -47,7 +57,8 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     PCEPTopologyConfiguration(final InetSocketAddress address, final KeyMapping keys, final GraphKey graphKey,
             final short rpcTimeout, final long updateIntervalNanos, final PCEPTimerProposal timerProposal,
-            final Uint16 maxUnknownMessages, final @Nullable PcepSessionTls tls) {
+            final @NonNull ImmutableList<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
+            final @Nullable PcepSessionTls tls) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
         this.graphKey = requireNonNull(graphKey);
@@ -56,6 +67,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         this.timerProposal = requireNonNull(timerProposal);
         this.maxUnknownMessages = requireNonNull(maxUnknownMessages);
         this.tls = tls;
+        this.capabilities = requireNonNull(capabilities);
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -75,8 +87,13 @@ final class PCEPTopologyConfiguration implements Immutable {
         if (sessionConfig == null) {
             return null;
         }
+        final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
+        final var capabilities = capabilityAug != null ? capabilityAug.getCapabilities() : null;
+        if (capabilities != null && !capabilities.nonnullStateful().requireStateful()) {
+            return null;
+        }
 
-        final var updateAug = topologyPcep.augmentation(TopologyPcep1.class);
+        final var updateAug = topologyPcep.augmentation(PcepTopologyNodeStatsProviderAug.class);
         final long updateInterval = updateAug != null ? TimeUnit.SECONDS.toNanos(updateAug.requireTimer().toJava())
             : DEFAULT_UPDATE_INTERVAL;
 
@@ -84,7 +101,23 @@ final class PCEPTopologyConfiguration implements Immutable {
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
             constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
             sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
-            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
+            constructCapabilities(capabilities), sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
+    }
+
+    private static @NonNull ImmutableList<PCEPCapability> constructCapabilities(final Capabilities capabilities) {
+        if (capabilities == null) {
+            return DEFAULT_CAPABILITIES;
+        }
+
+        final var builder = ImmutableList.<PCEPCapability>builder()
+            .add(new PCEPStatefulCapability(capabilities.nonnullStateful()));
+        if (capabilities.requireP2mp()) {
+            builder.add(new P2MPTeLspCapability());
+        }
+        if (capabilities.requireSegmentRouting()) {
+            builder.add(new PCEPSegmentRoutingCapability());
+        }
+        return builder.build();
     }
 
     short getRpcTimeout() {
@@ -109,6 +142,15 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     @NonNull PCEPTimerProposal getTimerProposal() {
         return timerProposal;
+    }
+
+    /**
+     * Returns list containing PCEP Capabilities.
+     *
+     * @return PCEPCapabilities
+     */
+    @NonNull ImmutableList<PCEPCapability> getCapabilities() {
+        return capabilities;
     }
 
     @NonNull Uint16 getMaxUnknownMessages() {
