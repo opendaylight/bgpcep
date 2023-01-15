@@ -7,12 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
+import com.google.common.primitives.UnsignedBytes;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.concurrent.Promise;
+import java.net.InetSocketAddress;
+import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
+import org.opendaylight.protocol.pcep.impl.PCEPPeerRegistry.SessionReference;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +52,87 @@ public abstract class AbstractPCEPSessionNegotiatorFactory implements PCEPSessio
             final Channel channel, final Promise<PCEPSession> promise) {
 
         LOG.debug("Instantiating bootstrap negotiator for channel {}", channel);
-        return new PCEPSessionNegotiator(channel, promise, dependencies, this);
+        return new BootstrapSessionNegotiator(channel, promise, dependencies);
     }
 
-    public PCEPPeerRegistry getSessionRegistry() {
-        return sessionRegistry;
+    private final class BootstrapSessionNegotiator extends AbstractSessionNegotiator {
+        private static final Comparator<byte[]> COMPARATOR = UnsignedBytes.lexicographicalComparator();
+
+        private final PCEPSessionNegotiatorFactoryDependencies nfd;
+
+        BootstrapSessionNegotiator(final Channel channel, final Promise<PCEPSession> promise,
+                final PCEPSessionNegotiatorFactoryDependencies dependencies) {
+            super(promise, channel);
+            nfd = dependencies;
+        }
+
+        @Override
+        @SuppressWarnings("checkstyle:IllegalCatch")
+        //similar to bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractBGPSessionNegotiator.java
+        protected void startNegotiation() throws ExecutionException {
+            final Object lock = this;
+
+            LOG.debug("Bootstrap negotiation for channel {} started", channel);
+
+            /*
+             * We have a chance to see if there's a client session already
+             * registered for this client.
+             */
+            final byte[] clientAddress = ((InetSocketAddress) channel.remoteAddress()).getAddress().getAddress();
+
+            synchronized (lock) {
+                if (sessionRegistry.getSessionReference(clientAddress).isPresent()) {
+                    final byte[] serverAddress =
+                        ((InetSocketAddress) channel.localAddress()).getAddress().getAddress();
+                    if (COMPARATOR.compare(serverAddress, clientAddress) > 0) {
+                        sessionRegistry.removeSessionReference(clientAddress).ifPresent(sessionRef -> {
+                            try {
+                                sessionRef.close();
+                            } catch (final Exception e) {
+                                LOG.error("Unexpected failure to close old session", e);
+                            }
+                        });
+                    } else {
+                        negotiationFailed(new IllegalStateException("A conflicting session for address "
+                                + ((InetSocketAddress) channel.remoteAddress()).getAddress() + " found."));
+                        return;
+                    }
+                }
+
+                final Uint8 sessionId = sessionRegistry.nextSession(clientAddress);
+                final AbstractPCEPSessionNegotiator n = createNegotiator(nfd, promise, channel, sessionId);
+
+                sessionRegistry.putSessionReference(clientAddress, new SessionReference() {
+                    @Override
+                    public void close() throws ExecutionException {
+                        try {
+                            sessionRegistry.releaseSession(clientAddress, sessionId);
+                        } finally {
+                            channel.close();
+                        }
+                    }
+
+                    @Override
+                    public Uint8 getSessionId() {
+                        return sessionId;
+                    }
+                });
+
+                channel.closeFuture().addListener((ChannelFutureListener) future -> {
+                    synchronized (lock) {
+                        sessionRegistry.removeSessionReference(clientAddress);
+                    }
+                });
+
+                LOG.info("Replacing bootstrap negotiator for channel {}", channel);
+                channel.pipeline().replace(this, "negotiator", n);
+                n.startNegotiation();
+            }
+        }
+
+        @Override
+        protected void handleMessage(final Message msg) {
+            throw new IllegalStateException("Bootstrap negotiator should have been replaced");
+        }
     }
 }
