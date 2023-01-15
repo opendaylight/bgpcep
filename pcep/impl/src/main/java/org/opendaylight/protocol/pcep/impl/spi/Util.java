@@ -7,11 +7,19 @@
  */
 package org.opendaylight.protocol.pcep.impl.spi;
 
+import java.net.InetSocketAddress;
 import java.util.Collections;
+import java.util.List;
+import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.PcerrMessageBuilder;
@@ -19,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.ErrorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 /**
  * Utilities used in pcep-impl.
@@ -43,6 +52,26 @@ public final class Util {
             new PcerrMessageBuilder()
                 .setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(err).build()))
                 .setErrorType(type).build())
+            .build();
+    }
+
+    public static Open createOpenObject(final InetSocketAddress address, final Uint8 sessionId,
+            final PCEPTimerProposal timers, final List<PCEPCapability> capabilities,
+            final @Nullable PCEPPeerProposal peerProposal) {
+        final var builder = new TlvsBuilder();
+        for (final var capability : capabilities) {
+            capability.setCapabilityProposal(address, builder);
+        }
+
+        if (peerProposal != null) {
+            peerProposal.setPeerSpecificProposal(address, builder);
+        }
+
+        return new OpenBuilder()
+            .setSessionId(sessionId)
+            .setKeepalive(timers.keepAlive())
+            .setDeadTimer(timers.deadTimer())
+            .setTlvs(builder.build())
             .build();
     }
 }
