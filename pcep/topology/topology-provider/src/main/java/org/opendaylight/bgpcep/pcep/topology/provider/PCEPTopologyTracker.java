@@ -34,7 +34,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
@@ -61,7 +60,6 @@ public final class PCEPTopologyTracker
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
     private final @NonNull PCEPSessionNegotiatorFactory sessionNegotiatorFactory;
-    private final @NonNull PCEPSessionProposalFactory sessionProposalFactory;
     private final @NonNull RpcProviderService rpcProviderRegistry;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull MessageRegistry messageRegistry;
@@ -113,7 +111,6 @@ public final class PCEPTopologyTracker
 
     public PCEPTopologyTracker(final DataBroker dataBroker, final ClusterSingletonServiceProvider singletonService,
             final RpcProviderService rpcProviderRegistry, final PCEPExtensionConsumerContext extensions,
-            final PCEPSessionProposalFactory sessionProposalFactory,
             final PCEPSessionNegotiatorFactory sessionNegotiatorFactory,
             final PCEPDispatcher pcepDispatcher, final InstructionSchedulerFactory instructionSchedulerFactory,
             final PceServerProvider pceServerProvider) {
@@ -121,7 +118,6 @@ public final class PCEPTopologyTracker
         this.singletonService = requireNonNull(singletonService);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         messageRegistry = extensions.getMessageHandlerRegistry();
-        this.sessionProposalFactory = requireNonNull(sessionProposalFactory);
         this.sessionNegotiatorFactory = requireNonNull(sessionNegotiatorFactory);
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
@@ -139,11 +135,6 @@ public final class PCEPTopologyTracker
     @Override
     public MessageRegistry getMessageRegistry() {
         return messageRegistry;
-    }
-
-    @Override
-    public PCEPSessionProposalFactory getPCEPSessionProposalFactory() {
-        return sessionProposalFactory;
     }
 
     @Override
