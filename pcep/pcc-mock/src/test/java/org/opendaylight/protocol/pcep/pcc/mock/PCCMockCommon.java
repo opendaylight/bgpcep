@@ -38,10 +38,10 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
+import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
@@ -69,17 +69,13 @@ public abstract class PCCMockCommon {
     PCCSessionListener pccSessionListener;
     private PCEPDispatcherImpl pceDispatcher;
     private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
-    private PCEPSessionNegotiatorFactory negotiatorFactory;
     private MessageRegistry messageRegistry;
 
     protected abstract List<PCEPCapability> getCapabilities();
 
     @Before
     public void setUp() {
-        negotiatorFactory = getSessionNegotiatorFactory();
-
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
-
         messageRegistry = extensionProvider.getMessageHandlerRegistry();
         pceDispatcher = new PCEPDispatcherImpl();
     }
@@ -128,7 +124,8 @@ public abstract class PCCMockCommon {
         optimizationsActivator.start(extensionProvider);
 
         final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
-            negotiatorFactory, factory, peerProposal);
+            new CustomPCEPSessionNegotiatorFactory(factory, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
+                getCapabilities(), Uint16.ZERO, null, peerProposal));
         waitFutureSuccess(future);
         return future.channel();
     }
@@ -211,19 +208,15 @@ public abstract class PCCMockCommon {
 
     Future<PCEPSession> createPCCSession(final Uint64 dbVersion) {
         final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(messageRegistry);
-        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, localAddress.getAddress(),
-                0, -1, new HashedWheelTimer(), Optional.empty());
-
-        return pccDispatcher.createClient(remoteAddress, -1, () -> {
+            0, -1, new HashedWheelTimer(), Optional.empty());
+        final PCEPSessionNegotiatorFactory snf = new CustomPCEPSessionNegotiatorFactory(() -> {
             pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
             return pccSessionListener;
-        }, snf, KeyMapping.of(), localAddress, dbVersion);
-    }
+        }, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER), getCapabilities(), Uint16.ZERO, null,
+            new PCCPeerProposal(dbVersion));
 
-    private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
-        return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
-            getCapabilities(), Uint16.ZERO, null);
+        return pccDispatcher.createClient(remoteAddress, -1, snf, KeyMapping.of(), localAddress);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {

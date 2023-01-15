@@ -35,9 +35,6 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
-    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
-        new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
-
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcherImpl pcepDispatcher;
     private InetSocketAddress serverAddress;
@@ -62,12 +59,14 @@ public class PCCDispatcherImplTest {
 
     @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
-        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1,
-            new TestingSessionListenerFactory(), nf, KeyMapping.of(), clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
+        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(slf,
+            new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
 
-        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
-            slf, null);
+        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1, nf, KeyMapping.of(),
+            clientAddress);
+
+        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf);
         futureServer.sync();
         final Channel channel = futureServer.channel();
         assertNotNull(futureSession.get());
@@ -81,8 +80,9 @@ public class PCCDispatcherImplTest {
         pcepDispatcher = new PCEPDispatcherImpl();
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
-            slf2, null);
+        final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry,
+            new DefaultPCEPSessionNegotiatorFactory(slf2, new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)),
+                List.of(), Uint16.ZERO, null));
         future2.sync();
         final Channel channel2 = future2.channel();
         final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2,

@@ -15,7 +15,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
@@ -26,24 +25,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
+public class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessionNegotiatorFactory {
+    private final @NonNull PCEPSessionListenerFactory listenerFactory;
     private final @NonNull PCEPTimerProposal timers;
     private final @NonNull List<PCEPCapability> capabilities;
     private final @NonNull Uint16 maxUnknownMessages;
     private final PcepSessionTls tlsConfiguration;
 
-    public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
-            final Uint16 maxUnknownMessages) {
-        this(timers, capabilities, maxUnknownMessages, null);
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionListenerFactory listenerFactory,
+            final PcepSessionTimers timers, final List<PCEPCapability> capabilities, final Uint16 maxUnknownMessages) {
+        this(listenerFactory, timers, capabilities, maxUnknownMessages, null);
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PcepSessionTimers timers, final List<PCEPCapability> capabilities,
-            final Uint16 maxUnknownMessages, final PcepSessionTls tlsConfiguration) {
-        this(new PCEPTimerProposal(timers), capabilities, maxUnknownMessages, tlsConfiguration);
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionListenerFactory listenerFactory,
+            final PcepSessionTimers timers, final List<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
+            final PcepSessionTls tlsConfiguration) {
+        this(listenerFactory, new PCEPTimerProposal(timers), capabilities, maxUnknownMessages, tlsConfiguration);
     }
 
-    public DefaultPCEPSessionNegotiatorFactory(final PCEPTimerProposal timers, final List<PCEPCapability> capabilities,
-            final Uint16 maxUnknownMessages, final PcepSessionTls tlsConfiguration) {
+    public DefaultPCEPSessionNegotiatorFactory(final PCEPSessionListenerFactory listenerFactory,
+            final PCEPTimerProposal timers, final List<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
+            final PcepSessionTls tlsConfiguration) {
+        this.listenerFactory = requireNonNull(listenerFactory);
         this.timers = requireNonNull(timers);
         this.capabilities = requireNonNull(capabilities);
         this.maxUnknownMessages = requireNonNull(maxUnknownMessages);
@@ -51,9 +54,8 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     }
 
     @Override
-    protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSession> promise, final Channel channel,
-            final Uint8 sessionId, final PCEPSessionListenerFactory listenerFactory,
-            final PCEPPeerProposal peerProposal) {
+    protected final AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSession> promise,
+            final Channel channel, final Uint8 sessionId) {
         final var address = (InetSocketAddress) channel.remoteAddress();
 
         final var builder = new TlvsBuilder();
@@ -61,9 +63,7 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
             capability.setCapabilityProposal(address, builder);
         }
 
-        if (peerProposal != null) {
-            peerProposal.setPeerSpecificProposal(address, builder);
-        }
+        appendPeerSpecificTls(address, builder);
 
         return new DefaultPCEPSessionNegotiator(promise, channel, listenerFactory.getSessionListener(), sessionId,
             new OpenBuilder()
@@ -72,5 +72,9 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
                 .setDeadTimer(timers.deadTimer())
                 .setTlvs(builder.build())
                 .build(), maxUnknownMessages, tlsConfiguration);
+    }
+
+    protected void appendPeerSpecificTls(final @NonNull InetSocketAddress address, final @NonNull TlvsBuilder builder) {
+        // No-op by default
     }
 }
