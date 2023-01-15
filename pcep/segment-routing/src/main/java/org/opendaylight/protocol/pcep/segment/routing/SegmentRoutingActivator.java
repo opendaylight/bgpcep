@@ -15,6 +15,7 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.segment.routing.app.config.rev230115.PcepSegmentRoutingConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapability;
@@ -29,6 +30,11 @@ public class SegmentRoutingActivator implements PCEPExtensionProviderActivator {
 
     public SegmentRoutingActivator() {
         ianaSrSubobjectsType = true;
+    }
+
+    @Deprecated
+    public SegmentRoutingActivator(final PcepSegmentRoutingConfig config) {
+        this(config.requireIanaSrSubobjectsType());
     }
 
     @Deprecated

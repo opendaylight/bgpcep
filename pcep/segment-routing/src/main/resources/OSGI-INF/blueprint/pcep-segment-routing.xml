@@ -22,15 +22,4 @@
 
   <service ref="segmentRoutingActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator"/>
-
-  <!-- Capabilities -->
-
-  <bean id="segmentRoutingCapability" class="org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability">
-    <argument>
-      <bean factory-ref="segmentRoutingConfig" factory-method="getSrCapable"/>
-    </argument>
-  </bean>
-
-  <service ref="segmentRoutingCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
-          odl:type="org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability"/>
 </blueprint>
