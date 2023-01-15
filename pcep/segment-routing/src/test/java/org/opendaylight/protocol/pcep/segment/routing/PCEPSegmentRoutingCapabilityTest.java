@@ -7,25 +7,25 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class PCEPSegmentRoutingCapabilityTest {
-    private static final Tlvs EXPECTED_TLVS =
-        new TlvsBuilder().addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
-                .segment.routing.rev200720.Tlvs1Builder().setSrPceCapability(new SrPceCapabilityBuilder()
-                    .setNFlag(Boolean.FALSE).setXFlag(Boolean.FALSE).setMsd(Uint8.ZERO).build()).build()).build();
-
     @Test
     public void testSegmentRoutingCapability() {
-        final PCEPSegmentRoutingCapability sspf = new PCEPSegmentRoutingCapability(true);
-        Assert.assertTrue(sspf.isSegmentRoutingCapable());
-        final TlvsBuilder builder = new TlvsBuilder();
-        sspf.setCapabilityProposal(null, builder);
-        Assert.assertEquals(EXPECTED_TLVS, builder.build());
+        final var builder = new TlvsBuilder();
+        new PCEPSegmentRoutingCapability().setCapabilityProposal(null, builder);
+        assertEquals(new TlvsBuilder()
+            .addAugmentation(new Tlvs1Builder()
+                .setSrPceCapability(new SrPceCapabilityBuilder()
+                    .setNFlag(Boolean.FALSE).setXFlag(Boolean.FALSE).setMsd(Uint8.ZERO)
+                    .build())
+                .build())
+            .build(), builder.build());
     }
 }
