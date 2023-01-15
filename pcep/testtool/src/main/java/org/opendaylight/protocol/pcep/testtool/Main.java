@@ -10,16 +10,13 @@ package org.opendaylight.protocol.pcep.testtool;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
-import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
@@ -134,15 +131,13 @@ public final class Main {
             LOG.warn("WARNING: The value of DeadTimer should be 4 times the value of KeepAlive.");
         }
 
-        final List<PCEPCapability> caps = new ArrayList<>();
-        caps.add(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false));
-        final PCEPSessionProposalFactory spf = new BasePCEPSessionProposalFactory(deadTimerValue, keepAliveValue, caps);
-
         final MessageRegistry handlerRegistry = ServiceLoader.load(PCEPExtensionConsumerContext.class).findFirst()
             .orElseThrow()
             .getMessageHandlerRegistry();
         final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl();
         dispatcher.createServer(address, KeyMapping.of(), handlerRegistry,
-            new DefaultPCEPSessionNegotiatorFactory(spf, ERROR_POLICY), new TestToolPCEPNegotiatorDependencies()).get();
+            new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAliveValue, deadTimerValue),
+                List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
+                ERROR_POLICY, null), new TestToolPCEPNegotiatorDependencies()).get();
     }
 }

@@ -27,8 +27,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
-import org.opendaylight.protocol.pcep.PCEPSessionProposalFactory;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.MockPcepSessionErrorPolicy;
@@ -39,11 +38,8 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCCDispatcherImplTest {
-
-    private static final PCEPSessionProposalFactory PROPOSAL = new BasePCEPSessionProposalFactory(Uint8.TEN,
-        Uint8.valueOf(40), List.of());
-    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(PROPOSAL,
-        MockPcepSessionErrorPolicy.ZERO);
+    private final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(
+        new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), MockPcepSessionErrorPolicy.ZERO, null);
 
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcherImpl pcepDispatcher;
