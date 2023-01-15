@@ -6,21 +6,14 @@
   terms of the Eclipse Public License v1.0 which accompanies this distribution,
   and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
-    <!--
-         Obtains the specific list of PCEPCapability OSGi services announced via
-         META-INF/services/org.opendaylight.protocol.pcep.PCEPCapability resources.
-     -->
-    <odl:specific-reference-list id="pcepCapabilities" interface="org.opendaylight.protocol.pcep.PCEPCapability"/>
-
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
                interface="org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider"/>
-    <reference id="intructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
+    <reference id="instructionFactory" interface="org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory"/>
     <reference id="pceServerProvider" interface="org.opendaylight.bgpcep.pcep.server.PceServerProvider"/>
 
     <bean id="pcepTopologyTracker"
@@ -32,7 +25,7 @@
         <argument ref="pcepExtensionContext"/>
         <argument ref="pcepCapabilities"/>
         <argument ref="pcepDispatcher"/>
-        <argument ref="intructionFactory"/>
+        <argument ref="instructionFactory"/>
         <argument ref="pceServerProvider"/>
     </bean>
 </blueprint>
