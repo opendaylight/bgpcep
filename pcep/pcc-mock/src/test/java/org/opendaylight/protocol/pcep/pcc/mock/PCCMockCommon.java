@@ -35,6 +35,7 @@ import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
@@ -49,12 +50,14 @@ import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContex
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Pcrpt;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -69,17 +72,13 @@ public abstract class PCCMockCommon {
     PCCSessionListener pccSessionListener;
     private PCEPDispatcherImpl pceDispatcher;
     private final PCEPExtensionProviderContext extensionProvider = new SimplePCEPExtensionProviderContext();
-    private PCEPSessionNegotiatorFactory negotiatorFactory;
     private MessageRegistry messageRegistry;
 
     protected abstract List<PCEPCapability> getCapabilities();
 
     @Before
     public void setUp() {
-        negotiatorFactory = getSessionNegotiatorFactory();
-
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
-
         messageRegistry = extensionProvider.getMessageHandlerRegistry();
         pceDispatcher = new PCEPDispatcherImpl();
     }
@@ -128,7 +127,8 @@ public abstract class PCCMockCommon {
         optimizationsActivator.start(extensionProvider);
 
         final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
-            negotiatorFactory, factory, peerProposal);
+            new CustomPCEPSessionNegotiatorFactory(factory, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
+                getCapabilities(), Uint16.ZERO, null, peerProposal));
         waitFutureSuccess(future);
         return future.channel();
     }
@@ -211,22 +211,36 @@ public abstract class PCCMockCommon {
 
     Future<PCEPSession> createPCCSession(final Uint64 dbVersion) {
         final PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(messageRegistry);
-        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(3, localAddress.getAddress(),
-                0, -1, new HashedWheelTimer(), Optional.empty());
-
-        return pccDispatcher.createClient(remoteAddress, -1, () -> {
+            0, -1, new HashedWheelTimer(), Optional.empty());
+        final PCEPSessionNegotiatorFactory snf = new DefaultPCEPSessionNegotiatorFactory(() -> {
             pccSessionListener = new PCCSessionListener(1, tunnelManager, false);
             return pccSessionListener;
-        }, snf, KeyMapping.of(), localAddress, dbVersion);
-    }
+        }, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER), getCapabilities(), Uint16.ZERO, null);
 
-    private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
-        return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
-            getCapabilities(), Uint16.ZERO, null);
+        return pccDispatcher.createClient(remoteAddress, -1, snf, KeyMapping.of(), localAddress, dbVersion);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
         return checkSessionListenerNotNull(factory, localAddress.getHostString());
+    }
+
+    private static final class CustomPCEPSessionNegotiatorFactory extends DefaultPCEPSessionNegotiatorFactory {
+        private final PCEPPeerProposal peerProposal;
+
+        CustomPCEPSessionNegotiatorFactory(final PCEPSessionListenerFactory listenerFactory,
+                final PCEPTimerProposal timers, final List<PCEPCapability> capabilities,
+                final Uint16 maxUnknownMessages, final PcepSessionTls tlsConfiguration,
+                final PCEPPeerProposal peerProposal) {
+            super(listenerFactory, timers, capabilities, maxUnknownMessages, tlsConfiguration);
+            this.peerProposal = peerProposal;
+        }
+
+        @Override
+        protected void appendPeerSpecificTls(final InetSocketAddress address, final TlvsBuilder builder) {
+            if (peerProposal != null) {
+                peerProposal.setPeerSpecificProposal(address, builder);
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ public final class PCCMock {
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {
         checkArgument(args.length > 0, "Host and port of server must be provided.");
-        final var snf = new DefaultPCEPSessionNegotiatorFactory(
+        final var snf = new DefaultPCEPSessionNegotiatorFactory(SimpleSessionListener::new,
             new PCEPTimerProposal(Uint8.valueOf(30), Uint8.valueOf(120)), List.of(), Uint16.ZERO, null);
         final var serverHostAndPort = HostAndPort.fromString(args[0]);
         final var serverAddr = new InetSocketAddress(serverHostAndPort.getHost(),
@@ -38,8 +38,7 @@ public final class PCCMock {
 
         try (var pccDispatcher = new PCCDispatcherImpl(
                 new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, SimpleSessionListener::new, snf, KeyMapping.of(), clientAddr)
-                .get();
+            pccDispatcher.createClient(serverAddr, -1, snf, KeyMapping.of(), clientAddr).get();
         }
     }
 }
