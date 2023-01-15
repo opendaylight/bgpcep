@@ -15,8 +15,9 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPCapability;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTimers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
@@ -50,13 +51,10 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
     }
 
     @Override
-    protected AbstractPCEPSessionNegotiator createNegotiator(
-            final PCEPSessionNegotiatorFactoryDependencies sessionNegotiatorDependencies,
-            final Promise<PCEPSession> promise,
-            final Channel channel,
-            final Uint8 sessionId) {
+    protected AbstractPCEPSessionNegotiator createNegotiator(final Promise<PCEPSession> promise, final Channel channel,
+            final Uint8 sessionId, final PCEPSessionListenerFactory listenerFactory,
+            final PCEPPeerProposal peerProposal) {
         final var address = (InetSocketAddress) channel.remoteAddress();
-        final var peerProposal = sessionNegotiatorDependencies.getPeerProposal();
 
         final var builder = new TlvsBuilder();
         for (final var capability : capabilities) {
@@ -67,8 +65,8 @@ public final class DefaultPCEPSessionNegotiatorFactory extends AbstractPCEPSessi
             peerProposal.setPeerSpecificProposal(address, builder);
         }
 
-        return new DefaultPCEPSessionNegotiator(promise, channel,
-            sessionNegotiatorDependencies.getListenerFactory().getSessionListener(), sessionId, new OpenBuilder()
+        return new DefaultPCEPSessionNegotiator(promise, channel, listenerFactory.getSessionListener(), sessionId,
+            new OpenBuilder()
                 .setSessionId(sessionId)
                 .setKeepalive(timers.keepAlive())
                 .setDeadTimer(timers.deadTimer())

@@ -39,9 +39,10 @@ import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
+import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
+import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -110,14 +111,14 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress listenAddress,
             final KeyMapping tcpKeys, final MessageRegistry registry,
-            final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies) {
+            final PCEPSessionNegotiatorFactory negotiatorFactory, final PCEPSessionListenerFactory listenerFactory,
+            final PCEPPeerProposal peerProposal) {
         final var hf = new PCEPHandlerFactory(registry);
 
         final ChannelPipelineInitializer initializer = (ch, promise) -> {
             ch.pipeline().addLast(hf.getDecoders());
             ch.pipeline().addLast("negotiator",
-                negotiatorFactory.getSessionNegotiator(negotiatorDependencies, ch, promise));
+                negotiatorFactory.getSessionNegotiator(ch, promise, listenerFactory, peerProposal));
             ch.pipeline().addLast(hf.getEncoders());
         };
 

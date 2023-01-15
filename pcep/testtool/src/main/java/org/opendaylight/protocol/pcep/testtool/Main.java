@@ -127,6 +127,6 @@ public final class Main {
         dispatcher.createServer(address, KeyMapping.of(), handlerRegistry,
             new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAliveValue, deadTimerValue),
                 List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
-                maxUnknownMessages, null), new TestToolPCEPNegotiatorDependencies()).get();
+                maxUnknownMessages, null), new TestingSessionListenerFactory(), null).get();
     }
 }

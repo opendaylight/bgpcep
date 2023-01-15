@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 
 import io.netty.channel.Channel;
@@ -21,12 +20,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -47,9 +44,6 @@ public class PCCDispatcherImplTest {
     private InetSocketAddress clientAddress;
     private MessageRegistry registry;
 
-    @Mock
-    PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies;
-
     @Before
     public void setUp() {
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
@@ -58,7 +52,6 @@ public class PCCDispatcherImplTest {
         pcepDispatcher = new PCEPDispatcherImpl();
         serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
-        doReturn(null).when(negotiatorDependencies).getPeerProposal();
     }
 
     @After
@@ -72,10 +65,9 @@ public class PCCDispatcherImplTest {
         final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1,
             new TestingSessionListenerFactory(), nf, KeyMapping.of(), clientAddress);
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
-        doReturn(slf).when(negotiatorDependencies).getListenerFactory();
 
         final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
-            negotiatorDependencies);
+            slf, null);
         futureServer.sync();
         final Channel channel = futureServer.channel();
         assertNotNull(futureSession.get());
@@ -89,9 +81,8 @@ public class PCCDispatcherImplTest {
         pcepDispatcher = new PCEPDispatcherImpl();
 
         final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        doReturn(slf2).when(negotiatorDependencies).getListenerFactory();
         final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf,
-            negotiatorDependencies);
+            slf2, null);
         future2.sync();
         final Channel channel2 = future2.channel();
         final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2,
