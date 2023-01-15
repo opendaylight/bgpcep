@@ -6,6 +6,7 @@ module odl-pcep-stats-provider {
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2022-07-30; }
+    import yang-ext { prefix ext; revision-date 2013-07-09; }
 
     description
         "This module contains the base YANG definitions for
@@ -28,6 +29,8 @@ module odl-pcep-stats-provider {
     }
 
     augment "/nt:network-topology/nt:topology/nt:topology-types/pn:topology-pcep" {
+        ext:augment-identifier pcep-topology-node-stats-provider-aug;
+
         leaf timer {
             type uint16 {
                 range 1..max;
