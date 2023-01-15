@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -21,7 +19,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
@@ -38,8 +35,7 @@ final class PCCsBuilder {
     private final int pccCount;
     private final InetSocketAddress localAddress;
     private final List<InetSocketAddress> remoteAddress;
-    private final Uint8 keepAlive;
-    private final Uint8 deadTimer;
+    private final PCEPTimerProposal timers;
     private final String password;
     private final long reconnectTime;
     private final int redelegationTimeout;
@@ -58,14 +54,12 @@ final class PCCsBuilder {
         this.pccCount = pccCount;
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
-        this.keepAlive = requireNonNull(keepAlive);
-        this.deadTimer = requireNonNull(deadTimer);
         this.password = password;
         this.reconnectTime = reconnectTime;
         this.redelegationTimeout = redelegationTimeout;
         this.stateTimeout = stateTimeout;
         this.pcepCapabilities = pcepCapabilities;
-
+        timers = new PCEPTimerProposal(keepAlive, deadTimer);
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
     }
 
@@ -87,17 +81,13 @@ final class PCCsBuilder {
 
     private void createPCC(final PCCDispatcherImpl pccDispatcher, final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
-        final PCEPSessionNegotiatorFactory snf = getSessionNegotiatorFactory();
         for (final InetSocketAddress pceAddress : remoteAddress) {
             pccDispatcher.createClient(pceAddress, reconnectTime,
-                () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError), snf,
-                    password == null ? KeyMapping.of() : KeyMapping.of(pceAddress.getAddress(), password),
-                        plocalAddress, initialDBVersion);
+                new DefaultPCEPSessionNegotiatorFactory(
+                    () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError),
+                    timers, List.of(pcepCapabilities), Uint16.ZERO, null),
+                password == null ? KeyMapping.of() : KeyMapping.of(pceAddress.getAddress(), password),
+                plocalAddress, initialDBVersion);
         }
-    }
-
-    private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
-        return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAlive, deadTimer),
-            List.of(pcepCapabilities), Uint16.ZERO, null);
     }
 }

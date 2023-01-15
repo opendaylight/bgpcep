@@ -124,9 +124,10 @@ public final class Main {
             .orElseThrow()
             .getMessageHandlerRegistry();
         final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl();
-        dispatcher.createServer(address, KeyMapping.of(), handlerRegistry,
-            new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(keepAliveValue, deadTimerValue),
-                List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
-                maxUnknownMessages, null), new TestingSessionListenerFactory(), null).get();
+        dispatcher.createServer(address, KeyMapping.of(), handlerRegistry, new DefaultPCEPSessionNegotiatorFactory(
+            new TestingSessionListenerFactory(),
+            new PCEPTimerProposal(keepAliveValue, deadTimerValue),
+            List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
+            maxUnknownMessages, null)).get();
     }
 }
