@@ -24,10 +24,11 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev220730.TopologyPcep1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep.stats.provider.config.rev230115.network.topology.topology.topology.types.topology.pcep.Capabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology; 
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.concepts.Immutable;
@@ -42,12 +43,15 @@ final class PCEPTopologyConfiguration implements Immutable {
     private final @NonNull PCEPTimerProposal timerProposal;
     private final @NonNull Uint16 maxUnknownMessages;
     private final @Nullable PcepSessionTls tls;
+    private final @Nullable Capabilities capabilities;
     private final long updateIntervalNanos;
     private final short rpcTimeout;
 
+
     PCEPTopologyConfiguration(final InetSocketAddress address, final KeyMapping keys, final GraphKey graphKey,
             final short rpcTimeout, final long updateIntervalNanos, final PCEPTimerProposal timerProposal,
-            final Uint16 maxUnknownMessages, final @Nullable PcepSessionTls tls) {
+            final Uint16 maxUnknownMessages, final @Nullable PcepSessionTls tls,
+            final @Nullable Capabilities capabilities) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
         this.graphKey = requireNonNull(graphKey);
@@ -56,6 +60,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         this.timerProposal = requireNonNull(timerProposal);
         this.maxUnknownMessages = requireNonNull(maxUnknownMessages);
         this.tls = tls;
+        this.capabilities = capabilities;
     }
 
     static @Nullable PCEPTopologyConfiguration of(final @NonNull Topology topology) {
@@ -80,11 +85,14 @@ final class PCEPTopologyConfiguration implements Immutable {
         final long updateInterval = updateAug != null ? TimeUnit.SECONDS.toNanos(updateAug.requireTimer().toJava())
             : DEFAULT_UPDATE_INTERVAL;
 
+        final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
+        
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
             constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
             sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
-            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
+            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls(),
+            capabilityAug != capabilityAug. null ? null : ca);
     }
 
     short getRpcTimeout() {
@@ -117,6 +125,10 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     @Nullable PcepSessionTls getTls() {
         return tls;
+    }
+
+    @Nullable Capabilities getCapabilities() {
+        return capabilities;
     }
 
     private static @NonNull KeyMapping constructKeys(final @Nullable Map<NodeKey, Node> nodes) {
