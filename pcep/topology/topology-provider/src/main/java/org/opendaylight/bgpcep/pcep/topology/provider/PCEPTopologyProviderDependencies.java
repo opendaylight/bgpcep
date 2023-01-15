@@ -8,13 +8,11 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import io.netty.util.Timer;
-import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.pcep.MessageRegistry;
-import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 
 /**
@@ -28,13 +26,6 @@ interface PCEPTopologyProviderDependencies {
      * @return message registry
      */
     MessageRegistry getMessageRegistry();
-
-    /**
-     * Returns list containing PCEP Capabilities.
-     *
-     * @return PCEPCapabilities
-     */
-    List<PCEPCapability> getCapabilities();
 
     /**
      * PCEP Dispatcher.
