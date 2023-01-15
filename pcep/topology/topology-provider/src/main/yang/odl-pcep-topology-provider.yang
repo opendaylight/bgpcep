@@ -4,7 +4,7 @@ module odl-pcep-topology-provider {
 
     import network-topology { prefix nt; }
     import network-topology-pcep { prefix pn; }
-    import pcep-ietf-stateful-app-config { prefix opisc; }
+    import odl-pcep-ietf-stateful-config { prefix opisc; }
 
     description
         "This module contains the base YANG definitions for configuring
