@@ -14,7 +14,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.DefaultPCEPExtensionConsumerContext;
@@ -42,8 +42,8 @@ public final class PCCMock {
 
     public static void main(final String[] args) throws InterruptedException, ExecutionException {
         checkArgument(args.length > 0, "Host and port of server must be provided.");
-        final var proposal = new BasePCEPSessionProposalFactory(Uint8.valueOf(120), Uint8.valueOf(30), List.of());
-        final var snf = new DefaultPCEPSessionNegotiatorFactory(proposal, ERROR_POLICY);
+        final var snf = new DefaultPCEPSessionNegotiatorFactory(
+            new PCEPTimerProposal(Uint8.valueOf(30), Uint8.valueOf(120)), List.of(), ERROR_POLICY, null);
         final var serverHostAndPort = HostAndPort.fromString(args[0]);
         final var serverAddr = new InetSocketAddress(serverHostAndPort.getHost(),
             serverHostAndPort.getPortOrDefault(12345));

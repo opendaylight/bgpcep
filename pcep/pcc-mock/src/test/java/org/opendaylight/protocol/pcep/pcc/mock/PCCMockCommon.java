@@ -38,8 +38,8 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
+import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
-import org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
@@ -78,9 +78,7 @@ public abstract class PCCMockCommon {
 
     @Before
     public void setUp() {
-        negotiatorFactory = new DefaultPCEPSessionNegotiatorFactory(
-            new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE, getCapabilities()),
-            MockPcepSessionErrorPolicy.ZERO);
+        negotiatorFactory = getSessionNegotiatorFactory();
 
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
 
@@ -226,8 +224,8 @@ public abstract class PCCMockCommon {
     }
 
     private PCEPSessionNegotiatorFactory getSessionNegotiatorFactory() {
-        return new DefaultPCEPSessionNegotiatorFactory(new BasePCEPSessionProposalFactory(DEAD_TIMER, KEEP_ALIVE,
-                getCapabilities()), MockPcepSessionErrorPolicy.ZERO);
+        return new DefaultPCEPSessionNegotiatorFactory(new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
+            getCapabilities(), MockPcepSessionErrorPolicy.ZERO, null);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {

@@ -17,18 +17,12 @@
   <odl:clustered-app-config id="pcepSessionConfig"
       binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepSessionConfig"/>
 
-  <bean id="sessionProposalFactory" class="org.opendaylight.protocol.pcep.impl.BasePCEPSessionProposalFactory">
-    <argument ref="pcepSessionConfig"/>
-    <argument ref="pcepCapabilities"/>
-  </bean>
-
-  <service ref="sessionProposalFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionProposalFactory"/>
-
   <odl:clustered-app-config id="pcepDispatcherConfig"
       binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.app.config.rev160707.PcepDispatcherConfig"/>
 
   <bean id="pcepSessionNegotiatorFactory" class="org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory">
-    <argument ref="sessionProposalFactory"/>
+    <argument ref="pcepSessionConfig"/>
+    <argument ref="pcepCapabilities"/>
     <argument ref="pcepDispatcherConfig"/>
   </bean>
 
