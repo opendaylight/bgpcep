@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
 /**
@@ -23,10 +24,11 @@ public interface PCEPDispatcher {
      * @param tcpKeys RFC2385 TCP-MD5 keys
      * @param registry a message registry
      * @param negotiatorFactory a negotiation factory
-     * @param negotiatorDependencies PCEPSessionNegotiatorFactoryDependencies
+     * @param listenerFactory {@link PCEPSessionListenerFactory} to create listeners for clients
+     * @param peerProposal optional information used in our Open message
      * @return A future completing when the PCEP server is created
      */
     @NonNull ChannelFuture createServer(@NonNull InetSocketAddress listenAddress, @NonNull KeyMapping tcpKeys,
         @NonNull MessageRegistry registry, @NonNull PCEPSessionNegotiatorFactory negotiatorFactory,
-        @NonNull PCEPSessionNegotiatorFactoryDependencies negotiatorDependencies);
+        @NonNull PCEPSessionListenerFactory listenerFactory, @Nullable PCEPPeerProposal peerProposal);
 }

@@ -28,11 +28,9 @@ import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
-import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
-import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactoryDependencies;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -84,18 +82,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
             @Override
             protected void initChannel(final SocketChannel ch) {
                 ch.pipeline().addLast(factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(
-                        new PCEPSessionNegotiatorFactoryDependencies() {
-                            @Override
-                            public PCEPSessionListenerFactory getListenerFactory() {
-                                return listenerFactory;
-                            }
-
-                            @Override
-                            public PCEPPeerProposal getPeerProposal() {
-                                return new PCCPeerProposal(dbVersion);
-                            }
-                        }, ch, promise));
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise, listenerFactory,
+                    new PCCPeerProposal(dbVersion)));
                 ch.pipeline().addLast(factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
