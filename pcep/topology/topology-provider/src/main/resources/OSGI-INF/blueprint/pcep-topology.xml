@@ -10,7 +10,6 @@
     <reference id="dataBroker" interface="org.opendaylight.mdsal.binding.api.DataBroker"/>
     <reference id="rpcProviderService" interface="org.opendaylight.mdsal.binding.api.RpcProviderService"/>
     <reference id="pcepExtensionContext" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext"/>
-    <reference id="sessionProposalFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionProposalFactory"/>
     <reference id="sessionNegotiatorFactory" interface="org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory"/>
     <reference id="pcepDispatcher" interface="org.opendaylight.protocol.pcep.PCEPDispatcher"/>
     <reference id="clusterSingletonServiceProvider"
@@ -25,7 +24,6 @@
         <argument ref="clusterSingletonServiceProvider"/>
         <argument ref="rpcProviderService"/>
         <argument ref="pcepExtensionContext"/>
-        <argument ref="sessionProposalFactory"/>
         <argument ref="sessionNegotiatorFactory"/>
         <argument ref="pcepDispatcher"/>
         <argument ref="intructionFactory"/>
