@@ -10,27 +10,14 @@
            xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0">
 
   <odl:clustered-app-config id="segmentRoutingConfig"
-      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.segment.routing.app.config.rev160707.PcepSegmentRoutingConfig"/>
+      binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.segment.routing.app.config.rev230115.PcepSegmentRoutingConfig"/>
 
   <!-- Protocal extension provider -->
 
   <bean id="segmentRoutingActivator" class="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator">
-    <argument>
-      <bean factory-ref="segmentRoutingConfig" factory-method="getIanaSrSubobjectsType"/>
-    </argument>
+    <argument ref="segmentRoutingConfig"/>
   </bean>
 
   <service ref="segmentRoutingActivator" interface="org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator"
           odl:type="org.opendaylight.protocol.pcep.segment.routing.SegmentRoutingActivator"/>
-
-  <!-- Capabilities -->
-
-  <bean id="segmentRoutingCapability" class="org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability">
-    <argument>
-      <bean factory-ref="segmentRoutingConfig" factory-method="getSrCapable"/>
-    </argument>
-  </bean>
-
-  <service ref="segmentRoutingCapability" interface="org.opendaylight.protocol.pcep.PCEPCapability"
-          odl:type="org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability"/>
 </blueprint>
