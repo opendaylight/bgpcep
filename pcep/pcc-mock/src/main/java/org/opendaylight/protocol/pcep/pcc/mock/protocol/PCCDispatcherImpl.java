@@ -29,7 +29,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPHandlerFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCDispatcher;
@@ -57,17 +56,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
 
     @Override
     public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final KeyMapping keys, final InetSocketAddress localAddress) {
-        return createClient(remoteAddress, reconnectTime, listenerFactory, negotiatorFactory, keys, localAddress,
-            Uint64.ONE);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Future<PCEPSession> createClient(final InetSocketAddress remoteAddress, final long reconnectTime,
-            final PCEPSessionListenerFactory listenerFactory, final PCEPSessionNegotiatorFactory negotiatorFactory,
-            final KeyMapping keys, final InetSocketAddress localAddress, final Uint64 dbVersion) {
+            final PCEPSessionNegotiatorFactory negotiatorFactory, final KeyMapping keys,
+            final InetSocketAddress localAddress, final Uint64 dbVersion) {
         final Bootstrap b = new Bootstrap();
         b.group(workerGroup);
         b.localAddress(localAddress);
@@ -82,8 +72,9 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
             @Override
             protected void initChannel(final SocketChannel ch) {
                 ch.pipeline().addLast(factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise, listenerFactory,
-                    new PCCPeerProposal(dbVersion)));
+                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise)
+                    // FIXME: new PCCPeerProposal(dbVersion))
+                );
                 ch.pipeline().addLast(factory.getEncoders());
                 ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                     @Override
@@ -97,14 +88,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
                             return;
                         }
                         LOG.debug("Reconnecting after connection to {} was dropped", remoteAddress);
-                        PCCDispatcherImpl.this.createClient(
-                                remoteAddress,
-                                reconnectTime,
-                                listenerFactory,
-                                negotiatorFactory,
-                                keys,
-                                localAddress,
-                                dbVersion);
+                        createClient(remoteAddress, reconnectTime, negotiatorFactory, keys, localAddress, dbVersion);
                     }
                 });
             }
