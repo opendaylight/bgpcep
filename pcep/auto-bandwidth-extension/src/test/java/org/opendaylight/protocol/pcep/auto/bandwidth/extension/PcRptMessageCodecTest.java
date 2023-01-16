@@ -61,7 +61,7 @@ public class PcRptMessageCodecTest {
     public void setUp() {
         new BaseParserExtensionActivator().start(ctx);
         new StatefulActivator().start(ctx);
-        new org.opendaylight.protocol.pcep.auto.bandwidth.extension.Activator().start(ctx);
+        new org.opendaylight.protocol.pcep.auto.bandwidth.extension.AutoBandwidthActivator().start(ctx);
     }
 
     @Test
