@@ -169,6 +169,17 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
             return;
         }
 
+        // FIXME: can we apply this less aggressively to just routing it through manager to the negotiator factory?
+        final var currentCapabilities = currentConfig.getCapabilities();
+        final var newCapabilities = newConfiguration.getCapabilities();
+        if (!currentCapabilities.equals(newCapabilities)) {
+            LOG.info("Topology Provider {} capabilities changed from {} to {}, restarting", topologyId(),
+                currentCapabilities, newCapabilities);
+            applyConfiguration(null);
+            applyConfiguration(newConfiguration);
+            return;
+        }
+
         // TCP-MD5 configuration is propagated from the server channel to individual channels. For any node that has
         // changed this configuration we need to tear down any existing session.
         final var currentKeys = currentConfig.getKeys().asMap();
