@@ -14,7 +14,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Stores usability for available capabilities.
  */
 public interface PCEPCapability {
-
     /**
      * Sets stateful capabilities tlv in incoming builder.
      *
@@ -22,11 +21,4 @@ public interface PCEPCapability {
      * @param builder for TLVs included in PCEPOpenObject
      */
     void setCapabilityProposal(InetSocketAddress address, TlvsBuilder builder);
-
-    /**
-     * Returs stateful capability state.
-     *
-     * @return true if capability is present
-     */
-    boolean isStateful();
 }

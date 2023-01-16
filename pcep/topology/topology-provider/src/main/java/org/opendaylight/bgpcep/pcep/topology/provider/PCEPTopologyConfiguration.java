@@ -89,7 +89,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         }
         final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
         final var capabilities = capabilityAug != null ? capabilityAug.getCapabilities() : null;
-        if (capabilities != null && !capabilities.nonnullStateful().requireStateful()) {
+        if (capabilities != null && !capabilities.nonnullStateful().requireEnabled()) {
             return null;
         }
 
