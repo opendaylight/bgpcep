@@ -30,11 +30,6 @@ public class PCEPSegmentRoutingCapability implements PCEPCapability {
     }
 
     @Override
-    public boolean isStateful() {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper(this).toString();
     }

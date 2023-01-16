@@ -10,8 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import static org.junit.Assert.assertNotNull;
 
 import io.netty.channel.Channel;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -34,14 +32,14 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
     @Test
     public void testSessionTriggeredSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
-        final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
+        final Channel channel = createServer(factory, remoteAddress, new PCCPeerProposal());
         final Uint64 numberOflspAndDBv = Uint64.valueOf(3);
         final PCEPSession session = createPCCSession(numberOflspAndDBv).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
         assertNotNull(pceSessionListener);
         checkSynchronizedSession(0, pceSessionListener, Uint64.ZERO);
-        this.pccSessionListener.onMessage(session, createTriggerMsg());
+        pccSessionListener.onMessage(session, createTriggerMsg());
         checkSynchronizedSession(3, pceSessionListener, numberOflspAndDBv);
         channel.close().get();
     }
@@ -57,15 +55,13 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
                 .setLsp(new LspBuilder().setPlspId(new PlspId(Uint32.ZERO)).setSync(Boolean.TRUE).build())
                 .setPath(new PathBuilder().build());
         final PcupdMessageBuilder ub = new PcupdMessageBuilder();
-        ub.setUpdates(Collections.singletonList(rb.build()));
+        ub.setUpdates(List.of(rb.build()));
         return new PcupdBuilder().setPcupdMessage(ub.build()).build();
     }
 
     @Override
     protected List<PCEPCapability> getCapabilities() {
-        final List<PCEPCapability> caps = new ArrayList<>();
-        caps.add(new PCEPStatefulCapability(true, true, true, true, false, false, true));
-        return caps;
+        return List.of(new PCEPStatefulCapability(true, true, true, false, false, true));
     }
 }
 
