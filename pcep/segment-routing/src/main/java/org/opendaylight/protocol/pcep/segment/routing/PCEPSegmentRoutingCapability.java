@@ -7,17 +7,25 @@
  */
 package org.opendaylight.protocol.pcep.segment.routing;
 
-import com.google.common.base.MoreObjects;
 import java.net.InetSocketAddress;
-import org.kohsuke.MetaInfServices;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@MetaInfServices
-public class PCEPSegmentRoutingCapability implements PCEPCapability {
+public final class PCEPSegmentRoutingCapability extends PCEPCapability {
+    private static final @NonNull PCEPSegmentRoutingCapability INSTANCE = new PCEPSegmentRoutingCapability();
+
+    private PCEPSegmentRoutingCapability() {
+        // Hidden on purpose
+    }
+
+    public static @NonNull PCEPSegmentRoutingCapability of() {
+        return INSTANCE;
+    }
+
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         builder.addAugmentation(new Tlvs1Builder()
@@ -30,7 +38,12 @@ public class PCEPSegmentRoutingCapability implements PCEPCapability {
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).toString();
+    public int hashCode() {
+        return 1;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj;
     }
 }

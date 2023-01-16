@@ -19,7 +19,7 @@ public class PCEPSegmentRoutingCapabilityTest {
     @Test
     public void testSegmentRoutingCapability() {
         final var builder = new TlvsBuilder();
-        new PCEPSegmentRoutingCapability().setCapabilityProposal(null, builder);
+        PCEPSegmentRoutingCapability.of().setCapabilityProposal(null, builder);
         assertEquals(new TlvsBuilder()
             .addAugmentation(new Tlvs1Builder()
                 .setSrPceCapability(new SrPceCapabilityBuilder()
