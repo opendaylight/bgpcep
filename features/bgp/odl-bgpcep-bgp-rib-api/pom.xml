@@ -57,7 +57,7 @@
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>odl-mdsal-binding-runtime-api</artifactId>
+            <artifactId>odl-mdsal-binding-runtime</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
