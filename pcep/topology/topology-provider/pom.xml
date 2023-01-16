@@ -39,6 +39,10 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-segment-routing</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-topology-api</artifactId>
         </dependency>
         <dependency>

@@ -117,17 +117,6 @@
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-topology-provider</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-topology-provider</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
