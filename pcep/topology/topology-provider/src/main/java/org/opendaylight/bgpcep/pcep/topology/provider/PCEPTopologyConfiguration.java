@@ -111,10 +111,10 @@ final class PCEPTopologyConfiguration implements Immutable {
 
         final var builder = ImmutableList.<PCEPCapability>builder()
             .add(new PCEPStatefulCapability(capabilities.nonnullStateful()));
-        if (capabilities.requireP2mp()) {
+        if (capabilities.nonnullP2mp().requireEnabled()) {
             builder.add(P2MPTeLspCapability.of());
         }
-        if (capabilities.requireSegmentRouting()) {
+        if (capabilities.nonnullSegmentRouting().requireEnabled()) {
             builder.add(PCEPSegmentRoutingCapability.of());
         }
         return builder.build();
