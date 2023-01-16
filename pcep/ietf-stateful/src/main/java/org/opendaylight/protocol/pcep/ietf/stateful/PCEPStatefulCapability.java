@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful;
 
+import com.google.common.base.MoreObjects.ToStringHelper;
 import java.net.InetSocketAddress;
-import org.kohsuke.MetaInfServices;
+import java.util.Arrays;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.config.rev230115.StatefulCapabilities;
@@ -16,10 +17,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
-@MetaInfServices
-public final class PCEPStatefulCapability implements PCEPCapability {
+public final class PCEPStatefulCapability extends PCEPCapability {
     private final boolean active;
-    private final boolean intiated;
+    private final boolean initiated;
     private final boolean triggeredSync;
     private final boolean triggeredResync;
     private final boolean deltaLspSync;
@@ -32,7 +32,7 @@ public final class PCEPStatefulCapability implements PCEPCapability {
     public PCEPStatefulCapability(final boolean active, final boolean initiated, final boolean triggeredSync,
             final boolean triggeredResync, final boolean deltaLspSync, final boolean includeDbVersion) {
         this.active = active;
-        intiated = initiated;
+        this.initiated = initiated;
         this.triggeredSync = triggeredSync;
         this.triggeredResync = triggeredResync;
         this.deltaLspSync = deltaLspSync;
@@ -48,7 +48,7 @@ public final class PCEPStatefulCapability implements PCEPCapability {
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         builder.addAugmentation(new Tlvs1Builder()
             .setStateful(new StatefulBuilder().setLspUpdateCapability(active)
-                .addAugmentation(new Stateful1Builder().setInitiation(intiated).build())
+                .addAugmentation(new Stateful1Builder().setInitiation(initiated).build())
                 .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
                     .pcep.sync.optimizations.rev200720.Stateful1Builder()
                     .setTriggeredInitialSync(triggeredSync)
@@ -65,7 +65,7 @@ public final class PCEPStatefulCapability implements PCEPCapability {
     }
 
     public boolean isInstant() {
-        return intiated;
+        return initiated;
     }
 
     public boolean isTriggeredSync() {
@@ -82,5 +82,42 @@ public final class PCEPStatefulCapability implements PCEPCapability {
 
     public boolean isIncludeDbVersion() {
         return includeDbVersion;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(
+            new boolean[] { active, initiated, triggeredSync, triggeredResync, deltaLspSync, includeDbVersion });
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj instanceof PCEPStatefulCapability other && active == other.active
+            && initiated == other.initiated && triggeredSync == other.triggeredSync
+            && triggeredResync == other.triggeredResync && deltaLspSync == other.deltaLspSync
+            && includeDbVersion == other.includeDbVersion;
+    }
+
+    @Override
+    protected ToStringHelper addToStringAttributes(final ToStringHelper helper) {
+        if (active) {
+            helper.addValue("active");
+        }
+        if (initiated) {
+            helper.addValue("initiated");
+        }
+        if (triggeredSync) {
+            helper.addValue("triggeredSync");
+        }
+        if (triggeredResync) {
+            helper.addValue("triggeredResync");
+        }
+        if (deltaLspSync) {
+            helper.addValue("deltaLspSync");
+        }
+        if (includeDbVersion) {
+            helper.addValue("includeDbVersion");
+        }
+        return helper;
     }
 }
