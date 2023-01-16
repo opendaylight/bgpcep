@@ -10,31 +10,51 @@ package org.opendaylight.protocol.pcep.segment.routing;
 import com.google.common.base.MoreObjects;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.segment.routing.app.config.rev230115.PcepSegmentRoutingConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+@Singleton
 @MetaInfServices
+@Component(immediate = true)
+@Designate(ocd = SegmentRoutingActivator.Configuration.class)
 public class SegmentRoutingActivator implements PCEPExtensionProviderActivator {
     @Deprecated
-    private final boolean ianaSrSubobjectsType;
-
-    public SegmentRoutingActivator() {
-        ianaSrSubobjectsType = true;
+    @ObjectClassDefinition(description = "Configuration parameters for SegmentRoutingActivator")
+    public @interface Configuration {
+        @AttributeDefinition(description = """
+            If true (default) IANA Types for SR-ERO type (=36) and SR-RRO type (=36) are used, else historical types
+            (5 & 6) are used for parsing/serialization.
+            """)
+        boolean ianaSrSubobjectsType() default true;
     }
 
     @Deprecated
-    public SegmentRoutingActivator(final PcepSegmentRoutingConfig config) {
-        this(config.requireIanaSrSubobjectsType());
+    private final boolean ianaSrSubobjectsType;
+
+    @Inject
+    public SegmentRoutingActivator() {
+        this(true);
+    }
+
+    @Activate
+    public SegmentRoutingActivator(final Configuration config) {
+        this(config.ianaSrSubobjectsType());
     }
 
     @Deprecated
