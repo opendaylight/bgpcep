@@ -7,16 +7,24 @@
  */
 package org.opendaylight.protocol.pcep.p2mp.te.lsp;
 
-import com.google.common.base.MoreObjects;
 import java.net.InetSocketAddress;
-import org.kohsuke.MetaInfServices;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181109.TlvsP2mpCapabilityAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.p2mp.te.lsp.rev181109.p2mp.pce.capability.tlv.P2mpPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
-@MetaInfServices
-public final class P2MPTeLspCapability implements PCEPCapability {
+public final class P2MPTeLspCapability extends PCEPCapability {
+    private static final @NonNull P2MPTeLspCapability INSTANCE = new P2MPTeLspCapability();
+
+    private P2MPTeLspCapability() {
+        // Hidden on purpose
+    }
+
+    public static @NonNull P2MPTeLspCapability of() {
+        return INSTANCE;
+    }
+
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         builder.addAugmentation(new TlvsP2mpCapabilityAugBuilder()
@@ -25,7 +33,12 @@ public final class P2MPTeLspCapability implements PCEPCapability {
     }
 
     @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this).toString();
+    public int hashCode() {
+        return 2;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj;
     }
 }
