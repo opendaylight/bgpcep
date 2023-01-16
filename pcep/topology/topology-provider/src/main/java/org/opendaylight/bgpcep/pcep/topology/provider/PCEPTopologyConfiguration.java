@@ -43,7 +43,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 final class PCEPTopologyConfiguration implements Immutable {
     private static final long DEFAULT_UPDATE_INTERVAL = TimeUnit.SECONDS.toNanos(5);
     private static final @NonNull ImmutableList<PCEPCapability> DEFAULT_CAPABILITIES = ImmutableList.of(
-        new PCEPStatefulCapability(), new P2MPTeLspCapability(), new PCEPSegmentRoutingCapability());
+        new PCEPStatefulCapability(), P2MPTeLspCapability.of(), PCEPSegmentRoutingCapability.of());
 
     private final @NonNull InetSocketAddress address;
     private final @NonNull GraphKey graphKey;
@@ -112,10 +112,10 @@ final class PCEPTopologyConfiguration implements Immutable {
         final var builder = ImmutableList.<PCEPCapability>builder()
             .add(new PCEPStatefulCapability(capabilities.nonnullStateful()));
         if (capabilities.requireP2mp()) {
-            builder.add(new P2MPTeLspCapability());
+            builder.add(P2MPTeLspCapability.of());
         }
         if (capabilities.requireSegmentRouting()) {
-            builder.add(new PCEPSegmentRoutingCapability());
+            builder.add(PCEPSegmentRoutingCapability.of());
         }
         return builder.build();
     }
