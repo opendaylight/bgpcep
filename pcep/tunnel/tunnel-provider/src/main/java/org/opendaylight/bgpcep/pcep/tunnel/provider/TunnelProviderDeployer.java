@@ -32,35 +32,49 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component(service = { })
 public final class TunnelProviderDeployer implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(TunnelProviderDeployer.class);
-
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
+
     private final TunnelProviderDependencies dependencies;
-    private final InstanceIdentifier<Topology> networTopology;
+    private final InstanceIdentifier<Topology> networkTopology;
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTunnelClusterSingletonService> pcepTunnelServices = new HashMap<>();
-    @GuardedBy("this")
-    private ListenerRegistration<TunnelProviderDeployer> listenerRegistration;
+    private final Registration reg;
 
-    public TunnelProviderDeployer(
-            final DataBroker dataBroker,
-            final RpcProviderService rpcProviderRegistry,
-            final RpcConsumerRegistry rpcConsumerRegistry,
-            final BundleContext bundleContext,
-            final ClusterSingletonServiceProvider cssp
-    ) {
-        LOG.info("Creating Tunnel Provider Deployer");
-        this.dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcConsumerRegistry,
+    @Activate
+    public TunnelProviderDeployer(@Reference final DataBroker dataBroker,
+            @Reference final RpcProviderService rpcProviderRegistry,
+            @Reference final RpcConsumerRegistry rpcConsumerRegistry,
+            @Reference final ClusterSingletonServiceProvider cssp,
+            // FIXME: do not reference BundleContext in an alternative constructor
+            final BundleContext bundleContext) {
+        dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcConsumerRegistry,
                 bundleContext);
-        this.networTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
+        networkTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
+        reg = dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(CONFIGURATION, networkTopology), this);
+        LOG.info("Tunnel Provider Deployer created");
+    }
+
+    @Deactivate
+    @Override
+    public synchronized void close() {
+        reg.close();
+        pcepTunnelServices.values().iterator().forEachRemaining(PCEPTunnelClusterSingletonService::close);
+        pcepTunnelServices.clear();
+        LOG.info("Tunnel Provider Deployer closed");
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -73,12 +87,6 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             }
             topology.close();
         }
-    }
-
-    public synchronized void init() {
-        LOG.info("Instantiate tunnel topology deployer");
-        this.listenerRegistration = this.dependencies.getDataBroker().registerDataTreeChangeListener(
-                DataTreeIdentifier.create(CONFIGURATION, this.networTopology), this);
     }
 
     @Override
@@ -118,7 +126,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             return;
         }
         final TopologyId topologyId = topology.getTopologyId();
-        if (this.pcepTunnelServices.containsKey(topology.getTopologyId())) {
+        if (pcepTunnelServices.containsKey(topology.getTopologyId())) {
             LOG.warn("Tunnel Topology {} already exist. New instance won't be created", topologyId);
             return;
         }
@@ -132,8 +140,8 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
 
 
         final PCEPTunnelClusterSingletonService tunnelTopoCss =
-                new PCEPTunnelClusterSingletonService(this.dependencies, pcepTopoRef, topologyId);
-        this.pcepTunnelServices.put(topology.getTopologyId(), tunnelTopoCss);
+                new PCEPTunnelClusterSingletonService(dependencies, pcepTopoRef, topologyId);
+        pcepTunnelServices.put(topology.getTopologyId(), tunnelTopoCss);
     }
 
     private synchronized void updateTunnelTopologyProvider(final Topology topology) {
@@ -141,7 +149,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             return;
         }
         final TopologyId topologyId = topology.getTopologyId();
-        final PCEPTunnelClusterSingletonService previous = this.pcepTunnelServices.remove(topology.getTopologyId());
+        final PCEPTunnelClusterSingletonService previous = pcepTunnelServices.remove(topology.getTopologyId());
         closeTopology(previous, topologyId);
         createTunnelTopologyProvider(topology);
     }
@@ -151,18 +159,7 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             return;
         }
         final TopologyId topologyId = topo.getTopologyId();
-        final PCEPTunnelClusterSingletonService topology = this.pcepTunnelServices.remove(topologyId);
+        final PCEPTunnelClusterSingletonService topology = pcepTunnelServices.remove(topologyId);
         closeTopology(topology, topologyId);
-    }
-
-    @Override
-    public synchronized void close() {
-        LOG.info("Closing tunnel topology deployer");
-        if (this.listenerRegistration != null) {
-            this.listenerRegistration.close();
-            this.listenerRegistration = null;
-        }
-        this.pcepTunnelServices.values().iterator().forEachRemaining(PCEPTunnelClusterSingletonService::close);
-        this.pcepTunnelServices.clear();
     }
 }
