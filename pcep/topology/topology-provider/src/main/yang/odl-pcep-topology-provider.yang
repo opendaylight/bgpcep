@@ -31,13 +31,17 @@ module odl-pcep-topology-provider {
 
                 uses opisc:stateful-capabilities;
             }
-            leaf p2mp {
-                type boolean;
-                default true;
+            container p2mp {
+                leaf enabled {
+                    type boolean;
+                    default true;
+                }
             }
-            leaf segment-routing {
-                type boolean;
-                default true;
+            container segment-routing {
+                leaf enabled {
+                    type boolean;
+                    default true;
+                }
             }
         }
     }
