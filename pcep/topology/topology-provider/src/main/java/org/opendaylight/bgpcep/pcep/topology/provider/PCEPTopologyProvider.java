@@ -30,7 +30,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.NetworkTopologyPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -96,11 +95,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
     }
 
     synchronized void updateConfiguration(final @Nullable PCEPTopologyConfiguration newConfiguration) {
-        // FIXME: BGPCEP-960: this check should be a one-time thing in PCEPTopologyTracker startup once we have OSGi DS
-        final var effectiveConfig = dependencies.getCapabilities().stream().anyMatch(PCEPCapability::isStateful)
-            ? newConfiguration : null;
-
-        applyConfiguration(effectiveConfig);
+        applyConfiguration(newConfiguration);
     }
 
     @Holding("this")

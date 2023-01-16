@@ -23,11 +23,6 @@ module odl-pcep-ietf-stateful-config {
             default true;
         }
 
-        leaf stateful {
-            type boolean;
-            default true;
-        }
-
         leaf active {
             type boolean;
             default true;

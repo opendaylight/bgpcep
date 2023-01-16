@@ -81,19 +81,22 @@ final class PCEPTopologyConfiguration implements Immutable {
         if (sessionConfig == null) {
             return null;
         }
+        final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
+        final var capabilities = capabilityAug != null ? capabilityAug.getCapabilities() : null;
+        if (capabilities != null && !capabilities.nonnullIetfStateful().requireEnabled()) {
+            return null;
+        }
 
         final var updateAug = topologyPcep.augmentation(PcepTopologyNodeStatsProviderAug.class);
         final long updateInterval = updateAug != null ? TimeUnit.SECONDS.toNanos(updateAug.requireTimer().toJava())
             : DEFAULT_UPDATE_INTERVAL;
 
-        final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
 
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
             constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
             sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
-            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls(),
-            capabilityAug != null ? capabilityAug.getCapabilities() : null);
+            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls(), capabilities);
     }
 
     short getRpcTimeout() {

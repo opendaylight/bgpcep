@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import static org.junit.Assert.assertNotNull;
 
 import io.netty.channel.Channel;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
     public void testSessionAvoidanceDesynchronizedEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
-        final Channel channel = createServer(factory, this.remoteAddress, new PCCPeerProposal());
+        final Channel channel = createServer(factory, remoteAddress, new PCCPeerProposal());
         final PCEPSession session = createPCCSession(Uint64.TEN).get();
         assertNotNull(session);
         final TestingSessionListener pceSessionListener = getListener(factory);
@@ -37,9 +36,6 @@ public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
 
     @Override
     protected List<PCEPCapability> getCapabilities() {
-        final List<PCEPCapability> caps = new ArrayList<>();
-        caps.add(new PCEPStatefulCapability(true, true, true, false,
-            false, false, true));
-        return caps;
+        return List.of(new PCEPStatefulCapability(true, true, false, false, false, true));
     }
 }
