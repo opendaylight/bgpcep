@@ -24,6 +24,11 @@ module odl-pcep-topology-provider {
     augment "/nt:network-topology/nt:topology/nt:topology-types/pn:topology-pcep" {
         container capabilities {
             container stateful {
+                leaf enabled {
+                    type boolean;
+                    default true;
+                }
+
                 uses opisc:stateful-capabilities;
             }
             leaf p2mp {
