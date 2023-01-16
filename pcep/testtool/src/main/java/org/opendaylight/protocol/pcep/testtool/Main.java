@@ -127,7 +127,7 @@ public final class Main {
         dispatcher.createServer(address, KeyMapping.of(), handlerRegistry, new DefaultPCEPSessionNegotiatorFactory(
             new TestingSessionListenerFactory(),
             new PCEPTimerProposal(keepAliveValue, deadTimerValue),
-            List.of(new PCEPStatefulCapability(stateful, active, instant, false, false, false, false)),
+            stateful ? List.of(new PCEPStatefulCapability(active, instant, false, false, false, false)) : List.of(),
             maxUnknownMessages, null)).get();
     }
 }

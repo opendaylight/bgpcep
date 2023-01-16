@@ -154,8 +154,7 @@ public final class Main {
         if (triggeredInitSync) {
             Preconditions.checkArgument(includeDbv);
         }
-        return new PCEPStatefulCapability(true, true, true, triggeredInitSync, triggeredResync,
-                incrementalSync, includeDbv);
+        return new PCEPStatefulCapability(true, true, triggeredInitSync, triggeredResync, incrementalSync, includeDbv);
     }
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
