@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.ietf.stateful;
 
+import com.google.common.base.MoreObjects.ToStringHelper;
 import java.net.InetSocketAddress;
-import org.kohsuke.MetaInfServices;
+import java.util.Arrays;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.config.rev230115.StatefulCapabilities;
@@ -16,8 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 
-@MetaInfServices
-public final class PCEPStatefulCapability implements PCEPCapability {
+public final class PCEPStatefulCapability extends PCEPCapability {
     private final boolean active;
     private final boolean initiated;
     private final boolean triggeredSync;
@@ -82,5 +82,42 @@ public final class PCEPStatefulCapability implements PCEPCapability {
 
     public boolean isIncludeDbVersion() {
         return includeDbVersion;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(
+            new boolean[] { active, initiated, triggeredSync, triggeredResync, deltaLspSync, includeDbVersion });
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return this == obj || obj instanceof PCEPStatefulCapability other && active == other.active
+            && initiated == other.initiated && triggeredSync == other.triggeredSync
+            && triggeredResync == other.triggeredResync && deltaLspSync == other.deltaLspSync
+            && includeDbVersion == other.includeDbVersion;
+    }
+
+    @Override
+    protected ToStringHelper addToStringAttributes(final ToStringHelper helper) {
+        if (active) {
+            helper.addValue("active");
+        }
+        if (initiated) {
+            helper.addValue("initiated");
+        }
+        if (triggeredSync) {
+            helper.addValue("triggeredSync");
+        }
+        if (triggeredResync) {
+            helper.addValue("triggeredResync");
+        }
+        if (deltaLspSync) {
+            helper.addValue("deltaLspSync");
+        }
+        if (includeDbVersion) {
+            helper.addValue("includeDbVersion");
+        }
+        return helper;
     }
 }
