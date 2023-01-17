@@ -99,7 +99,7 @@ final class PCEPTopologyConfiguration implements Immutable {
 
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
-            constructKeys(topology.getNode()), constructGraphKey(sessionConfig.getTedName()),
+            constructKeys(topology.getNode()), constructGraphKey(topologyPcep.getTedName()),
             sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
             constructCapabilities(capabilities), sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
     }
