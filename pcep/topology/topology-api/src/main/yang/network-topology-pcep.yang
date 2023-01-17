@@ -87,10 +87,10 @@ module network-topology-pcep {
         container topology-pcep {
             presence "indicates a PCEP-aware topology";
 
-            // FIXME: leaf-ref to a topology
             leaf ted-name {
-                type string;
-                default "example-linkstate-topology";
+                type leafref {
+                    path /nt:network-topology/nt:topology/nt:topology-id;
+                }
             }
 
             uses pdc:pcep-config;
