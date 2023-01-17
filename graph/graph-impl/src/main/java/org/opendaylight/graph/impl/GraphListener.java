@@ -48,8 +48,6 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public final class GraphListener implements DataTreeChangeListener<Graph>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(GraphListener.class);
-    private static final InstanceIdentifier<Graph> GRAPH_IDENTIFIER =
-        InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
 
     private final ConnectedGraphProvider graphProvider;
 
@@ -58,10 +56,13 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     @Inject
     @Activate
     public GraphListener(@Reference final DataBroker dataBroker, @Reference final ConnectedGraphProvider provider) {
-        this.graphProvider = requireNonNull(provider);
-        this.listenerRegistration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, GRAPH_IDENTIFIER), this);
-        LOG.info("Registered listener {} on Graph Model at {}", this, GRAPH_IDENTIFIER);
+        graphProvider = requireNonNull(provider);
+
+        final var graphIdentifier = InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
+
+        listenerRegistration = dataBroker.registerDataTreeChangeListener(
+            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, graphIdentifier), this);
+        LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
 
     /**
@@ -71,10 +72,10 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     @Deactivate
     @PreDestroy
     public void close() {
-        if (this.listenerRegistration != null) {
+        if (listenerRegistration != null) {
             LOG.debug("Unregistered listener {} on Graph", this);
-            this.listenerRegistration.close();
-            this.listenerRegistration = null;
+            listenerRegistration.close();
+            listenerRegistration = null;
         }
     }
 
@@ -87,34 +88,34 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
      * @param cgraph   Connected Graph where children Data Object must insert or remove
      * @param children List of children (Vertex, Edge or Prefix)
      */
-    private void parseSubTree(final ConnectedGraph cgraph,
+    private static void parseSubTree(final ConnectedGraph cgraph,
             final Collection<? extends DataObjectModification<? extends DataObject>> children) {
-        for (DataObjectModification<? extends DataObject> child : children) {
-            DataObject value;
+        for (var child : children) {
+            final DataObject value;
             switch (child.getModificationType()) {
                 case DELETE:
                     value = child.getDataBefore();
-                    if (value instanceof Vertex) {
-                        cgraph.deleteVertex(((Vertex )value).key());
+                    if (value instanceof Vertex vertex) {
+                        cgraph.deleteVertex(vertex.key());
                     }
-                    if (value instanceof Edge) {
-                        cgraph.deleteEdge(((Edge )value).key());
+                    if (value instanceof Edge edge) {
+                        cgraph.deleteEdge(edge.key());
                     }
-                    if (value instanceof Prefix) {
-                        cgraph.deletePrefix(((Prefix )value).getPrefix());
+                    if (value instanceof Prefix prefix) {
+                        cgraph.deletePrefix(prefix.getPrefix());
                     }
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     value = child.getDataAfter();
-                    if (value instanceof Vertex) {
-                        cgraph.addVertex((Vertex )value);
+                    if (value instanceof Vertex vertex) {
+                        cgraph.addVertex(vertex);
                     }
-                    if (value instanceof Edge) {
-                        cgraph.addEdge((Edge )value);
+                    if (value instanceof Edge edge) {
+                        cgraph.addEdge(edge);
                     }
-                    if (value instanceof Prefix) {
-                        cgraph.addPrefix((Prefix )value);
+                    if (value instanceof Prefix prefix) {
+                        cgraph.addPrefix(prefix);
                     }
                     break;
                 default:
@@ -139,7 +140,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
                      */
                 case WRITE:
                     /* First look if the Graph was not already configured */
-                    ConnectedGraph cgraph = this.graphProvider.getConnectedGraph(key);
+                    ConnectedGraph cgraph = graphProvider.getConnectedGraph(key);
                     if (cgraph == null) {
                         graphProvider.addGraph(root.getDataAfter());
                     } else {
