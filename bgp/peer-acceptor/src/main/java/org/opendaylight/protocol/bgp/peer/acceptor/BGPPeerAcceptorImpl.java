@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.peer.acceptor;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.epoll.Epoll;
@@ -28,42 +26,42 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorImpl.class);
-    private static final int PRIVILEGED_PORTS = 1024;
-    private final BGPDispatcher bgpDispatcher;
+
     private final InetSocketAddress address;
-    private ChannelFuture futureChannel;
-    private AutoCloseable listenerRegistration;
+    private final ChannelFuture futureChannel;
+    private final Registration listenerRegistration;
 
     public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {
-        this.bgpDispatcher = requireNonNull(bgpDispatcher);
         address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
-                && portNumber.getValue().toJava() < PRIVILEGED_PORTS) {
+                && portNumber.getValue().toJava() < 1024) {
             throw new SecurityException("Unable to bind port " + portNumber.getValue()
                     + " while running as non-root user.");
         }
-    }
 
-    public void start() {
         LOG.debug("Instantiating BGP Peer Acceptor : {}", address);
 
         futureChannel = bgpDispatcher.createServer(address);
-        // Validate future success
-        futureChannel.addListener(future -> {
-            Preconditions.checkArgument(future.isSuccess(), "Unable to start bgp server on %s",
-                address, future.cause());
-            final Channel channel = futureChannel.channel();
-            if (Epoll.isAvailable()) {
-                listenerRegistration = bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
-                    new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(channel.config()));
-            }
-        });
+        try {
+            futureChannel.sync();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for channel", e);
+        }
+
+        if (Epoll.isAvailable()) {
+            listenerRegistration = bgpDispatcher.getBGPPeerRegistry().registerPeerRegisterListener(
+                new BGPPeerAcceptorImpl.PeerRegistryListenerImpl(futureChannel.channel().config()));
+        } else {
+            listenerRegistration = null;
+        }
     }
 
     private static InetSocketAddress getAddress(final IpAddressNoZone ipAddress, final PortNumber portNumber) {
@@ -82,7 +80,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
      * Connections already established will be preserved.
      **/
     @Override
-    public void close() throws Exception {
+    public void close() {
         futureChannel.cancel(true);
         futureChannel.channel().close();
         if (listenerRegistration != null) {
