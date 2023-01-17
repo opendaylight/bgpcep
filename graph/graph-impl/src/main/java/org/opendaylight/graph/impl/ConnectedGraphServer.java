@@ -7,9 +7,10 @@
  */
 package org.opendaylight.graph.impl;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -93,16 +94,16 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      */
     private synchronized void initTransactionChain() {
         LOG.debug("Initializing transaction chain for Graph Model Server {}", this);
-        Preconditions.checkState(this.chain == null, "Transaction chain has to be closed before being initialized");
-        this.chain = this.dataBroker.createMergingTransactionChain(this);
+        checkState(chain == null, "Transaction chain has to be closed before being initialized");
+        chain = dataBroker.createMergingTransactionChain(this);
     }
 
     /**
      * Initialize GraphModel tree at Data Store top-level.
      */
     private synchronized void initOperationalGraphModel() {
-        requireNonNull(this.chain, "A valid transaction chain must be provided.");
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        requireNonNull(chain, "A valid transaction chain must be provided.");
+        final WriteTransaction trans = chain.newWriteOnlyTransaction();
         LOG.info("Create Graph Model at top level in Operational DataStore: {}", GRAPH_TOPOLOGY_IDENTIFIER);
         trans.put(LogicalDatastoreType.OPERATIONAL, GRAPH_TOPOLOGY_IDENTIFIER, new GraphTopologyBuilder().build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -123,10 +124,9 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * Destroy the current operational topology data. Note a valid transaction must be provided.
      */
     private synchronized FluentFuture<? extends CommitInfo> destroyOperationalGraphModel() {
-        requireNonNull(this.chain, "A valid transaction chain must be provided.");
-        final WriteTransaction trans = this.chain.newWriteOnlyTransaction();
+        requireNonNull(chain, "A valid transaction chain must be provided.");
+        final WriteTransaction trans = chain.newWriteOnlyTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, GRAPH_TOPOLOGY_IDENTIFIER);
-        trans.delete(LogicalDatastoreType.CONFIGURATION, GRAPH_TOPOLOGY_IDENTIFIER);
         final FluentFuture<? extends CommitInfo> future = trans.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -152,9 +152,9 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * Destroy the current transaction chain.
      */
     private synchronized void destroyTransactionChain() {
-        if (this.chain != null) {
+        if (chain != null) {
             LOG.debug("Destroy transaction chain for GraphModel {}", this);
-            this.chain = null;
+            chain = null;
         }
     }
 
@@ -198,7 +198,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      */
     private synchronized <T extends DataObject> void addToDataStore(final InstanceIdentifier<T> id, final T data,
             final String info) {
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
         trans.put(LogicalDatastoreType.OPERATIONAL, id, data);
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -226,7 +226,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      */
     private synchronized <T extends DataObject> void updateToDataStore(final InstanceIdentifier<T> id, final T data,
             final InstanceIdentifier<T> old, final String info) {
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
         if (old != null) {
             trans.delete(LogicalDatastoreType.OPERATIONAL, old);
         }
@@ -254,7 +254,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      */
     private synchronized <T extends DataObject> void removeFromDataStore(final InstanceIdentifier<T> id,
             final String info) {
-        final ReadWriteTransaction trans = this.chain.newReadWriteTransaction();
+        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
         trans.delete(LogicalDatastoreType.OPERATIONAL, id);
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -276,7 +276,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param graph Graph associated to the Connected Graph
      */
     public void clearGraph(final Graph graph) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
         removeFromDataStore(getGraphInstanceIdentifier(graph.getName()), "Graph(" + graph.getName() + ")");
         graphs.remove(graph.key());
     }
@@ -290,8 +290,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param old     Old vertex when performing an update. Must be null for a simple addition
      */
     public void addVertex(final Graph graph, final Vertex vertex, final Vertex old) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(vertex != null, "Provided Vertex is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(vertex != null, "Provided Vertex is a null object");
         InstanceIdentifier<Vertex> oldId = null;
         /* Remove old Vertex if it exists before storing the new Vertex */
         if (old != null) {
@@ -309,8 +309,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param vertex  Vertex to be removed
      */
     public void deleteVertex(final Graph graph, final Vertex vertex) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(vertex != null, "Provided Vertex is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(vertex != null, "Provided Vertex is a null object");
         removeFromDataStore(getVertexInstanceIdentifier(graph, vertex), "Vertex(" + vertex.getName() + ")");
     }
 
@@ -323,8 +323,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param old    Old edge when performing an update. Must be null for a simple addition
      */
     public void addEdge(final Graph graph, final Edge edge, final Edge old) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(edge != null, "Provided Edge is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(edge != null, "Provided Edge is a null object");
         InstanceIdentifier<Edge> oldId = null;
         /* Remove old Edge if it exists before storing the new Edge */
         if (old != null) {
@@ -341,8 +341,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param edge   Edge to be removed
      */
     public void deleteEdge(final Graph graph, final Edge edge) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(edge != null, "Provided Edge is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(edge != null, "Provided Edge is a null object");
         removeFromDataStore(getEdgeInstanceIdentifier(graph, edge), "Edge(" + edge.getName() + ")");
     }
 
@@ -354,8 +354,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param prefix Prefix to be interted in the graph
      */
     public void addPrefix(final Graph graph, final Prefix prefix) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(prefix != null, "Provided Prefix is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(prefix != null, "Provided Prefix is a null object");
         addToDataStore(getPrefixInstanceIdentifier(graph, prefix), prefix, "Prefix(" + prefix.getPrefix() + ")");
     }
 
@@ -367,8 +367,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
      * @param prefix Prefix to be removed
      */
     public void deletePrefix(final Graph graph, final Prefix prefix) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
-        Preconditions.checkArgument(prefix != null, "Provided Prefix is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(prefix != null, "Provided Prefix is a null object");
         removeFromDataStore(getPrefixInstanceIdentifier(graph, prefix), "Prefix(" + prefix.getPrefix() + ")");
     }
 
@@ -386,7 +386,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
 
     @Override
     public List<ConnectedGraph> getConnectedGraphs() {
-        return new ArrayList<>(this.graphs.values());
+        return new ArrayList<>(graphs.values());
     }
 
     @Override
@@ -427,7 +427,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
 
     @Override
     public ConnectedGraph addGraph(final Graph graph) {
-        Preconditions.checkArgument(graph != null, "Provided Graph is a null object");
+        checkArgument(graph != null, "Provided Graph is a null object");
         addToDataStore(getGraphInstanceIdentifier(graph.getName()), graph, "Graph(" + graph.getName() + ")");
         ConnectedGraphImpl cgraph = new ConnectedGraphImpl(graph, this);
         graphs.put(graph.key(), cgraph);
@@ -436,7 +436,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
 
     @Override
     public void deleteGraph(final GraphKey key) {
-        Preconditions.checkArgument(key != null, "Provided Graph Key is a null object");
+        checkArgument(key != null, "Provided Graph Key is a null object");
         ConnectedGraphImpl cgraph = graphs.get(key);
         /*
          * Remove the corresponding Connected Graph which will delete the graph
