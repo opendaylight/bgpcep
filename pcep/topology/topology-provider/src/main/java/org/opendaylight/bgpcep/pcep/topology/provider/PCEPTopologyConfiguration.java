@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.pcep
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.PcepSessionTls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
@@ -46,7 +47,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         new PCEPStatefulCapability(), P2MPTeLspCapability.of(), PCEPSegmentRoutingCapability.of());
 
     private final @NonNull InetSocketAddress address;
-    private final @NonNull GraphKey graphKey;
+    private final @Nullable GraphKey graphKey;
     private final @NonNull KeyMapping keys;
     private final @NonNull PCEPTimerProposal timerProposal;
     private final @NonNull ImmutableList<PCEPCapability> capabilities;
@@ -55,13 +56,13 @@ final class PCEPTopologyConfiguration implements Immutable {
     private final long updateIntervalNanos;
     private final short rpcTimeout;
 
-    PCEPTopologyConfiguration(final InetSocketAddress address, final KeyMapping keys, final GraphKey graphKey,
+    PCEPTopologyConfiguration(final InetSocketAddress address, final KeyMapping keys, final @Nullable GraphKey graphKey,
             final short rpcTimeout, final long updateIntervalNanos, final PCEPTimerProposal timerProposal,
             final @NonNull ImmutableList<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
             final @Nullable PcepSessionTls tls) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
-        this.graphKey = requireNonNull(graphKey);
+        this.graphKey = graphKey;
         this.rpcTimeout = rpcTimeout;
         this.updateIntervalNanos = updateIntervalNanos;
         this.timerProposal = requireNonNull(timerProposal);
@@ -88,7 +89,16 @@ final class PCEPTopologyConfiguration implements Immutable {
             return null;
         }
         final var capabilityAug = topologyPcep.augmentation(TopologyPcep1.class);
-        final var capabilities = capabilityAug != null ? capabilityAug.getCapabilities() : null;
+        final Capabilities capabilities;
+        final TopologyId tedName;
+        if (capabilityAug != null) {
+            capabilities = capabilityAug.getCapabilities();
+            tedName = capabilityAug.getTedName();
+        } else {
+            capabilities = null;
+            tedName = null;
+        }
+
         if (capabilities != null && !capabilities.nonnullStateful().requireEnabled()) {
             return null;
         }
@@ -99,9 +109,9 @@ final class PCEPTopologyConfiguration implements Immutable {
 
         return new PCEPTopologyConfiguration(
             getInetSocketAddress(sessionConfig.getListenAddress(), sessionConfig.getListenPort()),
-            constructKeys(topology.getNode()), constructGraphKey(topologyPcep.getTedName()),
-            sessionConfig.getRpcTimeout(), updateInterval, new PCEPTimerProposal(sessionConfig),
-            constructCapabilities(capabilities), sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
+            constructKeys(topology.getNode()), constructGraphKey(tedName), sessionConfig.getRpcTimeout(),
+            updateInterval, new PCEPTimerProposal(sessionConfig), constructCapabilities(capabilities),
+            sessionConfig.requireMaxUnknownMessages(), sessionConfig.getTls());
     }
 
     private static @NonNull ImmutableList<PCEPCapability> constructCapabilities(final Capabilities capabilities) {
@@ -136,7 +146,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         return keys;
     }
 
-    @NonNull GraphKey getGraphKey() {
+    @Nullable GraphKey getGraphKey() {
         return graphKey;
     }
 
@@ -188,8 +198,8 @@ final class PCEPTopologyConfiguration implements Immutable {
         return KeyMapping.of(passwords);
     }
 
-    private static @NonNull GraphKey constructGraphKey(final String name) {
-        return new GraphKey(name.startsWith("ted://") ? name : "ted://" + name);
+    private static @Nullable GraphKey constructGraphKey(final @Nullable TopologyId topologyId) {
+        return topologyId != null ? new GraphKey("ted://" + topologyId.getValue()) : null;
     }
 
     private static InetAddress nodeAddress(final Node node) {
