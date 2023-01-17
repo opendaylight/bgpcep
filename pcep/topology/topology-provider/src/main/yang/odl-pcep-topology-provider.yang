@@ -22,6 +22,13 @@ module odl-pcep-topology-provider {
     }
 
     augment "/nt:network-topology/nt:topology/nt:topology-types/pn:topology-pcep" {
+        leaf ted-name {
+            type leafref {
+                // FIXME: must expression to require BGP-LS topology
+                path /nt:network-topology/nt:topology/nt:topology-id;
+            }
+        }
+
         container capabilities {
             container stateful {
                 leaf enabled {

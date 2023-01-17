@@ -75,7 +75,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
     private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
-    private final @NonNull GraphKey graphKey;
+    private final @Nullable GraphKey graphKey;
 
     @GuardedBy("this")
     private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
@@ -91,7 +91,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             final short rpcTimeout, final long updateInterval) {
         this.dependencies = requireNonNull(dependencies);
         this.topology = requireNonNull(topology);
-        this.graphKey = requireNonNull(graphKey);
+        this.graphKey = graphKey;
         this.rpcTimeout = rpcTimeout;
         this.updateInterval = updateInterval;
     }
@@ -127,7 +127,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
 
         // Register this new topology to PCE Server
         final PceServerProvider server = dependencies.getPceServerProvider();
-        if (server != null) {
+        if (server != null && graphKey != null) {
             server.registerPcepTopology(topology, graphKey);
         }
         return future;
