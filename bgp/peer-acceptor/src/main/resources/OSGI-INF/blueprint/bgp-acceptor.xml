@@ -24,7 +24,7 @@
     </odl:clustered-app-config>
 
     <bean id="bgpPeerAcceptor" class="org.opendaylight.protocol.bgp.peer.acceptor.BGPPeerAcceptorImpl"
-          init-method="start" destroy-method="close">
+          destroy-method="close">
         <argument>
             <bean factory-ref="bgpPeerAcceptorConfig" factory-method="getBindingAddress"/>
         </argument>
