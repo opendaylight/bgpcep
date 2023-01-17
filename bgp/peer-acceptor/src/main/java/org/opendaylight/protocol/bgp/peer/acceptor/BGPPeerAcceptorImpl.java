@@ -20,7 +20,6 @@ import io.netty.util.internal.PlatformDependent;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -46,7 +45,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
         if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
                 && portNumber.getValue().toJava() < PRIVILEGED_PORTS) {
-            throw new AccessControlException("Unable to bind port " + portNumber.getValue()
+            throw new SecurityException("Unable to bind port " + portNumber.getValue()
                     + " while running as non-root user.");
         }
     }
