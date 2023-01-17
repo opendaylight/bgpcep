@@ -26,6 +26,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.peer.acceptor.config.rev200120.BgpPeerAcceptorConfig;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,10 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private final InetSocketAddress address;
     private final ChannelFuture futureChannel;
     private final Registration listenerRegistration;
+
+    public BGPPeerAcceptorImpl(final BGPDispatcher bgpDispatcher, final BgpPeerAcceptorConfig config) {
+        this(config.requireBindingAddress(), config.requireBindingPort(), bgpDispatcher);
+    }
 
     public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {

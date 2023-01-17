@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
+import static org.junit.Assert.assertEquals;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.Sets;
-import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
-import org.junit.Assert;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.AbstractBGPDispatcherTest;
 import org.opendaylight.protocol.bgp.rib.impl.BGPSessionImpl;
@@ -32,21 +31,17 @@ public class BGPPeerAcceptorImplTest extends AbstractBGPDispatcherTest {
                 .toHostAndPort(inetServerAddress).getHost()));
         final PortNumber portNumber = new PortNumber(Uint16.valueOf(
             InetSocketAddressUtil.toHostAndPort(inetServerAddress).getPort()));
-        this.registry.addPeer(serverIpAddress, this.serverListener, createPreferences(inetServerAddress));
+        registry.addPeer(serverIpAddress, serverListener, createPreferences(inetServerAddress));
 
-        final BGPPeerAcceptorImpl bgpPeerAcceptor = new BGPPeerAcceptorImpl(serverIpAddress, portNumber,
-            this.serverDispatcher);
-        bgpPeerAcceptor.start();
-        final Future<BGPSessionImpl> futureClient = this.clientDispatcher
-            .createClient(this.clientAddress, inetServerAddress, 2, true);
-        waitFutureSuccess(futureClient);
-        final BGPSessionImpl session = futureClient.get();
-        Assert.assertEquals(State.UP, this.clientListener.getState());
-        Assert.assertEquals(AS_NUMBER, session.getAsNumber());
-        Assert.assertEquals(Sets.newHashSet(IPV_4_TT), session.getAdvertisedTableTypes());
-        session.close();
-        checkIdleState(this.clientListener);
-
-        bgpPeerAcceptor.close();
+        try (var bgpPeerAcceptor = new BGPPeerAcceptorImpl(serverIpAddress, portNumber, serverDispatcher)) {
+            final var futureClient = clientDispatcher.createClient(clientAddress, inetServerAddress, 2, true);
+            waitFutureSuccess(futureClient);
+            final BGPSessionImpl session = futureClient.get();
+            assertEquals(State.UP, clientListener.getState());
+            assertEquals(AS_NUMBER, session.getAsNumber());
+            assertEquals(Set.of(IPV_4_TT), session.getAdvertisedTableTypes());
+            session.close();
+            checkIdleState(clientListener);
+        }
     }
 }
