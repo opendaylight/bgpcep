@@ -17,8 +17,8 @@
                     <listen-port>4189</listen-port>
                     <dead-timer-value>120</dead-timer-value>
                     <keep-alive-timer-value>30</keep-alive-timer-value>
-                    <ted-name>example-linkstate-topology</ted-name>
                 </session-config>
+                <ted-name>example-linkstate-topology</ted-name>
             </topology-pcep>
         </topology-types>
         <node>

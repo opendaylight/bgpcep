@@ -149,12 +149,6 @@ module pcep-config {
                 default 4189;
             }
 
-            // FIXME: this should live in topology-api
-            leaf ted-name {
-                type string;
-                default "example-linkstate-topology";
-            }
-
             uses pcep-session-error-policy;
             uses pcep-session-timers;
 
