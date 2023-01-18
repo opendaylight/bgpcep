@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.bgpcep.pcep.topology.spi.PCEPTopologyExtender;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -42,8 +43,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(service = { })
-public final class TunnelProviderDeployer implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
+@Component(service = PCEPTopologyExtender.class, immediate = true)
+public final class TunnelProviderDeployer
+        implements PCEPTopologyExtender, ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelProviderDeployer.class);
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 

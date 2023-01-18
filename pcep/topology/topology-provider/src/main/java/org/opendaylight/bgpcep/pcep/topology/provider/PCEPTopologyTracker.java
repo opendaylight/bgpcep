@@ -16,6 +16,7 @@ import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -26,6 +27,7 @@ import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
+import org.opendaylight.bgpcep.pcep.topology.spi.PCEPTopologyExtender;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -39,7 +41,7 @@ import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.network.topology.topology.topology.types.TopologyPcep;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.topology.pcep.type.TopologyPcep;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -68,6 +70,7 @@ public final class PCEPTopologyTracker
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
     final @NonNull ClusterSingletonServiceProvider singletonService;
     private final @NonNull RpcProviderService rpcProviderRegistry;
+    private final @NonNull List<PCEPTopologyExtender> extenders;
     private final @NonNull PceServerProvider pceServerProvider;
     private final @NonNull MessageRegistry messageRegistry;
     private final @NonNull PCEPDispatcher pcepDispatcher;
@@ -123,6 +126,8 @@ public final class PCEPTopologyTracker
             @Reference final RpcProviderService rpcProviderRegistry,
             @Reference final PCEPExtensionConsumerContext extensions, @Reference final PCEPDispatcher pcepDispatcher,
             @Reference final InstructionSchedulerFactory instructionSchedulerFactory,
+            @Reference final List<PCEPTopologyExtender> extenders,
+            // FIXME: this should be optional
             @Reference final PceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonService = requireNonNull(singletonService);
@@ -130,6 +135,7 @@ public final class PCEPTopologyTracker
         messageRegistry = extensions.getMessageHandlerRegistry();
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
+        this.extenders = List.copyOf(extenders);
         this.pceServerProvider = requireNonNull(pceServerProvider);
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
