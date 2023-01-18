@@ -10,8 +10,7 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.FluentFuture;
-import java.util.Dictionary;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -29,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -60,14 +60,16 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         this.dependencies = requireNonNull(dependencies);
         this.tunnelTopologyId = requireNonNull(tunnelTopologyId);
         final TopologyId pcepTopologyId = pcepTopology.firstKeyOf(Topology.class).getTopologyId();
+        final BundleContext bundleContext = dependencies.getBundleContext();
 
         final InstructionScheduler scheduler;
         ServiceTracker<InstructionScheduler, ?> tracker = null;
         try {
-            tracker = new ServiceTracker<>(dependencies.getBundleContext(),
-                    dependencies.getBundleContext().createFilter(String.format("(&(%s=%s)%s)", Constants.OBJECTCLASS,
-                            InstructionScheduler.class.getName(), "(" + InstructionScheduler.class.getName()
-                            + "=" + pcepTopologyId.getValue() + ")")), null);
+            tracker = new ServiceTracker<>(bundleContext,
+                bundleContext.createFilter("(&(%s=%s)%s)".formatted(
+                    Constants.OBJECTCLASS, InstructionScheduler.class.getName(),
+                    "(" + InstructionScheduler.class.getName() + "=" + pcepTopologyId.getValue() + ")")),
+                null);
             tracker.open();
             scheduler = (InstructionScheduler) tracker.waitForService(
                     TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES));
@@ -90,16 +92,12 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         tp = new TunnelProgramming(scheduler, dependencies);
 
 
-        serviceRegistration = dependencies.getBundleContext()
-                .registerService(DefaultTopologyReference.class.getName(), ttp, props(tunnelTopologyId));
+        serviceRegistration = bundleContext.registerService(DefaultTopologyReference.class, ttp,
+            FrameworkUtil.asDictionary(Map.of(
+                PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue())));
 
         LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getName());
         pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
-    }
-
-    private static Dictionary<String, String> props(final TopologyId tunnelTopologyId) {
-        return FrameworkUtil.asDictionary(Map.of(
-            PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue()));
     }
 
     @Override
@@ -114,7 +112,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     }
 
     @Override
-    public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
+    public synchronized ListenableFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}",
                 getIdentifier().getName());
         reg.close();
