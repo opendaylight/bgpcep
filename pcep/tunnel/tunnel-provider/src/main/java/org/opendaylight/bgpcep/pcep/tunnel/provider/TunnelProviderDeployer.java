@@ -48,7 +48,6 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 
     private final TunnelProviderDependencies dependencies;
-    private final InstanceIdentifier<Topology> networkTopology;
     @GuardedBy("this")
     private final Map<TopologyId, PCEPTunnelClusterSingletonService> pcepTunnelServices = new HashMap<>();
     private final Registration reg;
@@ -62,9 +61,8 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
             final BundleContext bundleContext) {
         dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcConsumerRegistry,
                 bundleContext);
-        networkTopology = InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build();
-        reg = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(CONFIGURATION, networkTopology), this);
+        reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(CONFIGURATION,
+                InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build()), this);
         LOG.info("Tunnel Provider Deployer created");
     }
 
