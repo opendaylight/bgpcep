@@ -46,10 +46,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-topology-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-base-parser</artifactId>
         </dependency>
         <dependency>
