@@ -26,6 +26,8 @@ module odl-bgp-peer-acceptor-config {
 
     list bgp-peer-acceptor-config {
         key "config-name";
+        unique "binding-address binding-port";
+
         leaf config-name {
             type string;
         }
