@@ -5,50 +5,67 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.peer.acceptor;
 
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.util.internal.PlatformDependent;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
+@Component(service = { }, factory = BGPPeerAcceptorImpl.FACTORY_NAME)
 public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeerAcceptorImpl.class);
+
+    static final String FACTORY_NAME = "org.opendaylight.protocol.bgp.peer.acceptor.BGPPeerAcceptorImpl";
+
     private static final int PRIVILEGED_PORTS = 1024;
+    private static final String ADDRESS = ".address";
+    private static final String BGP_DISPATCHER = ".bgpDispatcher";
+
     private final BGPDispatcher bgpDispatcher;
     private final InetSocketAddress address;
     private ChannelFuture futureChannel;
     private Registration listenerRegistration;
 
-    public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
-            final BGPDispatcher bgpDispatcher) {
+    @Inject
+    public BGPPeerAcceptorImpl(final BGPDispatcher bgpDispatcher) {
+        this(bgpDispatcher, new InetSocketAddress(InetAddresses.forString("0.0.0.0"), 1790));
+    }
+
+    @Activate
+    public BGPPeerAcceptorImpl(final Map<String, Object> properties) {
+
+    }
+
+    public BGPPeerAcceptorImpl(final BGPDispatcher bgpDispatcher, final InetSocketAddress address) {
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
-        address = getAddress(requireNonNull(bindingAddress), requireNonNull(portNumber));
-        if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser()
-                && portNumber.getValue().toJava() < PRIVILEGED_PORTS) {
-            throw new SecurityException("Unable to bind port " + portNumber.getValue()
-                    + " while running as non-root user.");
-        }
+        this.address = requireNonNull(address);
+//        if (!PlatformDependent.isWindows() && !PlatformDependent.maybeSuperUser() && port < PRIVILEGED_PORTS) {
+//            throw new SecurityException(
+//                "Unable to bind port " + port + " while running as non-root user.");
+//        }
     }
 
     public void start() {
@@ -67,16 +84,16 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         });
     }
 
-    private static InetSocketAddress getAddress(final IpAddressNoZone ipAddress, final PortNumber portNumber) {
-        final InetAddress inetAddr;
-        try {
-            inetAddr = InetAddress.getByName(ipAddress.getIpv4AddressNoZone() != null
-                    ? ipAddress.getIpv4AddressNoZone().getValue() : ipAddress.getIpv6AddressNoZone().getValue());
-        } catch (final UnknownHostException e) {
-            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
-        }
-        return new InetSocketAddress(inetAddr, portNumber.getValue().toJava());
-    }
+//    private static InetSocketAddress getAddress(final IpAddressNoZone ipAddress, final PortNumber portNumber) {
+//        final InetAddress inetAddr;
+//        try {
+//            inetAddr = InetAddress.getByName(ipAddress.getIpv4AddressNoZone() != null
+//                    ? ipAddress.getIpv4AddressNoZone().getValue() : ipAddress.getIpv6AddressNoZone().getValue());
+//        } catch (final UnknownHostException e) {
+//            throw new IllegalArgumentException("Illegal binding address " + ipAddress, e);
+//        }
+//        return new InetSocketAddress(inetAddr, portNumber.getValue().toJava());
+//    }
 
     /**
      * This closes the acceptor and no new bgp connections will be accepted. Connections already established will be
