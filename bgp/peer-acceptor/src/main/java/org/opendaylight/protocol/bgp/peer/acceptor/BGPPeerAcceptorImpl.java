@@ -28,6 +28,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerRegistryListener;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     private final BGPDispatcher bgpDispatcher;
     private final InetSocketAddress address;
     private ChannelFuture futureChannel;
-    private AutoCloseable listenerRegistration;
+    private Registration listenerRegistration;
 
     public BGPPeerAcceptorImpl(final IpAddressNoZone bindingAddress, final PortNumber portNumber,
             final BGPDispatcher bgpDispatcher) {
@@ -78,11 +79,11 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
     }
 
     /**
-     * This closes the acceptor and no new bgp connections will be accepted
-     * Connections already established will be preserved.
-     **/
+     * This closes the acceptor and no new bgp connections will be accepted. Connections already established will be
+     * preserved.
+     */
     @Override
-    public void close() throws Exception {
+    public void close() {
         futureChannel.cancel(true);
         futureChannel.channel().close();
         if (listenerRegistration != null) {
