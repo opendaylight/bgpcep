@@ -272,16 +272,19 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     /**
-     * Tear down the given PCEP session. It's OK to call this method even after the session
-     * is already down. It always clear up the current session status.
+     * Tear down the given PCEP session. It's OK to call this method even after the session is already down. It always
+     * clears up the current session status.
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void tearDown(final PCEPSession psession) {
         requireNonNull(psession);
         synchronized (serverSessionManager) {
             synchronized (this) {
-                serverSessionManager.releaseNodeState(nodeState, psession.getRemoteAddress(), isLspDbPersisted());
+                // Lifecycle madness: we need to shut down the listener through clearNodeState() and only then release
+                // nodeState, as that ends up shutting down the underlying transaction chain.
+                final var tmp = nodeState;
                 clearNodeState();
+                serverSessionManager.releaseNodeState(tmp, psession.getRemoteAddress(), isLspDbPersisted());
 
                 try {
                     if (session != null) {
