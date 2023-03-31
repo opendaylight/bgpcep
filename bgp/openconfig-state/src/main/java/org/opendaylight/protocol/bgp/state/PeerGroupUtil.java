@@ -63,8 +63,8 @@ public final class PeerGroupUtil {
     public static @NonNull PeerGroup buildPeerGroupState(final @NonNull String groupId,
             final @NonNull List<BGPPeerState> groups) {
         final PeerGroupStateAugmentation groupState = new PeerGroupStateAugmentationBuilder()
-                .setTotalPrefixes(saturatedUint32(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum()))
-                .setTotalPaths(saturatedUint32(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum()))
+                .setTotalPrefixes(Uint32.saturatedOf(groups.stream().mapToLong(BGPPeerState::getTotalPrefixes).sum()))
+                .setTotalPaths(Uint32.saturatedOf(groups.stream().mapToLong(BGPPeerState::getTotalPathsCount).sum()))
                 .build();
 
         return new PeerGroupBuilder()
@@ -72,10 +72,4 @@ public final class PeerGroupUtil {
                 .setState(new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group
                         .StateBuilder().addAugmentation(groupState).build()).build();
     }
-
-    // FIXME: remove this with YANGTOOLS-5.0.7+
-    private static Uint32 saturatedUint32(final long value) {
-        return value < 4294967295L ? Uint32.valueOf(value) : Uint32.MAX_VALUE;
-    }
-
 }
