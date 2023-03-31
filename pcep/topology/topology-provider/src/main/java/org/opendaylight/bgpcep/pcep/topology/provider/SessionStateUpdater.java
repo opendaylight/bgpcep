@@ -113,7 +113,6 @@ final class SessionStateUpdater {
         return tx.commit();
     }
 
-    // FIXME: add a caller
     @NonNull FluentFuture<? extends @NonNull CommitInfo> removeStatistics() {
         final var tx = node.getChain().newWriteOnlyTransaction();
         tx.delete(LogicalDatastoreType.OPERATIONAL, node.getNodeId().augmentation(PcepTopologyNodeStatsAug.class));
