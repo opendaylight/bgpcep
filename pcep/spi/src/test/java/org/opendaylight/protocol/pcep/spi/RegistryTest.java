@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
@@ -118,7 +119,7 @@ public class RegistryTest {
             any(ByteBuf.class));
         doNothing().when(this.objectSerializer).serializeObject(any(Object.class), any(ByteBuf.class));
 
-        doReturn(null).when(this.msgParser).parseMessage(any(ByteBuf.class), any(List.class));
+        doReturn(null).when(this.msgParser).parseMessage(any(ByteBuf.class), anyList());
         doNothing().when(this.msgSerializer).serializeMessage(any(Message.class), any(ByteBuf.class));
 
         doNothing().when(this.labelSerializer).serializeLabel(anyBoolean(), anyBoolean(), any(LabelType.class),
