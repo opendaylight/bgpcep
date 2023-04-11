@@ -144,7 +144,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
     private ObjectRegistration<BgpPeerRpcService> rpcRegistration;
-    private Map<TablesKey, SendReceive> addPathTableMaps = Collections.emptyMap();
+    private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
     // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
@@ -236,7 +236,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                             new DestinationIpv4Builder().setIpv4Prefixes(prefixes).build()).build()).build()).build();
     }
 
-    private static Map<TablesKey, SendReceive> mapTableTypesFamilies(final List<AddressFamilies> addPathTablesType) {
+    private static ImmutableMap<TablesKey, SendReceive> mapTableTypesFamilies(
+            final List<AddressFamilies> addPathTablesType) {
         return addPathTablesType.stream().collect(ImmutableMap.toImmutableMap(
             af -> new TablesKey(af.getAfi(), af.getSafi()), BgpAddPathTableType::getSendReceive));
     }
@@ -618,7 +619,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             effRibInWriter.close();
         }
         tables = ImmutableSet.of();
-        addPathTableMaps = Collections.emptyMap();
+        addPathTableMaps = ImmutableMap.of();
         future = removePeer(peerPath);
         resetState();
 
