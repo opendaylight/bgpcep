@@ -258,10 +258,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public void onMessage(final BGPSession session, final Notification<?> msg) throws BGPDocumentedException {
-        if (msg instanceof Update) {
-            onUpdateMessage((Update) msg);
-        } else if (msg instanceof RouteRefresh) {
-            onRouteRefreshMessage((RouteRefresh) msg);
+        if (msg instanceof Update update) {
+            onUpdateMessage(update);
+        } else if (msg instanceof RouteRefresh routeRefresh) {
+            onRouteRefreshMessage(routeRefresh);
         } else {
             LOG.info("Ignoring unhandled message class {}", msg.getClass());
         }
@@ -377,8 +377,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
         });
 
-        if (currentSession instanceof BGPSessionStateProvider) {
-            ((BGPSessionStateProvider) currentSession).registerMessagesCounter(this);
+        if (currentSession instanceof BGPSessionStateProvider stateProvider) {
+            stateProvider.registerMessagesCounter(this);
         }
         final GracefulRestartCapability advertisedGracefulRestartCapability =
                 session.getAdvertisedGracefulRestartCapability();
@@ -512,8 +512,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final RIBSupport<?, ?> ribSupport = rib.getRibSupportContext().getRIBSupport(key);
 
         // not particularly nice
-        if (ribSupport != null && currentSession instanceof BGPSessionImpl) {
-            final ChannelOutputLimiter limiter = ((BGPSessionImpl) currentSession).getLimiter();
+        if (ribSupport != null && currentSession instanceof BGPSessionImpl bgpSession) {
+            final ChannelOutputLimiter limiter = bgpSession.getLimiter();
             final AdjRibOutListener adjRibOut = AdjRibOutListener.create(peerId, key,
                     rib.getYangRibId(), rib.getCodecsRegistry(), ribSupport,
                     rib.getService(), limiter, mpSupport);
@@ -702,24 +702,24 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized BGPSessionState getBGPSessionState() {
-        if (currentSession instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) currentSession).getBGPSessionState();
+        if (currentSession instanceof BGPSessionStateProvider stateProvider) {
+            return stateProvider.getBGPSessionState();
         }
         return null;
     }
 
     @Override
     public synchronized BGPTimersState getBGPTimersState() {
-        if (currentSession instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) currentSession).getBGPTimersState();
+        if (currentSession instanceof BGPSessionStateProvider stateProvider) {
+            return stateProvider.getBGPTimersState();
         }
         return null;
     }
 
     @Override
     public synchronized BGPTransportState getBGPTransportState() {
-        if (currentSession instanceof BGPSessionStateProvider) {
-            return ((BGPSessionStateProvider) currentSession).getBGPTransportState();
+        if (currentSession instanceof BGPSessionStateProvider stateProvider) {
+            return stateProvider.getBGPTransportState();
         }
         return null;
     }
