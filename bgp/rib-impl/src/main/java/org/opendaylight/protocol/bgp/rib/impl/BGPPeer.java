@@ -605,7 +605,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private synchronized FluentFuture<? extends CommitInfo> terminateConnection() {
-        final FluentFuture<? extends CommitInfo> future;
         if (trackerRegistration != null) {
             trackerRegistration.close();
             trackerRegistration = null;
@@ -620,7 +619,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         tables = ImmutableSet.of();
         addPathTableMaps = ImmutableMap.of();
-        future = removePeer(peerPath);
+        final var future = removePeer(peerPath);
         resetState();
 
         return future;
