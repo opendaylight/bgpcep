@@ -24,6 +24,19 @@
     <description>BGP Topology Provider</description>
     <name>${project.artifactId}</name>
 
+    <!-- FIXME: UT fails with mockito-5 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-bom</artifactId>
+                <version>4.11.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

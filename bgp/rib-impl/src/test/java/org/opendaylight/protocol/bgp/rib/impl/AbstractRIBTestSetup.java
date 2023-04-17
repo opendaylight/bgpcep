@@ -149,6 +149,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(domChain).when(dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
         doReturn(Optional.empty()).when(future).get();
         doReturn(future).when(domTransWrite).commit();
+        doCallRealMethod().when(future).addCallback(any(), any());
         doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
     }
 
