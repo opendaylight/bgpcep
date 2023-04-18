@@ -10,17 +10,17 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.withSettings;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
@@ -28,13 +28,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockMakers;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -343,20 +343,23 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
      * This test is to verify if the AbstractTopologyBuilder/LinkstateTopologyBuilder is handling exception correctly.
      */
     @Test
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testRouteChangedError() throws Exception {
-        final LinkstateTopologyBuilder spiedLinkstateTopologyBuilder = spy(linkstateTopoBuilder);
+        // FIXME: this is a very weird setup and does not work with inline mockmaker
+        //        perhaps that is because of https://github.com/mockito/mockito/issues/2488, but we should be able to
+        //        rework this test in some other way (i.e. pure mocking with real classes)?
+        final var spiedLinkstateTopologyBuilder = mock(LinkstateTopologyBuilder.class,
+            // this part is the same as spy(), but ...
+            withSettings().spiedInstance(linkstateTopoBuilder).defaultAnswer(CALLS_REAL_METHODS)
+            // ... here we use a different MockMaker
+                .mockMaker(MockMakers.SUBCLASS));
         doThrow(RuntimeException.class).when(spiedLinkstateTopologyBuilder).routeChanged(any(), any());
-        try {
-            spiedLinkstateTopologyBuilder.routeChanged(null, null);
-            fail("Mockito failed to spy routeChanged() method");
-        } catch (final Exception e) {
-            assertTrue(e instanceof RuntimeException);
-        }
+        // Verify throws spying
+        assertThrows(RuntimeException.class, () -> spiedLinkstateTopologyBuilder.routeChanged(null, null));
+
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         // first we examine if the chain is being reset when no exception is thrown
-        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(List.of());
         verify(spiedLinkstateTopologyBuilder, times(1)).restartTransactionChainOnDemand();
         verify(spiedLinkstateTopologyBuilder, never()).scheduleListenerRestart();
         verify(spiedLinkstateTopologyBuilder, never()).resetTransactionChain();
@@ -364,8 +367,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertEquals(0L, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         // now pass some invalid data to cause onDataTreeChanged fail
         final DataTreeModification<LinkstateRoute> modification = mock(DataTreeModification.class, RETURNS_SMART_NULLS);
-        final List<DataTreeModification<LinkstateRoute>> changes = new ArrayList<>();
-        changes.add(modification);
+        final List<DataTreeModification<LinkstateRoute>> changes = List.of(modification);
         spiedLinkstateTopologyBuilder.onDataTreeChanged(changes);
         // one restart transaction chain check in onDataTreeChanged()
         // we are introducing some timeout here as transaction may be executed in a delay manner
@@ -375,7 +377,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         final long listenerScheduledRestartTime = spiedLinkstateTopologyBuilder.listenerScheduledRestartTime;
         // call again with empty change to invoke restartTransactionChainOnDemand()
-        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(List.of());
         verify(spiedLinkstateTopologyBuilder, times(3)).restartTransactionChainOnDemand();
         // transaction chain should be reset while listener should not
         verify(spiedLinkstateTopologyBuilder, times(1)).resetTransactionChain();
@@ -404,7 +406,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // sleep to let the listener restart timer times out
         Thread.sleep(LISTENER_RESTART_TIME);
         // apply a good modification (empty change)
-        spiedLinkstateTopologyBuilder.onDataTreeChanged(new ArrayList<>());
+        spiedLinkstateTopologyBuilder.onDataTreeChanged(List.of());
         assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
         assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         verify(spiedLinkstateTopologyBuilder, times(6)).restartTransactionChainOnDemand();
