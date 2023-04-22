@@ -95,7 +95,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private List<CLinkstateDestination> parseNlri(final ByteBuf nlri) {
         final List<CLinkstateDestination> dests = new ArrayList<>();
         while (nlri.isReadable()) {
-            final CLinkstateDestination destination = this.nlriTypeReg.parseNlriType(nlri);
+            final CLinkstateDestination destination = nlriTypeReg.parseNlriType(nlri);
             if (destination == null) {
                 continue;
             }
@@ -151,7 +151,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                     = (DestinationLinkstateCase) withdrawnRoutes.getDestinationType();
             for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
                     .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
+                nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
@@ -167,111 +167,99 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                         .bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type
                         .DestinationLinkstateCase) advertizedRoutes.getDestinationType();
 
-            for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
-                    .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
+            for (var linkstateDestinationCase : linkstateCase.getDestinationLinkstate().getCLinkstateDestination()) {
+                nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
 
     // FIXME : use codec
     private static int domProtocolIdValue(final String protocolId) {
-        switch (protocolId) {
-            case "isis-level1":
-                return ProtocolId.IsisLevel1.getIntValue();
-            case "isis-level2":
-                return ProtocolId.IsisLevel2.getIntValue();
-            case "ospf":
-                return ProtocolId.Ospf.getIntValue();
-            case "direct":
-                return ProtocolId.Direct.getIntValue();
-            case "static":
-                return ProtocolId.Static.getIntValue();
-            case "ospf-v3":
-                return ProtocolId.OspfV3.getIntValue();
-            case "rsvp-te":
-                return ProtocolId.RsvpTe.getIntValue();
-            case "bgp-epe":
-                return ProtocolId.BgpEpe.getIntValue();
-            case "segment-routing":
-                return ProtocolId.SegmentRouting.getIntValue();
-            default:
-                return 0;
-        }
+        return switch (protocolId) {
+            case "isis-level1" -> ProtocolId.IsisLevel1.getIntValue();
+            case "isis-level2" -> ProtocolId.IsisLevel2.getIntValue();
+            case "ospf" -> ProtocolId.Ospf.getIntValue();
+            case "direct" -> ProtocolId.Direct.getIntValue();
+            case "static" -> ProtocolId.Static.getIntValue();
+            case "ospf-v3" -> ProtocolId.OspfV3.getIntValue();
+            case "rsvp-te" -> ProtocolId.RsvpTe.getIntValue();
+            case "bgp-epe" -> ProtocolId.BgpEpe.getIntValue();
+            case "segment-routing" -> ProtocolId.SegmentRouting.getIntValue();
+            default -> 0;
+        };
     }
 
     public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode linkstate) {
-        final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
-        serializeCommonParts(builder, linkstate);
-
-        final ChoiceNode objectType = (ChoiceNode) linkstate.findChildByArg(OBJECT_TYPE_NID).get();
-        if (objectType.findChildByArg(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
-            serializeAdvertisedNodeDescriptor(builder, objectType);
-        } else if (objectType.findChildByArg(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
-            serializeLocalNodeDescriptor(builder, objectType);
-        } else if (objectType.findChildByArg(NODE_DESCRIPTORS_NID).isPresent()) {
-            serializeNodeDescriptor(builder, objectType);
-        } else if (AbstractTeLspNlriCodec.isTeLsp(objectType)) {
-            builder.setObjectType(AbstractTeLspNlriCodec.serializeTeLsp(objectType));
-        } else {
-            LOG.warn("Unknown Object Type: {}.", objectType);
-        }
-        return builder.build();
-    }
-
-    private static void serializeNodeDescriptor(final CLinkstateDestinationBuilder builder,
-            final ChoiceNode objectType) {
-        final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
-        // node descriptors
-        nodeBuilder.setNodeDescriptors(NodeNlriParser
-                .serializeNodeDescriptors((ContainerNode) objectType.findChildByArg(NODE_DESCRIPTORS_NID).get()));
-        builder.setObjectType(nodeBuilder.build());
-    }
-
-    private static void serializeLocalNodeDescriptor(final CLinkstateDestinationBuilder builder,
-            final ChoiceNode objectType) {
-        // link local node descriptors
-        final LinkCaseBuilder linkBuilder = new LinkCaseBuilder();
-
-        linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType
-                .findChildByArg(LOCAL_NODE_DESCRIPTORS_NID).get()));
-        // link remote node descriptors
-        if (objectType.findChildByArg(REMOTE_NODE_DESCRIPTORS_NID).isPresent()) {
-            linkBuilder.setRemoteNodeDescriptors(NodeNlriParser.serializeRemoteNodeDescriptors(
-                (ContainerNode) objectType.findChildByArg(REMOTE_NODE_DESCRIPTORS_NID).get()));
-        }
-        // link descriptors
-        objectType.findChildByArg(LINK_DESCRIPTORS_NID).ifPresent(
-            dataContainerChild -> linkBuilder.setLinkDescriptors(
-                LinkNlriParser.serializeLinkDescriptors((ContainerNode) dataContainerChild)));
-        builder.setObjectType(linkBuilder.build());
-    }
-
-    private static void serializeAdvertisedNodeDescriptor(final CLinkstateDestinationBuilder builder,
-            final ChoiceNode objectType) {
-        // prefix node descriptors
-        final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
-        prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors(
-            (ContainerNode) objectType.findChildByArg(ADVERTISING_NODE_DESCRIPTORS_NID).get()));
-
-        // prefix descriptors
-        objectType.findChildByArg(PREFIX_DESCRIPTORS_NID).ifPresent(
-            dataContainerChild -> prefixBuilder.setPrefixDescriptors(
-                AbstractPrefixNlriParser.serializePrefixDescriptors((ContainerNode) dataContainerChild)));
-        builder.setObjectType(prefixBuilder.build());
-    }
-
-    private static void serializeCommonParts(final CLinkstateDestinationBuilder builder,
-            final DataContainerNode linkstate) {
+        final var builder = new CLinkstateDestinationBuilder();
         // serialize common parts
-        linkstate.findChildByArg(DISTINGUISHER_NID).ifPresent(
-            dataContainerChild -> builder.setRouteDistinguisher(
-                RouteDistinguisherUtil.parseRouteDistinguisher(dataContainerChild.body())));
-        linkstate.findChildByArg(PROTOCOL_ID_NID).ifPresent(
+        final var distinguisher = linkstate.childByArg(DISTINGUISHER_NID);
+        if (distinguisher != null) {
+            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(distinguisher.body()));
+        }
+        final var protocolId = linkstate.childByArg(PROTOCOL_ID_NID);
+        if (protocolId != null) {
             // DOM representation contains values as are in the model, not as are in generated enum
-            dataContainerChild -> builder.setProtocolId(
-                ProtocolId.forValue(domProtocolIdValue((String) dataContainerChild.body()))));
-        linkstate.findChildByArg(IDENTIFIER_NID).ifPresent(
-            dataContainerChild -> builder.setIdentifier(new Identifier((Uint64) dataContainerChild.body())));
+            builder.setProtocolId(ProtocolId.forValue(domProtocolIdValue((String) protocolId.body())));
+        }
+        final var identifier = linkstate.childByArg(IDENTIFIER_NID);
+        if (identifier != null) {
+            builder.setIdentifier(new Identifier((Uint64) identifier.body()));
+        }
+
+        return builder
+            .setObjectType(serializeObjectType((ChoiceNode) linkstate.getChildByArg(OBJECT_TYPE_NID)))
+            .build();
+    }
+
+    private static ObjectType serializeObjectType(final ChoiceNode objectType) {
+        final var advNode = objectType.childByArg(ADVERTISING_NODE_DESCRIPTORS_NID);
+        if (advNode != null) {
+            // prefix node descriptors
+            final var builder = new PrefixCaseBuilder()
+                .setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors((ContainerNode) advNode));
+
+            // prefix descriptors
+            final var prefix = objectType.childByArg(PREFIX_DESCRIPTORS_NID);
+            if (prefix != null) {
+                builder.setPrefixDescriptors(
+                    AbstractPrefixNlriParser.serializePrefixDescriptors((ContainerNode) prefix));
+            }
+            return builder.build();
+        }
+
+        final var localNode = objectType.childByArg(LOCAL_NODE_DESCRIPTORS_NID);
+        if (localNode != null) {
+            // link local node descriptors
+            final var builder = new LinkCaseBuilder()
+                .setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) localNode));
+            // link remote node descriptors
+            final var remoteNode = objectType.childByArg(REMOTE_NODE_DESCRIPTORS_NID);
+            if (remoteNode != null) {
+                builder.setRemoteNodeDescriptors(
+                    NodeNlriParser.serializeRemoteNodeDescriptors((ContainerNode) remoteNode));
+            }
+            // link descriptors
+            final var link = objectType.childByArg(LINK_DESCRIPTORS_NID);
+            if (link != null) {
+                builder.setLinkDescriptors(LinkNlriParser.serializeLinkDescriptors((ContainerNode) link));
+            }
+            return builder.build();
+        }
+
+        final var node = objectType.childByArg(NODE_DESCRIPTORS_NID);
+        if (node != null) {
+            // node descriptors
+            return new NodeCaseBuilder()
+                .setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) node))
+                .build();
+        }
+
+        final var teLsp = AbstractTeLspNlriCodec.serializeObjectType(objectType);
+        if (teLsp != null) {
+            return teLsp;
+        }
+
+        LOG.warn("Ignoring unknown Object Type: {}.", objectType);
+        return null;
     }
 }

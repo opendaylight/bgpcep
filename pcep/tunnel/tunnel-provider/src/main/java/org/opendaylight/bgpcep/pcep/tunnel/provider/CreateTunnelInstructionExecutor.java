@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
@@ -77,7 +76,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(),
                 addLspInput.getName());
         try {
-            Preconditions.checkState(!rt.read(LogicalDatastoreType.OPERATIONAL, lii).get().isPresent());
+            Preconditions.checkState(!rt.exists(LogicalDatastoreType.OPERATIONAL, lii).get());
         } catch (final InterruptedException | ExecutionException e) {
             throw new IllegalStateException("Failed to ensure link existence.", e);
         }
@@ -110,9 +109,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         }
 
         // We need to have a ret now
-        Preconditions.checkArgument(ret != null, "Failed to find like Endpoint addresses");
-
-        return ret.get();
+        return ret.orElseThrow(() -> new IllegalArgumentException("Failed to find like Endpoint addresses"));
     }
 
     private static Optional<AddressFamily> findIpv4(final Set<IpAddress> srcs, final Set<IpAddress> dsts) {
@@ -214,7 +211,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
         private DataObject read(final InstanceIdentifier<?> id) {
             try {
-                return rt.read(LogicalDatastoreType.OPERATIONAL, id).get().get();
+                return rt.read(LogicalDatastoreType.OPERATIONAL, id).get().orElseThrow();
             } catch (final InterruptedException | ExecutionException e) {
                 throw new IllegalStateException("Failed to read data.", e);
             }

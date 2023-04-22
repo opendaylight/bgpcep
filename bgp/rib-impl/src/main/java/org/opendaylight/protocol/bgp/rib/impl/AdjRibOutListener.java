@@ -137,13 +137,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             case DELETE:
             case DISAPPEARED:
                 // FIXME: we can batch deletions into a single batch
-                update = withdraw((MapEntryNode) route.getDataBefore().get());
+                update = withdraw((MapEntryNode) route.getDataBefore().orElseThrow());
                 LOG.debug("Withdrawing routes {}", update);
                 break;
             case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
-                update = advertise((MapEntryNode) route.getDataAfter().get());
+                update = advertise((MapEntryNode) route.getDataAfter().orElseThrow());
                 LOG.debug("Advertising routes {}", update);
                 break;
             default:

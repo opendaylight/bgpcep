@@ -89,10 +89,7 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
         final Optional<Statements> result =
                 tr.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.child(PolicyDefinitions.class)
                         .child(PolicyDefinition.class, new PolicyDefinitionKey(key)).child(Statements.class)).get();
-        if (!result.isPresent()) {
-            return List.of();
-        }
-        return result.get().getStatement();
+        return result.map(Statements::getStatement).orElse(List.of());
     }
 
     @Override

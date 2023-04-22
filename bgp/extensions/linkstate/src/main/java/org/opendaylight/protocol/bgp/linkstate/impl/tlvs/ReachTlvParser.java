@@ -72,14 +72,15 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     }
 
     public static IpPrefix serializeModel(final ContainerNode prefixDesc) {
-        return prefixDesc.findChildByArg(IP_REACH_NID)
-                .map(child -> {
-                    final String prefix = (String) child.body();
-                    // Get the prefix length from the string to determine if it is an IPv4 or an IPv6 prefix
-                    final int length = Ipv4Util.getPrefixLengthBytes(prefix);
-                    return length <= Ipv4Util.IP4_LENGTH ? new IpPrefix(new Ipv4Prefix(prefix))
-                        : new IpPrefix(new Ipv6Prefix(prefix));
-                })
-                .orElse(null);
+        final var ipReach = prefixDesc.childByArg(IP_REACH_NID);
+        if (ipReach == null) {
+            return null;
+        }
+
+        final String prefix = (String) ipReach.body();
+        // Get the prefix length from the string to determine if it is an IPv4 or an IPv6 prefix
+        final int length = Ipv4Util.getPrefixLengthBytes(prefix);
+        return length <= Ipv4Util.IP4_LENGTH ? new IpPrefix(new Ipv4Prefix(prefix))
+            : new IpPrefix(new Ipv6Prefix(prefix));
     }
 }

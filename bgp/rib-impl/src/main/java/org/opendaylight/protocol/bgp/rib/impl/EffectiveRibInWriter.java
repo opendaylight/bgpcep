@@ -335,8 +335,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier effAttrsPath = effectiveTablePath.node(ATTRIBUTES_NID);
             final Optional<NormalizedNode> optAttrsAfter = modifiedAttrs.getDataAfter();
             if (optAttrsAfter.isPresent()) {
-                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath, effectiveAttributes(
-                    NormalizedNodes.findNode(optAttrsAfter.get(), UPTODATE_NID)));
+                tx.put(LogicalDatastoreType.OPERATIONAL, effAttrsPath,
+                    effectiveAttributes(extractContainer(optAttrsAfter.orElseThrow())));
             } else {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, effAttrsPath);
             }
@@ -379,16 +379,18 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         final Optional<NormalizedNode> maybeTableAfter = table.getDataAfter();
         if (maybeTableAfter.isPresent()) {
-            final MapEntryNode tableAfter = extractMapEntry(maybeTableAfter);
+            final NormalizedNode node = maybeTableAfter.orElseThrow();
+            verify(node instanceof MapEntryNode, "Expected MapEntryNode, got %s", node);
+            final MapEntryNode tableAfter = (MapEntryNode) node;
             ribContext.createEmptyTableStructure(tx, effectiveTablePath);
 
-            final Optional<DataContainerChild> maybeAttrsAfter = tableAfter.findChildByArg(ATTRIBUTES_NID);
+            final DataContainerChild maybeAttrsAfter = tableAfter.childByArg(ATTRIBUTES_NID);
             final boolean longLivedStale;
-            if (maybeAttrsAfter.isPresent()) {
+            if (maybeAttrsAfter != null) {
                 final ContainerNode attrsAfter = extractContainer(maybeAttrsAfter);
                 longLivedStale = isLongLivedStale(attrsAfter);
                 tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ATTRIBUTES_NID),
-                    effectiveAttributes(attrsAfter.findChildByArg(UPTODATE_NID)));
+                    effectiveAttributes(attrsAfter));
             } else {
                 longLivedStale = false;
             }
@@ -461,7 +463,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             case APPEARED:
             case SUBTREE_MODIFIED:
             case WRITE:
-                writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().get(),
+                writeRoute(tx, ribSupport, routePath, route.getDataBefore(), route.getDataAfter().orElseThrow(),
                     longLivedStale);
                 break;
             default:
@@ -503,7 +505,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             optEffAtt = ribPolicies.applyImportPolicies(peerImportParameters, routeAttrs,
                 verifyNotNull(tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())));
         }
-        if (!optEffAtt.isPresent()) {
+        if (optEffAtt.isEmpty()) {
             deleteRoute(tx, ribSupport, routePath, routeBefore.orElse(null));
             return;
         }
@@ -511,7 +513,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
         CountersUtil.increment(prefixesInstalled.get(tablesKey), tablesKey);
 
-        final Attributes attToStore = optEffAtt.get();
+        final Attributes attToStore = optEffAtt.orElseThrow();
         if (!attToStore.equals(routeAttrs)) {
             final YangInstanceIdentifier attPath = routePath.node(ribSupport.routeAttributesIdentifier());
             final ContainerNode finalAttribute = ribSupport.attributeToContainerNode(attPath, attToStore);
@@ -597,22 +599,15 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return NormalizedNodes.findNode(optRoutes, ribSupport.relativeRoutesPath());
     }
 
-    private static ContainerNode extractContainer(final Optional<? extends NormalizedNode> optNode) {
-        final NormalizedNode node = optNode.get();
+    private static ContainerNode extractContainer(final NormalizedNode node) {
         verify(node instanceof ContainerNode, "Expected ContainerNode, got %s", node);
         return (ContainerNode) node;
     }
 
     private static MapNode extractMap(final Optional<? extends NormalizedNode> optNode) {
-        final NormalizedNode node = optNode.get();
+        final NormalizedNode node = optNode.orElseThrow();
         verify(node instanceof MapNode, "Expected MapNode, got %s", node);
         return (MapNode) node;
-    }
-
-    private static MapEntryNode extractMapEntry(final Optional<? extends NormalizedNode> optNode) {
-        final NormalizedNode node = optNode.get();
-        verify(node instanceof MapEntryNode, "Expected MapEntryNode, got %s", node);
-        return (MapEntryNode) node;
     }
 
     private static boolean isLongLivedStale(final ContainerNode attributes) {
@@ -621,15 +616,18 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private static boolean isLongLivedStaleTable(final Optional<NormalizedNode> optTable) {
         final Optional<NormalizedNode> optAttributes = NormalizedNodes.findNode(optTable, ATTRIBUTES_NID);
-        return optAttributes.isPresent() && isLongLivedStale(extractContainer(optAttributes));
+        return optAttributes.isPresent() && isLongLivedStale(extractContainer(optAttributes.orElseThrow()));
     }
 
-    private static ContainerNode effectiveAttributes(final Optional<? extends NormalizedNode> optUptodate) {
-        return optUptodate.map(leaf -> {
-            final Object value = leaf.body();
+    private static ContainerNode effectiveAttributes(final ContainerNode attrs) {
+        final var upToDate = attrs.childByArg(UPTODATE_NID);
+        if (upToDate != null) {
+            final Object value = upToDate.body();
             verify(value instanceof Boolean, "Expected boolean uptodate, got %s", value);
-            return (Boolean) value ? RIBNormalizedNodes.UPTODATE_ATTRIBUTES
-                    : RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
-        }).orElse(RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES);
+            if ((Boolean) value) {
+                return RIBNormalizedNodes.UPTODATE_ATTRIBUTES;
+            }
+        }
+        return RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
     }
 }
