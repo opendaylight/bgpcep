@@ -7,9 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock.spi;
 
-import com.google.common.collect.Lists;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
@@ -63,7 +61,7 @@ public final class MsgBuilderUtil {
     public static Pcrpt createPcRtpMessage(final Lsp lsp, final Optional<Srp> srp, final Path path) {
         return new PcrptBuilder()
                 .setPcrptMessage(new PcrptMessageBuilder()
-                    .setReports(Lists.newArrayList(new ReportsBuilder()
+                    .setReports(List.of(new ReportsBuilder()
                         .setLsp(lsp)
                         .setSrp(srp.orElse(null))
                         .setPath(path).build()))
@@ -143,18 +141,21 @@ public final class MsgBuilderUtil {
                                         .build()).build()).setTunnelId(new TunnelId(Uint16.valueOf(lspId))).build());
         if (symbolicPathName) {
             if (symbolicName.isPresent()) {
-                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-                        new SymbolicPathName(symbolicName.get())).build());
+                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder()
+                    .setPathName(new SymbolicPathName(symbolicName.orElseThrow()))
+                    .build());
             } else {
-                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(
-                        new SymbolicPathName(getDefaultPathName(tunnelSender, lspId))).build());
+                tlvs.setSymbolicPathName(new SymbolicPathNameBuilder()
+                    .setPathName(new SymbolicPathName(getDefaultPathName(tunnelSender, lspId)))
+                    .build());
             }
         }
 
-        if (lspDBVersion.isPresent()) {
+        lspDBVersion.ifPresent(dbVersion -> {
             tlvs.addAugmentation(new Tlvs1Builder()
-                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(lspDBVersion.get()).build()).build());
-        }
+                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(dbVersion).build())
+                .build());
+        });
         return tlvs.build();
     }
 
@@ -169,7 +170,7 @@ public final class MsgBuilderUtil {
                 .setPcerrMessage(new PcerrMessageBuilder()
                     .setErrorType(new StatefulCaseBuilder()
                         .setStateful(new StatefulBuilder()
-                            .setSrps(Collections.singletonList(new SrpsBuilder()
+                            .setSrps(List.of(new SrpsBuilder()
                                 .setSrp(new SrpBuilder()
                                     .setProcessingRule(false)
                                     .setIgnore(false)
@@ -178,7 +179,7 @@ public final class MsgBuilderUtil {
                                 .build()))
                             .build())
                         .build())
-                    .setErrors(Collections.singletonList(new ErrorsBuilder()
+                    .setErrors(List.of(new ErrorsBuilder()
                         .setErrorObject(new ErrorObjectBuilder()
                             .setType(pcepErrors.getErrorType())
                             .setValue(pcepErrors.getErrorValue())

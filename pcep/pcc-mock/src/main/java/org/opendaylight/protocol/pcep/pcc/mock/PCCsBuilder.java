@@ -70,9 +70,8 @@ final class PCCsBuilder {
         InetAddress currentAddress = localAddress.getAddress();
         PCCDispatcherImpl pccDispatcher = new PCCDispatcherImpl(registry);
 
-        if (timerHandler.isPresent()) {
-            timerHandler.get().setPCCDispatcher(pccDispatcher);
-        }
+        timerHandler.ifPresent(handler -> handler.setPCCDispatcher(pccDispatcher));
+
         for (int i = 0; i < pccCount; i++) {
             final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(lsps, currentAddress,
                 redelegationTimeout, stateTimeout, timer, timerHandler);

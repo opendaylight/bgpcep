@@ -97,7 +97,7 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
         if (!sessionManager.addSessionListener(this)) {
             LOG.warn("Redundant BMP session with remote router {} ({}) detected. This BMP session will be abandoned.",
                 routerIp, session);
-            this.close();
+            close();
         } else {
             routerYangIId = YangInstanceIdentifier.builder(sessionManager.getRoutersYangIId())
                 .nodeWithKey(Router.QNAME, ROUTER_ID_QNAME, routerIp).build();
@@ -259,7 +259,7 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
         final PeerId peerId = getPeerId((PeerHeader) perPeerMessage);
         final Optional<BmpRouterPeer> maybePeer = getPeer(peerId);
         if (maybePeer.isPresent()) {
-            maybePeer.get().onPeerMessage(perPeerMessage);
+            maybePeer.orElseThrow().onPeerMessage(perPeerMessage);
             if (perPeerMessage instanceof PeerDownNotification) {
                 peers.remove(peerId);
                 LOG.debug("Router {}: Peer {} removed.", routerIp, peerId.getValue());

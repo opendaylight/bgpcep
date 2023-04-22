@@ -159,6 +159,6 @@ public final class Main {
 
     private static ch.qos.logback.classic.Logger getRootLogger(final LoggerContext lc) {
         return lc.getLoggerList().stream().filter(input -> input != null && input.getName()
-            .equals(Logger.ROOT_LOGGER_NAME)).findFirst().get();
+            .equals(Logger.ROOT_LOGGER_NAME)).findFirst().orElseThrow();
     }
 }

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.ipv6;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
@@ -31,7 +31,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 public final class FlowspecIpv6NlriParserHelper {
@@ -39,87 +38,98 @@ public final class FlowspecIpv6NlriParserHelper {
     private static final NodeIdentifier FLOW_LABEL_NID = new NodeIdentifier(FlowLabel.QNAME);
 
     private FlowspecIpv6NlriParserHelper() {
-
+        // Hidden on purpose
     }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
+        final var destPrefix = fsType.childByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID);
+        if (destPrefix != null) {
             fsBuilder.setFlowspecType(new DestinationIpv6PrefixCaseBuilder()
-                .setDestinationPrefix(new Ipv6Prefix((String) fsType
-                    .findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get().body())).build());
-        } else if (fsType.findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new SourceIpv6PrefixCaseBuilder().setSourcePrefix(new Ipv6Prefix((String) fsType
-                .findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().body())).build());
-        } else if (fsType.findChildByArg(NEXT_HEADER_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new NextHeaderCaseBuilder()
-                .setNextHeaders(createNextHeaders((UnkeyedListNode) fsType.findChildByArg(NEXT_HEADER_NID).get()))
+                .setDestinationPrefix(new Ipv6Prefix((String) destPrefix.body()))
                 .build());
-        } else if (fsType.findChildByArg(FLOW_LABEL_NID).isPresent()) {
+            return;
+        }
+        final var sourcePrefix = fsType.childByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID);
+        if (sourcePrefix != null) {
+            fsBuilder.setFlowspecType(new SourceIpv6PrefixCaseBuilder()
+                .setSourcePrefix(new Ipv6Prefix((String) sourcePrefix.body()))
+                .build());
+            return;
+        }
+        final var nextHeader = fsType.childByArg(NEXT_HEADER_NID);
+        if (nextHeader != null) {
+            fsBuilder.setFlowspecType(new NextHeaderCaseBuilder()
+                .setNextHeaders(createNextHeaders((UnkeyedListNode) nextHeader))
+                .build());
+            return;
+        }
+        final var flowLabel = fsType.childByArg(FLOW_LABEL_NID);
+        if (flowLabel != null) {
             fsBuilder.setFlowspecType(new FlowLabelCaseBuilder()
-                .setFlowLabel(createFlowLabels((UnkeyedListNode) fsType.findChildByArg(FLOW_LABEL_NID).get())).build());
+                .setFlowLabel(createFlowLabels((UnkeyedListNode) flowLabel))
+                .build());
         }
     }
 
     public static void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
-        if (value instanceof DestinationIpv6PrefixCase) {
-            buffer.append("to ");
-            buffer.append(((DestinationIpv6PrefixCase) value).getDestinationPrefix().getValue());
-        } else if (value instanceof SourceIpv6PrefixCase) {
-            buffer.append("from ");
-            buffer.append(((SourceIpv6PrefixCase) value).getSourcePrefix().getValue());
-        } else if (value instanceof NextHeaderCase) {
-            buffer.append("where next header ");
-            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((NextHeaderCase) value).getNextHeaders()));
-        } else if (value instanceof FlowLabelCase) {
-            buffer.append("where flow label ");
-            buffer.append(stringFlowLabel(((FlowLabelCase) value).getFlowLabel()));
+        if (value instanceof DestinationIpv6PrefixCase destinationIpv6) {
+            buffer.append("to ").append(destinationIpv6.getDestinationPrefix().getValue());
+        } else if (value instanceof SourceIpv6PrefixCase sourceIpv6) {
+            buffer.append("from ").append(sourceIpv6.getSourcePrefix().getValue());
+        } else if (value instanceof NextHeaderCase nextHeader) {
+            buffer.append("where next header ").append(
+                NumericOneByteOperandParser.INSTANCE.toString(nextHeader.getNextHeaders()));
+        } else if (value instanceof FlowLabelCase flowLabel) {
+            buffer.append("where flow label ").append(stringFlowLabel(flowLabel.getFlowLabel()));
         }
     }
 
     private static List<NextHeaders> createNextHeaders(final UnkeyedListNode nextHeadersData) {
-        final List<NextHeaders> nextHeaders = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : nextHeadersData.body()) {
-            final NextHeadersBuilder nextHeadersBuilder = new NextHeadersBuilder();
-            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
-                dataContainerChild -> nextHeadersBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
-                dataContainerChild -> nextHeadersBuilder.setValue((Uint8) dataContainerChild.body()));
-            nextHeaders.add(nextHeadersBuilder.build());
-        }
-
-        return nextHeaders;
+        return nextHeadersData.body().stream()
+            .map(node -> {
+                final var builder = new NextHeadersBuilder();
+                final var op = node.childByArg(AbstractFlowspecNlriParser.OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(AbstractFlowspecNlriParser.VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint8) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<FlowLabel> createFlowLabels(final UnkeyedListNode flowLabelsData) {
-        final List<FlowLabel> flowLabels = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : flowLabelsData.body()) {
-            final FlowLabelBuilder flowLabelsBuilder = new FlowLabelBuilder();
-            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
-                dataContainerChild -> flowLabelsBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
-                dataContainerChild -> flowLabelsBuilder.setValue((Uint32) dataContainerChild.body()));
-            flowLabels.add(flowLabelsBuilder.build());
-        }
-
-        return flowLabels;
+        return flowLabelsData.body().stream()
+            .map(node -> {
+                final var builder = new FlowLabelBuilder();
+                final var op = node.childByArg(AbstractFlowspecNlriParser.OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(AbstractFlowspecNlriParser.VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint32) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static String stringFlowLabel(final List<FlowLabel> list) {
-        final StringBuilder buffer = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
-        for (final FlowLabel item : list) {
-            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(item.getOp(), isFirst));
-            buffer.append(item.getValue());
-            buffer.append(' ');
+        for (var label : list) {
+            sb.append(NumericOneByteOperandParser.INSTANCE.toString(label.getOp(), isFirst));
+            sb.append(label.getValue());
+            sb.append(' ');
             if (isFirst) {
                 isFirst = false;
             }
         }
-        return buffer.toString();
+        return sb.toString();
     }
 }
 

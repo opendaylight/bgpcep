@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.linkstate.spi;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Verify.verifyNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -58,35 +59,45 @@ public abstract class AbstractTeLspNlriCodec extends AbstractNlriTypeCodec {
     @VisibleForTesting
     public static final NodeIdentifier ADDRESS_FAMILY = NodeIdentifier.create(AddressFamily.QNAME);
 
+    @Deprecated(forRemoval = true)
     public static boolean isTeLsp(final ChoiceNode objectType) {
         return objectType.childByArg(ADDRESS_FAMILY) != null;
     }
 
+    @Deprecated(forRemoval = true)
     public static TeLspCase serializeTeLsp(final ChoiceNode objectType) {
-        final ChoiceNode addressFamily = (ChoiceNode) verifyNotNull(objectType.childByArg(ADDRESS_FAMILY));
-        return new TeLspCaseBuilder()
-                .setLspId(new LspId((Uint32) verifyNotNull(objectType.childByArg(LSP_ID)).body()))
-                .setTunnelId(new TunnelId((Uint16) verifyNotNull(objectType.childByArg(TUNNEL_ID)).body()))
-                .setAddressFamily(serializeAddressFamily(addressFamily,
-                    addressFamily.childByArg(IPV4_TUNNEL_SENDER_ADDRESS) != null))
-                .build();
+        return serializeObjectType(objectType, (ChoiceNode) objectType.getChildByArg(ADDRESS_FAMILY));
     }
 
     private static AddressFamily serializeAddressFamily(final ChoiceNode addressFamily, final boolean ipv4Case) {
         if (ipv4Case) {
             return new Ipv4CaseBuilder()
                 .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(
-                    (String) verifyNotNull(addressFamily.childByArg(IPV4_TUNNEL_SENDER_ADDRESS)).body()))
+                    (String) addressFamily.getChildByArg(IPV4_TUNNEL_SENDER_ADDRESS).body()))
                 .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(
-                    (String) verifyNotNull(addressFamily.childByArg(IPV4_TUNNEL_ENDPOINT_ADDRESS)).body()))
+                    (String) addressFamily.getChildByArg(IPV4_TUNNEL_ENDPOINT_ADDRESS).body()))
                 .build();
         }
 
         return new Ipv6CaseBuilder()
             .setIpv6TunnelSenderAddress(new Ipv6AddressNoZone(
-                (String) verifyNotNull(addressFamily.childByArg(IPV6_TUNNEL_SENDER_ADDRESS)).body()))
+                (String) addressFamily.getChildByArg(IPV6_TUNNEL_SENDER_ADDRESS).body()))
             .setIpv6TunnelEndpointAddress(new Ipv6AddressNoZone(
-                (String) verifyNotNull(addressFamily.childByArg(IPV6_TUNNEL_ENDPOINT_ADDRESS)).body()))
+                (String) addressFamily.getChildByArg(IPV6_TUNNEL_ENDPOINT_ADDRESS).body()))
+            .build();
+    }
+
+    public static @Nullable TeLspCase serializeObjectType(final ChoiceNode objectType) {
+        final var addressFamily = objectType.childByArg(ADDRESS_FAMILY);
+        return addressFamily == null ? null : serializeObjectType(objectType, (ChoiceNode) addressFamily);
+    }
+
+    private static @NonNull TeLspCase serializeObjectType(final ChoiceNode objectType, final ChoiceNode addressFamily) {
+        return new TeLspCaseBuilder()
+            .setLspId(new LspId((Uint32) objectType.getChildByArg(LSP_ID).body()))
+            .setTunnelId(new TunnelId((Uint16) objectType.getChildByArg(TUNNEL_ID).body()))
+            .setAddressFamily(serializeAddressFamily(addressFamily,
+                addressFamily.childByArg(IPV4_TUNNEL_SENDER_ADDRESS) != null))
             .build();
     }
 

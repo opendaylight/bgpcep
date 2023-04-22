@@ -122,50 +122,51 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
     private static IsisNodeCase serializeIsisNode(final ContainerNode isis) {
         return new IsisNodeCaseBuilder()
             .setIsisNode(new IsisNodeBuilder()
-                .setIsoSystemId(new IsoSystemIdentifier((byte[]) isis.findChildByArg(ISO_SYSTEM_NID).get().body()))
+                .setIsoSystemId(new IsoSystemIdentifier((byte[]) isis.getChildByArg(ISO_SYSTEM_NID).body()))
                 .build())
             .build();
     }
 
     private static IsisPseudonodeCase serializeIsisPseudoNode(final ContainerNode pseudoIsisNode) {
         final IsIsRouterIdentifierBuilder isisRouterId = new IsIsRouterIdentifierBuilder();
-        if (pseudoIsisNode.findChildByArg(ISIS_ROUTER_NID).isPresent()) {
-            final ContainerNode isisRouterNid = (ContainerNode) pseudoIsisNode.findChildByArg(ISIS_ROUTER_NID).get();
-            if (isisRouterNid.findChildByArg(ISO_SYSTEM_NID).isPresent()) {
-                isisRouterId.setIsoSystemId(
-                    new IsoSystemIdentifier((byte[]) isisRouterNid.findChildByArg(ISO_SYSTEM_NID).get().body()));
+        final var isisRouterNid = pseudoIsisNode.childByArg(ISIS_ROUTER_NID);
+        if (isisRouterNid != null) {
+            final var isoSystemId = ((ContainerNode) isisRouterNid).childByArg(ISO_SYSTEM_NID);
+            if (isoSystemId != null) {
+                isisRouterId.setIsoSystemId(new IsoSystemIdentifier((byte[]) isoSystemId.body()));
             }
         }
 
-        final IsisPseudonodeBuilder nodeBuilder = new IsisPseudonodeBuilder();
-        nodeBuilder.setIsIsRouterIdentifier(isisRouterId.build());
+        final var psn = pseudoIsisNode.childByArg(PSN_NID);
 
-        if (pseudoIsisNode.findChildByArg(PSN_NID).isPresent()) {
-            nodeBuilder.setPsn((Uint8) pseudoIsisNode.findChildByArg(PSN_NID).get().body());
-        } else {
-            nodeBuilder.setPsn(Uint8.ZERO);
-        }
-
-        return new IsisPseudonodeCaseBuilder().setIsisPseudonode(nodeBuilder.build()).build();
+        return new IsisPseudonodeCaseBuilder()
+            .setIsisPseudonode(new IsisPseudonodeBuilder()
+                .setIsIsRouterIdentifier(isisRouterId.build())
+                .setPsn(psn == null ? Uint8.ZERO : (Uint8) psn.body())
+                .build())
+            .build();
     }
 
     private static OspfNodeCase serializeOspfNode(final ContainerNode ospf) {
-        final OspfNodeCaseBuilder builder = new OspfNodeCaseBuilder();
-        ospf.findChildByArg(OSPF_ROUTER_NID)
-            .map(routerId -> new OspfNodeBuilder().setOspfRouterId((Uint32) routerId.body()).build())
-            .ifPresent(builder::setOspfNode);
+        final var builder = new OspfNodeCaseBuilder();
+        final var ospfRouter = ospf.childByArg(OSPF_ROUTER_NID);
+        if (ospfRouter != null) {
+            builder.setOspfNode(new OspfNodeBuilder().setOspfRouterId((Uint32) ospfRouter.body()).build());
+        }
         return builder.build();
     }
 
     private static CRouterIdentifier serializeOspfPseudoNode(final ContainerNode ospfPseudonode) {
-        final OspfPseudonodeBuilder nodeBuilder = new OspfPseudonodeBuilder();
+        final var nodeBuilder = new OspfPseudonodeBuilder();
 
-        ospfPseudonode.findChildByArg(LAN_IFACE_NID)
-            .map(lanIface -> new OspfInterfaceIdentifier((Uint32) lanIface.body()))
-            .ifPresent(nodeBuilder::setLanInterface);
-        ospfPseudonode.findChildByArg(OSPF_ROUTER_NID)
-            .map(ospfRouter -> (Uint32) ospfRouter.body())
-            .ifPresent(nodeBuilder::setOspfRouterId);
+        final var lanIface = ospfPseudonode.childByArg(LAN_IFACE_NID);
+        if (lanIface != null) {
+            nodeBuilder.setLanInterface(new OspfInterfaceIdentifier((Uint32) lanIface.body()));
+        }
+        final var ospfRouter = ospfPseudonode.childByArg(OSPF_ROUTER_NID);
+        if (ospfRouter != null) {
+            nodeBuilder.setOspfRouterId((Uint32) ospfRouter.body());
+        }
 
         return new OspfPseudonodeCaseBuilder()
             .setOspfPseudonode(nodeBuilder.build())
@@ -196,28 +197,28 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
     }
 
     private static AsNumber serializeAsNumber(final ContainerNode descriptorsData) {
-        return descriptorsData.findChildByArg(AS_NUMBER_NID).map(
-            dataContainerChild -> new AsNumber((Uint32) dataContainerChild.body())).orElse(null);
+        final var asNumber = descriptorsData.childByArg(AS_NUMBER_NID);
+        return asNumber == null ? null : new AsNumber((Uint32) asNumber.body());
     }
 
     private static DomainIdentifier serializeDomainId(final ContainerNode descriptorsData) {
-        return descriptorsData.findChildByArg(DOMAIN_NID).map(
-            dataContainerChild -> new DomainIdentifier((Uint32) dataContainerChild.body())).orElse(null);
+        final var domain = descriptorsData.childByArg(DOMAIN_NID);
+        return domain == null ? null : new DomainIdentifier((Uint32) domain.body());
     }
 
     private static AreaIdentifier serializeAreaId(final ContainerNode descriptorsData) {
-        return descriptorsData.findChildByArg(AREA_NID).map(
-            dataContainerChild -> new AreaIdentifier((Uint32) dataContainerChild.body())).orElse(null);
+        final var area = descriptorsData.childByArg(AREA_NID);
+        return area == null ? null : new AreaIdentifier((Uint32) area.body());
     }
 
     private static Ipv4AddressNoZone serializeBgpRouterId(final ContainerNode descriptorsData) {
-        return descriptorsData.findChildByArg(BGP_ROUTER_NID).map(
-            dataContainerChild -> new Ipv4AddressNoZone((String) dataContainerChild.body())).orElse(null);
+        final var bgpRouter = descriptorsData.childByArg(BGP_ROUTER_NID);
+        return bgpRouter == null ? null : new Ipv4AddressNoZone((String) bgpRouter.body());
     }
 
     private static AsNumber serializeMemberAsn(final ContainerNode descriptorsData) {
-        return descriptorsData.findChildByArg(MEMBER_ASN_NID).map(
-            dataContainerChild -> new AsNumber((Uint32) dataContainerChild.body())).orElse(null);
+        final var memberAsn = descriptorsData.childByArg(MEMBER_ASN_NID);
+        return memberAsn == null ? null : new AsNumber((Uint32) memberAsn.body());
     }
 
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
