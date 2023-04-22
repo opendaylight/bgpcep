@@ -481,7 +481,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         // SpotBugs does not grok Optional.ifPresent() and thinks we are using unsynchronized access
         final Optional<RevisedErrorHandlingSupport> errorHandling = bgpPeer.getErrorHandling();
         if (errorHandling.isPresent()) {
-            currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.get());
+            currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.orElseThrow());
         }
     }
 

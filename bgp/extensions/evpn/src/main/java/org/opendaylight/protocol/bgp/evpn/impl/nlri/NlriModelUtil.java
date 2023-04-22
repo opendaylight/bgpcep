@@ -52,30 +52,30 @@ final class NlriModelUtil {
     }
 
     static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode evpn) {
-        return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.findChildByArg(RD_NID).get().body());
+        return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.getChildByArg(RD_NID).body());
     }
 
     static IpAddressNoZone extractOrigRouteIp(final DataContainerNode evpn) {
-        return parseIpAddress((String) evpn.findChildByArg(ORI_NID).get().body());
+        return parseIpAddress((String) evpn.getChildByArg(ORI_NID).body());
     }
 
     static EthernetTagId extractETI(final ContainerNode evpn) {
-        final ContainerNode eti = (ContainerNode) evpn.findChildByArg(ETI_NID).get();
-        return new EthernetTagIdBuilder().setVlanId((Uint32) eti.findChildByArg(VLAN_NID).get().body()).build();
+        final ContainerNode eti = (ContainerNode) evpn.getChildByArg(ETI_NID);
+        return new EthernetTagIdBuilder().setVlanId((Uint32) eti.getChildByArg(VLAN_NID).body()).build();
     }
 
     static MacAddress extractMAC(final DataContainerNode evpn) {
-        return new MacAddress((String) evpn.findChildByArg(MAC_NID).get().body());
+        return new MacAddress((String) evpn.getChildByArg(MAC_NID).body());
     }
 
     static IpAddressNoZone extractIp(final DataContainerNode evpn) {
-        return evpn.findChildByArg(IP_NID)
-            .map(child -> parseIpAddress((String) child.body()))
-            .orElse(null);
+        final var ip = evpn.childByArg(IP_NID);
+        return ip == null ? null : parseIpAddress((String) ip.body());
     }
 
     static MplsLabel extractMplsLabel(final DataContainerNode evpn, final NodeIdentifier mplsNid) {
-        return evpn.findChildByArg(mplsNid).map(child -> new MplsLabel((Uint32) child.body())).orElse(null);
+        final var label = evpn.childByArg(mplsNid);
+        return label == null ? null : new MplsLabel((Uint32) label.body());
     }
 
     private static IpAddressNoZone parseIpAddress(final String str) {

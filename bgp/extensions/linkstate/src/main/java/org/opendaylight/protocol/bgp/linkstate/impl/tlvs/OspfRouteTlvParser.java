@@ -43,28 +43,20 @@ public final class OspfRouteTlvParser implements LinkstateTlvParser<OspfRouteTyp
     }
 
     public static OspfRouteType serializeModel(final ContainerNode prefixDesc) {
-        return prefixDesc.findChildByArg(OSPF_ROUTE_NID).map(
-            dataContainerChild -> OspfRouteType.forValue(domOspfRouteTypeValue((String) dataContainerChild.body())))
-            .orElse(null);
+        final var ospfRoute = prefixDesc.childByArg(OSPF_ROUTE_NID);
+        return ospfRoute == null ? null : OspfRouteType.forValue(domOspfRouteTypeValue((String) ospfRoute.body()));
     }
 
     // FIXME : use codec
     private static int domOspfRouteTypeValue(final String ospfRouteType) {
-        switch (ospfRouteType) {
-            case "intra-area":
-                return OspfRouteType.IntraArea.getIntValue();
-            case "inter-area":
-                return OspfRouteType.InterArea.getIntValue();
-            case "external1":
-                return OspfRouteType.External1.getIntValue();
-            case "external2":
-                return OspfRouteType.External2.getIntValue();
-            case "nssa1":
-                return OspfRouteType.Nssa1.getIntValue();
-            case "nssa2":
-                return OspfRouteType.Nssa2.getIntValue();
-            default:
-                return 0;
-        }
+        return switch (ospfRouteType) {
+            case "intra-area" -> OspfRouteType.IntraArea.getIntValue();
+            case "inter-area" -> OspfRouteType.InterArea.getIntValue();
+            case "external1" -> OspfRouteType.External1.getIntValue();
+            case "external2" -> OspfRouteType.External2.getIntValue();
+            case "nssa1" -> OspfRouteType.Nssa1.getIntValue();
+            case "nssa2" -> OspfRouteType.Nssa2.getIntValue();
+            default -> 0;
+        };
     }
 }

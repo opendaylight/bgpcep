@@ -69,7 +69,7 @@ public final class EvpnNlriParser implements NlriParser, NlriSerializer {
     private static EvpnDestination extractDestination(final DataContainerNode route,
             final ExtractionInterface extract) {
         final EvpnRegistry reg = SimpleEvpnNlriRegistry.getInstance();
-        final ChoiceNode cont = (ChoiceNode) route.findChildByArg(EVPN_CHOICE_NID).get();
+        final ChoiceNode cont = (ChoiceNode) route.getChildByArg(EVPN_CHOICE_NID);
         final EvpnChoice evpnValue = extract.check(reg, cont);
         if (evpnValue == null) {
             LOG.warn("Unrecognized Nlri {}", cont);

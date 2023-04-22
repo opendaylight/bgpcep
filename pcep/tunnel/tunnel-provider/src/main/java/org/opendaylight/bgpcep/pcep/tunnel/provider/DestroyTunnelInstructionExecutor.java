@@ -47,16 +47,16 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.pcepDestroyTunnelInput);
-        final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, this.pcepDestroyTunnelInput);
-        try (ReadTransaction t = this.dataProvider.newReadOnlyTransaction()) {
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(pcepDestroyTunnelInput);
+        final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, pcepDestroyTunnelInput);
+        try (ReadTransaction t = dataProvider.newReadOnlyTransaction()) {
             final Node node;
             final Link link;
             try {
                 // The link has to exist
-                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
+                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().orElseThrow();
                 // The source node has to exist
-                node = TunelProgrammingUtil.sourceNode(t, tii, link).get();
+                node = TunelProgrammingUtil.sourceNode(t, tii, link).orElseThrow();
             } catch (final InterruptedException | ExecutionException e) {
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
@@ -65,7 +65,7 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
             ab.setNode(node.nonnullSupportingNode().values().iterator().next().key().getNodeRef());
             return Futures.transform(
-                    this.topologyService.removeLsp(ab.build()),
+                    topologyService.removeLsp(ab.build()),
                     RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }

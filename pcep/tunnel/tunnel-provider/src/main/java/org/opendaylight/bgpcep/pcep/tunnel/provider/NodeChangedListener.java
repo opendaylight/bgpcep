@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
@@ -162,8 +161,8 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
             }
             if (!have) {
                 final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-                trans.put(LogicalDatastoreType.OPERATIONAL, target.child(Node.class, node.key()).child(
-                        SupportingNode.class, sn.key()), sn);
+                trans.put(LogicalDatastoreType.OPERATIONAL,
+                    target.child(Node.class, node.key()).child(SupportingNode.class, sn.key()), sn);
             }
         }
     }
@@ -171,7 +170,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans,
             final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
             throws ExecutionException, InterruptedException {
-        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, target).get().get();
+        final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, target).get().orElseThrow();
         for (final Node n : topo.nonnullNode().values()) {
             for (final TerminationPoint tp : n.nonnullTerminationPoint().values()) {
                 final TerminationPoint1 tpa = tp.augmentation(TerminationPoint1.class);
@@ -234,12 +233,12 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
          */
         final IpAddress srcIp;
         final IpAddress dstIp;
-        if (af instanceof Ipv4Case) {
-            final Ipv4 ipv4 = ((Ipv4Case) af).getIpv4();
+        if (af instanceof Ipv4Case ipv4case) {
+            final Ipv4 ipv4 = ipv4case.getIpv4();
             srcIp = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
             dstIp = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
-        } else if (af instanceof Ipv6Case) {
-            final Ipv6 ipv6 = ((Ipv6Case) af).getIpv6();
+        } else if (af instanceof Ipv6Case ipv6case) {
+            final Ipv6 ipv6 = ipv6case.getIpv6();
             srcIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
             dstIp = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
         } else {
@@ -295,19 +294,18 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(identifier, value));
 
         final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).get();
-        if (!ol.isPresent()) {
+        if (ol.isEmpty()) {
             return;
         }
 
-        final Link l = ol.get();
+        final Link l = ol.orElseThrow();
         LOG.debug("Removing link {} (was {})", li, l);
         trans.delete(LogicalDatastoreType.OPERATIONAL, li);
 
         LOG.debug("Searching for orphan links/nodes");
         final Optional<Topology> ot = trans.read(LogicalDatastoreType.OPERATIONAL, target).get();
-        Preconditions.checkState(ot.isPresent());
 
-        final Topology topology = ot.get();
+        final Topology topology = ot.orElseThrow(IllegalStateException::new);
         final NodeId srcNode = l.getSource().getSourceNode();
         final NodeId dstNode = l.getDestination().getDestNode();
         final TpId srcTp = l.getSource().getSourceTp();

@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl;
 
-import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
@@ -115,14 +114,14 @@ public final class BestPathStateImpl implements BestPathState {
 
         final Optional<NormalizedNode> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
         if (maybeMultiExitDisc.isPresent()) {
-            multiExitDisc = ((Uint32) maybeMultiExitDisc.get().body()).toJava();
+            multiExitDisc = ((Uint32) maybeMultiExitDisc.orElseThrow().body()).toJava();
         } else {
             multiExitDisc = 0L;
         }
 
         final Optional<NormalizedNode> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
         if (maybeOrigin.isPresent()) {
-            final String originStr = (String) maybeOrigin.get().body();
+            final String originStr = (String) maybeOrigin.orElseThrow().body();
             origin = BgpOrigin.forName(originStr);
             if (origin == null) {
                 throw new IllegalArgumentException("Unhandled origin value " + originStr);
@@ -133,7 +132,7 @@ public final class BestPathStateImpl implements BestPathState {
 
         final Optional<NormalizedNode> maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
         if (maybeSegments.isPresent()) {
-            final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.get();
+            final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.orElseThrow();
             final List<Segments> segs = extractSegments(segments, ids);
             if (!segs.isEmpty()) {
                 peerAs = BesthPathStateUtil.getPeerAs(segs);
@@ -153,8 +152,8 @@ public final class BestPathStateImpl implements BestPathState {
     }
 
     private static boolean isStale(final NamespaceSpecificIds ids, final UnkeyedListEntryNode community) {
-        return LLGR_STALE_AS_NUMBER.equals(verifyNotNull(community.childByArg(ids.asNumber)).body())
-            && LLGR_STALE_SEMANTICS.equals(verifyNotNull(community.childByArg(ids.semantics)).body());
+        return LLGR_STALE_AS_NUMBER.equals(community.getChildByArg(ids.asNumber).body())
+            && LLGR_STALE_SEMANTICS.equals(community.getChildByArg(ids.semantics).body());
     }
 
     @Override
@@ -266,7 +265,7 @@ public final class BestPathStateImpl implements BestPathState {
             final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
         final Optional<NormalizedNode> maybeAsList = NormalizedNodes.findNode(segment, nid);
         if (maybeAsList.isPresent()) {
-            final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.get();
+            final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.orElseThrow();
             for (final LeafSetEntryNode<?> as : list.body())  {
                 ases.add(new AsNumber((Uint32) as.body()));
             }

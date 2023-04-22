@@ -47,11 +47,11 @@ final class EsiModelUtil {
     }
 
     static Uint32 extractLD(final ContainerNode cont) {
-        return (Uint32) cont.findChildByArg(LD_NID).get().body();
+        return (Uint32) cont.getChildByArg(LD_NID).body();
     }
 
     static Arbitrary extractArbitrary(final ContainerNode esi) {
-        final byte[] arbitrary = (byte[]) esi.findChildByArg(ARB_NID).get().body();
+        final byte[] arbitrary = (byte[]) esi.getChildByArg(ARB_NID).body();
         checkArgument(arbitrary.length == ArbitraryParser.ARBITRARY_LENGTH,
                 "Wrong length of array of bytes. Expected: %s Passed: %s "
                         + ";", ArbitraryParser.ARBITRARY_LENGTH, arbitrary.length);
@@ -59,34 +59,34 @@ final class EsiModelUtil {
     }
 
     static AsNumber extractAS(final ContainerNode asGen) {
-        return new AsNumber((Uint32) asGen.findChildByArg(AS_NID).get().body());
+        return new AsNumber((Uint32) asGen.getChildByArg(AS_NID).body());
     }
 
     static Uint16 extractPK(final ContainerNode t1) {
-        return (Uint16) t1.findChildByArg(PK_NID).get().body();
+        return (Uint16) t1.getChildByArg(PK_NID).body();
     }
 
     static MacAddress extractLacpMac(final ContainerNode t1) {
-        return new MacAddress((String) t1.findChildByArg(LACP_MAC_NID).get().body());
+        return new MacAddress((String) t1.getChildByArg(LACP_MAC_NID).body());
     }
 
     static MacAddress extractBrigeMac(final ContainerNode lan) {
-        return new MacAddress((String) lan.findChildByArg(BRIDGE_MAC_NID).get().body());
+        return new MacAddress((String) lan.getChildByArg(BRIDGE_MAC_NID).body());
     }
 
     static Uint16 extractBP(final ContainerNode lan) {
-        return (Uint16) lan.findChildByArg(RBP_NID).get().body();
+        return (Uint16) lan.getChildByArg(RBP_NID).body();
     }
 
     static Uint24 extractUint24LD(final ContainerNode esiVal) {
-        return new Uint24((Uint32) esiVal.findChildByArg(LD_NID).get().body());
+        return new Uint24((Uint32) esiVal.getChildByArg(LD_NID).body());
     }
 
     static MacAddress extractSystmeMac(final ContainerNode macGEn) {
-        return new MacAddress((String) macGEn.findChildByArg(SYSTEM_MAC_NID).get().body());
+        return new MacAddress((String) macGEn.getChildByArg(SYSTEM_MAC_NID).body());
     }
 
     static Ipv4AddressNoZone extractRD(final ContainerNode t4) {
-        return new Ipv4AddressNoZone((String) t4.findChildByArg(RD_NID).get().body());
+        return new Ipv4AddressNoZone((String) t4.getChildByArg(RD_NID).body());
     }
 }
