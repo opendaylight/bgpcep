@@ -57,7 +57,6 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
@@ -234,12 +233,11 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processWrite(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId,
             final DOMDataTreeWriteTransaction tx) {
-        if (child.getDataAfter().isPresent()) {
-            final NormalizedNode dataAfter = child.getDataAfter().get();
+        child.getDataAfter().ifPresent(dataAfter -> {
             LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-        }
+        });
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
@@ -275,12 +273,11 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processRouteWrite(final DataTreeCandidateNode child,
             final YangInstanceIdentifier childIdentifier, final DOMDataTreeWriteTransaction tx) {
-        if (child.getDataAfter().isPresent()) {
-            final NormalizedNode dataAfter = child.getDataAfter().get();
+        child.getDataAfter().ifPresent(dataAfter -> {
             LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-        }
+        });
     }
 
     @Override

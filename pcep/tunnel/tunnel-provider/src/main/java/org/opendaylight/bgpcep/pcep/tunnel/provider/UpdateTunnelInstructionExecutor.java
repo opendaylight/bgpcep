@@ -56,47 +56,44 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(this.updateTunnelInput);
-        final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, this.updateTunnelInput);
-        try (ReadTransaction t = this.dataProvider.newReadOnlyTransaction()) {
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(updateTunnelInput);
+        final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, updateTunnelInput);
+        try (ReadTransaction t = dataProvider.newReadOnlyTransaction()) {
             final Link link;
             final Node node;
             try {
                 // The link has to exist
-                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().get();
+                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().orElseThrow();
                 // The source node has to exist
-                node = TunelProgrammingUtil.sourceNode(t, tii, link).get();
+                node = TunelProgrammingUtil.sourceNode(t, tii, link).orElseThrow();
             } catch (final InterruptedException | ExecutionException e) {
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
             }
             return Futures.transform(
-                    this.topologyService
-                            .updateLsp(buildUpdateInput(link, node)),
-                    RpcResult::getResult, MoreExecutors.directExecutor());
+                topologyService.updateLsp(buildUpdateInput(link, node)),
+                RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }
 
     private UpdateLspInput buildUpdateInput(final Link link, final Node node) {
-        final UpdateLspInputBuilder ab = new UpdateLspInputBuilder();
-        ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
-        ab.setNode(requireNonNull(TunelProgrammingUtil.supportingNode(node)));
+        final UpdateLspInputBuilder ab = new UpdateLspInputBuilder()
+            .setName(link.augmentation(Link1.class).getSymbolicPathName())
+            .setNode(requireNonNull(TunelProgrammingUtil.supportingNode(node)));
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.update.lsp
-                .args.ArgumentsBuilder args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
-                .yang.topology.pcep.rev220730.update.lsp.args.ArgumentsBuilder();
-        args.setBandwidth(new BandwidthBuilder().setBandwidth(this.updateTunnelInput.getBandwidth()).build());
-        args.setClassType(new ClassTypeBuilder().setClassType(this.updateTunnelInput.getClassType()).build());
-        args.setEro(TunelProgrammingUtil.buildEro(this.updateTunnelInput.getExplicitHops()));
-        args.setLspa(new LspaBuilder(this.updateTunnelInput).build());
+        final var args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730
+            .update.lsp.args.ArgumentsBuilder()
+                .setBandwidth(new BandwidthBuilder().setBandwidth(updateTunnelInput.getBandwidth()).build())
+                .setClassType(new ClassTypeBuilder().setClassType(updateTunnelInput.getClassType()).build())
+                .setEro(TunelProgrammingUtil.buildEro(updateTunnelInput.getExplicitHops()))
+                .setLspa(new LspaBuilder(updateTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = this.updateTunnelInput.augmentation(PcepUpdateTunnelInput1.class)
+        final AdministrativeStatus adminStatus = updateTunnelInput.augmentation(PcepUpdateTunnelInput1.class)
                 .getAdministrativeStatus();
         if (adminStatus != null) {
             args.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                     .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
-        ab.setArguments(args.build());
-        return ab.build();
+        return ab.setArguments(args.build()).build();
     }
 }

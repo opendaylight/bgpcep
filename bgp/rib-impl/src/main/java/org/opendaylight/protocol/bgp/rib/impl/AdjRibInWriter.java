@@ -352,7 +352,7 @@ final class AdjRibInWriter {
                             try {
                                 if (routesOptional.isPresent()) {
                                     synchronized (staleRoutesRegistry) {
-                                        final MapNode routesNode = (MapNode) routesOptional.get();
+                                        final MapNode routesNode = (MapNode) routesOptional.orElseThrow();
                                         final List<NodeIdentifierWithPredicates> routes = routesNode.body().stream()
                                                 .map(MapEntryNode::getIdentifier)
                                                 .collect(Collectors.toList());

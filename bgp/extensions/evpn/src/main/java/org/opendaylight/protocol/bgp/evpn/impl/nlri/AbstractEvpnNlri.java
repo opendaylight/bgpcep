@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.SimpleEsiTypeRegistry;
@@ -43,6 +41,6 @@ abstract class AbstractEvpnNlri implements EvpnParser, EvpnSerializer {
     protected abstract ByteBuf serializeBody(EvpnChoice evpn);
 
     protected static Esi serializeEsi(final ContainerNode evpn) {
-        return SimpleEsiTypeRegistry.getInstance().parseEsiModel((ChoiceNode) verifyNotNull(evpn.childByArg(ESI_NID)));
+        return SimpleEsiTypeRegistry.getInstance().parseEsiModel((ChoiceNode) evpn.getChildByArg(ESI_NID));
     }
 }

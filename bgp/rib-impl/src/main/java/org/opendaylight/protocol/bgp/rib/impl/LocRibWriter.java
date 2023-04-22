@@ -109,15 +109,15 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         this.ribIId = requireNonNull(ribIId);
         this.ribSupport = requireNonNull(ribSupport);
 
-        this.locRibTableIID = ribIId.node(LOCRIB_NID).node(TABLES_NID).node(ribSupport.emptyTable().getIdentifier())
+        locRibTableIID = ribIId.node(LOCRIB_NID).node(TABLES_NID).node(ribSupport.emptyTable().getIdentifier())
             .toOptimized();
         this.ourAs = ourAs.toJava();
         this.dataBroker = requireNonNull(dataBroker);
         this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
-        this.entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, this.peerTracker, ribPolicies,
-                afiSafiType, this.locRibTableIID);
+        entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, this.peerTracker, ribPolicies,
+                afiSafiType, locRibTableIID);
     }
 
     public static <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
@@ -138,8 +138,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     private synchronized void init() {
-        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.node(ATTRIBUTES_NID).node(UPTODATE_NID),
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, locRibTableIID.node(ATTRIBUTES_NID).node(UPTODATE_NID),
                 RIBNormalizedNodes.ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -153,7 +153,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             }
         }, MoreExecutors.directExecutor());
 
-        this.reg = this.dataBroker.registerDataTreeChangeListener(new DOMDataTreeIdentifier(
+        reg = dataBroker.registerDataTreeChangeListener(new DOMDataTreeIdentifier(
             LogicalDatastoreType.OPERATIONAL, ribIId.node(PEER_NID).node(PEER_NID).node(EFFRIBIN_NID).node(TABLES_NID)
                 .node(locRibTableIID.getLastPathArgument())), this);
     }
@@ -166,26 +166,26 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     synchronized void restart(final @NonNull DOMTransactionChain newChain) {
         requireNonNull(newChain);
         close();
-        this.chain = newChain;
+        chain = newChain;
         init();
     }
 
     @Override
     public synchronized void close() {
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
+        if (reg != null) {
+            reg.close();
+            reg = null;
         }
-        if (this.chain != null) {
-            this.chain.close();
-            this.chain = null;
+        if (chain != null) {
+            chain.close();
+            chain = null;
         }
     }
 
     private @NonNull RouteEntry<C, S> createEntry(final String routeId) {
-        final RouteEntry<C, S> ret = this.pathSelectionMode.createRouteEntry();
-        this.routeEntries.put(routeId, ret);
-        this.totalPrefixesCounter.increment();
+        final RouteEntry<C, S> ret = pathSelectionMode.createRouteEntry();
+        routeEntries.put(routeId, ret);
+        totalPrefixesCounter.increment();
         LOG.trace("Created new entry for {}", routeId);
         return ret;
     }
@@ -204,12 +204,12 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     @Override
     @SuppressWarnings("checkstyle:illegalCatch")
     public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
-        if (this.chain == null) {
+        if (chain == null) {
             LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
             return;
         }
         LOG.trace("Received data change {} to LocRib {}", changes, this);
-        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         try {
             final Map<RouteUpdateKey, RouteEntry<C, S>> toUpdate = update(tx, changes);
 
@@ -244,18 +244,18 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             /*
             Initialize Peer with routes under loc rib
              */
-            if (!this.routeEntries.isEmpty() && table.getDataBefore().isEmpty()) {
+            if (!routeEntries.isEmpty() && table.getDataBefore().isEmpty()) {
                 final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
-                        = this.peerTracker.getPeer(peerUuid.getPeerId());
-                if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
+                        = peerTracker.getPeer(peerUuid.getPeerId());
+                if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
                     final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
-                    for (final Entry<String, RouteEntry<C, S>> entry : this.routeEntries.entrySet()) {
+                    for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
                         final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
-                                .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
+                                .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
                         routesToStore.addAll(filteredRoute);
                     }
-                    toPeer.initializeRibOut(this.entryDep, routesToStore);
+                    toPeer.initializeRibOut(entryDep, routesToStore);
                 }
             }
             /*
@@ -270,7 +270,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry<C, S>> routes) {
         table.getModifiedChild(ATTRIBUTES_NID).flatMap(DataTreeCandidateNode::getDataAfter).ifPresent(newAttValue -> {
             LOG.trace("Uptodate found for {}", newAttValue);
-            tx.put(LogicalDatastoreType.OPERATIONAL, this.locRibTableIID.node(ATTRIBUTES_NID), newAttValue);
+            tx.put(LogicalDatastoreType.OPERATIONAL, locRibTableIID.node(ATTRIBUTES_NID), newAttValue);
         });
 
         table.getModifiedChild(ROUTES_NID).ifPresent(modifiedRoutes -> {
@@ -293,27 +293,27 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             RouteEntry<C, S> entry;
             switch (route.getModificationType()) {
                 case DELETE:
-                    entry = this.routeEntries.get(routeKey);
+                    entry = routeEntries.get(routeKey);
                     if (entry != null) {
-                        this.totalPathsCounter.decrement();
+                        totalPathsCounter.decrement();
                         if (entry.removeRoute(routerId, pathId)) {
-                            this.routeEntries.remove(routeKey);
-                            this.totalPrefixesCounter.decrement();
+                            routeEntries.remove(routeKey);
+                            totalPrefixesCounter.decrement();
                             LOG.trace("Removed route from {}", routerId);
                         }
                     }
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    entry = this.routeEntries.get(routeKey);
+                    entry = routeEntries.get(routeKey);
                     if (entry == null) {
                         entry = createEntry(routeKey);
                     }
 
-                    final NormalizedNode routeAfter = route.getDataAfter().get();
+                    final NormalizedNode routeAfter = route.getDataAfter().orElseThrow();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
                     entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
-                    this.totalPathsCounter.increment();
+                    totalPathsCounter.increment();
                     break;
                 default:
                     throw new IllegalStateException("Unhandled route modification " + route);
@@ -333,23 +333,23 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             LOG.trace("Walking through {}", e);
             final RouteEntry<C, S> entry = e.getValue();
 
-            if (!entry.selectBest(this.ribSupport, this.ourAs)) {
+            if (!entry.selectBest(ribSupport, ourAs)) {
                 LOG.trace("Best path has not changed, continuing");
                 continue;
             }
 
-            entry.removeStalePaths(this.ribSupport, e.getKey().getRouteId()).ifPresent(staleRoutes::add);
-            newRoutes.addAll(entry.newBestPaths(this.ribSupport, e.getKey().getRouteId()));
+            entry.removeStalePaths(ribSupport, e.getKey().getRouteId()).ifPresent(staleRoutes::add);
+            newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        this.peerTracker.getNonInternalPeers().parallelStream()
-                .filter(toPeer -> toPeer.supportsTable(this.entryDep.getLocalTablesKey()))
-                .forEach(toPeer -> toPeer.refreshRibOut(this.entryDep, staleRoutes, newRoutes));
+        peerTracker.getNonInternalPeers().parallelStream()
+                .filter(toPeer -> toPeer.supportsTable(entryDep.getLocalTablesKey()))
+                .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
             final DOMDataTreeWriteOperations tx) {
-        final YangInstanceIdentifier locRibTarget = this.entryDep.getLocRibTableTarget();
+        final YangInstanceIdentifier locRibTarget = entryDep.getLocRibTableTarget();
 
         for (final StaleBestPathRoute staleContainer : staleRoutes) {
             for (final NodeIdentifierWithPredicates routeId : staleContainer.getStaleRouteKeyIdentifiers()) {
@@ -362,7 +362,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         for (final AdvertizedRoute<C, S> advRoute : newRoutes) {
             final MapEntryNode route = advRoute.getRoute();
             final NodeIdentifierWithPredicates iid = advRoute.getAddPathRouteKeyIdentifier();
-            final YangInstanceIdentifier locRibRouteTarget = this.ribSupport.createRouteIdentifier(locRibTarget, iid);
+            final YangInstanceIdentifier locRibRouteTarget = ribSupport.createRouteIdentifier(locRibTarget, iid);
             LOG.debug("Write LocRib route {}", locRibRouteTarget);
             if (LOG.isTraceEnabled()) {
                 LOG.trace("Write route to LocRib {}", NormalizedNodes.toStringTree(route));
@@ -373,30 +373,30 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     @Override
     public long getPrefixesCount() {
-        return this.totalPrefixesCounter.longValue();
+        return totalPrefixesCounter.longValue();
     }
 
     @Override
     public long getPathsCount() {
-        return this.totalPathsCounter.longValue();
+        return totalPathsCounter.longValue();
     }
 
     TablesKey getTableKey() {
-        return this.ribSupport.getTablesKey();
+        return ribSupport.getTablesKey();
     }
 
     @Override
     public synchronized void refreshTable(final TablesKey tk, final PeerId peerId) {
-        final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer = this.peerTracker.getPeer(peerId);
-        if (toPeer != null && toPeer.supportsTable(this.entryDep.getLocalTablesKey())) {
+        final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer = peerTracker.getPeer(peerId);
+        if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
             final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
-            for (final Entry<String, RouteEntry<C, S>> entry : this.routeEntries.entrySet()) {
+            for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
                 final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
-                        .actualBestPaths(this.ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
+                        .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
                 routesToStore.addAll(filteredRoute);
             }
-            toPeer.reEvaluateAdvertizement(this.entryDep, routesToStore);
+            toPeer.reEvaluateAdvertizement(entryDep, routesToStore);
         }
     }
 }

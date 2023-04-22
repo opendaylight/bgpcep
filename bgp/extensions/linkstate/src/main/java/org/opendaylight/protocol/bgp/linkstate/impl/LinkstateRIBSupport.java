@@ -11,10 +11,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
@@ -77,18 +76,15 @@ public final class LinkstateRIBSupport
                                                                           final ContainerNode destination,
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
-        if (destination != null) {
-            return processRoute(destination.findChildByArg(LinkstateRIBSupport.NLRI_ROUTES_LIST), routesPath,
-                attributes, function, tx);
-        }
-        return Collections.emptyList();
+        return destination == null ? List.of()
+            : processRoute(destination.childByArg(LinkstateRIBSupport.NLRI_ROUTES_LIST), routesPath, attributes,
+                function, tx);
     }
 
-    private List<NodeIdentifierWithPredicates> processRoute(final Optional<DataContainerChild> maybeRoutes,
+    private List<NodeIdentifierWithPredicates> processRoute(final @Nullable DataContainerChild routes,
             final YangInstanceIdentifier routesPath, final ContainerNode attributes, final ApplyRoute function,
             final DOMDataTreeWriteTransaction tx) {
-        if (maybeRoutes.isPresent()) {
-            final DataContainerChild routes = maybeRoutes.get();
+        if (routes != null) {
             if (routes instanceof UnkeyedListNode) {
                 final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                 final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
@@ -102,7 +98,7 @@ public final class LinkstateRIBSupport
             }
             LOG.warn("Routes {} are not a map", routes);
         }
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
