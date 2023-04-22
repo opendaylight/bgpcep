@@ -124,7 +124,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         for (final BgpParameters param : params) {
             final Optional<ParameterSerializer> optSer = reg.findSerializer(param);
             if (optSer.isPresent()) {
-                optSer.get().serializeExtendedParameter(param, buffer);
+                optSer.orElseThrow().serializeExtendedParameter(param, buffer);
             } else {
                 LOG.debug("Ignoring unregistered parameter {}", param);
             }
@@ -149,7 +149,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
             final Optional<ParameterSerializer> optSer = reg.findSerializer(param);
             if (optSer.isPresent()) {
                 try {
-                    optSer.get().serializeParameter(param, buffer);
+                    optSer.orElseThrow().serializeParameter(param, buffer);
                 } catch (ParameterLengthOverflowException e) {
                     LOG.debug("Forcing extended parameter serialization", e);
                     return null;
@@ -251,7 +251,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
 
             final BgpParameters param;
             try {
-                param = parser.get().parseParameter(paramBody);
+                param = parser.orElseThrow().parseParameter(paramBody);
             } catch (final BGPParsingException e) {
                 throw new BGPDocumentedException("Optional parameter not parsed", BGPError.UNSPECIFIC_OPEN_ERROR, e);
             }

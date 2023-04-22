@@ -16,7 +16,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -256,14 +255,13 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     public final List<Flowspec> extractFlowspec(final DataContainerNode route) {
         requireNonNull(route, "Cannot extract flowspec from null route.d");
         final List<Flowspec> fsList = new ArrayList<>();
-        final Optional<DataContainerChild> flowspecs = route.findChildByArg(FLOWSPEC_NID);
-        if (flowspecs.isPresent()) {
-            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode) flowspecs.get()).body()) {
+        final DataContainerChild flowspecs = route.childByArg(FLOWSPEC_NID);
+        if (flowspecs != null) {
+            for (final UnkeyedListEntryNode flowspec : ((UnkeyedListNode) flowspecs).body()) {
                 final FlowspecBuilder fsBuilder = new FlowspecBuilder();
-                final Optional<DataContainerChild> flowspecType = flowspec.findChildByArg(FLOWSPEC_TYPE_NID);
-                if (flowspecType.isPresent()) {
-                    final ChoiceNode fsType = (ChoiceNode) flowspecType.get();
-                    processFlowspecType(fsType, fsBuilder);
+                final DataContainerChild flowspecType = flowspec.childByArg(FLOWSPEC_TYPE_NID);
+                if (flowspecType != null) {
+                    processFlowspecType((ChoiceNode) flowspecType, fsBuilder);
                 }
                 fsList.add(fsBuilder.build());
             }
@@ -272,179 +270,209 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     private void processFlowspecType(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.findChildByArg(PORTS_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new PortCaseBuilder()
-                    .setPorts(createPorts((UnkeyedListNode) fsType.findChildByArg(PORTS_NID).get())).build());
-        } else if (fsType.findChildByArg(DEST_PORT_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new DestinationPortCaseBuilder()
-                    .setDestinationPorts(createDestinationPorts(
-                        (UnkeyedListNode) fsType.findChildByArg(DEST_PORT_NID).get()))
-                    .build());
-        } else if (fsType.findChildByArg(SOURCE_PORT_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new SourcePortCaseBuilder()
-                    .setSourcePorts(createSourcePorts((UnkeyedListNode) fsType.findChildByArg(SOURCE_PORT_NID).get()))
-                    .build());
-        } else if (fsType.findChildByArg(ICMP_TYPE_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new IcmpTypeCaseBuilder()
-                    .setTypes(createTypes((UnkeyedListNode) fsType.findChildByArg(ICMP_TYPE_NID).get())).build());
-        } else if (fsType.findChildByArg(ICMP_CODE_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new IcmpCodeCaseBuilder()
-                    .setCodes(createCodes((UnkeyedListNode) fsType.findChildByArg(ICMP_CODE_NID).get())).build());
-        } else if (fsType.findChildByArg(TCP_FLAGS_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new TcpFlagsCaseBuilder()
-                    .setTcpFlags(createTcpFlags((UnkeyedListNode) fsType.findChildByArg(TCP_FLAGS_NID).get())).build());
-        } else if (fsType.findChildByArg(PACKET_LENGTHS_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new PacketLengthCaseBuilder()
-                    .setPacketLengths(createPacketLengths(
-                        (UnkeyedListNode) fsType.findChildByArg(PACKET_LENGTHS_NID).get()))
-                    .build());
-        } else if (fsType.findChildByArg(DSCP_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new DscpCaseBuilder()
-                    .setDscps(createDscpsLengths((UnkeyedListNode) fsType.findChildByArg(DSCP_NID).get())).build());
-        } else if (fsType.findChildByArg(FRAGMENT_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new FragmentCaseBuilder()
-                    .setFragments(createFragments(
-                        (UnkeyedListNode) fsType.findChildByArg(FRAGMENT_NID).get())).build());
+        final var common = processCommonFlowspec(fsType);
+        if (common != null) {
+            fsBuilder.setFlowspecType(common);
         } else {
             extractSpecificFlowspec(fsType, fsBuilder);
         }
     }
 
-    private static List<Ports> createPorts(final UnkeyedListNode portsData) {
-        final List<Ports> ports = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : portsData.body()) {
-            final PortsBuilder portsBuilder = new PortsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(
-                dataContainerChild -> portsBuilder.setOp(NumericTwoByteOperandParser.INSTANCE.create(
-                    (Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> portsBuilder.setValue((Uint16) dataContainerChild.body()));
-            ports.add(portsBuilder.build());
+    private static @Nullable FlowspecType processCommonFlowspec(final ChoiceNode fsType) {
+        final var ports = fsType.childByArg(PORTS_NID);
+        if (ports != null) {
+            return new PortCaseBuilder().setPorts(createPorts((UnkeyedListNode) ports)).build();
         }
+        final var destPort = fsType.childByArg(DEST_PORT_NID);
+        if (destPort != null) {
+            return new DestinationPortCaseBuilder()
+                .setDestinationPorts(createDestinationPorts((UnkeyedListNode) destPort))
+                .build();
+        }
+        final var sourcePort = fsType.childByArg(SOURCE_PORT_NID);
+        if (sourcePort != null) {
+            return new SourcePortCaseBuilder().setSourcePorts(createSourcePorts((UnkeyedListNode) sourcePort)).build();
+        }
+        final var icmpType = fsType.childByArg(ICMP_TYPE_NID);
+        if (icmpType != null) {
+            return new IcmpTypeCaseBuilder().setTypes(createTypes((UnkeyedListNode) icmpType)).build();
+        }
+        final var icmpCode = fsType.childByArg(ICMP_CODE_NID);
+        if (icmpCode != null) {
+            return new IcmpCodeCaseBuilder().setCodes(createCodes((UnkeyedListNode) icmpCode)).build();
+        }
+        final var tcpFlags = fsType.childByArg(TCP_FLAGS_NID);
+        if (tcpFlags != null) {
+            return new TcpFlagsCaseBuilder().setTcpFlags(createTcpFlags((UnkeyedListNode) tcpFlags)).build();
+        }
+        final var packetLengths = fsType.childByArg(PACKET_LENGTHS_NID);
+        if (packetLengths != null) {
+            return new PacketLengthCaseBuilder()
+                .setPacketLengths(createPacketLengths((UnkeyedListNode) packetLengths))
+                .build();
+        }
+        final var dscp = fsType.childByArg(DSCP_NID);
+        if (dscp != null) {
+            return new DscpCaseBuilder().setDscps(createDscpsLengths((UnkeyedListNode) dscp)).build();
+        }
+        final var fragment = fsType.childByArg(FRAGMENT_NID);
+        if (fragment != null) {
+            return new FragmentCaseBuilder().setFragments(createFragments((UnkeyedListNode) fragment)).build();
+        }
+        return null;
+    }
 
-        return ports;
+    private static List<Ports> createPorts(final UnkeyedListNode portsData) {
+        return portsData.body().stream()
+            .map(node -> {
+                final var builder = new PortsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint16) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<DestinationPorts> createDestinationPorts(final UnkeyedListNode destinationPortsData) {
-        final List<DestinationPorts> destinationPorts = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : destinationPortsData.body()) {
-            final DestinationPortsBuilder destPortsBuilder = new DestinationPortsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> destPortsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> destPortsBuilder.setValue((Uint16) dataContainerChild.body()));
-            destinationPorts.add(destPortsBuilder.build());
-        }
-
-        return destinationPorts;
+        return destinationPortsData.body().stream()
+            .map(node -> {
+                final var builder = new DestinationPortsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint16) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<SourcePorts> createSourcePorts(final UnkeyedListNode sourcePortsData) {
-        final List<SourcePorts> sourcePorts = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : sourcePortsData.body()) {
-            final SourcePortsBuilder sourcePortsBuilder = new SourcePortsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> sourcePortsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> sourcePortsBuilder.setValue((Uint16) dataContainerChild.body()));
-            sourcePorts.add(sourcePortsBuilder.build());
-        }
-
-        return sourcePorts;
+        return sourcePortsData.body().stream()
+            .map(node -> {
+                final var builder = new SourcePortsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint16) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<Types> createTypes(final UnkeyedListNode typesData) {
-        final List<Types> types = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : typesData.body()) {
-            final TypesBuilder typesBuilder = new TypesBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> typesBuilder.setOp(
-                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> typesBuilder.setValue((Uint8) dataContainerChild.body()));
-            types.add(typesBuilder.build());
-        }
-
-        return types;
+        return typesData.body().stream()
+            .map(node -> {
+                final var builder = new TypesBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint8) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<Codes> createCodes(final UnkeyedListNode codesData) {
-        final List<Codes> codes = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : codesData.body()) {
-            final CodesBuilder codesBuilder = new CodesBuilder();
-            node.findChildByArg(OP_NID).ifPresent(
-                dataContainerChild -> codesBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> codesBuilder.setValue((Uint8) dataContainerChild.body()));
-            codes.add(codesBuilder.build());
-        }
-
-        return codes;
+        return codesData.body().stream()
+            .map(node -> {
+                final var builder = new CodesBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint8) value);
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<TcpFlags> createTcpFlags(final UnkeyedListNode tcpFlagsData) {
-        final List<TcpFlags> tcpFlags = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : tcpFlagsData.body()) {
-            final TcpFlagsBuilder tcpFlagsBuilder = new TcpFlagsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> tcpFlagsBuilder
-                    .setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> tcpFlagsBuilder.setValue((Uint16) dataContainerChild.body()));
-            tcpFlags.add(tcpFlagsBuilder.build());
-        }
-
-        return tcpFlags;
+        return tcpFlagsData.body().stream()
+            .map(node -> {
+                final var builder = new TcpFlagsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint16) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<PacketLengths> createPacketLengths(final UnkeyedListNode packetLengthsData) {
-        final List<PacketLengths> packetLengths = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : packetLengthsData.body()) {
-            final PacketLengthsBuilder packetLengthsBuilder = new PacketLengthsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> packetLengthsBuilder.setOp(
-                NumericTwoByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> packetLengthsBuilder.setValue((Uint16) dataContainerChild.body()));
-            packetLengths.add(packetLengthsBuilder.build());
-        }
-
-        return packetLengths;
+        return packetLengthsData.body().stream()
+            .map(node -> {
+                final var builder = new PacketLengthsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericTwoByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint16) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<Dscps> createDscpsLengths(final UnkeyedListNode dscpLengthsData) {
-        final List<Dscps> dscpsLengths = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : dscpLengthsData.body()) {
-            final DscpsBuilder dscpsLengthsBuilder = new DscpsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> dscpsLengthsBuilder.setOp(
-                NumericOneByteOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(
-                dataContainerChild -> dscpsLengthsBuilder.setValue(new Dscp((Uint8) dataContainerChild.body())));
-            dscpsLengths.add(dscpsLengthsBuilder.build());
-        }
-
-        return dscpsLengths;
+        return dscpLengthsData.body().stream()
+            .map(node -> {
+                final var builder = new DscpsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue(new Dscp((Uint8) value.body()));
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static List<Fragments> createFragments(final UnkeyedListNode fragmentsData) {
-        final List<Fragments> fragments = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : fragmentsData.body()) {
-            final FragmentsBuilder fragmentsBuilder = new FragmentsBuilder();
-            node.findChildByArg(OP_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setOp(
-                BitmaskOperandParser.INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(VALUE_NID).ifPresent(dataContainerChild -> fragmentsBuilder.setValue(
-                createFragment((Set<String>) dataContainerChild.body())));
-            fragments.add(fragmentsBuilder.build());
-        }
-
-        return fragments;
+        return fragmentsData.body().stream()
+            .map(node -> {
+                final var builder = new FragmentsBuilder();
+                final var op = node.childByArg(OP_NID);
+                if (op != null) {
+                    builder.setOp(BitmaskOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(VALUE_NID);
+                if (value != null) {
+                    builder.setValue(createFragment((Set<String>) value.body()));
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 
     private static Fragment createFragment(final Set<String> data) {
@@ -456,31 +484,30 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     final String encodeFlow(final Flowspec flow) {
         final StringBuilder buffer = new StringBuilder();
         final FlowspecType value = flow.getFlowspecType();
-        if (value instanceof PortCase) {
+        if (value instanceof PortCase port) {
             buffer.append("where port ");
-            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((PortCase) value).getPorts()));
-        } else if (value instanceof DestinationPortCase) {
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(port.getPorts()));
+        } else if (value instanceof DestinationPortCase destinationPort) {
             buffer.append("where destination port ");
-            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(
-                ((DestinationPortCase) value).getDestinationPorts()));
-        } else if (value instanceof SourcePortCase) {
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(destinationPort.getDestinationPorts()));
+        } else if (value instanceof SourcePortCase sourcePort) {
             buffer.append("where source port ");
-            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((SourcePortCase) value).getSourcePorts()));
-        } else if (value instanceof IcmpTypeCase) {
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(sourcePort.getSourcePorts()));
+        } else if (value instanceof IcmpTypeCase icmpType) {
             buffer.append("where ICMP type ");
-            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((IcmpTypeCase) value).getTypes()));
-        } else if (value instanceof IcmpCodeCase) {
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(icmpType.getTypes()));
+        } else if (value instanceof IcmpCodeCase icmpCode) {
             buffer.append("where ICMP code ");
-            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((IcmpCodeCase) value).getCodes()));
-        } else if (value instanceof TcpFlagsCase) {
-            buffer.append(stringTcpFlags(((TcpFlagsCase) value).getTcpFlags()));
-        } else if (value instanceof PacketLengthCase) {
+            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(icmpCode.getCodes()));
+        } else if (value instanceof TcpFlagsCase tcpFlags) {
+            buffer.append(stringTcpFlags(tcpFlags.getTcpFlags()));
+        } else if (value instanceof PacketLengthCase packetLength) {
             buffer.append("where packet length ");
-            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(((PacketLengthCase) value).getPacketLengths()));
-        } else if (value instanceof DscpCase) {
-            buffer.append(stringDscp(((DscpCase) value).getDscps()));
-        } else if (value instanceof FragmentCase) {
-            buffer.append(stringFragment(((FragmentCase) value).getFragments()));
+            buffer.append(NumericTwoByteOperandParser.INSTANCE.toString(packetLength.getPacketLengths()));
+        } else if (value instanceof DscpCase dscp) {
+            buffer.append(stringDscp(dscp.getDscps()));
+        } else if (value instanceof FragmentCase fragment) {
+            buffer.append(stringFragment(fragment.getFragments()));
         } else {
             stringSpecificFSNlriType(value, buffer);
         }
@@ -608,12 +635,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
         final Object[] nlriFields = parseNlri(nlri);
-        builder.setAdvertizedRoutes(
-            new AdvertizedRoutesBuilder()
-                .setDestinationType(
-                    createAdvertizedRoutesDestinationType(nlriFields, pathId)
-                ).build()
-        );
+        builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+            .setDestinationType(createAdvertizedRoutesDestinationType(nlriFields, pathId))
+            .build());
     }
 
     @Override
@@ -624,11 +648,9 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
         final Object[] nlriFields = parseNlri(nlri);
-        builder.setWithdrawnRoutes(
-            new WithdrawnRoutesBuilder()
-                .setDestinationType(
-                    createWithdrawnDestinationType(nlriFields, pathId)
-                ).build()
+        builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder()
+            .setDestinationType(createWithdrawnDestinationType(nlriFields, pathId))
+            .build()
         );
     }
 

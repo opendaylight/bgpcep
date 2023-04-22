@@ -117,11 +117,11 @@ final class TopologyNodeState implements TransactionChainListener {
             try {
                 // FIXME: we really should not be performing synchronous operations
                 final Optional<Node> prevNode = readOperationalData(nodeId).get();
-                if (!prevNode.isPresent()) {
+                if (prevNode.isEmpty()) {
                     putTopologyNode();
                 } else {
                     //cache retrieved node
-                    initialNodeState = prevNode.get();
+                    initialNodeState = prevNode.orElseThrow();
                 }
             } catch (final ExecutionException | InterruptedException throwable) {
                 LOG.error("Failed to get topology node {}", nodeId, throwable);

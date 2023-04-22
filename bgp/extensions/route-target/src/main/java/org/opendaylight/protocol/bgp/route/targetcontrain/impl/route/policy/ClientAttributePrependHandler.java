@@ -8,8 +8,6 @@
 
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.route.policy;
 
-import java.util.List;
-import java.util.Optional;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -22,7 +20,7 @@ public final class ClientAttributePrependHandler implements BgpActionAugPolicy<C
     private static final ClientAttributePrependHandler INSTANCE = new ClientAttributePrependHandler();
 
     private ClientAttributePrependHandler() {
-
+        // Hidden on purpose
     }
 
     public static ClientAttributePrependHandler getInstance() {
@@ -37,19 +35,15 @@ public final class ClientAttributePrependHandler implements BgpActionAugPolicy<C
         return attributes;
     }
 
-
     @Override
     public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters exportParameters,
             final Attributes attributes,
             final ClientAttributePrepend actions) {
-        final List<Route> rtRoutes = exportParameters.getClientRouteTargetContrainCache();
-        final Optional<Route> found = rtRoutes.stream()
-                .filter(rt -> rt.getRouteKey().equals(exportParameters.getRouteKey()))
-                .findFirst();
-        if (found.isPresent()) {
-            return found.get().getAttributes();
-        }
-        return attributes;
+        return exportParameters.getClientRouteTargetContrainCache().stream()
+            .filter(rt -> rt.getRouteKey().equals(exportParameters.getRouteKey()))
+            .findFirst()
+            .map(Route::getAttributes)
+            .orElse(attributes);
     }
 }
