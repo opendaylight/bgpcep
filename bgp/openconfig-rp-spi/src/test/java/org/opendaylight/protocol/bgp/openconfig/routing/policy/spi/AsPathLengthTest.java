@@ -12,8 +12,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,15 +45,15 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
     @Test
     public void testASPathLengthEq() {
         final AsPathBuilder asPath = new AsPathBuilder();
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(
                         AsNumber.getDefaultInstance("1"),
                         AsNumber.getDefaultInstance("2"),
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("as-path-eq-length-test")).findFirst().get();
+                .filter(st -> st.getName().equals("as-path-eq-length-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
@@ -68,8 +66,8 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 statement);
         assertNotNull(result.getAttributes());
 
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(
                         AsNumber.getDefaultInstance("1"),
                         AsNumber.getDefaultInstance("3")))
                 .build()));
@@ -87,15 +85,15 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
     @Test
     public void testASPathLengthGe() {
         final AsPathBuilder asPath = new AsPathBuilder();
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(
                         AsNumber.getDefaultInstance("1"),
                         AsNumber.getDefaultInstance("2"),
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("as-path-ge-length-test")).findFirst().get();
+                .filter(st -> st.getName().equals("as-path-ge-length-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
@@ -108,9 +106,8 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 statement);
         assertNull(result.getAttributes());
 
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Collections.singletonList(
-                        AsNumber.getDefaultInstance("3")))
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(AsNumber.getDefaultInstance("3")))
                 .build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
@@ -126,15 +123,15 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
     @Test
     public void testASPathLengthLe() {
         final AsPathBuilder asPath = new AsPathBuilder();
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Arrays.asList(
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(
                         AsNumber.getDefaultInstance("1"),
                         AsNumber.getDefaultInstance("2"),
                         AsNumber.getDefaultInstance("3")))
                 .build()));
 
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("as-path-le-length-test")).findFirst().get();
+                .filter(st -> st.getName().equals("as-path-le-length-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(asPath.build())
                 .build());
@@ -147,8 +144,8 @@ public class AsPathLengthTest extends AbstractStatementRegistryTest {
                 statement);
         assertNotNull(result.getAttributes());
 
-        asPath.setSegments(Collections.singletonList(new SegmentsBuilder()
-                .setAsSequence(Collections.singletonList(AsNumber.getDefaultInstance("3"))).build()));
+        asPath.setSegments(List.of(new SegmentsBuilder()
+                .setAsSequence(List.of(AsNumber.getDefaultInstance("3"))).build()));
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setAsPath(asPath.build()).build());
         result = statementRegistry.applyExportStatement(

@@ -120,7 +120,7 @@ final class TopologyStatsRpcServiceImpl
                         final var nodes = iTopologies.values().stream()
                             .filter(t -> iTopologyId.equals(t.getTopologyId()))
                             .findFirst()
-                            .get().getNode();
+                            .orElseThrow().getNode();
                         iNodes = nodes != null ? nodes.values() : null;
                     } else {
                         iNodes = null;

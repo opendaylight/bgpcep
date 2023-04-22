@@ -65,9 +65,11 @@ public final class LinkNlriParser extends AbstractNlriTypeCodec {
     static LinkDescriptors serializeLinkDescriptors(final ContainerNode descriptors) {
         final LinkDescriptorsBuilder linkDescBuilder = new LinkDescriptorsBuilder();
 
-        if (descriptors.childByArg(LINK_LOCAL_NID) != null && descriptors.childByArg(LINK_REMOTE_NID) != null) {
-            linkDescBuilder.setLinkLocalIdentifier((Uint32) descriptors.findChildByArg(LINK_LOCAL_NID).get().body());
-            linkDescBuilder.setLinkRemoteIdentifier((Uint32) descriptors.findChildByArg(LINK_REMOTE_NID).get().body());
+        final var descLocal = descriptors.childByArg(LINK_LOCAL_NID);
+        final var descRemote = descriptors.childByArg(LINK_REMOTE_NID);
+        if (descLocal != null && descRemote != null) {
+            linkDescBuilder.setLinkLocalIdentifier((Uint32) descLocal.body());
+            linkDescBuilder.setLinkRemoteIdentifier((Uint32) descRemote.body());
         }
         ifPresentApply(descriptors, IPV4_IFACE_NID,
             value -> linkDescBuilder.setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier((String) value)));

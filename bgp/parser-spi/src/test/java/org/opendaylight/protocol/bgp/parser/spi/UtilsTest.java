@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.parser.spi;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.primitives.UnsignedBytes;
@@ -30,9 +29,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class UtilsTest {
-
-    @Mock private AddressFamilyRegistry afiReg;
-    @Mock private SubsequentAddressFamilyRegistry safiReg;
+    @Mock
+    private AddressFamilyRegistry afiReg;
+    @Mock
+    private SubsequentAddressFamilyRegistry safiReg;
 
     @Before
     public void setUp() {
@@ -98,8 +98,8 @@ public class UtilsTest {
     public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
         final byte[] bytes = new byte[] {0, 1, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
-            safiReg).get();
+        final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg)
+            .orElseThrow();
         assertEquals(Ipv4AddressFamily.VALUE, parsedAfiSafi.getAfi());
         assertEquals(UnicastSubsequentAddressFamily.VALUE, parsedAfiSafi.getSafi());
 
@@ -113,18 +113,14 @@ public class UtilsTest {
     public void testUnsupportedAfi() {
         final byte[] bytes = new byte[] {0, 2, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
-            safiReg);
-        assertFalse(parsedAfiSafi.isPresent());
+        assertEquals(Optional.empty(), MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg));
     }
 
     @Test
     public void testUnsupportedSafi() {
         final byte[] bytes = new byte[] {0, 1, 0, 3};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
-        final Optional<BgpTableType> parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg,
-            safiReg);
-        assertFalse(parsedAfiSafi.isPresent());
+        assertEquals(Optional.empty(), MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg));
     }
 
     @Test(expected = ParameterLengthOverflowException.class)

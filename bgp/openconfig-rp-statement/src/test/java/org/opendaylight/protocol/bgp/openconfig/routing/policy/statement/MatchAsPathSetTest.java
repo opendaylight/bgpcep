@@ -40,11 +40,10 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
         baseAttributes = new PolicyRIBBaseParametersImpl(LOCAL_AS, IPV4, CLUSTER);
     }
 
-
     @Test
     public void testMatchAsPathAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-match-as-path-any-set")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-match-as-path-any-set")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -65,7 +64,7 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testMatchAsPathAll() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-match-as-path-all-set")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-match-as-path-all-set")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setAsPath(new AsPathBuilder().setSegments(List.of(
                         new SegmentsBuilder().setAsSequence(List.of(
@@ -93,7 +92,7 @@ public class MatchAsPathSetTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testMatchAsPathInverse() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-match-as-path-inverse-set")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-match-as-path-inverse-set")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder()
                         .setAsPath(new AsPathBuilder().setSegments(List.of(

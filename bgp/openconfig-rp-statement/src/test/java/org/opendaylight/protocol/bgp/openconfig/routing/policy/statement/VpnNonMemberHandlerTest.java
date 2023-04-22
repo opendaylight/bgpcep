@@ -54,7 +54,7 @@ public class VpnNonMemberHandlerTest extends AbstractStatementRegistryConsumerTe
     @Test
     public void testExtComAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("vpn-non-member-test")).findFirst().get();
+                .filter(st -> st.getName().equals("vpn-non-member-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder()
                         .setExtendedCommunities(List.of(new ExtendedCommunitiesBuilder()

@@ -56,7 +56,7 @@ public class ClientAttributePrependHandlerTest extends AbstractStatementRegistry
     @Test
     public void testPreprendClientAttribute() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("client-attribute-append-test")).findFirst().get();
+                .filter(st -> st.getName().equals("client-attribute-append-test")).findFirst().orElseThrow();
         final Attributes att = new AttributesBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
                         .setGlobal(IPV4).build()).build())
