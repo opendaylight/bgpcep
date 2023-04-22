@@ -26,8 +26,8 @@ public enum TerminationReason {
         final TerminationReason[] reasons = TerminationReason.values();
         verify(reasons.length > 0);
 
-        final short highest = Arrays.stream(reasons).map(TerminationReason::getUintValue).max(Uint8::compareTo).get()
-                .toJava();
+        final short highest = Arrays.stream(reasons).map(TerminationReason::getUintValue).max(Uint8::compareTo)
+            .orElseThrow().toJava();
         final TerminationReason[] init = new TerminationReason[highest + 1];
         for (TerminationReason reason : reasons) {
             init[reason.getUintValue().toJava()] = reason;

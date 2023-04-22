@@ -157,35 +157,35 @@ public abstract class AbstractRIBSupport<
             final SubsequentAddressFamily safiClass,
             final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
-        this.routesContainerIdentifier = NodeIdentifier.create(
+        routesContainerIdentifier = NodeIdentifier.create(
             BindingReflections.findQName(containerClass).bindTo(module));
-        this.routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
+        routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
         this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        this.routeQname = BindingReflections.findQName(listClass).bindTo(module);
-        this.routeKeyQname = QName.create(module, ROUTE_KEY).intern();
-        this.routesListIdentifier = NodeIdentifier.create(routeQname);
+        routeQname = BindingReflections.findQName(listClass).bindTo(module);
+        routeKeyQname = QName.create(module, ROUTE_KEY).intern();
+        routesListIdentifier = NodeIdentifier.create(routeQname);
         this.afiClass = requireNonNull(afiClass);
         this.safiClass = requireNonNull(safiClass);
-        this.tk = new TablesKey(afiClass, safiClass);
-        this.tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
+        tk = new TablesKey(afiClass, safiClass);
+        tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
             BindingReflections.findQName(afiClass.implementedInterface()),
             BindingReflections.findQName(safiClass.implementedInterface())));
 
-        this.emptyTable = (MapEntryNode) this.mappingService
+        emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
                         .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                                 .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
-        this.destinationNid = NodeIdentifier.create(destContainerQname);
-        this.pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
-        this.prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
-        this.rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
-        this.routeDefaultYii = YangInstanceIdentifier.create(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
+        destinationNid = NodeIdentifier.create(destContainerQname);
+        pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
+        prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
+        rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
+        routeDefaultYii = YangInstanceIdentifier.create(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
             TABLES_NID, TABLES_NID, ROUTES_NID, routesContainerIdentifier, routesListIdentifier, routesListIdentifier);
-        this.relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
-        this.routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
+        relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
+        routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
             ImmutableList.of(pathIdNid.getNodeType(), routeKeyQname));
     }
 
@@ -284,7 +284,7 @@ public abstract class AbstractRIBSupport<
      * @return Container identifier, may not be null.
      */
     public final NodeIdentifier routesContainerIdentifier() {
-        return this.routesContainerIdentifier;
+        return routesContainerIdentifier;
     }
 
     /**
@@ -294,7 +294,7 @@ public abstract class AbstractRIBSupport<
      * @return Container identifier, may not be null.
      */
     private NodeIdentifier destinationContainerIdentifier() {
-        return this.destinationNid;
+        return destinationNid;
     }
 
     /**
@@ -331,7 +331,7 @@ public abstract class AbstractRIBSupport<
     private Collection<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes,
             final NodeIdentifier routesNodeId) {
-        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, this.putRoute);
+        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
     }
 
     protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataTreeWriteTransaction tx,
@@ -364,12 +364,12 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final NodeIdentifier routeAttributesIdentifier() {
-        return this.routeAttributesIdentifier;
+        return routeAttributesIdentifier;
     }
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
-        return routes.getModifiedChild(this.routesContainerIdentifier)
+        return routes.getModifiedChild(routesContainerIdentifier)
             .flatMap(myRoutes -> myRoutes.getModifiedChild(routeNid()))
             // Well, given the remote possibility of augmentation, we should perform a filter here,
             // to make sure the type matches what routeType() reports.
@@ -528,7 +528,7 @@ public abstract class AbstractRIBSupport<
     }
 
     protected final String extractPrefix(final DataContainerNode route) {
-        return (String) verifyNotNull(route.childByArg(prefixTypeNid)).body();
+        return (String) route.getChildByArg(prefixTypeNid).body();
     }
 
     protected final RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route) {
@@ -549,13 +549,13 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public Attributes attributeFromContainerNode(final ContainerNode advertisedAttrs) {
-        final YangInstanceIdentifier path = this.routeDefaultYii.node(routeAttributesIdentifier());
+        final YangInstanceIdentifier path = routeDefaultYii.node(routeAttributesIdentifier());
         return (Attributes) verifyNotNull(mappingService.fromNormalizedNode(path, advertisedAttrs).getValue());
     }
 
     @Override
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
-        final InstanceIdentifier<DataObject> iid = this.mappingService.fromYangInstanceIdentifier(attPath);
+        final InstanceIdentifier<DataObject> iid = mappingService.fromYangInstanceIdentifier(attPath);
         return (ContainerNode) verifyNotNull(mappingService.toNormalizedNode(iid, attributes).getValue());
     }
 

@@ -13,7 +13,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -31,7 +30,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 @Beta
@@ -60,8 +58,8 @@ public abstract class AbstractFlowspecRIBSupport<
     protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return this.nlriParser.createAdvertizedRoutesDestinationType(
-            new Object[] {this.nlriParser.extractFlowspec(routesCont)},
+        return nlriParser.createAdvertizedRoutesDestinationType(
+            new Object[] {nlriParser.extractFlowspec(routesCont)},
             pathId
         );
     }
@@ -70,8 +68,8 @@ public abstract class AbstractFlowspecRIBSupport<
     protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
         final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
         final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return this.nlriParser.createWithdrawnDestinationType(
-            new Object[] {this.nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
+        return nlriParser.createWithdrawnDestinationType(
+            new Object[] {nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
             pathId
         );
     }
@@ -87,13 +85,11 @@ public abstract class AbstractFlowspecRIBSupport<
         if (destination == null) {
             return Collections.emptyList();
         }
-        final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
 
-        final Optional<DataContainerChild> maybePathIdLeaf = destination.findChildByArg(routePathIdNid());
-        final String routeKeyValue = this.nlriParser.stringNlri(destination);
-        final NodeIdentifierWithPredicates routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
-                routeKeyValue, maybePathIdLeaf);
-        function.apply(tx, base, routeKey, destination, attributes);
+        function.apply(tx, routesYangInstanceIdentifier(routesPath),
+            PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), nlriParser.stringNlri(destination),
+                destination.findChildByArg(routePathIdNid())),
+            destination, attributes);
 
         return Collections.singletonList(routeKey);
     }

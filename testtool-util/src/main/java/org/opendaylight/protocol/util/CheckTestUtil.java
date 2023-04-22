@@ -77,7 +77,7 @@ public final class CheckTestUtil {
                 final Optional<T> data = tx.read(ldt, iid).get();
                 if (data.isPresent()) {
                     try {
-                        return function.apply(data.get());
+                        return function.apply(data.orElseThrow());
                     } catch (final AssertionError e) {
                         lastError = e;
                         Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);

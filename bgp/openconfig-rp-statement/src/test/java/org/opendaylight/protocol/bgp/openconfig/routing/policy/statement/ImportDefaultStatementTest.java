@@ -42,8 +42,8 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
     public void testFromEbgp() {
         final Statement statement = getStatement("from-external");
 
-        final RouteAttributeContainer attributeContainer
-                = routeAttributeContainerFalse(ImportAttributeTestUtil.createInput());
+        final RouteAttributeContainer attributeContainer =
+            routeAttributeContainerFalse(ImportAttributeTestUtil.createInput());
 
         assertApplyImportStatement(statement, PeerRole.Ebgp, attributeContainer,
                 ImportAttributeTestUtil.createOutput());
@@ -54,8 +54,7 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
         final Statement statement = getStatement("from-non-external");
 
         final Attributes expected = ImportAttributeTestUtil.createInput();
-        final RouteAttributeContainer attributeContainer
-                = routeAttributeContainerFalse(expected);
+        final RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(expected);
 
         assertApplyImportStatement(statement, PeerRole.Ibgp, attributeContainer, expected);
         assertApplyImportStatement(statement, PeerRole.RrClient, attributeContainer, expected);
@@ -64,7 +63,9 @@ public class ImportDefaultStatementTest extends AbstractStatementRegistryConsume
 
     private Statement getStatement(final String statementName) {
         return defaultImportStatements.stream()
-                .filter(st -> st.getName().equals(statementName)).findFirst().get();
+            .filter(st -> st.getName().equals(statementName))
+            .findFirst()
+            .orElseThrow();
     }
 
     private void assertApplyImportStatement(

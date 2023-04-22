@@ -41,7 +41,7 @@ public class MatchBgpNeighborSetTest extends AbstractStatementRegistryConsumerTe
     @Test
     public void testMatchFromBgpNeighborAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-from-neighbor-test")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-from-neighbor-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
@@ -61,7 +61,7 @@ public class MatchBgpNeighborSetTest extends AbstractStatementRegistryConsumerTe
     @Test
     public void testMatchFromBgpNeighborInvert() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-from-neighbor-invert-test")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-from-neighbor-invert-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
@@ -80,7 +80,7 @@ public class MatchBgpNeighborSetTest extends AbstractStatementRegistryConsumerTe
     @Test
     public void testMatchToBgpNeighborAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-to-neighbor-test")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-to-neighbor-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 
@@ -101,7 +101,7 @@ public class MatchBgpNeighborSetTest extends AbstractStatementRegistryConsumerTe
     @Test
     public void testMatchToBgpNeighborInvert() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("reject-to-neighbor-invert-test")).findFirst().get();
+                .filter(st -> st.getName().equals("reject-to-neighbor-invert-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
 

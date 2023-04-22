@@ -341,7 +341,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
                 final Optional<ContainerNode> effAttr = applyExportPolicy(entryDep, fromPeerId, route, routePath,
                     actualBestRoute.getAttributes());
                 if (effAttr.isPresent()) {
-                    storeRoute(ribSupport, actualBestRoute, route, routePath, effAttr.get(), tx);
+                    storeRoute(ribSupport, actualBestRoute, route, routePath, effAttr.orElseThrow(), tx);
                     continue;
                 }
             }

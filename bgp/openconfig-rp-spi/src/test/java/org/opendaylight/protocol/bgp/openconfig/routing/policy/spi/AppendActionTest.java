@@ -51,7 +51,7 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
     @Test
     public void testMultipleAppend() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("multiple-append-test")).findFirst().get();
+                .filter(st -> st.getName().equals("multiple-append-test")).findFirst().orElseThrow();
         final RouteAttributeContainer attributeContainer
                 = routeAttributeContainerFalse(new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -74,7 +74,7 @@ public class AppendActionTest extends AbstractStatementRegistryTest {
     @Test
     public void testNextHopSelf() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("next-hop-self-append-test")).findFirst().get();
+                .filter(st -> st.getName().equals("next-hop-self-append-test")).findFirst().orElseThrow();
         final RouteAttributeContainer attributeContainer
                 = routeAttributeContainerFalse(new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
