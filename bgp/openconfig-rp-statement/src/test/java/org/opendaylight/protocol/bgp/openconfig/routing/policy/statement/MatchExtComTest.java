@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static org.junit.Assert.assertNotNull;
@@ -13,8 +12,6 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 import static org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.EncapsulationTunnelType.Vxlan;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,22 +48,25 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testExtComAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("ext-community-any-test")).findFirst().get();
-        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
-                new AttributesBuilder().build());
+                .filter(st -> st.getName().equals("ext-community-any-test")).findFirst().orElseThrow();
+        RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
                 baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
         assertNotNull(result.getAttributes());
 
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setExtendedCommunities(Collections.singletonList(new ExtendedCommunitiesBuilder()
-                        .setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
-                                .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
-                                        .setAs4SpecificCommon(new As4SpecificCommonBuilder()
-                                                .setAsNumber(AsNumber.getDefaultInstance("65000"))
-                                                .setLocalAdministrator(Uint16.valueOf(123))
-                                                .build()).build()).build()).build())).build());
+            .setExtendedCommunities(List.of(new ExtendedCommunitiesBuilder()
+                .setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
+                    .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
+                        .setAs4SpecificCommon(new As4SpecificCommonBuilder()
+                            .setAsNumber(AsNumber.getDefaultInstance("65000"))
+                            .setLocalAdministrator(Uint16.valueOf(123))
+                            .build())
+                        .build())
+                    .build())
+                .build()))
+            .build());
 
         result = statementRegistry.applyExportStatement(
                 baseAttributes, IPV4UNICAST.VALUE, exportParameters, attributeContainer, statement);
@@ -76,7 +76,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testExtComAll() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("ext-community-all-test")).findFirst().get();
+                .filter(st -> st.getName().equals("ext-community-all-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -84,7 +84,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
         assertNotNull(result.getAttributes());
 
 
-        attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setExtendedCommunities(Arrays.asList(
+        attributeContainer = routeAttributeContainerFalse(new AttributesBuilder().setExtendedCommunities(List.of(
                 new ExtendedCommunitiesBuilder().setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
                         .setAs4RouteOriginExtendedCommunity(
                                 new As4RouteOriginExtendedCommunityBuilder()
@@ -104,7 +104,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testExtComInvert() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("ext-community-invert-test")).findFirst().get();
+                .filter(st -> st.getName().equals("ext-community-invert-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -112,7 +112,7 @@ public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
         assertNull(result.getAttributes());
 
         attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
-                .setExtendedCommunities(Collections.singletonList(new ExtendedCommunitiesBuilder()
+                .setExtendedCommunities(List.of(new ExtendedCommunitiesBuilder()
                         .setExtendedCommunity(new As4RouteOriginExtendedCommunityCaseBuilder()
                                 .setAs4RouteOriginExtendedCommunity(new As4RouteOriginExtendedCommunityBuilder()
                                         .setAs4SpecificCommon(new As4SpecificCommonBuilder()

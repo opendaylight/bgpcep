@@ -88,7 +88,7 @@ public final class LinkstateRIBSupport
             final YangInstanceIdentifier routesPath, final ContainerNode attributes, final ApplyRoute function,
             final DOMDataTreeWriteTransaction tx) {
         if (maybeRoutes.isPresent()) {
-            final DataContainerChild routes = maybeRoutes.get();
+            final DataContainerChild routes = maybeRoutes.orElseThrow();
             if (routes instanceof UnkeyedListNode) {
                 final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
                 final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();

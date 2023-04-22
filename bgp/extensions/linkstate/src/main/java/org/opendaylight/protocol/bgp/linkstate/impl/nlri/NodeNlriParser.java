@@ -122,31 +122,27 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
     private static IsisNodeCase serializeIsisNode(final ContainerNode isis) {
         return new IsisNodeCaseBuilder()
             .setIsisNode(new IsisNodeBuilder()
-                .setIsoSystemId(new IsoSystemIdentifier((byte[]) isis.findChildByArg(ISO_SYSTEM_NID).get().body()))
+                .setIsoSystemId(new IsoSystemIdentifier((byte[]) isis.getChildByArg(ISO_SYSTEM_NID).body()))
                 .build())
             .build();
     }
 
     private static IsisPseudonodeCase serializeIsisPseudoNode(final ContainerNode pseudoIsisNode) {
         final IsIsRouterIdentifierBuilder isisRouterId = new IsIsRouterIdentifierBuilder();
-        if (pseudoIsisNode.findChildByArg(ISIS_ROUTER_NID).isPresent()) {
-            final ContainerNode isisRouterNid = (ContainerNode) pseudoIsisNode.findChildByArg(ISIS_ROUTER_NID).get();
-            if (isisRouterNid.findChildByArg(ISO_SYSTEM_NID).isPresent()) {
-                isisRouterId.setIsoSystemId(
-                    new IsoSystemIdentifier((byte[]) isisRouterNid.findChildByArg(ISO_SYSTEM_NID).get().body()));
+        final var isisRouterNid = pseudoIsisNode.childByArg(ISIS_ROUTER_NID);
+        if (isisRouterNid != null) {
+            final var isoSystemId = ((ContainerNode) isisRouterNid).childByArg(ISO_SYSTEM_NID);
+            if (isoSystemId != null) {
+                isisRouterId.setIsoSystemId(new IsoSystemIdentifier((byte[]) isoSystemId.body()));
             }
         }
 
-        final IsisPseudonodeBuilder nodeBuilder = new IsisPseudonodeBuilder();
-        nodeBuilder.setIsIsRouterIdentifier(isisRouterId.build());
-
-        if (pseudoIsisNode.findChildByArg(PSN_NID).isPresent()) {
-            nodeBuilder.setPsn((Uint8) pseudoIsisNode.findChildByArg(PSN_NID).get().body());
-        } else {
-            nodeBuilder.setPsn(Uint8.ZERO);
-        }
-
-        return new IsisPseudonodeCaseBuilder().setIsisPseudonode(nodeBuilder.build()).build();
+        return new IsisPseudonodeCaseBuilder()
+            .setIsisPseudonode(new IsisPseudonodeBuilder()
+                .setIsIsRouterIdentifier(isisRouterId.build())
+                .setPsn(pseudoIsisNode.findChildByArg(PSN_NID).map(psn -> (Uint8) psn.body()).orElse(Uint8.ZERO))
+                .build())
+            .build();
     }
 
     private static OspfNodeCase serializeOspfNode(final ContainerNode ospf) {

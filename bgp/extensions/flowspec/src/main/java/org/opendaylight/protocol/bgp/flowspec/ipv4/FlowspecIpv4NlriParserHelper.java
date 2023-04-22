@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.ipv4;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.NumericOneByteOperandParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
 /**
@@ -38,51 +37,58 @@ public final class FlowspecIpv4NlriParserHelper {
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
 
     private FlowspecIpv4NlriParserHelper() {
-
+        // Hidden on purpose
     }
 
     public static void extractFlowspec(final ChoiceNode fsType, final FlowspecBuilder fsBuilder) {
-        if (fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new DestinationPrefixCaseBuilder().setDestinationPrefix(
-                    new Ipv4Prefix((String) fsType.findChildByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID).get()
-                            .body())).build());
-        } else if (fsType.findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).isPresent()) {
-            fsBuilder.setFlowspecType(new SourcePrefixCaseBuilder().setSourcePrefix(new Ipv4Prefix((String) fsType
-                    .findChildByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID).get().body())).build());
-        } else if (fsType.findChildByArg(PROTOCOL_IP_NID).isPresent()) {
+        final var destPrefix = fsType.childByArg(AbstractFlowspecNlriParser.DEST_PREFIX_NID);
+        if (destPrefix != null) {
+            fsBuilder.setFlowspecType(new DestinationPrefixCaseBuilder()
+                .setDestinationPrefix(new Ipv4Prefix((String) destPrefix.body()))
+                .build());
+            return;
+        }
+        final var sourcePrefix = fsType.childByArg(AbstractFlowspecNlriParser.SOURCE_PREFIX_NID);
+        if (sourcePrefix != null) {
+            fsBuilder.setFlowspecType(new SourcePrefixCaseBuilder()
+                .setSourcePrefix(new Ipv4Prefix((String) sourcePrefix.body()))
+                .build());
+            return;
+        }
+        final var protocolIp = fsType.childByArg(PROTOCOL_IP_NID);
+        if (protocolIp != null) {
             fsBuilder.setFlowspecType(new ProtocolIpCaseBuilder()
-                    .setProtocolIps(createProtocolsIps((UnkeyedListNode) fsType.findChildByArg(PROTOCOL_IP_NID).get()))
-                    .build());
+                .setProtocolIps(createProtocolsIps((UnkeyedListNode) protocolIp))
+                .build());
         }
     }
 
     public static void buildFlowspecString(final FlowspecType value, final StringBuilder buffer) {
-        if (value instanceof DestinationPrefixCase) {
-            buffer.append("to ");
-            buffer.append(((DestinationPrefixCase) value).getDestinationPrefix().getValue());
-        } else if (value instanceof SourcePrefixCase) {
-            buffer.append("from ");
-            buffer.append(((SourcePrefixCase) value).getSourcePrefix().getValue());
-        } else if (value instanceof ProtocolIpCase) {
-            buffer.append("where IP protocol ");
-            buffer.append(NumericOneByteOperandParser.INSTANCE.toString(((ProtocolIpCase) value).getProtocolIps()));
+        if (value instanceof DestinationPrefixCase destinationPrefix) {
+            buffer.append("to ").append(destinationPrefix.getDestinationPrefix().getValue());
+        } else if (value instanceof SourcePrefixCase sourcePrefix) {
+            buffer.append("from ").append(sourcePrefix.getSourcePrefix().getValue());
+        } else if (value instanceof ProtocolIpCase protocolIp) {
+            buffer.append("where IP protocol ").append(
+                NumericOneByteOperandParser.INSTANCE.toString(protocolIp.getProtocolIps()));
         }
     }
 
     private static List<ProtocolIps> createProtocolsIps(final UnkeyedListNode protocolIpsData) {
-        final List<ProtocolIps> protocolIps = new ArrayList<>();
-
-        for (final UnkeyedListEntryNode node : protocolIpsData.body()) {
-            final ProtocolIpsBuilder ipsBuilder = new ProtocolIpsBuilder();
-            node.findChildByArg(AbstractFlowspecNlriParser.OP_NID).ifPresent(
-                dataContainerChild -> ipsBuilder.setOp(NumericOneByteOperandParser
-                    .INSTANCE.create((Set<String>) dataContainerChild.body())));
-            node.findChildByArg(AbstractFlowspecNlriParser.VALUE_NID).ifPresent(
-                dataContainerChild -> ipsBuilder.setValue((Uint8) dataContainerChild.body()));
-            protocolIps.add(ipsBuilder.build());
-        }
-
-        return protocolIps;
+        return protocolIpsData.body().stream()
+            .map(node -> {
+                final var builder = new ProtocolIpsBuilder();
+                final var op = node.childByArg(AbstractFlowspecNlriParser.OP_NID);
+                if (op != null) {
+                    builder.setOp(NumericOneByteOperandParser.INSTANCE.create((Set<String>) op.body()));
+                }
+                final var value = node.childByArg(AbstractFlowspecNlriParser.VALUE_NID);
+                if (value != null) {
+                    builder.setValue((Uint8) value.body());
+                }
+                return builder.build();
+            })
+            .collect(Collectors.toList());
     }
 }
 

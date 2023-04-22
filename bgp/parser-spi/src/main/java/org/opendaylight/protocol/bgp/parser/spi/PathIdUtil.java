@@ -94,7 +94,7 @@ public final class PathIdUtil {
             final ImmutableOffsetMapTemplate<QName> routeKeyTemplate, final Object routeKeyValue,
             final Optional<DataContainerChild> maybePathIdLeaf) {
         // FIXME: a cache here would mean we instantiate the same identifier for each route making comparison quicker.
-        final Object pathId = maybePathIdLeaf.isPresent() ? maybePathIdLeaf.get().body() : NON_PATH_ID_VALUE;
+        final Object pathId = maybePathIdLeaf.map(DataContainerChild::body).orElse(NON_PATH_ID_VALUE);
         return NodeIdentifierWithPredicates.of(routeQName,
             routeKeyTemplate.instantiateWithValues(pathId, routeKeyValue));
     }

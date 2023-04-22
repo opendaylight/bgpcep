@@ -95,7 +95,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     private List<CLinkstateDestination> parseNlri(final ByteBuf nlri) {
         final List<CLinkstateDestination> dests = new ArrayList<>();
         while (nlri.isReadable()) {
-            final CLinkstateDestination destination = this.nlriTypeReg.parseNlriType(nlri);
+            final CLinkstateDestination destination = nlriTypeReg.parseNlriType(nlri);
             if (destination == null) {
                 continue;
             }
@@ -151,7 +151,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
                     = (DestinationLinkstateCase) withdrawnRoutes.getDestinationType();
             for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
                     .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
+                nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
@@ -169,42 +169,32 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
             for (final CLinkstateDestination linkstateDestinationCase : linkstateCase.getDestinationLinkstate()
                     .getCLinkstateDestination()) {
-                this.nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
+                nlriTypeReg.serializeNlriType(linkstateDestinationCase, byteAggregator);
             }
         }
     }
 
     // FIXME : use codec
     private static int domProtocolIdValue(final String protocolId) {
-        switch (protocolId) {
-            case "isis-level1":
-                return ProtocolId.IsisLevel1.getIntValue();
-            case "isis-level2":
-                return ProtocolId.IsisLevel2.getIntValue();
-            case "ospf":
-                return ProtocolId.Ospf.getIntValue();
-            case "direct":
-                return ProtocolId.Direct.getIntValue();
-            case "static":
-                return ProtocolId.Static.getIntValue();
-            case "ospf-v3":
-                return ProtocolId.OspfV3.getIntValue();
-            case "rsvp-te":
-                return ProtocolId.RsvpTe.getIntValue();
-            case "bgp-epe":
-                return ProtocolId.BgpEpe.getIntValue();
-            case "segment-routing":
-                return ProtocolId.SegmentRouting.getIntValue();
-            default:
-                return 0;
-        }
+        return switch (protocolId) {
+            case "isis-level1" -> ProtocolId.IsisLevel1.getIntValue();
+            case "isis-level2" -> ProtocolId.IsisLevel2.getIntValue();
+            case "ospf" -> ProtocolId.Ospf.getIntValue();
+            case "direct" -> ProtocolId.Direct.getIntValue();
+            case "static" -> ProtocolId.Static.getIntValue();
+            case "ospf-v3" -> ProtocolId.OspfV3.getIntValue();
+            case "rsvp-te" -> ProtocolId.RsvpTe.getIntValue();
+            case "bgp-epe" -> ProtocolId.BgpEpe.getIntValue();
+            case "segment-routing" -> ProtocolId.SegmentRouting.getIntValue();
+            default -> 0;
+        };
     }
 
     public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode linkstate) {
         final CLinkstateDestinationBuilder builder = new CLinkstateDestinationBuilder();
         serializeCommonParts(builder, linkstate);
 
-        final ChoiceNode objectType = (ChoiceNode) linkstate.findChildByArg(OBJECT_TYPE_NID).get();
+        final ChoiceNode objectType = (ChoiceNode) linkstate.getChildByArg(OBJECT_TYPE_NID);
         if (objectType.findChildByArg(ADVERTISING_NODE_DESCRIPTORS_NID).isPresent()) {
             serializeAdvertisedNodeDescriptor(builder, objectType);
         } else if (objectType.findChildByArg(LOCAL_NODE_DESCRIPTORS_NID).isPresent()) {
@@ -223,8 +213,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             final ChoiceNode objectType) {
         final NodeCaseBuilder nodeBuilder = new NodeCaseBuilder();
         // node descriptors
-        nodeBuilder.setNodeDescriptors(NodeNlriParser
-                .serializeNodeDescriptors((ContainerNode) objectType.findChildByArg(NODE_DESCRIPTORS_NID).get()));
+        nodeBuilder.setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors(
+            (ContainerNode) objectType.getChildByArg(NODE_DESCRIPTORS_NID)));
         builder.setObjectType(nodeBuilder.build());
     }
 
@@ -234,16 +224,15 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         final LinkCaseBuilder linkBuilder = new LinkCaseBuilder();
 
         linkBuilder.setLocalNodeDescriptors(NodeNlriParser.serializeLocalNodeDescriptors((ContainerNode) objectType
-                .findChildByArg(LOCAL_NODE_DESCRIPTORS_NID).get()));
+                .getChildByArg(LOCAL_NODE_DESCRIPTORS_NID)));
         // link remote node descriptors
-        if (objectType.findChildByArg(REMOTE_NODE_DESCRIPTORS_NID).isPresent()) {
-            linkBuilder.setRemoteNodeDescriptors(NodeNlriParser.serializeRemoteNodeDescriptors(
-                (ContainerNode) objectType.findChildByArg(REMOTE_NODE_DESCRIPTORS_NID).get()));
-        }
+        objectType.findChildByArg(REMOTE_NODE_DESCRIPTORS_NID).ifPresent(
+            descriptors -> linkBuilder.setRemoteNodeDescriptors(
+                NodeNlriParser.serializeRemoteNodeDescriptors((ContainerNode) descriptors)));
         // link descriptors
         objectType.findChildByArg(LINK_DESCRIPTORS_NID).ifPresent(
-            dataContainerChild -> linkBuilder.setLinkDescriptors(
-                LinkNlriParser.serializeLinkDescriptors((ContainerNode) dataContainerChild)));
+            descriptors -> linkBuilder.setLinkDescriptors(
+                LinkNlriParser.serializeLinkDescriptors((ContainerNode) descriptors)));
         builder.setObjectType(linkBuilder.build());
     }
 
@@ -252,12 +241,12 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         // prefix node descriptors
         final PrefixCaseBuilder prefixBuilder = new PrefixCaseBuilder();
         prefixBuilder.setAdvertisingNodeDescriptors(NodeNlriParser.serializeAdvNodeDescriptors(
-            (ContainerNode) objectType.findChildByArg(ADVERTISING_NODE_DESCRIPTORS_NID).get()));
+            (ContainerNode) objectType.getChildByArg(ADVERTISING_NODE_DESCRIPTORS_NID)));
 
         // prefix descriptors
         objectType.findChildByArg(PREFIX_DESCRIPTORS_NID).ifPresent(
-            dataContainerChild -> prefixBuilder.setPrefixDescriptors(
-                AbstractPrefixNlriParser.serializePrefixDescriptors((ContainerNode) dataContainerChild)));
+            descriptors -> prefixBuilder.setPrefixDescriptors(
+                AbstractPrefixNlriParser.serializePrefixDescriptors((ContainerNode) descriptors)));
         builder.setObjectType(prefixBuilder.build());
     }
 

@@ -52,20 +52,20 @@ final class NlriModelUtil {
     }
 
     static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode evpn) {
-        return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.findChildByArg(RD_NID).get().body());
+        return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.getChildByArg(RD_NID).body());
     }
 
     static IpAddressNoZone extractOrigRouteIp(final DataContainerNode evpn) {
-        return parseIpAddress((String) evpn.findChildByArg(ORI_NID).get().body());
+        return parseIpAddress((String) evpn.getChildByArg(ORI_NID).body());
     }
 
     static EthernetTagId extractETI(final ContainerNode evpn) {
-        final ContainerNode eti = (ContainerNode) evpn.findChildByArg(ETI_NID).get();
-        return new EthernetTagIdBuilder().setVlanId((Uint32) eti.findChildByArg(VLAN_NID).get().body()).build();
+        final ContainerNode eti = (ContainerNode) evpn.getChildByArg(ETI_NID);
+        return new EthernetTagIdBuilder().setVlanId((Uint32) eti.getChildByArg(VLAN_NID).body()).build();
     }
 
     static MacAddress extractMAC(final DataContainerNode evpn) {
-        return new MacAddress((String) evpn.findChildByArg(MAC_NID).get().body());
+        return new MacAddress((String) evpn.getChildByArg(MAC_NID).body());
     }
 
     static IpAddressNoZone extractIp(final DataContainerNode evpn) {

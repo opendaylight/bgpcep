@@ -43,12 +43,12 @@ final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Rout
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv4Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            final String prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).get().body();
-            final Ipv4PrefixesBuilder prefixBuilder = new Ipv4PrefixesBuilder().setPrefix(new Ipv4Prefix(prefix));
-            prefixBuilder.setPathId(PathIdUtil.buildPathId(route, routePathIdNid()));
-            prefs.add(prefixBuilder.build());
+        final var prefs = new ArrayList<Ipv4Prefixes>(routes.size());
+        for (var route : routes) {
+            final var prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).orElseThrow().body();
+            prefs.add(new Ipv4PrefixesBuilder()
+                .setPrefix(new Ipv4Prefix(prefix)).setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
+                .build());
         }
         return prefs;
     }

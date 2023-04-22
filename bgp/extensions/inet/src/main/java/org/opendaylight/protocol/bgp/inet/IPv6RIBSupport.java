@@ -55,11 +55,12 @@ final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Rout
     }
 
     private List<Ipv6Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
-        final List<Ipv6Prefixes> prefs = new ArrayList<>(routes.size());
-        for (final MapEntryNode route : routes) {
-            final String prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).get().body();
-            prefs.add(new Ipv6PrefixesBuilder().setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
-                    .setPrefix(new Ipv6Prefix(prefix)).build());
+        final var prefs = new ArrayList<Ipv6Prefixes>(routes.size());
+        for (var route : routes) {
+            final var prefix = (String) NormalizedNodes.findNode(route, routePrefixIdentifier()).orElseThrow().body();
+            prefs.add(new Ipv6PrefixesBuilder()
+                .setPathId(PathIdUtil.buildPathId(route, routePathIdNid())).setPrefix(new Ipv6Prefix(prefix))
+                .build());
         }
         return prefs;
     }

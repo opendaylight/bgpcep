@@ -177,7 +177,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         } catch (BGPTreatAsWithdrawException e) {
             LOG.debug("Well-known mandatory attributes missing", e);
             if (withdrawCauseOpt.isPresent()) {
-                final BGPTreatAsWithdrawException exception = withdrawCauseOpt.get();
+                final BGPTreatAsWithdrawException exception = withdrawCauseOpt.orElseThrow();
                 exception.addSuppressed(e);
                 withdrawCauseOpt = Optional.of(exception);
             } else {
@@ -188,7 +188,7 @@ public final class BGPUpdateMessageParser implements MessageParser, MessageSeria
         Update msg = builder.build();
         if (withdrawCauseOpt.isPresent()) {
             // Attempt to apply treat-as-withdraw
-            msg = withdrawUpdate(msg, errorHandling, withdrawCauseOpt.get());
+            msg = withdrawUpdate(msg, errorHandling, withdrawCauseOpt.orElseThrow());
         }
 
         LOG.debug("BGP Update message was parsed {}.", msg);
