@@ -46,7 +46,7 @@ public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest
     @Test
     public void testExtComAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("match-afi-safi-not-in-test")).findFirst().get();
+                .filter(st -> st.getName().equals("match-afi-safi-not-in-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(

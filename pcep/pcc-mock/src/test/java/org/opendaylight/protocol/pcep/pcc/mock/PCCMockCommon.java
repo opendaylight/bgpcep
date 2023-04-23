@@ -162,8 +162,8 @@ public abstract class PCCMockCommon {
         final List<Message> messages;
         checkReceivedMessages(pceSessionListener, expectedTotalMessages);
         if (startAtNumberLsp.isPresent()) {
-            messages = pceSessionListener.messages().subList(startAtNumberLsp.get(),
-                    startAtNumberLsp.get() + expectedNumberOfLsp);
+            final int offset = startAtNumberLsp.orElseThrow();
+            messages = pceSessionListener.messages().subList(offset, offset + expectedNumberOfLsp);
         } else {
             messages = pceSessionListener.messages();
         }

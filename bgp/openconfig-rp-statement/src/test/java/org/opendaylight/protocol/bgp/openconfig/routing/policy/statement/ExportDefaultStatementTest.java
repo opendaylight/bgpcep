@@ -126,7 +126,9 @@ public class ExportDefaultStatementTest extends AbstractStatementRegistryConsume
         doReturn(toPeerRole).when(exportParameters).getToPeerRole();
         doReturn(AS).when(exportParameters).getToPeerLocalAs();
         return defaultExportStatements.stream()
-                .filter(st -> st.getName().equals(statementName)).findFirst().get();
+                .filter(st -> st.getName().equals(statementName))
+                .findFirst()
+                .orElseThrow();
     }
 
     private void assertApplyExportStatement(
