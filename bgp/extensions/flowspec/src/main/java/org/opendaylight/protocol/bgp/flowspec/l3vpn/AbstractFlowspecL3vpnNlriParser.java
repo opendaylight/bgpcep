@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -55,8 +54,8 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     /**
      * For flowspec-l3vpn, there is a route distinguisher field at the beginning of NLRI (8 bytes).
      */
-    private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
-        final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
+    private static @NonNull RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
+        final var rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
         LOG.trace("Route Distinguisher read from NLRI: {}", rd);
         return rd;
     }
@@ -74,7 +73,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     protected final DestinationType parseAdvertizedNlri(final ByteBuf nlri, final PathId pathId)
             throws BGPParsingException {
         readNlriLength(nlri);
-        return createAdvertizedRoutesDestinationType(requireNonNull(readRouteDistinguisher(nlri)),
+        return createAdvertizedRoutesDestinationType(readRouteDistinguisher(nlri),
             parseL3vpnNlriFlowspecList(nlri), pathId);
     }
 
@@ -93,8 +92,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     protected final DestinationType parseWithdrawnNlri(final ByteBuf nlri, final PathId pathId)
             throws BGPParsingException {
         readNlriLength(nlri);
-        return createWithdrawnDestinationType(requireNonNull(readRouteDistinguisher(nlri)),
-            parseL3vpnNlriFlowspecList(nlri), pathId);
+        return createWithdrawnDestinationType(readRouteDistinguisher(nlri), parseL3vpnNlriFlowspecList(nlri), pathId);
     }
 
     /**
