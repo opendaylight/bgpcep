@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -184,11 +183,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         }
     }
 
-    protected void serializeNlri(final Object @NonNull [] nlriFields, final @NonNull ByteBuf buffer) {
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
-        serializeNlri(flowspecList, buffer);
-    }
-
     protected final void serializeNlri(final List<Flowspec> flowspecList, final @NonNull ByteBuf buffer) {
         if (flowspecList != null) {
             for (final Flowspec flow : flowspecList) {
@@ -198,27 +192,23 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
     }
 
     /**
-     * Serializes Flowspec NLRI to ByteBuf.
+     * Appends a Flowspec NLRI buffer to an output ByteBuf.
      *
-     * @param nlriFields NLRI fields to be serialized
      * @param pathId path ID
-     * @param buffer where flowspec NLRI will be serialized
+     * @param nlri NLRI to be appended
+     * @param output where flowspec NLRI will be appended
      */
-    protected final void serializeNlri(final Object @NonNull[] nlriFields, final @Nullable PathId pathId,
-            final @NonNull ByteBuf buffer) {
-        final ByteBuf nlriByteBuf = Unpooled.buffer();
-        PathIdUtil.writePathId(pathId, buffer);
+    protected static final void appendNlri(final @Nullable PathId pathId, final @NonNull ByteBuf nlri,
+            final @NonNull ByteBuf output) {
+        checkState(nlri.readableBytes() <= MAX_NLRI_LENGTH, "Maximum length of Flowspec NLRI reached.");
+        PathIdUtil.writePathId(pathId, output);
 
-        serializeNlri(nlriFields, nlriByteBuf);
-
-        Preconditions.checkState(nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH,
-                "Maximum length of Flowspec NLRI reached.");
-        if (nlriByteBuf.readableBytes() <= MAX_NLRI_LENGTH_ONE_BYTE) {
-            buffer.writeByte(nlriByteBuf.readableBytes());
+        if (nlri.readableBytes() <= MAX_NLRI_LENGTH_ONE_BYTE) {
+            output.writeByte(nlri.readableBytes());
         } else {
-            buffer.writeShort(nlriByteBuf.readableBytes() + LENGTH_MAGIC);
+            output.writeShort(nlri.readableBytes() + LENGTH_MAGIC);
         }
-        buffer.writeBytes(nlriByteBuf);
+        output.writeBytes(nlri);
     }
 
     public String stringNlri(final DataContainerNode flowspec) {
@@ -554,13 +544,12 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     public static int readNlriLength(final @NonNull ByteBuf nlri) {
         requireNonNull(nlri, "NLRI information cannot be null");
-        Preconditions.checkState(nlri.isReadable(), "NLRI Byte buffer is not readable.");
+        checkState(nlri.isReadable(), "NLRI Byte buffer is not readable.");
         int length = nlri.readUnsignedByte();
         if (length >= MAX_NLRI_LENGTH_ONE_BYTE) {
             length = (length << Byte.SIZE | nlri.readUnsignedByte()) & MAX_NLRI_LENGTH;
         }
-        Preconditions.checkState(length > 0 && length <= nlri.readableBytes(),
-                "Invalid flowspec NLRI length %s", length);
+        checkState(length > 0 && length <= nlri.readableBytes(), "Invalid flowspec NLRI length %s", length);
         return length;
     }
 
@@ -579,8 +568,8 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
         while (nlri.isReadable()) {
             int nlriLength = readNlriLength(nlri);
-            Preconditions.checkState(nlriLength > 0 && nlriLength <= nlri.readableBytes(),
-                    "Invalid flowspec NLRI length %s", nlriLength);
+            checkState(nlriLength > 0 && nlriLength <= nlri.readableBytes(),
+                "Invalid flowspec NLRI length %s", nlriLength);
             LOG.trace("Flowspec NLRI length is {}", nlriLength);
 
             while (nlriLength > 0) {
@@ -591,8 +580,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
                 final int flowspecTypeLength = readableLength - nlri.readableBytes();
                 nlriLength -= flowspecTypeLength;
             }
-            Preconditions.checkState(nlriLength == 0,
-                    "Remain NLRI length should be 0 instead of %s", nlriLength);
+            checkState(nlriLength == 0, "Remain NLRI length should be 0 instead of %s", nlriLength);
         }
 
         return fss;

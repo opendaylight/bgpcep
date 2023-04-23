@@ -10,7 +10,9 @@ package org.opendaylight.protocol.bgp.flowspec.l3vpn;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
@@ -59,12 +61,13 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
         return rd;
     }
 
-    @Override
-    protected final void serializeNlri(final Object[] nlriFields, final ByteBuf buffer) {
-        final RouteDistinguisher rd = requireNonNull((RouteDistinguisher) nlriFields[0]);
-        RouteDistinguisherUtil.serializeRouteDistinquisher(rd, buffer);
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
-        serializeNlri(flowspecList, buffer);
+    @VisibleForTesting
+    public final void serializeNlri(final @NonNull RouteDistinguisher rd, final List<Flowspec> flowspecList,
+            final @Nullable PathId pathId, final @NonNull ByteBuf buffer) {
+        final var nlri = Unpooled.buffer();
+        RouteDistinguisherUtil.serializeRouteDistinquisher(rd, nlri);
+        serializeNlri(flowspecList, nlri);
+        appendNlri(pathId, nlri, buffer);
     }
 
     @Override

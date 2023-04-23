@@ -78,10 +78,8 @@ public final class FlowspecL3vpnIpv6NlriParser extends AbstractFlowspecL3vpnNlri
                     .ns.yang.bgp.flowspec.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type
                     .DestinationFlowspecL3vpnIpv6Case) dstType).getDestinationFlowspecL3vpnIpv6();
             serializeNlri(
-                new Object[] {
-                    destFlowspec.getRouteDistinguisher(),
-                    destFlowspec.getFlowspec()
-                },
+                destFlowspec.getRouteDistinguisher(),
+                destFlowspec.getFlowspec(),
                 destFlowspec.getPathId(),
                 byteAggregator
             );
@@ -96,10 +94,8 @@ public final class FlowspecL3vpnIpv6NlriParser extends AbstractFlowspecL3vpnNlri
                     .ns.yang.bgp.flowspec.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                     .DestinationFlowspecL3vpnIpv6Case) dstType).getDestinationFlowspecL3vpnIpv6();
             serializeNlri(
-                new Object[] {
-                    destFlowspec.getRouteDistinguisher(),
-                    destFlowspec.getFlowspec()
-                },
+                destFlowspec.getRouteDistinguisher(),
+                destFlowspec.getFlowspec(),
                 destFlowspec.getPathId(),
                 byteAggregator
             );
