@@ -27,14 +27,13 @@ final class CMulticastUtil {
     }
 
     static CMulticast parseCMulticastGrouping(final ByteBuf buffer) {
-        final CMulticastBuilder builder = new CMulticastBuilder();
-        builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer));
-        builder.setSourceAs(new AsNumber(ByteBufUtils.readUint32(buffer)));
-        builder.setMulticastSource(IpAddressUtil.addressForByteBuf(buffer));
-        builder.setMulticastGroup(MulticastGroupOpaqueUtil.multicastGroupForByteBuf(buffer));
-        return builder.build();
+        return new CMulticastBuilder()
+            .setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(buffer))
+            .setSourceAs(new AsNumber(ByteBufUtils.readUint32(buffer)))
+            .setMulticastSource(IpAddressUtil.addressForByteBuf(buffer))
+            .setMulticastGroup(MulticastGroupOpaqueUtil.multicastGroupForByteBuf(buffer))
+            .build();
     }
-
 
     static ByteBuf serializeCMulticast(final CMulticast route) {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
