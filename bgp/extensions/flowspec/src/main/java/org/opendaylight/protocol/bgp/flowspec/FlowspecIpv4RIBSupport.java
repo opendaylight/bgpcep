@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 
 public final class FlowspecIpv4RIBSupport
-        extends AbstractFlowspecRIBSupport<SimpleFlowspecIpv4NlriParser,
+        extends AbstractFlowspecIpRIBSupport<SimpleFlowspecIpv4NlriParser,
         FlowspecRoutesCase,
         FlowspecRoutes,
         FlowspecRoute> {

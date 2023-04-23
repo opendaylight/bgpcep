@@ -164,26 +164,6 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
 
     protected abstract void stringSpecificFSNlriType(FlowspecType value, StringBuilder buffer);
 
-    /**
-     * Create withdrawn destination type.
-     *
-     * @param nlriFields a list of NLRI fields to be included in the destination type
-     * @param pathId     associated path id with given NLRI
-     * @return created destination type
-     */
-    public abstract DestinationType createWithdrawnDestinationType(Object @NonNull[] nlriFields,
-            @Nullable PathId pathId);
-
-    /**
-     * Create advertized destination type.
-     *
-     * @param nlriFields a list of NLRI fields to be included in the destination type
-     * @param pathId     associated path id with given NLRI
-     * @return created destination type
-     */
-    public abstract DestinationType createAdvertizedRoutesDestinationType(Object @NonNull[] nlriFields,
-            @Nullable PathId pathId);
-
     @Override
     public final void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
         final AttributesReach pathAttributes1 = pathAttributes.augmentation(AttributesReach.class);
@@ -590,6 +570,7 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
      * @param nlri byte representation of NLRI which will be parsed
      * @return list of Flowspec
      */
+    // FIXME: throws BGPParsingException
     protected final List<Flowspec> parseNlriFlowspecList(final @NonNull ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
@@ -617,44 +598,52 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return fss;
     }
 
-    /**
-     * Override this function to parse additional NLRI fields.
-     *
-     * @param nlri NLRI buffer
-     * @return Parsed additional fields
-     */
-    protected Object @NonNull[] parseNlri(final @NonNull ByteBuf nlri) throws BGPParsingException {
-        return new Object[] {parseNlriFlowspecList(nlri)};
-    }
-
     @Override
-    public final void parseNlri(final @NonNull ByteBuf nlri, final @NonNull MpReachNlriBuilder builder,
+    public final void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
             final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
-        final Object[] nlriFields = parseNlri(nlri);
         builder.setAdvertizedRoutes(new AdvertizedRoutesBuilder()
-            .setDestinationType(createAdvertizedRoutesDestinationType(nlriFields, pathId))
+            .setDestinationType(parseAdvertizedNlri(nlri, pathId))
             .build());
     }
 
     @Override
-    public final void parseNlri(final @NonNull ByteBuf nlri, final @NonNull MpUnreachNlriBuilder builder,
+    public final void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
             final PeerSpecificParserConstraint constraint) throws BGPParsingException {
         if (!nlri.isReadable()) {
             return;
         }
         final PathId pathId = readPathId(nlri, builder.getAfi(), builder.getSafi(), constraint);
-        final Object[] nlriFields = parseNlri(nlri);
         builder.setWithdrawnRoutes(new WithdrawnRoutesBuilder()
-            .setDestinationType(createWithdrawnDestinationType(nlriFields, pathId))
+            .setDestinationType(parseWithdrawnNlri(nlri, pathId))
             .build()
         );
     }
 
-    protected static @Nullable PathId readPathId(final @NonNull ByteBuf nlri, final AddressFamily afi,
+    /**
+     * Create advertized destination type.
+     *
+     * @param nlri   on-wire NLRI, with path ID already peeled
+     * @param pathId associated path id with given NLRI
+     * @return created destination type
+     */
+    protected abstract @NonNull DestinationType parseAdvertizedNlri(@NonNull ByteBuf nlri, @Nullable PathId pathId)
+        throws BGPParsingException;
+
+    /**
+     * Parse and create withdrawn destination type.
+     *
+     * @param nlri   on-wire NLRI, with path ID already peeled
+     * @param pathId associated path id with given NLRI
+     * @return created destination type
+     */
+    protected abstract @NonNull DestinationType parseWithdrawnNlri(@NonNull ByteBuf nlri, @Nullable PathId pathId)
+        throws BGPParsingException;
+
+    protected static final @Nullable PathId readPathId(final @NonNull ByteBuf nlri, final AddressFamily afi,
             final SubsequentAddressFamily safi, final PeerSpecificParserConstraint constraint) {
         if (MultiPathSupportUtil.isTableTypeSupported(constraint, new BgpTableTypeImpl(afi, safi))) {
             return PathIdUtil.readPathId(nlri);
