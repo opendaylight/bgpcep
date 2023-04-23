@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
+import java.util.regex.Pattern;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -20,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.slf4j.Logger;
@@ -41,6 +41,45 @@ public final class RouteDistinguisherUtil {
     private static final int RD_AS_2BYTE = 0;
     private static final int RD_IPV4     = 1;
     private static final int RD_AS_4BYTE = 2;
+
+    // Patterns for parsing String representation
+    private static final Pattern AS_2BYTE_PATTERN =
+        Pattern.compile("0:"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|"
+            + "65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5])"
+            + ":"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-3][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "4[0-1][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|42[0-8][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "429[0-3][0-9][0-9][0-9][0-9][0-9][0-9]|4294[0-8][0-9][0-9][0-9][0-9][0-9]|"
+            + "42949[0-5][0-9][0-9][0-9][0-9]|429496[0-6][0-9][0-9][0-9]|4294967[0-1][0-9][0-9]|"
+            + "42949672[0-8][0-9]|429496729[0-5])");
+
+    private static final Pattern IPV4_PATTERN =
+        Pattern.compile("((([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}"
+            + "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]))"
+            + ":"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|"
+            + "65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5])");
+
+    private static final Pattern AS_4BYTE_PATTERN =
+        Pattern.compile("([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "[1-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|[1-3][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "4[0-1][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|42[0-8][0-9][0-9][0-9][0-9][0-9][0-9][0-9]|"
+            + "429[0-3][0-9][0-9][0-9][0-9][0-9][0-9]|4294[0-8][0-9][0-9][0-9][0-9][0-9]|"
+            + "42949[0-5][0-9][0-9][0-9][0-9]|429496[0-6][0-9][0-9][0-9]|4294967[0-1][0-9][0-9]|"
+            + "42949672[0-8][0-9]|429496729[0-5])"
+            + ":"
+            + "([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|[1-9][0-9][0-9][0-9]|"
+            + "[1-5][0-9][0-9][0-9][0-9]|6[0-4][0-9][0-9][0-9]|"
+            + "65[0-4][0-9][0-9]|655[0-2][0-9]|6553[0-5])");
+
 
     private RouteDistinguisherUtil() {
         // Hidden on purpose
@@ -146,24 +185,21 @@ public final class RouteDistinguisherUtil {
         }
     }
 
-    public static @Nullable RouteDistinguisher parseRouteDistinguisher(final String str) {
-        return str == null ? null : RouteDistinguisherBuilder.getDefaultInstance(str);
-    }
-
-    public static @Nullable RouteDistinguisher parseRouteDistinguisher(final Object obj) {
-        if (obj instanceof String str) {
-            return RouteDistinguisherBuilder.getDefaultInstance(str);
-        } else if (obj instanceof RouteDistinguisher rd) {
-            return rd;
+    public static @NonNull RouteDistinguisher parseRouteDistinguisher(final String defaultValue) {
+        if (AS_2BYTE_PATTERN.matcher(defaultValue).matches()) {
+            return new RouteDistinguisher(new RdTwoOctetAs(defaultValue));
+        } else if (IPV4_PATTERN.matcher(defaultValue).matches()) {
+            return new RouteDistinguisher(new RdIpv4(defaultValue));
+        } else if (AS_4BYTE_PATTERN.matcher(defaultValue).matches()) {
+            return new RouteDistinguisher(new RdAs(defaultValue));
         } else {
-            return null;
+            throw new IllegalArgumentException("Cannot create Route Distinguisher from " + defaultValue);
         }
     }
 
     public static @Nullable RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route,
             final NodeIdentifier rdNid) {
         final var rdNode = route.childByArg(rdNid);
-        return rdNode == null ? null : parseRouteDistinguisher(rdNode.body());
+        return rdNode == null ? null : parseRouteDistinguisher((String) rdNode.body());
     }
-
 }

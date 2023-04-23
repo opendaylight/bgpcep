@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.junit.Test;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -33,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.destination.VpnIpv4DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
@@ -82,8 +82,7 @@ public class VpnIpv4NlriParserTest {
     static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     static final List<LabelStack> LABEL_STACK = List.of(
         new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
-    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherBuilder
-            .getDefaultInstance("1.2.3.4:258");
+    static final RouteDistinguisher DISTINGUISHER = RouteDistinguisherUtil.parseRouteDistinguisher("1.2.3.4:258");
     static final VpnDestination IPV4_VPN = new VpnDestinationBuilder().setRouteDistinguisher(DISTINGUISHER)
             .setPrefix(IPV4_PREFIX).setPathId(NON_PATH_ID).setLabelStack(LABEL_STACK).build();
     private static final VpnDestination IPV4_VPN_WITHOUT_LABELS = new VpnDestinationBuilder()

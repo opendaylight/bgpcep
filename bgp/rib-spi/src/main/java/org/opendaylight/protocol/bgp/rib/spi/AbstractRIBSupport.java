@@ -26,6 +26,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -55,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
@@ -527,13 +529,12 @@ public abstract class AbstractRIBSupport<
         return routeKeyTemplate;
     }
 
-    protected final String extractPrefix(final DataContainerNode route) {
+    protected final @NonNull String extractPrefix(final DataContainerNode route) {
         return (String) route.getChildByArg(prefixTypeNid).body();
     }
 
-    protected final RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route) {
-        final DataContainerChild child = route.childByArg(rdNid);
-        return child == null ? null : RouteDistinguisherBuilder.getDefaultInstance((String) child.body());
+    protected final @Nullable RouteDistinguisher extractRouteDistinguisher(final DataContainerNode route) {
+        return RouteDistinguisherUtil.extractRouteDistinguisher(route, rdNid);
     }
 
     protected final YangInstanceIdentifier routesYangInstanceIdentifier(final YangInstanceIdentifier routesTablePaths) {

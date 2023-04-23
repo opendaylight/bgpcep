@@ -7,6 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -15,7 +18,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.tag.id.EthernetTagIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -51,34 +53,34 @@ final class NlriModelUtil {
         // Hidden on purpose
     }
 
-    static RouteDistinguisher extractRouteDistinguisher(final DataContainerNode evpn) {
-        return RouteDistinguisherBuilder.getDefaultInstance((String) evpn.getChildByArg(RD_NID).body());
+    static @Nullable RouteDistinguisher extractRouteDistinguisher(final DataContainerNode evpn) {
+        return RouteDistinguisherUtil.extractRouteDistinguisher(evpn, RD_NID);
     }
 
-    static IpAddressNoZone extractOrigRouteIp(final DataContainerNode evpn) {
+    static @NonNull IpAddressNoZone extractOrigRouteIp(final DataContainerNode evpn) {
         return parseIpAddress((String) evpn.getChildByArg(ORI_NID).body());
     }
 
-    static EthernetTagId extractETI(final ContainerNode evpn) {
+    static @NonNull EthernetTagId extractETI(final ContainerNode evpn) {
         final ContainerNode eti = (ContainerNode) evpn.getChildByArg(ETI_NID);
         return new EthernetTagIdBuilder().setVlanId((Uint32) eti.getChildByArg(VLAN_NID).body()).build();
     }
 
-    static MacAddress extractMAC(final DataContainerNode evpn) {
+    static @NonNull MacAddress extractMAC(final DataContainerNode evpn) {
         return new MacAddress((String) evpn.getChildByArg(MAC_NID).body());
     }
 
-    static IpAddressNoZone extractIp(final DataContainerNode evpn) {
+    static @Nullable IpAddressNoZone extractIp(final DataContainerNode evpn) {
         final var ip = evpn.childByArg(IP_NID);
         return ip == null ? null : parseIpAddress((String) ip.body());
     }
 
-    static MplsLabel extractMplsLabel(final DataContainerNode evpn, final NodeIdentifier mplsNid) {
+    static @Nullable MplsLabel extractMplsLabel(final DataContainerNode evpn, final NodeIdentifier mplsNid) {
         final var label = evpn.childByArg(mplsNid);
         return label == null ? null : new MplsLabel((Uint32) label.body());
     }
 
-    private static IpAddressNoZone parseIpAddress(final String str) {
+    private static @NonNull IpAddressNoZone parseIpAddress(final String str) {
         try {
             return new IpAddressNoZone(new Ipv4AddressNoZone(str));
         } catch (IllegalArgumentException e) {
