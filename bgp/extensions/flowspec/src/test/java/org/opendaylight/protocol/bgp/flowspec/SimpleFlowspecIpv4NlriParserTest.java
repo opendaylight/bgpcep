@@ -403,7 +403,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
         checkUnreachFlows(flows, icmpType, icmpCode, tcp, packet, dscp, fragment);
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeNlri(new Object[] {flows}, null, buffer);
+        parser.serializeNlri(flows, null, buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         parser.serializeAttribute(new AttributesBuilder()
@@ -538,7 +538,7 @@ public class SimpleFlowspecIpv4NlriParserTest {
 
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeNlri(new Object[] {flows}, PATH_ID, buffer);
+        parser.serializeNlri(flows, PATH_ID, buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
         parser.serializeAttribute(new AttributesBuilder()

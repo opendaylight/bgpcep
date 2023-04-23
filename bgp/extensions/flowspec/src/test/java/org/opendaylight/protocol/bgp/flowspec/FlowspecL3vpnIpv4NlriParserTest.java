@@ -439,7 +439,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         );
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeNlri(new Object[] {rd, flows}, null, buffer);
+        parser.serializeNlri(rd, flows, null, buffer);
         assertArrayEquals(UNREACHED_NLRI, ByteArray.readAllBytes(buffer));
 
         parser.serializeAttribute(new AttributesBuilder()
@@ -573,7 +573,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
         );
 
         final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeNlri(new Object[] {rd, flows}, PATH_ID, buffer);
+        parser.serializeNlri(rd, flows, PATH_ID, buffer);
         assertArrayEquals(UNREACHED_NLRI_ADD_PATH, ByteArray.readAllBytes(buffer));
 
         parser.serializeAttribute(new AttributesBuilder()

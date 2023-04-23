@@ -55,7 +55,7 @@ public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecIpNlriPa
             final DestinationFlowspecIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                     .yang.bgp.flowspec.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type
                     .DestinationFlowspecCase) dstType).getDestinationFlowspecIpv4();
-            serializeNlri(new Object[] {destFlowspec.getFlowspec()}, destFlowspec.getPathId(), byteAggregator);
+            serializeNlri(destFlowspec.getFlowspec(), destFlowspec.getPathId(), byteAggregator);
         }
     }
 
@@ -76,7 +76,7 @@ public final class SimpleFlowspecIpv4NlriParser extends AbstractFlowspecIpNlriPa
             final DestinationFlowspecIpv4 destFlowspec = ((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns
                     .yang.bgp.flowspec.rev200120.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type
                     .DestinationFlowspecCase) dstType).getDestinationFlowspecIpv4();
-            serializeNlri(new Object[] {destFlowspec.getFlowspec()}, destFlowspec.getPathId(), byteAggregator);
+            serializeNlri(destFlowspec.getFlowspec(), destFlowspec.getPathId(), byteAggregator);
         }
     }
 }

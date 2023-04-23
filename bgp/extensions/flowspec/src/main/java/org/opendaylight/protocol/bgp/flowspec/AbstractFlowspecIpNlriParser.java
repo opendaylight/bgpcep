@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.flowspec;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -38,4 +39,11 @@ abstract class AbstractFlowspecIpNlriParser extends AbstractFlowspecNlriParser {
 
     abstract @NonNull DestinationType createWithdrawnDestinationType(List<Flowspec> flowspecList,
         @Nullable PathId pathId);
+
+    protected final void serializeNlri(final List<Flowspec> flowspecList, final @Nullable PathId pathId,
+            final @NonNull ByteBuf buffer) {
+        final var nlri = Unpooled.buffer();
+        serializeNlri(flowspecList, nlri);
+        appendNlri(pathId, nlri, buffer);
+    }
 }
