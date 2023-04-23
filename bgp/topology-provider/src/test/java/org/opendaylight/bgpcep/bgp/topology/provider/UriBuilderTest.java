@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.AreaIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.DomainIdentifier;
@@ -29,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -38,7 +38,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class UriBuilderTest {
     private static final RouteDistinguisher DISTINGUISHER
-            = RouteDistinguisherBuilder.getDefaultInstance("1.2.3.4:258");
+            = RouteDistinguisherUtil.parseRouteDistinguisher("1.2.3.4:258");
 
     @Test
     public void test() {
@@ -78,8 +78,9 @@ public class UriBuilderTest {
                         .build()).setPsn(Uint8.TWO).build()).build());
         linkB.setRemoteNodeDescriptors(nodeR.build());
         c.add(linkB.build());
-        assertEquals("bgpls://1.2.3.4:258:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&"
-                + "local-router=22&remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&m"
-                + "t=55&local-id=1&remote-id=2", c.toString());
+        assertEquals("""
+            bgpls://1.2.3.4:258:Direct:10/type=foo&local-as=12&local-domain=15&local-area=17&local-router=22\
+            &remote-router=0102.0304.0506.02&ipv4-iface=127.0.0.1&ipv4-neigh=20.20.20.20&mt=55&local-id=1\
+            &remote-id=2""", c.toString());
     }
 }

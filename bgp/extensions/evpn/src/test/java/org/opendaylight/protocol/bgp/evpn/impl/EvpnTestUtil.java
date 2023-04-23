@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -43,7 +43,7 @@ public final class EvpnTestUtil {
     public static final Uint32 MPLS_LABEL2_MODEL = Uint32.valueOf(24002L);
     public static final MplsLabel MPLS_LABEL2 = new MplsLabel(MPLS_LABEL2_MODEL);
     public static final String RD_MODEL = "1.2.3.4:258";
-    public static final RouteDistinguisher RD = RouteDistinguisherBuilder.getDefaultInstance(RD_MODEL);
+    public static final RouteDistinguisher RD = RouteDistinguisherUtil.parseRouteDistinguisher(RD_MODEL);
 
     private EvpnTestUtil() {
         // Hidden on purpose

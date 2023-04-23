@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
@@ -93,7 +94,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisherBuilder;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -103,6 +103,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class FlowspecL3vpnIpv4NlriParserTest {
@@ -962,19 +963,11 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     @Test
     public void testExtractFlowspecRouteDistinguisher() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
-        entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(
-            Builders.leafBuilder()
-                .withNodeIdentifier(RD_NID)
-                .withValue(
-                    RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER)
-                ).build()
-        );
-
-        RouteDistinguisher rd = RouteDistinguisherBuilder.getDefaultInstance(ROUTE_DISTINGUISHER);
-        assertEquals(rd, extractRouteDistinguisher(entry.build(), AbstractFlowspecL3vpnNlriParser.RD_NID));
+        assertEquals(RouteDistinguisherUtil.parseRouteDistinguisher(ROUTE_DISTINGUISHER),
+            extractRouteDistinguisher(Builders.mapEntryBuilder()
+                .withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, "foo"))
+                .withChild(ImmutableNodes.leafNode(RD_NID, ROUTE_DISTINGUISHER))
+                .build(), AbstractFlowspecL3vpnNlriParser.RD_NID));
     }
 }
 

@@ -190,12 +190,8 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     }
 
     public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode linkstate) {
-        final var builder = new CLinkstateDestinationBuilder();
-        // serialize common parts
-        final var distinguisher = linkstate.childByArg(DISTINGUISHER_NID);
-        if (distinguisher != null) {
-            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(distinguisher.body()));
-        }
+        final var builder = new CLinkstateDestinationBuilder()
+            .setRouteDistinguisher(RouteDistinguisherUtil.extractRouteDistinguisher(linkstate, DISTINGUISHER_NID));
         final var protocolId = linkstate.childByArg(PROTOCOL_ID_NID);
         if (protocolId != null) {
             // DOM representation contains values as are in the model, not as are in generated enum
