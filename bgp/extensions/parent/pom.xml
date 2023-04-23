@@ -74,16 +74,6 @@
             <artifactId>yang-data-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-data-tree-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-data-tree-spi</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-dom-codec-api</artifactId>
         </dependency>
@@ -103,11 +93,17 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+
         <!-- test scope dependencies -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-rib-spi</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-data-tree-spi</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -133,7 +129,16 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
+                    <ignoredUsedUndeclaredDependencies>
+                        <ignoredUsedUndeclaredDependency>org.opendaylight.yangtools:yang-data-tree-api</ignoredUsedUndeclaredDependency>
+                    </ignoredUsedUndeclaredDependencies>
+                    <ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependencies>org.opendaylight.yangtools:yang-data-tree-api</ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependencies>org.opendaylight.yangtools:yang-data-impl</ignoredNonTestScopedDependencies>
+                        <ignoredNonTestScopedDependencies>org.opendaylight.bgpcep:concepts</ignoredNonTestScopedDependencies>
+                    </ignoredNonTestScopedDependencies>
                     <ignoredUnusedDeclaredDependencies>
+                        <ignoredUnusedDeclaredDependency>org.opendaylight.mdsal.model:yang-ext</ignoredUnusedDeclaredDependency>
                         <ignoredUnusedDeclaredDependency>org.opendaylight.bgpcep:bgp-bmp-api</ignoredUnusedDeclaredDependency>
                     </ignoredUnusedDeclaredDependencies>
                 </configuration>
