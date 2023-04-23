@@ -5,15 +5,12 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer.routeAttributeContainerFalse;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
-    private final Attributes multipleCom = new AttributesBuilder().setCommunities(Arrays.asList(
+    private final Attributes multipleCom = new AttributesBuilder().setCommunities(List.of(
             new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65")).setSemantics(Uint16.valueOf(10))
                 .build(),
             new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("66")).setSemantics(Uint16.valueOf(11))
                 .build()
     )).build();
-    private final Attributes emptyCom = new AttributesBuilder().setCommunities(Collections.emptyList()).build();
+    private final Attributes emptyCom = new AttributesBuilder().setCommunities(List.of()).build();
     @Mock
     private BGPRouteEntryExportParameters exportParameters;
     private List<Statement> basicStatements;
@@ -55,7 +52,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testInlineAdd() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-inline-add-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-inline-add-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -67,7 +64,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testInlineReplace() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-inline-replace-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-inline-replace-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -79,7 +76,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testInlineRemove() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-inline-remove-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-inline-remove-test")).findFirst().orElseThrow();
 
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(multipleCom);
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -91,7 +88,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testReferenceAdd() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-reference-add-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-reference-add-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -103,7 +100,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testReferenceReplace() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-reference-replace-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-reference-replace-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -115,7 +112,7 @@ public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testReferenceRemove() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("set-community-reference-remove-test")).findFirst().get();
+                .filter(st -> st.getName().equals("set-community-reference-remove-test")).findFirst().orElseThrow();
 
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(multipleCom);
         RouteAttributeContainer result = statementRegistry.applyExportStatement(

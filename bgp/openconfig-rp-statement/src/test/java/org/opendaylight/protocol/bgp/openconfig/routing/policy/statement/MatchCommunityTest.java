@@ -42,7 +42,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testComAny() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("community-any-test")).findFirst().get();
+                .filter(st -> st.getName().equals("community-any-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -63,7 +63,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testComInvert() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("community-invert-test")).findFirst().get();
+                .filter(st -> st.getName().equals("community-invert-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(
@@ -84,7 +84,7 @@ public class MatchCommunityTest extends AbstractStatementRegistryConsumerTest {
     @Test
     public void testComAll() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("community-all-test")).findFirst().get();
+                .filter(st -> st.getName().equals("community-all-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(
                 new AttributesBuilder().build());
         RouteAttributeContainer result = statementRegistry.applyExportStatement(

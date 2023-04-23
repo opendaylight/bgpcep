@@ -54,7 +54,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Test
     public void testMedEq() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("med-eq-test")).findFirst().get();
+                .filter(st -> st.getName().equals("med-eq-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.valueOf(200)).build())
                 .build());
@@ -83,7 +83,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Test
     public void testOriginEq() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("origin-eq-test")).findFirst().get();
+                .filter(st -> st.getName().equals("origin-eq-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().setValue(BgpOrigin.Egp).build())
                 .build());
@@ -112,7 +112,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Test
     public void testNextHopIn() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("nexthop-in-test")).findFirst().get();
+                .filter(st -> st.getName().equals("nexthop-in-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setCNextHop(new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder()
                         .setGlobal(new Ipv6AddressNoZone("2001:db8::1")).build()).build())
@@ -143,7 +143,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Test
     public void testLocalPref() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("local-pref-eq-test")).findFirst().get();
+                .filter(st -> st.getName().equals("local-pref-eq-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
@@ -172,7 +172,7 @@ public class AttributesEqualTests extends AbstractStatementRegistryTest {
     @Test
     public void testAfiSafiIn() {
         Statement statement = basicStatements.stream()
-                .filter(st -> st.getName().equals("afi-safi-in-test")).findFirst().get();
+                .filter(st -> st.getName().equals("afi-safi-in-test")).findFirst().orElseThrow();
         RouteAttributeContainer attributeContainer = routeAttributeContainerFalse(new AttributesBuilder()
                 .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(350)).build())
                 .build());
