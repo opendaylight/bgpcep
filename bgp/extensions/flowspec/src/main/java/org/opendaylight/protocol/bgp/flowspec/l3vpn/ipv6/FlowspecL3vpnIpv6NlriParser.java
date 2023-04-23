@@ -35,29 +35,29 @@ public final class FlowspecL3vpnIpv6NlriParser extends AbstractFlowspecL3vpnNlri
     }
 
     @Override
-    public DestinationType createWithdrawnDestinationType(final Object[] nlriFields, final PathId pathId) {
-        final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
+    protected DestinationType createAdvertizedRoutesDestinationType(final RouteDistinguisher rd,
+            final List<Flowspec> flowspecList, final PathId pathId) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
-                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6CaseBuilder()
-                .setDestinationFlowspecL3vpnIpv6(new DestinationFlowspecL3vpnIpv6Builder()
-                    .setRouteDistinguisher(rd)
-                    .setFlowspec(flowspecList)
-                    .setPathId(pathId)
-                    .build()).build();
+            .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6CaseBuilder()
+            .setDestinationFlowspecL3vpnIpv6(new DestinationFlowspecL3vpnIpv6Builder()
+                .setRouteDistinguisher(rd)
+                .setFlowspec(flowspecList)
+                .setPathId(pathId)
+                .build())
+            .build();
     }
 
     @Override
-    public DestinationType createAdvertizedRoutesDestinationType(final Object[] nlriFields, final PathId pathId) {
-        final RouteDistinguisher rd = (RouteDistinguisher) nlriFields[0];
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
+    protected DestinationType createWithdrawnDestinationType(final RouteDistinguisher rd,
+            final List<Flowspec> flowspecList, final PathId pathId) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
-                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecL3vpnIpv6CaseBuilder()
-                .setDestinationFlowspecL3vpnIpv6(new DestinationFlowspecL3vpnIpv6Builder()
-                    .setRouteDistinguisher(rd)
-                    .setFlowspec(flowspecList)
-                    .setPathId(pathId)
-                    .build()).build();
+            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecL3vpnIpv6CaseBuilder()
+            .setDestinationFlowspecL3vpnIpv6(new DestinationFlowspecL3vpnIpv6Builder()
+                .setRouteDistinguisher(rd)
+                .setFlowspec(flowspecList)
+                .setPathId(pathId)
+                .build())
+            .build();
     }
 
     @Override

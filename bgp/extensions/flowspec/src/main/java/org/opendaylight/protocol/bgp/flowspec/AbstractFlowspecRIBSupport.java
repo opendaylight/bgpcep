@@ -13,6 +13,8 @@ import com.google.common.annotations.Beta;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -38,7 +40,7 @@ public abstract class AbstractFlowspecRIBSupport<
         C extends Routes & DataObject,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractRIBSupport<C, S, R> {
-    protected final T nlriParser;
+    protected final @NonNull T nlriParser;
 
     protected AbstractFlowspecRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -55,24 +57,20 @@ public abstract class AbstractFlowspecRIBSupport<
     }
 
     @Override
-    protected DestinationType buildDestination(final Collection<MapEntryNode> routes) {
-        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
-        final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return nlriParser.createAdvertizedRoutesDestinationType(
-            new Object[] {nlriParser.extractFlowspec(routesCont)},
-            pathId
-        );
+    protected final DestinationType buildDestination(final Collection<MapEntryNode> routes) {
+        final var route = Iterables.getOnlyElement(routes);
+        return buildDestination(route, PathIdUtil.buildPathId(route, routePathIdNid()));
     }
 
+    protected abstract @NonNull DestinationType buildDestination(MapEntryNode route, @Nullable PathId pathId);
+
     @Override
-    protected DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
-        final MapEntryNode routesCont = Iterables.getOnlyElement(routes);
-        final PathId pathId = PathIdUtil.buildPathId(routesCont, routePathIdNid());
-        return nlriParser.createWithdrawnDestinationType(
-            new Object[] {nlriParser.extractFlowspec(Iterables.getOnlyElement(routes))},
-            pathId
-        );
+    protected final DestinationType buildWithdrawnDestination(final Collection<MapEntryNode> routes) {
+        final var route = Iterables.getOnlyElement(routes);
+        return buildWithdrawnDestination(route, PathIdUtil.buildPathId(route, routePathIdNid()));
     }
+
+    protected abstract @NonNull DestinationType buildWithdrawnDestination(MapEntryNode route, @Nullable PathId pathId);
 
     @Override
     protected final Collection<NodeIdentifierWithPredicates> processDestination(

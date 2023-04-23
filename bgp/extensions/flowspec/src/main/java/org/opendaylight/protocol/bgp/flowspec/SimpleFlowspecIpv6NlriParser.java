@@ -21,35 +21,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 
-public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecNlriParser {
+public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecIpNlriParser {
     public SimpleFlowspecIpv6NlriParser(final SAFI safi) {
         super(FlowspecTypeRegistries.getFlowspecTypeRegistry(AFI.IPV6, safi));
     }
 
     @Override
-    public DestinationType createWithdrawnDestinationType(final Object[] nlriFields, final PathId pathId) {
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
+    DestinationType createAdvertizedRoutesDestinationType(final List<Flowspec> flowspecList, final PathId pathId) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
-                .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()
-            .setDestinationFlowspecIpv6(
-                new DestinationFlowspecIpv6Builder()
-                    .setFlowspec(flowspecList)
-                    .setPathId(pathId)
-                    .build()
-            ).build();
+            .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()
+            .setDestinationFlowspecIpv6(new DestinationFlowspecIpv6Builder()
+                .setFlowspec(flowspecList)
+                .setPathId(pathId)
+                .build())
+            .build();
     }
 
     @Override
-    public DestinationType createAdvertizedRoutesDestinationType(final Object[] nlriFields, final PathId pathId) {
-        final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[0];
+    DestinationType createWithdrawnDestinationType(final List<Flowspec> flowspecList, final PathId pathId) {
         return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.update
-                .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()
-            .setDestinationFlowspecIpv6(
-                new DestinationFlowspecIpv6Builder()
-                    .setFlowspec(flowspecList)
-                    .setPathId(pathId)
-                    .build()
-            ).build();
+            .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationFlowspecIpv6CaseBuilder()
+            .setDestinationFlowspecIpv6(new DestinationFlowspecIpv6Builder()
+                .setFlowspec(flowspecList)
+                .setPathId(pathId)
+                .build())
+            .build();
     }
 
     @Override

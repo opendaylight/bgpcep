@@ -13,11 +13,16 @@ import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteD
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistry;
+import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.Flowspec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.FlowspecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -35,7 +40,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    public String stringNlri(final DataContainerNode flowspec) {
+    public final String stringNlri(final DataContainerNode flowspec) {
         final StringBuilder buffer = new StringBuilder();
         final RouteDistinguisher rd = extractRouteDistinguisher(flowspec, RD_NID);
         if (rd != null) {
@@ -55,7 +60,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    protected void serializeNlri(final Object[] nlriFields, final ByteBuf buffer) {
+    protected final void serializeNlri(final Object[] nlriFields, final ByteBuf buffer) {
         final RouteDistinguisher rd = requireNonNull((RouteDistinguisher) nlriFields[0]);
         RouteDistinguisherUtil.serializeRouteDistinquisher(rd, buffer);
         final List<Flowspec> flowspecList = (List<Flowspec>) nlriFields[1];
@@ -63,26 +68,52 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     }
 
     @Override
-    protected Object[] parseNlri(final ByteBuf nlri) {
+    protected final DestinationType parseAdvertizedNlri(final ByteBuf nlri, final PathId pathId)
+            throws BGPParsingException {
         readNlriLength(nlri);
-        return new Object[] {
-            requireNonNull(readRouteDistinguisher(nlri)),
-            parseL3vpnNlriFlowspecList(nlri)
-        };
+        return createAdvertizedRoutesDestinationType(requireNonNull(readRouteDistinguisher(nlri)),
+            parseL3vpnNlriFlowspecList(nlri), pathId);
     }
 
-    protected final List<Flowspec> parseL3vpnNlriFlowspecList(final ByteBuf nlri) {
+    /**
+     * Create advertized destination type.
+     *
+     * @param rd           the RouteDistinguisher
+     * @param flowspecList a list of {@link Flowspec}s
+     * @param pathId       associated path id with given destination
+     * @return created destination type
+     */
+    protected abstract @NonNull DestinationType createAdvertizedRoutesDestinationType(RouteDistinguisher rd,
+        @Nullable List<Flowspec> flowspecList, @Nullable PathId pathId);
+
+    @Override
+    protected final DestinationType parseWithdrawnNlri(final ByteBuf nlri, final PathId pathId)
+            throws BGPParsingException {
+        readNlriLength(nlri);
+        return createWithdrawnDestinationType(requireNonNull(readRouteDistinguisher(nlri)),
+            parseL3vpnNlriFlowspecList(nlri), pathId);
+    }
+
+    /**
+     * Create withdrawn destination type.
+     *
+     * @param rd           the RouteDistinguisher
+     * @param flowspecList a list of {@link Flowspec}s
+     * @param pathId       associated path id with given destination
+     * @return created destination type
+     */
+    protected abstract @NonNull DestinationType createWithdrawnDestinationType(RouteDistinguisher rd,
+        @Nullable List<Flowspec> flowspecList, @Nullable PathId pathId);
+
+    private @Nullable List<Flowspec> parseL3vpnNlriFlowspecList(final ByteBuf nlri) {
         if (!nlri.isReadable()) {
             return null;
         }
-        final List<Flowspec> fss = new ArrayList<>();
 
+        final var fss = new ArrayList<Flowspec>();
         while (nlri.isReadable()) {
-            final FlowspecBuilder builder = new FlowspecBuilder();
-            builder.setFlowspecType(flowspecTypeRegistry.parseFlowspecType(nlri));
-            fss.add(builder.build());
+            fss.add(new FlowspecBuilder().setFlowspecType(flowspecTypeRegistry.parseFlowspecType(nlri)).build());
         }
-
         return fss;
     }
 }
