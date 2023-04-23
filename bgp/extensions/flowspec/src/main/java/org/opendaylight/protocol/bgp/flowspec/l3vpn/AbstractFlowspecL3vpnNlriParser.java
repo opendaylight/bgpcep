@@ -13,6 +13,7 @@ import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteD
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.AbstractFlowspecNlriParser;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistry;
@@ -48,8 +49,8 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     /**
      * For flowspec-l3vpn, there is a route distinguisher field at the beginning of NLRI (8 bytes).
      */
-    private static RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
-        final RouteDistinguisher rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
+    private static @NonNull RouteDistinguisher readRouteDistinguisher(final ByteBuf nlri) {
+        final var rd = RouteDistinguisherUtil.parseRouteDistinguisher(nlri);
         LOG.trace("Route Distinguisher read from NLRI: {}", rd);
         return rd;
     }
@@ -66,7 +67,7 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
     protected Object[] parseNlri(final ByteBuf nlri) {
         readNlriLength(nlri);
         return new Object[] {
-            requireNonNull(readRouteDistinguisher(nlri)),
+            readRouteDistinguisher(nlri),
             parseL3vpnNlriFlowspecList(nlri)
         };
     }
