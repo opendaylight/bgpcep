@@ -14,11 +14,11 @@ import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
-import org.opendaylight.protocol.bgp.parser.impl.message.update.AsPathSegmentParser.SegmentType;
 import org.opendaylight.protocol.bgp.parser.spi.AbstractAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,13 +40,21 @@ import org.slf4j.LoggerFactory;
  * Parser for AS_PATH attribute.
  */
 public final class AsPathAttributeParser extends AbstractAttributeParser implements AttributeSerializer {
-
     public static final int TYPE = 2;
 
     private final ReferenceCache refCache;
     private static final Logger LOG = LoggerFactory.getLogger(AsPathAttributeParser.class);
 
     private static final AsPath EMPTY = new AsPathBuilder().setSegments(List.of()).build();
+
+    // Representation of one AS Path Segment. If the segment is of type AS_SEQUENCE, the collection is a List, if
+    // AS_SET, the collection is a Set.
+    private static final int AS_SET = 1;
+    private static final int AS_SEQUENCE = 2;
+
+    // The TLV length field is representing the count of AS Numbers in the collection (in its value). Each of them is
+    // four bytes.
+    private static final int AS_NUMBER_LENGTH = 4;
 
     public AsPathAttributeParser(final ReferenceCache refCache) {
         this.refCache = requireNonNull(refCache);
@@ -64,16 +73,21 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
         if (asPath == null) {
             return;
         }
-        final ByteBuf segmentsBuffer = Unpooled.buffer();
-        if (asPath.getSegments() != null) {
-            for (final Segments segments : asPath.getSegments()) {
-                if (segments.getAsSequence() != null) {
-                    AsPathSegmentParser.serializeAsList(segments.getAsSequence(), SegmentType.AS_SEQUENCE,
-                        segmentsBuffer);
-                } else if (segments.getAsSet() != null) {
-                    AsPathSegmentParser.serializeAsList(segments.getAsSet(), SegmentType.AS_SET, segmentsBuffer);
+
+        final var segmentsBuffer = Unpooled.buffer();
+        final var segments = asPath.getSegments();
+        if (segments != null) {
+            for (var segment : segments) {
+                final var asSequence = segment.getAsSequence();
+                if (asSequence != null) {
+                    serializeAsList(asSequence, AS_SEQUENCE, segmentsBuffer);
                 } else {
-                    LOG.warn("Segment doesn't have AsSequence nor AsSet list.");
+                    final var asSet = segment.getAsSet();
+                    if (asSet != null) {
+                        serializeAsList(asSet, AS_SET, segmentsBuffer);
+                    } else {
+                        LOG.warn("Segment doesn't have AsSequence nor AsSet list.");
+                    }
                 }
             }
         }
@@ -103,10 +117,13 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
             }
 
             final int type = buffer.readUnsignedByte();
-            final SegmentType segmentType = AsPathSegmentParser.parseType(type);
-            if (segmentType == null) {
-                throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED, "Unknown AS PATH segment type %s", type);
-            }
+            final var segmentSequence = switch (type) {
+                case AS_SEQUENCE -> true;
+                case AS_SET -> false;
+                default -> throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED,
+                    "Unknown AS PATH segment type %s", type);
+            };
+
             final int count = buffer.readUnsignedByte();
             if (count == 0 && errorHandling != RevisedErrorHandling.NONE) {
                 throw new BGPTreatAsWithdrawException(BGPError.AS_PATH_MALFORMED, "Empty AS_PATH segment");
@@ -114,15 +131,14 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
 
             // We read 2 bytes of header at this point
             readable -= 2;
-            final int segmentLength = count * AsPathSegmentParser.AS_NUMBER_LENGTH;
+            final int segmentLength = count * AS_NUMBER_LENGTH;
             if (segmentLength > readable) {
                 throw errorHandling.reportError(BGPError.AS_PATH_MALFORMED,
                     "Calculated segment length %s would overflow available buffer %s", segmentLength, readable);
             }
 
-            final List<AsNumber> asList = AsPathSegmentParser.parseAsSegment(refCache, count,
-                buffer.readSlice(segmentLength));
-            if (segmentType == SegmentType.AS_SEQUENCE) {
+            final var asList = parseAsSegment(refCache, count, buffer.readSlice(segmentLength));
+            if (segmentSequence) {
                 ases.add(new SegmentsBuilder().setAsSequence(asList).build());
                 isSequence = true;
             } else {
@@ -136,5 +152,30 @@ public final class AsPathAttributeParser extends AbstractAttributeParser impleme
         }
 
         return new AsPathBuilder().setSegments(ImmutableList.copyOf(ases)).build();
+    }
+
+    private static ImmutableList<AsNumber> parseAsSegment(final ReferenceCache refCache, final int count,
+            final ByteBuf buffer) {
+        if (count == 0) {
+            return ImmutableList.of();
+        }
+
+        final var coll = ImmutableList.<AsNumber>builderWithExpectedSize(count);
+        for (int i = 0; i < count; i++) {
+            coll.add(refCache.getSharedReference(new AsNumber(ByteBufUtils.readUint32(buffer))));
+        }
+        return coll.build();
+    }
+
+    private static void serializeAsList(final Collection<AsNumber> asList, final int type,
+            final ByteBuf byteAggregator) {
+        if (asList == null) {
+            return;
+        }
+        byteAggregator.writeByte(type);
+        byteAggregator.writeByte(asList.size());
+        for (var asNumber : asList) {
+            byteAggregator.writeInt(asNumber.getValue().intValue());
+        }
     }
 }
