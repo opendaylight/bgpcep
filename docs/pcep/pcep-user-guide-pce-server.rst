@@ -41,7 +41,7 @@ Create a new graph with the Rest API ``Create Graph``:
 
 .. code-block:: console
 
-    PUT: restconf/config/graph:graph-topology
+    PUT: rests/data/graph:graph-topology?content=config
 
 Refer to Graph documentation for details.
 
@@ -71,7 +71,7 @@ Once done, verify that the graph is correctly fulfil with the Rest API:
 
 .. code-block:: console
 
-    GET: restconf/operational/graph:graph-topology
+    GET: rests/data/graph:graph-topology?content=nonconfig
 
 Basic Usage
 ^^^^^^^^^^^
@@ -92,7 +92,7 @@ With PcInitiate message, just use the PCEP Rest API to setup an LSP
 
 .. code-block:: console
 
-    POST: /restconf/operations/network-topology-pcep:add-lsp
+    POST: /rests/data/network-topology-pcep:add-lsp?content=nonconfig
 
 by omitting the ERO Object. Indeed, an automatic call to the Path Computation
 Algorithm will be triggered when the ERO is absent or empty with the given
@@ -213,7 +213,7 @@ operational (with ``?content=nonconfig``) and onfiguration (with
 
 -----
 
-**RFC8040:** ``restconf/data/network-topology:network-topology/topology=pcep-topology``
+**RFC8040:** ``rests/data/network-topology:network-topology/topology=pcep-topology``
 
 **Method:** ``GET``
 
@@ -317,7 +317,7 @@ the configuration as follow:
 
 -----
 
-**RFC8040:** ``restconf/data/network-topology:network-topology/topology=pcep-topology/node=10.1.1.1``
+**RFC8040:** ``rests/data/network-topology:network-topology/topology=pcep-topology/node=10.1.1.1``
 
 **Method:** ``POST``
 
@@ -376,7 +376,7 @@ Remove a tunnel
 This simply done by removing the corresponding entry in the configuration by
 using the ``DELETE`` method as follow:
 
-**URL:** ``restconf/data/network-topology:network-topology/topology=pcep-topology/node=10.1.1.1/pcep-server:configured-lsp=test``
+**URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology/node=10.1.1.1/pcep-server:configured-lsp=test``
 
 **Method:** ``DELETE``
 

@@ -19,7 +19,7 @@ Monitoring station configuration
 ''''''''''''''''''''''''''''''''
 In order to change default's BMP monitoring station configuration, use following request.
 
-**URL:** ``/restconf/config/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor``
+**URL:** ``/rests/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=nonconfig``
 
 **Method:** ``PUT``
 
@@ -49,7 +49,7 @@ Active mode configuration
 '''''''''''''''''''''''''
 In order to enable active connection, use following request.
 
-**URL:** ``/restconf/config/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor``
+**URL:** ``/rests/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=config``
 
 **Method:** ``PUT``
 
@@ -86,7 +86,7 @@ MD5 authentication configuration
 ''''''''''''''''''''''''''''''''
 In order to enable active connection, use following request.
 
-**URL:** ``/restconf/config/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor``
+**URL:** ``/rests/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=config``
 
 **Method:** ``PUT``
 
@@ -291,7 +291,7 @@ Operations
 The BMP plugin offers view of collected routes and statistical information from monitored peers.
 To get top-level view of monitoring station:
 
-**URL:** ``/restconf/operational/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor``
+**URL:** ``/rests/data/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -403,7 +403,7 @@ To get top-level view of monitoring station:
 -----
 
 * To view collected information from particular monitored router:
-      **URL:** ``/restconf/operational/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor/router/10.10.10.10``
+      **URL:** ``/rests/data/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor/router/10.10.10.10?content=nonconfig``
 
 * To view collected information from particular monitored peer:
-      **URL:** ``/restconf/operational/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor/router/10.10.10.10/peer/20.20.20.20``
+      **URL:** ``/rests/data/bmp-monitor:bmp-monitor/monitor/example-bmp-monitor/router/10.10.10.10/peer/20.20.20.20?content=nonconfig``

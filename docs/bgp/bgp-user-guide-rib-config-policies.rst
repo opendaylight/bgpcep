@@ -7,8 +7,6 @@ The OpenDaylight BGP implementation supports configurable RIB policies that allo
 
 .. note:: Default ODL BGP RIB Config Policy is provided. Default policy is compliant with default behaviour from `RFC8212 <https://tools.ietf.org/html/rfc8212>`_. Any config policy to be used by Protocol must be configured and present before than Protocol configuration is added. If policy is reconfigured, protocol must be re configured again.
 
-**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy``
-
 **RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy?content=config``
 
 **Method:** ``GET``
@@ -125,8 +123,6 @@ Policy Configuration
 
 Conditions may include multiple match or comparison operations; similarly, actions may consist of a multitude of changes to route attributes or a final disposition regarding the acceptance or rejection of the route.
 
-**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/``
-
 **RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions``
 
 **Method:** ``POST``
@@ -222,8 +218,6 @@ Conditions may include multiple match or comparison operations; similarly, actio
 -----
 
 The new instance presence can be verified via REST:
-
-**URL:** ``/restconf/config/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition/odl-policy-example``
 
 **RFC8040 URL:** ``/rests/data/openconfig-routing-policy:routing-policy/openconfig-routing-policy:policy-definitions/policy-definition=odl-policy-example``
 
