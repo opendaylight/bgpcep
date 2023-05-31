@@ -15,7 +15,7 @@ This section explains how to install BMP plugin.
 2. The BMP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of BMP monitoring station is created (named *example-bmp-monitor*), and its presence can be verified via REST:
 
-   **URL:** ``/restconf/config/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor``
+   **URL:** ``/rests/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=config``
 
    **Method:** ``GET``
 

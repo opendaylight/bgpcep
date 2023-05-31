@@ -19,8 +19,6 @@ Configuration
 '''''''''''''
 Following example shows how to create a new instance of IPv4 BGP topology exporter:
 
-**URL:** ``/restconf/config/network-topology:network-topology``
-
 **RFC8040 URL:** ``/rests/data/network-topology:network-topology``
 
 **Method:** ``POST``
@@ -83,8 +81,6 @@ Following example shows how to create a new instance of IPv4 BGP topology export
 
 The topology exporter instance can be removed in a following way:
 
-**URL:** ``/restconf/config/network-topology:network-topology/topology/bgp-example-ipv4-topology``
-
 **RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=bgp-example-ipv4-topology``
 
 **Method:** ``DELETE``
@@ -92,8 +88,6 @@ The topology exporter instance can be removed in a following way:
 -----
 
 Following example shows how to create a new instance of IPv6 BGP topology exporter:
-
-**URL:** ``/restconf/config/network-topology:network-topology``
 
 **RFC8040 URL:** ``/rests/data/network-topology:network-topology``
 
@@ -140,8 +134,6 @@ Following example shows how to create a new instance of IPv6 BGP topology export
 Usage
 '''''
 Operational state of the topology can be verified via REST:
-
-**URL:** ``/restconf/operational/network-topology:network-topology/topology/bgp-example-ipv4-topology``
 
 **RFC8040 URL:**: ``/rests/data/network-topology:network-topology/topology=bgp-example-ipv4-topology?content=nonconfig``
 
@@ -221,8 +213,6 @@ Configuration
 '''''''''''''
 Following example shows how to create a new instance of linkstate BGP topology exporter:
 
-**URL:** ``/restconf/config/network-topology:network-topology``
-
 **RFC8040 URL:** ``/rests/data/network-topology:network-topology``
 
 **Method:** ``POST``
@@ -269,8 +259,6 @@ Usage
 '''''
 Operational state of the topology can be verified via REST.
 A sample output below represents a two node topology with two unidirectional links interconnecting those nodes.
-
-**URL:** ``/restconf/operational/network-topology:network-topology/topology/bgp-example-linkstate-topology``
 
 **RFC8040 URL:**: ``/rests/data/network-topology:network-topology/topology=bgp-example-linkstate-topology?content=nonconfig``
 

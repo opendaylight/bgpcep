@@ -9,8 +9,6 @@ One of the workarounds is to use port redirection. In case other port is desired
 
 Here is a sample of bgp port listening re-configuration:
 
-**URL:** ``/restconf/config/odl-bgp-peer-acceptor-config:bgp-peer-acceptor-config/default``
-
 **RFC8040 URL:** ``/rests/data/odl-bgp-peer-acceptor-config:bgp-peer-acceptor-config=default``
 
 **Method:** ``PUT``
