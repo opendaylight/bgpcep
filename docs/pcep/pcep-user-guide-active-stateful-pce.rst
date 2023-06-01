@@ -21,9 +21,7 @@ TLV that may be included in the OPEN Object when a PCEP speaker
 wishes to determine if state synchronization can be skipped when a
 PCEP session is restarted.
 
-**URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
-
-**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -78,9 +76,7 @@ MD5 authentication configuration
 The OpenDaylight PCEP implementation supports TCP MD5 for authentication.
 The sample configuration below shows how to set authentication password for a particular PCC.
 
-**URL:** ``/restconf/config/network-topology:network-topology/topology/pcep-topology/node/43.43.43.43``
-
-**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -473,9 +469,7 @@ The LSP-DB is accessible via RESTCONF.
 The PCC's LSPs are stored in the ``pcep-topology`` while the session is active.
 In a next example, there is one PCEP session with PCC identified by its IP address (*43.43.43.43*) and one reported LSP (*foo*).
 
-**URL:** ``/restconf/operational/network-topology:network-topology/topology/pcep-topology/node/pcc:%2F%2F43.43.43.43``
-
-**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
+**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
 
 **Method:** ``GET``
 
@@ -717,9 +711,7 @@ The LSP control is delegated to at most one PCE at the same time.
 
 Following RPC example illustrates a request for the LSP delegation give up:
 
-**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -813,9 +805,7 @@ The LSP update is done in *make-before-break* fashion - first, new LSP is initia
 
 Following RPC example shows a request for the LSP update:
 
-**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -954,9 +944,7 @@ PCE-initiated LSPs are identified by *Create* flag.
 
 Following RPC example shows a request for the LSP initiation:
 
-**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -1093,9 +1081,7 @@ The PCE must be delegation holder for this particular LSP.
 
 Following RPC example shows a request for the LSP deletion:
 
-**URL:** ``/restconf/operations/network-topology-pcep:remove-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
 
 **Method:** ``POST``
 
@@ -1160,9 +1146,7 @@ The PCE may ask for a delegation of the orphan LSP.
 
 Following RPC example illustrates a request for the LSP delegation:
 
-**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -1251,9 +1235,7 @@ Configuration
 '''''''''''''
 This capability is enabled by default. In order to disable it, a configuration should be changed as follows:
 
-**URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
-
-**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
+**URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-app-config``
 
 **Method:** ``PUT``
 
@@ -1299,9 +1281,7 @@ IANA code points
 In PCEP-SR draft version 6, SR Explicit Route Object/Record Route Object subobjects IANA code points change was proposed.
 In order to use the latest code points, a configuration should be changed as follows:
 
-**URL:** ``/restconf/config/pcep-segment-routing-app-config:pcep-segment-routing-config``
-
-**RFC8040 URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-config``
+**URL:** ``/rests/data/pcep-segment-routing-app-config:pcep-segment-routing-config``
 
 **Method:** ``PUT``
 
@@ -1368,9 +1348,7 @@ The PCEP SR extension defines new ERO subobject - *SR-ERO subobject* capable of 
 
 Following RPC example illustrates a request for the SR-TE LSP creation:
 
-**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -1478,9 +1456,7 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
 Following RPC example illustrates a request for the SR-TE LSP update including modified path:
 
-**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -1617,9 +1593,7 @@ The PCE-triggered Initial Synchronization procedure is intended to do let PCE co
 
 Following RPC example illustrates a request for the initial synchronization:
 
-**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+**URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 
@@ -1669,9 +1643,7 @@ The PCE-triggered Re-synchronization: To let PCE re-synchronize the state for sa
 
 Following RPC example illustrates a request for the LSP re-synchronization:
 
-**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
-
-**RFC8040 URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+**URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 
