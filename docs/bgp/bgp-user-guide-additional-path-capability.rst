@@ -19,8 +19,6 @@ BGP Speaker
 '''''''''''
 To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
-
 **RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
@@ -99,7 +97,7 @@ To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instanc
 
 Here is an example for update a specific family with enable ADD-PATH capability
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST?content=config``
 
 **Method:** ``PUT``
 
@@ -141,7 +139,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors?content=config``
 
 **Method:** ``POST``
 
@@ -201,7 +199,7 @@ Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
 Here is an example for update specific family BGP peer configuration with enabled ADD-PATH capability.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST?content=config``
 
 **Method:** ``PUT``
 
@@ -243,7 +241,7 @@ Usage
 ^^^^^
 The IPv4 Unicast table with enabled ADD-PATH capability in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 

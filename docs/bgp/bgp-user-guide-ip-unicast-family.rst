@@ -19,8 +19,6 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 Unicast support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
-
 **RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
@@ -95,7 +93,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Unicast family.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/ests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors?content=config``
 
 **Method:** ``POST``
 
@@ -272,7 +270,7 @@ IPv4 Unicast
 ''''''''''''
 The IPv4 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -337,7 +335,7 @@ IPv6 Unicast
 ''''''''''''
 The IPv6 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv6-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv6-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -409,7 +407,7 @@ Make sure the *Application Peer* is configured first.
 
 .. note:: IPv4 Route Key must be equal to prefix.
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=config``
 
 **Method:** ``POST``
 
@@ -474,7 +472,7 @@ Make sure the *Application Peer* is configured first.
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0?content=config``
 
 **Method:** ``DELETE``
 
@@ -484,7 +482,7 @@ This examples show how to originate and remove IPv6 route via programmable RIB:
 
 .. note:: IPv6 Route Key must be equal to prefix.
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes?content=config``
 
 **Method:** ``POST``
 
@@ -549,7 +547,7 @@ This examples show how to originate and remove IPv6 route via programmable RIB:
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes/ipv6-route/2001:db8:30::3%2F128/0``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv6-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv6-routes/ipv6-route/2001:db8:30::3%2F128/0?content=config``
 
 **Method:** ``DELETE``
 

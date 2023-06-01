@@ -19,11 +19,11 @@ Graceful Restart Timer
 ''''''''''''''''''''''
 Routing information for configured families are preserved for time given by Graceful Restart timer in seconds. This can be configured in *graceful-restart* section of *neighbor* or *peer-group* configuration.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/graceful-restart?content=config``
 
 or
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbors/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbors/graceful-restart?content=config``
 
 **Method:** ``PUT``
 
@@ -74,11 +74,11 @@ BGP Neighbor Families Graceful Restart Configuration
 ''''''''''''''''''''''''''''''''''''''''''''''''''''
 Preserving specific family during Graceful Restart must be enabled in *graceful-restart* section of family configuration for *neighbor* or *peer-group*.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart?content=config``
 
 or
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbors/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups/peer-group/external-neighbors/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart?content=config``
 
 **Method:** ``PUT``
 
@@ -127,7 +127,7 @@ Usage
 In case when we are invoking Graceful Restart we act as Restarting Speaker and we are additionally postponing path selection process until end-of-rib is received for all families or Selection Deferral timer expires, whichever happens first.
 To perform Graceful Restart with peer, invoke RPC:
 
-**URL:** ``/restconf/operations/bgp-peer-rpc:restart-gracefully``
+**URL:** ``/rests/operations/bgp-peer-rpc:restart-gracefully``
 
 **Method:** ``POST``
 

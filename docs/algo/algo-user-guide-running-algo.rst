@@ -109,7 +109,7 @@ Path Computation algorithms are accessible through the RPC described below:
 
 -----
 
-**URL:** ``restconf/operations/path-computation:get-constrained-path``
+**URL:** ``rests/data/path-computation:get-constrained-path?content=nonconfig``
 
 **Method:** ``POST``
 

@@ -15,8 +15,6 @@ This section explains how to install PCEP plugin.
 2. The PCEP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of PCEP plugin is created (named *pcep-topology*), and its presence can be verified via REST:
 
-   **URL:** ``restconf/operational/network-topology:network-topology/topology/pcep-topology``
-
    **RFC8040 URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
 
    **Method:** ``GET``
