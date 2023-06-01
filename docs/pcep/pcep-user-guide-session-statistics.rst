@@ -7,9 +7,7 @@ The PCEP statistics provides information about PCE <-> PCC session and its state
 Usage
 '''''
 
-**URL:** ``/restconf/operational/network-topology:network-topology/topology/pcep-topology/node/pcc:%2F%2F43.43.43.43/pcep-session-state``
-
-**RFC8040 URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43/pcep-session-state?content=nonconfig``
+**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43/pcep-session-state?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -231,9 +229,7 @@ statistics for all PCEP sessions under the context are returned.
 Usage
 '''''
 
-**URL:** ``/restconf/operations/pcep-topology-stats-rpc:get-stats``
-
-**RFC8040 URL:** ``/rests/operations/pcep-topology-stats-rpc:get-stats``
+**URL:** ``/rests/operations/pcep-topology-stats-rpc:get-stats``
 
 **Method:** ``POST``
 

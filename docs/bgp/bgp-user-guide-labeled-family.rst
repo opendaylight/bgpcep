@@ -19,9 +19,7 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 Labeled Unicast support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
-
-**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -95,7 +93,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Labeled Unicast family.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors?content=config``
 
 **Method:** ``POST``
 
@@ -186,7 +184,7 @@ Usage
 ^^^^^
 The IPv4 Labeled Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -258,7 +256,7 @@ IPv4 Labeled
 This examples show how to originate and remove IPv4 labeled route via programmable RIB.
 Make sure the *Application Peer* is configured first.
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes?content=config``
 
 **Method:** ``POST``
 
@@ -371,7 +369,7 @@ In addition, BGP-LU Spring extension allows to attach BGP Prefix SID attribute t
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes/bgp-labeled-unicast:labeled-unicast-route/label1/0``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes/bgp-labeled-unicast:labeled-unicast-route/label1/0?content=config``
 
 **Method:** ``DELETE``
 
@@ -379,7 +377,7 @@ IPv6 Labeled
 ''''''''''''
 This examples show how to originate and remove IPv6 labeled route via programmable RIB.
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes?content=config``
 
 **Method:** ``POST``
 
@@ -452,7 +450,7 @@ This examples show how to originate and remove IPv6 labeled route via programmab
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes/bgp-labeled-unicast:labeled-unicast-route/label1/0``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-ipv6-routes/bgp-labeled-unicast:labeled-unicast-route/label1/0?content=config``
 
 **Method:** ``DELETE``
 

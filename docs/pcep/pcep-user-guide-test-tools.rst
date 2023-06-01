@@ -99,9 +99,7 @@ Once we set the configuration, a new data change counter will be created and reg
 
 .. important:: **Clustering** - Each Counter Identifier should be unique.
 
-**URL:** ``/restconf/config/odl-data-change-counter-config:data-change-counter-config/data-change-counter``
-
-**RFC8040 URL:** ``/rests/data/odl-data-change-counter-config:data-change-counter-config=data-change-counter``
+**URL:** ``/rests/data/odl-data-change-counter-config:data-change-counter-config=data-change-counter``
 
 **Method:** ``PUT``
 
@@ -154,9 +152,7 @@ Usage
 
 Counter state for topology
 
-**URL:** ``/restconf/operational/data-change-counter:data-change-counter/counter/data-change-counter``
-
-**RFC8040 URL:** ``/rests/data/data-change-counter:data-change-counter/counter=data-change-counter?content=nonconfig``
+**URL:** ``/rests/data/data-change-counter:data-change-counter/counter=data-change-counter?content=nonconfig``
 
 **Method:** ``GET``
 

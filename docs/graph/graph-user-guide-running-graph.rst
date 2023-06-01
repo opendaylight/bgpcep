@@ -16,7 +16,7 @@ This section explains how to install Graph plugin.
    after the feature starts up. One instance of Graph plugin is created
    (named *graph-topology*), and its presence can be verified via REST:
 
-   **URL:** ``restconf/config/graph:graph-topology``
+   **URL:** ``rests/data/graph:graph-topology?content=config``
 
    **Method:** ``GET``
 
@@ -29,7 +29,7 @@ This section explains how to install Graph plugin.
    It is also posible to access to the operational graph topology which is
    also empty by default via REST:
 
-   **URL:** ``restconf/operational/graph:graph-topology``
+   **URL:** ``rests/data/graph:graph-topology?content=nonconfig``
 
    **Method:** ``GET``
 
