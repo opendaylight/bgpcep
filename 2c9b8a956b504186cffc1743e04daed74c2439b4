@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "2c9b8a956b504186cffc1743e04daed74c2439b4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f77bfe51_6c5c491a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2023-06-01T22:02:57Z",
+      "side": 1,
+      "message": "Please squash the \"RFC8040 URL\" to just plain \"URL\" -- there is no need to differentiate anymore",
+      "revId": "2c9b8a956b504186cffc1743e04daed74c2439b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
