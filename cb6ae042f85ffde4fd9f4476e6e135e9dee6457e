@@ -16,6 +16,24 @@
       "message": "config",
       "revId": "cb6ae042f85ffde4fd9f4476e6e135e9dee6457e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecf47da1_e406e512",
+        "filename": "docs/bmp/bgp-monitoring-protocol-user-guide-config-concepts.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2023-06-01T10:43:52Z",
+      "side": 1,
+      "message": "Resolved",
+      "parentUuid": "13712386_75987dc7",
+      "revId": "cb6ae042f85ffde4fd9f4476e6e135e9dee6457e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
