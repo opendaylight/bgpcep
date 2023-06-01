@@ -28,9 +28,9 @@ associated to the Connected Graph in the OpenDaylight operational Data Store.
 
 In fact, two graphs are stored in the Data Store:
 
-* Operational Graph in ``restconf/operational`` which is the graph
+* Operational Graph in ``/rests/data/...?content=nonconfig`` which is the graph
   associated with the Connected Graph stored in memory
-* Configuration Graph in ``restconf/config`` which is the graph that
+* Configuration Graph in ``/rests/data/...?content=config`` which is the graph that
   could be create / modify / delete in order to produce the Connected
   Graph and thus, the associated Graph stored in operational Data Store
 
@@ -89,7 +89,7 @@ through the ``graph:graph-topology`` namespace as follow:
 
 -----
 
-**URL:** ``restconf/operational/graph:graph-topology``
+**URL:** ``rests/data/graph:graph-topology?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -126,7 +126,7 @@ API with the same namespace as follow:
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology``
+**URL:** ``rests/data/graph:graph-topology?content=config``
 
 **Method:** ``GET``
 
@@ -167,7 +167,7 @@ Data Store. This includes all modification and associated Connected Graphs.
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology``
+**URL:** ``rests/data/graph:graph-topology``
 
 **Method:** ``PUT``
 
@@ -243,7 +243,7 @@ Removing a graph used the DELETE method as follow:
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example``
+**URL:** ``rests/data/graph:graph-topology/graph/example``
 
 **Method:** ``DELETE``
 
@@ -258,7 +258,7 @@ it will be automatically created. Only POST method must be used.
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example``
+**URL:** ``rests/data/graph:graph-topology/graph/example``
 
 **Method:** ``POST``
 
@@ -286,7 +286,7 @@ Removing a vertex used the DELETE method as follow:
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example/vertex/10``
+**URL:** ``rests/data/graph:graph-topology/graph/example/vertex/10``
 
 **Method:** ``DELETE``
 
@@ -301,7 +301,7 @@ it will be automatically created. Only POST method must be used.
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example``
+**URL:** ``rests/data/graph:graph-topology/graph/example``
 
 **Method:** ``POST``
 
@@ -336,7 +336,7 @@ Removing an edge used the DELETE method as follow:
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example/edge/10``
+**URL:** ``rests/data/graph:graph-topology/graph/example/edge/10``
 
 **Method:** ``DELETE``
 
@@ -351,7 +351,7 @@ it will be automatically created. Only POST method must be used.
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example``
+**URL:** ``rests/data/graph:graph-topology/graph/example``
 
 **Method:** ``POST``
 
@@ -378,7 +378,7 @@ Removing a prefix used the DELETE method as follow:
 
 -----
 
-**URL:** ``restconf/config/graph:graph-topology/graph/example/prefix/192%2e168%2e1%2e0%2f24``
+**URL:** ``rests/data/graph:graph-topology/graph/example/prefix/192%2e168%2e1%2e0%2f24``
 
 **Method:** ``DELETE``
 
