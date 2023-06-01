@@ -8,7 +8,7 @@ The TCP connection is established between two peers and they exchange messages t
 
 Here is a sample basic neighbor configuration:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -116,9 +116,7 @@ Here is a sample basic neighbor configuration:
 Once the remote peer is connected and it advertised routes to local BGP system, routes are stored in peer's RIBs.
 The RIBs can be checked via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1``
-
-**RFC8040 URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F192.0.2.1?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F192.0.2.1?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -322,7 +320,7 @@ The RIBs can be checked via REST:
 
 Also the same route should appeared in Loc-RIB now:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -749,7 +747,7 @@ External peering configuration
 An example above provided configuration for internal peering only.
 Following configuration sample is intended for external peering:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -815,7 +813,7 @@ AS 62 will be prepended to updates that are sent to and received from R3.
 
 Following configuration sample is intended for external peering with Local AS:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -876,7 +874,7 @@ Route reflector configuration
 The local BGP speaker can be configured with a specific *cluster ID*.
 Following example adds the cluster ID to the existing speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/global/config``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/global/config``
 
 **Method:** ``PUT``
 
@@ -926,7 +924,7 @@ Following example adds the cluster ID to the existing speaker instance:
 
 Following configuration sample is intended for route reflector client peering:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -997,7 +995,7 @@ Using multiple cluster IDs allows updates to propagate to nodes that reside in a
 
 Following configuration sample is intended for route reflector client peering using specific cluster id:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -1066,7 +1064,7 @@ MD5 authentication configuration
 The OpenDaylight BGP implementation is supporting TCP MD5 for authentication.
 Sample configuration below shows how to set authentication password for a peer:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -1121,7 +1119,7 @@ Allows the creation of a peer group configuration that applies to all peers conf
 
 A sample peer group configuration follows:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/peer-groups``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/peer-groups``
 
 **Method:** ``POST``
 
@@ -1290,7 +1288,7 @@ A sample peer group configuration follows:
 
 A sample basic neighbor configuration using a peer group follows:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
