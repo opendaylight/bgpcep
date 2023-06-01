@@ -19,9 +19,7 @@ BGP Speaker
 '''''''''''
 To enable EVPN support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols``
-
-**RFC8040 URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -89,7 +87,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled EVPN family.
 
-**URL:** ``/restconf/config/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -310,7 +308,7 @@ Usage
 ^^^^^
 The L2VPN EVPN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/restconf/operational/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=odl-bgp-evpn:l2vpn-address-family,odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -414,7 +412,7 @@ There are four different types of EVPN routes, and several extended communities.
 Routes can be used for variety of use-cases supported by BGP/MPLS EVPN, PBB EVPN and NVO EVPN.
 Make sure the *Application Peer* is configured first.
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes``
+**URL:** ``/rests/data/bgp-rib:application-rib=10.25.1.9/tables=odl-bgp-evpn:l2vpn-address-family,odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes``
 
 **Method:** ``POST``
 
@@ -998,7 +996,7 @@ EVPN Routes
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/restconf/config/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes/evpn-route/evpn/0``
+**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,odl-bgp-evpn:l2vpn-address-family/odl-bgp-evpn:evpn-subsequent-address-family/odl-bgp-evpn:evpn-routes/evpn-route/evpn/0``
 
 **Method:** ``DELETE``
 
