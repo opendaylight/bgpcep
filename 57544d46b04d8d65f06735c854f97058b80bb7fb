@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c60b886_921a142b",
+        "filename": "docs/bgp-monitoring-protocol-developer-guide.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ea36d9f_fa90ff49",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4adb19d_9c3d7438",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-06-07T14:48:52Z",
       "side": 1,
       "message": "Not used with POST, PUT, PATCH and DELETE just GET.",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af22e446_e45e9a27",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4adb19d_9c3d7438",
       "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07b95762_76778c3f",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a00efd15_aeec05a0",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4dcedb39_d5662945",
@@ -65,6 +119,24 @@
       "writtenOn": "2023-06-07T14:48:52Z",
       "side": 1,
       "message": "Do not ?content\u003dconfig",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ab6d2a2_1d2b6790",
+        "filename": "docs/bgp/bgp-user-guide-additional-path-capability.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4dcedb39_d5662945",
       "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -86,6 +158,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee812829_2d9aafbc",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75a69b09_377499f7",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bf2afd70_883040af",
@@ -99,6 +189,24 @@
       "writtenOn": "2023-06-07T14:48:52Z",
       "side": 1,
       "message": "Do not ?content\u003dconfig",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48027bbd_25265d3b",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf2afd70_883040af",
       "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -120,6 +228,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b65be2e_4c7108dd",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f359c6d_c59a580b",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e869e449_95ffb600",
@@ -137,6 +263,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb21726f_a2dfe677",
+        "filename": "docs/bgp/bgp-user-guide-bgp-application-peer.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e869e449_95ffb600",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c276185a_211d2a5c",
@@ -150,6 +294,24 @@
       "writtenOn": "2023-06-07T14:48:52Z",
       "side": 1,
       "message": "Do not ?content\u003dconfig .. and please check everywhere.",
+      "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e58176f1_81dafc85",
+        "filename": "docs/bgp/bgp-user-guide-bgp-peering.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-06-16T13:49:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c276185a_211d2a5c",
       "revId": "57544d46b04d8d65f06735c854f97058b80bb7fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
