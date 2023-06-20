@@ -145,8 +145,8 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
         this.peerId = peerId;
         peerYangIId = YangInstanceIdentifier.builder(peersYangIId).nodeWithKey(Peer.QNAME, PEER_ID_QNAME,
                 this.peerId.getValue()).build();
-        sentOpenCodec = tree.getSubtreeCodec(SENT_OPEN_IID);
-        receivedOpenCodec = tree.getSubtreeCodec(RECEIVED_OPEN_IID);
+        sentOpenCodec = (BindingDataObjectCodecTreeNode<SentOpen>) tree.getSubtreeCodec(SENT_OPEN_IID);
+        receivedOpenCodec = (BindingDataObjectCodecTreeNode<ReceivedOpen>) tree.getSubtreeCodec(RECEIVED_OPEN_IID);
 
         final Set<TablesKey> peerTables = setPeerTables(peerUp.getReceivedOpen());
         final DOMDataTreeWriteTransaction wTx = this.domTxChain.newWriteOnlyTransaction();
@@ -420,14 +420,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static String toDom(final MirrorInformationCode informationCode) {
-        switch (informationCode) {
-            case ErroredPdu:
-                return "errored-pdu";
-            case MessageLost:
-                return "message-lost";
-            default:
-                return null;
-        }
+        return switch (informationCode) {
+            case ErroredPdu -> "errored-pdu";
+            case MessageLost -> "message-lost";
+            default -> null;
+        };
     }
 
     private static String getStringIpAddress(final IpAddressNoZone ipAddress) {

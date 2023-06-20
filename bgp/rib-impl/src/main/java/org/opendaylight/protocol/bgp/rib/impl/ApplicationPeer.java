@@ -186,7 +186,7 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
         for (final DataTreeCandidate tc : changes) {
-            LOG.debug("Modification Type {}", tc.getRootNode().getModificationType());
+            LOG.debug("Modification Type {}", tc.getRootNode().modificationType());
             final YangInstanceIdentifier path = tc.getRootPath();
             final PathArgument lastArg = path.getLastPathArgument();
             verify(lastArg instanceof NodeIdentifierWithPredicates,
@@ -196,10 +196,10 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
                 LOG.trace("Skipping received data change for non supported family {}.", tableKey);
                 continue;
             }
-            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                final PathArgument childIdentifier = child.getIdentifier();
+            for (final DataTreeCandidateNode child : tc.getRootNode().childNodes()) {
+                final PathArgument childIdentifier = child.name();
                 final YangInstanceIdentifier tableId = adjRibsInId.node(tableKey).node(childIdentifier);
-                switch (child.getModificationType()) {
+                switch (child.modificationType()) {
                     case DELETE:
                     case DISAPPEARED:
                         LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
@@ -239,19 +239,20 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processWrite(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId,
             final DOMDataTreeWriteTransaction tx) {
-        child.getDataAfter().ifPresent(dataAfter -> {
+        final var dataAfter = child.dataAfter();
+        if (dataAfter != null) {
             LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-        });
+        }
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
             final YangInstanceIdentifier identifier, final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routeTableIdentifier) {
-        for (final DataTreeCandidateNode child : node.getChildNodes()) {
-            final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
-            switch (child.getModificationType()) {
+        for (var child : node.childNodes()) {
+            final YangInstanceIdentifier childIdentifier = identifier.node(child.name());
+            switch (child.modificationType()) {
                 case DELETE:
                     LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
@@ -279,11 +280,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processRouteWrite(final DataTreeCandidateNode child,
             final YangInstanceIdentifier childIdentifier, final DOMDataTreeWriteTransaction tx) {
-        child.getDataAfter().ifPresent(dataAfter -> {
+        final var dataAfter = child.dataAfter();
+        if (dataAfter != null) {
             LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-        });
+        }
     }
 
     @Override

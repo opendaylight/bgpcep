@@ -98,7 +98,7 @@ public class PeerTest extends AbstractRIBTestSetup {
     private void overrideMockedBehaviour() {
         doAnswer(invocation -> {
             final var node = invocation.getArgument(2, NormalizedNode.class);
-            final var nodeType = node.getIdentifier().getNodeType();
+            final var nodeType = node.name().getNodeType();
             if (nodeType.equals(Ipv4Route.QNAME) || nodeType.equals(PREFIX_QNAME)) {
                 routes.put(invocation.getArgument(1), node);
             }

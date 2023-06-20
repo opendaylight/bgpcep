@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,15 +104,14 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         subTree = Mockito.mock(DataTreeCandidateNode.class);
         final DataTreeCandidateNode emptyNode = Mockito.mock(DataTreeCandidateNode.class);
         final DataTreeCandidateNode node = Mockito.mock(DataTreeCandidateNode.class);
-        doReturn(Optional.empty()).when(emptyTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(null).when(emptyTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
 
-        doReturn(Optional.of(emptyNode)).when(emptySubTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(Optional.empty()).when(emptyNode).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+        doReturn(emptyNode).when(emptySubTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(null).when(emptyNode).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
 
-        doReturn(Optional.of(node)).when(subTree).getModifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(Optional.of(node)).when(node).getModifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
-        final Collection<DataTreeCandidateNode> emptyCollection = new HashSet<>();
-        doReturn(emptyCollection).when(node).getChildNodes();
+        doReturn(node).when(subTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
+        doReturn(node).when(node).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+        doReturn(Set.of()).when(node).childNodes();
 
         tx = Mockito.mock(DOMDataTreeWriteTransaction.class);
         nlri = Mockito.mock(ContainerNode.class);
@@ -129,12 +127,12 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         doReturn(destination).when(nlri).childByArg(new NodeIdentifier(AdvertizedRoutes.QNAME));
         doReturn(destinations).when(destination).childByArg(new NodeIdentifier(DestinationType.QNAME));
         doReturn(route).when(destinations).childByArg(new NodeIdentifier(Ipv4Prefixes.QNAME));
-        doReturn(emptyCollection).when(route).body();
+        doReturn(Set.of()).when(route).body();
 
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            routesMap.remove(args[1]);
-            return args[1];
+            final var arg = invocation.getArgument(1);
+            routesMap.remove(arg);
+            return arg;
         }).when(tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
         doAnswer(invocation -> {
             final Object[] args = invocation.getArguments();
