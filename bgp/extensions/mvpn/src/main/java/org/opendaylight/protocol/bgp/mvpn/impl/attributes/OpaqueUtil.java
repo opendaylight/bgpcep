@@ -63,7 +63,7 @@ public final class OpaqueUtil {
     }
 
     private static byte[] writeOpaqueValue(final HexString opaque) {
-        return IetfYangUtil.INSTANCE.hexStringBytes(opaque);
+        return IetfYangUtil.hexStringBytes(opaque);
     }
 
     public static Opaque parseOpaque(final ByteBuf buffer) {
@@ -93,7 +93,7 @@ public final class OpaqueUtil {
 
     private static HexString buildOpaqueValue(final ByteBuf buffer) {
         final int length = buffer.readUnsignedShort();
-        return IetfYangUtil.INSTANCE.hexStringFor(ByteArray.readBytes(buffer, length));
+        return IetfYangUtil.hexStringFor(ByteArray.readBytes(buffer, length));
     }
 
     public static List<OpaqueValue> parseOpaqueList(final ByteBuf byteBuf) {
