@@ -158,7 +158,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
                 // Our augmentation in the topology node
                 final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder()
-                    .setIpAddress(IetfInetUtil.INSTANCE.ipAddressNoZoneFor(peerAddress));
+                    .setIpAddress(IetfInetUtil.ipAddressNoZoneFor(peerAddress));
 
                 // Let subclass fill the details
                 updateStatefulCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());

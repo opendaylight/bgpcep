@@ -16,9 +16,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -47,7 +45,7 @@ public final class Ipv4Util {
      * @return Ipv4AddressNoZone
      */
     public static Ipv4AddressNoZone addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv4AddressFor(ByteArray.readBytes(buffer, IP4_LENGTH));
+        return IetfInetUtil.ipv4AddressFor(ByteArray.readBytes(buffer, IP4_LENGTH));
     }
 
     /**
@@ -67,14 +65,12 @@ public final class Ipv4Util {
      * @return byte array
      */
     public static byte[] bytesForAddress(final Ipv4AddressNoZone address) {
-        return IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(address);
+        return IetfInetUtil.ipv4AddressNoZoneBytes(address);
     }
 
     public static int prefixBitsToBytes(final int bits) {
-        if (bits % Byte.SIZE != 0) {
-            return bits / Byte.SIZE + 1;
-        }
-        return bits / Byte.SIZE;
+        final int bytes = bits / Byte.SIZE;
+        return bits % Byte.SIZE == 0 ? bytes : bytes + 1;
     }
 
     /**
@@ -91,7 +87,7 @@ public final class Ipv4Util {
      * @return byte array with prefix length at the end
      */
     public static byte[] bytesForPrefix(final Ipv4Prefix prefix) {
-        return IetfInetUtil.INSTANCE.ipv4PrefixToBytes(prefix);
+        return IetfInetUtil.ipv4PrefixToBytes(prefix);
     }
 
     /**
@@ -103,15 +99,8 @@ public final class Ipv4Util {
      */
     public static Ipv4Prefix prefixForBytes(final byte[] bytes, final int length) {
         checkArgument(length <= bytes.length * Byte.SIZE);
-
-        final byte[] tmp;
-        if (bytes.length != IP4_LENGTH) {
-            tmp = Arrays.copyOfRange(bytes, 0, IP4_LENGTH);
-        } else {
-            tmp = bytes;
-        }
-
-        return IetfInetUtil.INSTANCE.ipv4PrefixFor(tmp, length);
+        return IetfInetUtil.ipv4PrefixFor(
+            bytes.length == IP4_LENGTH ? bytes : Arrays.copyOfRange(bytes, 0, IP4_LENGTH), length);
     }
 
     /**
@@ -133,13 +122,13 @@ public final class Ipv4Util {
      * @return Ipv4Prefix object
      */
     public static Ipv4Prefix prefixForByteBuf(final ByteBuf buf, final int prefixLength) {
-        final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
+        final int size = prefixBitsToBytes(prefixLength);
         final int readable = buf.readableBytes();
         checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
-        final byte[] bytes = new byte[IP4_LENGTH];
+        final var bytes = new byte[IP4_LENGTH];
         buf.readBytes(bytes, 0, size);
-        return IetfInetUtil.INSTANCE.ipv4PrefixFor(bytes, prefixLength);
+        return IetfInetUtil.ipv4PrefixFor(bytes, prefixLength);
     }
 
     /**
@@ -150,9 +139,9 @@ public final class Ipv4Util {
      */
     public static List<Ipv4Prefix> prefixListForBytes(final byte[] bytes) {
         if (bytes.length == 0) {
-            return Collections.emptyList();
+            return List.of();
         }
-        final List<Ipv4Prefix> list = new ArrayList<>();
+        final var list = new ArrayList<Ipv4Prefix>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
             final int bitLength = Byte.toUnsignedInt(bytes[byteOffset]);
@@ -163,7 +152,7 @@ public final class Ipv4Util {
                 continue;
             }
 
-            list.add(IetfInetUtil.INSTANCE.ipv4PrefixForShort(bytes, byteOffset, bitLength));
+            list.add(IetfInetUtil.ipv4PrefixForShort(bytes, byteOffset, bitLength));
             byteOffset += bitLength / Byte.SIZE;
             if (bitLength % Byte.SIZE != 0) {
                 byteOffset++;
@@ -191,7 +180,7 @@ public final class Ipv4Util {
      * @return IpAddressNoZone
      */
     public static IpAddressNoZone getIpAddress(final InetAddress inetAddress) {
-        return IetfInetUtil.INSTANCE.ipAddressNoZoneFor(inetAddress);
+        return IetfInetUtil.ipAddressNoZoneFor(inetAddress);
     }
 
     /**
@@ -227,9 +216,8 @@ public final class Ipv4Util {
     }
 
     public static Ipv4Prefix incrementIpv4Prefix(final Ipv4Prefix ipv4Prefix) {
-        final Entry<Ipv4AddressNoZone, Integer> splitIpv4Prefix = IetfInetUtil.INSTANCE.splitIpv4Prefix(ipv4Prefix);
-        return IetfInetUtil.INSTANCE.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()),
-                splitIpv4Prefix.getValue());
+        final var splitIpv4Prefix = IetfInetUtil.splitIpv4Prefix(ipv4Prefix);
+        return IetfInetUtil.ipv4PrefixFor(incrementIpv4Address(splitIpv4Prefix.getKey()), splitIpv4Prefix.getValue());
     }
 
     /**
@@ -239,10 +227,8 @@ public final class Ipv4Util {
      * @return String value of Ipv4Address or Ipv6Address
      */
     public static String toStringIP(final IpAddressNoZone ipAddress) {
-        if (ipAddress.getIpv4AddressNoZone() != null) {
-            return ipAddress.getIpv4AddressNoZone().getValue();
-        }
-        return ipAddress.getIpv6AddressNoZone().getValue();
+        final var ipv4 = ipAddress.getIpv4AddressNoZone();
+        return ipv4 != null ? ipv4.getValue() : ipAddress.getIpv6AddressNoZone().getValue();
     }
 
     /**
@@ -256,7 +242,7 @@ public final class Ipv4Util {
      */
     public static void writeIpv4Address(final Ipv4AddressNoZone ipv4Address, final ByteBuf output) {
         if (ipv4Address != null) {
-            output.writeBytes(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBytes(ipv4Address));
+            output.writeBytes(IetfInetUtil.ipv4AddressNoZoneBytes(ipv4Address));
         } else {
             output.writeInt(0);
         }
@@ -281,7 +267,7 @@ public final class Ipv4Util {
     }
 
     public static void writeMinimalPrefix(final Ipv4Prefix ipv4Prefix, final ByteBuf output) {
-        final byte[] bytes = IetfInetUtil.INSTANCE.ipv4PrefixToBytes(ipv4Prefix);
+        final var bytes = IetfInetUtil.ipv4PrefixToBytes(ipv4Prefix);
         writeMinimalPrefix(output, bytes, bytes[IP4_LENGTH]);
     }
 

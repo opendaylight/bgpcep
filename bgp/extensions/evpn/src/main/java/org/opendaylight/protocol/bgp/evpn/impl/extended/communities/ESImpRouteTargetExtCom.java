@@ -11,8 +11,6 @@ import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.es._import.route.extended.community.EsImportRouteExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.es._import.route.extended.community.EsImportRouteExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsImportRouteExtendedCommunityCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.evpn.route.attributes.extended.communities.extended.community.EsImportRouteExtendedCommunityCaseBuilder;
@@ -24,10 +22,11 @@ public final class ESImpRouteTargetExtCom extends AbstractExtendedCommunities {
 
     @Override
     public ExtendedCommunity parseExtendedCommunity(final ByteBuf buffer) {
-        final MacAddress mac = IetfYangUtil.INSTANCE.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
-
-        return new EsImportRouteExtendedCommunityCaseBuilder().setEsImportRouteExtendedCommunity(
-                new EsImportRouteExtendedCommunityBuilder().setEsImport(mac).build()).build();
+        return new EsImportRouteExtendedCommunityCaseBuilder()
+            .setEsImportRouteExtendedCommunity(new EsImportRouteExtendedCommunityBuilder()
+                .setEsImport(IetfYangUtil.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH)))
+                .build())
+            .build();
     }
 
     @Override
@@ -35,9 +34,8 @@ public final class ESImpRouteTargetExtCom extends AbstractExtendedCommunities {
         Preconditions.checkArgument(extendedCommunity instanceof EsImportRouteExtendedCommunityCase,
                 "The extended community %s is not EsImportRouteExtendedCommunityCaseCase type.",
                 extendedCommunity);
-        final EsImportRouteExtendedCommunity extCom = ((EsImportRouteExtendedCommunityCase) extendedCommunity)
-                .getEsImportRouteExtendedCommunity();
-        byteAggregator.writeBytes(IetfYangUtil.INSTANCE.macAddressBytes(extCom.getEsImport()));
+        final var extCom = ((EsImportRouteExtendedCommunityCase) extendedCommunity).getEsImportRouteExtendedCommunity();
+        byteAggregator.writeBytes(IetfYangUtil.macAddressBytes(extCom.getEsImport()));
     }
 
     @Override
