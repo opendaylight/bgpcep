@@ -89,14 +89,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     public synchronized void addPeer(final IpAddressNoZone oldIp, final BGPSessionListener peer,
             final BGPSessionPreferences preferences) {
         IpAddressNoZone fullIp = getFullIp(oldIp);
-        Preconditions.checkArgument(!this.peers.containsKey(fullIp),
+        Preconditions.checkArgument(!peers.containsKey(fullIp),
                 "Peer for %s already present", fullIp);
-        this.peers.put(fullIp, requireNonNull(peer));
+        peers.put(fullIp, requireNonNull(peer));
         requireNonNull(preferences.getMyAs());
         requireNonNull(preferences.getParams());
         requireNonNull(preferences.getBgpId());
-        this.peerPreferences.put(fullIp, preferences);
-        for (final PeerRegistryListener peerRegistryListener : this.listeners) {
+        peerPreferences.put(fullIp, preferences);
+        for (final PeerRegistryListener peerRegistryListener : listeners) {
             peerRegistryListener.onPeerAdded(fullIp, preferences);
         }
     }
@@ -109,8 +109,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     @Override
     public synchronized void removePeer(final IpAddressNoZone oldIp) {
         IpAddressNoZone fullIp = getFullIp(oldIp);
-        this.peers.remove(fullIp);
-        for (final PeerRegistryListener peerRegistryListener : this.listeners) {
+        peers.remove(fullIp);
+        for (final PeerRegistryListener peerRegistryListener : listeners) {
             peerRegistryListener.onPeerRemoved(fullIp);
         }
     }
@@ -118,8 +118,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     @Override
     public synchronized void removePeerSession(final IpAddressNoZone oldIp) {
         IpAddressNoZone fullIp = getFullIp(oldIp);
-        this.sessionIds.remove(fullIp);
-        for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
+        sessionIds.remove(fullIp);
+        for (final PeerRegistrySessionListener peerRegistrySessionListener : sessionListeners) {
             peerRegistrySessionListener.onSessionRemoved(fullIp);
         }
     }
@@ -127,13 +127,13 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     @Override
     public boolean isPeerConfigured(final IpAddressNoZone oldIp) {
         IpAddressNoZone fullIp = getFullIp(oldIp);
-        return this.peers.containsKey(fullIp);
+        return peers.containsKey(fullIp);
     }
 
     private void checkPeerConfigured(final IpAddressNoZone ip) {
         Preconditions.checkState(isPeerConfigured(ip),
                 "BGP peer with ip: %s not configured, configured peers are: %s",
-                ip, this.peers.keySet());
+                ip, peers.keySet());
     }
 
     @Override
@@ -150,9 +150,9 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         checkPeerConfigured(ip);
 
         final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, remoteAsNumber);
-        final BGPSessionListener p = this.peers.get(ip);
+        final BGPSessionListener p = peers.get(ip);
 
-        final BGPSessionId previousConnection = this.sessionIds.get(ip);
+        final BGPSessionId previousConnection = sessionIds.get(ip);
 
         if (previousConnection != null) {
 
@@ -180,8 +180,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
             } else if (currentConnection.isHigherDirection(previousConnection)
                     || currentConnection.hasHigherAsNumber(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
-                this.peers.get(ip).releaseConnection();
-                return this.peers.get(ip);
+                peers.get(ip).releaseConnection();
+                return peers.get(ip);
                 // Session reestablished with same source bgp id, dropping current as duplicate
             } else {
                 LOG.warn("BGP session with {} initiated from {} to {} has to be dropped. Same session already present",
@@ -194,8 +194,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         validateAs(remoteAsNumber, openObj, prefs);
 
         // Map session id to peer IP address
-        this.sessionIds.put(ip, currentConnection);
-        for (final PeerRegistrySessionListener peerRegistrySessionListener : this.sessionListeners) {
+        sessionIds.put(ip, currentConnection);
+        for (final PeerRegistrySessionListener peerRegistrySessionListener : sessionListeners) {
             peerRegistrySessionListener.onSessionCreated(ip);
         }
         return p;
@@ -254,7 +254,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     public BGPSessionPreferences getPeerPreferences(final IpAddressNoZone ip) {
         requireNonNull(ip);
         checkPeerConfigured(ip);
-        return this.peerPreferences.get(ip);
+        return peerPreferences.get(ip);
     }
 
     /**
@@ -274,21 +274,21 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         Preconditions.checkArgument(inetAddress instanceof Inet4Address
                 || inetAddress instanceof Inet6Address, "Expecting %s or %s but was %s",
                 Inet4Address.class, Inet6Address.class, inetAddress.getClass());
-        return IetfInetUtil.INSTANCE.ipAddressNoZoneFor(inetAddress);
+        return IetfInetUtil.ipAddressNoZoneFor(inetAddress);
     }
 
     @Deactivate
     @PreDestroy
     @Override
     public synchronized void close() {
-        this.peers.clear();
-        this.sessionIds.clear();
+        peers.clear();
+        sessionIds.clear();
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("peers", this.peers.keySet())
+            .add("peers", peers.keySet())
             .toString();
     }
 
@@ -322,10 +322,10 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
 
             final BGPSessionId bGPSessionId = (BGPSessionId) obj;
 
-            if (!this.from.equals(bGPSessionId.from) && !this.from.equals(bGPSessionId.to)) {
+            if (!from.equals(bGPSessionId.from) && !from.equals(bGPSessionId.to)) {
                 return false;
             }
-            if (!this.to.equals(bGPSessionId.to) && !this.to.equals(bGPSessionId.from)) {
+            if (!to.equals(bGPSessionId.to) && !to.equals(bGPSessionId.from)) {
                 return false;
             }
 
@@ -335,7 +335,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         @Override
         public int hashCode() {
             final int prime = 31;
-            int result = this.from.hashCode() + this.to.hashCode();
+            int result = from.hashCode() + to.hashCode();
             result = prime * result;
             return result;
         }
@@ -344,11 +344,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
          * Check if this connection is equal to other and if it contains higher source bgp id.
          */
         boolean isHigherDirection(final BGPSessionId other) {
-            return toLong(this.from) > toLong(other.from);
+            return toLong(from) > toLong(other.from);
         }
 
         boolean hasHigherAsNumber(final BGPSessionId other) {
-            return this.asNumber.getValue().compareTo(other.asNumber.getValue()) > 0;
+            return asNumber.getValue().compareTo(other.asNumber.getValue()) > 0;
         }
 
         private static long toLong(final Ipv4Address from) {
@@ -359,44 +359,44 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(this)
-                .add("from", this.from)
-                .add("to", this.to)
+                .add("from", from)
+                .add("to", to)
                 .toString();
         }
     }
 
     @Override
     public synchronized Registration registerPeerRegisterListener(final PeerRegistryListener listener) {
-        this.listeners.add(listener);
-        for (final Entry<IpAddressNoZone, BGPSessionPreferences> entry : this.peerPreferences.entrySet()) {
+        listeners.add(listener);
+        for (final Entry<IpAddressNoZone, BGPSessionPreferences> entry : peerPreferences.entrySet()) {
             listener.onPeerAdded(entry.getKey(), entry.getValue());
         }
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                StrictBGPPeerRegistry.this.listeners.remove(listener);
+                listeners.remove(listener);
             }
         };
     }
 
     @Override
     public synchronized Registration registerPeerSessionListener(final PeerRegistrySessionListener listener) {
-        this.sessionListeners.add(listener);
-        for (final IpAddressNoZone ipAddress : this.sessionIds.keySet()) {
+        sessionListeners.add(listener);
+        for (final IpAddressNoZone ipAddress : sessionIds.keySet()) {
             listener.onSessionCreated(ipAddress);
         }
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
-                StrictBGPPeerRegistry.this.sessionListeners.remove(listener);
+                sessionListeners.remove(listener);
             }
         };
     }
 
     @Override
     public void updatePeerPreferences(final IpAddressNoZone address, final BGPSessionPreferences preferences) {
-        if (this.peerPreferences.containsKey(address)) {
-            this.peerPreferences.put(address, preferences);
+        if (peerPreferences.containsKey(address)) {
+            peerPreferences.put(address, preferences);
         }
     }
 }

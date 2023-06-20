@@ -39,7 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,9 +71,9 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     private final ConnectedGraphServer connectedGraphServer;
 
     public ConnectedGraphImpl(final Graph newGraph, final ConnectedGraphServer server) {
-        this.graph = newGraph;
+        graph = newGraph;
         createConnectedGraph();
-        this.connectedGraphServer = server;
+        connectedGraphServer = server;
     }
 
     /**
@@ -83,21 +82,21 @@ public class ConnectedGraphImpl implements ConnectedGraph {
      *
      */
     private void createConnectedGraph() {
-        if (this.graph == null) {
+        if (graph == null) {
             return;
         }
         /* Add all vertices */
-        for (Vertex vertex : this.graph.nonnullVertex().values()) {
+        for (Vertex vertex : graph.nonnullVertex().values()) {
             ConnectedVertexImpl cvertex = new ConnectedVertexImpl(vertex);
             vertices.put(cvertex.getKey(), cvertex);
         }
         /* Add all edges */
-        for (Edge edge : this.graph.nonnullEdge().values()) {
+        for (Edge edge : graph.nonnullEdge().values()) {
             ConnectedEdgeImpl cedge = new ConnectedEdgeImpl(edge);
             edges.put(cedge.getKey(), cedge);
         }
         /* Add all prefixes */
-        for (Prefix prefix : this.graph.nonnullPrefix().values()) {
+        for (Prefix prefix : graph.nonnullPrefix().values()) {
             ConnectedVertexImpl cvertex = vertices.get(prefix.getVertexId().longValue());
             if (cvertex != null) {
                 cvertex.addPrefix(prefix);
@@ -161,12 +160,12 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public Graph getGraph() {
-        return this.graph;
+        return graph;
     }
 
     @Override
     public List<ConnectedVertex> getVertices() {
-        return new ArrayList<>(this.vertices.values());
+        return new ArrayList<>(vertices.values());
     }
 
     @Override
@@ -201,7 +200,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public List<ConnectedEdge> getEdges() {
-        return new ArrayList<>(this.edges.values());
+        return new ArrayList<>(edges.values());
     }
 
     @Override
@@ -225,21 +224,14 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public ConnectedEdge getConnectedEdge(final Ipv4Address address) {
-        if (address == null) {
-            return null;
-        }
-        final Uint64 key = Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressBits(address)).toUint64();
-        return getConnectedEdge(key.longValue());
+        return address == null ? null : getConnectedEdge(
+            Uint32.fromIntBits(IetfInetUtil.ipv4AddressBits(address)).longValue());
     }
 
     @Override
     public ConnectedEdge getConnectedEdge(final Ipv6Address address) {
-        if (address == null) {
-            return null;
-        }
-        final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressBytes(address);
-        final Uint64 key = Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
-        return getConnectedEdge(key.longValue());
+        return address == null ? null : getConnectedEdge(
+            ByteBuffer.wrap(IetfInetUtil.ipv6AddressBytes(address), Long.BYTES, Long.BYTES).getLong());
     }
 
     @Override
@@ -249,21 +241,21 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     @Override
     public List<Prefix> getPrefixes() {
-        return new ArrayList<>(this.prefixes.values());
+        return new ArrayList<>(prefixes.values());
     }
 
     @Override
     public Prefix getPrefix(final IpPrefix prefix) {
-        return this.prefixes.get(prefix);
+        return prefixes.get(prefix);
     }
 
-    private void callVertexTrigger(ConnectedVertexImpl cvertex, Vertex vertex) {
+    private void callVertexTrigger(final ConnectedVertexImpl cvertex, final Vertex vertex) {
         List<ConnectedVertexTrigger> vertexTriggers = cvertex.getTriggers();
         if (vertexTriggers == null || vertexTriggers.isEmpty()) {
             return;
         }
         for (ConnectedGraphTrigger trigger : graphTriggers.values()) {
-            this.exec.submit(() -> trigger.verifyVertex(vertexTriggers, cvertex, vertex));
+            exec.submit(() -> trigger.verifyVertex(vertexTriggers, cvertex, vertex));
         }
     }
 
@@ -272,7 +264,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         checkArgument(vertex != null, "Provided Vertex is a null object");
         ConnectedVertexImpl cvertex = updateConnectedVertex(vertex.getVertexId().longValue());
         Vertex old = cvertex.getVertex();
-        this.connectedGraphServer.addVertex(this.graph, vertex, old);
+        connectedGraphServer.addVertex(graph, vertex, old);
         cvertex.setVertex(vertex);
         if (old != null) {
             callVertexTrigger(cvertex, old);
@@ -287,19 +279,19 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         if (cvertex != null) {
             cvertex.disconnect();
             vertices.remove(cvertex.getKey());
-            this.connectedGraphServer.deleteVertex(this.graph, cvertex.getVertex());
+            connectedGraphServer.deleteVertex(graph, cvertex.getVertex());
             cvertex.setVertex(null);
             callVertexTrigger(cvertex, null);
         }
     }
 
-    private void callEdgeTrigger(ConnectedEdgeImpl cedge, Edge edge) {
+    private void callEdgeTrigger(final ConnectedEdgeImpl cedge, final Edge edge) {
         List<ConnectedEdgeTrigger> edgeTriggers = cedge.getTriggers();
         if (edgeTriggers == null || edgeTriggers.isEmpty()) {
             return;
         }
         for (ConnectedGraphTrigger trigger : graphTriggers.values()) {
-            this.exec.submit(() -> trigger.verifyEdge(edgeTriggers, cedge, edge));
+            exec.submit(() -> trigger.verifyEdge(edgeTriggers, cedge, edge));
         }
     }
 
@@ -319,7 +311,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
             }
             connectVertices(source, destination, cedge);
         }
-        this.connectedGraphServer.addEdge(this.graph, edge, old);
+        connectedGraphServer.addEdge(graph, edge, old);
         cedge.setEdge(edge);
         callEdgeTrigger(cedge, old);
         return cedge;
@@ -334,7 +326,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         checkArgument(key != null, "Provided Edge Key is a null object");
         ConnectedEdgeImpl cedge = edges.get(key.getEdgeId().longValue());
         if (cedge != null) {
-            this.connectedGraphServer.deleteEdge(this.graph, cedge.getEdge());
+            connectedGraphServer.deleteEdge(graph, cedge.getEdge());
             cedge.disconnect();
             cedge.setEdge(null);
             callEdgeTrigger(cedge, null);
@@ -347,7 +339,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         ConnectedVertexImpl cvertex = updateConnectedVertex(prefix.getVertexId().longValue());
         cvertex.addPrefix(prefix);
         prefixes.putIfAbsent(prefix.getPrefix(), prefix);
-        this.connectedGraphServer.addPrefix(this.graph, prefix);
+        connectedGraphServer.addPrefix(graph, prefix);
     }
 
     @Override
@@ -360,18 +352,18 @@ public class ConnectedGraphImpl implements ConnectedGraph {
                 cvertex.removePrefix(prefix);
             }
             prefixes.remove(prefix.getPrefix());
-            this.connectedGraphServer.deletePrefix(this.graph, prefix);
+            connectedGraphServer.deletePrefix(graph, prefix);
         }
     }
 
     @Override
     public void clear() {
         LOG.info("Reset Connected Graph({})", graph.getName());
-        this.vertices.clear();
-        this.edges.clear();
-        this.prefixes.clear();
-        this.connectedGraphServer.clearGraph(this.graph);
-        this.graph = null;
+        vertices.clear();
+        edges.clear();
+        prefixes.clear();
+        connectedGraphServer.clearGraph(graph);
+        graph = null;
     }
 
     @Override
@@ -380,12 +372,12 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     }
 
     @Override
-    public boolean registerTrigger(ConnectedGraphTrigger trigger, TopologyKey key) {
+    public boolean registerTrigger(final ConnectedGraphTrigger trigger, final TopologyKey key) {
         return graphTriggers.putIfAbsent(key, trigger) == null;
     }
 
     @Override
-    public boolean unRegisterTrigger(ConnectedGraphTrigger trigger, TopologyKey key) {
+    public boolean unRegisterTrigger(final ConnectedGraphTrigger trigger, final TopologyKey key) {
         return graphTriggers.remove(key, trigger);
     }
 
@@ -396,6 +388,6 @@ public class ConnectedGraphImpl implements ConnectedGraph {
      */
     @Override
     public String toString() {
-        return this.graph.getName();
+        return graph.getName();
     }
 }
