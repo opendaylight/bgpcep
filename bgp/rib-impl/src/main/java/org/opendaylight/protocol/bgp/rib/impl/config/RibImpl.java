@@ -233,7 +233,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
         afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
         final Config globalConfig = global.getConfig();
         asNumber = globalConfig.getAs();
-        routerId = IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(globalConfig.getRouterId());
+        routerId = IetfInetUtil.ipv4AddressNoZoneFor(globalConfig.getRouterId());
         clusterId = getGlobalClusterIdentifier(globalConfig);
         final Map<TablesKey, PathSelectionMode> pathSelectionModes = OpenConfigMappingUtil
                 .toPathSelectionMode(afiSafi, tableTypeRegistry).entrySet()

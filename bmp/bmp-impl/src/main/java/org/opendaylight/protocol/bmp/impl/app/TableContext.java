@@ -56,21 +56,21 @@ final class TableContext {
 
         checkState(tableCodecContext instanceof BindingDataObjectCodecTreeNode);
         final BindingDataObjectCodecTreeNode<?> routeListCodec = ((BindingDataObjectCodecTreeNode)tableCodecContext)
-            .streamChild(Routes.class)
-            .streamChild(this.tableSupport.routesCaseClass())
-            .streamChild(this.tableSupport.routesContainerClass())
-            .streamChild(this.tableSupport.routesListClass());
+            .getStreamChild(Routes.class)
+            .getStreamChild(this.tableSupport.routesCaseClass())
+            .getStreamChild(this.tableSupport.routesContainerClass())
+            .getStreamDataObject(this.tableSupport.routesListClass());
 
-        attributesCodec = routeListCodec.streamChild(Attributes.class)
+        attributesCodec = routeListCodec.getStreamDataObject(Attributes.class)
                 .createCachingCodec(this.tableSupport.cacheableAttributeObjects());
 
-        final var updateAttributesCodec = tree.streamChild(Update.class)
-                .streamChild(Attributes.class);
-        reachNlriCodec = updateAttributesCodec.streamChild(AttributesReach.class)
-            .streamChild(MpReachNlri.class)
+        final var updateAttributesCodec = tree.getStreamChild(Update.class)
+                .getStreamDataObject(Attributes.class);
+        reachNlriCodec = updateAttributesCodec.getStreamChild(AttributesReach.class)
+            .getStreamDataObject(MpReachNlri.class)
             .createCachingCodec(this.tableSupport.cacheableNlriObjects());
-        unreachNlriCodec = updateAttributesCodec.streamChild(AttributesUnreach.class)
-            .streamChild(MpUnreachNlri.class)
+        unreachNlriCodec = updateAttributesCodec.getStreamChild(AttributesUnreach.class)
+            .getStreamDataObject(MpUnreachNlri.class)
             .createCachingCodec(this.tableSupport.cacheableNlriObjects());
     }
 

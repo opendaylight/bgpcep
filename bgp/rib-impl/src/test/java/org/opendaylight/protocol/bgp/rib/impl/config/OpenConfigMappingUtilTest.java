@@ -21,7 +21,6 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.SHORT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAfiSafi;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNeighborExpected;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.HOLDTIMER;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.ImmutableMap;
 import java.math.BigDecimal;
@@ -78,6 +77,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -242,7 +242,7 @@ public class OpenConfigMappingUtilTest {
     @Test
     public void testGetNeighborKey() {
         assertArrayEquals(MD5_PASSWORD.getBytes(StandardCharsets.US_ASCII),
-            OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).asMap().get(INSTANCE.inetAddressFor(NEIGHBOR_ADDRESS)));
+            OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).asMap().get(IetfInetUtil.inetAddressFor(NEIGHBOR_ADDRESS)));
         assertNull(OpenConfigMappingUtil.getNeighborKey(EMPTY_NEIGHBOR));
         assertNull(OpenConfigMappingUtil.getNeighborKey(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setConfig(new ConfigBuilder().build()).build()));
