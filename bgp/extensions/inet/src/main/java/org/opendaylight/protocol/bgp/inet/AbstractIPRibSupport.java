@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.inet;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -45,12 +45,13 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractIPRibSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<S> & Identifiable<?>>
+        R extends Route & ChildOf<S> & KeyAware<?>>
         extends AbstractRIBSupport<C, S, R> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
+
+    private final @NonNull ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects;
     private final NodeIdentifier prefixNid;
     private final NodeIdentifier nlriRoutesList;
-    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
 
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -72,7 +73,7 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    public final ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects() {
         return cacheableNlriObjects;
     }
 
