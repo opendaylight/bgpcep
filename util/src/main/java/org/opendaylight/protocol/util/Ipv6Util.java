@@ -14,7 +14,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -52,7 +51,7 @@ public final class Ipv6Util {
      * @return Ipv6Address
      */
     public static Ipv6AddressNoZone addressForByteBuf(final ByteBuf buffer) {
-        return IetfInetUtil.INSTANCE.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
+        return IetfInetUtil.ipv6AddressFor(ByteArray.readBytes(buffer, IPV6_LENGTH));
     }
 
     /**
@@ -71,7 +70,7 @@ public final class Ipv6Util {
      * @return byte array
      */
     public static byte[] bytesForAddress(final Ipv6AddressNoZone address) {
-        return IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(address);
+        return IetfInetUtil.ipv6AddressNoZoneBytes(address);
     }
 
     /**
@@ -81,7 +80,7 @@ public final class Ipv6Util {
      * @return byte array with prefix length at the end
      */
     public static byte[] bytesForPrefix(final Ipv6Prefix prefix) {
-        return IetfInetUtil.INSTANCE.ipv6PrefixToBytes(prefix);
+        return IetfInetUtil.ipv6PrefixToBytes(prefix);
     }
 
     /**
@@ -93,15 +92,8 @@ public final class Ipv6Util {
      */
     public static Ipv6Prefix prefixForBytes(final byte[] bytes, final int length) {
         checkArgument(length <= bytes.length * Byte.SIZE);
-
-        final byte[] tmp;
-        if (bytes.length != IPV6_LENGTH) {
-            tmp = Arrays.copyOfRange(bytes, 0, IPV6_LENGTH);
-        } else {
-            tmp = bytes;
-        }
-
-        return IetfInetUtil.INSTANCE.ipv6PrefixFor(tmp, length);
+        return IetfInetUtil.ipv6PrefixFor(
+            bytes.length == IPV6_LENGTH ? bytes : Arrays.copyOfRange(bytes, 0, IPV6_LENGTH), length);
     }
 
     /**
@@ -113,13 +105,13 @@ public final class Ipv6Util {
      */
     public static Ipv6Prefix prefixForByteBuf(final ByteBuf buf) {
         final int prefixLength = buf.readUnsignedByte();
-        final int size = prefixLength / Byte.SIZE + (prefixLength % Byte.SIZE == 0 ? 0 : 1);
+        final int size = Ipv4Util.prefixBitsToBytes(prefixLength);
         final int readable = buf.readableBytes();
         checkArgument(size <= readable, "Illegal length of IP prefix: %s/%s", size, readable);
 
         final byte[] bytes = new byte[IPV6_LENGTH];
         buf.readBytes(bytes, 0, size);
-        return IetfInetUtil.INSTANCE.ipv6PrefixFor(bytes, prefixLength);
+        return IetfInetUtil.ipv6PrefixFor(bytes, prefixLength);
     }
 
     /**
@@ -130,9 +122,9 @@ public final class Ipv6Util {
      */
     public static List<Ipv6Prefix> prefixListForBytes(final byte[] bytes) {
         if (bytes.length == 0) {
-            return Collections.emptyList();
+            return List.of();
         }
-        final List<Ipv6Prefix> list = new ArrayList<>();
+        final var list = new ArrayList<Ipv6Prefix>();
         int byteOffset = 0;
         while (byteOffset < bytes.length) {
             final int bitLength = Byte.toUnsignedInt(bytes[byteOffset]);
@@ -142,7 +134,7 @@ public final class Ipv6Util {
                 list.add(EMPTY_PREFIX);
                 continue;
             }
-            list.add(IetfInetUtil.INSTANCE.ipv6PrefixForShort(bytes, byteOffset, bitLength));
+            list.add(IetfInetUtil.ipv6PrefixForShort(bytes, byteOffset, bitLength));
             byteOffset += bitLength / Byte.SIZE;
             if (bitLength % Byte.SIZE != 0) {
                 byteOffset++;
@@ -162,7 +154,7 @@ public final class Ipv6Util {
      */
     public static void writeIpv6Address(final Ipv6AddressNoZone ipv6Address, final ByteBuf output) {
         if (ipv6Address != null) {
-            output.writeBytes(IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ipv6Address));
+            output.writeBytes(IetfInetUtil.ipv6AddressNoZoneBytes(ipv6Address));
         } else {
             output.writeZero(IPV6_LENGTH);
         }
@@ -187,7 +179,7 @@ public final class Ipv6Util {
     }
 
     public static void writeMinimalPrefix(final Ipv6Prefix ipv6Prefix, final ByteBuf output) {
-        final byte[] bytes = IetfInetUtil.INSTANCE.ipv6PrefixToBytes(ipv6Prefix);
+        final var bytes = IetfInetUtil.ipv6PrefixToBytes(ipv6Prefix);
         Ipv4Util.writeMinimalPrefix(output, bytes, bytes[IPV6_LENGTH]);
     }
 }
