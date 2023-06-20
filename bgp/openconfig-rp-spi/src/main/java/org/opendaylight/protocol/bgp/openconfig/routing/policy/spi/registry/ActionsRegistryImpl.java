@@ -190,13 +190,13 @@ final class ActionsRegistryImpl {
                         if (address.getIpv4Address() != null) {
                             nhNew = new Ipv4NextHopCaseBuilder()
                                     .setIpv4NextHop(new Ipv4NextHopBuilder()
-                                        .setGlobal(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(address.getIpv4Address()))
+                                        .setGlobal(IetfInetUtil.ipv4AddressNoZoneFor(address.getIpv4Address()))
                                         .build())
                                     .build();
                         } else {
                             nhNew = new Ipv6NextHopCaseBuilder()
                                     .setIpv6NextHop(new Ipv6NextHopBuilder()
-                                        .setGlobal(IetfInetUtil.INSTANCE.ipv6AddressNoZoneFor(address.getIpv6Address()))
+                                        .setGlobal(IetfInetUtil.ipv6AddressNoZoneFor(address.getIpv6Address()))
                                         .build())
                                     .build();
                         }
