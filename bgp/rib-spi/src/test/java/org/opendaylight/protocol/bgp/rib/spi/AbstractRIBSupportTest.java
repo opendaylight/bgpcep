@@ -25,6 +25,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
+import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer.NodeResult;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -53,8 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -68,9 +69,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractConcurrentDataBrokerTest {
-    protected static final PathId PATH_ID = new PathId(Uint32.ONE);
-    protected static final Attributes ATTRIBUTES = new AttributesBuilder().build();
+        R extends Route & ChildOf<? super S> & KeyAware<?>> extends AbstractConcurrentDataBrokerTest {
+    protected static final @NonNull PathId PATH_ID = new PathId(Uint32.ONE);
+    protected static final @NonNull Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(new RibId("rib"))).child(LocRib.class).build();
 
@@ -115,12 +116,12 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     }
 
     private @NonNull BindingDataObjectCodecTreeNode<Attributes> updateAttributesCodec() {
-        return adapter.currentSerializer().streamChild(Update.class).streamChild(Attributes.class);
+        return adapter.currentSerializer().getStreamChild(Update.class).getStreamDataObject(Attributes.class);
     }
 
     protected final ContainerNode createNlriWithDrawnRoute(final DestinationType destUnreach) {
         return (ContainerNode) updateAttributesCodec()
-            .streamChild(AttributesUnreach.class).streamChild(MpUnreachNlri.class)
+            .getStreamChild(AttributesUnreach.class).getStreamDataObject(MpUnreachNlri.class)
             .serialize(new MpUnreachNlriBuilder()
                 .setWithdrawnRoutes(new WithdrawnRoutesBuilder().setDestinationType(destUnreach).build())
                 .build());
@@ -128,7 +129,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     protected final ContainerNode createNlriAdvertiseRoute(final DestinationType destReach) {
         return (ContainerNode) updateAttributesCodec()
-            .streamChild(AttributesReach.class).streamChild(MpReachNlri.class)
+            .getStreamChild(AttributesReach.class).getStreamDataObject(MpReachNlri.class)
             .serialize(new MpReachNlriBuilder()
                 .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(destReach).build())
                 .build());
@@ -142,23 +143,22 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         final Tables tables = new TablesBuilder().withKey(abstractRIBSupport.getTablesKey())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
                 .rib.tables.AttributesBuilder().build()).build();
-        return (MapEntryNode) adapter.currentSerializer().toNormalizedNode(tablesIId(), tables).getValue();
+        return (MapEntryNode) adapter.currentSerializer().toNormalizedDataObject(tablesIId(), tables).node();
     }
 
     protected final ChoiceNode createRoutes(final Routes routes) {
         final Tables tables = new TablesBuilder().withKey(abstractRIBSupport.getTablesKey()).setRoutes(routes).build();
         return (ChoiceNode) verifyNotNull(((MapEntryNode) adapter.currentSerializer()
-            .toNormalizedNode(tablesIId(), tables).getValue())
-            .childByArg(new NodeIdentifier(BindingReflections.findQName(Routes.class))));
+            .toNormalizedDataObject(tablesIId(), tables).node())
+            .childByArg(new NodeIdentifier(Routes.QNAME)));
     }
 
     protected final Collection<MapEntryNode> createRoutes(final S routes) {
         Preconditions.checkArgument(routes.implementedInterface()
                 .equals(abstractRIBSupport.routesContainerClass()));
         final InstanceIdentifier<S> routesIId = routesIId();
-        final Map.Entry<YangInstanceIdentifier, NormalizedNode> normalizedNode = adapter.currentSerializer()
-                .toNormalizedNode(routesIId, routes);
-        final ContainerNode container = (ContainerNode) normalizedNode.getValue();
+        final NodeResult normalizedNode = adapter.currentSerializer().toNormalizedDataObject(routesIId, routes);
+        final ContainerNode container = (ContainerNode) normalizedNode.node();
         final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
         return ((MapNode) container.getChildByArg(routeNid)).body();
     }

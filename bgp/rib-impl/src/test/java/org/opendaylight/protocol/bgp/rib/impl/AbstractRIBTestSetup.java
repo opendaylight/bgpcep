@@ -18,10 +18,10 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.junit.Before;
@@ -125,8 +125,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         rib = new RIBImpl(tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
                 dispatcher, new ConstantCodecsRegistry(serializer), dom, policies,
-                localTables, Collections.singletonMap(KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+                localTables, Map.of(KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
     }
 
     private void mockedMethods() throws Exception {
@@ -159,7 +158,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
         final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
         doReturn(rootNode).when(candidate).getRootNode();
-        doReturn(type).when(rootNode).getModificationType();
+        doReturn(type).when(rootNode).modificationType();
         doCallRealMethod().when(rootNode).toString();
         doReturn(target).when(candidate).getRootPath();
         doCallRealMethod().when(candidate).toString();
@@ -174,12 +173,12 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                     .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
-            doReturn(createIdentifier(p)).when(child).getIdentifier();
-            doReturn(java.util.Optional.of(b.build())).when(child).getDataAfter();
-            doReturn(type).when(child).getModificationType();
+            doReturn(createIdentifier(p)).when(child).name();
+            doReturn(b.build()).when(child).dataAfter();
+            doReturn(type).when(child).modificationType();
             children.add(child);
         }
-        doReturn(children).when(rootNode).getChildNodes();
+        doReturn(children).when(rootNode).childNodes();
         col.add(candidate);
         return col;
     }
