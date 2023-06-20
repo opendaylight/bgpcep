@@ -200,7 +200,7 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     private static @NonNull InetSocketAddress getInetSocketAddress(final IpAddressNoZone address,
             final PortNumber port) {
-        return new InetSocketAddress(IetfInetUtil.INSTANCE.inetAddressForNoZone(requireNonNull(address)),
+        return new InetSocketAddress(IetfInetUtil.inetAddressForNoZone(requireNonNull(address)),
             port.getValue().toJava());
     }
 }
