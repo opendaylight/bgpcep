@@ -155,7 +155,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
         final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
         doReturn(rootNode).when(candidate).getRootNode();
-        doReturn(type).when(rootNode).getModificationType();
+        doReturn(type).when(rootNode).modificationType();
         doCallRealMethod().when(rootNode).toString();
         doReturn(target).when(candidate).getRootPath();
         doCallRealMethod().when(candidate).toString();
@@ -170,12 +170,12 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
                     .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
 
             final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
-            doReturn(createIdentifier(p)).when(child).getIdentifier();
-            doReturn(java.util.Optional.of(b.build())).when(child).getDataAfter();
-            doReturn(type).when(child).getModificationType();
+            doReturn(createIdentifier(p)).when(child).name();
+            doReturn(b.build()).when(child).dataAfter();
+            doReturn(type).when(child).modificationType();
             children.add(child);
         }
-        doReturn(children).when(rootNode).getChildNodes();
+        doReturn(children).when(rootNode).childNodes();
         col.add(candidate);
         return col;
     }

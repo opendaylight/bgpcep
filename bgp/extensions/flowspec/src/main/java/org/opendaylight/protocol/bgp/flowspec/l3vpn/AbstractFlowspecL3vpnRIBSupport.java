@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
@@ -25,7 +25,7 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<
         T extends AbstractFlowspecL3vpnNlriParser,
         C extends Routes & DataObject,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
+        R extends Route & ChildOf<? super S> & KeyAware<?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
     protected AbstractFlowspecL3vpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass, final QName cazeQName,

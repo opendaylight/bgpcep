@@ -24,8 +24,8 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
@@ -63,8 +63,8 @@ import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -90,7 +90,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRIBSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & Identifiable<?>>
+        R extends Route & ChildOf<? super S> & KeyAware<?>>
         implements RIBSupport<C, S> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
@@ -171,14 +171,13 @@ public abstract class AbstractRIBSupport<
         routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         routesListIdentifier = NodeIdentifier.create(routeQname);
 
-        emptyTable = (MapEntryNode) this.mappingService
-                .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                                .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
+        emptyTable = (MapEntryNode) mappingService.toNormalizedDataObject(TABLES_II, new TablesBuilder().withKey(tk)
+            .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+                .rib.tables.AttributesBuilder().build()).build()).node();
         pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
-        routeDefaultYii = YangInstanceIdentifier.create(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
+        routeDefaultYii = YangInstanceIdentifier.of(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
             TABLES_NID, TABLES_NID, ROUTES_NID, routesContainerIdentifier, routesListIdentifier, routesListIdentifier);
         relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
@@ -355,12 +354,16 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final Collection<DataTreeCandidateNode> changedRoutes(final DataTreeCandidateNode routes) {
-        return routes.getModifiedChild(routesContainerIdentifier)
-            .flatMap(myRoutes -> myRoutes.getModifiedChild(routeNid()))
-            // Well, given the remote possibility of augmentation, we should perform a filter here,
-            // to make sure the type matches what routeType() reports.
-            .map(DataTreeCandidateNode::getChildNodes)
-            .orElse(Collections.emptySet());
+        final var myRoutes = routes.modifiedChild(routesContainerIdentifier);
+        if (myRoutes != null) {
+            final var route = myRoutes.modifiedChild(routeNid());
+            if (route != null) {
+                // Well, given the remote possibility of augmentation, we should perform a filter here,
+                // to make sure the type matches what routeType() reports.
+                return route.childNodes();
+            }
+        }
+        return Set.of();
     }
 
     @Override
@@ -491,16 +494,10 @@ public abstract class AbstractRIBSupport<
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             // Build the DataContainer data
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
-                    ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routeKey);
-
+            final var b = ImmutableNodes.mapEntryBuilder().withNodeIdentifier(routeKey);
             route.body().forEach(b::withChild);
             // Add attributes
-            final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> cb =
-                    Builders.containerBuilder(attributes);
-            cb.withNodeIdentifier(routeAttributesIdentifier());
-            b.withChild(cb.build());
+            b.withChild(Builders.containerBuilder(attributes).withNodeIdentifier(routeAttributesIdentifier()).build());
             tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
         }
     }
@@ -540,8 +537,8 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
-        final InstanceIdentifier<DataObject> iid = mappingService.fromYangInstanceIdentifier(attPath);
-        return (ContainerNode) verifyNotNull(mappingService.toNormalizedNode(iid, attributes).getValue());
+        final var iid = mappingService.fromYangInstanceIdentifier(attPath);
+        return (ContainerNode) verifyNotNull(mappingService.toNormalizedDataObject(iid, attributes).node());
     }
 
     @Override
