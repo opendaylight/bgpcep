@@ -176,15 +176,14 @@ public abstract class AbstractRIBSupport<
             BindingReflections.findQName(afiClass.implementedInterface()),
             BindingReflections.findQName(safiClass.implementedInterface())));
 
-        emptyTable = (MapEntryNode) this.mappingService
-                .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
-                        .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
-                                .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
+        emptyTable = (MapEntryNode) mappingService.toNormalizedDataObject(TABLES_II, new TablesBuilder().withKey(tk)
+            .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
+                .rib.tables.AttributesBuilder().build()).build()).node();
         destinationNid = NodeIdentifier.create(destContainerQname);
         pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
-        routeDefaultYii = YangInstanceIdentifier.create(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
+        routeDefaultYii = YangInstanceIdentifier.of(BGPRIB_NID, RIB_NID, RIB_NID, LOCRIB_NID,
             TABLES_NID, TABLES_NID, ROUTES_NID, routesContainerIdentifier, routesListIdentifier, routesListIdentifier);
         relativeRoutesPath = ImmutableList.of(routesContainerIdentifier, routesListIdentifier);
         routeKeyTemplate = ImmutableOffsetMapTemplate.ordered(
@@ -556,8 +555,8 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public ContainerNode attributeToContainerNode(final YangInstanceIdentifier attPath, final Attributes attributes) {
-        final InstanceIdentifier<DataObject> iid = mappingService.fromYangInstanceIdentifier(attPath);
-        return (ContainerNode) verifyNotNull(mappingService.toNormalizedNode(iid, attributes).getValue());
+        final var iid = mappingService.fromYangInstanceIdentifier(attPath);
+        return (ContainerNode) verifyNotNull(mappingService.toNormalizedDataObject(iid, attributes).node());
     }
 
     @Override

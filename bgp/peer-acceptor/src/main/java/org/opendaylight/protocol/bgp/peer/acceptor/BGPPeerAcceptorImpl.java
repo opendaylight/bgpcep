@@ -102,14 +102,14 @@ public final class BGPPeerAcceptorImpl implements AutoCloseable {
         @Override
         public void onPeerAdded(final IpAddressNoZone ip, final BGPSessionPreferences prefs) {
             prefs.getMd5Password().ifPresent(password -> {
-                keys.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip), password);
+                keys.put(IetfInetUtil.inetAddressForNoZone(ip), password);
                 channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, keys);
             });
         }
 
         @Override
         public void onPeerRemoved(final IpAddressNoZone ip) {
-            if (keys.remove(IetfInetUtil.INSTANCE.inetAddressForNoZone(ip)) != null) {
+            if (keys.remove(IetfInetUtil.inetAddressForNoZone(ip)) != null) {
                 channelConfig.setOption(EpollChannelOption.TCP_MD5SIG, keys);
             }
         }

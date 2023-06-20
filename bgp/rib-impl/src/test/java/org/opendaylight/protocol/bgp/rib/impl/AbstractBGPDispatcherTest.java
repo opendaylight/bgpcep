@@ -110,7 +110,7 @@ public class AbstractBGPDispatcherTest {
         capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
         tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BgpId bgpId = new BgpId(IetfInetUtil.INSTANCE.ipv4AddressFor(socketAddress.getAddress()));
+        final BgpId bgpId = new BgpId(IetfInetUtil.ipv4AddressFor(socketAddress.getAddress()));
         return new BGPSessionPreferences(AS_NUMBER, HOLD_TIMER, bgpId, AS_NUMBER, tlvs);
     }
 
