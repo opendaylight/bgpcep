@@ -18,8 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -38,11 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.Tables.AfiFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
+import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +56,7 @@ public final class GracefulRestartUtil {
     private static final Logger LOG = LoggerFactory.getLogger(GracefulRestartUtil.class);
 
     private GracefulRestartUtil() {
-
+        // Hidden on purpose
     }
 
     public static CParameters getGracefulCapability(final Map<TablesKey, Boolean> tables,
@@ -70,7 +67,7 @@ public final class GracefulRestartUtil {
                 final TablesKey key = entry.getKey();
                 return gracefulRestartTable(key.getAfi(), key.getSafi(), entry.getValue());
             })
-            .collect(Collectors.toMap(Identifiable::key, Function.identity())), restartTime, localRestarting);
+            .collect(BindingMap.toMap()), restartTime, localRestarting);
     }
 
     public static CParameters getLlGracefulCapability(final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestarts) {
@@ -84,7 +81,7 @@ public final class GracefulRestartUtil {
                                 .setAfiFlags(new AfiFlags(dto.isForwarding()))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(dto.getStaleTime())))
                                 .build())
-                            .collect(Collectors.toMap(Tables::key, Function.identity())))
+                            .collect(BindingMap.toMap()))
                         .build())
                     .build())
                 .build();

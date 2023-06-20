@@ -233,19 +233,20 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processWrite(final DataTreeCandidateNode child, final YangInstanceIdentifier tableId,
             final DOMDataTreeWriteTransaction tx) {
-        child.getDataAfter().ifPresent(dataAfter -> {
+        final var dataAfter = child.dataAfter();
+        if (dataAfter != null) {
             LOG.trace("App peer -> AdjRibsIn path : {}", tableId);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId, dataAfter);
-        });
+        }
     }
 
     private synchronized void processRoutesTable(final DataTreeCandidateNode node,
             final YangInstanceIdentifier identifier, final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routeTableIdentifier) {
-        for (final DataTreeCandidateNode child : node.getChildNodes()) {
-            final YangInstanceIdentifier childIdentifier = identifier.node(child.getIdentifier());
-            switch (child.getModificationType()) {
+        for (var child : node.childNodes()) {
+            final YangInstanceIdentifier childIdentifier = identifier.node(child.name());
+            switch (child.modificationType()) {
                 case DELETE:
                     LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
@@ -273,11 +274,12 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
 
     private static void processRouteWrite(final DataTreeCandidateNode child,
             final YangInstanceIdentifier childIdentifier, final DOMDataTreeWriteTransaction tx) {
-        child.getDataAfter().ifPresent(dataAfter -> {
+        final var dataAfter = child.dataAfter();
+        if (dataAfter != null) {
             LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
-        });
+        }
     }
 
     @Override

@@ -270,10 +270,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         final var attr = edge.getEdgeAttributes();
         PrefixBuilder prefBuilder = new PrefixBuilder().setVertexId(srcId);
         if (attr.getLocalAddress() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv4PrefixFor(attr.getLocalAddress())));
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv4PrefixFor(attr.getLocalAddress())));
         }
         if (attr.getLocalAddress6() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.INSTANCE.ipv6PrefixFor(attr.getLocalAddress6())));
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv6PrefixFor(attr.getLocalAddress6())));
         }
         Prefix prefix = prefBuilder.build();
 
@@ -660,12 +660,12 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     private static Uint64 ipv4ToKey(final Ipv4InterfaceIdentifier ifId) {
-        return Uint32.fromIntBits(IetfInetUtil.INSTANCE.ipv4AddressNoZoneBits(ifId)).toUint64();
+        return Uint32.fromIntBits(IetfInetUtil.ipv4AddressNoZoneBits(ifId)).toUint64();
     }
 
     @VisibleForTesting
     static Uint64 ipv6ToKey(final Ipv6InterfaceIdentifier ifId) {
-        final byte[] ip = IetfInetUtil.INSTANCE.ipv6AddressNoZoneBytes(ifId);
+        final byte[] ip = IetfInetUtil.ipv6AddressNoZoneBytes(ifId);
         // Keep only the lower 64bits from the IP address, i.e. we skip first Long.BYTES bytes
         return Uint64.fromLongBits(ByteBuffer.wrap(ip, Long.BYTES, Long.BYTES).getLong());
     }
