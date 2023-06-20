@@ -109,8 +109,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         this.ribIId = requireNonNull(ribIId);
         this.ribSupport = requireNonNull(ribSupport);
 
-        locRibTableIID = ribIId.node(LOCRIB_NID).node(TABLES_NID).node(ribSupport.emptyTable().getIdentifier())
-            .toOptimized();
+        locRibTableIID = ribIId.node(LOCRIB_NID).node(TABLES_NID).node(ribSupport.emptyTable().name()).toOptimized();
+
         this.ourAs = ourAs.toJava();
         this.dataBroker = requireNonNull(dataBroker);
         this.peerTracker = peerTracker;
@@ -233,7 +233,6 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Map<RouteUpdateKey, RouteEntry<C, S>> update(final DOMDataTreeWriteOperations tx,
             final Collection<DataTreeCandidate> changes) {
         final Map<RouteUpdateKey, RouteEntry<C, S>> ret = new HashMap<>();
@@ -241,10 +240,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final DataTreeCandidateNode table = tc.getRootNode();
             final RouterId peerUuid = RouterId.forPeerId(IdentifierUtils.peerKeyToPeerId(tc.getRootPath()));
 
-            /*
-            Initialize Peer with routes under loc rib
-             */
-            if (!routeEntries.isEmpty() && table.getDataBefore().isEmpty()) {
+            // Initialize Peer with routes under loc rib
+            if (!routeEntries.isEmpty() && table.dataBefore() == null) {
                 final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
                         = peerTracker.getPeer(peerUuid.getPeerId());
                 if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
@@ -258,9 +255,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                     toPeer.initializeRibOut(entryDep, routesToStore);
                 }
             }
-            /*
-            Process new routes from Peer
-             */
+            // Process new routes from Peer
             updateNodes(table, peerUuid, tx, ret);
         }
         return ret;
@@ -268,14 +263,18 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,
             final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry<C, S>> routes) {
-        table.getModifiedChild(ATTRIBUTES_NID).flatMap(DataTreeCandidateNode::getDataAfter).ifPresent(newAttValue -> {
-            LOG.trace("Uptodate found for {}", newAttValue);
-            tx.put(LogicalDatastoreType.OPERATIONAL, locRibTableIID.node(ATTRIBUTES_NID), newAttValue);
-        });
-
-        table.getModifiedChild(ROUTES_NID).ifPresent(modifiedRoutes -> {
+        final var modifiedAttrs = table.modifiedChild(ATTRIBUTES_NID);
+        if (modifiedAttrs != null) {
+            final var newAttValue = modifiedAttrs.dataAfter();
+            if (newAttValue != null) {
+                LOG.trace("Uptodate found for {}", newAttValue);
+                tx.put(LogicalDatastoreType.OPERATIONAL, locRibTableIID.node(ATTRIBUTES_NID), newAttValue);
+            }
+        }
+        final var modifiedRoutes = table.modifiedChild(ROUTES_NID);
+        if (modifiedRoutes != null) {
             updateRoutesEntries(ribSupport.changedRoutes(modifiedRoutes), peerUuid, routes);
-        });
+        }
     }
 
     private void updateRoutesEntries(final Collection<DataTreeCandidateNode> collection,
@@ -310,7 +309,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                         entry = createEntry(routeKey);
                     }
 
-                    final NormalizedNode routeAfter = route.getDataAfter().orElseThrow();
+                    final NormalizedNode routeAfter = route.getDataAfter();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
                     entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
                     totalPathsCounter.increment();

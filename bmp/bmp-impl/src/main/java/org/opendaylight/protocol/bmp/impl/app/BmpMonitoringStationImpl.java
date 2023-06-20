@@ -117,7 +117,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
             if (mr != null) {
                 final Rfc2385Key password = mr.getPassword();
                 if (password != null && !password.getValue().isEmpty()) {
-                    passwords.put(IetfInetUtil.INSTANCE.inetAddressForNoZone(mr.getAddress()), password.getValue());
+                    passwords.put(IetfInetUtil.inetAddressForNoZone(mr.getAddress()), password.getValue());
                 }
             }
         }

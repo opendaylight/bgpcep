@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
@@ -36,13 +35,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.stream.NormalizedNodeStreamWriter;
 import org.opendaylight.yangtools.yang.data.codec.xml.XmlParserStream;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNormalizedNodeStreamWriter;
-import org.opendaylight.yangtools.yang.data.impl.schema.NormalizedNodeResult;
+import org.opendaylight.yangtools.yang.data.impl.schema.NormalizationResultHolder;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveStatementInference;
 import org.opendaylight.yangtools.yang.model.util.SchemaInferenceStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 /**
  * Reference implementation of configuration loading bits, without worrying where files are actually coming from.
@@ -98,7 +96,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         context.updateSchemaNode(currentContext);
 
         final ProcessorRegistration reg = new ProcessorRegistration();
-        this.configServices.put(reg, context);
+        configServices.put(reg, context);
 
         final File[] fList = directory().listFiles();
         if (fList != null) {
@@ -160,8 +158,8 @@ abstract class AbstractConfigLoader implements ConfigLoader {
     @Holding("this")
     private NormalizedNode parseDefaultConfigFile(final EffectiveStatementInference schema, final String filename)
             throws IOException, XMLStreamException {
-        final NormalizedNodeResult result = new NormalizedNodeResult();
-        final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(result);
+        final NormalizationResultHolder resultHolder = new NormalizationResultHolder();
+        final NormalizedNodeStreamWriter streamWriter = ImmutableNormalizedNodeStreamWriter.from(resultHolder);
 
         final File newFile = new File(directory(), filename);
         try (RandomAccessFile raf = new RandomAccessFile(newFile, READ)) {
@@ -189,7 +187,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
 
                 try (XmlParserStream xmlParser = XmlParserStream.create(streamWriter, schema)) {
                     xmlParser.parse(reader);
-                } catch (final URISyntaxException | XMLStreamException | IOException | SAXException e) {
+                } catch (XMLStreamException | IOException e) {
                     LOG.warn("Failed to parse xml", e);
                 } finally {
                     reader.close();
@@ -197,6 +195,6 @@ abstract class AbstractConfigLoader implements ConfigLoader {
             }
         }
 
-        return result.getResult();
+        return resultHolder.getResult().data();
     }
 }
