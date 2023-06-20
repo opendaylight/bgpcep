@@ -49,7 +49,7 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
         final Esi esi = SimpleEsiTypeRegistry.getInstance().parseEsi(buffer.readSlice(ESI_SIZE));
         final EthernetTagId eti = new EthernetTagIdBuilder().setVlanId(ByteBufUtils.readUint32(buffer)).build();
         buffer.skipBytes(1);
-        final MacAddress mac = IetfYangUtil.INSTANCE.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
+        final MacAddress mac = IetfYangUtil.macAddressFor(ByteArray.readBytes(buffer, MAC_ADDRESS_LENGTH));
         final IpAddressNoZone ip = parseIp(buffer);
         final MplsLabel label1 = mplsLabelForByteBuf(buffer);
         MplsLabel label2;
@@ -84,7 +84,7 @@ final class MACIpAdvRParser extends AbstractEvpnNlri {
 
         final MacAddress mac = evpn.getMacAddress();
         body.writeByte(MAC_ADDRESS_LENGTH * BITS_SIZE);
-        body.writeBytes(IetfYangUtil.INSTANCE.macAddressBytes(mac));
+        body.writeBytes(IetfYangUtil.macAddressBytes(mac));
         final ByteBuf ipAddress = serializeIp(evpn.getIpAddress());
         Preconditions.checkArgument(ipAddress.readableBytes() > 0);
         body.writeBytes(ipAddress);

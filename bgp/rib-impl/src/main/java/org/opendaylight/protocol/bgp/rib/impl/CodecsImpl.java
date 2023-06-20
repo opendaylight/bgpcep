@@ -16,6 +16,7 @@ import java.util.Set;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeCachingCodec;
+import org.opendaylight.mdsal.binding.dom.codec.api.CommonDataObjectCodecTreeNode;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.ClusterId;
@@ -96,24 +97,26 @@ public final class CodecsImpl implements Codecs {
     @SuppressWarnings("unchecked")
     public void onCodecTreeUpdated(final BindingCodecTree tree) {
 
-        @SuppressWarnings("rawtypes")
-        final BindingDataObjectCodecTreeNode tableCodecContext = tree.getSubtreeCodec(TABLE_BASE_II);
-        final BindingDataObjectCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
-            .streamChild(Routes.class)
-            .streamChild(ribSupport.routesCaseClass())
-            .streamChild(ribSupport.routesContainerClass())
-            .streamChild(ribSupport.routesListClass());
+        final CommonDataObjectCodecTreeNode<Tables> codecContext = tree.getSubtreeCodec(TABLE_BASE_II);
+        if (!(codecContext instanceof BindingDataObjectCodecTreeNode tableCodecContext)) {
+            throw new IllegalStateException("Unexpected table codec " + codecContext);
+        }
 
-        attributesCodec = routeListCodec.streamChild(Attributes.class)
+        final BindingDataObjectCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
+            .getStreamChild(Routes.class)
+            .getStreamChild(ribSupport.routesCaseClass())
+            .getStreamChild(ribSupport.routesContainerClass())
+            .getStreamDataObject(ribSupport.routesListClass());
+
+        attributesCodec = routeListCodec.getStreamDataObject(Attributes.class)
             .createCachingCodec(cacheableAttributes);
 
-        final var attrCodec = tree.streamChild(Update.class)
-            .streamChild(Attributes.class);
-        reachNlriCodec = attrCodec.streamChild(AttributesReach.class)
-            .streamChild(MpReachNlri.class)
+        final var attrCodec = tree.getStreamChild(Update.class).getStreamChild(Attributes.class);
+        reachNlriCodec = attrCodec.getStreamChild(AttributesReach.class)
+            .getStreamDataObject(MpReachNlri.class)
             .createCachingCodec(ribSupport.cacheableNlriObjects());
-        unreachNlriCodec = attrCodec.streamChild(AttributesUnreach.class)
-            .streamChild(MpUnreachNlri.class)
+        unreachNlriCodec = attrCodec.getStreamChild(AttributesUnreach.class)
+            .getStreamDataObject(MpUnreachNlri.class)
             .createCachingCodec(ribSupport.cacheableNlriObjects());
     }
 

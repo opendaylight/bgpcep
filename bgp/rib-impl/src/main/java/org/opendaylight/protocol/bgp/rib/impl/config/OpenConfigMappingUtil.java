@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil.INSTANCE;
 
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -99,7 +98,7 @@ final class OpenConfigMappingUtil {
         if (config != null) {
             final String authPassword = config.getAuthPassword();
             if (authPassword != null) {
-                return KeyMapping.of(INSTANCE.inetAddressFor(neighbor.getNeighborAddress()), authPassword);
+                return KeyMapping.of(IetfInetUtil.inetAddressFor(neighbor.getNeighborAddress()), authPassword);
             }
         }
         return null;
@@ -117,11 +116,11 @@ final class OpenConfigMappingUtil {
         }
         final Ipv4Address ipv4 = addr.getIpv4Address();
         if (ipv4 != null) {
-            return new IpAddressNoZone(INSTANCE.ipv4AddressNoZoneFor(ipv4));
+            return new IpAddressNoZone(IetfInetUtil.ipv4AddressNoZoneFor(ipv4));
         }
         final Ipv6Address ipv6 = addr.getIpv6Address();
         checkState(ipv6 != null, "Unexpected address %s", addr);
-        return new IpAddressNoZone(INSTANCE.ipv6AddressNoZoneFor(ipv6));
+        return new IpAddressNoZone(IetfInetUtil.ipv6AddressNoZoneFor(ipv6));
     }
 
     static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
@@ -154,7 +153,7 @@ final class OpenConfigMappingUtil {
         } else {
             addr = globalConfig.getRouterId();
         }
-        return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(addr));
+        return new ClusterIdentifier(IetfInetUtil.ipv4AddressNoZoneFor(addr));
     }
 
     static @Nullable ClusterIdentifier getNeighborClusterIdentifier(
@@ -174,7 +173,7 @@ final class OpenConfigMappingUtil {
             final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.route
                     .reflector.Config config = routeReflector.getConfig();
             if (config != null && config.getRouteReflectorClusterId() != null) {
-                return new ClusterIdentifier(IetfInetUtil.INSTANCE.ipv4AddressNoZoneFor(
+                return new ClusterIdentifier(IetfInetUtil.ipv4AddressNoZoneFor(
                     config.getRouteReflectorClusterId().getIpv4Address()));
             }
         }
@@ -486,16 +485,11 @@ final class OpenConfigMappingUtil {
         if (!enabled.orElse(Boolean.FALSE)) {
             return null;
         }
-        switch (role) {
-            case Ebgp:
-                return RevisedErrorHandlingSupportImpl.forExternalPeer();
-            case Ibgp:
-            case Internal:
-            case RrClient:
-                return RevisedErrorHandlingSupportImpl.forInternalPeer();
-            default:
-                throw new IllegalStateException("Unhandled role " + role);
-        }
+        return switch (role) {
+            case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
+            case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
+            default -> throw new IllegalStateException("Unhandled role " + role);
+        };
     }
 
     private static Optional<Boolean> getRevisedErrorHandling(final BgpNeighborGroup group) {
