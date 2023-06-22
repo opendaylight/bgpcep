@@ -49,7 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
@@ -140,14 +139,14 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     }
 
     protected final MapEntryNode createEmptyTable() {
-        final Tables tables = new TablesBuilder().withKey(getTablesKey())
+        final Tables tables = new TablesBuilder().withKey(abstractRIBSupport.getTablesKey())
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
                 .rib.tables.AttributesBuilder().build()).build();
         return (MapEntryNode) adapter.currentSerializer().toNormalizedNode(tablesIId(), tables).getValue();
     }
 
     protected final ChoiceNode createRoutes(final Routes routes) {
-        final Tables tables = new TablesBuilder().withKey(getTablesKey()).setRoutes(routes).build();
+        final Tables tables = new TablesBuilder().withKey(abstractRIBSupport.getTablesKey()).setRoutes(routes).build();
         return (ChoiceNode) verifyNotNull(((MapEntryNode) adapter.currentSerializer()
             .toNormalizedNode(tablesIId(), tables).getValue())
             .childByArg(new NodeIdentifier(BindingReflections.findQName(Routes.class))));
@@ -164,12 +163,8 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         return ((MapNode) container.getChildByArg(routeNid)).body();
     }
 
-    private TablesKey getTablesKey() {
-        return new TablesKey(abstractRIBSupport.getAfi(), abstractRIBSupport.getSafi());
-    }
-
     private InstanceIdentifier<Tables> tablesIId() {
-        return RIB.child(Tables.class, getTablesKey());
+        return RIB.child(Tables.class, abstractRIBSupport.getTablesKey());
     }
 
     private InstanceIdentifier<S> routesIId() {

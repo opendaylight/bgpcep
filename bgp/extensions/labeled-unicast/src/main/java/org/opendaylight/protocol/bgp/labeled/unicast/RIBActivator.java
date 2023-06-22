@@ -14,9 +14,6 @@ import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.LabeledUnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -33,9 +30,7 @@ public class RIBActivator implements RIBExtensionProviderActivator {
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
         return List.of(
-            context.registerRIBSupport(Ipv4AddressFamily.VALUE, LabeledUnicastSubsequentAddressFamily.VALUE,
-                new LabeledUnicastIpv4RIBSupport(mappingService)),
-            context.registerRIBSupport(Ipv6AddressFamily.VALUE, LabeledUnicastSubsequentAddressFamily.VALUE,
-                new LabeledUnicastIpv6RIBSupport(mappingService)));
+            context.registerRIBSupport(new LabeledUnicastIpv4RIBSupport(mappingService)),
+            context.registerRIBSupport(new LabeledUnicastIpv6RIBSupport(mappingService)));
     }
 }

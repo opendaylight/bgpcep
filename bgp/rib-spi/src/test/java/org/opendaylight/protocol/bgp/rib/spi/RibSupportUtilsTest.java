@@ -29,10 +29,8 @@ public class RibSupportUtilsTest {
             UnicastSubsequentAddressFamily.VALUE);
 
     static {
-        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29",
-                "afi");
-        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29",
-                "safi");
+        final QName afi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29", "afi");
+        final QName safi = QName.create("urn:opendaylight:params:xml:ns:yang:bgp-rib?revision=2018-03-29", "safi");
         NII = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, ImmutableMap.of(afi, Ipv4AddressFamily.QNAME,
                 safi, UnicastSubsequentAddressFamily.QNAME));
         NII_PATH = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, ImmutableMap.of(
