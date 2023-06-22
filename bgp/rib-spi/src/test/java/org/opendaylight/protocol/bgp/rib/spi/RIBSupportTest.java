@@ -73,17 +73,18 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
-    private static final QName PATH_ID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
     private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
         QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
     private RIBSupportTestImp ribSupportTestImp;
-    private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
-            UnicastSubsequentAddressFamily.VALUE);
-    private static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier
-            .create(YangInstanceIdentifier.of(BgpRib.QNAME)
-        .node(LocRib.QNAME).node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(TABLES_KEY)).getPathArguments());
+    private static final YangInstanceIdentifier LOC_RIB_TARGET =
+        YangInstanceIdentifier.create(YangInstanceIdentifier.of(BgpRib.QNAME).node(LocRib.QNAME).node(Tables.QNAME)
+            .node(NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
+                QName.create(Tables.QNAME, "afi"), Ipv4AddressFamily.QNAME,
+                QName.create(Tables.QNAME, "safi"), UnicastSubsequentAddressFamily.QNAME)))
+            .getPathArguments());
     private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier IPV4_ROUTES_IDENTIFIER = new NodeIdentifier(Ipv4Routes.QNAME);
+
     private DataTreeCandidateNode emptyTree;
     private DataTreeCandidateNode emptySubTree;
     private DataTreeCandidateNode subTree;
