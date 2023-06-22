@@ -74,20 +74,22 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
     AbstractL3vpnMcastIpRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass, final QName cazeQName,
-            final Class<S> containerClass,
-            final AddressFamily afiClass,
+            final Class<S> containerClass, final QName containerQName,
+            final AddressFamily afi, final QName afiQName,
             final QName destContainerQname,
             final QName destListQname) {
-        super(mappingService, cazeClass, containerClass, L3vpnMcastRoute.class, afiClass,
-                McastMplsLabeledVpnSubsequentAddressFamily.VALUE, destContainerQname);
-        this.nlriRoutesList = NodeIdentifier.create(destListQname);
-        this.rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
-        this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName,
+            L3vpnMcastRoute.class, L3vpnMcastRoute.QNAME, afi, afiQName,
+            McastMplsLabeledVpnSubsequentAddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.QNAME,
+            destContainerQname);
+        nlriRoutesList = NodeIdentifier.create(destListQname);
+        rdNid = NodeIdentifier.create(QName.create(cazeQName, "route-distinguisher").intern());
+        cacheableNlriObjects = ImmutableSet.of(cazeClass);
     }
 
     @Override
     public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
-        return this.cacheableNlriObjects;
+        return cacheableNlriObjects;
     }
 
     protected abstract IpPrefix createPrefix(String prefix);

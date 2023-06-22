@@ -65,22 +65,23 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
      */
     protected AbstractVpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
+            final Class<C> cazeClass, final QName cazeQName,
             final Class<S> containerClass, final QName containerQName,
-            final AddressFamily afiClass,
+            final AddressFamily afi, final QName afiQName,
             final QName vpnDstContainerClassQname) {
-        super(mappingService, cazeClass, containerClass, VpnRoute.class, afiClass,
-                MplsLabeledVpnSubsequentAddressFamily.VALUE, vpnDstContainerClassQname);
-        this.nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule())
-            .intern());
-        this.labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());
-        this.lvNid = NodeIdentifier.create(QName.create(containerQName, "label-value").intern());
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName, VpnRoute.class, VpnRoute.QNAME,
+            afi, afiQName,
+            MplsLabeledVpnSubsequentAddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.QNAME,
+            vpnDstContainerClassQname);
+        nlriRoutesListNid = NodeIdentifier.create(VpnDestination.QNAME.bindTo(containerQName.getModule()).intern());
+        labelStackNid = NodeIdentifier.create(QName.create(containerQName, "label-stack").intern());
+        lvNid = NodeIdentifier.create(QName.create(containerQName, "label-value").intern());
     }
 
     private VpnDestination extractVpnDestination(final DataContainerNode route) {
         return new VpnDestinationBuilder()
                 .setPrefix(createPrefix(extractPrefix(route)))
-                .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, this.labelStackNid, this.lvNid))
+                .setLabelStack(LabeledUnicastIpv4RIBSupport.extractLabel(route, labelStackNid, lvNid))
                 .setRouteDistinguisher(extractRouteDistinguisher(route))
                 .setPathId(PathIdUtil.buildPathId(route, routePathIdNid()))
                 .build();
@@ -113,7 +114,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(this.nlriRoutesListNid);
+            final DataContainerChild routes = destination.childByArg(nlriRoutesListNid);
             if (routes != null) {
                 if (routes instanceof UnkeyedListNode routeListNode) {
                     LOG.debug("{} routes are found", routeListNode.size());

@@ -55,25 +55,25 @@ abstract class AbstractIPRibSupport<
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<? extends DataObject> prefixClass,
-            final AddressFamily addressFamilyClass,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<R> listClass,
+            final AddressFamily afi, final QName afiQName,
+            final Class<C> cazeClass, final QName cazeQName,
+            final Class<S> containerClass, final QName containerQName,
+            final Class<R> listClass, final QName listQName,
             final QName destinationQname, final QName prefixesQname) {
-        super(mappingService, cazeClass, containerClass, listClass, addressFamilyClass,
-                UnicastSubsequentAddressFamily.VALUE, destinationQname);
-        this.nlriRoutesList = new NodeIdentifier(prefixesQname);
-        this.cacheableNlriObjects = ImmutableSet.of(prefixClass);
-        this.prefixNid = new NodeIdentifier(QName.create(routeQName(), "prefix").intern());
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName, listClass, listQName, afi, afiQName,
+                UnicastSubsequentAddressFamily.VALUE, UnicastSubsequentAddressFamily.QNAME, destinationQname);
+        nlriRoutesList = NodeIdentifier.create(prefixesQname);
+        cacheableNlriObjects = ImmutableSet.of(prefixClass);
+        prefixNid = NodeIdentifier.create(QName.create(routeQName(), "prefix").intern());
     }
 
     final NodeIdentifier routePrefixIdentifier() {
-        return this.prefixNid;
+        return prefixNid;
     }
 
     @Override
     public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
-        return this.cacheableNlriObjects;
+        return cacheableNlriObjects;
     }
 
     @Override
@@ -83,7 +83,7 @@ abstract class AbstractIPRibSupport<
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
         if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(this.nlriRoutesList);
+            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
             if (routes instanceof UnkeyedListNode) {
                 // Instance identifier to table/(choice routes)/(map of route)
                 final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);

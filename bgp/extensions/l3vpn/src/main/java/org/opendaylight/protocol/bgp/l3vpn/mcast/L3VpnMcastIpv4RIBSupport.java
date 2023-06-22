@@ -40,11 +40,11 @@ public final class L3VpnMcastIpv4RIBSupport
         extends AbstractL3vpnMcastIpRIBSupport<L3vpnMcastRoutesIpv4Case, L3vpnMcastRoutesIpv4> {
     public L3VpnMcastIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                L3vpnMcastRoutesIpv4Case.class, L3vpnMcastRoutesIpv4Case.QNAME,
-                L3vpnMcastRoutesIpv4.class,
-                Ipv4AddressFamily.VALUE,
-                DestinationIpv4L3vpnMcast.QNAME,
-                L3vpnMcastDestination.QNAME);
+            L3vpnMcastRoutesIpv4Case.class, L3vpnMcastRoutesIpv4Case.QNAME,
+            L3vpnMcastRoutesIpv4.class, L3vpnMcastRoutesIpv4.QNAME,
+            Ipv4AddressFamily.VALUE, Ipv4AddressFamily.QNAME,
+            DestinationIpv4L3vpnMcast.QNAME,
+            L3vpnMcastDestination.QNAME);
     }
 
     @Override

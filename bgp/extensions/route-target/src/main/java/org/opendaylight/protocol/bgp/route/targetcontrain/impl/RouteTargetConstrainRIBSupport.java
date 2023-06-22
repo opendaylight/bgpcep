@@ -81,12 +81,12 @@ public final class RouteTargetConstrainRIBSupport
      */
     public RouteTargetConstrainRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                RouteTargetConstrainRoutesCase.class,
-                RouteTargetConstrainRoutes.class,
-                RouteTargetConstrainRoute.class,
-                Ipv4AddressFamily.VALUE,
-                RouteTargetConstrainSubsequentAddressFamily.VALUE,
-                DestinationRouteTargetConstrain.QNAME);
+            RouteTargetConstrainRoutesCase.class, RouteTargetConstrainRoutesCase.QNAME,
+            RouteTargetConstrainRoutes.class, RouteTargetConstrainRoutes.QNAME,
+            RouteTargetConstrainRoute.class, RouteTargetConstrainRoute.QNAME,
+            Ipv4AddressFamily.VALUE, Ipv4AddressFamily.QNAME,
+            RouteTargetConstrainSubsequentAddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.QNAME,
+            DestinationRouteTargetConstrain.QNAME);
         originAsNid = new NodeIdentifier(QName.create(routeQName(), ORIGIN_AS).intern());
     }
 

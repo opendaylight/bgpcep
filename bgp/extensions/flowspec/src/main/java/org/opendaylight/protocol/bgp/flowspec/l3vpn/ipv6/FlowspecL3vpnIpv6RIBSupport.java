@@ -22,14 +22,12 @@ public final class FlowspecL3vpnIpv6RIBSupport
         FlowspecL3vpnIpv6Routes,
         FlowspecL3vpnRoute> {
     public FlowspecL3vpnIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
-        super(
-                mappingService,
-                FlowspecL3vpnIpv6RoutesCase.class,
-                FlowspecL3vpnIpv6Routes.class,
-                FlowspecL3vpnRoute.class,
-                DestinationFlowspecL3vpnIpv6.QNAME,
-                Ipv6AddressFamily.VALUE,
-                new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN)
-        );
+        super(mappingService,
+            FlowspecL3vpnIpv6RoutesCase.class, FlowspecL3vpnIpv6RoutesCase.QNAME,
+            FlowspecL3vpnIpv6Routes.class, FlowspecL3vpnIpv6Routes.QNAME,
+            FlowspecL3vpnRoute.class, FlowspecL3vpnRoute.QNAME,
+            DestinationFlowspecL3vpnIpv6.QNAME,
+            Ipv6AddressFamily.VALUE, Ipv6AddressFamily.QNAME,
+            new FlowspecL3vpnIpv6NlriParser(SAFI.FLOWSPEC_VPN));
     }
 }

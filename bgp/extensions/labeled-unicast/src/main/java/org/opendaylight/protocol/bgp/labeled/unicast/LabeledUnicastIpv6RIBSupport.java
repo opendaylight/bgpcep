@@ -24,10 +24,10 @@ final class LabeledUnicastIpv6RIBSupport
         extends AbstractLabeledUnicastRIBSupport<LabeledUnicastIpv6RoutesCase, LabeledUnicastIpv6Routes> {
     LabeledUnicastIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                LabeledUnicastIpv6RoutesCase.class,
-                LabeledUnicastIpv6Routes.class,
-                Ipv6AddressFamily.VALUE,
-                DestinationIpv6LabeledUnicast.QNAME);
+            LabeledUnicastIpv6RoutesCase.class, LabeledUnicastIpv6RoutesCase.QNAME,
+            LabeledUnicastIpv6Routes.class, LabeledUnicastIpv6Routes.QNAME,
+            Ipv6AddressFamily.VALUE, Ipv6AddressFamily.QNAME,
+            DestinationIpv6LabeledUnicast.QNAME);
     }
 
     @Override

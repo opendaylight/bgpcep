@@ -63,25 +63,26 @@ abstract class AbstractLabeledUnicastRIBSupport<
      * node in instantiations of the rib grouping. It is assumed that this container is defined by
      * the same model which populates it with route grouping instantiation, and by extension with
      * the route attributes container.
+     *
      * @param mappingService  Binding Normalized Node Serializer
      * @param cazeClass Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass Binding class of the container in routes choice, must not be null.
-     * @param addressFamilyClass address Family Class
+     * @param afi address Family Class
      * @param destinationQname destination Qname
      */
     AbstractLabeledUnicastRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final AddressFamily addressFamilyClass,
+            final Class<C> cazeClass, final QName cazeQName,
+            final Class<S> containerClass, final QName containerQName,
+            final AddressFamily afi, final QName afiQName,
             final QName destinationQname) {
         super(mappingService,
-                cazeClass,
-                containerClass,
-                LabeledUnicastRoute.class,
-                addressFamilyClass,
-                LabeledUnicastSubsequentAddressFamily.VALUE,
-                destinationQname);
+            cazeClass, cazeQName,
+            containerClass, containerQName,
+            LabeledUnicastRoute.class, LabeledUnicastRoute.QNAME,
+            afi, afiQName,
+            LabeledUnicastSubsequentAddressFamily.VALUE, LabeledUnicastSubsequentAddressFamily.QNAME,
+            destinationQname);
     }
 
     @Override

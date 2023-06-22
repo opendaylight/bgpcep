@@ -29,10 +29,10 @@ public final class VpnIpv4RIBSupport extends AbstractVpnRIBSupport<VpnIpv4Routes
      */
     public VpnIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                VpnIpv4RoutesCase.class,
-                VpnIpv4Routes.class, VpnIpv4Routes.QNAME,
-                Ipv4AddressFamily.VALUE,
-                VpnIpv4Destination.QNAME);
+            VpnIpv4RoutesCase.class, VpnIpv4RoutesCase.QNAME,
+            VpnIpv4Routes.class, VpnIpv4Routes.QNAME,
+            Ipv4AddressFamily.VALUE, Ipv4AddressFamily.QNAME,
+            VpnIpv4Destination.QNAME);
     }
 
     @Override

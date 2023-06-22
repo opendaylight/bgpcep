@@ -22,15 +22,13 @@ public final class FlowspecIpv4RIBSupport
         FlowspecRoutes,
         FlowspecRoute> {
     public FlowspecIpv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
-        super(
-                mappingService,
-                FlowspecRoutesCase.class,
-                FlowspecRoutes.class,
-                FlowspecRoute.class,
-                Ipv4AddressFamily.VALUE,
-                FlowspecSubsequentAddressFamily.VALUE,
-                DestinationFlowspecIpv4.QNAME,
-                new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC)
-        );
+        super(mappingService,
+            FlowspecRoutesCase.class, FlowspecRoutesCase.QNAME,
+            FlowspecRoutes.class, FlowspecRoutes.QNAME,
+            FlowspecRoute.class, FlowspecRoute.QNAME,
+            Ipv4AddressFamily.VALUE, Ipv4AddressFamily.QNAME,
+            FlowspecSubsequentAddressFamily.VALUE, FlowspecSubsequentAddressFamily.QNAME,
+            DestinationFlowspecIpv4.QNAME,
+            new SimpleFlowspecIpv4NlriParser(SAFI.FLOWSPEC));
     }
 }

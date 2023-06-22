@@ -32,14 +32,13 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
  */
 final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route> {
     IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
-        super(
-                mappingService,
-                Ipv4PrefixAndPathId.class,
-                Ipv4AddressFamily.VALUE,
-                Ipv4RoutesCase.class,
-                Ipv4Routes.class,
-                Ipv4Route.class,
-                DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
+        super(mappingService,
+            Ipv4PrefixAndPathId.class,
+            Ipv4AddressFamily.VALUE, Ipv4AddressFamily.QNAME,
+            Ipv4RoutesCase.class, Ipv4RoutesCase.QNAME,
+            Ipv4Routes.class, Ipv4Routes.QNAME,
+            Ipv4Route.class, Ipv4Route.QNAME,
+            DestinationIpv4.QNAME, Ipv4Prefixes.QNAME);
     }
 
     private List<Ipv4Prefixes> extractPrefixes(final Collection<MapEntryNode> routes) {
