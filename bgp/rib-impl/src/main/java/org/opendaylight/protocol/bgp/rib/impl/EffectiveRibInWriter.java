@@ -436,7 +436,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void onRoutesDeleted(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
             final Collection<MapEntryNode> deletedRoutes) {
-        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getSafi())) {
+        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
             final YangInstanceIdentifier routesPath = routeMapPath(ribSupport, effectiveTablePath);
             for (final MapEntryNode routeBefore : deletedRoutes) {
                 deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
@@ -544,7 +544,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
-        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getSafi())) {
+        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
             final var rtc = (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
             if (ModificationType.DELETE == modificationType) {
                 deleteRouteTarget(rtc);

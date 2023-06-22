@@ -14,8 +14,6 @@ import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -34,7 +32,6 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     @Override
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return List.of(context.registerRIBSupport(LinkstateAddressFamily.VALUE,
-            LinkstateSubsequentAddressFamily.VALUE, new LinkstateRIBSupport(mappingService)));
+        return List.of(context.registerRIBSupport(new LinkstateRIBSupport(mappingService)));
     }
 }

@@ -22,8 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.binding.BindingObject;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
@@ -200,10 +198,6 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      */
     @NonNull Update buildUpdate(@NonNull Collection<MapEntryNode> advertised,
             @NonNull Collection<MapEntryNode> withdrawn, @NonNull Attributes attr);
-
-    @NonNull AddressFamily getAfi();
-
-    @NonNull SubsequentAddressFamily getSafi();
 
     /**
      * Creates Route table Peer InstanceIdentifier.
