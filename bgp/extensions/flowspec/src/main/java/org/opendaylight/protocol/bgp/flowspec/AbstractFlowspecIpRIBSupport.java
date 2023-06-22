@@ -26,10 +26,11 @@ abstract class AbstractFlowspecIpRIBSupport<
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
     AbstractFlowspecIpRIBSupport(final BindingNormalizedNodeSerializer mappingService, final Class<C> cazeClass,
-            final Class<S> containerClass, final Class<R> listClass, final AddressFamily afiClass,
-            final SubsequentAddressFamily safiClass, final QName dstContainerClassQName, final T nlriParser) {
-        super(mappingService, cazeClass, containerClass, listClass, afiClass, safiClass, dstContainerClassQName,
-            nlriParser);
+            final QName cazeQName, final Class<S> containerClass, final QName containerQName, final Class<R> listClass,
+            final QName listQName, final AddressFamily afi, final QName afiQName, final SubsequentAddressFamily safi,
+            final QName safiQName, final QName dstContainerClassQName, final T nlriParser) {
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName, listClass, listQName, afi, afiQName,
+            safi, safiQName, dstContainerClassQName, nlriParser);
     }
 
     @Override

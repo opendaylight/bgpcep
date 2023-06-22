@@ -48,14 +48,13 @@ public final class LinkstateRIBSupport
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
 
     public LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
-        super(
-                mappingService,
-                LinkstateRoutesCase.class,
-                LinkstateRoutes.class,
-                LinkstateRoute.class,
-                LinkstateAddressFamily.VALUE,
-                LinkstateSubsequentAddressFamily.VALUE,
-                DestinationLinkstate.QNAME);
+        super(mappingService,
+            LinkstateRoutesCase.class, LinkstateRoutesCase.QNAME,
+            LinkstateRoutes.class, LinkstateRoutes.QNAME,
+            LinkstateRoute.class, LinkstateRoute.QNAME,
+            LinkstateAddressFamily.VALUE, LinkstateAddressFamily.QNAME,
+            LinkstateSubsequentAddressFamily.VALUE, LinkstateSubsequentAddressFamily.QNAME,
+            DestinationLinkstate.QNAME);
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode linkstate) {

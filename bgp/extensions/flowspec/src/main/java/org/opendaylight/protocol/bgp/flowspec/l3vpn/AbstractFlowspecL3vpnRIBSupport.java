@@ -28,15 +28,15 @@ public abstract class AbstractFlowspecL3vpnRIBSupport<
         R extends Route & ChildOf<? super S> & Identifiable<?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
     protected AbstractFlowspecL3vpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<R> listClass,
+            final Class<C> cazeClass, final QName cazeQName,
+            final Class<S> containerClass, final QName containerQName,
+            final Class<R> listClass, final QName listQName,
             final QName dstContainerClassQName,
-            final AddressFamily afiClass,
-            final T flowspecNlriParser
-    ) {
-        super(mappingService, cazeClass, containerClass, listClass, afiClass,
-            FlowspecL3vpnSubsequentAddressFamily.VALUE, dstContainerClassQName, flowspecNlriParser);
+            final AddressFamily afi, final QName afiQName,
+            final T flowspecNlriParser) {
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName, listClass, listQName, afi, afiQName,
+            FlowspecL3vpnSubsequentAddressFamily.VALUE, FlowspecL3vpnSubsequentAddressFamily.QNAME,
+            dstContainerClassQName, flowspecNlriParser);
     }
 
     @Override

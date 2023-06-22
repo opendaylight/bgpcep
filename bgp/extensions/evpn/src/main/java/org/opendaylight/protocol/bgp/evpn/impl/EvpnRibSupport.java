@@ -43,17 +43,16 @@ import org.slf4j.LoggerFactory;
 
 final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes, EvpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRibSupport.class);
-
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(EvpnDestination.QNAME);
 
     EvpnRibSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                EvpnRoutesCase.class,
-                EvpnRoutes.class,
-                EvpnRoute.class,
-                L2vpnAddressFamily.VALUE,
-                EvpnSubsequentAddressFamily.VALUE,
-                DestinationEvpn.QNAME);
+            EvpnRoutesCase.class, EvpnRoutesCase.QNAME,
+            EvpnRoutes.class, EvpnRoutes.QNAME,
+            EvpnRoute.class, EvpnRoute.QNAME,
+            L2vpnAddressFamily.VALUE, L2vpnAddressFamily.QNAME,
+            EvpnSubsequentAddressFamily.VALUE, EvpnSubsequentAddressFamily.QNAME,
+            DestinationEvpn.QNAME);
     }
 
     @Override

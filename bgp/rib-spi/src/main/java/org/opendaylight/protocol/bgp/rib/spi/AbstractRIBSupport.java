@@ -30,7 +30,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
@@ -150,32 +149,32 @@ public abstract class AbstractRIBSupport<
      */
     protected AbstractRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final Class<R> listClass,
-            final AddressFamily afi,
-            final SubsequentAddressFamily safi,
+            final Class<C> cazeClass, final QName cazeQName,
+            final Class<S> containerClass, final QName containerQName,
+            final Class<R> listClass, final QName listQName,
+            final AddressFamily afi, final QName afiQName,
+            final SubsequentAddressFamily safi, final QName safiQName,
             final QName destContainerQname) {
-        final QNameModule module = BindingReflections.getQNameModule(cazeClass);
-        routesContainerIdentifier = NodeIdentifier.create(
-            BindingReflections.findQName(containerClass).bindTo(module));
-        routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
-        this.cazeClass = requireNonNull(cazeClass);
         this.mappingService = requireNonNull(mappingService);
+        this.cazeClass = requireNonNull(cazeClass);
         this.containerClass = requireNonNull(containerClass);
         this.listClass = requireNonNull(listClass);
-        routeQname = BindingReflections.findQName(listClass).bindTo(module);
+        tk = new TablesKey(afi, safi);
+        tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME,
+            TABLES_KEY_TEMPLATE.instantiateWithValues(afiQName, safiQName));
+        destinationNid = NodeIdentifier.create(destContainerQname);
+
+        final QNameModule module = cazeQName.getModule();
+        routesContainerIdentifier = NodeIdentifier.create(containerQName.bindTo(module));
+        routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
+        routeQname = listQName.bindTo(module);
         routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         routesListIdentifier = NodeIdentifier.create(routeQname);
-        tk = new TablesKey(afi, safi);
-        tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
-            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
 
         emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
                         .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib
                                 .rev180329.rib.tables.AttributesBuilder().build()).build()).getValue();
-        destinationNid = NodeIdentifier.create(destContainerQname);
         pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());

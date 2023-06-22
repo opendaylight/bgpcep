@@ -32,12 +32,12 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 final class IPv6RIBSupport extends AbstractIPRibSupport<Ipv6RoutesCase, Ipv6Routes, Ipv6Route> {
     IPv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
-                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.Ipv6Prefix.class,
-                Ipv6AddressFamily.VALUE,
-                Ipv6RoutesCase.class,
-                Ipv6Routes.class,
-                Ipv6Route.class,
-                DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
+            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.Ipv6Prefix.class,
+            Ipv6AddressFamily.VALUE, Ipv6AddressFamily.QNAME,
+            Ipv6RoutesCase.class, Ipv6RoutesCase.QNAME,
+            Ipv6Routes.class, Ipv6Routes.QNAME,
+            Ipv6Route.class, Ipv6Route.QNAME,
+            DestinationIpv6.QNAME, Ipv6Prefixes.QNAME);
     }
 
     @Override

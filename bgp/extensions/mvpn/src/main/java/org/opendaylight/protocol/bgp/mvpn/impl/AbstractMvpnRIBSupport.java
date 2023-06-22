@@ -64,25 +64,25 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
      */
     AbstractMvpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<C> cazeClass,
-            final Class<S> containerClass,
-            final AddressFamily afiClass,
+            final Class<C> cazeClass, final QName cazeQName,
+            final Class<S> containerClass, final QName containerQName,
+            final AddressFamily afi, final QName afiQName,
             final QName destContainerQname,
             final QName destListQname) {
-        super(mappingService, cazeClass, containerClass, MvpnRoute.class, afiClass,
-                McastVpnSubsequentAddressFamily.VALUE, destContainerQname);
-        this.nlriRoutesList = NodeIdentifier.create(destListQname);
-        this.cacheableNlriObjects = ImmutableSet.of(cazeClass);
-
+        super(mappingService, cazeClass, cazeQName, containerClass, containerQName, MvpnRoute.class, MvpnRoute.QNAME,
+            afi, afiQName, McastVpnSubsequentAddressFamily.VALUE, McastVpnSubsequentAddressFamily.QNAME,
+            destContainerQname);
+        nlriRoutesList = NodeIdentifier.create(destListQname);
+        cacheableNlriObjects = ImmutableSet.of(cazeClass);
     }
 
     @Override
     public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
-        return this.cacheableNlriObjects;
+        return cacheableNlriObjects;
     }
 
     final MvpnChoice extractMvpnChoice(final DataContainerNode route) {
-        final DataObject nn = this.mappingService.fromNormalizedNode(this.routeDefaultYii, route).getValue();
+        final DataObject nn = mappingService.fromNormalizedNode(routeDefaultYii, route).getValue();
         return ((MvpnRoute) nn).getMvpnChoice();
     }
 
@@ -94,7 +94,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject & ChoiceIn<T
             final ContainerNode attributes,
             final ApplyRoute function) {
         if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(this.nlriRoutesList);
+            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
             if (routes != null) {
                 if (routes instanceof UnkeyedListNode) {
                     final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
