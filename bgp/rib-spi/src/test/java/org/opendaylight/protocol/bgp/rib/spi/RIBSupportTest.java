@@ -179,19 +179,14 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
-    public void getAfi() {
-        assertEquals(Ipv4AddressFamily.VALUE, ribSupportTestImp.getAfi());
-    }
-
-    @Test
-    public void getSafi() {
-        assertEquals(UnicastSubsequentAddressFamily.VALUE, ribSupportTestImp.getSafi());
+    public void getTablesKey() {
+        assertEquals(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
+            ribSupportTestImp.getTablesKey());
     }
 
     @Test
     public void routesContainerIdentifier() {
-        assertEquals(IPV4_ROUTES_IDENTIFIER,ribSupportTestImp.routesContainerIdentifier());
-
+        assertEquals(IPV4_ROUTES_IDENTIFIER, ribSupportTestImp.routesContainerIdentifier());
     }
 
     @Test
