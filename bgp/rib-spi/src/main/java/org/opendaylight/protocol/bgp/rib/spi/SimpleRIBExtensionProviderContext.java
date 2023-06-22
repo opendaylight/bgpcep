@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,31 +16,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
+import org.opendaylight.yangtools.concepts.AbstractRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleRIBExtensionProviderContext.class);
-
-    private final ConcurrentMap<TablesKey, RIBSupport<?, ?>> supports = new ConcurrentHashMap<>();
     private final ConcurrentMap<NodeIdentifierWithPredicates, RIBSupport<?, ?>> domSupports = new ConcurrentHashMap<>();
+    private final ConcurrentMap<TablesKey, RIBSupport<?, ?>> supports = new ConcurrentHashMap<>();
 
     @Override
-    public <T extends RIBSupport<?, ?>> RIBSupportRegistration<T> registerRIBSupport(
-            final AddressFamily afi, final SubsequentAddressFamily safi, final T support) {
-        final TablesKey key = new TablesKey(afi, safi);
-        final RIBSupport<?, ?> prev = supports.putIfAbsent(key, support);
-        checkArgument(prev == null, "AFI %s SAFI %s is already registered with %s", afi, safi, prev);
-        domSupports.put(RibSupportUtils.toYangTablesKey(afi, safi), support);
-        return new AbstractRIBSupportRegistration<>(support) {
+    public Registration registerRIBSupport(final RIBSupport<?, ?> support) {
+        final var bindingKey = support.getTablesKey();
+        final var prevBinding = supports.putIfAbsent(bindingKey, support);
+        if (prevBinding != null) {
+            throw new IllegalStateException(bindingKey + " is already registered with " + prevBinding);
+        }
+
+        final var domKey = support.tablesKey();
+        final var prevDom = domSupports.putIfAbsent(domKey, support);
+        if (prevDom != null) {
+            throw new IllegalStateException(domKey + " is already registered with " + prevDom);
+        }
+
+        return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 // FIXME: clean up registrations, too
-                supports.remove(key);
+                supports.remove(bindingKey, support);
+                domSupports.remove(domKey, support);
             }
         };
     }

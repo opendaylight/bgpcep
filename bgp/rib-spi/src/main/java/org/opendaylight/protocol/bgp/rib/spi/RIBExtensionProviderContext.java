@@ -8,8 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
+import org.opendaylight.yangtools.concepts.Registration;
 
 /**
  * Interface for registering AdjRIBsIn factories. In order for a model-driven RIB implementation to work correctly, it
@@ -20,12 +19,9 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
     /**
      * Register a RIBSupport instance for a particular AFI/SAFI combination.
      *
-     * @param afi     Address Family identifier
-     * @param safi    Subsequent Address Family identifier
-     * @param support T RIBSupport instance
-     * @return Registration handle. Call {@link RIBSupportRegistration#close()} method to remove it.
-     * @throws NullPointerException if any of the arguments is null
+     * @param support RIBSupport instance
+     * @return Registration handle. Call {@link Registration#close()} method to remove it.
+     * @throws NullPointerException if {@code support} is {@code null}
      */
-    <T extends RIBSupport<?, ?>> RIBSupportRegistration<T> registerRIBSupport(
-            @NonNull AddressFamily afi, @NonNull SubsequentAddressFamily safi, T support);
+    @NonNull Registration registerRIBSupport(RIBSupport<?, ?> support);
 }

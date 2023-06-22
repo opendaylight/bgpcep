@@ -14,8 +14,6 @@ import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -31,7 +29,6 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     @Override
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return List.of(context.registerRIBSupport(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE,
-                new EvpnRibSupport(mappingService)));
+        return List.of(context.registerRIBSupport(new EvpnRibSupport(mappingService)));
     }
 }

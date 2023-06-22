@@ -15,8 +15,6 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSeriali
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.RouteTargetConstrainRIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -38,8 +36,6 @@ public final class RIBActivator implements RIBExtensionProviderActivator {
     @Override
     public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
             final BindingNormalizedNodeSerializer mappingService) {
-        return List.of(
-            context.registerRIBSupport(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE,
-                new RouteTargetConstrainRIBSupport(mappingService)));
+        return List.of(context.registerRIBSupport(new RouteTargetConstrainRIBSupport(mappingService)));
     }
 }

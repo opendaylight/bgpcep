@@ -227,16 +227,6 @@ public abstract class AbstractRIBSupport<
         return routesListIdentifier;
     }
 
-    @Override
-    public final AddressFamily getAfi() {
-        return tk.getAfi();
-    }
-
-    @Override
-    public final SubsequentAddressFamily getSafi() {
-        return tk.getSafi();
-    }
-
     /**
      * Build MpReachNlri object from DOM representation.
      *
@@ -246,8 +236,8 @@ public abstract class AbstractRIBSupport<
      */
     private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
         return new MpReachNlriBuilder()
-            .setAfi(getAfi())
-            .setSafi(getSafi())
+            .setAfi(tk.getAfi())
+            .setSafi(tk.getSafi())
             .setCNextHop(hop)
             .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(buildDestination(routes)).build())
             .build();
@@ -261,8 +251,8 @@ public abstract class AbstractRIBSupport<
      */
     private MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
         return new MpUnreachNlriBuilder()
-            .setAfi(getAfi())
-            .setSafi(getSafi())
+            .setAfi(tk.getAfi())
+            .setSafi(tk.getSafi())
             .setWithdrawnRoutes(new WithdrawnRoutesBuilder()
                 .setDestinationType(buildWithdrawnDestination(routes))
                 .build())

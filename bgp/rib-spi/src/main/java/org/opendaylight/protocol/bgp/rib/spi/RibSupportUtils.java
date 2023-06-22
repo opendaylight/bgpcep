@@ -33,15 +33,13 @@ public final class RibSupportUtils {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
+     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
      *
-     * @param afi  Class representing AFI
-     * @param safi Class representing SAFI
+     * @param tablesKey Tables key representing table.
      * @return NodeIdentifierWithPredicates of {@link Tables} for specified AFI, SAFI combination.
      */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final AddressFamily afi,
-            final SubsequentAddressFamily safi) {
-        return toYangKey(Tables.QNAME, afi, safi);
+    public static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey tablesKey) {
+        return toYangKey(Tables.QNAME, tablesKey.getAfi(), tablesKey.getSafi());
     }
 
     /**
@@ -59,27 +57,12 @@ public final class RibSupportUtils {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
-     *
-     * @param id   QNAME representing node
-     * @param afi  Class representing AFI
-     * @param safi Class representing SAFI
-     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
-     */
-    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final AddressFamily afi,
-            final SubsequentAddressFamily safi) {
-        return NodeIdentifierWithPredicates.of(id, ADD_PATH_AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
-    }
-
-    /**
      * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
      *
      * @param id QNAME representing node
      * @param tablesKey  Tables key representing table.
      * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     public static NodeIdentifierWithPredicates toYangKey(final QName id, final TablesKey tablesKey) {
         return toYangKey(id, tablesKey.getAfi(), tablesKey.getSafi());
     }
@@ -96,13 +79,16 @@ public final class RibSupportUtils {
     }
 
     /**
-     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
+     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
      *
-     * @param tablesKey Tables key representing table.
-     * @return NodeIdentifierWithPredicates of {@link Tables} for specified AFI, SAFI combination.
+     * @param id   QNAME representing node
+     * @param afi  Class representing AFI
+     * @param safi Class representing SAFI
+     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
      */
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
-    public static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey tablesKey) {
-        return toYangTablesKey(tablesKey.getAfi(), tablesKey.getSafi());
+    public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final AddressFamily afi,
+            final SubsequentAddressFamily safi) {
+        return NodeIdentifierWithPredicates.of(id, ADD_PATH_AFI_SAFI_TEMPLATE.instantiateWithValues(
+            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
     }
 }
