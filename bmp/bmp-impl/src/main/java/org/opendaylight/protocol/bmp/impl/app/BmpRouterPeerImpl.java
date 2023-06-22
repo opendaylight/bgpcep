@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_TABLES_QNAME
 import static org.opendaylight.yangtools.yang.common.QName.create;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -109,6 +110,11 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final QName STAT10_QNAME = create(Stats.QNAME, "per-afi-safi-loc-rib-routes").intern();
     private static final QName STAT11_QNAME = create(Stats.QNAME, "updates-treated-as-withdraw").intern();
     private static final QName STAT13_QNAME = create(Stats.QNAME, "duplicate-updates").intern();
+
+    private static final NodeIdentifierWithPredicates AFI_ITEM = NodeIdentifierWithPredicates.of(AF_QNAME,
+        ImmutableMap.of(
+            TablesUtil.BMP_AFI_QNAME.bindTo(AF_QNAME.getModule()).intern(), Ipv4AddressFamily.QNAME,
+            TablesUtil.BMP_SAFI_QNAME.bindTo(AF_QNAME.getModule()).intern(), UnicastSubsequentAddressFamily.QNAME));
 
     private static final TablesKey DEFAULT_TABLE =
             new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
@@ -378,8 +384,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                 .withChild(ImmutableNodes.mapNodeBuilder(AF_QNAME).withChild(Builders.mapEntryBuilder()
                     .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
                             tlvs.getPerAfiSafiAdjRibInTlv().getCount().getValue()))
-                    .withNodeIdentifier(TablesUtil.toYangTablesKey(AF_QNAME,
-                            Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
+                    .withNodeIdentifier(AFI_ITEM)
                     .build()).build()).build());
         }
         if (tlvs.getPerAfiSafiLocRibTlv() != null) {
@@ -388,8 +393,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                             .withChild(Builders.mapEntryBuilder()
                                     .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
                                             tlvs.getPerAfiSafiLocRibTlv().getCount().getValue()))
-                                    .withNodeIdentifier(TablesUtil.toYangTablesKey(AF_QNAME,
-                                            Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
+                                    .withNodeIdentifier(AFI_ITEM)
                                     .build()).build()).build());
         }
         if (tlvs.getUpdatesTreatedAsWithdrawTlv() != null) {

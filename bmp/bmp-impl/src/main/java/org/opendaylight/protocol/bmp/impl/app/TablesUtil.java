@@ -7,14 +7,8 @@
  */
 package org.opendaylight.protocol.bmp.impl.app;
 
-import com.google.common.collect.ImmutableMap;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.BmpMonitor;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public final class TablesUtil {
     public static final QName BMP_TABLES_QNAME = QName.create(BmpMonitor.QNAME, "tables").intern();
@@ -27,44 +21,4 @@ public final class TablesUtil {
         // Hidden on purpose
     }
 
-    /**
-     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
-     *
-     * @param afi Class representing AFI
-     * @param safi Class representing SAFI
-     * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
-     */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final AddressFamily afi,
-            final SubsequentAddressFamily safi) {
-        return NodeIdentifierWithPredicates.of(BMP_TABLES_QNAME,
-            ImmutableMap.of(
-                BMP_AFI_QNAME, BindingReflections.getQName(afi),
-                BMP_SAFI_QNAME, BindingReflections.getQName(safi)));
-    }
-
-    /**
-     * Creates Yang Instance Identifier path argument from supplied QNAMES and AFI and SAFI.
-     *
-     * @param nodeName QName reprenting node
-     * @param afi Class representing AFI
-     * @param safi Class representing SAFI
-     * @return NodeIdentifierWithPredicates for specified AFI, SAFI combination.
-     */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName,
-            final AddressFamily afi, final SubsequentAddressFamily safi) {
-        return NodeIdentifierWithPredicates.of(nodeName,
-            ImmutableMap.of(
-                BMP_AFI_QNAME.bindTo(nodeName.getModule()).intern(), BindingReflections.getQName(afi),
-                BMP_SAFI_QNAME.bindTo(nodeName.getModule()).intern(), BindingReflections.getQName(safi)));
-    }
-
-    /**
-     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
-     *
-     * @param tablesKey Tables key representing table.
-     * @return NodeIdentifierWithPredicates of for specified AFI, SAFI combination.
-     */
-    public static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey tablesKey) {
-        return toYangTablesKey(tablesKey.getAfi(), tablesKey.getSafi());
-    }
 }

@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ final class BmpRibInWriter {
             final Set<TablesKey> tableTypes,  final BindingCodecTree tree) {
         this.chain = chain;
         final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        this.tables = createTableInstance(tableTypes, tablesRoot, tx, ribExtensions, tree).build();
+        tables = createTableInstance(tableTypes, tablesRoot, tx, ribExtensions, tree).build();
 
         LOG.debug("New RIB table {} structure installed.", tablesRoot.toString());
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -125,22 +126,26 @@ final class BmpRibInWriter {
     private static ImmutableMap.Builder<TablesKey, TableContext> createTableInstance(final Set<TablesKey> tableTypes,
             final YangInstanceIdentifier yangTableRootIId, final DOMDataTreeWriteTransaction tx,
             final RIBExtensionConsumerContext ribExtensions, final BindingCodecTree tree) {
+        final var identityCodec = tree.getIdentityCodec();
 
         final ImmutableMap.Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
-        for (final TablesKey k : tableTypes) {
-            final RIBSupport rs = ribExtensions.getRIBSupport(k);
+        for (final TablesKey tableType : tableTypes) {
+            final RIBSupport rs = ribExtensions.getRIBSupport(tableType);
             if (rs == null) {
-                LOG.warn("No support for table type {}, skipping it", k);
+                LOG.warn("No support for table type {}, skipping it", tableType);
                 continue;
             }
-            final TableContext ctx = new TableContext(rs,
-                yangTableRootIId.node(TablesUtil.toYangTablesKey(k)).toOptimized(), tree);
+
+            final var domTableKey = NodeIdentifierWithPredicates.of(TablesUtil.BMP_TABLES_QNAME, ImmutableMap.of(
+                TablesUtil.BMP_AFI_QNAME, identityCodec.fromBinding(tableType.getAfi()),
+                TablesUtil.BMP_SAFI_QNAME, identityCodec.fromBinding(tableType.getSafi())));
+            final TableContext ctx = new TableContext(rs, yangTableRootIId.node(domTableKey).toOptimized(), tree);
             ctx.createTable(tx);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(BMP_ATTRIBUTES_QNAME)
                     .node(ATTRIBUTES_UPTODATE_FALSE.getIdentifier()), ATTRIBUTES_UPTODATE_FALSE);
             LOG.debug("Created table instance {}", ctx.getTableId());
-            tb.put(k, ctx);
+            tb.put(tableType, ctx);
         }
         return tb;
     }
@@ -148,14 +153,14 @@ final class BmpRibInWriter {
     private synchronized void addRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight
             .params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes attributes) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = this.tables.get(key);
+        final TableContext ctx = tables.get(key);
 
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
 
-        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         ctx.writeRoutes(tx, nlri, attributes);
         LOG.trace("Write routes {}", nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -194,14 +199,14 @@ final class BmpRibInWriter {
 
     private synchronized void removeRoutes(final MpUnreachNlri nlri) {
         final TablesKey key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final TableContext ctx = this.tables.get(key);
+        final TableContext ctx = tables.get(key);
 
         if (ctx == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
         }
         LOG.trace("Removing routes {}", nlri);
-        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         ctx.removeRoutes(tx, nlri);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -277,8 +282,8 @@ final class BmpRibInWriter {
     }
 
     private synchronized void markTableUptodated(final TablesKey tableTypes) {
-        final DOMDataTreeWriteTransaction tx = this.chain.newWriteOnlyTransaction();
-        final TableContext ctxPre = this.tables.get(tableTypes);
+        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
+        final TableContext ctxPre = tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
                 .node(ATTRIBUTES_UPTODATE_TRUE.getIdentifier()), ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
