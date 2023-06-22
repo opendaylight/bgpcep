@@ -104,6 +104,24 @@
       "message": "Please delete ?.",
       "revId": "0d147fd6acfeeaa245c489194242a1f0ce419135",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa28733f_a498f518",
+        "filename": "docs/bgp/bgp-user-guide-l3vpn-family.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2023-06-22T15:35:34Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "361a11ef_b30a7bdc",
+      "revId": "0d147fd6acfeeaa245c489194242a1f0ce419135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
