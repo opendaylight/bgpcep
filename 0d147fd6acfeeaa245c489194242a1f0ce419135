@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "935c8747_62161670",
+        "filename": "docs/algo/algo-user-guide-running-algo.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2023-06-22T10:48:57Z",
+      "side": 1,
+      "message": "resolved",
+      "parentUuid": "e4ef1e20_72bb7690",
+      "revId": "0d147fd6acfeeaa245c489194242a1f0ce419135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fad51d4_edf0546f",
@@ -31,6 +49,24 @@
       "writtenOn": "2023-06-16T13:49:38Z",
       "side": 1,
       "message": "When at place please improve this - maybe we should use ``urls`` to make this look nice. Go to docs and run tox. Then see generated html in your browser.",
+      "revId": "0d147fd6acfeeaa245c489194242a1f0ce419135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0e3da2d_8dc6d4be",
+        "filename": "docs/bgp-monitoring-protocol-developer-guide.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2023-06-22T10:48:57Z",
+      "side": 1,
+      "message": "resolved:\nblob:https://pantheontech.atlassian.net/936e4398-d05a-4d89-a04f-70e4ea924eba",
+      "parentUuid": "1fad51d4_edf0546f",
       "revId": "0d147fd6acfeeaa245c489194242a1f0ce419135",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
