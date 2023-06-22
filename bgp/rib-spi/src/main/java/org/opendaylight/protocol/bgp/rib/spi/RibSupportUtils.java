@@ -55,8 +55,7 @@ public final class RibSupportUtils {
     public static NodeIdentifierWithPredicates toYangKey(final QName id, final AddressFamily afi,
             final SubsequentAddressFamily safi) {
         return NodeIdentifierWithPredicates.of(id, AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afi.implementedInterface()),
-            BindingReflections.findQName(safi.implementedInterface())));
+            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
     }
 
     /**
@@ -70,8 +69,7 @@ public final class RibSupportUtils {
     public static NodeIdentifierWithPredicates toYangPathKey(final QName id, final AddressFamily afi,
             final SubsequentAddressFamily safi) {
         return NodeIdentifierWithPredicates.of(id, ADD_PATH_AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afi.implementedInterface()),
-            BindingReflections.findQName(safi.implementedInterface())));
+            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
     }
 
     /**

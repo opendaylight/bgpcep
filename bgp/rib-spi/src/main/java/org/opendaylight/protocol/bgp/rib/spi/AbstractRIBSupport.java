@@ -123,15 +123,13 @@ public abstract class AbstractRIBSupport<
     private final MapEntryNode emptyTable;
     private final QName routeQname;
     private final QName routeKeyQname;
-    private final AddressFamily afiClass;
-    private final SubsequentAddressFamily safiClass;
     private final NodeIdentifier destinationNid;
     private final NodeIdentifier pathIdNid;
     private final NodeIdentifier prefixTypeNid;
     private final NodeIdentifier rdNid;
     protected final BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
-    private final TablesKey tk;
+    private final @NonNull TablesKey tk;
     private final NodeIdentifierWithPredicates tablesKey;
     private final ImmutableList<PathArgument> relativeRoutesPath;
     private final ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
@@ -146,8 +144,8 @@ public abstract class AbstractRIBSupport<
      * @param cazeClass        Binding class of the AFI/SAFI-specific case statement, must not be null
      * @param containerClass   Binding class of the container in routes choice, must not be null.
      * @param listClass        Binding class of the route list, nust not be null;
-     * @param afiClass         address Family Class
-     * @param safiClass        SubsequentAddressFamily
+     * @param afi              Address Family
+     * @param safi             Subsequent Address Family
      * @param destContainerQname destination Container Qname
      */
     protected AbstractRIBSupport(
@@ -155,8 +153,8 @@ public abstract class AbstractRIBSupport<
             final Class<C> cazeClass,
             final Class<S> containerClass,
             final Class<R> listClass,
-            final AddressFamily afiClass,
-            final SubsequentAddressFamily safiClass,
+            final AddressFamily afi,
+            final SubsequentAddressFamily safi,
             final QName destContainerQname) {
         final QNameModule module = BindingReflections.getQNameModule(cazeClass);
         routesContainerIdentifier = NodeIdentifier.create(
@@ -169,12 +167,9 @@ public abstract class AbstractRIBSupport<
         routeQname = BindingReflections.findQName(listClass).bindTo(module);
         routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         routesListIdentifier = NodeIdentifier.create(routeQname);
-        this.afiClass = requireNonNull(afiClass);
-        this.safiClass = requireNonNull(safiClass);
-        tk = new TablesKey(afiClass, safiClass);
+        tk = new TablesKey(afi, safi);
         tablesKey = NodeIdentifierWithPredicates.of(Tables.QNAME, TABLES_KEY_TEMPLATE.instantiateWithValues(
-            BindingReflections.findQName(afiClass.implementedInterface()),
-            BindingReflections.findQName(safiClass.implementedInterface())));
+            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
 
         emptyTable = (MapEntryNode) this.mappingService
                 .toNormalizedNode(TABLES_II, new TablesBuilder().withKey(tk)
@@ -235,12 +230,12 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final AddressFamily getAfi() {
-        return afiClass;
+        return tk.getAfi();
     }
 
     @Override
     public final SubsequentAddressFamily getSafi() {
-        return safiClass;
+        return tk.getSafi();
     }
 
     /**

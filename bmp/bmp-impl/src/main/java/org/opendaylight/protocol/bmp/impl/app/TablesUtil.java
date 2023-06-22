@@ -23,9 +23,6 @@ public final class TablesUtil {
     public static final QName BMP_AFI_QNAME = QName.create(BMP_TABLES_QNAME, "afi").intern();
     public static final QName BMP_SAFI_QNAME = QName.create(BMP_TABLES_QNAME, "safi").intern();
 
-    private static final String AFI = "afi";
-    private static final String SAFI = "safi";
-
     private TablesUtil() {
         // Hidden on purpose
     }
@@ -39,9 +36,10 @@ public final class TablesUtil {
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final AddressFamily afi,
             final SubsequentAddressFamily safi) {
-        return NodeIdentifierWithPredicates.of(BMP_TABLES_QNAME, ImmutableMap.of(
-            BMP_AFI_QNAME, BindingReflections.findQName(afi.implementedInterface()),
-            BMP_SAFI_QNAME, BindingReflections.findQName(safi.implementedInterface())));
+        return NodeIdentifierWithPredicates.of(BMP_TABLES_QNAME,
+            ImmutableMap.of(
+                BMP_AFI_QNAME, BindingReflections.getQName(afi),
+                BMP_SAFI_QNAME, BindingReflections.getQName(safi)));
     }
 
     /**
@@ -54,11 +52,10 @@ public final class TablesUtil {
      */
     public static NodeIdentifierWithPredicates toYangTablesKey(final QName nodeName,
             final AddressFamily afi, final SubsequentAddressFamily safi) {
-        final QName afiQname = QName.create(nodeName, AFI).intern();
-        final QName safiQname = QName.create(nodeName, SAFI).intern();
-        return NodeIdentifierWithPredicates.of(nodeName, ImmutableMap.of(
-            afiQname, BindingReflections.findQName(afi.implementedInterface()),
-            safiQname, BindingReflections.findQName(safi.implementedInterface())));
+        return NodeIdentifierWithPredicates.of(nodeName,
+            ImmutableMap.of(
+                BMP_AFI_QNAME.bindTo(nodeName.getModule()).intern(), BindingReflections.getQName(afi),
+                BMP_SAFI_QNAME.bindTo(nodeName.getModule()).intern(), BindingReflections.getQName(safi)));
     }
 
     /**
