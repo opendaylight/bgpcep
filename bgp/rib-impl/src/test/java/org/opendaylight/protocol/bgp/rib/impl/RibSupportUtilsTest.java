@@ -61,13 +61,6 @@ public class RibSupportUtilsTest {
     }
 
     @Test
-    public void toYangPathKey() {
-        final NodeIdentifierWithPredicates result = RibSupportUtils.toYangPathKey(SupportedTables.QNAME,
-            Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-        assertEquals(NII_PATH.toString(), result.toString());
-    }
-
-    @Test
     public void toYangKey() {
         final NodeIdentifierWithPredicates result = RibSupportUtils.toYangKey(SupportedTables.QNAME, TABLE_KEY);
         assertEquals(NII.toString(), result.toString());
