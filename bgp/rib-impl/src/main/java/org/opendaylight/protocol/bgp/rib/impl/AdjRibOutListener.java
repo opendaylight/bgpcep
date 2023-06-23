@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -68,19 +67,17 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private final boolean mpSupport;
     private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
-    private final TablesKey tablesKey;
     private boolean initalState;
 
-    private AdjRibOutListener(final PeerId peerId, final TablesKey tablesKey, final YangInstanceIdentifier ribId,
-            final CodecsRegistry registry, final RIBSupport<?, ?> support, final DOMDataTreeChangeService service,
-            final ChannelOutputLimiter session, final boolean mpSupport) {
+    private AdjRibOutListener(final PeerId peerId, final YangInstanceIdentifier ribId, final CodecsRegistry registry,
+            final RIBSupport<?, ?> support, final DOMDataTreeChangeService service, final ChannelOutputLimiter session,
+            final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
         codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        this.tablesKey = requireNonNull(tablesKey);
         final YangInstanceIdentifier adjRibOutId = ribId.node(PEER_NID).node(IdentifierUtils.domPeerId(peerId))
-                .node(ADJRIBOUT_NID).node(TABLES_NID).node(RibSupportUtils.toYangTablesKey(tablesKey));
+                .node(ADJRIBOUT_NID).node(TABLES_NID).node(support.tablesKey());
         /*
          *  After listener registration should always be executed ODTC. Even when empty table is present
          *  in data store. Within this first ODTC execution we should advertise present routes and than
@@ -93,14 +90,13 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     static AdjRibOutListener create(
             final @NonNull PeerId peerId,
-            final @NonNull TablesKey tablesKey,
             final @NonNull YangInstanceIdentifier ribId,
             final @NonNull CodecsRegistry registry,
             final @NonNull RIBSupport<?, ?> support,
             final @NonNull DOMDataTreeChangeService service,
             final @NonNull ChannelOutputLimiter session,
             final boolean mpSupport) {
-        return new AdjRibOutListener(peerId, tablesKey, ribId, registry, support, service, session, mpSupport);
+        return new AdjRibOutListener(peerId, ribId, registry, support, service, session, mpSupport);
     }
 
     @Override
@@ -111,17 +107,16 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     @Override
     public void onDataTreeChanged(final List<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
-        for (final DataTreeCandidate tc : changes) {
+        for (var tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
-            for (final DataTreeCandidateNode child : tc.getRootNode().getChildNodes()) {
-                for (final DataTreeCandidateNode route : support.changedRoutes(child)) {
+            for (var child : tc.getRootNode().getChildNodes()) {
+                for (var route : support.changedRoutes(child)) {
                     processRouteChange(route);
                 }
             }
         }
         if (initalState) {
-            final Update endOfRib = BgpPeerUtil.createEndOfRib(tablesKey);
-            session.write(endOfRib);
+            session.write(BgpPeerUtil.createEndOfRib(support.getTablesKey()));
             initalState = false;
         }
         session.flush();

@@ -513,10 +513,8 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         // not particularly nice
         if (ribSupport != null && currentSession instanceof BGPSessionImpl bgpSession) {
-            final ChannelOutputLimiter limiter = bgpSession.getLimiter();
-            final AdjRibOutListener adjRibOut = AdjRibOutListener.create(peerId, key,
-                    rib.getYangRibId(), rib.getCodecsRegistry(), ribSupport,
-                    rib.getService(), limiter, mpSupport);
+            final AdjRibOutListener adjRibOut = AdjRibOutListener.create(peerId, rib.getYangRibId(),
+                rib.getCodecsRegistry(), ribSupport, rib.getService(), bgpSession.getLimiter(), mpSupport);
             adjRibOutListenerSet.put(key, adjRibOut);
             registerPrefixesSentCounter(key, adjRibOut);
         }
