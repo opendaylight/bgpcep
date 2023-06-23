@@ -19,8 +19,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
-import com.google.common.collect.Sets;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -52,9 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 public class AdjRibsInWriterTest {
 
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS
-            = Collections.singletonMap(K4, SendReceive.Both);
-    private final Set<TablesKey> tableTypes = Sets.newHashSet(K4);
+    private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Map.of(K4, SendReceive.Both);
+    private final Set<TablesKey> tableTypes = Set.of(K4);
     private final String peerIp = "12.34.56.78";
     @Mock
     private DOMTransactionChain chain;
