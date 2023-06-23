@@ -49,15 +49,4 @@ final class RibSupportUtils {
         return NodeIdentifierWithPredicates.of(id, AFI_SAFI_TEMPLATE.instantiateWithValues(
             BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
     }
-
-    /**
-     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
-     *
-     * @param id QNAME representing node
-     * @param tablesKey  Tables key representing table.
-     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
-     */
-    static NodeIdentifierWithPredicates toYangKey(final QName id, final TablesKey tablesKey) {
-        return toYangKey(id, tablesKey.getAfi(), tablesKey.getSafi());
-    }
 }

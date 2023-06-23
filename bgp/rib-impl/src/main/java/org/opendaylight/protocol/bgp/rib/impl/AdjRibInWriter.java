@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -181,25 +180,22 @@ final class AdjRibInWriter {
         final Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
             final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
-            // TODO: Use returned value once Instance Identifier builder allows for it.
-            final NodeIdentifierWithPredicates instanceIdentifierKey = RibSupportUtils.toYangTablesKey(tableKey);
             if (rs == null) {
                 LOG.warn("No support for table type {}, skipping it", tableKey);
                 continue;
             }
-            installAdjRibsOutTables(newPeerPath, rs, instanceIdentifierKey, tableKey,
-                    addPathTablesType.get(tableKey), tx);
-            installAdjRibInTables(newPeerPath, tableKey, rs, instanceIdentifierKey, tx, tb);
+            installAdjRibsOutTables(newPeerPath, rs, addPathTablesType.get(tableKey), tx);
+            installAdjRibInTables(newPeerPath, tableKey, rs, tx, tb);
         }
         return tb.build();
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
-            final RIBSupportContext rs, final NodeIdentifierWithPredicates instanceIdentifierKey,
-            final DOMDataTreeWriteTransaction tx, final Builder<TablesKey, TableContext> tb) {
+            final RIBSupportContext rs, final DOMDataTreeWriteTransaction tx,
+            final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
-                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID)).node(instanceIdentifierKey);
+                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID)).node(rs.getRibSupport().tablesKey());
 
         final TableContext ctx = new TableContext(rs, idb.build());
         ctx.createEmptyTableStructure(tx);
@@ -211,19 +207,19 @@ final class AdjRibInWriter {
     }
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-            final NodeIdentifierWithPredicates instanceIdentifierKey, final TablesKey tableKey,
             final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
-        final NodeIdentifierWithPredicates supTablesKey = RibSupportUtils.toYangKey(SupportedTables.QNAME, tableKey);
+        final var tableKey = rs.getRibSupport().tablesKey();
+        final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
         final var tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
-        for (final Entry<QName, Object> e : supTablesKey.entrySet()) {
+        for (var e : supTablesKey.entrySet()) {
             tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
         if (sendReceive != null) {
             tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.getName()));
         }
         tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
-        rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier())
-                .node(TABLES_NID).node(instanceIdentifierKey));
+        rs.createEmptyTableStructure(tx,
+            newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES_NID).node(tableKey));
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
