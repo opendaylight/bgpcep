@@ -11,8 +11,6 @@ import com.google.common.collect.ImmutableList;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -33,31 +31,7 @@ final class RibSupportUtils {
      * @return NodeIdentifierWithPredicates of {@link Tables} for specified AFI, SAFI combination.
      */
     static NodeIdentifierWithPredicates toYangTablesKey(final TablesKey tablesKey) {
-        return toYangKey(Tables.QNAME, tablesKey.getAfi(), tablesKey.getSafi());
-    }
-
-    /**
-     * Creates Yang Instance Identifier path argument from supplied AFI and SAFI.
-     *
-     * @param id   QNAME representing node
-     * @param afi  Class representing AFI
-     * @param safi Class representing SAFI
-     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
-     */
-    static NodeIdentifierWithPredicates toYangKey(final QName id, final AddressFamily afi,
-            final SubsequentAddressFamily safi) {
-        return NodeIdentifierWithPredicates.of(id, AFI_SAFI_TEMPLATE.instantiateWithValues(
-            BindingReflections.getQName(afi), BindingReflections.getQName(safi)));
-    }
-
-    /**
-     * Creates Yang Instance Identifier path argument from supplied {@link TablesKey}.
-     *
-     * @param id QNAME representing node
-     * @param tablesKey  Tables key representing table.
-     * @return NodeIdentifierWithPredicates of 'id' for specified AFI, SAFI combination.
-     */
-    static NodeIdentifierWithPredicates toYangKey(final QName id, final TablesKey tablesKey) {
-        return toYangKey(id, tablesKey.getAfi(), tablesKey.getSafi());
+        return NodeIdentifierWithPredicates.of(Tables.QNAME, AFI_SAFI_TEMPLATE.instantiateWithValues(
+            BindingReflections.getQName(tablesKey.getAfi()), BindingReflections.getQName(tablesKey.getSafi())));
     }
 }
