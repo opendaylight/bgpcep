@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aae068e6_98b12c3e",
+        "filename": "docs/bgp/bgp-user-guide-evpn-family.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2023-06-23T15:24:54Z",
+      "side": 1,
+      "message": "I do not believe these are correct -- afi/safi keys in tables and RFC8040 encodes that https://www.rfc-editor.org/rfc/rfc8040#page-28",
+      "range": {
+        "startLine": 415,
+        "startChar": 57,
+        "endLine": 415,
+        "endChar": 141
+      },
+      "revId": "2949bdcec95ba89b9e9e5e6c94907ee505f903a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
