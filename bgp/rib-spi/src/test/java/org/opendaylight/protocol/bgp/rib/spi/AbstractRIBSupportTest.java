@@ -25,7 +25,6 @@ import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
-import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
@@ -55,7 +54,6 @@ import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -90,18 +88,20 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
     public void setUp() throws Exception {
         initMocks(this);
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            AbstractRIBSupportTest.this.insertedRoutes.add(adapter.currentSerializer()
-                    .fromNormalizedNode((YangInstanceIdentifier) args[1], (NormalizedNode) args[2]));
-            return args[1];
+            final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
+            final var data = invocation.getArgument(2, NormalizedNode.class);
+
+            AbstractRIBSupportTest.this.insertedRoutes.add(adapter.currentSerializer().fromNormalizedNode(path, data));
+            return null;
         }).when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
 
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
+            final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
+
             AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier)
-                adapter.currentSerializer().fromYangInstanceIdentifier((YangInstanceIdentifier) args[1]));
-            return args[1];
+                adapter.currentSerializer().fromYangInstanceIdentifier(path));
+            return null;
         }).when(tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         deletedRoutes = new ArrayList<>();
         insertedRoutes = new ArrayList<>();
@@ -149,7 +149,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         final Tables tables = new TablesBuilder().withKey(abstractRIBSupport.getTablesKey()).setRoutes(routes).build();
         return (ChoiceNode) verifyNotNull(((MapEntryNode) adapter.currentSerializer()
             .toNormalizedNode(tablesIId(), tables).getValue())
-            .childByArg(new NodeIdentifier(BindingReflections.findQName(Routes.class))));
+            .childByArg(new NodeIdentifier(Routes.QNAME)));
     }
 
     protected final Collection<MapEntryNode> createRoutes(final S routes) {
@@ -159,7 +159,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         final Map.Entry<YangInstanceIdentifier, NormalizedNode> normalizedNode = adapter.currentSerializer()
                 .toNormalizedNode(routesIId, routes);
         final ContainerNode container = (ContainerNode) normalizedNode.getValue();
-        final NodeIdentifier routeNid = new NodeIdentifier(getRouteListQname());
+        final NodeIdentifier routeNid = new NodeIdentifier(abstractRIBSupport.routeQName());
         return ((MapNode) container.getChildByArg(routeNid)).body();
     }
 
@@ -179,12 +179,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     protected final YangInstanceIdentifier getRoutePath() {
         final InstanceIdentifier<S> routesIId = routesIId();
-        return adapter.currentSerializer().toYangInstanceIdentifier(routesIId).node(getRouteListQname());
-    }
-
-    private QName getRouteListQname() {
-        return BindingReflections.findQName(abstractRIBSupport.routesListClass())
-                .bindTo(BindingReflections.getQNameModule(abstractRIBSupport.routesCaseClass()));
+        return adapter.currentSerializer().toYangInstanceIdentifier(routesIId).node(abstractRIBSupport.routeQName());
     }
 
     protected final NodeIdentifierWithPredicates createRouteNIWP(final S routes) {
