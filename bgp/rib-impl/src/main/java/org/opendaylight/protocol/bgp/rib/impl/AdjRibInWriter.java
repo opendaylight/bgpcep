@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -220,7 +219,7 @@ final class AdjRibInWriter {
             tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
         if (sendReceive != null) {
-            tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.toString().toLowerCase(Locale.ENGLISH)));
+            tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.getName()));
         }
         tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
         rs.createEmptyTableStructure(tx, newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier())
