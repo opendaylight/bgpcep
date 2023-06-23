@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
@@ -99,6 +100,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 
@@ -114,9 +116,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
             .nodeWithKey(Rib.QNAME, QName.create(Rib.QNAME, "id").intern(), RIB_ID)
             .node(PEER_NID).nodeWithKey(Peer.QNAME, RIBQNames.PEER_ID_QNAME, "bgp://1.1.1.2").build();
     private static final YangInstanceIdentifier TABLE_PATH = PEER_PATH.node(ADJRIBIN_NID).node(TABLES_NID)
-            .node(RibSupportUtils.toYangTablesKey(new TablesKey(Ipv4AddressFamily.VALUE,
-                    UnicastSubsequentAddressFamily.VALUE))).node(ATTRIBUTES_NID)
-            .node(UPTODATE_NID);
+            .node(NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME,
+                RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.VALUE))).node(ATTRIBUTES_NID).node(UPTODATE_NID);
     private final IpAddressNoZone neighbor = new IpAddressNoZone(new Ipv4AddressNoZone(LOCAL_IP));
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE);
