@@ -33,6 +33,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
+import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -71,10 +72,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
@@ -96,21 +97,18 @@ public class PeerTest extends AbstractRIBTestSetup {
 
     private void overrideMockedBehaviour() {
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            final NormalizedNode node = (NormalizedNode) args[2];
-            final QName nodeType = node.getIdentifier().getNodeType();
-
+            final var node = invocation.getArgument(2, NormalizedNode.class);
+            final var nodeType = node.getIdentifier().getNodeType();
             if (nodeType.equals(Ipv4Route.QNAME) || nodeType.equals(PREFIX_QNAME)) {
-                routes.put((YangInstanceIdentifier) args[1], node);
+                routes.put(invocation.getArgument(1), node);
             }
-            return args[1];
+            return null;
         }).when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            routes.remove(args[1]);
-            return args[1];
+            routes.remove(invocation.getArgument(1));
+            return null;
         }).when(getTransaction()).delete(eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
     }
 
@@ -124,7 +122,9 @@ public class PeerTest extends AbstractRIBTestSetup {
                 neighborAddress.getIpv4AddressNoZone(), getRib());
         peer.instantiateServiceInstance(null, null);
         final YangInstanceIdentifier base = getRib().getYangRibId().node(LocRib.QNAME)
-                .node(Tables.QNAME).node(RibSupportUtils.toYangTablesKey(KEY));
+                .node(Tables.QNAME).node(NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
+                    RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME,
+                    RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.QNAME)));
         peer.onDataTreeChanged(ipv4Input(base, ModificationType.WRITE, first, second, third));
         assertEquals(3, routes.size());
 
@@ -194,14 +194,20 @@ public class PeerTest extends AbstractRIBTestSetup {
         classic.onMessage(session, new UpdateBuilder()
             .setAttributes(new AttributesBuilder()
                 .addAugmentation(new AttributesUnreachBuilder()
-                    .setMpUnreachNlri(new MpUnreachNlriBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build())
+                    .setMpUnreachNlri(new MpUnreachNlriBuilder()
+                        .setAfi(Ipv4AddressFamily.VALUE)
+                        .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                        .build())
                     .build())
                 .build())
             .build());
-        classic.onMessage(session, new RouteRefreshBuilder().setAfi(IPV4_AFI).setSafi(SAFI).build());
+        classic.onMessage(session, new RouteRefreshBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(UnicastSubsequentAddressFamily.VALUE)
+            .build());
         classic.onMessage(session, new RouteRefreshBuilder()
                 .setAfi(Ipv6AddressFamily.VALUE)
-                .setSafi(SAFI).build());
+                .setSafi(UnicastSubsequentAddressFamily.VALUE).build());
         assertEquals(2, routes.size());
         classic.releaseConnection();
     }

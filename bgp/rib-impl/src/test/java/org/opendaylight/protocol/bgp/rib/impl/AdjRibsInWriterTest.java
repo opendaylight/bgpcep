@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -55,9 +54,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class AdjRibsInWriterTest {
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-    private static final NodeIdentifierWithPredicates DOM_K4 = NodeIdentifierWithPredicates.of(Tables.QNAME,
-        Map.of(QName.create(Tables.QNAME, "afi"), Ipv4AddressFamily.QNAME,
-            QName.create(Tables.QNAME, "safi"), UnicastSubsequentAddressFamily.QNAME));
+    private static final NodeIdentifierWithPredicates DOM_K4 = NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
+        RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME, RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.QNAME));
     private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Map.of(K4, SendReceive.Both);
 
     private final Set<TablesKey> tableTypes = Set.of(K4);

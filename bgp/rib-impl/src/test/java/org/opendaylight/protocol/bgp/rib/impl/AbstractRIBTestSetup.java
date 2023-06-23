@@ -18,10 +18,10 @@ import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.junit.Before;
@@ -74,13 +74,9 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
-
-    static final Ipv4AddressFamily IPV4_AFI = Ipv4AddressFamily.VALUE;
-    private static final Ipv6AddressFamily IPV6_AFI = Ipv6AddressFamily.VALUE;
-    static final UnicastSubsequentAddressFamily SAFI = UnicastSubsequentAddressFamily.VALUE;
-    static final TablesKey KEY = new TablesKey(IPV4_AFI, SAFI);
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
+
     private RIBImpl rib;
     private final RIBActivator a1 = new RIBActivator();
     @Mock
@@ -114,8 +110,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     public void mockRib() throws Exception {
         final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
         final List<BgpTableType> localTables = new ArrayList<>();
-        localTables.add(new BgpTableTypeImpl(IPV4_AFI, SAFI));
-        localTables.add(new BgpTableTypeImpl(IPV6_AFI, SAFI));
+        localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
+        localTables.add(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
 
         final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
         a1.startRIBExtensionProvider(context, serializer);
@@ -124,8 +120,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         rib = new RIBImpl(tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
-                dispatcher, new ConstantCodecsRegistry(serializer), dom, policies,
-                localTables, Collections.singletonMap(KEY,
+            dispatcher, new ConstantCodecsRegistry(serializer), dom, policies, localTables,
+            Map.of(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
                 BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
     }
 

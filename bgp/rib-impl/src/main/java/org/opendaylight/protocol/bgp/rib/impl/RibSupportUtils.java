@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.ImmutableList;
 import org.opendaylight.mdsal.binding.spec.reflect.BindingReflections;
+import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
@@ -17,8 +18,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 final class RibSupportUtils {
     private static final ImmutableOffsetMapTemplate<QName> AFI_SAFI_TEMPLATE =
-            ImmutableOffsetMapTemplate.ordered(ImmutableList.of(QName.create(Tables.QNAME, "afi").intern(),
-                QName.create(Tables.QNAME, "safi").intern()));
+            ImmutableOffsetMapTemplate.ordered(ImmutableList.of(RIBQNames.AFI_QNAME, RIBQNames.SAFI_QNAME));
 
     private RibSupportUtils() {
         // Hidden on purpose
