@@ -131,8 +131,15 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
     public synchronized void instantiateServiceInstance(final DOMDataTreeChangeService dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
         setActive(true);
-        final Set<TablesKey> localTables = rib.getLocalTablesKeys();
-        localTables.forEach(tablesKey -> supportedTables.add(RibSupportUtils.toYangTablesKey(tablesKey)));
+        final var localTables = rib.getLocalTablesKeys();
+        for (var localTable : localTables) {
+            final var tableSupport = rib.getRibSupportContext().getRIBSupport(localTable);
+            if (tableSupport != null) {
+                supportedTables.add(tableSupport.tablesKey());
+            } else {
+                LOG.warn("Ignoring unsupported table {}", localTable);
+            }
+        }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
         createDomChain();
