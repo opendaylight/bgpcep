@@ -23,15 +23,14 @@
     <description>RSVP-related components</description>
     <name>${project.artifactId}</name>
 
-    <modules>
-        <module>rsvp-artifacts</module>
-        <module>api</module>
-        <module>spi</module>
-        <module>impl</module>
-    </modules>
-
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
+
+    <modules>
+        <module>api</module>
+        <module>spi</module>
+        <module>impl</module>
+    </modules>
 </project>

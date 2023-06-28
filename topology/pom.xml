@@ -23,15 +23,14 @@
     <description>Topology parent</description>
     <name>${project.artifactId}</name>
 
-    <modules>
-        <module>topology-artifacts</module>
-        <module>api</module>
-        <module>segment-routing</module>
-        <module>tunnel-api</module>
-    </modules>
-
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
+
+    <modules>
+        <module>api</module>
+        <module>segment-routing</module>
+        <module>tunnel-api</module>
+    </modules>
 </project>

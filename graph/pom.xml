@@ -24,14 +24,13 @@
     <description>Graph Network Topology components</description>
     <name>${project.artifactId}</name>
 
-    <modules>
-        <module>graph-artifacts</module>
-        <module>graph-api</module>
-        <module>graph-impl</module>
-    </modules>
-
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
+
+    <modules>
+        <module>graph-api</module>
+        <module>graph-impl</module>
+    </modules>
 </project>

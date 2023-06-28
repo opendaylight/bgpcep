@@ -23,17 +23,16 @@
     <description>Programming parent</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
-        <module>programming-artifacts</module>
         <module>api</module>
         <module>impl</module>
         <module>spi</module>
         <module>topology-api</module>
         <module>tunnel-api</module>
     </modules>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
 </project>

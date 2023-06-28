@@ -23,8 +23,12 @@
     <description>BGPCEP-Configuration files related components</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
-        <module>config-loader-artifacts</module>
         <module>config-loader-spi</module>
         <module>config-loader-impl</module>
         <module>topology-config-loader</module>
@@ -32,9 +36,4 @@
         <module>bmp-monitors-config-loader</module>
         <module>routing-policy-config-loader</module>
     </modules>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
 </project>

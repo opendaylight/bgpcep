@@ -27,8 +27,12 @@
     <description>BMP-related components</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
-        <module>bmp-artifacts</module>
         <module>bmp-api</module>
         <module>bmp-spi</module>
         <module>bmp-impl</module>
@@ -36,9 +40,4 @@
         <module>bmp-parser-impl</module>
         <module>bmp-config-example</module>
     </modules>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
 </project>

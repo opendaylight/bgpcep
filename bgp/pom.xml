@@ -23,8 +23,12 @@
     <description>BGP-related components</description>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <modules>
-        <module>bgp-artifacts</module>
         <module>concepts</module>
         <module>parser-api</module>
         <module>parser-spi</module>
@@ -51,9 +55,4 @@
         <!--Extensions-->
         <module>extensions</module>
     </modules>
-
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
 </project>

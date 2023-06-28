@@ -24,14 +24,13 @@
     <description>Path Computation Algorithms components</description>
     <name>${project.artifactId}</name>
 
-    <modules>
-        <module>algo-artifacts</module>
-        <module>algo-api</module>
-        <module>algo-impl</module>
-    </modules>
-
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
     </properties>
+
+    <modules>
+        <module>algo-api</module>
+        <module>algo-impl</module>
+    </modules>
 </project>

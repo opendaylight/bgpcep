@@ -25,69 +25,544 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Algorithm artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bmp-artifacts</artifactId>
+                <artifactId>algo-api</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>programming-artifacts</artifactId>
+                <artifactId>algo-impl</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
+            </dependency>
+
+            <!-- BGP artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-concepts</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-artifacts</artifactId>
+                <artifactId>bgp-flowspec</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>graph-artifacts</artifactId>
+                <artifactId>bgp-labeled-unicast</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>algo-artifacts</artifactId>
+                <artifactId>bgp-l3vpn</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>topology-artifacts</artifactId>
+                <artifactId>bgp-linkstate</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>bgp-artifacts</artifactId>
+                <artifactId>bgp-evpn</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>rsvp-artifacts</artifactId>
+                <artifactId>bgp-mvpn</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>config-loader-artifacts</artifactId>
+                <artifactId>bgp-inet</artifactId>
                 <version>${project.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
             </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-route-target</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-spi</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-parser-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-spi</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-peer-acceptor</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-state</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-rib-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-testtool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-topology-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-path-selection-mode</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-path-selection-mode</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>openconfig-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>bgp-initial-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>network-topology-bgp-initial-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>routing-policy-default-config</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-benchmark-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-spi</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-statement</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-openconfig-rp-statement</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- BMP artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-parser-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bgp-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>odl-bmp-monitors-config</classifier>
+            </dependency>
+
+            <!-- Config Loader artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>protocols-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>topology-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>bmp-monitors-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>routing-policy-config-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>routing-policy-config-loader</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>config-loader-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- Graph artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>graph-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>graph-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- PCEP artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-spi</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-base-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-ietf-stateful</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-ietf-p2mp-te-lsp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-pcc-mock</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-testtool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-segment-routing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-server-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-server-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-topology-provider</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-tunnel-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-tunnel-provider</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-auto-bandwidth-extension</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-cli</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>pcep-config-example</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>network-topology-pcep-initial-config</classifier>
+            </dependency>
+
+            <!-- Programming artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-impl</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-topology-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>programming-tunnel-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- RSVP artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rsvp-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rsvp-spi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>rsvp-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Topology artifacts -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>topology-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>topology-segment-routing</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>topology-tunnel-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!--Utils -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -105,6 +580,514 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Algorithm features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-algo</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-algo</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-algo-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- BGP features -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>features-bgp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-config-example</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-openconfig</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-dependencies</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-extensions-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-inet</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-parser</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-parser-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-rib-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-linkstate</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-flowspec</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bgp-labeled-unicast</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-l3vpn</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-evpn</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-mvpn</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-route-target</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-path-selection-mode</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-rib-impl</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-topology</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-benchmark</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-cli</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-openconfig-state</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-openconfig-rp-spi</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-openconfig-rp-impl</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bgp-openconfig-rp-statement</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- BMP features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-bmp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-bmp-config-example</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- Config Loader features -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-config-loader-impl</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-config-loader-spi</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-topology-config-loader</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-protocols-config-loader</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-bmp-config-loader</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-routing-policy-config-loader</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>features-config-loader</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- Graph features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-graph</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-graph</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-graph-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- PCEP features -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>features-pcep</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-dependencies</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-impl</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-server</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-topology</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-stateful</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-p2mp-te-lsp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-server-provider</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-topology-provider</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-tunnel-provider</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-segment-routing</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-auto-bandwidth</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-config-example</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-cli</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-pcep-base-parser</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- Programming features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-programming-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-programming-impl</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- RSVP features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-rsvp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-rsvp-dependencies</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- Topology features -->
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-topology</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>odl-bgpcep-topology-api</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-bgpcep-topology-segment-routing</artifactId>
+                <version>${project.version}</version>
+                <type>xml</type>
+                <classifier>features</classifier>
+            </dependency>
+
             <!-- Extras Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
@@ -120,6 +1103,7 @@
                 <type>xml</type>
                 <version>${project.version}</version>
             </dependency>
+
             <!-- Data change counter Features artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -129,24 +1113,25 @@
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-data-change-counter</artifactId>
+                <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
-                <version>${project.version}</version>
             </dependency>
+
             <!-- Concepts Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>features-concepts</artifactId>
+                <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-concepts</artifactId>
+                <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
-                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
