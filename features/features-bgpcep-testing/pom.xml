@@ -17,7 +17,7 @@
         <relativePath>../../feature-repo-parent</relativePath>
     </parent>
 
-    <artifactId>features-bgpcep-extras</artifactId>
+    <artifactId>features-bgpcep-testing</artifactId>
     <packaging>feature</packaging>
 
     <dependencies>
