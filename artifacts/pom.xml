@@ -580,14 +580,23 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Algorithm features -->
+            <!-- Feature repositories -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-algo</artifactId>
+                <artifactId>features-bgpcep</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
             </dependency>
+            <dependency>
+                <groupId>org.opendaylight.bgpcep</groupId>
+                <artifactId>features-bgpcep-testing</artifactId>
+                <version>${project.version}</version>
+                <classifier>features</classifier>
+                <type>xml</type>
+            </dependency>
+
+            <!-- Algorithm features -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-algo</artifactId>
@@ -604,13 +613,6 @@
             </dependency>
 
             <!-- BGP features -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>features-bgp</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-bgp</artifactId>
@@ -790,13 +792,6 @@
             <!-- BMP features -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-bmp</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-bmp</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>
@@ -860,22 +855,8 @@
                 <classifier>features</classifier>
                 <type>xml</type>
             </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>features-config-loader</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
 
             <!-- Graph features -->
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-graph</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-graph</artifactId>
@@ -892,13 +873,6 @@
             </dependency>
 
             <!-- PCEP features -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>features-pcep</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep</artifactId>
@@ -1031,13 +1005,6 @@
             <!-- RSVP features -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-rsvp</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-rsvp-api</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>
@@ -1059,13 +1026,6 @@
             </dependency>
 
             <!-- Topology features -->
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-topology</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-topology-api</artifactId>
@@ -1091,13 +1051,6 @@
             <!-- Extras Features artifacts -->
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-bgpcep-testing</artifactId>
-                <classifier>features</classifier>
-                <type>xml</type>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-extras-dependencies</artifactId>
                 <classifier>features</classifier>
                 <type>xml</type>
@@ -1119,13 +1072,6 @@
             </dependency>
 
             <!-- Concepts Features artifacts -->
-            <dependency>
-                <groupId>org.opendaylight.bgpcep</groupId>
-                <artifactId>features-concepts</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
             <dependency>
                 <groupId>org.opendaylight.bgpcep</groupId>
                 <artifactId>odl-bgpcep-concepts</artifactId>
