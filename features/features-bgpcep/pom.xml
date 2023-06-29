@@ -17,10 +17,22 @@
         <relativePath>../../feature-repo-parent</relativePath>
     </parent>
 
-    <artifactId>features-bgp</artifactId>
+    <artifactId>features-bgpcep</artifactId>
     <packaging>feature</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-algo</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-algo-api</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-bgpcep-bgp</artifactId>
@@ -170,6 +182,18 @@
             <artifactId>odl-bgpcep-bgp-openconfig-rp-statement</artifactId>
             <classifier>features</classifier>
             <type>xml</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-graph</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>odl-bgpcep-graph-api</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
     </dependencies>
 </project>
