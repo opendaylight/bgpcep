@@ -26,6 +26,8 @@
     </properties>
 
     <modules>
+        <module>features-bgpcep-testing</module>
+
         <module>features-algo</module>
         <module>odl-bgpcep-algo-api</module>
         <module>odl-bgpcep-algo</module>
@@ -84,7 +86,6 @@
         <module>odl-bgpcep-pcep-base-parser</module>
         <module>odl-bgpcep-pcep-p2mp-te-lsp</module>
 
-        <module>features-bgpcep-extras</module>
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-data-change-counter</module>
 
