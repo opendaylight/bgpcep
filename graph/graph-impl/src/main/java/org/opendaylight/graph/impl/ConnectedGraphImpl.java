@@ -9,13 +9,12 @@ package org.opendaylight.graph.impl;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
@@ -62,7 +61,8 @@ public class ConnectedGraphImpl implements ConnectedGraph {
 
     /* List of Triggers attached to the Connected Graph */
     private final ConcurrentHashMap<TopologyKey, ConnectedGraphTrigger> graphTriggers = new ConcurrentHashMap<>();
-    private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+    // FIXME: this service is never shut down
+    private final ExecutorService exec = Executors.newCachedThreadPool();
 
     /* Reference to the non connected Graph stored in DataStore */
     private Graph graph;
@@ -255,7 +255,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
             return;
         }
         for (ConnectedGraphTrigger trigger : graphTriggers.values()) {
-            exec.submit(() -> trigger.verifyVertex(vertexTriggers, cvertex, vertex));
+            exec.execute(() -> trigger.verifyVertex(vertexTriggers, cvertex, vertex));
         }
     }
 
@@ -291,7 +291,7 @@ public class ConnectedGraphImpl implements ConnectedGraph {
             return;
         }
         for (ConnectedGraphTrigger trigger : graphTriggers.values()) {
-            exec.submit(() -> trigger.verifyEdge(edgeTriggers, cedge, edge));
+            exec.execute(() -> trigger.verifyEdge(edgeTriggers, cedge, edge));
         }
     }
 
