@@ -13,7 +13,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.util.Timeout;
@@ -26,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
@@ -80,7 +80,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
     private final InstanceIdentifier<InstructionsQueue> qid;
     private final NotificationPublishService notifs;
-    private final ListeningExecutorService executor;
+    private final Executor executor;
     private final DataBroker dataProvider;
     private final Timer timer;
     private final String instructionId;
@@ -154,7 +154,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     }
 
     ProgrammingServiceImpl(final DataBroker dataProvider, final NotificationPublishService notifs,
-            final ListeningExecutorService executor, final RpcProviderService rpcProviderRegistry,
+            final Executor executor, final RpcProviderService rpcProviderRegistry,
             final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
         this.dataProvider = requireNonNull(dataProvider);
         this.instructionId = requireNonNull(instructionId);
@@ -197,12 +197,12 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
 
     @Override
     public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
-        return executor.submit(() -> realCancelInstruction(input));
+        return Futures.submit(() -> realCancelInstruction(input), executor);
     }
 
     @Override
     public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
-        return executor.submit(() -> realCleanInstructions(input));
+        return Futures.submit(() -> realCleanInstructions(input), executor);
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
@@ -363,7 +363,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
          * This task should be ingress-weighed, so we reinsert it into the
          * same execution service.
          */
-        executor.submit(() -> tryScheduleInstruction(instruction));
+        executor.execute(() -> tryScheduleInstruction(instruction));
 
         return ret;
     }
