@@ -10,8 +10,8 @@ package org.opendaylight.bgpcep.programming.impl;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
@@ -113,15 +113,10 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
 
     @Test
     public void testScheduleDependingInstructionToFail() throws Exception {
-        try {
-            testedProgrammingService.scheduleInstruction(getMockedSubmitInstructionInput("mockedSubmit",
-                    "dep1"));
-        } catch (final SchedulerException e) {
-            assertThat(e.getMessage(), containsString("Unknown dependency ID"));
-            mockedNotificationServiceWrapper.assertNotificationsCount(0);
-            return;
-        }
-        fail("Instruction schedule should fail on unresolved dependencies");
+        final var insn = getMockedSubmitInstructionInput("mockedSubmit", "dep1");
+        final var ex =assertThrows(SchedulerException.class, () -> testedProgrammingService.scheduleInstruction(insn));
+        assertThat(ex.getMessage(), containsString("Unknown dependency ID"));
+        mockedNotificationServiceWrapper.assertNotificationsCount(0);
     }
 
     @Test

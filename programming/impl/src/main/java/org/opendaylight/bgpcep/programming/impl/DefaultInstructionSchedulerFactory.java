@@ -9,9 +9,8 @@ package org.opendaylight.bgpcep.programming.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.Timer;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -39,7 +38,7 @@ public final class DefaultInstructionSchedulerFactory implements InstructionSche
     private final Timer timer;
     private final RpcProviderService rpcProviderRegistry;
     private final ClusterSingletonServiceProvider cssp;
-    private final ListeningExecutorService exec = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+    private final ExecutorService exec = Executors.newSingleThreadExecutor();
 
     @Inject
     @Activate
