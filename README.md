@@ -1,10 +1,7 @@
-Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts)
+[![License](https://img.shields.io/badge/License-EPL%201.0-blue.svg)](https://opensource.org/licenses/EPL-1.0)
 
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License v1.0 which accompanies this distribution,
-and is available at http://www.eclipse.org/legal/epl-v10.html
-
-# DIRECTORY ORGANIZATION
+## DIRECTORY ORGANIZATION
 
 src/site:
     maven site plugin templates
@@ -34,7 +31,7 @@ rsvp:
     RSVP modeling concepts (needed by pcep)
 
 
-# HOW TO BUILD
+## HOW TO BUILD
 
 In order to build it's required to have JDK 1.7+ and Maven 3+, to get
 a build going it's needed to:
