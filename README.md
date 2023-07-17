@@ -1,40 +1,31 @@
-Copyright (c) 2013 Cisco Systems, Inc. and others.  All rights reserved.
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts)
+[![License](https://img.shields.io/badge/License-EPL%201.0-blue.svg)](https://opensource.org/licenses/EPL-1.0)
 
-This program and the accompanying materials are made available under the
-terms of the Eclipse Public License v1.0 which accompanies this distribution,
-and is available at http://www.eclipse.org/legal/epl-v10.html
+# BGPCEP
 
-# DIRECTORY ORGANIZATION
+BGPCEP project is an effort to bring two south-bound plugins into the controller:
+one for supporting BGP Linkstate Distribution as a source of L3 topology information,
+the other one to add support for Path Computation Element Protocol as a way to instantiate paths
+into the underlying network.
 
-src/site:
-    maven site plugin templates
+## DIRECTORY ORGANIZATION
 
-mockito-configuration:
-    default configuration of mockito framework
+* concepts:
+    *  Common networking concepts, shared between the protocols
 
-concepts:
-    Common networking concepts, shared between the protocols
+* util:
+    * Common utility classes
 
-util:
-    Common utility classes
+* bgp:
+    * BGP-related artifacts
 
-bgp:
-    BGP-related artifacts
+* pcep:
+    * PCEP-related artifacts
 
-pcep:
-    PCEP-related artifacts
+* rsvp:
+    * RSVP modeling concepts (needed by pcep
 
-pcep/pcepy:
-    Python PCEP library
-
-pcep/pcepdump:
-    Python-based PCEP listener and debug tool
-
-rsvp:
-    RSVP modeling concepts (needed by pcep)
-
-
-# HOW TO BUILD
+## HOW TO BUILD
 
 In order to build it's required to have JDK 1.7+ and Maven 3+, to get
 a build going it's needed to:
