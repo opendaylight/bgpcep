@@ -4,8 +4,7 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 
-DIRECTORY ORGANIZATION
-======================
+# DIRECTORY ORGANIZATION
 
 src/site:
     maven site plugin templates
@@ -35,13 +34,13 @@ rsvp:
     RSVP modeling concepts (needed by pcep)
 
 
-HOW TO BUILD
-============
+# HOW TO BUILD
+
 In order to build it's required to have JDK 1.7+ and Maven 3+, to get
 a build going it's needed to:
 
-1) Go in the root directory and run
-   "mvn clean install"
+1. Go in the root directory and run
 
-2) After successful completion, look for org.opendaylight.bgpcep artifacts
-   in your local maven repository.
+   `mvn clean install`
+
+2. After successful completion, look for org.opendaylight.bgpcep artifacts in your local maven repository.
