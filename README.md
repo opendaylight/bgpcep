@@ -1,35 +1,29 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts)
 [![License](https://img.shields.io/badge/License-EPL%201.0-blue.svg)](https://opensource.org/licenses/EPL-1.0)
 
+# BGPCEP
+
+BGPCEP project is an effort to bring two south-bound plugins into the controller:
+one for supporting BGP Linkstate Distribution as a source of L3 topology information,
+the other one to add support for Path Computation Element Protocol as a way to instantiate paths
+into the underlying network.
+
 ## DIRECTORY ORGANIZATION
 
-src/site:
-    maven site plugin templates
+* concepts:
+    * Common networking concepts, shared between the protocols
 
-mockito-configuration:
-    default configuration of mockito framework
+* util:
+    * Common utility classes
 
-concepts:
-    Common networking concepts, shared between the protocols
+* bgp:
+    * BGP-related artifacts
 
-util:
-    Common utility classes
+* pcep:
+    * PCEP-related artifacts
 
-bgp:
-    BGP-related artifacts
-
-pcep:
-    PCEP-related artifacts
-
-pcep/pcepy:
-    Python PCEP library
-
-pcep/pcepdump:
-    Python-based PCEP listener and debug tool
-
-rsvp:
-    RSVP modeling concepts (needed by pcep)
-
+* rsvp:
+    * RSVP modeling concepts (needed by pcep)
 
 ## HOW TO BUILD
 
