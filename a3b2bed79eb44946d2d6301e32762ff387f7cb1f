@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6166e7c2_b0071b89",
+        "filename": "README.md",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2023-07-18T10:20:11Z",
+      "side": 1,
+      "message": "Please move all the changes in this class to the next commit.\n\nIn the next patch, you have changed it to \"## DIRECTORY ORGANIZATION.\" Why is it necessary to split these changes?",
+      "revId": "a3b2bed79eb44946d2d6301e32762ff387f7cb1f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
