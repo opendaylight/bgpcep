@@ -16,6 +16,24 @@
       "message": "Missing Javadocs.",
       "revId": "816d2c1157ca22ba9a4ee5b74820f1c1f3c7f38b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72101b3f_c8b0c693",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9171
+      },
+      "writtenOn": "2023-07-28T08:42:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "051812b4_3d22ae6b",
+      "revId": "816d2c1157ca22ba9a4ee5b74820f1c1f3c7f38b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
