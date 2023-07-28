@@ -16,6 +16,24 @@
       "message": "Missing Javadocs.",
       "revId": "0969a732b66af6974a80047e900a57d055b59a91",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04b5c28c_800a9144",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9171
+      },
+      "writtenOn": "2023-07-28T08:38:35Z",
+      "side": 1,
+      "message": "Done. Used badge for `bgpcep-karaf` docs, but the link points to the group org.opendaylight.bgpcep",
+      "parentUuid": "5d913453_4966a362",
+      "revId": "0969a732b66af6974a80047e900a57d055b59a91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
