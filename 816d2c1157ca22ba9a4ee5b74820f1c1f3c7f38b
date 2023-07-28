@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "051812b4_3d22ae6b",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2023-07-28T07:56:27Z",
+      "side": 1,
+      "message": "Missing Javadocs.",
+      "revId": "816d2c1157ca22ba9a4ee5b74820f1c1f3c7f38b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
