@@ -16,6 +16,24 @@
       "message": "Where is commit message?",
       "revId": "50d716b43af28aa6e1b9ad3e5b3d566e16d86e07",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae50e2a3_bd13b3da",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9171
+      },
+      "writtenOn": "2023-08-02T12:02:56Z",
+      "side": 1,
+      "message": "Didnt include it originally. Based on this article https://cbea.ms/git-commit/ , which is what we should follow, when writing commit messages.\nAfter a brief discussion we agreed on including it everywhere, so here it is.",
+      "parentUuid": "1caccf25_8bef952b",
+      "revId": "50d716b43af28aa6e1b9ad3e5b3d566e16d86e07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
