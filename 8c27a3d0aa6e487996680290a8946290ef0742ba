@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "295560a1_ab6230a4",
+        "filename": "README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2023-08-14T08:06:53Z",
+      "side": 1,
+      "message": "Please add one empty line.",
+      "revId": "8c27a3d0aa6e487996680290a8946290ef0742ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
