@@ -50,26 +50,26 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
         final PCEPProtocolSessionPromise<?> lock = this;
 
         try {
-            LOG.debug("Promise {} attempting connect for {}ms", lock, this.connectTimeout);
-            if (this.address.isUnresolved()) {
-                this.address = new InetSocketAddress(this.address.getHostName(), this.address.getPort());
+            LOG.debug("Promise {} attempting connect for {}ms", lock, connectTimeout);
+            if (address.isUnresolved()) {
+                address = new InetSocketAddress(address.getHostName(), address.getPort());
             }
 
-            this.bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.connectTimeout);
-            this.bootstrap.remoteAddress(this.address);
-            final ChannelFuture connectFuture = this.bootstrap.connect();
+            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout);
+            bootstrap.remoteAddress(address);
+            final ChannelFuture connectFuture = bootstrap.connect();
             connectFuture.addListener(new BootstrapConnectListener());
-            this.pending = connectFuture;
+            pending = connectFuture;
         } catch (RuntimeException e) {
-            LOG.info("Failed to connect to {}", this.address, e);
-            this.setFailure(e);
+            LOG.info("Failed to connect to {}", address, e);
+            setFailure(e);
         }
     }
 
     @Override
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
         if (super.cancel(mayInterruptIfRunning)) {
-            this.pending.cancel(mayInterruptIfRunning);
+            pending.cancel(mayInterruptIfRunning);
             return true;
         }
 
@@ -82,14 +82,14 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
         return super.setSuccess(result);
     }
 
-    private class BootstrapConnectListener implements ChannelFutureListener {
+    private final class BootstrapConnectListener implements ChannelFutureListener {
         @Override
         public void operationComplete(final ChannelFuture cf) {
             synchronized (PCEPProtocolSessionPromise.this) {
                 PCEPProtocolSessionPromise.LOG.debug("Promise {} connection resolved",
                         PCEPProtocolSessionPromise.this);
                 Preconditions.checkState(PCEPProtocolSessionPromise.this.pending.equals(cf));
-                if (PCEPProtocolSessionPromise.this.isCancelled()) {
+                if (isCancelled()) {
                     if (cf.isSuccess()) {
                         PCEPProtocolSessionPromise.LOG.debug("Closing channel for cancelled promise {}",
                                 PCEPProtocolSessionPromise.this);
@@ -105,7 +105,7 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
                     if (PCEPProtocolSessionPromise.this.retryTimer == 0) {
                         PCEPProtocolSessionPromise.LOG
                                 .debug("Retry timer value is 0. Reconnection will not be attempted");
-                        PCEPProtocolSessionPromise.this.setFailure(cf.cause());
+                        setFailure(cf.cause());
                         return;
                     }
 
