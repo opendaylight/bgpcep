@@ -28,14 +28,14 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 
 public final class SimpleEvpnNlriRegistryTest {
-    public static final NodeIdentifier EVPN_NID = new NodeIdentifier(EvpnChoice.QNAME);
-
-    private class NotRegistered implements EvpnChoice {
+    private static final class NotRegistered implements EvpnChoice {
         @Override
         public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
         }
     }
+
+    public static final NodeIdentifier EVPN_NID = new NodeIdentifier(EvpnChoice.QNAME);
 
     @Test
     public void registryTest() {

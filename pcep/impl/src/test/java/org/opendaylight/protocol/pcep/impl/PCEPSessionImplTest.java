@@ -189,7 +189,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         verify(session).closeChannel();
     }
 
-    private static class SimpleExceptionSessionListener extends SimpleSessionListener {
+    private static final class SimpleExceptionSessionListener extends SimpleSessionListener {
         @Override
         public synchronized void onSessionUp(final PCEPSession session) {
             super.onSessionUp(session);

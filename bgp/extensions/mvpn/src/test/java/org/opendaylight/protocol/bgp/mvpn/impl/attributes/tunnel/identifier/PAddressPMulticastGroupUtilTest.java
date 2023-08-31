@@ -65,7 +65,7 @@ public final class PAddressPMulticastGroupUtilTest {
         assertEquals(P_MULTICAST, actual.getPMulticastGroup());
     }
 
-    private static class MyPAddressPMulticastGroup implements PAddressPMulticastGroup {
+    private static final class MyPAddressPMulticastGroup implements PAddressPMulticastGroup {
         @Override
         public IpAddressNoZone getPAddress() {
             return IP_ADDRESS;

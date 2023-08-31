@@ -198,7 +198,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return domTransWrite;
     }
 
-    private static class TestListenerRegistration implements ListenerRegistration<EventListener> {
+    private static final class TestListenerRegistration implements ListenerRegistration<EventListener> {
         @Override
         public EventListener getInstance() {
             return null;
