@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -16,9 +17,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 
 public final class SimpleMvpnNlriRegistryTest {
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void registryParseTest() {
-        SimpleMvpnNlriRegistry.getInstance().parseMvpn(NlriType.InterAsIPmsiAD, null);
+        assertThrows(IllegalArgumentException.class,
+            () -> SimpleMvpnNlriRegistry.getInstance().parseMvpn(NlriType.InterAsIPmsiAD, null));
     }
 
     @Test
@@ -28,7 +30,7 @@ public final class SimpleMvpnNlriRegistryTest {
         assertEquals(0, body.readableBytes());
     }
 
-    private class NotRegistered implements MvpnChoice {
+    private static final class NotRegistered implements MvpnChoice {
         @Override
         public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;

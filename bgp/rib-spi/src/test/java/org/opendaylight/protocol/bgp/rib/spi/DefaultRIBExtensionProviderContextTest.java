@@ -23,7 +23,7 @@ public class DefaultRIBExtensionProviderContextTest extends AbstractRIBActivator
         assertTrue(ribActivated);
     }
 
-    private class RibActivator implements RIBExtensionProviderActivator {
+    private final class RibActivator implements RIBExtensionProviderActivator {
         @Override
         public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {

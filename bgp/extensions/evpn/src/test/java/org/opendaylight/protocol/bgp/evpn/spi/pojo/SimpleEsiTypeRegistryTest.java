@@ -25,14 +25,14 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
 
 public class SimpleEsiTypeRegistryTest {
-    private static final int ESI_TYPE_LENGTH = 10;
-
-    private class NotRegistered implements Esi {
+    private static final class NotRegistered implements Esi {
         @Override
         public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
         }
     }
+
+    private static final int ESI_TYPE_LENGTH = 10;
 
     @Test
     public void registryTest() {
