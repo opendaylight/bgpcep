@@ -17,6 +17,7 @@ import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkPresentOperational;
 
+import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -33,8 +34,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.bgpcep.programming.spi.SchedulerException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsOutput;
@@ -49,18 +52,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.DetailsBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
+public class ProgrammingRpcHandlerTest extends AbstractProgrammingTest {
 
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final String INSTRUCTIONS_QUEUE_KEY = "test-instraction-queue";
     private final Timer timer = new HashedWheelTimer();
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
-    private ProgrammingServiceImpl testedProgrammingService;
+    private ProgrammingRpcHandler testedProgrammingService;
+    private ClassToInstanceMap<Rpc<?, ?>> rpcMap;
 
     @Before
     @Override
@@ -69,11 +74,12 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         mockedExecutorWrapper = new MockedExecutorWrapper();
         mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
 
-        testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
+        testedProgrammingService = new ProgrammingRpcHandler(getDataBroker(),
                 mockedNotificationServiceWrapper.getMockedNotificationService(),
                 mockedExecutorWrapper.getMockedExecutor(), rpcRegistry, cssp, timer,
                 INSTRUCTIONS_QUEUE_KEY);
         singletonService.instantiateServiceInstance();
+        rpcMap = testedProgrammingService.getRpcClassToInstanceMap();
     }
 
     @After
@@ -126,7 +132,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
 
         final CancelInstructionInput mockedCancel = getCancelInstruction("mockedSubmit");
-        testedProgrammingService.cancelInstruction(mockedCancel);
+        rpcMap.getInstance(CancelInstruction.class).invoke(mockedCancel);
 
         checkPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit.getId()));
         mockedExecutorWrapper.assertSubmittedTasksSize(2);
@@ -147,7 +153,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
                 "mockedSubmit1", "mockedSubmit2");
         testedProgrammingService.scheduleInstruction(mockedSubmit3);
 
-        testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
+        rpcMap.getInstance(CancelInstruction.class).invoke(getCancelInstruction("mockedSubmit1"));
 
         mockedNotificationServiceWrapper
                 .assertNotificationsCount(1 /*First Scheduled*/ + 3 /*First and all dependencies cancelled*/);
@@ -176,15 +182,15 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         final CleanInstructionsInputBuilder cleanInstructionsInputBuilder = new CleanInstructionsInputBuilder();
         final CleanInstructionsInput cleanInstructionsInput = cleanInstructionsInputBuilder.setId(
                 Set.of(mockedSubmit1.getId(), mockedSubmit2.getId())).build();
-
-        ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput = testedProgrammingService
-                .cleanInstructions(cleanInstructionsInput);
+        final var cleanRpc = rpcMap.getInstance(CleanInstructions.class);
+        ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanedInstructionOutput = cleanRpc
+            .invoke(cleanInstructionsInput);
 
         assertCleanInstructionOutput(cleanedInstructionOutput, 2);
 
-        testedProgrammingService.cancelInstruction(getCancelInstruction("mockedSubmit1"));
+        rpcMap.getInstance(CancelInstruction.class).invoke(getCancelInstruction("mockedSubmit1"));
 
-        cleanedInstructionOutput = testedProgrammingService.cleanInstructions(cleanInstructionsInput);
+        cleanedInstructionOutput = cleanRpc.invoke(cleanInstructionsInput);
         assertCleanInstructionOutput(cleanedInstructionOutput, 0);
 
         checkNotPresentOperational(getDataBroker(), buildInstructionIID(mockedSubmit1.getId()));

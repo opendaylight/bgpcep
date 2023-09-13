@@ -37,7 +37,6 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvid
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.network.topology.topology.topology.types.TopologyPcep;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -91,7 +90,7 @@ public final class PCEPTopologyTracker
     // Statistics provider
     private final @NonNull TopologyStatsProvider statsProvider;
     // Statistics RPCs
-    private final @NonNull TopologyStatsRpcServiceImpl statsRpcs;
+    private final @NonNull TopologyStatsRpcHandler statsRpcs;
 
     // We are reusing our monitor as the universal lock. We have to account for three distinct threads competing for
     // our state:
@@ -132,8 +131,8 @@ public final class PCEPTopologyTracker
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
         statsProvider = new TopologyStatsProvider(timer);
-        statsRpcs = new TopologyStatsRpcServiceImpl(dataBroker);
-        statsReg = rpcProviderRegistry.registerRpcImplementation(PcepTopologyStatsRpcService.class, statsRpcs);
+        statsRpcs = new TopologyStatsRpcHandler(dataBroker);
+        statsReg = rpcProviderRegistry.registerRpcImplementations(statsRpcs.getRpcClassToInstanceMap());
 
         reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)

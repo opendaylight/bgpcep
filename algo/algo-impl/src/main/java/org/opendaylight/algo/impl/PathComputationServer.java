@@ -9,6 +9,8 @@ package org.opendaylight.algo.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -22,11 +24,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AlgorithmType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.GetConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.GetConstrainedPathInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.GetConstrainedPathOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.GetConstrainedPathOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathComputationService;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -44,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Component(immediate = true, service = PathComputationProvider.class)
-public final class PathComputationServer implements AutoCloseable, PathComputationService, PathComputationProvider {
+public final class PathComputationServer implements AutoCloseable, PathComputationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(PathComputationServer.class);
 
     private final ConnectedGraphProvider graphProvider;
@@ -55,11 +58,10 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
     public PathComputationServer(@Reference final RpcProviderService rpcService,
             @Reference final ConnectedGraphProvider graphProvider) {
         this.graphProvider = requireNonNull(graphProvider);
-        registration = rpcService.registerRpcImplementation(PathComputationService.class, this);
+        registration = rpcService.registerRpcImplementations(getRpcClassToInstanceMap());
     }
 
-    @Override
-    public ListenableFuture<RpcResult<GetConstrainedPathOutput>> getConstrainedPath(
+    private ListenableFuture<RpcResult<GetConstrainedPathOutput>> getConstrainedPath(
             final GetConstrainedPathInput input) {
         final GetConstrainedPathOutputBuilder output = new GetConstrainedPathOutputBuilder();
 
@@ -97,6 +99,12 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
                 .setComputedDelay(cpath.getDelay());
 
         return RpcResultBuilder.success(output.build()).buildFuture();
+    }
+
+    public ClassToInstanceMap<Rpc<?,?>> getRpcClassToInstanceMap() {
+        return ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+            .put(GetConstrainedPath.class, this::getConstrainedPath)
+            .build();
     }
 
     @Override
