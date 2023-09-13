@@ -85,7 +85,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -93,7 +92,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
@@ -143,7 +141,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
-    private ObjectRegistration<BgpPeerRpcService> rpcRegistration;
+    private Registration rpcRegistration;
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
@@ -416,8 +414,9 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     tables, addPathTableMaps);
 
             if (rpcRegistry != null) {
-                rpcRegistration = rpcRegistry.registerRpcImplementation(BgpPeerRpcService.class,
-                    new BgpPeerRpc(this, session, tables), ImmutableSet.of(rib.getInstanceIdentifier().child(
+                final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
+                rpcRegistration = rpcRegistry.registerRpcImplementations(bgpPeerHandler.getRpcClassToInstanceMap(),
+                    ImmutableSet.of(rib.getInstanceIdentifier().child(
                         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib
                         .Peer.class, new PeerKey(peerId))));
             }

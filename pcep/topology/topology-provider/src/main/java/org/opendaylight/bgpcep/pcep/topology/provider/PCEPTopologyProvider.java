@@ -30,8 +30,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.NetworkTopologyPcepProgrammingService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.Registration;
@@ -247,10 +245,12 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         // Register RPCs
         final RpcProviderService rpcRegistry = dependencies.getRpcProviderRegistry();
-        elementReg = rpcRegistry.registerRpcImplementation(NetworkTopologyPcepService.class,
-            new TopologyRPCs(manager), Set.of(instanceIdentifier));
-        networkReg = rpcRegistry.registerRpcImplementation(NetworkTopologyPcepProgrammingService.class,
-            new TopologyProgramming(scheduler, manager), Set.of(instanceIdentifier));
+        final var topologyRpcHandler = new TopologyRPCs(manager);
+        elementReg = rpcRegistry.registerRpcImplementations(topologyRpcHandler.getRpcClassToInstanceMap(),
+            Set.of(instanceIdentifier));
+        final var topologyProgrammingHandler = new TopologyProgramming(scheduler, manager);
+        networkReg = rpcRegistry.registerRpcImplementations(topologyProgrammingHandler.getRpcClassToInstanceMap(),
+            Set.of(instanceIdentifier));
 
         // We are now completely initialized
         LOG.info("PCEP Topology Provider {} enabled", topologyId());
