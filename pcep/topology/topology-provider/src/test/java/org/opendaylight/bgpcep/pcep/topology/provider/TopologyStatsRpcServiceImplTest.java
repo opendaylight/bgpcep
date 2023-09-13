@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.collect.ClassToInstanceMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -39,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.reply.time.grouping.ReplyTimeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutput;
@@ -54,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -72,6 +75,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     private static final String NONPCEP_NODE = "nonpcep-node";
 
     TopologyStatsRpcServiceImpl rpcService;
+    private ClassToInstanceMap<Rpc<?, ?>> rpcMap;
 
     @Before
     public void setUp() throws Exception {
@@ -94,6 +98,7 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
         wtx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
                 ntb.build());
         wtx.commit().get();
+        rpcMap = rpcService.getRpcClassToInstanceMap();
     }
 
     private static Topology createTopology(final String topologyId, final Map<NodeKey, Node> nodes) {
@@ -275,7 +280,8 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     }
 
     private void performTest(final GetStatsInput in, final GetStatsOutput out) throws Exception {
-        final RpcResult<GetStatsOutput> result = rpcService.getStats(in).get();
+        final var getStatsRpc = ((GetStats) rpcMap.get(GetStats.class));
+        final RpcResult<GetStatsOutput> result = getStatsRpc.invoke(in).get();
         assertEquals(out, result.getResult());
         assertTrue(result.isSuccessful());
         assertTrue(result.getErrors().isEmpty());
@@ -287,7 +293,8 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
      * just compare the number of nodes
      */
     private void performCountTest(final GetStatsInput in, final GetStatsOutput out) throws Exception {
-        final RpcResult<GetStatsOutput> result = rpcService.getStats(in).get();
+        final var getStatsRpc = ((GetStats) rpcMap.get(GetStats.class));
+        final RpcResult<GetStatsOutput> result = getStatsRpc.invoke(in).get();
         assertEquals(result.getResult().getTopology().size(), out.getTopology().size());
         assertTrue(result.isSuccessful());
         assertEquals(result.getResult().nonnullTopology().values().stream()
