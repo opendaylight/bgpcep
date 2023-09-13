@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
@@ -35,10 +36,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -49,20 +50,21 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class TopologyStatsRpcServiceImpl
-        implements PcepTopologyStatsRpcService, ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpcServiceImpl.class);
+final class TopologyStatsRpcHandler
+        implements ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpcHandler.class);
 
     private final ConcurrentMap<InstanceIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
             new ConcurrentHashMap<>();
-    private ListenerRegistration<TopologyStatsRpcServiceImpl> listenerRegistration;
+    private ListenerRegistration<TopologyStatsRpcHandler> listenerRegistration;
 
-    TopologyStatsRpcServiceImpl(final DataBroker dataBroker) {
+    TopologyStatsRpcHandler(final DataBroker dataBroker) {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
         listenerRegistration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
@@ -98,8 +100,7 @@ final class TopologyStatsRpcServiceImpl
         }
     }
 
-    @Override
-    public ListenableFuture<RpcResult<GetStatsOutput>> getStats(final GetStatsInput input) {
+    private ListenableFuture<RpcResult<GetStatsOutput>> getStats(final GetStatsInput input) {
         final var iTopologies = input.getTopology();
         final List<TopologyId> iTopologyIds;
         if (iTopologies != null) {
@@ -233,5 +234,11 @@ final class TopologyStatsRpcServiceImpl
         return sessionStateMap.keySet().stream()
                 .filter(iid -> iid.firstKeyOf(Topology.class).getTopologyId().equals(topologyId))
                 .map(iid -> iid.firstKeyOf(Node.class).getNodeId()).collect(Collectors.toList());
+    }
+
+    public ImmutableClassToInstanceMap getRpcClassToInstanceMap() {
+        return ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+            .put(GetStats.class, this::getStats)
+            .build();
     }
 }
