@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
+import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Set;
@@ -53,18 +54,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.add.lsp.args.Arguments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.p2p.rev130819.tunnel.p2p.path.cfg.attributes.ExplicitHopsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepCreateP2pTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepCreateP2pTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepDestroyTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepDestroyTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.ExplicitHops1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1Builder;
@@ -91,6 +97,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -118,8 +125,6 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private static final String IPV4_PREFIX2 = "201.20.160.43/32";
 
     @Mock
-    private NetworkTopologyPcepService topologyService;
-    @Mock
     private InstructionScheduler scheduler;
     @Mock
     private ListenableFuture<Instruction> instructionFuture;
@@ -146,6 +151,13 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private ListenableFuture<RpcResult<UpdateLspOutput>> futureUpdateLspOutput;
     @Mock
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
+    @Mock
+    private AddLsp addLsp;
+    @Mock
+    private UpdateLsp updateLsp;
+    @Mock
+    private RemoveLsp removeLsp;
+    private ClassToInstanceMap<Rpc<?, ?>> rpcMap;
 
     private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
         return new NodeBuilder()
@@ -172,12 +184,12 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
 
     private static ExplicitHops createExplicitHop(final String ipv4Prefix, final Uint32 order) {
         return new ExplicitHopsBuilder()
-                .setOrder(order)
-                .addAugmentation(new ExplicitHops1Builder()
-                    .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
-                        .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build())
-                    .build())
-                .build();
+            .setOrder(order)
+            .addAugmentation(new ExplicitHops1Builder()
+                .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
+                    .setIpPrefix(new IpPrefix(new Ipv4Prefix(ipv4Prefix))).build()).build())
+                .build())
+            .build();
     }
 
     @Before
@@ -206,26 +218,28 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocation -> {
             addLspInput = invocation.getArgument(0);
             return futureAddLspOutput;
-        }).when(topologyService).addLsp(any(AddLspInput.class));
+        }).when(addLsp).invoke(any(AddLspInput.class));
         doAnswer(invocation -> {
             updateLspInput = invocation.getArgument(0);
             return futureUpdateLspOutput;
-        }).when(topologyService).updateLsp(any(UpdateLspInput.class));
+        }).when(updateLsp).invoke(any(UpdateLspInput.class));
         doAnswer(invocation -> {
             removeLspInput = invocation.getArgument(0);
             return futureRemoveLspOutput;
-        }).when(topologyService).removeLsp(any(RemoveLspInput.class));
+        }).when(removeLsp).invoke(any(RemoveLspInput.class));
         doReturn(instruction).when(instructionFuture).get();
         doReturn(true).when(instructionFuture).isDone();
         doReturn(instructionFuture).when(scheduler)
-                .scheduleInstruction(any(SubmitInstructionInput.class));
+            .scheduleInstruction(any(SubmitInstructionInput.class));
 
-        doReturn(topologyService).when(rpcs)
-                .getRpcService(NetworkTopologyPcepService.class);
+        doReturn(addLsp).when(rpcs).getRpc(AddLsp.class);
+        doReturn(updateLsp).when(rpcs).getRpc(UpdateLsp.class);
+        doReturn(removeLsp).when(rpcs).getRpc(RemoveLsp.class);
 
         createInitialTopology();
         tunnelProgramming = new TunnelProgramming(scheduler,
             new TunnelProviderDependencies(getDataBroker(), cssp, rpr, rpcs, bundleContext));
+        rpcMap = tunnelProgramming.getRpcClassToInstanceMap();
     }
 
     @Test
@@ -235,7 +249,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final String tunnelName = "create-tunnel";
         final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
         // create tunnel
-        tunnelProgramming.pcepCreateP2pTunnel(new PcepCreateP2pTunnelInputBuilder()
+        rpcMap.getInstance(PcepCreateP2pTunnel.class).invoke(new PcepCreateP2pTunnelInputBuilder()
             .setDestination(new DestinationBuilder().setNode(NODE2_ID).setTp(TP2_ID).build())
             .setSource(new SourceBuilder().setNode(NODE1_ID).setTp(TP1_ID).build())
             .setNetworkTopologyRef(topologyRef)
@@ -260,7 +274,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         createLink();
 
         // update tunnel
-        tunnelProgramming.pcepUpdateTunnel(new PcepUpdateTunnelInputBuilder()
+        rpcMap.getInstance(PcepUpdateTunnel.class).invoke(new PcepUpdateTunnelInputBuilder()
             .setNetworkTopologyRef(topologyRef)
             .setBandwidth(bwd)
             .setClassType(classType)
@@ -289,7 +303,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final PcepDestroyTunnelInputBuilder destroyInputBuilder = new PcepDestroyTunnelInputBuilder();
         destroyInputBuilder.setLinkId(LINK1_ID);
         destroyInputBuilder.setNetworkTopologyRef(topologyRef);
-        tunnelProgramming.pcepDestroyTunnel(destroyInputBuilder.build());
+        rpcMap.getInstance(PcepDestroyTunnel.class).invoke(destroyInputBuilder.build());
         assertNotNull(removeLspInput);
         assertEquals(LINK1_ID.getValue(), removeLspInput.getName());
         assertEquals(NODE1_ID, removeLspInput.getNode());

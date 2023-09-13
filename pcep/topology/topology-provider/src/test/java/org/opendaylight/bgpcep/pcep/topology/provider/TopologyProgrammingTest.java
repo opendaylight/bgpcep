@@ -14,6 +14,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +30,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitAddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitAddLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitEnsureLspOperational;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitEnsureLspOperationalInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitRemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitRemoveLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitTriggerSync;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitTriggerSyncInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitUpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.programming.rev181109.SubmitUpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInput;
@@ -40,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.ensure.lsp.operational.args.ArgumentsBuilder;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 
 public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     private static final String NAME = "test-tunnel";
@@ -51,6 +58,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
 
     private TopologyProgramming topologyProgramming;
     private PCEPTopologySessionListener listener;
+    private ClassToInstanceMap<Rpc<?, ?>> rpcMap;
 
     @Override
     @Before
@@ -68,6 +76,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
         topologyProgramming = new TopologyProgramming(scheduler, manager);
         final PCEPSession session = getPCEPSession(getLocalPref(), getRemotePref());
         listener.onSessionUp(session);
+        rpcMap = topologyProgramming.getRpcClassToInstanceMap();
     }
 
     @Test
@@ -75,7 +84,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
         final var captor = ArgumentCaptor.forClass(AddLspArgs.class);
         doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).addLsp(captor.capture());
 
-        topologyProgramming.submitAddLsp(new SubmitAddLspInputBuilder()
+        rpcMap.getInstance(SubmitAddLsp.class).invoke(new SubmitAddLspInputBuilder()
             .setName(NAME).setNode(nodeId)
             .setArguments(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730
                 .add.lsp.args.ArgumentsBuilder().build())
@@ -91,8 +100,10 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     public void testSubmitUpdateLsp() {
         final var captor = ArgumentCaptor.forClass(UpdateLspArgs.class);
         doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).updateLsp(captor.capture());
-
-        topologyProgramming.submitUpdateLsp(new SubmitUpdateLspInputBuilder().setName(NAME).setNode(nodeId).build());
+        rpcMap.getInstance(SubmitUpdateLsp.class).invoke(new SubmitUpdateLspInputBuilder()
+            .setName(NAME)
+            .setNode(nodeId)
+            .build());
 
         final var updateLspArgs = captor.getValue();
         assertNotNull(updateLspArgs);
@@ -105,8 +116,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
         final var captor = ArgumentCaptor.forClass(EnsureLspOperationalInput.class);
         doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener)
             .ensureLspOperational(captor.capture());
-
-        topologyProgramming.submitEnsureLspOperational(new SubmitEnsureLspOperationalInputBuilder()
+        rpcMap.getInstance(SubmitEnsureLspOperational.class).invoke(new SubmitEnsureLspOperationalInputBuilder()
             .setName(NAME)
             .setNode(nodeId)
             .setArguments(new ArgumentsBuilder().build())
@@ -122,8 +132,10 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     public void testSubmitRemoveLsp() {
         final var captor = ArgumentCaptor.forClass(RemoveLspArgs.class);
         doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).removeLsp(captor.capture());
-
-        topologyProgramming.submitRemoveLsp(new SubmitRemoveLspInputBuilder().setName(NAME).setNode(nodeId).build());
+        rpcMap.getInstance(SubmitRemoveLsp.class).invoke(new SubmitRemoveLspInputBuilder()
+            .setName(NAME)
+            .setNode(nodeId)
+            .build());
 
         final var removeLspArgs = captor.getValue();
         assertNotNull(removeLspArgs);
@@ -135,8 +147,7 @@ public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     public void testSubmitTriggerSync() {
         final var captor = ArgumentCaptor.forClass(TriggerSyncArgs.class);
         doReturn(Futures.immediateFuture(OperationResults.SUCCESS)).when(listener).triggerSync(captor.capture());
-
-        topologyProgramming.submitTriggerSync(new SubmitTriggerSyncInputBuilder()
+        rpcMap.getInstance(SubmitTriggerSync.class).invoke(new SubmitTriggerSyncInputBuilder()
             .setName(NAME)
             .setNode(nodeId)
             .build());
