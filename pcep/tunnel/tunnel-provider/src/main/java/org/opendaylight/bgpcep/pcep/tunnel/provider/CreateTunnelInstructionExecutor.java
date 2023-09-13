@@ -20,6 +20,7 @@ import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -37,9 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.ipv6._case.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.LspaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.add.lsp.args.Arguments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.add.lsp.args.ArgumentsBuilder;
@@ -60,15 +61,15 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 
 final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor {
     private final DataBroker dataProvider;
-    private final NetworkTopologyPcepService topologyService;
+    private final RpcConsumerRegistry rpcConsumerRegistry;
     private final PcepCreateP2pTunnelInput p2pTunnelInput;
 
     CreateTunnelInstructionExecutor(final PcepCreateP2pTunnelInput p2pTunnelInput, final DataBroker dataProvider,
-            final NetworkTopologyPcepService topologyService) {
+            final RpcConsumerRegistry rpcConsumerRegistry) {
         super(p2pTunnelInput);
         this.p2pTunnelInput = p2pTunnelInput;
         this.dataProvider = dataProvider;
-        this.topologyService = topologyService;
+        this.rpcConsumerRegistry = rpcConsumerRegistry;
     }
 
     private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii,
@@ -152,7 +153,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
             AddLspInput addLspInput = createAddLspInput(transaction);
 
             return Futures.transform(
-                    topologyService.addLsp(addLspInput),
+                    rpcConsumerRegistry.getRpc(AddLsp.class).invoke(addLspInput),
                     RpcResult::getResult, MoreExecutors.directExecutor());
         }
     }

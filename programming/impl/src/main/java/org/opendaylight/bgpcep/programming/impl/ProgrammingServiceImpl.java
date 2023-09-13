@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.programming.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -44,9 +45,11 @@ import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CleanInstructionsOutputBuilder;
@@ -59,7 +62,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueueBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionsQueueKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.Nanotime;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.ProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.SubmitInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.UnknownInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.UnknownPreconditionId;
@@ -67,14 +69,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.failure._case.FailureBuilder;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class ProgrammingServiceImpl implements ClusterSingletonService, InstructionScheduler, ProgrammingService {
+final class ProgrammingServiceImpl implements ClusterSingletonService, InstructionScheduler {
     private static final Logger LOG = LoggerFactory.getLogger(ProgrammingServiceImpl.class);
 
     private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
@@ -88,7 +91,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     private final ClusterSingletonServiceRegistration csspReg;
     private final RpcProviderService rpcProviderRegistry;
     @GuardedBy("this")
-    private ObjectRegistration<ProgrammingService> reg;
+    private Registration reg;
 
     private final class InstructionPusher implements QueueInstruction {
         private final InstructionBuilder builder = new InstructionBuilder();
@@ -172,7 +175,7 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("Instruction Queue service {} instantiated", sgi.getName());
-        reg = rpcProviderRegistry.registerRpcImplementation(ProgrammingService.class, this);
+        reg = rpcProviderRegistry.registerRpcImplementations(getRpcClassToInstanceMap());
 
         final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, qid, new InstructionsQueueBuilder()
@@ -195,14 +198,19 @@ final class ProgrammingServiceImpl implements ClusterSingletonService, Instructi
         return sgi;
     }
 
-    @Override
-    public ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
+    private ListenableFuture<RpcResult<CancelInstructionOutput>> cancelInstruction(final CancelInstructionInput input) {
         return Futures.submit(() -> realCancelInstruction(input), executor);
     }
 
-    @Override
-    public ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
+    private ListenableFuture<RpcResult<CleanInstructionsOutput>> cleanInstructions(final CleanInstructionsInput input) {
         return Futures.submit(() -> realCleanInstructions(input), executor);
+    }
+
+    public ImmutableClassToInstanceMap getRpcClassToInstanceMap() {
+        return ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+            .put(CancelInstruction.class, this::cancelInstruction)
+            .put(CleanInstructions.class, this::cleanInstructions)
+            .build();
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
