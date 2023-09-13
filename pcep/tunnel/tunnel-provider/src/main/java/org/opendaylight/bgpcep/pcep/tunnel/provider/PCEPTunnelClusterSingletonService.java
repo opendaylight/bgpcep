@@ -21,12 +21,11 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
 import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.TopologyTunnelPcepProgrammingService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -50,7 +49,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @GuardedBy("this")
     private ClusterSingletonServiceRegistration pcepTunnelCssReg;
     @GuardedBy("this")
-    private ObjectRegistration<TunnelProgramming> reg;
+    private Registration reg;
 
     public PCEPTunnelClusterSingletonService(
             final TunnelProviderDependencies dependencies,
@@ -107,7 +106,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
         final InstanceIdentifier<Topology> topology = InstanceIdentifier
                 .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(tunnelTopologyId)).build();
         reg = dependencies.getRpcProviderRegistry()
-                .registerRpcImplementation(TopologyTunnelPcepProgrammingService.class, tp, Set.of(topology));
+                .registerRpcImplementations(tp.getRpcClassToInstanceMap(), Set.of(topology));
         ttp.init();
     }
 
