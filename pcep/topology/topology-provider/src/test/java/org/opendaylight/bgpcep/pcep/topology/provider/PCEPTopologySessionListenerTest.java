@@ -22,6 +22,7 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
+import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import java.util.List;
 import java.util.Optional;
@@ -79,21 +80,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperational;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.EnsureLspOperationalInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.FailureType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.add.lsp.args.ArgumentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -104,8 +110,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     private static final short KEEP_ALIVE = 10;
 
     private PCEPTopologySessionListener listener;
-
     private PCEPSessionImpl session;
+    private ClassToInstanceMap<Rpc<?, ?>> rpcMap;
 
     @Override
     @Before
@@ -113,6 +119,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         super.setUp();
         listener = getSessionListener();
         session = getPCEPSession(getLocalPref(), getRemotePref());
+        rpcMap = topologyRpcs.getRpcClassToInstanceMap();
     }
 
     @Test
@@ -135,7 +142,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertEquals(testAddress, peerState.getIpAddress());
 
         // add-lsp
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = (AddLsp) rpcMap.get(AddLsp.class);
+        addLspRpc.invoke(createAddLspInput());
         assertEquals(1, receivedMsgs.size());
         final var pcinitiate = receivedMsgs.get(0);
         assertThat(pcinitiate, instanceOf(Pcinitiate.class));
@@ -192,7 +200,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
                 .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
                 .setNode(nodeId).build();
-        topologyRpcs.updateLsp(update);
+        final var updateLspRpc = ((UpdateLsp) rpcMap.get(UpdateLsp.class));
+        updateLspRpc.invoke(update);
         assertEquals(2, receivedMsgs.size());
         final var updateMsg = receivedMsgs.get(1);
         assertThat(updateMsg, instanceOf(Pcupd.class));
@@ -242,14 +251,16 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build())
                 .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
                 .setNode(nodeId).build();
-        final OperationResult result = topologyRpcs.ensureLspOperational(ensure).get().getResult();
+        final var ensureLspRpc = ((EnsureLspOperational) rpcMap.get(EnsureLspOperational.class));
+        final OperationResult result = ensureLspRpc.invoke(ensure).get().getResult();
         //check result
         assertNull(result.getFailure());
 
         // remove-lsp
         final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName)
                 .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
-        topologyRpcs.removeLsp(remove);
+        final var removeLspRpc = ((RemoveLsp) rpcMap.get(RemoveLsp.class));
+        removeLspRpc.invoke(remove);
         assertEquals(3, receivedMsgs.size());
         final var pcinitiate2 =  receivedMsgs.get(2);
         assertThat(pcinitiate2, instanceOf(Pcinitiate.class));
@@ -291,7 +302,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     public void testOnErrorMessage() throws InterruptedException, ExecutionException {
         final Message errorMsg = MsgBuilderUtil.createErrorMsg(PCEPErrors.NON_ZERO_PLSPID, Uint32.ONE);
         listener.onSessionUp(session);
-        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final Future<RpcResult<AddLspOutput>> futureOutput = addLspRpc.invoke(createAddLspInput());
         assertFalse(futureOutput.isDone());
 
         listener.onMessage(session, errorMsg);
@@ -309,7 +321,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         listener.onSessionUp(session);
         // send request
         manager.setRpcTimeout((short) 0);
-        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final Future<RpcResult<AddLspOutput>> futureOutput = addLspRpc.invoke(createAddLspInput());
         assertFalse(session.isClosed());
         assertFalse(futureOutput.isDone());
 
@@ -332,7 +345,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertFalse(session.isClosed());
         // send request
         manager.setRpcTimeout((short) 0);
-        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final Future<RpcResult<AddLspOutput>> futureOutput = addLspRpc.invoke(createAddLspInput());
         assertFalse(futureOutput.isDone());
 
         stopSessionManager();
@@ -360,7 +374,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertTrue(session.isClosed());
         // send request
         manager.setRpcTimeout((short) 0);
-        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final Future<RpcResult<AddLspOutput>> futureOutput = addLspRpc.invoke(createAddLspInput());
         assertTrue(futureOutput.isDone());
 
         final AddLspOutput output = futureOutput.get().getResult();
@@ -380,7 +395,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertTrue(session.isClosed());
         // send request
         manager.setRpcTimeout((short) 0);
-        final Future<RpcResult<AddLspOutput>> futureOutput = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final Future<RpcResult<AddLspOutput>> futureOutput = addLspRpc.invoke(createAddLspInput());
         assertTrue(futureOutput.isDone());
 
         final AddLspOutput output = futureOutput.get().getResult();
@@ -402,7 +418,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         assertFalse(session.isClosed());
 
         // create node
-        topologyRpcs.addLsp(createAddLspInput());
+        addLspRpc.invoke(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
@@ -426,7 +442,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         listener.onSessionUp(session);
 
         // create node
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        addLspRpc.invoke(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
@@ -463,7 +480,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     public void testOnSessionTermination() throws Exception {
         listener.onSessionUp(session);
         // create node
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        addLspRpc.invoke(createAddLspInput());
         final Pcinitiate pcinitiate = (Pcinitiate) receivedMsgs.get(0);
         final Requests req = pcinitiate.getPcinitiateMessage().getRequests().get(0);
         final Uint32 srpId = req.getSrp().getOperationId().getValue();
@@ -526,7 +544,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
                 .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
                 .build();
-        final UpdateLspOutput result = topologyRpcs.updateLsp(update).get().getResult();
+        final var updateLspRpc = ((UpdateLsp) rpcMap.get(UpdateLsp.class));
+        final UpdateLspOutput result = updateLspRpc.invoke(update).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -541,7 +560,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     public void testUpdateEmptyLsp() throws InterruptedException, ExecutionException {
         // create LSP
         listener.onSessionUp(session);
-        final var addLsp = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = ((AddLsp) rpcMap.get(AddLsp.class));
+        final var addLsp = addLspRpc.invoke(createAddLspInput());
         assertEquals(1, receivedMsgs.size());
         final var pcinitiate =  receivedMsgs.get(0);
         assertThat(pcinitiate, instanceOf(Pcinitiate.class));
@@ -565,7 +585,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         final var input = new UpdateLspInputBuilder().setArguments(builder.build())
                 .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
                 .build();
-        final var result = topologyRpcs.updateLsp(input).get().getResult();
+        final var updateLspRpc = ((UpdateLsp) rpcMap.get(UpdateLsp.class));
+        final var result = updateLspRpc.invoke(input).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -578,7 +599,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         listener.onSessionUp(session);
         final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName).setNetworkTopologyRef(
                 new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
-        final OperationResult result = topologyRpcs.removeLsp(remove).get().getResult();
+        final var removeLspRpc = ((RemoveLsp) rpcMap.get(RemoveLsp.class));
+        final OperationResult result = removeLspRpc.invoke(remove).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -589,7 +611,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testAddAlreadyExistingLsp() throws InterruptedException, ExecutionException {
         listener.onSessionUp(session);
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = (AddLsp) rpcMap.get(AddLsp.class);
+        addLspRpc.invoke(createAddLspInput());
         assertEquals(1, receivedMsgs.size());
         final var pcinitiate =  receivedMsgs.get(0);
         assertThat(pcinitiate, instanceOf(Pcinitiate.class));
@@ -607,7 +630,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         listener.onMessage(session, pcRpt);
 
         //try to add already existing LSP
-        final AddLspOutput result = Futures.getDone(topologyRpcs.addLsp(createAddLspInput())).getResult();
+        final AddLspOutput result = Futures.getDone(addLspRpc.invoke(createAddLspInput())).getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
         final ErrorObject errorObject = result.getError().get(0).getErrorObject();
@@ -619,7 +642,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testPccResponseTimeout() throws Exception {
         listener.onSessionUp(session);
-        final Future<RpcResult<AddLspOutput>> addLspResult = topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = (AddLsp) rpcMap.get(AddLsp.class);
+        final Future<RpcResult<AddLspOutput>> addLspResult = addLspRpc.invoke(createAddLspInput());
         assertFalse(addLspResult.isDone());
         assertThrows(TimeoutException.class, () -> addLspResult.get(RPC_TIMEOUT / 2, TimeUnit.SECONDS));
         Thread.sleep(TimeUnit.SECONDS.toMillis(RPC_TIMEOUT));
@@ -632,7 +656,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testDelegatedLspsCountWithDelegation() throws Exception {
         listener.onSessionUp(session);
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = (AddLsp) rpcMap.get(AddLsp.class);
+        addLspRpc.invoke(createAddLspInput());
         assertEquals(1, receivedMsgs.size());
         final var pcinitiate = receivedMsgs.get(0);
         assertThat(pcinitiate, instanceOf(Pcinitiate.class));
@@ -656,7 +681,8 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testDelegatedLspsCountWithoutDelegation() throws Exception {
         listener.onSessionUp(session);
-        topologyRpcs.addLsp(createAddLspInput());
+        final var addLspRpc = (AddLsp) rpcMap.get(AddLsp.class);
+        addLspRpc.invoke(createAddLspInput());
         assertEquals(1, receivedMsgs.size());
         final var pcinitiate = receivedMsgs.get(0);
         assertThat(pcinitiate, instanceOf(Pcinitiate.class));
