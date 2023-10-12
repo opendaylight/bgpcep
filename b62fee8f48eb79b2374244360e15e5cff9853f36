@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d47d8abc_7f9c248c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2023-10-12T13:54:00Z",
+      "side": 1,
+      "message": "please:\n1) split this into per-artifact patches\n2) do not introduce getRpcClassToInstanceMap() where that method is only used by a single internal caller (like in PathComputationServer)",
+      "revId": "b62fee8f48eb79b2374244360e15e5cff9853f36",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
