@@ -9,6 +9,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ClassToInstanceMap;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,24 +23,27 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefreshBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSession;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefully;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefullyOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequestOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeerRpc implements BgpPeerRpcService {
+public class BgpPeerRpc {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerRpc.class);
     private static final String FAILURE_MSG = "Failed to send Route Refresh message";
@@ -53,8 +59,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         this.supportedFamilies = requireNonNull(supportedFamilies);
     }
 
-    @Override
-    public ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
+    @VisibleForTesting
+    ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
         final ListenableFuture<?> f = peerRPCs.releaseConnection();
         return Futures.transform(f, input1 -> {
             if (f.isDone()) {
@@ -65,8 +71,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         }, MoreExecutors.directExecutor());
     }
 
-    @Override
-    public ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(final RestartGracefullyInput input) {
+    @VisibleForTesting
+    ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(final RestartGracefullyInput input) {
         final SettableFuture<RpcResult<RestartGracefullyOutput>> ret = SettableFuture.create();
         Futures.addCallback(peerRPCs.restartGracefully(input.getSelectionDeferralTime().toJava()),
             new FutureCallback<Object>() {
@@ -85,8 +91,8 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         return ret;
     }
 
-    @Override
-    public ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
+    @VisibleForTesting
+    ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
             final RouteRefreshRequestInput input) {
         final ChannelFuture f = sendRRMessage(input);
         if (f == null) {
@@ -111,5 +117,13 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         }
         final RouteRefresh msg = new RouteRefreshBuilder().setAfi(input.getAfi()).setSafi(input.getSafi()).build();
         return ((BGPSessionImpl) session).getLimiter().writeAndFlush(msg);
+    }
+
+    public ClassToInstanceMap<Rpc<?,?>> getRpcClassToInstanceMap() {
+        return ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+            .put(ResetSession.class, this::resetSession)
+            .put(RestartGracefully.class, this::restartGracefully)
+            .put(RouteRefreshRequest.class, this::routeRefreshRequest)
+            .build();
     }
 }
