@@ -57,7 +57,7 @@ public final class DefaultInstructionSchedulerFactory implements InstructionSche
     @Override
     public InstructionScheduler createInstructionScheduler(final String instructionId) {
         LOG.info("Creating Instruction Scheduler {}.", instructionId);
-        return new ProgrammingServiceImpl(dataProvider, notifs, exec, rpcProviderRegistry, cssp, timer, instructionId);
+        return new ProgrammingRpcs(dataProvider, notifs, exec, rpcProviderRegistry, cssp, timer, instructionId);
     }
 
     @Deactivate
