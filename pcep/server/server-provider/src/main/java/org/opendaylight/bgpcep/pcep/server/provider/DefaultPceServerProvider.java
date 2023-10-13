@@ -23,7 +23,6 @@ import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -134,8 +133,7 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
         closeListenerAndManager(topoKey);
 
         /* Then create Path Manger */
-        final NetworkTopologyPcepService ntps = rpcRegistry.getRpcService(NetworkTopologyPcepService.class);
-        PathManagerProvider pathManager = new PathManagerProvider(dataBroker, topology, ntps, this);
+        PathManagerProvider pathManager = new PathManagerProvider(dataBroker, topology, rpcRegistry, this);
 
         /* And Listener */
         PathManagerListener pathListener = new PathManagerListener(dataBroker, topology, pathManager);
