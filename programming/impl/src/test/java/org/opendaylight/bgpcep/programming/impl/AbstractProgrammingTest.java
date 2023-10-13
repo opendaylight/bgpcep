@@ -19,8 +19,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBro
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.ProgrammingService;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 
 abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest {
     @Mock
@@ -30,7 +29,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     @Mock
     ClusterSingletonServiceRegistration singletonServiceRegistration;
     @Mock
-    private ObjectRegistration<ProgrammingService> registration;
+    private Registration registration;
     ClusterSingletonService singletonService;
 
     AbstractProgrammingTest() {
@@ -48,8 +47,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
             return null;
         }).when(this.singletonServiceRegistration).close();
 
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementation(any(),
-            any(ProgrammingService.class));
+        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
 
         doNothing().when(this.registration).close();
     }
