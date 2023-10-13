@@ -53,11 +53,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.add.lsp.args.Arguments;
@@ -118,8 +120,6 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private static final String IPV4_PREFIX2 = "201.20.160.43/32";
 
     @Mock
-    private NetworkTopologyPcepService topologyService;
-    @Mock
     private InstructionScheduler scheduler;
     @Mock
     private ListenableFuture<Instruction> instructionFuture;
@@ -146,6 +146,12 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private ListenableFuture<RpcResult<UpdateLspOutput>> futureUpdateLspOutput;
     @Mock
     private ListenableFuture<RpcResult<RemoveLspOutput>> futureRemoveLspOutput;
+    @Mock
+    private AddLsp addLsp;
+    @Mock
+    private UpdateLsp updateLsp;
+    @Mock
+    private RemoveLsp removeLsp;
 
     private static Node createNode(final NodeId nodeId, final TpId tpId, final String ipv4Address) {
         return new NodeBuilder()
@@ -206,22 +212,23 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         doAnswer(invocation -> {
             addLspInput = invocation.getArgument(0);
             return futureAddLspOutput;
-        }).when(topologyService).addLsp(any(AddLspInput.class));
+        }).when(addLsp).invoke(any(AddLspInput.class));
         doAnswer(invocation -> {
             updateLspInput = invocation.getArgument(0);
             return futureUpdateLspOutput;
-        }).when(topologyService).updateLsp(any(UpdateLspInput.class));
+        }).when(updateLsp).invoke(any(UpdateLspInput.class));
         doAnswer(invocation -> {
             removeLspInput = invocation.getArgument(0);
             return futureRemoveLspOutput;
-        }).when(topologyService).removeLsp(any(RemoveLspInput.class));
+        }).when(removeLsp).invoke(any(RemoveLspInput.class));
         doReturn(instruction).when(instructionFuture).get();
         doReturn(true).when(instructionFuture).isDone();
         doReturn(instructionFuture).when(scheduler)
                 .scheduleInstruction(any(SubmitInstructionInput.class));
 
-        doReturn(topologyService).when(rpcs)
-                .getRpcService(NetworkTopologyPcepService.class);
+        doReturn(addLsp).when(rpcs).getRpc(AddLsp.class);
+        doReturn(updateLsp).when(rpcs).getRpc(UpdateLsp.class);
+        doReturn(removeLsp).when(rpcs).getRpc(RemoveLsp.class);
 
         createInitialTopology();
         tunnelProgramming = new TunnelProgramming(scheduler,
