@@ -12,6 +12,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -58,18 +59,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.AddPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.AddPrefixInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.AddPrefixOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.AddPrefixOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.OdlBgpAppPeerBenchmarkService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.Result;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.ResultBuilder;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -77,7 +80,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, TransactionChainListener, AutoCloseable {
+public final class AppPeerBenchmark implements TransactionChainListener, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppPeerBenchmark.class);
 
@@ -94,7 +97,7 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
     private static final String PREFIX = SLASH + "32";
 
     private final TransactionChain txChain;
-    private final ObjectRegistration<OdlBgpAppPeerBenchmarkService> rpcRegistration;
+    private final Registration rpcRegistration;
     private final InstanceIdentifier<ApplicationRib> appIID;
     private final InstanceIdentifier<Ipv4Routes> routesIId;
     private final String appRibId;
@@ -109,7 +112,11 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
         routesIId = appIID
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
             .child(Ipv4RoutesCase.class, Ipv4Routes.class);
-        rpcRegistration = rpcProviderRegistry.registerRpcImplementation(OdlBgpAppPeerBenchmarkService.class, this);
+        rpcRegistration = rpcProviderRegistry.registerRpcImplementations(
+            ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+                .put(AddPrefix.class, this::addPrefix)
+                .put(DeletePrefix.class, this::deletePrefix)
+                .build());
         LOG.info("BGP Application Peer Benchmark Application started.");
     }
 
@@ -146,8 +153,8 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
         LOG.debug("DatastoreBaAbstractWrite closed successfully, chain {}", chain);
     }
 
-    @Override
-    public ListenableFuture<RpcResult<AddPrefixOutput>> addPrefix(final AddPrefixInput input) {
+    @VisibleForTesting
+    ListenableFuture<RpcResult<AddPrefixOutput>> addPrefix(final AddPrefixInput input) {
         final long duration = addRoute(input.getPrefix(), input.getNexthop(), input.getCount(), input.getBatchsize());
         final long rate = countRate(duration, input.getCount());
 
@@ -156,8 +163,8 @@ public final class AppPeerBenchmark implements OdlBgpAppPeerBenchmarkService, Tr
             .buildFuture();
     }
 
-    @Override
-    public ListenableFuture<RpcResult<DeletePrefixOutput>> deletePrefix(final DeletePrefixInput input) {
+    @VisibleForTesting
+    ListenableFuture<RpcResult<DeletePrefixOutput>> deletePrefix(final DeletePrefixInput input) {
         final long duration = deleteRoute(input.getPrefix(), input.getCount(), input.getBatchsize());
         final long rate = countRate(duration, input.getCount());
 

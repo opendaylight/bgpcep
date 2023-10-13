@@ -32,9 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.OdlBgpAppPeerBenchmarkService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.Result;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -49,12 +48,12 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
     @Mock
     private RpcProviderService rpcRegistry;
     @Mock
-    private ObjectRegistration<OdlBgpAppPeerBenchmarkService> registration;
+    private Registration registration;
+
 
     @Before
     public void setUp() {
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementation(any(),
-                any(OdlBgpAppPeerBenchmarkService.class));
+        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
         doNothing().when(this.registration).close();
     }
 
