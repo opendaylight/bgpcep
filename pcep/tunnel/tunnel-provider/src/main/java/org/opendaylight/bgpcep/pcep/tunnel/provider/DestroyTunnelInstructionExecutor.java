@@ -17,9 +17,10 @@ import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepDestroyTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1;
@@ -35,14 +36,14 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
     private static final Logger LOG = LoggerFactory.getLogger(DestroyTunnelInstructionExecutor.class);
     private final PcepDestroyTunnelInput pcepDestroyTunnelInput;
     private final DataBroker dataProvider;
-    private final NetworkTopologyPcepService topologyService;
+    private final RemoveLsp removeLsp;
 
     DestroyTunnelInstructionExecutor(final PcepDestroyTunnelInput pcepDestroyTunnelInput, final DataBroker dataProvider,
-            final NetworkTopologyPcepService topologyService) {
+            final RpcConsumerRegistry rpcConsumerRegistry) {
         super(pcepDestroyTunnelInput);
         this.pcepDestroyTunnelInput = pcepDestroyTunnelInput;
         this.dataProvider = dataProvider;
-        this.topologyService = topologyService;
+        removeLsp = rpcConsumerRegistry.getRpc(RemoveLsp.class);
     }
 
     @Override
@@ -64,9 +65,8 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
             final RemoveLspInputBuilder ab = new RemoveLspInputBuilder();
             ab.setName(link.augmentation(Link1.class).getSymbolicPathName());
             ab.setNode(node.nonnullSupportingNode().values().iterator().next().key().getNodeRef());
-            return Futures.transform(
-                    topologyService.removeLsp(ab.build()),
-                    RpcResult::getResult, MoreExecutors.directExecutor());
+            return Futures.transform(removeLsp.invoke(ab.build()), RpcResult::getResult,
+                MoreExecutors.directExecutor());
         }
     }
 }
