@@ -53,14 +53,14 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
+public class ProgrammingRpcsTest extends AbstractProgrammingTest {
 
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final String INSTRUCTIONS_QUEUE_KEY = "test-instraction-queue";
     private final Timer timer = new HashedWheelTimer();
     private MockedExecutorWrapper mockedExecutorWrapper;
     private MockedNotificationServiceWrapper mockedNotificationServiceWrapper;
-    private ProgrammingServiceImpl testedProgrammingService;
+    private ProgrammingRpcs testedProgrammingService;
 
     @Before
     @Override
@@ -69,7 +69,7 @@ public class ProgrammingServiceImplTest extends AbstractProgrammingTest {
         mockedExecutorWrapper = new MockedExecutorWrapper();
         mockedNotificationServiceWrapper = new MockedNotificationServiceWrapper();
 
-        testedProgrammingService = new ProgrammingServiceImpl(getDataBroker(),
+        testedProgrammingService = new ProgrammingRpcs(getDataBroker(),
                 mockedNotificationServiceWrapper.getMockedNotificationService(),
                 mockedExecutorWrapper.getMockedExecutor(), rpcRegistry, cssp, timer,
                 INSTRUCTIONS_QUEUE_KEY);
