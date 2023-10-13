@@ -24,6 +24,7 @@ import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.graph.ConnectedVertexTrigger;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -59,14 +60,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.MetricsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.metric.object.MetricBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.path.setup.type.tlv.PathSetupTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLspOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspOutput;
@@ -587,11 +590,11 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     /**
      * Call add-lsp RPC to enforce the LSP into the PCC. This action will trigger a PcInitiate message to the PCC.
      *
-     * @param ntps  Network Topology PCEP Service
+     * @param addLsp Add Lsp RPC
      *
      * @return      Add LSP Output to convey the RPC result
      */
-    public ListenableFuture<RpcResult<AddLspOutput>> addPath(final NetworkTopologyPcepService ntps) {
+    public ListenableFuture<RpcResult<AddLspOutput>> addPath(final AddLsp addLsp) {
         /* Check if we could add this path */
         if ((type != PathType.Initiated) || !teNode.isSync()) {
             return null;
@@ -603,8 +606,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         }
 
         sent = true;
-        final ListenableFuture<RpcResult<AddLspOutput>> enforce = ntps.addLsp(getAddLspInput());
-        LOG.info("Call Add LSP to {} with {}", ntps, enforce);
+        final ListenableFuture<RpcResult<AddLspOutput>> enforce = addLsp.invoke(getAddLspInput());
+        LOG.info("Call Add LSP to {} with {}", addLsp, enforce);
         Futures.addCallback(enforce, new FutureCallback<RpcResult<AddLspOutput>>() {
             @Override
             public void onSuccess(final RpcResult<AddLspOutput> result) {
@@ -712,11 +715,11 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     /**
      * Call update-lsp RPC to enforce the LSP into the PCC. This action will trigger a PcUpdate message to the PCC.
      *
-     * @param ntps  Network Topology PCEP Service
+     * @param updateLsp  Update LSP RPC
      *
      * @return      Update LSP Output to convey the RPC result
      */
-    public ListenableFuture<RpcResult<UpdateLspOutput>> updatePath(final NetworkTopologyPcepService ntps) {
+    public ListenableFuture<RpcResult<UpdateLspOutput>> updatePath(final UpdateLsp updateLsp) {
 
         /* Check if we could update this path */
         if ((type != PathType.Initiated && type != PathType.Delegated) || !teNode.isSync()) {
@@ -730,8 +733,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         sent = true;
         final NodeId id = teNode.getId();
-        final ListenableFuture<RpcResult<UpdateLspOutput>> enforce = ntps.updateLsp(getUpdateLspInput());
-        LOG.info("Call Update LSP to {} with {}", ntps, enforce);
+        final ListenableFuture<RpcResult<UpdateLspOutput>> enforce = updateLsp.invoke(getUpdateLspInput());
+        LOG.info("Call Update LSP to {} with {}", updateLsp, enforce);
         Futures.addCallback(enforce, new FutureCallback<RpcResult<UpdateLspOutput>>() {
             @Override
             public void onSuccess(final RpcResult<UpdateLspOutput> result) {
@@ -758,11 +761,11 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
      * Call remove-lsp RPC to remove the LSP from the PCC. This action will trigger a PcInitiate message to the PCC
      * with 'R' bit set.
      *
-     * @param ntps  Network Topology PCEP Service
+     * @param removeLsp Remove Lsp RPC
      *
      * @return      Remove LSP Output to convey the RPC result
      */
-    public ListenableFuture<RpcResult<RemoveLspOutput>> removePath(final NetworkTopologyPcepService ntps) {
+    public ListenableFuture<RpcResult<RemoveLspOutput>> removePath(final RemoveLsp removeLsp) {
 
         /* Check if we could remove this path */
         if ((type != PathType.Initiated) || !teNode.isSync() || cfgLsp.getPathStatus() != PathStatus.Sync) {
@@ -776,8 +779,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setName(cfgLsp.getName())
                 .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
                 .build();
-        final ListenableFuture<RpcResult<RemoveLspOutput>> enforce = ntps.removeLsp(rli);
-        LOG.info("Call Remove LSP to {} with {}", ntps, enforce);
+        final ListenableFuture<RpcResult<RemoveLspOutput>> enforce = removeLsp.invoke(rli);
+        LOG.info("Call Remove LSP to {} with {}", removeLsp, enforce);
         Futures.addCallback(enforce, new FutureCallback<RpcResult<RemoveLspOutput>>() {
             @Override
             public void onSuccess(final RpcResult<RemoveLspOutput> result) {
