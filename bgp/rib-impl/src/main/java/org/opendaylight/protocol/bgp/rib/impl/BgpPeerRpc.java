@@ -18,9 +18,7 @@ import io.netty.channel.ChannelFuture;
 import java.util.Set;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefresh;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.RouteRefreshBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionOutputBuilder;
@@ -37,11 +35,8 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeerRpc implements BgpPeerRpcService {
-
+final class BgpPeerRpc {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerRpc.class);
-    private static final String FAILURE_MSG = "Failed to send Route Refresh message";
-    private static final String FAILURE_RESET_SESSION_MSG = "Failed to reset session";
 
     private final BGPSession session;
     private final Set<TablesKey> supportedFamilies;
@@ -53,21 +48,18 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         this.supportedFamilies = requireNonNull(supportedFamilies);
     }
 
-    @Override
-    public ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
-        final ListenableFuture<?> f = peerRPCs.releaseConnection();
-        return Futures.transform(f, input1 -> {
-            if (f.isDone()) {
-                return RpcResultBuilder.success(new ResetSessionOutputBuilder().build()).build();
-            }
-            return RpcResultBuilder.<ResetSessionOutput>failed().withError(ErrorType.RPC, FAILURE_RESET_SESSION_MSG)
-                    .build();
-        }, MoreExecutors.directExecutor());
+    ListenableFuture<RpcResult<ResetSessionOutput>> resetSession(final ResetSessionInput input) {
+        final var f = peerRPCs.releaseConnection();
+        return Futures.transform(f,
+            input1 -> f.isDone() ? RpcResultBuilder.success(new ResetSessionOutputBuilder().build()).build()
+                : RpcResultBuilder.<ResetSessionOutput>failed()
+                    .withError(ErrorType.RPC, "Failed to reset session")
+                    .build(),
+            MoreExecutors.directExecutor());
     }
 
-    @Override
-    public ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(final RestartGracefullyInput input) {
-        final SettableFuture<RpcResult<RestartGracefullyOutput>> ret = SettableFuture.create();
+    ListenableFuture<RpcResult<RestartGracefullyOutput>> restartGracefully(final RestartGracefullyInput input) {
+        final var ret = SettableFuture.<RpcResult<RestartGracefullyOutput>>create();
         Futures.addCallback(peerRPCs.restartGracefully(input.getSelectionDeferralTime().toJava()),
             new FutureCallback<Object>() {
                 @Override
@@ -85,22 +77,20 @@ public class BgpPeerRpc implements BgpPeerRpcService {
         return ret;
     }
 
-    @Override
-    public ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(
-            final RouteRefreshRequestInput input) {
-        final ChannelFuture f = sendRRMessage(input);
+    ListenableFuture<RpcResult<RouteRefreshRequestOutput>> routeRefreshRequest(final RouteRefreshRequestInput input) {
+        final var f = sendRRMessage(input);
         if (f == null) {
             return RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC,
-                FAILURE_MSG + " due to unsupported address families.").buildFuture();
+                "Failed to send Route Refresh message due to unsupported address families.").buildFuture();
         }
 
-        final SettableFuture<RpcResult<RouteRefreshRequestOutput>> ret = SettableFuture.create();
-        f.addListener(future -> {
-            ret.set(future.isSuccess()
-                ? RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build()
-                        : RpcResultBuilder.<RouteRefreshRequestOutput>failed().withError(ErrorType.RPC, FAILURE_MSG)
-                        .build());
-        });
+        final var ret = SettableFuture.<RpcResult<RouteRefreshRequestOutput>>create();
+        f.addListener(future -> ret.set(future.isSuccess()
+            ? RpcResultBuilder.success(new RouteRefreshRequestOutputBuilder().build()).build()
+                : RpcResultBuilder.<RouteRefreshRequestOutput>failed()
+                    .withError(ErrorType.RPC, "Failed to send Route Refresh message")
+                    .build())
+        );
         return ret;
     }
 
@@ -109,7 +99,7 @@ public class BgpPeerRpc implements BgpPeerRpcService {
             LOG.info("Unsupported afi/safi: {}, {}.", input.getAfi(), input.getSafi());
             return null;
         }
-        final RouteRefresh msg = new RouteRefreshBuilder().setAfi(input.getAfi()).setSafi(input.getSafi()).build();
-        return ((BGPSessionImpl) session).getLimiter().writeAndFlush(msg);
+        return ((BGPSessionImpl) session).getLimiter()
+            .writeAndFlush(new RouteRefreshBuilder().setAfi(input.getAfi()).setSafi(input.getSafi()).build());
     }
 }

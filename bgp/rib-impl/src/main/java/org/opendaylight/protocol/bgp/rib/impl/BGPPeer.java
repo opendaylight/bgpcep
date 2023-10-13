@@ -16,6 +16,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -85,7 +86,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.BgpPeerRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSession;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefully;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -93,10 +96,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
@@ -143,7 +146,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private AdjRibInWriter ribWriter;
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
-    private ObjectRegistration<BgpPeerRpcService> rpcRegistration;
+    private Registration rpcRegistration;
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
@@ -416,8 +419,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     tables, addPathTableMaps);
 
             if (rpcRegistry != null) {
-                rpcRegistration = rpcRegistry.registerRpcImplementation(BgpPeerRpcService.class,
-                    new BgpPeerRpc(this, session, tables), ImmutableSet.of(rib.getInstanceIdentifier().child(
+                final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
+                rpcRegistration = rpcRegistry.registerRpcImplementations(
+                    ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
+                        .put(ResetSession.class, bgpPeerHandler::resetSession)
+                        .put(RestartGracefully.class, bgpPeerHandler::restartGracefully)
+                        .put(RouteRefreshRequest.class, bgpPeerHandler::routeRefreshRequest)
+                        .build(),
+                    ImmutableSet.of(rib.getInstanceIdentifier().child(
                         org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib
                         .Peer.class, new PeerKey(peerId))));
             }
