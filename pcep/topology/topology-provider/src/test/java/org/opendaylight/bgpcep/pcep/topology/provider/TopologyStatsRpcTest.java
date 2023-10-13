@@ -9,12 +9,19 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -53,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -60,7 +68,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBrokerTest {
+@RunWith(MockitoJUnitRunner.StrictStubs.class)
+public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
     private static final String TOPOLOGY_ID1 = "pcep-topology-1";
     private static final String TOPOLOGY_ID2 = "pcep-topology-2";
     private static final String NONEXISTENT_TOPOLOGY = "nonexistent-topology";
@@ -71,11 +80,18 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     private static final String NONEXISTENT_NODE = "pcc://4.4.4.4";
     private static final String NONPCEP_NODE = "nonpcep-node";
 
-    TopologyStatsRpcServiceImpl rpcService;
+    @Mock
+    private RpcProviderService rpcProviderService;
+    @Mock
+    private Registration rpcReg;
+
+    TopologyStatsRpc rpcService;
 
     @Before
     public void setUp() throws Exception {
-        rpcService = new TopologyStatsRpcServiceImpl(getDataBroker());
+        doReturn(rpcReg).when(rpcProviderService).registerRpcImplementations(any());
+        doNothing().when(rpcReg).close();
+        rpcService = new TopologyStatsRpc(getDataBroker(), rpcProviderService);
 
         // PCEP topology with one PCC node
         final Topology t1 = createTopology(TOPOLOGY_ID1, BindingMap.of(createPcepNode(NODE_ID1)));
