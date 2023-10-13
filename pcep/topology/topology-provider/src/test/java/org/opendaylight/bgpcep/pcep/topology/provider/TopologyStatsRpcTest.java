@@ -60,7 +60,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBrokerTest {
+public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
     private static final String TOPOLOGY_ID1 = "pcep-topology-1";
     private static final String TOPOLOGY_ID2 = "pcep-topology-2";
     private static final String NONEXISTENT_TOPOLOGY = "nonexistent-topology";
@@ -71,11 +71,11 @@ public class TopologyStatsRpcServiceImplTest extends AbstractConcurrentDataBroke
     private static final String NONEXISTENT_NODE = "pcc://4.4.4.4";
     private static final String NONPCEP_NODE = "nonpcep-node";
 
-    TopologyStatsRpcServiceImpl rpcService;
+    TopologyStatsRpc rpcService;
 
     @Before
     public void setUp() throws Exception {
-        rpcService = new TopologyStatsRpcServiceImpl(getDataBroker());
+        rpcService = new TopologyStatsRpc(getDataBroker());
 
         // PCEP topology with one PCC node
         final Topology t1 = createTopology(TOPOLOGY_ID1, BindingMap.of(createPcepNode(NODE_ID1)));
