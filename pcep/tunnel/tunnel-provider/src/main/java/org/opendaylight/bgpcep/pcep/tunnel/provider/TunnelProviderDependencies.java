@@ -13,13 +13,12 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.osgi.framework.BundleContext;
 
 final class TunnelProviderDependencies {
     private final DataBroker dataBroker;
     private final ClusterSingletonServiceProvider cssp;
-    private final NetworkTopologyPcepService ntps;
+    private final RpcConsumerRegistry rpcConsumerRegistry;
     private final RpcProviderService rpcProviderRegistry;
     private final BundleContext bundleContext;
 
@@ -35,7 +34,7 @@ final class TunnelProviderDependencies {
         this.cssp = requireNonNull(cssp);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.bundleContext = requireNonNull(bundleContext);
-        this.ntps = rpcConsumerRegistry.getRpcService(NetworkTopologyPcepService.class);
+        this.rpcConsumerRegistry = requireNonNull(rpcConsumerRegistry);
     }
 
     DataBroker getDataBroker() {
@@ -46,8 +45,8 @@ final class TunnelProviderDependencies {
         return this.cssp;
     }
 
-    NetworkTopologyPcepService getNtps() {
-        return this.ntps;
+    RpcConsumerRegistry getRpcConsumerRegistry() {
+        return this.rpcConsumerRegistry;
     }
 
     RpcProviderService getRpcProviderRegistry() {
