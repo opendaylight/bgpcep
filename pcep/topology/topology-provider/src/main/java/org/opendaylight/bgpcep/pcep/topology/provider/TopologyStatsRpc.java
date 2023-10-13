@@ -7,6 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
@@ -20,6 +22,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
@@ -35,10 +38,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.PeerCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev171113.pcep.session.state.grouping.PcepSessionStateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.PcepTopologyStatsRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -47,28 +50,30 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class TopologyStatsRpcServiceImpl
-        implements PcepTopologyStatsRpcService, ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpcServiceImpl.class);
+final class TopologyStatsRpc implements ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpc.class);
 
     private final ConcurrentMap<InstanceIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
             new ConcurrentHashMap<>();
-    private ListenerRegistration<TopologyStatsRpcServiceImpl> listenerRegistration;
+    private Registration listenerRegistration;
+    private Registration rpcRegistration;
 
-    TopologyStatsRpcServiceImpl(final DataBroker dataBroker) {
+    TopologyStatsRpc(final DataBroker dataBroker, final RpcProviderService rpcProviderService) {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
         listenerRegistration = dataBroker.registerDataTreeChangeListener(
             DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
                     .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build()),
             this);
+        rpcRegistration = rpcProviderService.registerRpcImplementations(ImmutableClassToInstanceMap.of(
+            GetStats.class, this::getStats));
     }
 
     @Override
@@ -91,6 +96,10 @@ final class TopologyStatsRpcServiceImpl
 
     @Override
     public synchronized void close() {
+        if (rpcRegistration != null) {
+            rpcRegistration.close();
+            rpcRegistration = null;
+        }
         if (listenerRegistration != null) {
             LOG.info("Closing PCEP Topology Stats RPC service.");
             listenerRegistration.close();
@@ -98,8 +107,8 @@ final class TopologyStatsRpcServiceImpl
         }
     }
 
-    @Override
-    public ListenableFuture<RpcResult<GetStatsOutput>> getStats(final GetStatsInput input) {
+    @VisibleForTesting
+    ListenableFuture<RpcResult<GetStatsOutput>> getStats(final GetStatsInput input) {
         final var iTopologies = input.getTopology();
         final List<TopologyId> iTopologyIds;
         if (iTopologies != null) {
