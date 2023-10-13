@@ -23,6 +23,7 @@ import org.opendaylight.graph.ConnectedGraphTrigger;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.TransactionChainListener;
@@ -39,7 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.AddLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -60,17 +63,21 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     private final InstanceIdentifier<Topology> pcepTopology;
     private final DataBroker dataBroker;
     private final DefaultPceServerProvider pceServerProvider;
-    private final NetworkTopologyPcepService ntps;
+    private final AddLsp addLsp;
+    private final UpdateLsp updateLsp;
+    private final RemoveLsp removeLsp;
     private TransactionChain chain = null;
     private ConnectedGraph tedGraph = null;
 
     private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<NodeId, ManagedTeNode>();
 
     public PathManagerProvider(final DataBroker dataBroker, KeyedInstanceIdentifier<Topology, TopologyKey> topology,
-            final NetworkTopologyPcepService ntps, final DefaultPceServerProvider pceServerProvider) {
+            final RpcConsumerRegistry rpcRegistry, final DefaultPceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        this.ntps = requireNonNull(ntps);
+        this.addLsp = rpcRegistry.getRpc(AddLsp.class);
+        this.updateLsp = rpcRegistry.getRpc(UpdateLsp.class);
+        this.removeLsp = rpcRegistry.getRpc(RemoveLsp.class);
         this.pcepTopology = requireNonNull(topology);
         initTransactionChain();
         tedGraph = getGraph();
@@ -178,7 +185,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         /* Then, setup Path on PCC if it is synchronized */
         if (teNode.isSync()) {
-            mngLsp.addPath(ntps);
+            mngLsp.addPath(addLsp);
         }
 
         LOG.debug("Added new Managed LSP: {}", mngLsp);
@@ -240,7 +247,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         /* Finally, update Path on PCC if it is synchronized and we computed a valid path */
         if (teNode.isSync()) {
-            mngPath.updatePath(ntps);
+            mngPath.updatePath(updateLsp);
         }
 
         LOG.debug("Updated Managed Paths: {}", mngPath);
@@ -281,9 +288,9 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         /* Finally, update Path on PCC if it is synchronized and computed path is valid */
         if (teNode.isSync()) {
             if (add) {
-                mngPath.addPath(ntps);
+                mngPath.addPath(addLsp);
             } else {
-                mngPath.updatePath(ntps);
+                mngPath.updatePath(updateLsp);
             }
         } else {
             mngPath.unSetTriggerFlag();
@@ -353,7 +360,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
          */
         if (teNode.isSync() && mngPath.getType() == PathType.Initiated
                 && mngPath.getLsp().getPathStatus() == PathStatus.Sync) {
-            mngPath.removePath(ntps);
+            mngPath.removePath(removeLsp);
         }
 
         /*
@@ -447,7 +454,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
                         .build());
                 /* and update Path on PCC if it is synchronized */
                 if (teNode.isSync()) {
-                    newPath.updatePath(ntps);
+                    newPath.updatePath(updateLsp);
                 }
             } else {
                 /* Mark this TE Path as Synchronous and add it to the Managed TE Path */
@@ -500,7 +507,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
         /* Check if we need to update the TE Path */
         if (teNode.isSync() && newStatus == PathStatus.Updated) {
-            curPath.updatePath(ntps);
+            curPath.updatePath(updateLsp);
             LOG.debug("Updated Managed TE Path {} on NodeId {}", curPath, id);
             return curPath;
         }
@@ -668,14 +675,14 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
                         if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
                             updateComputedPath(mngPath, false);
                         } else {
-                            mngPath.updatePath(ntps);
+                            mngPath.updatePath(updateLsp);
                         }
                         break;
                     case Configured:
                         if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
                             updateComputedPath(mngPath, true);
                         } else {
-                            mngPath.addPath(ntps);
+                            mngPath.addPath(addLsp);
                         }
                         break;
                     default:
