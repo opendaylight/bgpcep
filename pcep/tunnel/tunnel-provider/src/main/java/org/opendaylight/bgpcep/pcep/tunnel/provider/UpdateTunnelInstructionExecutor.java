@@ -18,6 +18,7 @@ import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments3Builder;
@@ -26,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lspa.object.LspaBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.NetworkTopologyPcepService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnelInput;
@@ -44,14 +45,14 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateTunnelInstructionExecutor.class);
     private final PcepUpdateTunnelInput updateTunnelInput;
     private final DataBroker dataProvider;
-    private final NetworkTopologyPcepService topologyService;
+    private final UpdateLsp updateLsp;
 
     UpdateTunnelInstructionExecutor(final PcepUpdateTunnelInput updateTunnelInput, final DataBroker dataProvider,
-            final NetworkTopologyPcepService topologyService) {
+            final RpcConsumerRegistry rpcConsumerRegistry) {
         super(updateTunnelInput);
         this.updateTunnelInput = updateTunnelInput;
         this.dataProvider = dataProvider;
-        this.topologyService = topologyService;
+        updateLsp = rpcConsumerRegistry.getRpc(UpdateLsp.class);
     }
 
     @Override
@@ -70,9 +71,8 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
             }
-            return Futures.transform(
-                topologyService.updateLsp(buildUpdateInput(link, node)),
-                RpcResult::getResult, MoreExecutors.directExecutor());
+            return Futures.transform(updateLsp.invoke(buildUpdateInput(link, node)), RpcResult::getResult,
+                MoreExecutors.directExecutor());
         }
     }
 
