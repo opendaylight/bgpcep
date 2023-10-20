@@ -14,22 +14,22 @@ public class HandlerRegistry<C, P, S> {
     private final MultiRegistry<Integer, P> parsers = new MultiRegistry<>();
 
     public Registration registerParser(final int type, final P parser) {
-        return this.parsers.register(type, parser);
+        return parsers.register(type, parser);
     }
 
     public P getParser(final int type) {
-        return this.parsers.get(type);
+        return parsers.get(type);
     }
 
     public Registration registerSerializer(final Class<? extends C> clazz, final S serializer) {
-        return this.serializers.register(clazz, serializer);
+        return serializers.register(clazz, serializer);
     }
 
     public S getSerializer(final Class<? extends C> clazz) {
-        return this.serializers.get(clazz);
+        return serializers.get(clazz);
     }
 
     public Iterable<S> getAllSerializers() {
-        return this.serializers.getAllValues();
+        return serializers.getAllValues();
     }
 }

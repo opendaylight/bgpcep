@@ -7,23 +7,22 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
-import org.opendaylight.yangtools.concepts.Registration;
+import org.junit.jupiter.api.Test;
 
-public class HandlerRegistryTest {
+class HandlerRegistryTest {
     private static final String PARSER = "parser";
     private static final String SERIALIZER = "serializer";
     private static final int TYPE = 1;
 
     @Test
-    public void testHandlerRegistry() {
-        final HandlerRegistry<Object, String, String> registry = new HandlerRegistry<>();
-        final Registration parserReg = registry.registerParser(TYPE, PARSER);
-        final Registration serializerReg = registry.registerSerializer(Object.class, SERIALIZER);
+    void testHandlerRegistry() {
+        final var registry = new HandlerRegistry<Object, String, String>();
+        final var parserReg = registry.registerParser(TYPE, PARSER);
+        final var serializerReg = registry.registerSerializer(Object.class, SERIALIZER);
 
         assertNotNull(parserReg);
         assertNotNull(serializerReg);

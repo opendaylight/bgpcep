@@ -10,60 +10,50 @@ package org.opendaylight.protocol.concepts;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import io.netty.buffer.Unpooled;
 import java.util.HashSet;
-import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
-public class BandwidthTest {
-    private Bandwidth b1;
-    private Bandwidth b2;
-    private Bandwidth b3;
-    private Bandwidth b4;
+class BandwidthTest {
+    private static final Bandwidth B1 = new Bandwidth(Unpooled.copyInt(1000).array());
+    private static final Bandwidth B2 = new Bandwidth(Unpooled.copyInt(2000).array());
+    private static final Bandwidth B3 = new Bandwidth(Unpooled.copyInt(2000).array());
+    private static final Bandwidth B4 = new Bandwidth(Unpooled.copyInt(100).array());
 
-    @Before
-    public void setUp() {
-        this.b1 = new Bandwidth(Unpooled.copyInt(1000).array());
-        this.b2 = new Bandwidth(Unpooled.copyInt(2000).array());
-        this.b3 = new Bandwidth(Unpooled.copyInt(2000).array());
-        this.b4 = new Bandwidth(Unpooled.copyInt(100).array());
+    @Test
+    void testBitsBytes() {
+        assertEquals(1000.0, Unpooled.wrappedBuffer(B1.getValue()).readInt(), 0.1);
     }
 
     @Test
-    public void testBitsBytes() {
-        assertEquals(1000.0, Unpooled.wrappedBuffer(this.b1.getValue()).readInt(), 0.1);
+    void testEquals() {
+        assertFalse(B1.equals(null));
+        assertThat(B1, not(equalTo(new Object())));
+        assertThat(B1, equalTo(B1));
+        assertThat(B1, not(equalTo(B2)));
+        assertEquals(B2, B3);
+        assertNotEquals(B1, new Object());
     }
 
     @Test
-    public void testEquals() {
-        assertFalse(this.b1.equals(null));
-        assertThat(this.b1, not(equalTo(new Object())));
-        assertThat(this.b1, equalTo(this.b1));
-        assertThat(this.b1, not(equalTo(this.b2)));
-        assertEquals(this.b2, this.b3);
-        assertNotEquals(this.b1, new Object());
-    }
+    void testHashCode() {
+        final var set = new HashSet<Bandwidth>();
 
-    @Test
-    public void testHashCode() {
-        final Set<Bandwidth> set = new HashSet<>();
-
-        set.add(this.b1);
+        set.add(B1);
         assertEquals(1, set.size());
 
-        set.add(this.b2);
+        set.add(B2);
         assertEquals(2, set.size());
 
-        set.add(this.b3);
+        set.add(B3);
         assertEquals(2, set.size());
 
-        set.add(this.b4);
+        set.add(B4);
         assertEquals(3, set.size());
     }
 }

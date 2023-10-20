@@ -10,7 +10,6 @@ package org.opendaylight.protocol.concepts;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.ListMultimap;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -34,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class MultiRegistry<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MultiRegistry.class);
+
     private final ConcurrentMap<K, V> current = new ConcurrentHashMap<>();
 
     @GuardedBy("this")
@@ -41,18 +41,18 @@ public final class MultiRegistry<K, V> {
 
     @Holding("this")
     private void updateCurrent(final K key) {
-        final List<V> values = this.candidates.get(key);
+        final var values = candidates.get(key);
 
         // Simple case: no candidates
         if (values.isEmpty()) {
-            this.current.remove(key);
+            current.remove(key);
             return;
         }
 
         V best = values.get(0);
-        for (V v : values) {
-            final Class<?> vc = v.getClass();
-            final Class<?> bc = best.getClass();
+        for (var v : values) {
+            final var vc = v.getClass();
+            final var bc = best.getClass();
             if (bc.isAssignableFrom(vc)) {
                 LOG.debug("{} is superclass of {}, preferring the latter", bc, vc);
                 best = v;
@@ -64,11 +64,11 @@ public final class MultiRegistry<K, V> {
         }
 
         LOG.debug("New best value {}", best);
-        this.current.put(key, best);
+        current.put(key, best);
     }
 
     public synchronized Registration register(final K key, final V value) {
-        this.candidates.put(key, value);
+        candidates.put(key, value);
         updateCurrent(key);
 
         return new AbstractRegistration() {
@@ -83,10 +83,10 @@ public final class MultiRegistry<K, V> {
     }
 
     public V get(final K key) {
-        return this.current.get(key);
+        return current.get(key);
     }
 
     public Iterable<V> getAllValues() {
-        return Iterables.unmodifiableIterable(this.current.values());
+        return Iterables.unmodifiableIterable(current.values());
     }
 }

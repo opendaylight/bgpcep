@@ -5,28 +5,26 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.concepts;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-public class DefaultInstanceReferenceTest {
-
-    private static final InstanceIdentifier<NetworkTopology> IID
-            = InstanceIdentifier.builder(NetworkTopology.class).build();
+class DefaultInstanceReferenceTest {
+    private static final InstanceIdentifier<NetworkTopology> IID = InstanceIdentifier.create(NetworkTopology.class);
 
     @Test
-    public void testDefaultInstanceReference() {
-        final DefaultInstanceReference<NetworkTopology> defaultIID = new DefaultInstanceReference<>(IID);
-        Assert.assertEquals(IID, defaultIID.getInstanceIdentifier());
+    void testDefaultInstanceReference() {
+        final var defaultIID = new DefaultInstanceReference<>(IID);
+        assertEquals(IID, defaultIID.getInstanceIdentifier());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testNullReference() {
-        new DefaultInstanceReference<>(null);
+    @Test
+    void testNullReference() {
+        assertThrows(NullPointerException.class, () -> new DefaultInstanceReference<>(null));
     }
-
 }

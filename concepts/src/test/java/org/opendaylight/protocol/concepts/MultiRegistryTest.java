@@ -7,22 +7,20 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
-import org.opendaylight.yangtools.concepts.Registration;
+import org.junit.jupiter.api.Test;
 
-public class MultiRegistryTest {
-
+class MultiRegistryTest {
     @Test
-    public void testMultiRegistry() {
-        final MultiRegistry<Object, Integer> registry = new MultiRegistry<>();
-        final String first = "first";
-        final String second = "second";
-        final String third = "third";
+    void testMultiRegistry() {
+        final var registry = new MultiRegistry<Object, Integer>();
+        final var first = "first";
+        final var second = "second";
+        final var third = "third";
 
-        final Registration a = registry.register(first, 1);
+        final var a = registry.register(first, 1);
         registry.register(second, 2);
         registry.register(third, 3);
 
@@ -44,9 +42,9 @@ public class MultiRegistryTest {
     }
 
     @Test
-    public void testDifferentNumbers() {
-        final MultiRegistry<Object, Number> registry = new MultiRegistry<>();
-        final String first = "first";
+    void testDifferentNumbers() {
+        final var registry = new MultiRegistry<Object, Number>();
+        final var first = "first";
 
         registry.register(first, 1);
         assertEquals(1, registry.get("first"));
@@ -60,9 +58,9 @@ public class MultiRegistryTest {
 
     @Test
     public void testDifferentClasses() {
-        final MultiRegistry<Object, Object> registry = new MultiRegistry<>();
-        final String first = "first";
-        final String second = "second";
+        final var registry = new MultiRegistry<>();
+        final var first = "first";
+        final var second = "second";
 
         registry.register(first, 1);
         assertEquals(1, registry.get("first"));

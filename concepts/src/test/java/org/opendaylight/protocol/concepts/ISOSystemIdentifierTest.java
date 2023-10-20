@@ -7,23 +7,24 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
-public class ISOSystemIdentifierTest {
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testISOSystemIdentifier() {
-        final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1, 1 };
-        new IsoSystemIdentifier(b);
+class ISOSystemIdentifierTest {
+    @Test
+    void testISOSystemIdentifier() {
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> new IsoSystemIdentifier(new byte[] { 10, 12, 127, 0, 9, 1, 1 }));
+        assertEquals("Invalid length: 0a0c7f00090101, expected: [[6..6]].", ex.getMessage());
     }
 
     @Test
-    public void testGetBytes() {
-        final byte[] b = new byte[] { 10, 12, 127, 0, 9, 1 };
-        final IsoSystemIdentifier id = new IsoSystemIdentifier(b);
-        Assert.assertArrayEquals(new byte[] { 10, 12, 127, 0, 9, 1 }, id.getValue());
+    void testGetBytes() {
+        final var id = new IsoSystemIdentifier(new byte[] { 10, 12, 127, 0, 9, 1 });
+        assertArrayEquals(new byte[] { 10, 12, 127, 0, 9, 1 }, id.getValue());
     }
-
 }
