@@ -17,7 +17,7 @@
 
     <artifactId>features-aggregator-algo</artifactId>
     <groupId>org.opendaylight.bgpcep</groupId>
-    <version>0.18.9</version>
+    <version>0.18.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
