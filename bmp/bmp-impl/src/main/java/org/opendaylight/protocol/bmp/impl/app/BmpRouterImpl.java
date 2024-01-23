@@ -25,10 +25,8 @@ import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouter;
@@ -45,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.peers.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.Router;
 import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -53,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListener {
+public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
 
     private static final Logger LOG = LoggerFactory.getLogger(BmpRouterImpl.class);
 
@@ -83,7 +82,8 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
     public BmpRouterImpl(final RouterSessionManager sessionManager) {
         this.sessionManager = requireNonNull(sessionManager);
         domDataBroker = sessionManager.getDomDataBroker();
-        domTxChain = domDataBroker.createMergingTransactionChain(this);
+        domTxChain = domDataBroker.createMergingTransactionChain();
+        domTxChain.addCallback(this);
         extensions = sessionManager.getExtensions();
         tree = sessionManager.getCodecTree();
     }
@@ -182,14 +182,13 @@ public final class BmpRouterImpl implements BmpRouter, DOMTransactionChainListen
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final DOMTransactionChain chain,
-        final DOMDataTreeTransaction transaction, final Throwable cause) {
+    public synchronized void onFailure(final Throwable cause) {
         LOG.error("Transaction chain failed.", cause);
     }
 
     @Override
-    public void onTransactionChainSuccessful(final DOMTransactionChain chain) {
-        LOG.debug("Transaction chain {} successfully.", chain);
+    public void onSuccess(final Empty value) {
+        LOG.debug("Transaction chain finished successfully.");
     }
 
     private synchronized boolean isDatastoreWritable() {

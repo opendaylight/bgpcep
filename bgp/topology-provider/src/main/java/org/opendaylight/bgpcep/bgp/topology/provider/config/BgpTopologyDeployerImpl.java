@@ -9,8 +9,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
@@ -26,11 +26,10 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -57,7 +56,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     private final Set<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
     private final ClusterSingletonServiceProvider singletonProvider;
-    private ListenerRegistration<BgpTopologyDeployerImpl> registration;
+    private Registration registration;
     @GuardedBy("this")
     private boolean closed;
 
@@ -73,7 +72,7 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeModification<Topology>> changes) {
         if (closed) {
             LOG.trace("BGP Topology Provider Deployer was already closed, skipping changes.");
             return;

@@ -89,7 +89,7 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
-        doReturn(rpcReg).when(rpcProviderService).registerRpcImplementations(any());
+        doReturn(rpcReg).when(rpcProviderService).registerRpcImplementation(any());
         doNothing().when(rpcReg).close();
         rpcService = new TopologyStatsRpc(getDataBroker(), rpcProviderService);
 

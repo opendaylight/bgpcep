@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Objects;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer;
@@ -125,7 +125,7 @@ final class AppPeer extends PeerBean {
 
     private static final class BgpAppPeerSingletonService implements BGPPeerStateProvider {
         private final ApplicationPeer applicationPeer;
-        private final DOMDataTreeChangeService dataTreeChangeService;
+        private final DataTreeChangeExtension dataTreeChangeService;
         private final ApplicationRibId appRibId;
         @GuardedBy("this")
         private boolean isServiceInstantiated;
@@ -139,11 +139,13 @@ final class AppPeer extends PeerBean {
 
         synchronized void instantiateServiceInstance() {
             isServiceInstantiated = true;
-            final YangInstanceIdentifier yangIId = YangInstanceIdentifier.builder().node(APPRIB)
-                    .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, appRibId.getValue())
-                    .node(TABLES_NID).node(TABLES_NID).build();
             applicationPeer.instantiateServiceInstance(dataTreeChangeService,
-                    new DOMDataTreeIdentifier(LogicalDatastoreType.CONFIGURATION, yangIId));
+                DOMDataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,  YangInstanceIdentifier.builder()
+                    .node(APPRIB)
+                    .nodeWithKey(ApplicationRib.QNAME, APP_ID_QNAME, appRibId.getValue())
+                    .node(TABLES_NID)
+                    .node(TABLES_NID)
+                    .build()));
         }
 
         synchronized ListenableFuture<?> closeServiceInstance() {

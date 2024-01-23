@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,16 +29,14 @@ import org.mockito.MockitoAnnotations;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -58,6 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -95,7 +93,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private FluentFuture<? extends CommitInfo> future;
 
     @Mock
-    private DOMDataTreeChangeService service;
+    private DataTreeChangeExtension service;
 
     @Mock
     private ClusterSingletonServiceProvider clusterSingletonServiceProvider;
@@ -117,7 +115,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         a1.startRIBExtensionProvider(context, serializer);
 
         mockedMethods();
-        doReturn(mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
+        doReturn(mock(Registration.class)).when(clusterSingletonServiceProvider)
                 .registerClusterSingletonService(any(ClusterSingletonService.class));
         rib = new RIBImpl(tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
             dispatcher, new ConstantCodecsRegistry(serializer), dom, policies, localTables,
@@ -128,8 +126,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     private void mockedMethods() throws Exception {
         MockitoAnnotations.initMocks(this);
         doReturn(new TestListenerRegistration()).when(service)
-                .registerDataTreeChangeListener(any(DOMDataTreeIdentifier.class),
-                        any(ClusteredDOMDataTreeChangeListener.class));
+                .registerTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
         doNothing().when(domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
@@ -140,9 +137,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(domTransWrite).when(domChain).newWriteOnlyTransaction();
         doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
-        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, service)).when(dom)
-            .getExtensions();
-        doReturn(domChain).when(dom).createMergingTransactionChain(any(DOMTransactionChainListener.class));
+        doReturn(service).when(dom).extension(DataTreeChangeExtension.class);
+        doReturn(domChain).when(dom).createMergingTransactionChain();
+        doNothing().when(domChain).addCallback(any());
         doReturn(Optional.empty()).when(future).get();
         doReturn(future).when(domTransWrite).commit();
         doCallRealMethod().when(future).addCallback(any(), any());

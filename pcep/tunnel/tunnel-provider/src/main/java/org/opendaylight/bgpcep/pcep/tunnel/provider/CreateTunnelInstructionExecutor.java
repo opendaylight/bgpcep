@@ -20,7 +20,7 @@ import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -65,11 +65,11 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private final PcepCreateP2pTunnelInput p2pTunnelInput;
 
     CreateTunnelInstructionExecutor(final PcepCreateP2pTunnelInput p2pTunnelInput, final DataBroker dataProvider,
-            final RpcConsumerRegistry rpcConsumerRegistry) {
+            final RpcService rpcService) {
         super(p2pTunnelInput);
         this.p2pTunnelInput = p2pTunnelInput;
         this.dataProvider = dataProvider;
-        addLsp = rpcConsumerRegistry.getRpc(AddLsp.class);
+        addLsp = rpcService.getRpc(AddLsp.class);
     }
 
     private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii,

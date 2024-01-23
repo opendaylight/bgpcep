@@ -26,10 +26,9 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.spi.BmpMonitoringStation;
@@ -42,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.bmp.monitor.Monitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.rfc2385.cfg.rev160324.Rfc2385Key;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
@@ -54,7 +54,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
 
     private static final QName MONITOR_ID_QNAME = QName.create(Monitor.QNAME, "monitor-id").intern();
     private static final ServiceGroupIdentifier SERVICE_GROUP_IDENTIFIER =
-            ServiceGroupIdentifier.create("bmp-monitors-service-group");
+            new ServiceGroupIdentifier("bmp-monitors-service-group");
 
     private final DOMDataBroker domDataBroker;
     private final InetSocketAddress address;
@@ -64,7 +64,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private final RouterSessionManager sessionManager;
     private final YangInstanceIdentifier yangMonitorId;
     private Channel channel;
-    private ClusterSingletonServiceRegistration singletonServiceRegistration;
+    private Registration singletonServiceRegistration;
 
     public BmpMonitoringStationImpl(final DOMDataBroker domDataBroker, final BmpDispatcher dispatcher,
             final RIBExtensionConsumerContext extensions, final BindingCodecTree codecTree,
@@ -83,14 +83,14 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
         sessionManager = new RouterSessionManager(yangMonitorId, this.domDataBroker, extensions, codecTree);
 
         LOG.info("BMP Monitor Singleton Service {} registered, Monitor Id {}",
-                getIdentifier().getName(), this.monitorId.getValue());
+                getIdentifier().value(), this.monitorId.getValue());
         singletonServiceRegistration = singletonProvider.registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instantiated, Monitor Id {}",
-                getIdentifier().getName(), monitorId.getValue());
+                getIdentifier().value(), monitorId.getValue());
 
         final ChannelFuture channelFuture = dispatcher.createServer(address, sessionManager,
                 constructKeys(monitoredRouters));
@@ -128,7 +128,7 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("BMP Monitor Singleton Service {} instance closed, Monitor Id {}",
-                getIdentifier().getName(), monitorId.getValue());
+                getIdentifier().value(), monitorId.getValue());
         if (channel != null) {
             channel.close().addListener((ChannelFutureListener) future -> {
                 Preconditions.checkArgument(future.isSuccess(),

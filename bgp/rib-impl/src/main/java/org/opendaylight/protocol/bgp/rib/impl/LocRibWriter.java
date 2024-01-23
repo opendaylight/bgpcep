@@ -31,8 +31,8 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -57,7 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -74,15 +74,14 @@ import org.slf4j.LoggerFactory;
 
 // This class is NOT thread-safe
 final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-        implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter,
-        ClusteredDOMDataTreeChangeListener {
+        implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter, DOMDataTreeChangeListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
     private final Map<String, RouteEntry<C, S>> routeEntries = new HashMap<>();
     private final long ourAs;
     private final RIBSupport<C, S> ribSupport;
-    private final DOMDataTreeChangeService dataBroker;
+    private final DataTreeChangeExtension dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
@@ -93,13 +92,13 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     private DOMTransactionChain chain;
     @GuardedBy("this")
-    private ListenerRegistration<?> reg;
+    private Registration reg;
 
     private LocRibWriter(final RIBSupport<C, S> ribSupport,
             final DOMTransactionChain chain,
             final YangInstanceIdentifier ribIId,
             final Uint32 ourAs,
-            final DOMDataTreeChangeService dataBroker,
+            final DataTreeChangeExtension dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final BGPPeerTracker peerTracker,
             final AfiSafiType afiSafiType,
@@ -126,7 +125,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final @NonNull DOMTransactionChain chain,
             final @NonNull YangInstanceIdentifier ribIId,
             final @NonNull AsNumber ourAs,
-            final @NonNull DOMDataTreeChangeService dataBroker,
+            final @NonNull DataTreeChangeExtension dataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final @NonNull BGPPeerTracker peerTracker,
             final @NonNull PathSelectionMode pathSelectionStrategy) {
@@ -152,7 +151,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             }
         }, MoreExecutors.directExecutor());
 
-        reg = dataBroker.registerDataTreeChangeListener(new DOMDataTreeIdentifier(
+        reg = dataBroker.registerTreeChangeListener(DOMDataTreeIdentifier.of(
             LogicalDatastoreType.OPERATIONAL, ribIId.node(PEER_NID).node(PEER_NID).node(EFFRIBIN_NID).node(TABLES_NID)
                 .node(locRibTableIID.getLastPathArgument())), this);
     }

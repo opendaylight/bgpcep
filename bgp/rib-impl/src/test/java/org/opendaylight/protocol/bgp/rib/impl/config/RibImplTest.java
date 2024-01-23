@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
@@ -44,7 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -84,12 +83,10 @@ public class RibImplTest extends AbstractConfig {
         final NodeIdentifierWithPredicates niie = NodeIdentifierWithPredicates.of(Rib.QNAME,
                 QName.create("", "test").intern(), "t");
         doReturn(niie).when(emptyTable).name();
-        doReturn(domTx).when(domDataBroker).createMergingTransactionChain(any());
-        final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(domDataBroker).getExtensions();
-        doReturn(mock(ListenerRegistration.class)).when(dOMDataTreeChangeService)
-                .registerDataTreeChangeListener(any(), any());
+        doReturn(domTx).when(domDataBroker).createMergingTransactionChain();
+        final DataTreeChangeExtension domDataTreeChangeService = mock(DataTreeChangeExtension.class);
+        doReturn(domDataTreeChangeService).when(domDataBroker).extension(DataTreeChangeExtension.class);
+        doReturn(mock(Registration.class)).when(domDataTreeChangeService).registerTreeChangeListener(any(), any());
     }
 
     @Test
@@ -97,7 +94,7 @@ public class RibImplTest extends AbstractConfig {
         final RibImpl ribImpl = new RibImpl(extension, dispatcher, policyProvider, codecsRegistry,
                 new BGPStateCollector(), domDataBroker);
         ribImpl.start(createGlobal(), "rib-test", tableTypeRegistry);
-        verify(domDataBroker).getExtensions();
+        verify(domDataBroker).extension(DataTreeChangeExtension.class);
         assertEquals("""
             RIBImpl{bgpId=Ipv4Address{value=127.0.0.1}, localTables=[BgpTableTypeImpl [\
             getAfi()=Ipv4AddressFamily{qname=\
