@@ -107,7 +107,7 @@ public final class BestPathStateImpl implements BestPathState {
             return;
         }
 
-        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.getIdentifier().getNodeType().getModule());
+        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.name().getNodeType().getModule());
         localPref = (Uint32) NormalizedNodes.findNode(attributes, ids.locPref)
             .map(NormalizedNode::body)
             .orElse(null);
