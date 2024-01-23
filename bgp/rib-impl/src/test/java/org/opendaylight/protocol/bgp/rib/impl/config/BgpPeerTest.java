@@ -144,7 +144,7 @@ public class BgpPeerTest extends AbstractConfig {
             .build();
 
         bgpPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
-        verify(rib).createPeerDOMChain(any());
+        verify(rib).createPeerDOMChain();
         verify(rib, times(2)).getLocalAs();
         verify(rib).getLocalTables();
 
@@ -162,7 +162,7 @@ public class BgpPeerTest extends AbstractConfig {
         bgpPeer.stop().get();
         bgpPeer.start(rib, bgpPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
         bgpPeer.instantiateServiceInstance();
-        verify(rib, times(2)).createPeerDOMChain(any());
+        verify(rib, times(2)).createPeerDOMChain();
         verify(rib, times(4)).getLocalAs();
         verify(rib, times(2)).getLocalTables();
         verify(bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
