@@ -86,7 +86,7 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
             .withChild(ImmutableNodes.leafNode(NAME, GLOBAL_BGP_NAME))
             .build());
         wtx.merge(LogicalDatastoreType.CONFIGURATION,
-            GLOBAL_BGP_PATH.node(Protocols.QNAME).node(protocols.getIdentifier()), protocols);
+            GLOBAL_BGP_PATH.node(Protocols.QNAME).node(protocols.name()), protocols);
         return wtx.commit();
     }
 }
