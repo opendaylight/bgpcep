@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
@@ -17,9 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -57,7 +55,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class TopologyStatsRpc implements ClusteredDataTreeChangeListener<PcepSessionState>, AutoCloseable {
+final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpc.class);
 
     private final ConcurrentMap<InstanceIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
@@ -67,24 +65,22 @@ final class TopologyStatsRpc implements ClusteredDataTreeChangeListener<PcepSess
 
     TopologyStatsRpc(final DataBroker dataBroker, final RpcProviderService rpcProviderService) {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
-        listenerRegistration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+        listenerRegistration = dataBroker.registerTreeChangeListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
                     .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build()),
             this);
-        rpcRegistration = rpcProviderService.registerRpcImplementations(ImmutableClassToInstanceMap.of(
-            GetStats.class, this::getStats));
+        rpcRegistration = rpcProviderService.registerRpcImplementation((GetStats) this::getStats);
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<PcepSessionState>> changes) {
+    public void onDataTreeChanged(final List<DataTreeModification<PcepSessionState>> changes) {
         changes.forEach(change -> {
-            final InstanceIdentifier<PcepSessionState> iid = change.getRootPath().getRootIdentifier();
-            final DataObjectModification<PcepSessionState> mod = change.getRootNode();
-            switch (mod.getModificationType()) {
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    sessionStateMap.put(iid, mod.getDataAfter());
+            final var iid = change.getRootPath().path();
+            final var mod = change.getRootNode();
+            switch (mod.modificationType()) {
+                case SUBTREE_MODIFIED, WRITE:
+                    sessionStateMap.put(iid, mod.dataAfter());
                     break;
                 case DELETE:
                     sessionStateMap.remove(iid);

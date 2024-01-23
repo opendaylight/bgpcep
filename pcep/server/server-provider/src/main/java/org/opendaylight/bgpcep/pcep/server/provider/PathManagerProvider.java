@@ -11,11 +11,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.util.concurrent.FutureCallback;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PreDestroy;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
@@ -23,10 +23,8 @@ import org.opendaylight.graph.ConnectedGraphTrigger;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.graph.ConnectedVertexTrigger;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
-import org.opendaylight.mdsal.binding.api.Transaction;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Vertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
@@ -48,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Olivier Dugeon
  */
 
-public final class PathManagerProvider implements TransactionChainListener, AutoCloseable, ConnectedGraphTrigger {
+public final class PathManagerProvider implements FutureCallback<Empty>, AutoCloseable, ConnectedGraphTrigger {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerProvider.class);
     private final InstanceIdentifier<Topology> pcepTopology;
     private final DataBroker dataBroker;
@@ -69,16 +68,17 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     private TransactionChain chain = null;
     private ConnectedGraph tedGraph = null;
 
-    private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<NodeId, ManagedTeNode>();
+    private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<>();
 
-    public PathManagerProvider(final DataBroker dataBroker, KeyedInstanceIdentifier<Topology, TopologyKey> topology,
-            final RpcConsumerRegistry rpcRegistry, final DefaultPceServerProvider pceServerProvider) {
+    public PathManagerProvider(final DataBroker dataBroker,
+            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final RpcService rpcService,
+            final DefaultPceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.pceServerProvider = requireNonNull(pceServerProvider);
-        this.addLsp = rpcRegistry.getRpc(AddLsp.class);
-        this.updateLsp = rpcRegistry.getRpc(UpdateLsp.class);
-        this.removeLsp = rpcRegistry.getRpc(RemoveLsp.class);
-        this.pcepTopology = requireNonNull(topology);
+        addLsp = rpcService.getRpc(AddLsp.class);
+        updateLsp = rpcService.getRpc(UpdateLsp.class);
+        removeLsp = rpcService.getRpc(RemoveLsp.class);
+        pcepTopology = requireNonNull(topology);
         initTransactionChain();
         tedGraph = getGraph();
         LOG.info("Path Manager Server started for topology {}", topology.getKey().getTopologyId().getValue());
@@ -91,7 +91,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     @Deactivate
     @PreDestroy
     public void close() {
-        this.tedGraph = pceServerProvider.getTedGraph();
+        tedGraph = pceServerProvider.getTedGraph();
         if (tedGraph != null) {
             tedGraph.unRegisterTrigger(this, InstanceIdentifier.keyOf(pcepTopology));
         }
@@ -100,7 +100,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
 
     private ConnectedGraph getGraph() {
         if (tedGraph == null) {
-            this.tedGraph = pceServerProvider.getTedGraph();
+            tedGraph = pceServerProvider.getTedGraph();
             if (tedGraph != null) {
                 tedGraph.registerTrigger(this, InstanceIdentifier.keyOf(pcepTopology));
             }
@@ -113,17 +113,18 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
      */
     private synchronized void initTransactionChain() {
         LOG.debug("Initializing transaction chain for Path Manager Server {}", this);
-        checkState(this.chain == null, "Transaction chain has to be closed before being initialized");
-        this.chain = dataBroker.createMergingTransactionChain(this);
+        checkState(chain == null, "Transaction chain has to be closed before being initialized");
+        chain = dataBroker.createMergingTransactionChain();
+        chain.addCallback(this);
     }
 
     /**
      * Destroy the current transaction chain.
      */
     private synchronized void destroyTransactionChain() {
-        if (this.chain != null) {
+        if (chain != null) {
             LOG.debug("Destroy transaction chain for Path Manager {}", this);
-            this.chain = null;
+            chain = null;
         }
     }
 
@@ -139,14 +140,12 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain transactionChain,
-            final Transaction transaction, final Throwable cause) {
-        LOG.error("Path Manager Provider for {} failed in transaction: {} ", pcepTopology,
-                transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onFailure(final Throwable cause) {
+        LOG.error("Path Manager Provider for {}", pcepTopology, cause);
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain transactionChain) {
+    public void onSuccess(final Empty value) {
         LOG.info("Path Manager Provider for {} shut down", pcepTopology);
     }
 
@@ -260,7 +259,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
      *
      * @param mngPath  Managed TE Path to be updated
      */
-    private void updateComputedPath(final ManagedTePath mngPath, boolean add) {
+    private void updateComputedPath(final ManagedTePath mngPath, final boolean add) {
         checkArgument(mngPath != null, "Provided Managed TE Path is a null object");
 
         final ManagedTeNode teNode = mngPath.getManagedTeNode();
@@ -307,7 +306,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
      *
      * @return          new or updated TE Path i.e. original TE Path augmented by a valid computed route.
      */
-    public ConfiguredLsp createManagedTePath(final NodeId id, ConfiguredLsp cfgLsp) {
+    public ConfiguredLsp createManagedTePath(final NodeId id, final ConfiguredLsp cfgLsp) {
         checkArgument(id != null, "Provided Node ID is a null object");
         checkArgument(cfgLsp != null, "Provided TE Path is a null object");
 
@@ -417,7 +416,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
      *
      * @return          Newly created or Updated Managed TE Path
      */
-    public ManagedTePath registerTePath(NodeId id, final ConfiguredLsp rptPath, final PathType ptype) {
+    public ManagedTePath registerTePath(final NodeId id, final ConfiguredLsp rptPath, final PathType ptype) {
         checkArgument(id != null, "Provided Node ID is a null object");
 
         /* Verify we got a valid reported TE Path */
@@ -496,8 +495,8 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
         }
 
         /* Check if Current Path has no valid route while Reported Path has one */
-        if ((curPath.getLsp().getComputedPath().getPathDescription() == null)
-                && (rptPath.getComputedPath().getPathDescription() != null)) {
+        if (curPath.getLsp().getComputedPath().getPathDescription() == null
+                && rptPath.getComputedPath().getPathDescription() != null) {
             curPath.setConfiguredLsp(new ConfiguredLspBuilder(rptPath).setPathStatus(PathStatus.Sync).build());
             curPath.updateGraph(getGraph());
             curPath.updateToDataStore();
@@ -582,7 +581,7 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
      * @return      True if Managed TE Node exist, false otherwise
      */
     public boolean checkManagedTeNode(final NodeId id) {
-        return (mngNodes.get(id) != null);
+        return mngNodes.get(id) != null;
     }
 
     /**
@@ -744,8 +743,8 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     }
 
     @Override
-    public void verifyVertex(Collection<ConnectedVertexTrigger> triggers, @Nullable ConnectedVertex current,
-            @Nullable Vertex next) {
+    public void verifyVertex(final Collection<ConnectedVertexTrigger> triggers, final ConnectedVertex current,
+            final Vertex next) {
         for (ConnectedVertexTrigger trigger : triggers) {
             if (trigger.verifyVertex(current, next)) {
                 updateComputedPath((ManagedTePath )trigger, false);
@@ -754,8 +753,8 @@ public final class PathManagerProvider implements TransactionChainListener, Auto
     }
 
     @Override
-    public void verifyEdge(Collection<ConnectedEdgeTrigger> triggers, @Nullable ConnectedEdge current,
-            @Nullable Edge next) {
+    public void verifyEdge(final Collection<ConnectedEdgeTrigger> triggers, final ConnectedEdge current,
+            final Edge next) {
         for (ConnectedEdgeTrigger trigger : triggers) {
             if (trigger.verifyEdge(current, next)) {
                 updateComputedPath((ManagedTePath )trigger, false);

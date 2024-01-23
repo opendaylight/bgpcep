@@ -23,27 +23,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagedTeNode {
-
     private enum NodeState {
         Disabled,
         Enabled,
         Sync
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(ManagedTeNode.class);
+
+    private final ConcurrentMap<ConfiguredLspKey, ManagedTePath> mngPaths = new ConcurrentHashMap<>();
+    private final TransactionChain chain;
     private final NodeId id;
     private NodeState state;
-    private ConcurrentMap<ConfiguredLspKey, ManagedTePath> mngPaths =
-            new ConcurrentHashMap<ConfiguredLspKey, ManagedTePath>();
-    private final TransactionChain chain;
-    private static final Logger LOG = LoggerFactory.getLogger(ManagedTeNode.class);
 
     public ManagedTeNode(final NodeId id, final TransactionChain chain) {
         this.id = id;
         this.chain = chain;
-        this.state = NodeState.Enabled;
+        state = NodeState.Enabled;
     }
 
-    public ManagedTeNode(final NodeId id, TransactionChain chain, final NodeState state) {
+    public ManagedTeNode(final NodeId id, final TransactionChain chain, final NodeState state) {
         this.id = id;
         this.chain = chain;
         this.state = state;

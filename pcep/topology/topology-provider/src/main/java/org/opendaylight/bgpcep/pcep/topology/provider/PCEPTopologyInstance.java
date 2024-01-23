@@ -10,15 +10,12 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.Collection;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.opendaylight.mdsal.binding.api.DataListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
-import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -32,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * This class tracks the configuration content of a particular topology instance and propagates updates towards its
  * associated {@link PCEPTopologyProvider}.
  */
-final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topology> {
+final class PCEPTopologyInstance implements DataListener<Topology> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyInstance.class);
 
     private final @NonNull TopologyKey topology;
@@ -50,8 +47,8 @@ final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topo
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
 
-        reg = dependencies.getDataBroker().registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, instanceIdentifier), this);
+        reg = dependencies.getDataBroker().registerDataListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, instanceIdentifier), this);
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 
@@ -66,17 +63,15 @@ final class PCEPTopologyInstance implements ClusteredDataTreeChangeListener<Topo
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
+    public synchronized void dataChangedTo(final Topology data) {
         if (reg == null) {
             // We have been shut down, do not process any more updates
             return;
         }
 
-        // We are only interested in the after-image
-        final var content = Iterables.getLast(changes).getRootNode().getDataAfter();
-        if (content != null) {
-            LOG.trace("Updating topology {} configuration to {}", topologyId(), content);
-            provider.updateConfiguration(PCEPTopologyConfiguration.of(content));
+        if (data != null) {
+            LOG.trace("Updating topology {} configuration to {}", topologyId(), data);
+            provider.updateConfiguration(PCEPTopologyConfiguration.of(data));
         } else {
             LOG.info("Topology {} configuration disappeared, ignoring update in anticipation of shutdown",
                 topologyId());
