@@ -21,7 +21,7 @@ import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -39,26 +39,27 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true)
 public final class DefaultPceServerProvider implements PceServerProvider, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultPceServerProvider.class);
+
+    private final Map<TopologyId, PathManagerProvider> pathManagers = new HashMap<>();
+    private final Map<TopologyId, PathManagerListener> pathListeners = new HashMap<>();
+    private final Map<TopologyId, PcepTopologyListener> pcepListeners = new HashMap<>();
     private final ConnectedGraphProvider graphProvider;
     private final PathComputationProvider algoProvider;
     private final DataBroker dataBroker;
-    private final RpcConsumerRegistry rpcRegistry;
-    private Map<TopologyId, PathManagerProvider> pathManagers = new HashMap<TopologyId, PathManagerProvider>();
-    private Map<TopologyId, PathManagerListener> pathListeners = new HashMap<TopologyId, PathManagerListener>();
-    private Map<TopologyId, PcepTopologyListener> pcepListeners = new HashMap<TopologyId, PcepTopologyListener>();
+    private final RpcService rpcService;
+
     private volatile ConnectedGraph tedGraph;
     private volatile GraphKey graphKey;
 
     @Inject
     @Activate
     public DefaultPceServerProvider(@Reference final ConnectedGraphProvider graphProvider,
-            @Reference final PathComputationProvider pathComputationProvider,
-            @Reference final DataBroker dataBroker,
-            @Reference final RpcConsumerRegistry rpcConsumerRegistry) {
+            @Reference final PathComputationProvider pathComputationProvider, @Reference final DataBroker dataBroker,
+            @Reference final RpcService rpcService) {
         this.graphProvider = requireNonNull(graphProvider);
-        this.algoProvider = requireNonNull(pathComputationProvider);
+        algoProvider = requireNonNull(pathComputationProvider);
         this.dataBroker = requireNonNull(dataBroker);
-        this.rpcRegistry = requireNonNull(rpcConsumerRegistry);
+        this.rpcService = requireNonNull(rpcService);
     }
 
     @Override
@@ -82,8 +83,7 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
         pathManagers.clear();
     }
 
-    private void closeListenerAndManager(TopologyId key) {
-
+    private void closeListenerAndManager(final TopologyId key) {
         PathManagerListener pathListener = pathListeners.remove(key);
         if (pathListener != null) {
             pathListener.close();
@@ -123,9 +123,10 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
     }
 
     @Override
-    public void registerPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology, GraphKey key) {
+    public void registerPcepTopology(final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
+            final GraphKey key) {
         TopologyId topoKey = requireNonNull(topology).getKey().getTopologyId();
-        this.graphKey = requireNonNull(key);
+        graphKey = requireNonNull(key);
 
         LOG.info("Start PCE Server components for Topology {} with TED {}", topoKey.getValue(), graphKey.getName());
 
@@ -133,7 +134,7 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
         closeListenerAndManager(topoKey);
 
         /* Then create Path Manger */
-        PathManagerProvider pathManager = new PathManagerProvider(dataBroker, topology, rpcRegistry, this);
+        PathManagerProvider pathManager = new PathManagerProvider(dataBroker, topology, rpcService, this);
 
         /* And Listener */
         PathManagerListener pathListener = new PathManagerListener(dataBroker, topology, pathManager);
@@ -146,9 +147,9 @@ public final class DefaultPceServerProvider implements PceServerProvider, AutoCl
     }
 
     @Override
-    public void unRegisterPcepTopology(KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
+    public void unRegisterPcepTopology(final KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
         TopologyId topoKey = requireNonNull(topology).getKey().getTopologyId();
-        this.graphKey = null;
+        graphKey = null;
 
         LOG.info("Stop PCE Server for Topology {}", topoKey.getValue());
         closeListenerAndManager(topoKey);

@@ -42,10 +42,9 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelInstructionOutput;
@@ -89,7 +88,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     private final Timer timer;
     private final String instructionId;
     private final ServiceGroupIdentifier sgi;
-    private final ClusterSingletonServiceRegistration csspReg;
+    private final Registration csspReg;
     private final RpcProviderService rpcProviderRegistry;
     @GuardedBy("this")
     private Registration reg;
@@ -168,14 +167,14 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         this.timer = requireNonNull(timer);
         qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
                 new InstructionsQueueKey(this.instructionId)).build();
-        sgi = ServiceGroupIdentifier.create(this.instructionId + "-service-group");
-        LOG.info("Creating Programming Service {}.", sgi.getName());
+        sgi = new ServiceGroupIdentifier(this.instructionId + "-service-group");
+        LOG.info("Creating Programming Service {}.", sgi.value());
         csspReg = cssp.registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        LOG.info("Instruction Queue service {} instantiated", sgi.getName());
+        LOG.info("Instruction Queue service {} instantiated", sgi.value());
         reg = rpcProviderRegistry.registerRpcImplementations(ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
             .put(CancelInstruction.class, this::cancelInstruction)
             .put(CleanInstructions.class, this::cleanInstructions)
@@ -401,7 +400,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     private synchronized void tryScheduleInstruction(final InstructionImpl instruction) {
         final ListenableFuture<ExecutionResult<Details>> f = instruction.ready();
         if (f != null) {
-            Futures.addCallback(f, new FutureCallback<ExecutionResult<Details>>() {
+            Futures.addCallback(f, new FutureCallback<>() {
                 @Override
                 public void onSuccess(final ExecutionResult<Details> result) {
                     tryScheduleDependants(instruction);
@@ -413,12 +412,11 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
                 }
             }, MoreExecutors.directExecutor());
         }
-
     }
 
     @Override
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
-        LOG.info("Closing Instruction Queue service {}", sgi.getName());
+        LOG.info("Closing Instruction Queue service {}", sgi.value());
 
         if (reg != null) {
             reg.close();

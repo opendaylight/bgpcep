@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,9 +19,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -68,13 +68,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.DataObjectStep;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NodeChangedListener implements ClusteredDataTreeChangeListener<Node> {
+public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
     private final InstanceIdentifier<Topology> target;
     private final DataBroker dataProvider;
@@ -285,7 +285,7 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
                 new TerminationPointKey(tp)).build();
     }
 
-    private InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
+    private @NonNull InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
         return target.child(Node.class, new NodeKey(node));
     }
 
@@ -394,24 +394,23 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        final ReadWriteTransaction trans = dataProvider.newReadWriteTransaction();
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
+        final var trans = dataProvider.newReadWriteTransaction();
 
-        final Set<InstanceIdentifier<ReportedLsp>> lsps = new HashSet<>();
-        final Set<InstanceIdentifier<Node>> nodes = new HashSet<>();
+        final var lsps = new HashSet<InstanceIdentifier<ReportedLsp>>();
+        final var nodes = new HashSet<InstanceIdentifier<Node>>();
 
-        final Map<InstanceIdentifier<?>, DataObject> original = new HashMap<>();
-        final Map<InstanceIdentifier<?>, DataObject> updated = new HashMap<>();
-        final Map<InstanceIdentifier<?>, DataObject> created = new HashMap<>();
+        final var original = new HashMap<InstanceIdentifier<?>, DataObject>();
+        final var updated = new HashMap<InstanceIdentifier<?>, DataObject>();
+        final var created = new HashMap<InstanceIdentifier<?>, DataObject>();
 
-        for (final DataTreeModification<?> change : changes) {
-            final InstanceIdentifier<?> iid = change.getRootPath().getRootIdentifier();
-            final DataObjectModification<?> rootNode = change.getRootNode();
-            handleChangedNode(rootNode, iid, lsps, nodes, original, updated, created);
+        for (final var change : changes) {
+            handleChangedNode(change.getRootNode(), change.getRootPath().path(), lsps, nodes, original, updated,
+                created);
         }
 
         // Now walk all nodes, check for removals/additions and cascade them to LSPs
-        for (final InstanceIdentifier<Node> iid : nodes) {
+        for (var iid : nodes) {
             enumerateLsps(iid, (Node) original.get(iid), lsps);
             enumerateLsps(iid, (Node) updated.get(iid), lsps);
             enumerateLsps(iid, (Node) created.get(iid), lsps);
@@ -442,28 +441,26 @@ public final class NodeChangedListener implements ClusteredDataTreeChangeListene
         categorizeIdentifier(iid, lsps, nodes);
 
         // Get the subtrees
-        switch (changedNode.getModificationType()) {
+        switch (changedNode.modificationType()) {
             case DELETE:
-                original.put(iid, changedNode.getDataBefore());
+                original.put(iid, changedNode.dataBefore());
                 break;
             case SUBTREE_MODIFIED:
-                original.put(iid, changedNode.getDataBefore());
-                updated.put(iid, changedNode.getDataAfter());
+                original.put(iid, changedNode.dataBefore());
+                updated.put(iid, changedNode.dataAfter());
                 break;
             case WRITE:
-                created.put(iid, changedNode.getDataAfter());
+                created.put(iid, changedNode.dataAfter());
                 break;
             default:
-                throw new IllegalArgumentException("Unhandled modification type " + changedNode.getModificationType());
+                throw new IllegalArgumentException("Unhandled modification type " + changedNode.modificationType());
         }
 
-        for (DataObjectModification<? extends DataObject> child : changedNode.getModifiedChildren()) {
-            final List<PathArgument> pathArguments = new ArrayList<>();
-            for (PathArgument pathArgument : iid.getPathArguments()) {
-                pathArguments.add(pathArgument);
-            }
-            pathArguments.add(child.getIdentifier());
-            final InstanceIdentifier<?> childIID = InstanceIdentifier.unsafeOf(pathArguments);
+        for (var child : changedNode.modifiedChildren()) {
+            final var pathArguments = new ArrayList<DataObjectStep<?>>();
+            iid.getPathArguments().forEach(pathArguments::add);
+            pathArguments.add(child.step());
+            final var childIID = InstanceIdentifier.unsafeOf(pathArguments);
             handleChangedNode(child, childIID, lsps, nodes, original, updated, created);
         }
     }

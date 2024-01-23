@@ -9,14 +9,12 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
@@ -47,14 +45,14 @@ public class AppPeerTest extends AbstractConfig {
         appPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
         verify(rib).getYangRibId();
         verify(rib).getService();
-        verify(rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        verify(rib).createPeerDOMChain();
         verify(rib, times(1)).getLocalTablesKeys();
 
         appPeer.instantiateServiceInstance();
         verify(rib, times(3)).getYangRibId();
         verify(rib, times(2)).getRibSupportContext();
         verify(rib, times(2)).getLocalTablesKeys();
-        verify(rib, times(2)).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        verify(rib, times(2)).createPeerDOMChain();
         verify(domTx).newWriteOnlyTransaction();
 
         appPeer.closeServiceInstance();
@@ -65,7 +63,7 @@ public class AppPeerTest extends AbstractConfig {
         appPeer.instantiateServiceInstance();
         verify(rib, times(6)).getYangRibId();
         verify(rib, times(4)).getService();
-        verify(rib, times(4)).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        verify(rib, times(4)).createPeerDOMChain();
         verify(listener, times(2)).close();
 
         assertTrue(appPeer.containsEqualConfiguration(neighbor));
@@ -76,7 +74,7 @@ public class AppPeerTest extends AbstractConfig {
         verify(domTx, times(4)).close();
 
         appPeer.instantiateServiceInstance();
-        verify(rib, times(6)).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        verify(rib, times(6)).createPeerDOMChain();
         appPeer.closeServiceInstance();
         verify(domTx, times(6)).close();
         appPeer.stop().get();

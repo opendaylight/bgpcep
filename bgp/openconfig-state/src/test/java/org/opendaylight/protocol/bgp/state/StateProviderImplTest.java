@@ -278,7 +278,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
             public DOMStore createOperationalDatastore() {
                 realOperStore = new InMemoryDOMDataStore("OPER", getDataTreeChangeListenerExecutor());
                 spiedOperStore = spy(realOperStore);
-                getSchemaService().registerSchemaContextListener(spiedOperStore);
+                getSchemaService().registerSchemaContextListener(spiedOperStore::onModelContextUpdated);
                 return spiedOperStore;
             }
 

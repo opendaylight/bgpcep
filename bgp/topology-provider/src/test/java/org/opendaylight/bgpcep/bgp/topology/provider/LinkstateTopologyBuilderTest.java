@@ -394,7 +394,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         verify(spiedLinkstateTopologyBuilder, never()).resetListener();
         Thread.sleep(LISTENER_RESTART_TIME);
         // manually invoke onTransactionChainFailed() to have the listener restart scheduled again
-        spiedLinkstateTopologyBuilder.onTransactionChainFailed(null, null, null);
+        spiedLinkstateTopologyBuilder.onFailure(null);
         assertEquals(spiedLinkstateTopologyBuilder.listenerScheduledRestartTime, listenerScheduledRestartTime
                 + LISTENER_RESTART_TIME);
         verify(spiedLinkstateTopologyBuilder, times(5)).restartTransactionChainOnDemand();

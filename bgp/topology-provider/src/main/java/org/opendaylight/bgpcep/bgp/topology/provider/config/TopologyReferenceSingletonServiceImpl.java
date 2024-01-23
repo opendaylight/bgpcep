@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
@@ -15,7 +14,7 @@ import org.opendaylight.bgpcep.bgp.topology.provider.AbstractTopologyBuilder;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -32,40 +31,40 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
             final BgpTopologyDeployer deployer, final Topology configuration) {
         this.configuration = requireNonNull(configuration);
         this.topologyBuilder = requireNonNull(topologyBuilder);
-        this.serviceRegistration = deployer.registerService(this);
+        serviceRegistration = deployer.registerService(this);
     }
 
     @Override
     public InstanceIdentifier<Topology> getInstanceIdentifier() {
-        return this.topologyBuilder.getInstanceIdentifier();
+        return topologyBuilder.getInstanceIdentifier();
     }
 
     @Override
     public void close() {
-        this.serviceRegistration.close();
+        serviceRegistration.close();
     }
 
     @Override
     public void instantiateServiceInstance() {
         LOG.info("Topology Singleton Service {} instantiated", getIdentifier());
-        this.topologyBuilder.start();
+        topologyBuilder.start();
     }
 
     @Override
     public FluentFuture<? extends CommitInfo> closeServiceInstance() {
         LOG.info("Close Topology Singleton Service {}", getIdentifier());
-        return this.topologyBuilder.close();
+        return topologyBuilder.close();
     }
 
     @Override
     public ServiceGroupIdentifier getIdentifier() {
-        return ServiceGroupIdentifier.create(getInstanceIdentifier().firstKeyOf(Topology.class)
-                .getTopologyId().getValue());
+        return new ServiceGroupIdentifier(
+            getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
     }
 
     @Override
     public Topology getConfiguration() {
-        return this.configuration;
+        return configuration;
     }
 
 }
