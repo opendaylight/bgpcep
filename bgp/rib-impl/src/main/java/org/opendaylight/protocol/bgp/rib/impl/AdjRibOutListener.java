@@ -108,8 +108,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     public void onDataTreeChanged(final List<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (var tc : changes) {
-            LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().getModificationType());
-            for (var child : tc.getRootNode().getChildNodes()) {
+            LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().modificationType());
+            for (var child : tc.getRootNode().childNodes()) {
                 for (var route : support.changedRoutes(child)) {
                     processRouteChange(route);
                 }
@@ -124,7 +124,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
 
     private void processRouteChange(final DataTreeCandidateNode route) {
         final Update update;
-        switch (route.getModificationType()) {
+        switch (route.modificationType()) {
             case UNMODIFIED:
                 LOG.debug("Skipping unmodified route {}", route.name());
                 return;
@@ -141,7 +141,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
                 LOG.debug("Advertising routes {}", update);
                 break;
             default:
-                LOG.warn("Ignoring unhandled modification type {}", route.getModificationType());
+                LOG.warn("Ignoring unhandled modification type {}", route.modificationType());
                 return;
         }
         session.write(update);
