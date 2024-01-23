@@ -66,7 +66,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
@@ -290,7 +289,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             final Uint32 pathId = ribSupport.extractPathId(routeId);
 
             RouteEntry<C, S> entry;
-            switch (route.getModificationType()) {
+            switch (route.modificationType()) {
                 case DELETE:
                     entry = routeEntries.get(routeKey);
                     if (entry != null) {
@@ -309,7 +308,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                         entry = createEntry(routeKey);
                     }
 
-                    final NormalizedNode routeAfter = route.getDataAfter();
+                    final var routeAfter = route.getDataAfter();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
                     entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
                     totalPathsCounter.increment();

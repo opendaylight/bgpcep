@@ -189,7 +189,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         for (final DataTreeCandidate tc : changes) {
             final YangInstanceIdentifier rootPath = tc.getRootPath();
             final DataTreeCandidateNode root = tc.getRootNode();
-            for (final DataTreeCandidateNode table : root.getChildNodes()) {
+            for (final DataTreeCandidateNode table : root.childNodes()) {
                 if (tx == null) {
                     tx = chain.newWriteOnlyTransaction();
                 }
@@ -289,7 +289,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
 
         final YangInstanceIdentifier effectiveTablePath = effectiveTablePath(tableKey);
-        final ModificationType modificationType = root.getModificationType();
+        final ModificationType modificationType = root.modificationType();
         LOG.debug("Effective table {} modification type {}", effectiveTablePath, modificationType);
         switch (modificationType) {
             case DISAPPEARED:
@@ -453,7 +453,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.name());
         final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.name());
-        switch (route.getModificationType()) {
+        switch (route.modificationType()) {
             case DELETE:
             case DISAPPEARED:
                 deleteRoute(tx, ribSupport, routePath, route.dataBefore());
