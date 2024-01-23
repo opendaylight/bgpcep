@@ -57,7 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -82,7 +82,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final InstanceIdentifier<Topology> TUNNEL_TOPO_IID = InstanceIdentifier
             .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID)).build();
 
-    private ListenerRegistration<NodeChangedListener> listenerRegistration;
+    private Registration listenerRegistration;
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException {
@@ -95,7 +95,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         wTx.commit().get();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
                 PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
-        this.listenerRegistration = getDataBroker().registerDataTreeChangeListener(DataTreeIdentifier.create(
+        listenerRegistration = getDataBroker().registerTreeChangeListener(DataTreeIdentifier.of(
                 LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
     }
 
@@ -197,7 +197,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
     @After
     public void tearDown() {
-        this.listenerRegistration.close();
+        listenerRegistration.close();
     }
 
     private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final Uint32 lspId,

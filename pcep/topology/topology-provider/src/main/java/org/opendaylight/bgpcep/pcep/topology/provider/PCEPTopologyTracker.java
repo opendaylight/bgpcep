@@ -15,7 +15,7 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,13 +27,13 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 @Component(service = { })
 public final class PCEPTopologyTracker
-        implements PCEPTopologyProviderDependencies, ClusteredDataTreeChangeListener<TopologyPcep>, AutoCloseable {
+        implements PCEPTopologyProviderDependencies, DataTreeChangeListener<TopologyPcep>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyTracker.class);
 
     // Services we are using
@@ -131,7 +131,7 @@ public final class PCEPTopologyTracker
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
-        reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
+        reg = dataBroker.registerTreeChangeListener(DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build()), this);
         LOG.info("PCEP Topology tracker initialized");
@@ -203,7 +203,7 @@ public final class PCEPTopologyTracker
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<TopologyPcep>> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeModification<TopologyPcep>> changes) {
         if (reg == null) {
             // Registration has been terminated, do not process any changes
             return;
@@ -211,10 +211,10 @@ public final class PCEPTopologyTracker
 
         for (var change : changes) {
             final var root = change.getRootNode();
-            switch (root.getModificationType()) {
+            switch (root.modificationType()) {
                 case WRITE:
                     // We only care if the topology has been newly introduced, not when its details have changed
-                    if (root.getDataBefore() == null) {
+                    if (root.dataBefore() == null) {
                         createInstance(extractTopologyKey(change));
                     }
                     break;
@@ -257,7 +257,7 @@ public final class PCEPTopologyTracker
     }
 
     private static @NonNull TopologyKey extractTopologyKey(final DataTreeModification<?> change) {
-        final var path = change.getRootPath().getRootIdentifier();
+        final var path = change.getRootPath().path();
         return verifyNotNull(path.firstKeyOf(Topology.class), "No topology key in %s", path);
     }
 }
