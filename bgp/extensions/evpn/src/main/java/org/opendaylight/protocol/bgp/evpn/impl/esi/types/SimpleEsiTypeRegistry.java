@@ -102,7 +102,7 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
         checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
                 "Wrong length of array of bytes. Passed: %s;", buffer.readableBytes());
 
-        final EsiParser parser = this.handlers.getParser(EsiType.forValue(buffer.readByte()).getIntValue());
+        final EsiParser parser = handlers.getParser(EsiType.forValue(buffer.readByte()).getIntValue());
         return parser == null ? null : parser.parseEsi(buffer.readSlice(ESI_LENGTH));
     }
 
@@ -113,7 +113,7 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
         final Collection<DataContainerChild> value = esiChoice.body();
         checkArgument(!value.isEmpty(), "ESI may not be empty");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(value);
-        final EsiSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
+        final EsiSerializer serializer = modelHandlers.get(cont.name());
         if (serializer != null) {
             return serializer.serializeEsi(cont);
         }
@@ -124,7 +124,7 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
 
     @Override
     public void serializeEsi(final Esi esi, final ByteBuf buffer) {
-        final EsiSerializer serializer = this.handlers.getSerializer(esi.implementedInterface());
+        final EsiSerializer serializer = handlers.getSerializer(esi.implementedInterface());
         if (serializer != null) {
             serializer.serializeEsi(esi, buffer);
         }

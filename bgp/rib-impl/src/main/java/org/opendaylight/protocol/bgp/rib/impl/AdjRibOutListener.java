@@ -126,7 +126,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
         final Update update;
         switch (route.getModificationType()) {
             case UNMODIFIED:
-                LOG.debug("Skipping unmodified route {}", route.getIdentifier());
+                LOG.debug("Skipping unmodified route {}", route.name());
                 return;
             case DELETE:
             case DISAPPEARED:

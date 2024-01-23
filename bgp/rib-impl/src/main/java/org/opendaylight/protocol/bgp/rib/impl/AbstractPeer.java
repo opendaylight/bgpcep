@@ -370,7 +370,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         final Peer fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
         final RIBSupport<?, ?> ribSupport = entryDep.getRIBSupport();
         final BGPRouteEntryExportParameters routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this,
-            ribSupport.extractRouteKey(route.getIdentifier()), rtCache);
+            ribSupport.extractRouteKey(route.name()), rtCache);
 
         final Attributes bindingAttrs = ribSupport.attributeFromContainerNode(attrs);
         final Optional<Attributes> optExportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry,

@@ -280,7 +280,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private void updateRoutesEntries(final Collection<DataTreeCandidateNode> collection,
             final RouterId routerId, final Map<RouteUpdateKey, RouteEntry<C, S>> routes) {
         for (final DataTreeCandidateNode route : collection) {
-            final PathArgument routeArg = route.getIdentifier();
+            final PathArgument routeArg = route.name();
             if (!(routeArg instanceof NodeIdentifierWithPredicates routeId)) {
                 LOG.debug("Route {} already deleted", routeArg);
                 return;

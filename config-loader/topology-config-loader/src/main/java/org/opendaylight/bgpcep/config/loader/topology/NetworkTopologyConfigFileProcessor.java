@@ -67,9 +67,9 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
         final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
 
         LOG.info("Storing Topologies {}", topologies.body().stream()
-            .map(topo -> topo.getIdentifier().asMap()).collect(Collectors.toList()));
+            .map(topo -> topo.name().asMap()).collect(Collectors.toList()));
         wtx.merge(LogicalDatastoreType.CONFIGURATION,
-            YangInstanceIdentifier.create(new NodeIdentifier(NetworkTopology.QNAME), topologies.getIdentifier()),
+            YangInstanceIdentifier.create(new NodeIdentifier(NetworkTopology.QNAME), topologies.name()),
             topologies);
 
         return wtx.commit();

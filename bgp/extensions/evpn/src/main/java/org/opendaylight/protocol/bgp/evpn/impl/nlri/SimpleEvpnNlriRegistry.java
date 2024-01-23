@@ -85,13 +85,13 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public EvpnChoice parseEvpn(final NlriType type, final ByteBuf buffer) {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
-        final EvpnParser parser = this.handlers.getParser(type.getIntValue());
+        final EvpnParser parser = handlers.getParser(type.getIntValue());
         return parser == null ? null : parser.parseEvpn(buffer);
     }
 
     @Override
     public ByteBuf serializeEvpn(final EvpnChoice evpn, final ByteBuf common) {
-        final EvpnSerializer serializer = this.handlers.getSerializer(evpn.implementedInterface());
+        final EvpnSerializer serializer = handlers.getSerializer(evpn.implementedInterface());
         return serializer == null ? common : serializer.serializeEvpn(evpn, common);
     }
 
@@ -110,7 +110,7 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
         final Collection<DataContainerChild> value = evpnChoice.body();
         checkArgument(!value.isEmpty(), "Evpn case is mandatyr, cannot be empty");
         final ContainerNode cont = (ContainerNode) Iterables.getOnlyElement(value);
-        final EvpnSerializer serializer = this.modelHandlers.get(cont.getIdentifier());
+        final EvpnSerializer serializer = modelHandlers.get(cont.name());
         return serializer == null ? null : serializerInterface.check(serializer, cont);
     }
 }

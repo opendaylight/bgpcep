@@ -24,7 +24,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -55,7 +54,7 @@ final class BmpRibInWriter {
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE =
             ImmutableNodes.leafNode(QName.create(BMP_ATTRIBUTES_QNAME, "uptodate").intern(), Boolean.FALSE);
     private static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE =
-            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.getIdentifier(), Boolean.TRUE);
+            ImmutableNodes.leafNode(ATTRIBUTES_UPTODATE_FALSE.name(), Boolean.TRUE);
 
     private final DOMTransactionChain chain;
     private final Map<TablesKey, TableContext> tables;
@@ -130,7 +129,7 @@ final class BmpRibInWriter {
 
         final ImmutableMap.Builder<TablesKey, TableContext> tb = ImmutableMap.builder();
         for (final TablesKey tableType : tableTypes) {
-            final RIBSupport rs = ribExtensions.getRIBSupport(tableType);
+            final var rs = ribExtensions.getRIBSupport(tableType);
             if (rs == null) {
                 LOG.warn("No support for table type {}, skipping it", tableType);
                 continue;
@@ -143,7 +142,7 @@ final class BmpRibInWriter {
             ctx.createTable(tx);
 
             tx.put(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(BMP_ATTRIBUTES_QNAME)
-                    .node(ATTRIBUTES_UPTODATE_FALSE.getIdentifier()), ATTRIBUTES_UPTODATE_FALSE);
+                    .node(ATTRIBUTES_UPTODATE_FALSE.name()), ATTRIBUTES_UPTODATE_FALSE);
             LOG.debug("Created table instance {}", ctx.getTableId());
             tb.put(tableType, ctx);
         }
@@ -285,7 +284,7 @@ final class BmpRibInWriter {
         final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         final TableContext ctxPre = tables.get(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctxPre.getTableId().node(BMP_ATTRIBUTES_QNAME)
-                .node(ATTRIBUTES_UPTODATE_TRUE.getIdentifier()), ATTRIBUTES_UPTODATE_TRUE);
+                .node(ATTRIBUTES_UPTODATE_TRUE.name()), ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

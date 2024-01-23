@@ -152,7 +152,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
         if (ribSupport != null) {
             final MapEntryNode emptyTable = ribSupport.emptyTable();
             final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
-                    .builder(yangRibId.node(LOCRIB_NID).node(TABLES_NID)).node(emptyTable.getIdentifier());
+                    .builder(yangRibId.node(LOCRIB_NID).node(TABLES_NID)).node(emptyTable.name());
 
             tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), emptyTable);
             try {
