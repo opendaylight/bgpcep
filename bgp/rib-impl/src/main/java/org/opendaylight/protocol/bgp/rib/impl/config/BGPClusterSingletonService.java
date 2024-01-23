@@ -36,10 +36,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -52,6 +51,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.t
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfig;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     @GuardedBy("this")
     private RibImpl ribImpl;
     @GuardedBy("this")
-    private ClusterSingletonServiceRegistration cssRegistration;
+    private Registration cssRegistration;
 
     BGPClusterSingletonService(
             final @NonNull PeerGroupConfigLoader peerGroupLoader,
@@ -106,9 +106,9 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         this.stateProviderRegistry = stateProviderRegistry;
         this.domDataBroker = domDataBroker;
         this.bgpIid = bgpIid;
-        serviceGroupIdentifier = ServiceGroupIdentifier.create(getRibInstanceName(bgpIid) + "-service-group");
+        serviceGroupIdentifier = new ServiceGroupIdentifier(getRibInstanceName(bgpIid) + "-service-group");
         cssRegistration = provider.registerClusterSingletonService(this);
-        LOG.info("BGPClusterSingletonService {} registered", serviceGroupIdentifier.getName());
+        LOG.info("BGPClusterSingletonService {} registered", serviceGroupIdentifier.value());
     }
 
     @Override
@@ -123,12 +123,12 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             peers.values().forEach(PeerBean::instantiateServiceInstance);
         }
         instantiated.set(true);
-        LOG.info("BGPClusterSingletonService {} instantiated", serviceGroupIdentifier.getName());
+        LOG.info("BGPClusterSingletonService {} instantiated", serviceGroupIdentifier.value());
     }
 
     @Override
     public synchronized ListenableFuture<?> closeServiceInstance() {
-        LOG.info("BGPClusterSingletonService {} close service instance", serviceGroupIdentifier.getName());
+        LOG.info("BGPClusterSingletonService {} close service instance", serviceGroupIdentifier.value());
         instantiated.set(false);
 
         final List<ListenableFuture<?>> futurePeerCloseList = peers.values().stream()
@@ -239,7 +239,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             return;
         }
 
-        LOG.info("Closing BGPClusterSingletonService {}", serviceGroupIdentifier.getName());
+        LOG.info("Closing BGPClusterSingletonService {}", serviceGroupIdentifier.value());
         cssRegistration.close();
         cssRegistration = null;
 

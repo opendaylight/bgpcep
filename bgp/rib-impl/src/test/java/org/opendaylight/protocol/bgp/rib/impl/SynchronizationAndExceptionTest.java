@@ -23,7 +23,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -47,7 +46,7 @@ import org.mockito.Mock;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
@@ -94,7 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -190,16 +189,15 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(null).when(futureChannel).addListener(any());
         doReturn(futureChannel).when(speakerListener).close();
         doReturn(futureChannel).when(speakerListener).writeAndFlush(any(Notify.class));
-        doReturn(domChain).when(domBroker).createMergingTransactionChain(any());
+        doReturn(domChain).when(domBroker).createMergingTransactionChain();
         doReturn(tx).when(domChain).newWriteOnlyTransaction();
-        final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
-        final ListenerRegistration<?> listener = mock(ListenerRegistration.class);
+        final DataTreeChangeExtension dOMDataTreeChangeService = mock(DataTreeChangeExtension.class);
+        final Registration listener = mock(Registration.class);
         doReturn(listener).when(dOMDataTreeChangeService).registerDataTreeChangeListener(any(), any());
         doNothing().when(listener).close();
         doNothing().when(domChain).close();
 
-        doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
-                .when(domBroker).getExtensions();
+        doReturn(List.of(dOMDataTreeChangeService)).when(domBroker).supportedExtensions();
         doNothing().when(tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
