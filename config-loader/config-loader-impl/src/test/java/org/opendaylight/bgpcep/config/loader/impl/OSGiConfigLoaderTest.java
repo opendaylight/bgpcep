@@ -54,7 +54,7 @@ public class OSGiConfigLoaderTest {
         }).when(watchKey).pollEvents();
         doReturn("watchEvent").when(watchEvent).context();
         doReturn(true).when(watchKey).reset();
-        doReturn(domContext).when(bindingContext).getEffectiveModelContext();
+        doReturn(domContext).when(bindingContext).modelContext();
 
         loader = new OSGiConfigLoader();
         loader.watcher = watcher;
