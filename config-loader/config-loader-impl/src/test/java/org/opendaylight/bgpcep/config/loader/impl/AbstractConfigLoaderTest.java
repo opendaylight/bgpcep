@@ -45,13 +45,13 @@ public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBro
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         doNothing().when(processor).loadConfiguration(any());
-        configLoader.updateModelContext(getSchemaContext());
+        configLoader.updateModelContext(modelContext());
     }
 
     @Override
     protected AbstractDataBrokerTestCustomizer createDataBrokerTestCustomizer() {
-        final AbstractDataBrokerTestCustomizer customizer = super.createDataBrokerTestCustomizer();
-        this.schemaService = customizer.getSchemaService();
+        final var customizer = super.createDataBrokerTestCustomizer();
+        schemaService = customizer.getSchemaService();
         return customizer;
     }
 

@@ -25,9 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -85,6 +84,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -148,7 +148,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         groups = new BGPNettyGroups();
         serverRegistry = new StrictBGPPeerRegistry();
         serverDispatcher = new BGPDispatcherImpl(context, groups, serverRegistry);
-        doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
+        doReturn(Mockito.mock(Registration.class)).when(clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
 
         codecsRegistry = new ConstantCodecsRegistry(mappingService.currentSerializer());

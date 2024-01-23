@@ -38,8 +38,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
@@ -67,7 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
@@ -102,8 +102,7 @@ import org.slf4j.LoggerFactory;
  * This class is NOT thread-safe.
  */
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
-        AutoCloseable, ClusteredDOMDataTreeChangeListener {
-
+        AutoCloseable, DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     private static final TablesKey IVP4_VPN_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
@@ -120,11 +119,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;
     private final YangInstanceIdentifier effRibTables;
-    private final DOMDataTreeChangeService service;
+    private final DataTreeChangeExtension service;
     private final List<RouteTarget> rtMemberships;
     private final RibOutRefresh vpnTableRefresher;
     private final ClientRouteTargetContrainCache rtCache;
-    private ListenerRegistration<?> reg;
+    private Registration reg;
     private DOMTransactionChain chain;
     private final Map<TablesKey, LongAdder> prefixesReceived;
     private final Map<TablesKey, LongAdder> prefixesInstalled;
@@ -160,10 +159,10 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     public void init() {
-        final DOMDataTreeIdentifier treeId = new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL,
+        final DOMDataTreeIdentifier treeId = DOMDataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
             peerIId.node(ADJRIBIN_NID).node(TABLES_NID));
         LOG.debug("Registered Effective RIB on {}", peerIId);
-        reg = requireNonNull(service).registerDataTreeChangeListener(treeId, this);
+        reg = requireNonNull(service).registerTreeChangeListener(treeId, this);
     }
 
     private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {

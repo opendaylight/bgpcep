@@ -27,7 +27,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -58,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -66,7 +66,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, Peer,
-        PeerTransactionChain, DOMTransactionChainListener {
+        PeerTransactionChain, FutureCallback<Empty> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
     final RTCClientRouteCache rtCache = new RTCClientRouteCache();
@@ -185,8 +185,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     }
 
     @Override
-    public final void onTransactionChainSuccessful(final DOMTransactionChain chain) {
-        LOG.debug("Transaction chain {} successful.", chain);
+    public final void onSuccess(final Empty value) {
+        LOG.debug("Transaction chain successful");
     }
 
     @Override
@@ -504,7 +504,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     final synchronized void createDomChain() {
         if (domChain == null) {
             LOG.info("Creating DOM peer chain {}", getPeerId());
-            domChain = rib.createPeerDOMChain(this);
+            domChain = rib.createPeerDOMChain();
+            domChain.addCallback(this);
         }
     }
 
