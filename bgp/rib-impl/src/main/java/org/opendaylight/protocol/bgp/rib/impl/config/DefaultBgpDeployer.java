@@ -39,7 +39,7 @@ import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.BGPRibRoutingPolicyFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -61,7 +61,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.ProtocolsBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -95,7 +95,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
             }
         });
     private final String networkInstanceName;
-    private ListenerRegistration<DefaultBgpDeployer> registration;
+    private Registration registration;
     @GuardedBy("this")
     private boolean closed;
 
@@ -142,7 +142,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     // Split out of constructor to support partial mocking
     public synchronized void init() {
         registration = dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION,
+                DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
                         networkInstanceIId.child(Protocols.class).child(Protocol.class)
                                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
         LOG.info("BGP Deployer {} started.", networkInstanceName);
