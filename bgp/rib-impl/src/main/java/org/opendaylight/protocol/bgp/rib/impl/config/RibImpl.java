@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
@@ -191,7 +191,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
     }
 
     @Override
-    public synchronized DOMDataTreeChangeService getService() {
+    public synchronized DataTreeChangeExtension getService() {
         return ribImpl.getService();
     }
 

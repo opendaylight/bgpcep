@@ -21,7 +21,7 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
@@ -78,7 +78,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected PeerGroupConfigLoader peerGroupLoader;
     @Mock
-    private DOMDataTreeChangeService dataTreeChangeService;
+    private DataTreeChangeExtension dataTreeChangeService;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     @Override

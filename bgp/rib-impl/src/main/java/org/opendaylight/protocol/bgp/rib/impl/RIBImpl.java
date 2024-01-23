@@ -31,8 +31,7 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
@@ -92,7 +91,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    private final DOMDataBrokerExtension domService;
+    private final DataTreeChangeExtension domService;
     private final Map<DOMTransactionChain, LocRibWriter<?, ?>> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
@@ -131,7 +130,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
             .collect(Collectors.toCollection(HashSet::new));
 
         this.domDataBroker = requireNonNull(domDataBroker);
-        domService = domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
+        domService = domDataBroker.extension(DataTreeChangeExtension.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
@@ -267,8 +266,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public DOMDataTreeChangeService getService() {
-        return (DOMDataTreeChangeService) domService;
+    public DataTreeChangeExtension getService() {
+        return domService;
     }
 
     @Override
@@ -277,8 +276,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
-        return domDataBroker.createMergingTransactionChain(listener);
+    public DOMTransactionChain createPeerDOMChain() {
+        return domDataBroker.createMergingTransactionChain();
     }
 
     @Override
@@ -299,7 +298,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     public synchronized void instantiateServiceInstance() {
         isServiceInstantiated = true;
         setActive(true);
-        domChain = domDataBroker.createMergingTransactionChain(this);
+        domChain = domDataBroker.createMergingTransactionChain();
+        domChain.addCallback(this);
         LOG.debug("Instantiating RIB table {} at {}", ribId, yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(BGPRIB_NID)

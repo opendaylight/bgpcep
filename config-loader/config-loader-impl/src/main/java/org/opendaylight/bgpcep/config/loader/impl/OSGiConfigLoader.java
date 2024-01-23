@@ -30,7 +30,7 @@ public final class OSGiConfigLoader extends AbstractWatchingConfigLoader {
 
     @Reference(policy = ReferencePolicy.DYNAMIC, updated = "setRuntimeContext", unbind = "setRuntimeContext")
     void setRuntimeContext(final BindingRuntimeContext runtimeContext) {
-        updateModelContext(runtimeContext.getEffectiveModelContext());
+        updateModelContext(runtimeContext.modelContext());
     }
 
     @Activate

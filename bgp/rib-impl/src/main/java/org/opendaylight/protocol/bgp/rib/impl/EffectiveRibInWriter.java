@@ -39,7 +39,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
@@ -120,7 +120,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;
     private final YangInstanceIdentifier effRibTables;
-    private final DOMDataTreeChangeService service;
+    private final DataTreeChangeExtension service;
     private final List<RouteTarget> rtMemberships;
     private final RibOutRefresh vpnTableRefresher;
     private final ClientRouteTargetContrainCache rtCache;

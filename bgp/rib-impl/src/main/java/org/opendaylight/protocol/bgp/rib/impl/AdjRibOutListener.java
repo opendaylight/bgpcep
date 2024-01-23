@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -70,7 +70,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private boolean initalState;
 
     private AdjRibOutListener(final PeerId peerId, final YangInstanceIdentifier ribId, final CodecsRegistry registry,
-            final RIBSupport<?, ?> support, final DOMDataTreeChangeService service, final ChannelOutputLimiter session,
+            final RIBSupport<?, ?> support, final DataTreeChangeExtension service, final ChannelOutputLimiter session,
             final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
@@ -93,7 +93,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             final @NonNull YangInstanceIdentifier ribId,
             final @NonNull CodecsRegistry registry,
             final @NonNull RIBSupport<?, ?> support,
-            final @NonNull DOMDataTreeChangeService service,
+            final @NonNull DataTreeChangeExtension service,
             final @NonNull ChannelOutputLimiter session,
             final boolean mpSupport) {
         return new AdjRibOutListener(peerId, ribId, registry, support, service, session, mpSupport);
