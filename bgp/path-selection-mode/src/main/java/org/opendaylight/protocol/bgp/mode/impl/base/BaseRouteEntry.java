@@ -57,22 +57,19 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
 
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private MapEntryNode[] values = EMPTY_VALUES;
-    private BaseBestPath bestPath;
+    private BaseBestPath bestPath = null;
     private BaseBestPath removedBestPath;
-
-    BaseRouteEntry() {
-    }
 
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
-        final int offset = this.offsets.offsetOf(routerId);
-        this.values = this.offsets.removeValue(this.values, offset, EMPTY_VALUES);
-        this.offsets = this.offsets.without(routerId);
-        return this.offsets.isEmpty();
+        final int offset = offsets.offsetOf(routerId);
+        values = offsets.removeValue(values, offset, EMPTY_VALUES);
+        offsets = offsets.without(routerId);
+        return offsets.isEmpty();
     }
 
     private MapEntryNode createRoute(final RIBSupport<C, S> ribSup, final String routeKey) {
-        final MapEntryNode route = this.offsets.getValue(this.values, this.offsets.offsetOf(bestPath.getRouterId()));
+        final MapEntryNode route = offsets.getValue(values, offsets.offsetOf(bestPath.getRouterId()));
         return ribSup.createRoute(route, ribSup.createRouteListArgument(routeKey), bestPath.getAttributes());
     }
 
@@ -84,38 +81,38 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
         final BasePathSelector selector = new BasePathSelector(localAs);
 
         // Select the best route.
-        for (int i = 0; i < this.offsets.size(); ++i) {
-            final RouterId routerId = this.offsets.getKey(i);
-            final ContainerNode attributes = ribSupport.extractAttributes(this.offsets.getValue(this.values, i));
+        for (int i = 0; i < offsets.size(); ++i) {
+            final RouterId routerId = offsets.getKey(i);
+            final ContainerNode attributes = ribSupport.extractAttributes(offsets.getValue(values, i));
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
         }
 
         // Get the newly-selected best path.
         final BaseBestPath newBestPath = selector.result();
-        final boolean modified = newBestPath == null || !newBestPath.equals(this.bestPath);
+        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath);
         if (modified) {
-            if (this.offsets.isEmpty()) {
-                this.removedBestPath = this.bestPath;
+            if (offsets.isEmpty()) {
+                removedBestPath = bestPath;
             }
-            LOG.trace("Previous best {}, current best {}", this.bestPath, newBestPath);
-            this.bestPath = newBestPath;
+            LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
+            bestPath = newBestPath;
         }
         return modified;
     }
 
     @Override
     public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
-        int offset = this.offsets.offsetOf(routerId);
+        int offset = offsets.offsetOf(routerId);
         if (offset < 0) {
-            final RouterIdOffsets newOffsets = this.offsets.with(routerId);
+            final RouterIdOffsets newOffsets = offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
 
-            this.values = newOffsets.expand(this.offsets, this.values, offset);
-            this.offsets = newOffsets;
+            values = newOffsets.expand(offsets, values, offset);
+            offsets = newOffsets;
         }
 
-        this.offsets.setValue(this.values, offset, route);
+        offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
         return offset;
     }
@@ -131,12 +128,12 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
 
     @Override
     public List<AdvertizedRoute<C, S>> newBestPaths(final RIBSupport<C, S> ribSupport, final String routeKey) {
-        if (this.bestPath == null) {
+        if (bestPath == null) {
             return Collections.emptyList();
         }
         final MapEntryNode route = createRoute(ribSupport, routeKey);
-        final AdvertizedRoute<C, S> adv = new AdvertizedRoute<>(ribSupport, route, this.bestPath.getAttributes(),
-                this.bestPath.getPeerId(), this.bestPath.isDepreferenced());
+        final AdvertizedRoute<C, S> adv = new AdvertizedRoute<>(ribSupport, route, bestPath.getAttributes(),
+                bestPath.getPeerId(), bestPath.isDepreferenced());
         LOG.trace("Selected best route {}", route);
         return Collections.singletonList(adv);
     }
@@ -144,11 +141,11 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
     @Override
     public List<ActualBestPathRoutes<C, S>> actualBestPaths(final RIBSupport<C, S> ribSupport,
             final RouteEntryInfo entryInfo) {
-        if (this.bestPath == null) {
+        if (bestPath == null) {
             return Collections.emptyList();
         }
         final MapEntryNode route = createRoute(ribSupport, entryInfo.getRouteKey());
-        return Collections.singletonList(new ActualBestPathRoutes<>(ribSupport, route, this.bestPath.getPeerId(),
-                this.bestPath.getAttributes(), this.bestPath.isDepreferenced()));
+        return Collections.singletonList(new ActualBestPathRoutes<>(ribSupport, route, bestPath.getPeerId(),
+                bestPath.getAttributes(), bestPath.isDepreferenced()));
     }
 }
