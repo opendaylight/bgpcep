@@ -9,22 +9,19 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.binding.api.RpcService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.config.rev181109.PcepTunnelTopologyConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -43,7 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Component(service = { })
-public final class TunnelProviderDeployer implements ClusteredDataTreeChangeListener<Topology>, AutoCloseable {
+public final class TunnelProviderDeployer implements DataTreeChangeListener<Topology>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelProviderDeployer.class);
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
 
@@ -55,13 +52,13 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     @Activate
     public TunnelProviderDeployer(@Reference final DataBroker dataBroker,
             @Reference final RpcProviderService rpcProviderRegistry,
-            @Reference final RpcConsumerRegistry rpcConsumerRegistry,
+            @Reference final RpcService rpcService,
             @Reference final ClusterSingletonServiceProvider cssp,
             // FIXME: do not reference BundleContext in an alternative constructor
             final BundleContext bundleContext) {
-        dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcConsumerRegistry,
+        dependencies = new TunnelProviderDependencies(dataBroker, cssp, rpcProviderRegistry, rpcService,
                 bundleContext);
-        reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(CONFIGURATION,
+        reg = dataBroker.registerTreeChangeListener(DataTreeIdentifier.of(CONFIGURATION,
                 InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).build()), this);
         LOG.info("Tunnel Provider Deployer created");
     }
@@ -88,27 +85,21 @@ public final class TunnelProviderDeployer implements ClusteredDataTreeChangeList
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<Topology>> changes) {
-        final List<DataObjectModification<Topology>> topoChanges = changes.stream()
-                .map(DataTreeModification::getRootNode)
-                .collect(Collectors.toList());
-
-        topoChanges.stream().iterator().forEachRemaining(this::handleTopologyChange);
-    }
-
-    private synchronized void handleTopologyChange(final DataObjectModification<Topology> topo) {
-        switch (topo.getModificationType()) {
-            case SUBTREE_MODIFIED:
-                updateTunnelTopologyProvider(topo.getDataAfter());
-                break;
-            case WRITE:
-                createTunnelTopologyProvider(topo.getDataAfter());
-                break;
-            case DELETE:
-                removeTunnelTopologyProvider(topo.getDataBefore());
-                break;
-            default:
-        }
+    public synchronized void onDataTreeChanged(final List<DataTreeModification<Topology>> changes) {
+        changes.stream().map(DataTreeModification::getRootNode).forEach(topo -> {
+            switch (topo.modificationType()) {
+                case SUBTREE_MODIFIED:
+                    updateTunnelTopologyProvider(topo.dataAfter());
+                    break;
+                case WRITE:
+                    createTunnelTopologyProvider(topo.dataAfter());
+                    break;
+                case DELETE:
+                    removeTunnelTopologyProvider(topo.dataBefore());
+                    break;
+                default:
+            }
+        });
     }
 
     private static boolean filterPcepTopologies(final TopologyTypes topologyTypes) {

@@ -22,9 +22,7 @@ import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -38,11 +36,12 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-final class TopologyNodeState implements TransactionChainListener {
+final class TopologyNodeState implements FutureCallback<Empty> {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
     private final Map<String, Metadata> metadata = new HashMap<>();
@@ -59,7 +58,8 @@ final class TopologyNodeState implements TransactionChainListener {
         checkArgument(holdStateNanos >= 0);
         nodeId = topology.child(Node.class, new NodeKey(id));
         this.holdStateNanos = holdStateNanos;
-        chain = broker.createMergingTransactionChain(this);
+        chain = broker.createMergingTransactionChain();
+        chain.addCallback(this);
     }
 
     @NonNull KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
@@ -147,16 +147,14 @@ final class TopologyNodeState implements TransactionChainListener {
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain pchain, final Transaction transaction,
-            final Throwable cause) {
+    public void onFailure(final Throwable cause) {
         // FIXME: flip internal state, so that the next attempt to update fails, triggering node reconnect
-        LOG.error("Unexpected transaction failure in node {} transaction {}", nodeId, transaction.getIdentifier(),
-            cause);
+        LOG.error("Unexpected transaction failure in node {}", nodeId, cause);
         close();
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain pchain) {
+    public void onSuccess(final Empty result) {
         LOG.info("Node {} shutdown successfully", nodeId);
     }
 

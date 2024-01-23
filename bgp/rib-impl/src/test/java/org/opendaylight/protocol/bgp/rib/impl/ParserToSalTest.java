@@ -55,7 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @Ignore
@@ -109,7 +109,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
             localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final ListenerRegistration<?> reg = mock.registerUpdateListener(peer);
+        final Registration reg = mock.registerUpdateListener(peer);
         reg.close();
     }
 
@@ -125,7 +125,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
         final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
             localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final ListenerRegistration<?> reg = mock.registerUpdateListener(peer);
+        final Registration reg = mock.registerUpdateListener(peer);
         reg.close();
     }
 

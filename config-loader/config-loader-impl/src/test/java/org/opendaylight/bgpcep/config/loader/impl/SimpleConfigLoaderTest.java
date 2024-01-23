@@ -45,7 +45,7 @@ public class SimpleConfigLoaderTest {
 
     @Before
     public void before() throws InterruptedException {
-        doReturn(domContext).when(bindingContext).getEffectiveModelContext();
+        doReturn(domContext).when(bindingContext).modelContext();
         doReturn(watchService).when(watcher).getWatchService();
         doReturn("foo").when(watcher).getPathFile();
         doReturn(watchKey).when(watchService).take();
