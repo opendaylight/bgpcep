@@ -75,12 +75,11 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
         QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
     private RIBSupportTestImp ribSupportTestImp;
-    private static final YangInstanceIdentifier LOC_RIB_TARGET =
-        YangInstanceIdentifier.create(YangInstanceIdentifier.of(BgpRib.QNAME).node(LocRib.QNAME).node(Tables.QNAME)
-            .node(NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
-                QName.create(Tables.QNAME, "afi"), Ipv4AddressFamily.QNAME,
-                QName.create(Tables.QNAME, "safi"), UnicastSubsequentAddressFamily.QNAME)))
-            .getPathArguments());
+    private static final YangInstanceIdentifier LOC_RIB_TARGET = YangInstanceIdentifier.of(BgpRib.QNAME)
+        .node(LocRib.QNAME).node(Tables.QNAME).node(NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
+            QName.create(Tables.QNAME, "afi"), Ipv4AddressFamily.QNAME,
+            QName.create(Tables.QNAME, "safi"), UnicastSubsequentAddressFamily.QNAME)))
+        .toOptimized();
     private static final NodeIdentifier ROUTES_IDENTIFIER = new NodeIdentifier(Routes.QNAME);
     private static final NodeIdentifier IPV4_ROUTES_IDENTIFIER = new NodeIdentifier(Ipv4Routes.QNAME);
 

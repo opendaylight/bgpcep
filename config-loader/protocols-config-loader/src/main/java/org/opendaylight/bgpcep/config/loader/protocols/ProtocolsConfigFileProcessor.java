@@ -45,7 +45,7 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
 
     private static final @NonNull NodeIdentifierWithPredicates GLOBAL_BGP =
         NodeIdentifierWithPredicates.of(NetworkInstance.QNAME, NAME, GLOBAL_BGP_NAME);
-    private static final @NonNull YangInstanceIdentifier GLOBAL_BGP_PATH = YangInstanceIdentifier.create(
+    private static final @NonNull YangInstanceIdentifier GLOBAL_BGP_PATH = YangInstanceIdentifier.of(
         NodeIdentifier.create(NetworkInstances.QNAME), NodeIdentifier.create(NetworkInstance.QNAME), GLOBAL_BGP);
 
     @Inject
