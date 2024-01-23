@@ -17,10 +17,8 @@ import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
@@ -50,9 +48,8 @@ public final class OpenconfigRoutingConfigFileProcessor extends AbstractConfigFi
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
             final NormalizedNode dto) {
-        final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
-        wtx.put(LogicalDatastoreType.CONFIGURATION,
-            YangInstanceIdentifier.create(new NodeIdentifier(RoutingPolicy.QNAME)), dto);
+        final var wtx = dataBroker.newWriteOnlyTransaction();
+        wtx.put(LogicalDatastoreType.CONFIGURATION, YangInstanceIdentifier.of(RoutingPolicy.QNAME), dto);
         return wtx.commit();
     }
 }

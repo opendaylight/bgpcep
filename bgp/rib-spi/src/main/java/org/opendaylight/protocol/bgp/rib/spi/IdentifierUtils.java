@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.spi;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -40,10 +39,11 @@ public final class IdentifierUtils {
 
     private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id,
             final Predicate<PathArgument> match) {
-        final int idx = Iterables.indexOf(id.getPathArguments(), match);
+        final var args = id.getPathArguments();
+        final int idx = args.indexOf(match);
         Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", match, id);
         // we want the element at index idx to be included in the list
-        return YangInstanceIdentifier.create(Iterables.limit(id.getPathArguments(), idx + 1));
+        return YangInstanceIdentifier.of(args.subList(0, idx + 1));
     }
 
     public static YangInstanceIdentifier peerPath(final YangInstanceIdentifier id) {

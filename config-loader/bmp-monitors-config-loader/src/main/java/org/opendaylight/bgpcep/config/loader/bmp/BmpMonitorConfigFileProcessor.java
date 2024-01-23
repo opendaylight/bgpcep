@@ -61,7 +61,7 @@ public final class BmpMonitorConfigFileProcessor extends AbstractConfigFileProce
 
         final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
         wtx.merge(LogicalDatastoreType.CONFIGURATION,
-            YangInstanceIdentifier.create(new NodeIdentifier(OdlBmpMonitors.QNAME), monitorsList.name()),
+            YangInstanceIdentifier.of(new NodeIdentifier(OdlBmpMonitors.QNAME), monitorsList.name()),
             monitorsList);
         return wtx.commit();
     }

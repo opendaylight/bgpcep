@@ -18,7 +18,6 @@ import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -58,18 +57,18 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
     @Override
     protected FluentFuture<? extends CommitInfo> loadConfiguration(final DOMDataBroker dataBroker,
             final NormalizedNode dto) {
-        final ContainerNode networkTopology = (ContainerNode) dto;
-        final MapNode topologies = (MapNode) networkTopology.childByArg(new NodeIdentifier(Topology.QNAME));
+        final var networkTopology = (ContainerNode) dto;
+        final var topologies = (MapNode) networkTopology.childByArg(new NodeIdentifier(Topology.QNAME));
         if (networkTopology == null) {
             return CommitInfo.emptyFluentFuture();
         }
 
-        final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
+        final var wtx = dataBroker.newWriteOnlyTransaction();
 
         LOG.info("Storing Topologies {}", topologies.body().stream()
             .map(topo -> topo.name().asMap()).collect(Collectors.toList()));
         wtx.merge(LogicalDatastoreType.CONFIGURATION,
-            YangInstanceIdentifier.create(new NodeIdentifier(NetworkTopology.QNAME), topologies.name()),
+            YangInstanceIdentifier.of(new NodeIdentifier(NetworkTopology.QNAME), topologies.name()),
             topologies);
 
         return wtx.commit();
