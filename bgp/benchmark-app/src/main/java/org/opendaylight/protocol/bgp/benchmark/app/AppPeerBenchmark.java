@@ -22,9 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -74,13 +72,14 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AppPeerBenchmark implements TransactionChainListener, AutoCloseable {
+public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(AppPeerBenchmark.class);
 
@@ -105,7 +104,8 @@ public final class AppPeerBenchmark implements TransactionChainListener, AutoClo
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
             final String appRibId) {
         this.appRibId = requireNonNull(appRibId);
-        txChain = bindingDataBroker.createMergingTransactionChain(this);
+        txChain = bindingDataBroker.createMergingTransactionChain();
+        txChain.addCallback(this);
 
         appIID = InstanceIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
@@ -141,16 +141,14 @@ public final class AppPeerBenchmark implements TransactionChainListener, AutoClo
     }
 
     @Override
-    public void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
-            final Throwable cause) {
-        LOG.error("Broken chain {} in DatastoreBaAbstractWrite, transaction {}", chain, transaction.getIdentifier(),
-            cause);
+    public void onFailure(final Throwable cause) {
+        LOG.error("Broken chain in DatastoreBaAbstractWrite", cause);
         close();
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain chain) {
-        LOG.debug("DatastoreBaAbstractWrite closed successfully, chain {}", chain);
+    public void onSuccess(final Empty result) {
+        LOG.debug("DatastoreBaAbstractWrite closed successfully");
     }
 
     @VisibleForTesting

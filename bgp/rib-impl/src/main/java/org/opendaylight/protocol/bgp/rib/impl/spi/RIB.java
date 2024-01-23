@@ -9,9 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -48,10 +47,9 @@ public interface RIB extends RibReference, RibOutRefresh {
     /**
      * Allocate a new transaction chain for use with a peer.
      *
-     * @param listener {@link DOMTransactionChainListener} handling recovery
      * @return A new transaction chain.
      */
-    DOMTransactionChain createPeerDOMChain(DOMTransactionChainListener listener);
+    DOMTransactionChain createPeerDOMChain();
 
     /**
      * Return the RIB extensions available to the RIB instance.
@@ -84,7 +82,7 @@ public interface RIB extends RibReference, RibOutRefresh {
      *
      * @return DOMDataTreeChangeService
      */
-    DOMDataTreeChangeService getService();
+    DataTreeChangeExtension getService();
 
     /**
      * Returns true if RIB supports table.
