@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
     private final DataBroker dataBroker;
     private final TopologyId tunneltopologyId;
     @GuardedBy("this")
-    private ListenerRegistration<NodeChangedListener> reg;
+    private Registration reg;
 
     public PCEPTunnelTopologyProvider(
             final DataBroker dataBroker,
@@ -48,15 +48,15 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
         super(tunnelTopology);
         this.dataBroker = dataBroker;
         this.tunneltopologyId = tunneltopologyId;
-        this.ncl = new NodeChangedListener(dataBroker, pcepTopologyId, tunnelTopology);
-        this.src = pcepTopology.child(Node.class);
-        this.ref = new DefaultTopologyReference(tunnelTopology);
+        ncl = new NodeChangedListener(dataBroker, pcepTopologyId, tunnelTopology);
+        src = pcepTopology.child(Node.class);
+        ref = new DefaultTopologyReference(tunnelTopology);
     }
 
     synchronized void init() {
-        final WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
+        final WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
-                new TopologyBuilder().setTopologyId(this.tunneltopologyId)
+                new TopologyBuilder().setTopologyId(tunneltopologyId)
                         .setTopologyTypes(new TopologyTypesBuilder()
                                 .addAugmentation(new TopologyTypes1Builder()
                                         .setTopologyTunnelPcep(
@@ -67,20 +67,19 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
         } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to create Tunnel Topology root", e);
         }
-        this.reg = this.ncl.getDataProvider()
-                .registerDataTreeChangeListener(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, this.src),
-                        this.ncl);
+        reg = ncl.getDataProvider()
+            .registerTreeChangeListener(DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, src), ncl);
     }
 
     public TopologyReference getTopologyReference() {
-        return this.ref;
+        return ref;
     }
 
     @Override
     public synchronized void close() {
-        if (this.reg != null) {
-            this.reg.close();
-            this.reg = null;
+        if (reg != null) {
+            reg.close();
+            reg = null;
         }
     }
 }

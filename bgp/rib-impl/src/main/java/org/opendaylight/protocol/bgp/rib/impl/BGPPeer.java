@@ -42,7 +42,6 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;

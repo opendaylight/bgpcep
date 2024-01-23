@@ -18,7 +18,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
@@ -98,29 +98,29 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
     private static final Logger LOG = LoggerFactory.getLogger(ManagedTePath.class);
 
-    public ManagedTePath(ManagedTeNode teNode, InstanceIdentifier<Topology> topology) {
+    public ManagedTePath(final ManagedTeNode teNode, final InstanceIdentifier<Topology> topology) {
         this.teNode = requireNonNull(teNode);
-        this.pcepTopology = requireNonNull(topology);
-        this.pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
+        pcepTopology = requireNonNull(topology);
+        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
                 .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
     }
 
-    public ManagedTePath(ManagedTeNode teNode, final ConfiguredLsp lsp, InstanceIdentifier<Topology> topology) {
-        this.cfgLsp = requireNonNull(lsp);
+    public ManagedTePath(final ManagedTeNode teNode, final ConfiguredLsp lsp, final InstanceIdentifier<Topology> topology) {
+        cfgLsp = requireNonNull(lsp);
         this.teNode = requireNonNull(teNode);
-        this.pcepTopology = requireNonNull(topology);
-        this.pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
+        pcepTopology = requireNonNull(topology);
+        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
                 .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
     }
 
-    public ManagedTePath(ManagedTeNode teNode, final ManagedTePath mngPath) {
+    public ManagedTePath(final ManagedTeNode teNode, final ManagedTePath mngPath) {
         checkArgument(mngPath != null, "Managed TE Path is mandatory. Can't be null or empty!");
-        this.cfgLsp = mngPath.getLsp();
-        this.sent = mngPath.isSent();
-        this.type = mngPath.getType();
+        cfgLsp = mngPath.getLsp();
+        sent = mngPath.isSent();
+        type = mngPath.getType();
         this.teNode = requireNonNull(teNode);
-        this.pcepTopology = mngPath.getTopology();
-        this.pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
+        pcepTopology = mngPath.getTopology();
+        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
                 .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
     }
 
@@ -141,12 +141,12 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     }
 
     public ManagedTePath setConfiguredLsp(final ConfiguredLsp lsp) {
-        this.prevLsp = this.cfgLsp;
-        this.cfgLsp = lsp;
+        prevLsp = cfgLsp;
+        cfgLsp = lsp;
         return this;
     }
 
-    public ManagedTePath setType(PathType type) {
+    public ManagedTePath setType(final PathType type) {
         this.type = type;
         return this;
     }
@@ -156,7 +156,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
      *
      */
     public void sync() {
-        this.cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Sync).build();
+        cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Sync).build();
         updateToDataStore();
     }
 
@@ -164,14 +164,14 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
      * Disabling this TE Path by marking it as Configured. Do not update the Data Store.
      */
     public void disabled() {
-        this.cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Configured).build();
+        cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Configured).build();
     }
 
     /**
      * Mark this TE Path as Failed.
      */
     public void failed() {
-        this.cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Failed).build();
+        cfgLsp = new ConfiguredLspBuilder(cfgLsp).setPathStatus(PathStatus.Failed).build();
         updateToDataStore();
     }
 
@@ -238,7 +238,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         return PathStatus.Sync;
     }
 
-    private void configureGraph(ConnectedGraph graph, ComputedPath cpath, Constraints cts, boolean config) {
+    private void configureGraph(final ConnectedGraph graph, final ComputedPath cpath, final Constraints cts, final boolean config) {
         /* Check that Connected Graph is valid */
         if (graph == null) {
             return;
@@ -320,19 +320,19 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         triggerFlag = false;
     }
 
-    private boolean edgeAttrNotNull(ConnectedEdge edge) {
+    private static boolean edgeAttrNotNull(final ConnectedEdge edge) {
         return edge != null && edge.getEdge() != null && edge.getEdge().getEdgeAttributes() != null;
     }
 
-    public void setGraph(ConnectedGraph graph) {
+    public void setGraph(final ConnectedGraph graph) {
         configureGraph(graph, cfgLsp.getComputedPath(), cfgLsp.getIntendedPath().getConstraints(), true);
     }
 
-    public void unsetGraph(ConnectedGraph graph) {
+    public void unsetGraph(final ConnectedGraph graph) {
         configureGraph(graph, cfgLsp.getComputedPath(), cfgLsp.getIntendedPath().getConstraints(), false);
     }
 
-    public void updateGraph(ConnectedGraph graph) {
+    public void updateGraph(final ConnectedGraph graph) {
         /* First unset Bandwidth and Triggers for the old path if any */
         if (prevLsp != null) {
             configureGraph(graph, prevLsp.getComputedPath(), prevLsp.getIntendedPath().getConstraints(), false);
@@ -353,7 +353,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     }
 
     @Override
-    public boolean verifyVertex(@Nullable ConnectedVertex next, @Nullable Vertex current) {
+    public boolean verifyVertex(final ConnectedVertex next, final Vertex current) {
         /* Check if there is an on-going trigger */
         if (triggerFlag) {
             return false;
@@ -380,7 +380,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     }
 
     @Override
-    public boolean verifyEdge(@Nullable ConnectedEdge next, @Nullable Edge current) {
+    public boolean verifyEdge(final ConnectedEdge next, final Edge current) {
         /* Check if there is an on-going trigger */
         if (triggerFlag) {
             return false;
@@ -501,12 +501,12 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             final Ipv4Builder ipBuilder = new Ipv4Builder()
                     .setDestinationIpv4Address(new Ipv4AddressNoZone(iPath.getDestination().getIpv4Address()))
                     .setSourceIpv4Address(new Ipv4AddressNoZone(iPath.getSource().getIpv4Address()));
-            epb.setAddressFamily((new Ipv4CaseBuilder().setIpv4(ipBuilder.build()).build()));
+            epb.setAddressFamily(new Ipv4CaseBuilder().setIpv4(ipBuilder.build()).build());
         } else if (cfgLsp.getIntendedPath().getSource().getIpv6Address() != null) {
             final Ipv6Builder ipBuilder = new Ipv6Builder()
                     .setDestinationIpv6Address(new Ipv6AddressNoZone(iPath.getDestination().getIpv6Address()))
                     .setSourceIpv6Address(new Ipv6AddressNoZone(iPath.getSource().getIpv6Address()));
-            epb.setAddressFamily((new Ipv6CaseBuilder().setIpv6(ipBuilder.build()).build()));
+            epb.setAddressFamily(new Ipv6CaseBuilder().setIpv6(ipBuilder.build()).build());
         } else {
             // In case of ...
             return null;
@@ -595,7 +595,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
      */
     public ListenableFuture<RpcResult<AddLspOutput>> addPath(final AddLsp addLsp) {
         /* Check if we could add this path */
-        if ((type != PathType.Initiated) || !teNode.isSync()) {
+        if (type != PathType.Initiated || !teNode.isSync()) {
             return null;
         }
 
@@ -605,9 +605,9 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         }
 
         sent = true;
-        final ListenableFuture<RpcResult<AddLspOutput>> enforce = addLsp.invoke(getAddLspInput());
+        final var enforce = addLsp.invoke(getAddLspInput());
         LOG.info("Call Add LSP to {} with {}", addLsp, enforce);
-        Futures.addCallback(enforce, new FutureCallback<RpcResult<AddLspOutput>>() {
+        Futures.addCallback(enforce, new FutureCallback<>() {
             @Override
             public void onSuccess(final RpcResult<AddLspOutput> result) {
                 if (result.isSuccessful()) {
@@ -634,7 +634,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
      *
      * @return  new Update LSP Input
      */
-    private UpdateLspInput getUpdateLspInput() {
+    private @NonNull UpdateLspInput getUpdateLspInput() {
         /* Create Path Setup Type */
         final IntendedPath iPath = cfgLsp.getIntendedPath();
         final PathSetupTypeBuilder pstBuilder = new PathSetupTypeBuilder();
@@ -721,7 +721,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     public ListenableFuture<RpcResult<UpdateLspOutput>> updatePath(final UpdateLsp updateLsp) {
 
         /* Check if we could update this path */
-        if ((type != PathType.Initiated && type != PathType.Delegated) || !teNode.isSync()) {
+        if (type != PathType.Initiated && type != PathType.Delegated || !teNode.isSync()) {
             return null;
         }
 
@@ -732,9 +732,9 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         sent = true;
         final NodeId id = teNode.getId();
-        final ListenableFuture<RpcResult<UpdateLspOutput>> enforce = updateLsp.invoke(getUpdateLspInput());
+        final var enforce = updateLsp.invoke(getUpdateLspInput());
         LOG.info("Call Update LSP to {} with {}", updateLsp, enforce);
-        Futures.addCallback(enforce, new FutureCallback<RpcResult<UpdateLspOutput>>() {
+        Futures.addCallback(enforce, new FutureCallback<>() {
             @Override
             public void onSuccess(final RpcResult<UpdateLspOutput> result) {
                 if (result.isSuccessful()) {
@@ -767,7 +767,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     public ListenableFuture<RpcResult<RemoveLspOutput>> removePath(final RemoveLsp removeLsp) {
 
         /* Check if we could remove this path */
-        if ((type != PathType.Initiated) || !teNode.isSync() || cfgLsp.getPathStatus() != PathStatus.Sync) {
+        if (type != PathType.Initiated || !teNode.isSync() || cfgLsp.getPathStatus() != PathStatus.Sync) {
             return null;
         }
 

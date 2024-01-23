@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -24,9 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,20 +38,18 @@ import org.slf4j.LoggerFactory;
 
 public final class PathManagerListener implements DataTreeChangeListener<Node>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerListener.class);
-    private ListenerRegistration<PathManagerListener> listenerRegistration;
+
+    private Registration listenerRegistration;
 
     private final PathManagerProvider pathManager;
 
-    public PathManagerListener(final DataBroker dataBroker, KeyedInstanceIdentifier<Topology, TopologyKey> topology,
-            final PathManagerProvider pathManager) {
-        requireNonNull(dataBroker);
-        requireNonNull(topology);
+    public PathManagerListener(final DataBroker dataBroker,
+            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
-        final InstanceIdentifier<Node> nodeTopology = topology.child(Node.class);
-        this.listenerRegistration = dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, nodeTopology), this);
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
+                DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, topology.child(Node.class)), this);
         LOG.info("Registered listener for Managed TE Path on Topology {}",
-                topology.getKey().getTopologyId().getValue());
+            topology.getKey().getTopologyId().getValue());
     }
 
     /**
@@ -61,10 +57,10 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
      */
     @Override
     public void close() {
-        if (this.listenerRegistration != null) {
+        if (listenerRegistration != null) {
             LOG.debug("Unregistered listener {} for Managed TE Path", this);
-            this.listenerRegistration.close();
-            this.listenerRegistration = null;
+            listenerRegistration.close();
+            listenerRegistration = null;
         }
     }
 
@@ -74,18 +70,19 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
      * @param nodeId    Node Identifier to which the modified children belongs to.
      * @param lspMod    List of Configured LSP modifications.
      */
-    private void handleLspChange(NodeId nodeId, List<? extends DataObjectModification<? extends DataObject>> lspMod) {
+    private void handleLspChange(final NodeId nodeId,
+            final List<? extends DataObjectModification<? extends DataObject>> lspMod) {
         for (DataObjectModification<? extends DataObject> lsp : lspMod) {
             ConfiguredLsp cfgLsp;
-            switch (lsp.getModificationType()) {
+            switch (lsp.modificationType()) {
                 case DELETE:
-                    cfgLsp = (ConfiguredLsp) lsp.getDataBefore();
+                    cfgLsp = (ConfiguredLsp) lsp.dataBefore();
                     LOG.debug("Delete Managed TE Path: {}", cfgLsp.getName());
                     pathManager.deleteManagedTePath(nodeId, cfgLsp.key());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    cfgLsp = (ConfiguredLsp) lsp.getDataAfter();
+                    cfgLsp = (ConfiguredLsp) lsp.dataAfter();
                     LOG.debug("Update Managed TE Path {}", cfgLsp);
                     pathManager.createManagedTePath(nodeId, cfgLsp);
                     break;
@@ -104,10 +101,11 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
      * @param nodeId    Node Identifier to which the modified children belongs to.
      * @param pccMod    List of PCEP Node Configuration modifications.
      */
-    private void handlePccChange(NodeId nodeId, List<? extends DataObjectModification<? extends DataObject>> pccMod) {
-        for (DataObjectModification<? extends DataObject> node : pccMod) {
+    private void handlePccChange(final NodeId nodeId,
+            final List<? extends DataObjectModification<? extends DataObject>> pccMod) {
+        for (var node : pccMod) {
             /* First, process PCC modification */
-            switch (node.getModificationType()) {
+            switch (node.modificationType()) {
                 case DELETE:
                     LOG.debug("Delete Managed TE Node: {}", nodeId);
                     pathManager.deleteManagedTeNode(nodeId);
@@ -115,14 +113,14 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     /* First look if the Managed TE Node belongs to this PCC was not already created */
-                    final PcepNodeConfig pccNode = (PcepNodeConfig) node.getDataAfter();
+                    final var pccNode = (PcepNodeConfig) node.dataAfter();
                     if (!pathManager.checkManagedTeNode(nodeId)) {
                         LOG.info("Create new Managed Node {}", nodeId);
                         pathManager.createManagedTeNode(nodeId, pccNode);
                     } else {
                         /* Then, look to Configured LSP modification */
-                        final List<DataObjectModification<? extends DataObject>> lspMod = node.getModifiedChildren()
-                                .stream().filter(mod -> mod.getDataType().equals(ConfiguredLsp.class))
+                        final var lspMod = node.modifiedChildren()
+                                .stream().filter(mod -> mod.dataType().equals(ConfiguredLsp.class))
                                 .collect(Collectors.toList());
                         if (!lspMod.isEmpty()) {
                             handleLspChange(nodeId, lspMod);
@@ -136,13 +134,13 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        for (DataTreeModification<Node> change : changes) {
-            DataObjectModification<Node> root = change.getRootNode();
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
+        for (var change : changes) {
+            final var root = change.getRootNode();
 
-            final String nodeAddr = root.getModificationType() == DataObjectModification.ModificationType.DELETE
-                    ? root.getDataBefore().getNodeId().getValue()
-                    : root.getDataAfter().getNodeId().getValue();
+            final String nodeAddr = root.modificationType() == DataObjectModification.ModificationType.DELETE
+                    ? root.dataBefore().getNodeId().getValue()
+                    : root.dataAfter().getNodeId().getValue();
             NodeId nodeId;
             if (nodeAddr.startsWith("pcc://")) {
                 nodeId = new NodeId(nodeAddr);
@@ -151,8 +149,9 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
             }
 
             /* Look only to PcepNodeConfig.class modification */
-            final List<DataObjectModification<? extends DataObject>> pccMod = root.getModifiedChildren().stream()
-                    .filter(mod -> mod.getDataType().equals(PcepNodeConfig.class)).collect(Collectors.toList());
+            final var pccMod = root.modifiedChildren().stream()
+                    .filter(mod -> mod.dataType().equals(PcepNodeConfig.class))
+                    .collect(Collectors.toList());
             if (!pccMod.isEmpty()) {
                 handlePccChange(nodeId, pccMod);
             }

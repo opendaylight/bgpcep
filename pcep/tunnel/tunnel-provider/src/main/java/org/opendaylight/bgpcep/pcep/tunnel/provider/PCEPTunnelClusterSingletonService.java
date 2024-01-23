@@ -17,9 +17,8 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
-import org.opendaylight.mdsal.singleton.common.api.ServiceGroupIdentifier;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -36,17 +35,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class PCEPTunnelClusterSingletonService implements ClusterSingletonService, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTunnelClusterSingletonService.class);
+
     private final PCEPTunnelTopologyProvider ttp;
     private final TunnelProgramming tp;
     private final ServiceGroupIdentifier sgi;
     private final TopologyId tunnelTopologyId;
-    private final TunnelProviderDependencies dependencies;
+
     @GuardedBy("this")
     private ServiceRegistration<?> serviceRegistration;
     @GuardedBy("this")
-    private ClusterSingletonServiceRegistration pcepTunnelCssReg;
+    private Registration pcepTunnelCssReg;
     @GuardedBy("this")
     private Registration reg;
 
@@ -55,7 +54,6 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
             final InstanceIdentifier<Topology> pcepTopology,
             final TopologyId tunnelTopologyId
     ) {
-        this.dependencies = requireNonNull(dependencies);
         this.tunnelTopologyId = requireNonNull(tunnelTopologyId);
         final TopologyId pcepTopologyId = pcepTopology.firstKeyOf(Topology.class).getTopologyId();
         final BundleContext bundleContext = dependencies.getBundleContext();
@@ -94,13 +92,13 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
             FrameworkUtil.asDictionary(Map.of(
                 PCEPTunnelTopologyProvider.class.getName(), tunnelTopologyId.getValue())));
 
-        LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().getName());
+        LOG.info("PCEP Tunnel Cluster Singleton service {} registered", getIdentifier().value());
         pcepTunnelCssReg = dependencies.getCssp().registerClusterSingletonService(this);
     }
 
     @Override
     public synchronized void instantiateServiceInstance() {
-        LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
+        LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().value());
 
         reg = tp.register(InstanceIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(tunnelTopologyId))
@@ -110,8 +108,7 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
 
     @Override
     public synchronized ListenableFuture<? extends CommitInfo> closeServiceInstance() {
-        LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}",
-                getIdentifier().getName());
+        LOG.info("Close Service Instance PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().value());
         reg.close();
         tp.close();
         ttp.close();
@@ -126,13 +123,13 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public synchronized void close() {
-        LOG.info("Close PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().getName());
+        LOG.info("Close PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().value());
 
         if (pcepTunnelCssReg != null) {
             try {
                 pcepTunnelCssReg.close();
             } catch (final Exception e) {
-                LOG.debug("Failed to close PCEP Tunnel Topology service {}", sgi.getName(), e);
+                LOG.debug("Failed to close PCEP Tunnel Topology service {}", sgi.value(), e);
             }
             pcepTunnelCssReg = null;
         }

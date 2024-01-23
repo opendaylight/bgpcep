@@ -30,9 +30,7 @@ import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteOperations;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -59,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -75,7 +74,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = {})
 @Designate(ocd = StateProviderImpl.Configuration.class)
 @RequireServiceComponentRuntime
-public final class StateProviderImpl implements TransactionChainListener, AutoCloseable {
+public final class StateProviderImpl implements FutureCallback<Empty>, AutoCloseable {
     @ObjectClassDefinition
     public @interface Configuration {
         @AttributeDefinition(description = "Name of the OpenConfig network instance to which to bind")
@@ -130,7 +129,8 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
                 .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
         this.scheduler = scheduler;
 
-        transactionChain = this.dataBroker.createMergingTransactionChain(this);
+        transactionChain = this.dataBroker.createMergingTransactionChain();
+        transactionChain.addCallback(this);
         final TimerTask task = new TimerTask() {
             @Override
             @SuppressWarnings("checkstyle:IllegalCatch")
@@ -229,19 +229,18 @@ public final class StateProviderImpl implements TransactionChainListener, AutoCl
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain chain, final Transaction transaction,
-            final Throwable cause) {
-        LOG.error("Transaction chain {} failed for tx {}",
-                chain, transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onFailure(final Throwable cause) {
+        LOG.error("Transaction chain failed", cause);
 
         if (!closed.get()) {
             transactionChain.close();
-            transactionChain = dataBroker.createMergingTransactionChain(this);
+            transactionChain = dataBroker.createMergingTransactionChain();
+            transactionChain.addCallback(this);
         }
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain chain) {
-        LOG.debug("Transaction chain {} successful.", chain);
+    public void onSuccess(final Empty result) {
+        LOG.debug("Transaction chain successfu.");
     }
 }

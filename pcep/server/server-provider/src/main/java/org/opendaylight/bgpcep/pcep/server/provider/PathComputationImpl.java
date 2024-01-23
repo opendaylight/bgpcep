@@ -50,7 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.pcreq.message.pcreq.message.requests.segment.computation.P2p;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -246,11 +245,11 @@ public class PathComputationImpl implements PathComputation {
     private VertexKey getDestinationVertexKey(final EndpointsObj endPoints) {
         IpAddress address = null;
 
-        if (endPoints.getAddressFamily() instanceof Ipv4Case) {
-            address = new IpAddress(((Ipv4Case) endPoints.getAddressFamily()).getIpv4().getDestinationIpv4Address());
+        if (endPoints.getAddressFamily() instanceof Ipv4Case ipv4) {
+            address = new IpAddress(ipv4.getIpv4().getDestinationIpv4Address());
         }
-        if (endPoints.getAddressFamily() instanceof Ipv6Case) {
-            address = new IpAddress(((Ipv6Case) endPoints.getAddressFamily()).getIpv6().getDestinationIpv6Address());
+        if (endPoints.getAddressFamily() instanceof Ipv6Case ipv6) {
+            address = new IpAddress(ipv6.getIpv6().getDestinationIpv6Address());
         }
         if (address == null) {
             return null;
@@ -262,30 +261,35 @@ public class PathComputationImpl implements PathComputation {
     }
 
     /* Convert Exclude Route Object (list of IP prefix) into Exclude Route (list of IP address) */
-    private static List<ExcludeRoute> getExcludeRoute(final Xro xro, AddressFamily af) {
-        if (xro == null || xro.getSubobject() == null || xro.getSubobject().isEmpty()) {
+    private static List<ExcludeRoute> getExcludeRoute(final Xro xro, final AddressFamily af) {
+        if (xro == null) {
             return null;
         }
-        ArrayList<ExcludeRoute> erl = new ArrayList<ExcludeRoute>();
-        for (int i = 0; i < xro.getSubobject().size(); i++) {
-            final SubobjectType sbt = xro.getSubobject().get(i).getSubobjectType();
-            if (sbt instanceof IpPrefixCase) {
-                final IpPrefixCase ipc = (IpPrefixCase) sbt;
+        final var subobjects = xro.getSubobject();
+        if (subobjects == null || subobjects.isEmpty()) {
+            return null;
+        }
+
+        final var erl = new ArrayList<ExcludeRoute>();
+        for (var element : subobjects) {
+            final var sbt = element.getSubobjectType();
+            if (sbt instanceof IpPrefixCase ipc) {
                 switch (af) {
-                    case Ipv4:
-                    case SrIpv4:
-                        erl.add(new ExcludeRouteBuilder().setIpv4(new Ipv4Address(
+                    case Ipv4, SrIpv4 -> {
+                        erl.add(new ExcludeRouteBuilder()
+                            .setIpv4(new Ipv4Address(
                                 ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
-                                .build());
-                        break;
-                    case Ipv6:
-                    case SrIpv6:
-                        erl.add(new ExcludeRouteBuilder().setIpv6(new Ipv6Address(
+                            .build());
+                    }
+                    case Ipv6, SrIpv6 -> {
+                        erl.add(new ExcludeRouteBuilder()
+                            .setIpv6(new Ipv6Address(
                                 ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
-                                .build());
-                        break;
-                    default:
-                        break;
+                            .build());
+                    }
+                    default -> {
+                        // No-op
+                    }
                 }
             }
         }
@@ -293,30 +297,35 @@ public class PathComputationImpl implements PathComputation {
     }
 
     /* Convert Include Route Object (list of IP prefix) into Exclude Route (list of IP address) */
-    private static List<IncludeRoute> getIncludeRoute(final Iro iro, AddressFamily af) {
-        if (iro == null || iro.getSubobject() == null || iro.getSubobject().isEmpty()) {
+    private static List<IncludeRoute> getIncludeRoute(final Iro iro, final AddressFamily af) {
+        if (iro == null) {
             return null;
         }
-        ArrayList<IncludeRoute> irl = new ArrayList<IncludeRoute>();
-        for (int i = 0; i < iro.getSubobject().size(); i++) {
-            final SubobjectType sbt = iro.getSubobject().get(i).getSubobjectType();
-            if (sbt instanceof IpPrefixCase) {
-                final IpPrefixCase ipc = (IpPrefixCase) sbt;
+
+        final var subobjects = iro.getSubobject();
+        if (subobjects == null || subobjects.isEmpty()) {
+            return null;
+        }
+        final var irl = new ArrayList<IncludeRoute>();
+        for (var element : subobjects) {
+            final var sbt = element.getSubobjectType();
+            if (sbt instanceof IpPrefixCase ipc) {
                 switch (af) {
-                    case Ipv4:
-                    case SrIpv4:
-                        irl.add(new IncludeRouteBuilder().setIpv4(new Ipv4Address(
+                    case Ipv4, SrIpv4 -> {
+                        irl.add(new IncludeRouteBuilder()
+                            .setIpv4(new Ipv4Address(
                                 ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
-                                .build());
-                        break;
-                    case Ipv6:
-                    case SrIpv6:
-                        irl.add(new IncludeRouteBuilder().setIpv6(new Ipv6Address(
+                            .build());
+                    }
+                    case Ipv6, SrIpv6 -> {
+                        irl.add(new IncludeRouteBuilder()
+                            .setIpv6(new Ipv6Address(
                                 ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
-                                .build());
-                        break;
-                    default:
-                        break;
+                            .build());
+                    }
+                    default -> {
+                        // No-op
+                    }
                 }
             }
         }
