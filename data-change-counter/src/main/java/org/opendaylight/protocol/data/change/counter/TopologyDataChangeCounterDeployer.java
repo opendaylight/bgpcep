@@ -9,8 +9,8 @@ package org.opendaylight.protocol.data.change.counter;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpcep.data.change.counter.config.rev170424.DataChangeCounterConfig;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -44,14 +44,14 @@ public final class TopologyDataChangeCounterDeployer implements DataTreeChangeLi
     @GuardedBy("this")
     private final Map<String, TopologyDataChangeCounter> counters = new HashMap<>();
     @GuardedBy("this")
-    private ListenerRegistration<TopologyDataChangeCounterDeployer> registration;
+    private Registration registration;
 
     @Inject
     @Activate
     public TopologyDataChangeCounterDeployer(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-        registration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
+        registration = dataBroker.registerTreeChangeListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
         LOG.info("Data change counter Deployer started");
     }
 
@@ -69,21 +69,20 @@ public final class TopologyDataChangeCounterDeployer implements DataTreeChangeLi
     }
 
     @Override
-    public synchronized void onDataTreeChanged(
-            final Collection<DataTreeModification<DataChangeCounterConfig>> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeModification<DataChangeCounterConfig>> changes) {
         for (var change : changes) {
             final var rootNode = change.getRootNode();
-            switch (rootNode.getModificationType()) {
+            switch (rootNode.modificationType()) {
                 case DELETE:
-                    deleteCounterChange(rootNode.getDataBefore().getCounterId());
+                    deleteCounterChange(rootNode.dataBefore().getCounterId());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    final var counterConfig = rootNode.getDataAfter();
+                    final var counterConfig = rootNode.dataAfter();
                     handleCounterChange(counterConfig.getCounterId(), counterConfig.getTopologyName());
                     break;
                 default:
-                    LOG.error("Unhandled modification Type: {}", rootNode.getModificationType());
+                    LOG.error("Unhandled modification Type: {}", rootNode.modificationType());
                     break;
             }
         }
