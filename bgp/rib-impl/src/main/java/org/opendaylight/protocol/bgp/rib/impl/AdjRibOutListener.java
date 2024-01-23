@@ -19,8 +19,8 @@ import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * Instantiated for each peer and table, listens on a particular peer's adj-rib-out, performs transcoding to BA form
  * (message) and sends it down the channel. This class is NOT thread-safe.
  */
-final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, PrefixesSentCounters {
+final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSentCounters {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
     private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
@@ -65,12 +65,12 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
     private final RIBSupport<?, ?> support;
     // FIXME: this field needs to be eliminated: either subclass this class or create a filtering ribsupport
     private final boolean mpSupport;
-    private final ListenerRegistration<AdjRibOutListener> registerDataTreeChangeListener;
+    private final Registration registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
     private boolean initalState;
 
     private AdjRibOutListener(final PeerId peerId, final YangInstanceIdentifier ribId, final CodecsRegistry registry,
-            final RIBSupport<?, ?> support, final DOMDataTreeChangeService service, final ChannelOutputLimiter session,
+            final RIBSupport<?, ?> support, final DataTreeChangeExtension service, final ChannelOutputLimiter session,
             final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
@@ -84,8 +84,8 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
          *  send EOR marker. initialState flag is distinguishing between first ODTC execution and the rest.
          */
         initalState = true;
-        registerDataTreeChangeListener = service.registerDataTreeChangeListener(
-                new DOMDataTreeIdentifier(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
+        registerDataTreeChangeListener = service.registerTreeChangeListener(
+                DOMDataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, adjRibOutId), this);
     }
 
     static AdjRibOutListener create(
@@ -93,7 +93,7 @@ final class AdjRibOutListener implements ClusteredDOMDataTreeChangeListener, Pre
             final @NonNull YangInstanceIdentifier ribId,
             final @NonNull CodecsRegistry registry,
             final @NonNull RIBSupport<?, ?> support,
-            final @NonNull DOMDataTreeChangeService service,
+            final @NonNull DataTreeChangeExtension service,
             final @NonNull ChannelOutputLimiter session,
             final boolean mpSupport) {
         return new AdjRibOutListener(peerId, ribId, registry, support, service, session, mpSupport);

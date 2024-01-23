@@ -31,12 +31,9 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
-import org.opendaylight.mdsal.dom.api.DOMDataBrokerExtension;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -65,6 +62,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.ChoiceIn;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
@@ -77,7 +75,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactionChainListener {
+public final class RIBImpl extends BGPRibStateImpl implements RIB, FutureCallback<Empty> {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
@@ -92,7 +90,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     private final RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    private final DOMDataBrokerExtension domService;
+    private final DataTreeChangeExtension domService;
     private final Map<DOMTransactionChain, LocRibWriter<?, ?>> txChainToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
@@ -131,7 +129,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
             .collect(Collectors.toCollection(HashSet::new));
 
         this.domDataBroker = requireNonNull(domDataBroker);
-        domService = domDataBroker.getExtensions().get(DOMDataTreeChangeService.class);
+        domService = domDataBroker.extension(DataTreeChangeExtension.class);
         this.extensions = requireNonNull(extensions);
         this.ribPolicies = requireNonNull(ribPolicies);
         this.codecsRegistry = codecsRegistry;
@@ -172,7 +170,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final DOMTransactionChain txChain = createPeerDOMChain(this);
+        final DOMTransactionChain txChain = createPeerDOMChain();
+        txChain.addCallback(this);
         PathSelectionMode pathSelectionStrategy = bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
@@ -220,13 +219,12 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final DOMTransactionChain chain,
-            final DOMDataTreeTransaction transaction, final Throwable cause) {
-        LOG.error("Broken chain in RIB {} transaction {}",
-            getInstanceIdentifier(), transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onFailure(final Throwable cause) {
+        LOG.error("Broken chain in RIB {}", getInstanceIdentifier(), cause);
         final LocRibWriter<?, ?> locRibWriter = txChainToLocRibWriter.remove(chain);
         if (locRibWriter != null) {
-            final DOMTransactionChain newChain = createPeerDOMChain(this);
+            final DOMTransactionChain newChain = createPeerDOMChain();
+            newChain.addCallback(this);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
             txChainToLocRibWriter.put(newChain, locRibWriter);
@@ -234,7 +232,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public void onTransactionChainSuccessful(final DOMTransactionChain chain) {
+    public void onSuccess(final Empty result) {
         LOG.info("RIB {} closed successfully", getInstanceIdentifier());
     }
 
@@ -267,8 +265,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public DOMDataTreeChangeService getService() {
-        return (DOMDataTreeChangeService) domService;
+    public DataTreeChangeExtension getService() {
+        return domService;
     }
 
     @Override
@@ -277,8 +275,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     }
 
     @Override
-    public DOMTransactionChain createPeerDOMChain(final DOMTransactionChainListener listener) {
-        return domDataBroker.createMergingTransactionChain(listener);
+    public DOMTransactionChain createPeerDOMChain() {
+        return domDataBroker.createMergingTransactionChain();
     }
 
     @Override
@@ -299,7 +297,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
     public synchronized void instantiateServiceInstance() {
         isServiceInstantiated = true;
         setActive(true);
-        domChain = domDataBroker.createMergingTransactionChain(this);
+        domChain = domDataBroker.createMergingTransactionChain();
+        domChain.addCallback(this);
         LOG.debug("Instantiating RIB table {} at {}", ribId, yangRibId);
 
         final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(BGPRIB_NID)

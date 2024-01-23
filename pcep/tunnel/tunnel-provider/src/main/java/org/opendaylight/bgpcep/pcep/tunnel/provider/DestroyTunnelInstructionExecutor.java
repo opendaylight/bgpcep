@@ -17,7 +17,7 @@ import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.RemoveLsp;
@@ -39,11 +39,11 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
     private final RemoveLsp removeLsp;
 
     DestroyTunnelInstructionExecutor(final PcepDestroyTunnelInput pcepDestroyTunnelInput, final DataBroker dataProvider,
-            final RpcConsumerRegistry rpcConsumerRegistry) {
+            final RpcService rpcService) {
         super(pcepDestroyTunnelInput);
         this.pcepDestroyTunnelInput = pcepDestroyTunnelInput;
         this.dataProvider = dataProvider;
-        removeLsp = rpcConsumerRegistry.getRpc(RemoveLsp.class);
+        removeLsp = rpcService.getRpc(RemoveLsp.class);
     }
 
     @Override

@@ -16,9 +16,8 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceRegistration;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yangtools.concepts.Registration;
 
 abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest {
@@ -27,7 +26,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     @Mock
     ClusterSingletonServiceProvider cssp;
     @Mock
-    ClusterSingletonServiceRegistration singletonServiceRegistration;
+    Registration singletonServiceRegistration;
     @Mock
     private Registration registration;
     ClusterSingletonService singletonService;
@@ -39,16 +38,16 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     @Before
     public void setUp() throws Exception {
         doAnswer(invocationOnMock -> {
-            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            return this.singletonServiceRegistration;
-        }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
+            singletonService = invocationOnMock.getArgument(0);
+            return singletonServiceRegistration;
+        }).when(cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
         doAnswer(invocationOnMock -> {
-            this.singletonService.closeServiceInstance().get();
+            singletonService.closeServiceInstance().get();
             return null;
-        }).when(this.singletonServiceRegistration).close();
+        }).when(singletonServiceRegistration).close();
 
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any());
 
-        doNothing().when(this.registration).close();
+        doNothing().when(registration).close();
     }
 }
