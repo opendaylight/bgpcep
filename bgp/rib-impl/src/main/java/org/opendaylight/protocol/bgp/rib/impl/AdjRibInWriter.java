@@ -195,7 +195,7 @@ final class AdjRibInWriter {
             final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
         final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
-                .node(EMPTY_ADJRIBIN.getIdentifier()).node(TABLES_NID)).node(rs.getRibSupport().tablesKey());
+                .node(EMPTY_ADJRIBIN.name()).node(TABLES_NID)).node(rs.getRibSupport().tablesKey());
 
         final TableContext ctx = new TableContext(rs, idb.build());
         ctx.createEmptyTableStructure(tx);
@@ -219,7 +219,7 @@ final class AdjRibInWriter {
         }
         tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
         rs.createEmptyTableStructure(tx,
-            newPeerPath.node(EMPTY_ADJRIBOUT.getIdentifier()).node(TABLES_NID).node(tableKey));
+            newPeerPath.node(EMPTY_ADJRIBOUT.name()).node(TABLES_NID).node(tableKey));
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
@@ -348,7 +348,7 @@ final class AdjRibInWriter {
                                     synchronized (staleRoutesRegistry) {
                                         final MapNode routesNode = (MapNode) routesOptional.orElseThrow();
                                         final List<NodeIdentifierWithPredicates> routes = routesNode.body().stream()
-                                                .map(MapEntryNode::getIdentifier)
+                                                .map(MapEntryNode::name)
                                                 .collect(Collectors.toList());
                                         if (!routes.isEmpty()) {
                                             staleRoutesRegistry.put(tablesKey, routes);

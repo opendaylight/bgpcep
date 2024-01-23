@@ -278,7 +278,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     @Holding("this")
     private void changeDataTree(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
-        final PathArgument lastArg = table.getIdentifier();
+        final PathArgument lastArg = table.name();
         verify(lastArg instanceof NodeIdentifierWithPredicates, "Unexpected type %s in path %s", lastArg.getClass(),
             rootPath);
         final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
@@ -430,8 +430,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (maybeRoutesAfter.isPresent()) {
             final YangInstanceIdentifier routesPath = routeMapPath(ribSupport, effectiveTablePath);
             for (MapEntryNode routeAfter : extractMap(maybeRoutesAfter).body()) {
-                writeRoute(tx, ribSupport, routesPath.node(routeAfter.getIdentifier()), null, routeAfter,
-                    longLivedStale);
+                writeRoute(tx, ribSupport, routesPath.node(routeAfter.name()), null, routeAfter, longLivedStale);
             }
         }
     }
@@ -441,7 +440,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
             final YangInstanceIdentifier routesPath = routeMapPath(ribSupport, effectiveTablePath);
             for (final MapEntryNode routeBefore : deletedRoutes) {
-                deleteRouteTarget(ribSupport, routesPath.node(routeBefore.getIdentifier()), routeBefore);
+                deleteRouteTarget(ribSupport, routesPath.node(routeBefore.name()), routeBefore);
             }
             rtMembershipsUpdated = true;
         }
@@ -452,8 +451,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
-        LOG.debug("Process route {}", route.getIdentifier());
-        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.getIdentifier());
+        LOG.debug("Process route {}", route.name());
+        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.name());
         switch (route.getModificationType()) {
             case DELETE:
             case DISAPPEARED:

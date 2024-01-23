@@ -83,7 +83,7 @@ public class RibImplTest extends AbstractConfig {
         doReturn(emptyTable).when(ribSupport).emptyTable();
         final NodeIdentifierWithPredicates niie = NodeIdentifierWithPredicates.of(Rib.QNAME,
                 QName.create("", "test").intern(), "t");
-        doReturn(niie).when(emptyTable).getIdentifier();
+        doReturn(niie).when(emptyTable).name();
         doReturn(domTx).when(domDataBroker).createMergingTransactionChain(any());
         final DOMDataTreeChangeService dOMDataTreeChangeService = mock(DOMDataTreeChangeService.class);
         doReturn(ImmutableClassToInstanceMap.of(DOMDataTreeChangeService.class, dOMDataTreeChangeService))
