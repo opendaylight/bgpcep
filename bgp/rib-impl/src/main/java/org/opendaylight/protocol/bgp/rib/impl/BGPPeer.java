@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -40,9 +41,6 @@ import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeTransaction;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -100,6 +98,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.binding.Rpc;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.slf4j.Logger;
@@ -367,15 +366,16 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         currentSession = session;
         sessionUp = true;
 
-        ribOutChain = rib.createPeerDOMChain(new DOMTransactionChainListener() {
+        final var chain = rib.createPeerDOMChain();
+        ribOutChain = chain;
+        chain.addCallback(new FutureCallback<Empty>() {
             @Override
-            public void onTransactionChainSuccessful(final DOMTransactionChain chain) {
+            public void onSuccess(final Empty result) {
                 LOG.debug("RibOut transaction chain {} successful.", chain);
             }
 
             @Override
-            public void onTransactionChainFailed(final DOMTransactionChain chain,
-                    final DOMDataTreeTransaction transaction, final Throwable cause) {
+            public void onFailure(final Throwable cause) {
                 onRibOutChainFailed(cause);
             }
         });
@@ -499,10 +499,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private synchronized void createEffRibInWriter() {
-        effRibInWriter = new EffectiveRibInWriter(this, rib,
-            rib.createPeerDOMChain(this),
-            peerPath, tables, tableTypeRegistry,
-            rtMemberships,
+        final var chain = rib.createPeerDOMChain();
+        chain.addCallback(this);
+
+        effRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, tables, tableTypeRegistry, rtMemberships,
             rtCache);
     }
 
@@ -690,8 +690,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final DOMTransactionChain chain,
-            final DOMDataTreeTransaction transaction, final Throwable cause) {
+    public synchronized void onFailure(final Throwable cause) {
         LOG.error("Transaction domChain failed.", cause);
         releaseConnection(true);
     }

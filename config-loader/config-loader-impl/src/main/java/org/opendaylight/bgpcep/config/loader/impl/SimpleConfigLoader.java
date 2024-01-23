@@ -26,9 +26,9 @@ public final class SimpleConfigLoader extends AbstractWatchingConfigLoader imple
 
     @Inject
     public SimpleConfigLoader(final FileWatcher fileWatcher, final BindingRuntimeContext runtimeContext) {
-        updateModelContext(runtimeContext.getEffectiveModelContext());
-        this.watchService = fileWatcher.getWatchService();
-        this.directory = new File(fileWatcher.getPathFile());
+        updateModelContext(runtimeContext.modelContext());
+        watchService = fileWatcher.getWatchService();
+        directory = new File(fileWatcher.getPathFile());
     }
 
     @PostConstruct

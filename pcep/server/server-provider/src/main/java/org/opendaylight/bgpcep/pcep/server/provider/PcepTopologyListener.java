@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -35,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Path1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.subobject.nai.IpAdjacency;
@@ -50,10 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.Ero;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.explicit.route.object.ero.Subobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.reported.route.object.Rro;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.PccSyncState;
@@ -64,9 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -82,17 +75,16 @@ import org.slf4j.LoggerFactory;
 
 public final class PcepTopologyListener implements DataTreeChangeListener<Node>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PcepTopologyListener.class);
-    private ListenerRegistration<PcepTopologyListener> listenerRegistration;
+
     private final PathManagerProvider pathManager;
+
+    private Registration listenerRegistration;
 
     public PcepTopologyListener(final DataBroker dataBroker,
             final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final PathManagerProvider pathManager) {
-        requireNonNull(dataBroker);
-        requireNonNull(topology);
         this.pathManager = requireNonNull(pathManager);
-        final InstanceIdentifier<Node> nodeTopology = topology.child(Node.class);
-        listenerRegistration = dataBroker.registerDataTreeChangeListener(
-                DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, nodeTopology), this);
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
+                DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, topology.child(Node.class)), this);
         LOG.info("Registered PCE Server listener {} for Operational PCEP Topology {}",
                 listenerRegistration, topology.getKey().getTopologyId().getValue());
     }
@@ -119,22 +111,21 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         for (DataObjectModification<?> lsp : lspMod) {
             ReportedLsp rptLsp;
 
-            switch (lsp.getModificationType()) {
+            switch (lsp.modificationType()) {
                 case DELETE:
-                    rptLsp = (ReportedLsp) lsp.getDataBefore();
+                    rptLsp = (ReportedLsp) lsp.dataBefore();
                     LOG.debug("Un-Register Managed TE Path: {}", rptLsp.getName());
                     pathManager.unregisterTePath(nodeId, new ConfiguredLspKey(rptLsp.getName()));
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    rptLsp = (ReportedLsp) lsp.getDataAfter();
+                    rptLsp = (ReportedLsp) lsp.dataAfter();
                     LOG.debug("Register Managed TE Path {}", rptLsp.getName());
                     pathManager.registerTePath(nodeId,  getConfiguredLsp(rptLsp), getPathType(rptLsp));
                     break;
                 default:
                     break;
             }
-
         }
     }
 
@@ -149,7 +140,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     private void handlePccChange(final NodeId nodeId, final List<DataObjectModification<?>> pccMod) {
         for (DataObjectModification<?> node : pccMod) {
             /* First, process PCC modification */
-            switch (node.getModificationType()) {
+            switch (node.modificationType()) {
                 case DELETE:
                     LOG.debug("Un-Register Managed TE Node: {}", nodeId);
                     pathManager.disableManagedTeNode(nodeId);
@@ -160,8 +151,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                     /* First look if the PCC was already created or not yet */
                     if (pathManager.checkManagedTeNode(nodeId)) {
                         /* Check if PCC State is Synchronized */
-                        if (node.getModifiedChildren() == null || node.getModifiedChildren().isEmpty()) {
-                            PathComputationClient pcc = (PathComputationClient) node.getDataAfter();
+                        if (node.modifiedChildren() == null || node.modifiedChildren().isEmpty()) {
+                            PathComputationClient pcc = (PathComputationClient) node.dataAfter();
                             if (pcc.getStateSync() == PccSyncState.Synchronized) {
                                 LOG.debug("Synchronize Managed TE Node {}", nodeId);
                                 pathManager.syncManagedTeNode(nodeId);
@@ -178,8 +169,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             }
 
             /* Then, look to reported LSP modification */
-            final List<DataObjectModification<? extends DataObject>> lspMod = node.getModifiedChildren()
-                    .stream().filter(mod -> mod.getDataType().equals(ReportedLsp.class))
+            final List<DataObjectModification<? extends DataObject>> lspMod = node.modifiedChildren()
+                    .stream().filter(mod -> mod.dataType().equals(ReportedLsp.class))
                     .collect(Collectors.toList());
             if (!lspMod.isEmpty()) {
                 handleLspChange(nodeId, lspMod);
@@ -197,8 +188,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     private void handleNode1Change(final NodeId nodeId, final List<DataObjectModification<?>> node1Mod) {
         for (DataObjectModification<?> child : node1Mod) {
             /* Then, look only to PathComputationClient.class modification */
-            final List<DataObjectModification<?>> pccMod = child.getModifiedChildren()
-                    .stream().filter(mod -> mod.getDataType().equals(PathComputationClient.class))
+            final List<DataObjectModification<?>> pccMod = child.modifiedChildren()
+                    .stream().filter(mod -> mod.dataType().equals(PathComputationClient.class))
                     .collect(Collectors.toList());
             if (!pccMod.isEmpty()) {
                 handlePccChange(nodeId, pccMod);
@@ -207,18 +198,17 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        for (DataTreeModification<Node> change : changes) {
-            DataObjectModification<Node> root = change.getRootNode();
+    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
+        for (var change : changes) {
+            final var root = change.getRootNode();
 
             final NodeId nodeId =
-                root.getModificationType() == DataObjectModification.ModificationType.DELETE
-                    ? root.getDataBefore().getNodeId()
-                    : root.getDataAfter().getNodeId();
+                root.modificationType() == DataObjectModification.ModificationType.DELETE
+                    ? root.dataBefore().getNodeId() : root.dataAfter().getNodeId();
 
             /* Look only to Node1.class modification */
-            final List<DataObjectModification<?>> node1Mod = root.getModifiedChildren().stream()
-                    .filter(mod -> mod.getDataType().equals(Node1.class))
+            final List<DataObjectModification<?>> node1Mod = root.modifiedChildren().stream()
+                    .filter(mod -> mod.dataType().equals(Node1.class))
                     .collect(Collectors.toList());
             if (!node1Mod.isEmpty()) {
                 handleNode1Change(nodeId, node1Mod);
@@ -235,42 +225,33 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      * @return      Path Description of the corresponding ERO SubObject.
      */
     private static PathDescription getSrPath(final SrSubobject srObj, final AddressFamily af) {
-        switch (af) {
-            case SrIpv4:
-                switch (srObj.getNaiType()) {
-                    case Ipv4Adjacency:
-                        return new PathDescriptionBuilder()
-                            .setSid(srObj.getSid())
-                            .setIpv4(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv4AddressNoZone())
-                            .setRemoteIpv4(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv4AddressNoZone())
-                            .build();
-                    case Ipv4NodeId:
-                        return new PathDescriptionBuilder()
-                            .setSid(srObj.getSid())
-                            .setRemoteIpv4(((IpNodeId)srObj.getNai()).getIpAddress().getIpv4AddressNoZone())
-                            .build();
-                    default:
-                        return null;
-                }
-            case SrIpv6:
-                switch (srObj.getNaiType()) {
-                    case Ipv6Adjacency:
-                        return new PathDescriptionBuilder()
-                            .setSid(srObj.getSid())
-                            .setIpv6(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv6AddressNoZone())
-                            .setRemoteIpv6(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv6AddressNoZone())
-                            .build();
-                    case Ipv6NodeId:
-                        return new PathDescriptionBuilder()
-                            .setSid(srObj.getSid())
-                            .setRemoteIpv6(((IpNodeId)srObj.getNai()).getIpAddress().getIpv6AddressNoZone())
-                            .build();
-                    default:
-                        return null;
-                }
-            default:
-                return null;
-        }
+        return switch (af) {
+            case SrIpv4 -> switch (srObj.getNaiType()) {
+                case Ipv4Adjacency -> new PathDescriptionBuilder()
+                    .setSid(srObj.getSid())
+                    .setIpv4(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv4AddressNoZone())
+                    .setRemoteIpv4(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv4AddressNoZone())
+                    .build();
+                case Ipv4NodeId -> new PathDescriptionBuilder()
+                    .setSid(srObj.getSid())
+                    .setRemoteIpv4(((IpNodeId)srObj.getNai()).getIpAddress().getIpv4AddressNoZone())
+                    .build();
+                default -> null;
+            };
+            case SrIpv6 -> switch (srObj.getNaiType()) {
+                case Ipv6Adjacency -> new PathDescriptionBuilder()
+                    .setSid(srObj.getSid())
+                    .setIpv6(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv6AddressNoZone())
+                    .setRemoteIpv6(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv6AddressNoZone())
+                    .build();
+                case Ipv6NodeId -> new PathDescriptionBuilder()
+                    .setSid(srObj.getSid())
+                    .setRemoteIpv6(((IpNodeId)srObj.getNai()).getIpAddress().getIpv6AddressNoZone())
+                    .build();
+                default -> null;
+            };
+            default -> null;
+        };
     }
 
     /**
@@ -282,18 +263,17 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      * @return      Path Description of the corresponding ERO SubObject.
      */
     private static PathDescription getIpPath(final IpPrefixCase ipc, final AddressFamily af) {
-        switch (af) {
-            case Ipv4:
-                return new PathDescriptionBuilder().setRemoteIpv4(
-                        new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
-                        .build();
-            case Ipv6:
-                return new PathDescriptionBuilder().setRemoteIpv6(
-                        new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
-                        .build();
-            default:
-                return null;
-        }
+        return switch (af) {
+            case Ipv4 -> new PathDescriptionBuilder()
+                .setRemoteIpv4(
+                    new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                .build();
+            case Ipv6 -> new PathDescriptionBuilder()
+                .setRemoteIpv6(
+                    new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                .build();
+            default -> null;
+        };
     }
 
     /**
@@ -306,18 +286,17 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      */
     private static PathDescription getIpPath(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
             .rsvp.rev150820._record.route.subobjects.subobject.type.IpPrefixCase ipc, final AddressFamily af) {
-        switch (af) {
-            case Ipv4:
-                return new PathDescriptionBuilder().setRemoteIpv4(
-                        new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
-                        .build();
-            case Ipv6:
-                return new PathDescriptionBuilder().setRemoteIpv6(
-                        new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
-                        .build();
-            default:
-                return null;
-        }
+        return switch (af) {
+            case Ipv4 -> new PathDescriptionBuilder()
+                .setRemoteIpv4(
+                    new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                .build();
+            case Ipv6 -> new PathDescriptionBuilder()
+                .setRemoteIpv6(
+                    new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                .build();
+            default -> null;
+        };
     }
 
     /**
@@ -329,13 +308,13 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      * @return      Path Description of the corresponding TE Path.
      */
     private static List<PathDescription> getPathDescription(final Ero ero, final AddressFamily af) {
-        final ArrayList<PathDescription> pathDesc = new ArrayList<>();
-        for (Subobject element : ero.getSubobject()) {
-            final SubobjectType sbt = element.getSubobjectType();
-            if (sbt instanceof SrSubobject) {
-                pathDesc.add(getSrPath((SrSubobject) sbt, af));
-            } else if (sbt instanceof IpPrefixCase) {
-                pathDesc.add(getIpPath((IpPrefixCase) sbt, af));
+        final var pathDesc = new ArrayList<PathDescription>();
+        for (var element : ero.nonnullSubobject()) {
+            final var sbt = element.getSubobjectType();
+            if (sbt instanceof SrSubobject sr) {
+                pathDesc.add(getSrPath(sr, af));
+            } else if (sbt instanceof IpPrefixCase ip) {
+                pathDesc.add(getIpPath(ip, af));
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
@@ -350,15 +329,15 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      * @return      Path Description of the corresponding TE Path.
      */
     private static List<PathDescription> getPathDescription(final Rro rro, final AddressFamily af) {
-        final ArrayList<PathDescription> pathDesc = new ArrayList<>();
+        final var pathDesc = new ArrayList<PathDescription>();
         for (var element : rro.nonnullSubobject()) {
             final var sbt = element.getSubobjectType();
-            if (sbt instanceof SrSubobject) {
-                pathDesc.add(getSrPath((SrSubobject) sbt, af));
-            } else if (sbt instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
-                    ._record.route.subobjects.subobject.type.IpPrefixCase) {
-                pathDesc.add(getIpPath((org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
-                        ._record.route.subobjects.subobject.type.IpPrefixCase)sbt, af));
+            if (sbt instanceof SrSubobject sr) {
+                pathDesc.add(getSrPath(sr, af));
+            } else if (sbt
+                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
+                        .route.subobjects.subobject.type.IpPrefixCase ip) {
+                pathDesc.add(getIpPath(ip, af));
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
@@ -391,7 +370,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             cb.setBandwidth(new DecimalBandwidth(Decimal64.valueOf(2, convert.longValue())));
         }
         if (path.getMetrics() != null) {
-            for (Metrics metric: path.getMetrics()) {
+            for (var metric : path.getMetrics()) {
                 convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
                 switch (metric.getMetric().getMetricType().intValue()) {
                     case MessagesUtil.IGP_METRIC:
@@ -416,17 +395,16 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         final Path1 p1 = path.augmentation(Path1.class);
         final Uint8 pst = p1.getPathSetupType() != null ? p1.getPathSetupType().getPst() : Uint8.ZERO;
         final Lsp lsp = p1.getLsp();
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp
-            .identifiers.tlv.lsp.identifiers.AddressFamily af = lsp.getTlvs().getLspIdentifiers().getAddressFamily();
+        final var af = lsp.getTlvs().getLspIdentifiers().getAddressFamily();
         IpAddress source = null;
         IpAddress destination = null;
-        if (af instanceof Ipv4Case) {
-            final Ipv4 ipv4 = ((Ipv4Case) af).getIpv4();
+        if (af instanceof Ipv4Case v4) {
+            final var ipv4 = v4.getIpv4();
             source = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
             destination = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
             cb.setAddressFamily(pst == Uint8.ZERO ? AddressFamily.Ipv4 : AddressFamily.SrIpv4);
-        } else if (af instanceof Ipv6Case) {
-            final Ipv6 ipv6 = ((Ipv6Case) af).getIpv6();
+        } else if (af instanceof Ipv6Case v6) {
+            final var ipv6 = v6.getIpv6();
             source = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
             destination = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
             cb.setAddressFamily(pst == Uint8.ZERO ? AddressFamily.Ipv6 : AddressFamily.SrIpv6);
@@ -496,6 +474,5 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         }
         return PathType.Initiated;
     }
-
 }
 

@@ -12,12 +12,12 @@ import static com.google.common.base.Verify.verifyNotNull;
 import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetSocketAddress;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -42,8 +42,7 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCEPPeerProposal {
-    private abstract static class AbstractListener<D extends DataObject, V>
-            implements ClusteredDataTreeChangeListener<D> {
+    private abstract static class AbstractListener<D extends DataObject, V> implements DataTreeChangeListener<D> {
         final Map<NodeId, V> map = new ConcurrentHashMap<>();
         final Registration reg;
 
@@ -51,7 +50,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
             justification = "Stateless specializations in this nest")
         AbstractListener(final DataBroker dataBroker, final @NonNull LogicalDatastoreType datastore,
                 final @NonNull InstanceIdentifier<D> wildcard) {
-            reg = dataBroker.registerDataTreeChangeListener(DataTreeIdentifier.create(datastore, wildcard), this);
+            reg = dataBroker.registerTreeChangeListener(DataTreeIdentifier.of(datastore, wildcard), this);
         }
 
         final void remove(final DataTreeModification<?> modification) {
@@ -68,7 +67,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         private static @NonNull NodeId extractNodeId(final DataTreeModification<?> modification) {
-            return verifyNotNull(modification.getRootPath().getRootIdentifier().firstKeyOf(Node.class)).getNodeId();
+            return verifyNotNull(modification.getRootPath().path().firstKeyOf(Node.class)).getNodeId();
         }
     }
 
@@ -81,9 +80,9 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         @Override
-        public void onDataTreeChanged(final Collection<DataTreeModification<PcepNodeSyncConfig>> changes) {
+        public void onDataTreeChanged(final List<DataTreeModification<PcepNodeSyncConfig>> changes) {
             for (var change : changes) {
-                final var config = change.getRootNode().getDataAfter();
+                final var config = change.getRootNode().dataAfter();
                 if (config != null) {
                     update(change, config.getSpeakerEntityIdValue());
                 } else {
@@ -102,9 +101,9 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         @Override
-        public void onDataTreeChanged(final Collection<DataTreeModification<LspDbVersion>> changes) {
+        public void onDataTreeChanged(final List<DataTreeModification<LspDbVersion>> changes) {
             for (var change : changes) {
-                update(change, change.getRootNode().getDataAfter());
+                update(change, change.getRootNode().dataAfter());
             }
         }
     }
