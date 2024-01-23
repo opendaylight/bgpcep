@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BmpMockSession extends SimpleChannelInboundHandler<Notification<?>> implements BmpSession {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockSession.class);
 
     private static final Ipv4AddressNoZone NEXT_HOP = new Ipv4AddressNoZone("1.1.1.1");
@@ -36,8 +35,8 @@ public final class BmpMockSession extends SimpleChannelInboundHandler<Notificati
     private final int prePolicyRoutesCount;
     private final int postPolicyRoutesCount;
 
-    private InetSocketAddress remoteAddress;
-    private Channel channel;
+    private InetSocketAddress remoteAddress = null;
+    private Channel channel = null;
 
     public BmpMockSession(final int peersCount, final int prePolicyRoutesCount, final int postPolicyRoutesCount) {
         this.peersCount = peersCount;
