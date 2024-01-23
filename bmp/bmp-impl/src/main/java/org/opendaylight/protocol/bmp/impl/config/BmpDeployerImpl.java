@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
@@ -32,7 +33,7 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.impl.app.BmpMonitoringStationImpl;
@@ -44,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.bmp.monitor.Monitor;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -82,7 +83,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     @GuardedBy("this")
     private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
     @GuardedBy("this")
-    private ListenerRegistration<BmpDeployerImpl> registration;
+    private Registration registration;
 
     @Activate
     @Inject
@@ -114,7 +115,7 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     }
 
     @Override
-    public synchronized void onDataTreeChanged(final Collection<DataTreeModification<OdlBmpMonitors>> changes) {
+    public synchronized void onDataTreeChanged(final List<DataTreeModification<OdlBmpMonitors>> changes) {
         final DataTreeModification<OdlBmpMonitors> dataTreeModification = Iterables.getOnlyElement(changes);
         final Collection<? extends DataObjectModification<? extends DataObject>> rootNode =
             dataTreeModification.getRootNode().getModifiedChildren();

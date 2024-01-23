@@ -10,6 +10,7 @@ package org.opendaylight.graph.impl;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,11 +24,10 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.GraphTopology;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.Graph;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -51,7 +51,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
     private final ConnectedGraphProvider graphProvider;
 
-    private ListenerRegistration<GraphListener> listenerRegistration;
+    private Registration listenerRegistration;
 
     @Inject
     @Activate
@@ -61,7 +61,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
         final var graphIdentifier = InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
 
         listenerRegistration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, graphIdentifier), this);
+            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, graphIdentifier), this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
 
@@ -92,9 +92,9 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
             final Collection<? extends DataObjectModification<? extends DataObject>> children) {
         for (var child : children) {
             final DataObject value;
-            switch (child.getModificationType()) {
+            switch (child.modificationType()) {
                 case DELETE:
-                    value = child.getDataBefore();
+                    value = child.dataBefore();
                     if (value instanceof Vertex vertex) {
                         cgraph.deleteVertex(vertex.key());
                     }
@@ -107,7 +107,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    value = child.getDataAfter();
+                    value = child.dataAfter();
                     if (value instanceof Vertex vertex) {
                         cgraph.addVertex(vertex);
                     }
@@ -125,11 +125,11 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Graph>> changes) {
-        for (DataTreeModification<Graph> change : changes) {
-            DataObjectModification<Graph> root = change.getRootNode();
-            GraphKey key = change.getRootPath().getRootIdentifier().firstKeyOf(Graph.class);
-            switch (root.getModificationType()) {
+    public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
+        for (var change : changes) {
+            final var root = change.getRootNode();
+            final var key = change.getRootPath().path().firstKeyOf(Graph.class);
+            switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
                     break;
@@ -142,10 +142,10 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
                     /* First look if the Graph was not already configured */
                     ConnectedGraph cgraph = graphProvider.getConnectedGraph(key);
                     if (cgraph == null) {
-                        graphProvider.addGraph(root.getDataAfter());
+                        graphProvider.addGraph(root.dataAfter());
                     } else {
                         /* Graph exist, process Children */
-                        parseSubTree(cgraph, root.getModifiedChildren());
+                        parseSubTree(cgraph, root.modifiedChildren());
                     }
                     break;
                 default:

@@ -21,10 +21,9 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeService;
+import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChainListener;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeerTrackerImpl;
@@ -47,7 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -70,7 +69,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected BGPPeerRegistry bgpPeerRegistry;
     @Mock
-    protected ListenerRegistration<?> listener;
+    protected Registration listener;
     @Mock
     protected Future<?> future;
     @Mock
@@ -78,7 +77,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
     @Mock
     protected PeerGroupConfigLoader peerGroupLoader;
     @Mock
-    private DOMDataTreeChangeService dataTreeChangeService;
+    private DataTreeChangeExtension dataTreeChangeService;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
 
     @Override
@@ -88,7 +87,8 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(InstanceIdentifier.create(BgpRib.class).child(org.opendaylight.yang.gen.v1.urn.opendaylight
                 .params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib.class, new RibKey(RIB_ID))).when(rib)
                 .getInstanceIdentifier();
-        doReturn(domTx).when(rib).createPeerDOMChain(any(DOMTransactionChainListener.class));
+        doReturn(domTx).when(rib).createPeerDOMChain();
+        doNothing().when(domTx).addCallback(any());
 
         doReturn(AS).when(rib).getLocalAs();
         doReturn(mock(RIBSupportContextRegistry.class)).when(rib).getRibSupportContext();
@@ -105,7 +105,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
 
         doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(rib).getYangRibId();
         doReturn(dataTreeChangeService).when(rib).getService();
-        doReturn(listener).when(dataTreeChangeService).registerDataTreeChangeListener(any(), any());
+        doReturn(listener).when(dataTreeChangeService).registerTreeChangeListener(any(), any());
         doReturn(new BgpId("127.0.0.1")).when(rib).getBgpIdentifier();
         doReturn(true).when(future).cancel(true);
         doReturn(future).when(dispatcher).createReconnectingClient(any(InetSocketAddress.class),
