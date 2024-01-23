@@ -26,9 +26,7 @@ import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
-import org.opendaylight.mdsal.binding.api.Transaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
-import org.opendaylight.mdsal.binding.api.TransactionChainListener;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -43,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -59,7 +58,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Component(immediate = true, service = ConnectedGraphProvider.class)
-public final class ConnectedGraphServer implements ConnectedGraphProvider, TransactionChainListener, AutoCloseable {
+public final class ConnectedGraphServer implements ConnectedGraphProvider, FutureCallback<Empty>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectedGraphServer.class);
     private static final @NonNull InstanceIdentifier<GraphTopology> GRAPH_TOPOLOGY_IDENTIFIER =
         InstanceIdentifier.create(GraphTopology.class);
@@ -95,7 +94,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
     private synchronized void initTransactionChain() {
         LOG.debug("Initializing transaction chain for Graph Model Server {}", this);
         checkState(chain == null, "Transaction chain has to be closed before being initialized");
-        chain = dataBroker.createMergingTransactionChain(this);
+        chain = dataBroker.createMergingTransactionChain();
+        chain.addCallback(this);
     }
 
     /**
@@ -373,14 +373,12 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Trans
     }
 
     @Override
-    public synchronized void onTransactionChainFailed(final TransactionChain transactionChain,
-            final Transaction transaction, final Throwable cause) {
-        LOG.error("GraphModel builder for {} failed in transaction: {} ", GRAPH_TOPOLOGY_IDENTIFIER,
-                transaction != null ? transaction.getIdentifier() : null, cause);
+    public synchronized void onFailure(final Throwable cause) {
+        LOG.error("GraphModel builder for {} failed", GRAPH_TOPOLOGY_IDENTIFIER, cause);
     }
 
     @Override
-    public void onTransactionChainSuccessful(final TransactionChain transactionChain) {
+    public void onSuccess(final Empty result) {
         LOG.info("GraphModel builder for {} shut down", GRAPH_TOPOLOGY_IDENTIFIER);
     }
 

@@ -10,15 +10,15 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.singleton.common.api.ClusterSingletonServiceProvider;
+import org.opendaylight.mdsal.binding.api.RpcService;
+import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.osgi.framework.BundleContext;
 
 final class TunnelProviderDependencies {
     private final DataBroker dataBroker;
     private final ClusterSingletonServiceProvider cssp;
-    private final RpcConsumerRegistry rpcConsumerRegistry;
+    private final RpcService rpcService;
     private final RpcProviderService rpcProviderRegistry;
     private final BundleContext bundleContext;
 
@@ -26,7 +26,7 @@ final class TunnelProviderDependencies {
             final DataBroker dataBroker,
             final ClusterSingletonServiceProvider cssp,
             final RpcProviderService rpcProviderRegistry,
-            final RpcConsumerRegistry rpcConsumerRegistry,
+            final RpcService rpcService,
             final BundleContext bundleContext
     ) {
 
@@ -34,26 +34,26 @@ final class TunnelProviderDependencies {
         this.cssp = requireNonNull(cssp);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.bundleContext = requireNonNull(bundleContext);
-        this.rpcConsumerRegistry = requireNonNull(rpcConsumerRegistry);
+        this.rpcService = requireNonNull(rpcService);
     }
 
     DataBroker getDataBroker() {
-        return this.dataBroker;
+        return dataBroker;
     }
 
     ClusterSingletonServiceProvider getCssp() {
-        return this.cssp;
+        return cssp;
     }
 
-    RpcConsumerRegistry getRpcConsumerRegistry() {
-        return this.rpcConsumerRegistry;
+    RpcService getRpcConsumerRegistry() {
+        return rpcService;
     }
 
     RpcProviderService getRpcProviderRegistry() {
-        return this.rpcProviderRegistry;
+        return rpcProviderRegistry;
     }
 
     BundleContext getBundleContext() {
-        return this.bundleContext;
+        return bundleContext;
     }
 }

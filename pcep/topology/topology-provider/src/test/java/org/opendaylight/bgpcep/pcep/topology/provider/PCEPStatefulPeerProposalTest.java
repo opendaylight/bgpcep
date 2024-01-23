@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.LspDbVersionListener;
@@ -49,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -66,11 +67,12 @@ public class PCEPStatefulPeerProposalTest {
     @Mock
     private DataBroker dataBroker;
     @Mock
-    private ListenerRegistration<?> listenerReg;
+    private Registration listenerReg;
     @Mock
     private FluentFuture<Optional<LspDbVersion>> listenableFutureMock;
-
+    @Captor
     private ArgumentCaptor<DataTreeChangeListener<?>> captor;
+
     private TlvsBuilder tlvsBuilder;
 
     @Before
@@ -78,8 +80,7 @@ public class PCEPStatefulPeerProposalTest {
         tlvsBuilder = new TlvsBuilder().addAugmentation(new Tlvs1Builder()
             .setStateful(new StatefulBuilder().addAugmentation(new Stateful1Builder().build()).build())
             .build());
-        captor = ArgumentCaptor.forClass(DataTreeChangeListener.class);
-        doReturn(listenerReg).when(dataBroker).registerDataTreeChangeListener(any(), captor.capture());
+        doReturn(listenerReg).when(dataBroker).registerTreeChangeListener(any(), captor.capture());
         doNothing().when(listenerReg).close();
     }
 
@@ -94,12 +95,12 @@ public class PCEPStatefulPeerProposalTest {
                 new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
 
             final var dbverRoot = mock(DataObjectModification.class);
-            doReturn(LSP_DB_VERSION).when(dbverRoot).getDataAfter();
+            doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
-            for (DataTreeChangeListener<?> listener : listeners) {
+            for (var listener : listeners) {
                 if (listener instanceof LspDbVersionListener) {
                     listener.onDataTreeChanged(List.of(dbverMod));
                 }
@@ -121,20 +122,20 @@ public class PCEPStatefulPeerProposalTest {
                 new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
 
             final var dbverRoot = mock(DataObjectModification.class);
-            doReturn(LSP_DB_VERSION).when(dbverRoot).getDataAfter();
+            doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
             final var speakerRoot = mock(DataObjectModification.class);
             doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
-                .getDataAfter();
+                .dataAfter();
             final var speakerMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, modPath)).when(speakerMod)
+            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, modPath)).when(speakerMod)
                 .getRootPath();
             doReturn(speakerRoot).when(speakerMod).getRootNode();
 
-            for (DataTreeChangeListener<?> listener : listeners) {
+            for (var listener : listeners) {
                 if (listener instanceof SpeakerIdListener) {
                     listener.onDataTreeChanged(List.of(speakerMod));
                 } else if (listener instanceof LspDbVersionListener) {

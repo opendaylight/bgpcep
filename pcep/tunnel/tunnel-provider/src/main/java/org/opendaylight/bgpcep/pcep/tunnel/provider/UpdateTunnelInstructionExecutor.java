@@ -18,7 +18,7 @@ import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
-import org.opendaylight.mdsal.binding.api.RpcConsumerRegistry;
+import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.Arguments3Builder;
@@ -48,11 +48,11 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     private final UpdateLsp updateLsp;
 
     UpdateTunnelInstructionExecutor(final PcepUpdateTunnelInput updateTunnelInput, final DataBroker dataProvider,
-            final RpcConsumerRegistry rpcConsumerRegistry) {
+            final RpcService rpcService) {
         super(updateTunnelInput);
         this.updateTunnelInput = updateTunnelInput;
         this.dataProvider = dataProvider;
-        updateLsp = rpcConsumerRegistry.getRpc(UpdateLsp.class);
+        updateLsp = rpcService.getRpc(UpdateLsp.class);
     }
 
     @Override
