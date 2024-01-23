@@ -48,12 +48,12 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
         this.attributes = attributes;
         this.depreferenced = depreferenced;
         this.isFirstBestPath = isFirstBestPath;
-        this.addPathRouteKeyIdentifier = ribSupport.toAddPathListArgument(route.getIdentifier());
-        this.nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(addPathRouteKeyIdentifier);
+        addPathRouteKeyIdentifier = ribSupport.toAddPathListArgument(route.name());
+        nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(addPathRouteKeyIdentifier);
     }
 
     public final PeerId getFromPeerId() {
-        return this.fromPeerId;
+        return fromPeerId;
     }
 
     public final MapEntryNode getRoute() {
@@ -75,6 +75,6 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
 
     @Override
     public final NodeIdentifierWithPredicates getAddPathRouteKeyIdentifier() {
-        return route.getIdentifier();
+        return route.name();
     }
 }
