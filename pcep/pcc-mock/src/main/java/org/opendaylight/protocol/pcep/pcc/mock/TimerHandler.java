@@ -20,12 +20,14 @@ import org.slf4j.LoggerFactory;
 
 public class TimerHandler {
     private static final Logger LOG = LoggerFactory.getLogger(TimerHandler.class);
-    private final int disconnectAfter;
+
     private final Timer timer = new HashedWheelTimer();
-    private PCCDispatcherImpl pccDispatcher;
+    private final int disconnectAfter;
     private final int reconnectAfter;
     private final Optional<Uint64> syncOptDBVersion;
     private final PCCsBuilder pcCsBuilder;
+
+    private PCCDispatcherImpl pccDispatcher = null;
     private boolean reconnectActive = false;
 
     public TimerHandler(final PCCsBuilder pcCsBuilder, final Optional<Uint64> syncOptDBVersion,
@@ -39,11 +41,10 @@ public class TimerHandler {
     final class DisconnectTask implements TimerTask {
         @Override
         public void run(final Timeout timeout) {
-            LOG.debug("Disconnects PCCs, reconnect after {} seconds", TimerHandler.this.reconnectAfter);
-            TimerHandler.this.pccDispatcher.close();
-            if (TimerHandler.this.reconnectAfter > 0) {
-                TimerHandler.this.timer.newTimeout(new ReconnectTask(),
-                        TimerHandler.this.reconnectAfter, TimeUnit.SECONDS);
+            LOG.debug("Disconnects PCCs, reconnect after {} seconds", reconnectAfter);
+            pccDispatcher.close();
+            if (reconnectAfter > 0) {
+                timer.newTimeout(new ReconnectTask(), reconnectAfter, TimeUnit.SECONDS);
             }
         }
     }
@@ -52,19 +53,18 @@ public class TimerHandler {
         @Override
         public void run(final Timeout timeout) {
             LOG.debug("Reconnecting PCCs}");
-            TimerHandler.this.pcCsBuilder.createPCCs(TimerHandler.this.syncOptDBVersion.orElse(Uint64.ONE),
-                Optional.empty());
+            pcCsBuilder.createPCCs(syncOptDBVersion.orElse(Uint64.ONE), Optional.empty());
         }
     }
 
     protected void createDisconnectTask() {
-        if (this.disconnectAfter > 0 && !this.reconnectActive && this.syncOptDBVersion.isPresent()) {
-            this.timer.newTimeout(new DisconnectTask(), this.disconnectAfter, TimeUnit.SECONDS);
-            this.reconnectActive = true;
+        if (disconnectAfter > 0 && !reconnectActive && syncOptDBVersion.isPresent()) {
+            timer.newTimeout(new DisconnectTask(), disconnectAfter, TimeUnit.SECONDS);
+            reconnectActive = true;
         }
     }
 
     public void setPCCDispatcher(final PCCDispatcherImpl dispatcher) {
-        this.pccDispatcher = dispatcher;
+        pccDispatcher = dispatcher;
     }
 }
