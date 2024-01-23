@@ -158,8 +158,6 @@ final class PCEPTopologySingleton {
 
     @GuardedBy("this")
     private State state;
-    @GuardedBy("this")
-    private SettableFuture<?> cleanupFuture;
 
     private PCEPTopologySingleton(final PCEPTopologySingleton previous, final ListenableFuture<?> future) {
         tracker = previous.tracker;
