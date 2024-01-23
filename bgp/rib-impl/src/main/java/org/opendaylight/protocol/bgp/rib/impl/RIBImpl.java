@@ -316,7 +316,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB, DOMTransactio
         final DOMDataTreeWriteTransaction trans = domChain.newWriteOnlyTransaction();
 
         // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
-        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.create(BGPRIB_NID), bgpRib);
+        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BGPRIB_NID), bgpRib);
         trans.put(LogicalDatastoreType.OPERATIONAL, yangRibId, ribInstance);
 
         try {
