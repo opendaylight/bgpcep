@@ -11,7 +11,6 @@ import static org.opendaylight.protocol.bgp.testtool.BGPPeerBuilder.createPeer;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.BGPDispatcherImpl;
+import org.opendaylight.protocol.bgp.rib.impl.BGPNettyGroups;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
@@ -78,7 +78,7 @@ final class BGPTestTool {
             final BGPSessionListener sessionListener = new TestingListener(arguments.getNumberOfPrefixes(),
                     arguments.getExtendedCommunities(),
                 arguments.getMultiPathSupport());
-            this.listeners.put(address.getHostAddress(), sessionListener);
+            listeners.put(address.getHostAddress(), sessionListener);
             createPeer(dispatcher, arguments, new InetSocketAddress(address, port), sessionListener, bgpParameters);
             numberOfSpeakers--;
             address = InetAddresses.increment(address);
@@ -87,7 +87,7 @@ final class BGPTestTool {
 
     private static BGPDispatcher initializeActivator() {
         return new BGPDispatcherImpl(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow(),
-            new NioEventLoopGroup(), new NioEventLoopGroup(), new StrictBGPPeerRegistry());
+            new BGPNettyGroups(), new StrictBGPPeerRegistry());
     }
 
     private static OptionalCapabilities createMPCapability(final AddressFamily afi,
@@ -130,7 +130,7 @@ final class BGPTestTool {
     }
 
     void printCount(final String localAddress) {
-        final BGPSessionListener listener = this.listeners.get(localAddress);
+        final BGPSessionListener listener = listeners.get(localAddress);
         if (listener != null) {
             ((TestingListener) listener).printCount(localAddress);
         }

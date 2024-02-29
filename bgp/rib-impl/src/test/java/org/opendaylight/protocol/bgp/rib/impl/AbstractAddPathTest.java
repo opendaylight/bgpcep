@@ -14,8 +14,6 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import com.google.common.collect.Lists;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -130,8 +127,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     private final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
     private final RIBActivator ribActivator = new RIBActivator();
     private BGPActivator bgpActivator;
-    private NioEventLoopGroup worker;
-    private NioEventLoopGroup boss;
+    private BGPNettyGroups groups;
     private org.opendaylight.protocol.bgp.inet.BGPActivator inetActivator;
     protected StrictBGPPeerRegistry serverRegistry;
     protected ConstantCodecsRegistry codecsRegistry;
@@ -149,12 +145,9 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         inetActivator = new org.opendaylight.protocol.bgp.inet.BGPActivator();
         bgpActivator.start(context);
         inetActivator.start(context);
-        if (!Epoll.isAvailable()) {
-            worker = new NioEventLoopGroup();
-            boss = new NioEventLoopGroup();
-        }
+        groups = new BGPNettyGroups();
         serverRegistry = new StrictBGPPeerRegistry();
-        serverDispatcher = new BGPDispatcherImpl(context, boss, worker, serverRegistry);
+        serverDispatcher = new BGPDispatcherImpl(context, groups, serverRegistry);
         doReturn(Mockito.mock(ClusterSingletonServiceRegistration.class)).when(clusterSingletonServiceProvider)
             .registerClusterSingletonService(any(ClusterSingletonService.class));
 
@@ -165,14 +158,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     @Override
     @After
     public void tearDown() throws Exception {
-        serverDispatcher.close();
-        if (!Epoll.isAvailable()) {
-            worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-            boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-        }
-        clientDispatchers.forEach(BGPDispatcherImpl::close);
-        clientDispatchers = null;
-
+        groups.close();
         super.tearDown();
     }
 
@@ -240,8 +226,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
                                      final SimpleSessionListener sessionListener,
                                      final AsNumber remoteAsNumber) throws InterruptedException {
         final StrictBGPPeerRegistry clientRegistry = new StrictBGPPeerRegistry();
-        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(context, boss, worker,
-                clientRegistry);
+        final BGPDispatcherImpl clientDispatcher = new BGPDispatcherImpl(context, groups, clientRegistry);
 
         clientDispatchers.add(clientDispatcher);
         clientRegistry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(RIB_ID)), sessionListener,
