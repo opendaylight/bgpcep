@@ -12,14 +12,10 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 import com.google.common.base.Preconditions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -58,37 +54,29 @@ public class AbstractBGPDispatcherTest {
     protected BGPDispatcherImpl serverDispatcher;
     protected SimpleSessionListener serverListener;
     protected InetSocketAddress clientAddress;
-    private EventLoopGroup boss;
-    private EventLoopGroup worker;
+    private BGPNettyGroups groups;
 
     @Before
     public void setUp() {
-        if (!Epoll.isAvailable()) {
-            boss = new NioEventLoopGroup();
-            worker = new NioEventLoopGroup();
-        }
+        groups = new BGPNettyGroups();
         registry = new StrictBGPPeerRegistry();
         clientListener = new SimpleSessionListener();
         serverListener = new SimpleSessionListener();
         final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow();
-        serverDispatcher = new BGPDispatcherImpl(ctx, boss, worker, registry);
+        serverDispatcher = new BGPDispatcherImpl(ctx, groups, registry);
 
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final IpAddressNoZone clientPeerIp = new IpAddressNoZone(new Ipv4AddressNoZone(
             clientAddress.getAddress().getHostAddress()));
         registry.addPeer(clientPeerIp, clientListener, createPreferences(clientAddress));
-        clientDispatcher = new BGPDispatcherImpl(ctx, boss, worker, registry);
+        clientDispatcher = new BGPDispatcherImpl(ctx, groups, registry);
     }
 
     @After
     public void tearDown() throws Exception {
-        serverDispatcher.close();
         registry.close();
-        if (!Epoll.isAvailable()) {
-            worker.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-            boss.shutdownGracefully(0, 0, TimeUnit.SECONDS);
-        }
+        groups.close();
     }
 
     protected BGPSessionPreferences createPreferences(final InetSocketAddress socketAddress) {
