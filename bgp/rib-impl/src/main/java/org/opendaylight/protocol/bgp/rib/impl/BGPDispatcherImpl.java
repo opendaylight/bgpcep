@@ -18,25 +18,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollMode;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
@@ -50,7 +39,6 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionNegotiatorFactory;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +47,10 @@ import org.slf4j.LoggerFactory;
  * Implementation of BGPDispatcher.
  */
 @Singleton
-@Component(immediate = true, service = BGPDispatcher.class)
-public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
+@Component(immediate = true)
+public final class BGPDispatcherImpl implements BGPDispatcher {
     private static final Logger LOG = LoggerFactory.getLogger(BGPDispatcherImpl.class);
     private static final int SOCKET_BACKLOG_SIZE = 128;
-    private static final long TIMEOUT = 10;
 
     private static final WriteBufferWaterMark WATER_MARK = new WriteBufferWaterMark(128 * 1024, 256 * 1024);
 
@@ -74,23 +61,14 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     private static final RecvByteBufAllocator RECV_ALLOCATOR = new AdaptiveRecvByteBufAllocator().maxMessagesPerRead(1);
 
     private final BGPHandlerFactory handlerFactory;
-    private final EventLoopGroup bossGroup;
-    private final EventLoopGroup workerGroup;
     private final BGPPeerRegistry bgpPeerRegistry;
+    private final BGPNettyGroups nettyGroups;
 
     @Inject
     @Activate
     public BGPDispatcherImpl(@Reference final BGPExtensionConsumerContext extensions,
-            @Reference(target = "(type=global-boss-group)") final EventLoopGroup bossGroup,
-            @Reference(target = "(type=global-worker-group)") final EventLoopGroup workerGroup,
-            @Reference final BGPPeerRegistry bgpPeerRegistry) {
-        if (Epoll.isAvailable()) {
-            this.bossGroup = new EpollEventLoopGroup();
-            this.workerGroup = new EpollEventLoopGroup();
-        } else {
-            this.bossGroup = requireNonNull(bossGroup);
-            this.workerGroup = requireNonNull(workerGroup);
-        }
+            @Reference final BGPNettyGroups nettyGroups, @Reference final BGPPeerRegistry bgpPeerRegistry) {
+        this.nettyGroups = requireNonNull(nettyGroups);
         this.bgpPeerRegistry = requireNonNull(bgpPeerRegistry);
         handlerFactory = new BGPHandlerFactory(extensions.getMessageRegistry());
     }
@@ -113,44 +91,13 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
 
     private synchronized Bootstrap createClientBootStrap(final KeyMapping keys, final boolean reuseAddress,
             final InetSocketAddress localAddress) {
-        final Bootstrap bootstrap = new Bootstrap();
-        if (Epoll.isAvailable()) {
-            bootstrap.channel(EpollSocketChannel.class);
-            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
-        } else {
-            bootstrap.channel(NioSocketChannel.class);
-        }
-        if (keys != null && !keys.isEmpty()) {
-            if (Epoll.isAvailable()) {
-                bootstrap.option(EpollChannelOption.TCP_MD5SIG, keys.asMap());
-            } else {
-                throw new UnsupportedOperationException(Epoll.unavailabilityCause().getCause());
-            }
-        }
-
-        // Make sure we are doing round-robin processing
-        bootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE);
-        bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
-        bootstrap.option(ChannelOption.SO_REUSEADDR, reuseAddress);
-
-        if (bootstrap.config().group() == null) {
-            bootstrap.group(workerGroup);
-        }
-        bootstrap.localAddress(localAddress);
-
-        return bootstrap;
-    }
-
-    @Deactivate
-    @PreDestroy
-    @Override
-    public synchronized void close() {
-        if (Epoll.isAvailable()) {
-            LOG.debug("Closing Dispatcher");
-            workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-            bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-        }
+        return nettyGroups.createBootstrap(keys)
+            // Make sure we are doing round-robin processing
+            .option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR)
+            .option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE)
+            .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+            .option(ChannelOption.SO_REUSEADDR, reuseAddress)
+            .localAddress(localAddress);
     }
 
     @Override
@@ -189,27 +136,13 @@ public final class BGPDispatcherImpl implements BGPDispatcher, AutoCloseable {
     }
 
     private synchronized ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer<?> initializer) {
-        final ServerBootstrap serverBootstrap = new ServerBootstrap();
-        if (Epoll.isAvailable()) {
-            serverBootstrap.channel(EpollServerSocketChannel.class);
-            serverBootstrap.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
-        } else {
-            serverBootstrap.channel(NioServerSocketChannel.class);
-        }
-        final ChannelHandler serverChannelHandler = BGPChannel.createServerChannelHandler(initializer);
-        serverBootstrap.childHandler(serverChannelHandler);
-
-        serverBootstrap.option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE);
-        serverBootstrap.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        serverBootstrap.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK);
-
-        // Make sure we are doing round-robin processing
-        serverBootstrap.option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
-
-        if (serverBootstrap.config().group() == null) {
-            serverBootstrap.group(bossGroup, workerGroup);
-        }
-        return serverBootstrap;
+        return nettyGroups.createServerBootstrap()
+            .childHandler(BGPChannel.createServerChannelHandler(initializer))
+            .option(ChannelOption.SO_BACKLOG, SOCKET_BACKLOG_SIZE)
+            .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+            .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
+            // Make sure we are doing round-robin processing
+            .option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
     }
 
     private static final class BGPChannel {
