@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.LD;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
@@ -31,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class RouterIdParserTest {
     public static final byte[] RESULT = {(byte) 0x04, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x2A, (byte) 0x02,
@@ -65,7 +66,7 @@ public class RouterIdParserTest {
     }
 
     public static ChoiceNode createRouterIdCase() {
-        return Builders.choiceBuilder()
+        return ImmutableNodes.newChoiceBuilder()
             .withNodeIdentifier(new NodeIdentifier(RouterIdGeneratedCase.QNAME))
             .addChild(createRouteContainer())
             .build();
@@ -78,8 +79,9 @@ public class RouterIdParserTest {
             .build();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void wrongCaseTest() {
-        parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEsi(new ArbitraryCaseBuilder().build(), null));
     }
 }

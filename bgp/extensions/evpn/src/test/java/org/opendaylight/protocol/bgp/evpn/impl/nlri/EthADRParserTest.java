@@ -31,11 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EthernetADRouteCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EthernetADRouteCaseBuilder;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class EthADRParserTest {
     public static final byte[] RESULT = {
@@ -79,9 +77,10 @@ public class EthADRParserTest {
     }
 
     public static ChoiceNode createEthADRModel() {
-        final DataContainerNodeBuilder<NodeIdentifier, ChoiceNode> choice = Builders.choiceBuilder();
-        choice.withNodeIdentifier(EVPN_NID);
-        return choice.addChild(createArbitraryContainer()).build();
+        return ImmutableNodes.newChoiceBuilder()
+            .withNodeIdentifier(EVPN_NID)
+            .addChild(createArbitraryContainer())
+            .build();
     }
 
     private static ContainerNode createArbitraryContainer() {

@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.evpn.spi.pojo;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTest.ROUTE_ID_CASE;
 
 import io.netty.buffer.ByteBuf;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.routes.evpn.routes.EvpnRoute;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class SimpleEsiTypeRegistryTest {
     private static final class NotRegistered implements Esi {
@@ -45,9 +45,9 @@ public class SimpleEsiTypeRegistryTest {
         assertEquals(RouterIdParserTest.ROUTE_ID_CASE, reg.parseEsi(Unpooled.wrappedBuffer(buff)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void registryParseTest() {
-        SimpleEsiTypeRegistry.getInstance().parseEsi(null);
+        assertThrows(IllegalArgumentException.class, () -> SimpleEsiTypeRegistry.getInstance().parseEsi(null));
     }
 
     @Test
@@ -57,15 +57,16 @@ public class SimpleEsiTypeRegistryTest {
         assertEquals(0, body.readableBytes());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void registryNullModelTest() {
-        assertNull(SimpleEsiTypeRegistry.getInstance().parseEsiModel(Builders.choiceBuilder()
-            .withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME, "no-register").intern()))
-            .build()));
+        assertThrows(IllegalArgumentException.class,
+            () -> SimpleEsiTypeRegistry.getInstance().parseEsiModel(ImmutableNodes.newChoiceBuilder()
+                .withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME, "no-register")))
+                .build()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void registryEmptyModelTest() {
-        assertNull(SimpleEsiTypeRegistry.getInstance().parseEsiModel(null));
+        assertThrows(IllegalArgumentException.class, () -> SimpleEsiTypeRegistry.getInstance().parseEsiModel(null));
     }
 }

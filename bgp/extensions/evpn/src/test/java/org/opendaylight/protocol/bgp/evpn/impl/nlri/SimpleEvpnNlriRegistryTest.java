@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHERNET_AD_ROUTE_CASE;
@@ -25,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public final class SimpleEvpnNlriRegistryTest {
     private static final class NotRegistered implements EvpnChoice {
@@ -49,9 +50,10 @@ public final class SimpleEvpnNlriRegistryTest {
         assertEquals(ETHERNET_AD_ROUTE_CASE, SimpleEvpnNlriRegistry.getInstance().parseEvpn(type, buff));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void registryParseTest() {
-        SimpleEvpnNlriRegistry.getInstance().parseEvpn(NlriType.EthADDisc, null);
+        assertThrows(IllegalArgumentException.class,
+            () -> SimpleEvpnNlriRegistry.getInstance().parseEvpn(NlriType.EthADDisc, null));
     }
 
     @Test
@@ -63,7 +65,7 @@ public final class SimpleEvpnNlriRegistryTest {
 
     @Test
     public void registryNullModelTest() {
-        assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(Builders.choiceBuilder()
+        assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(ImmutableNodes.newChoiceBuilder()
             .withNodeIdentifier(EVPN_NID)
             .addChild(createContBuilder(new NodeIdentifier(QName.create(Evpn.QNAME, "test").intern())).build())
             .build()));

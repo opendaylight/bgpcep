@@ -37,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ChoiceNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class EvpnNlriParserTest {
     private static final NodeIdentifier EVPN_CHOICE_NID = new NodeIdentifier(EvpnChoice.QNAME);
@@ -48,7 +48,7 @@ public class EvpnNlriParserTest {
     private final EvpnNlriParser parser = new EvpnNlriParser();
 
     private static ChoiceNode createMACIpAdvChoice() {
-        return Builders.choiceBuilder()
+        return ImmutableNodes.newChoiceBuilder()
             .withNodeIdentifier(EVPN_CHOICE_NID)
             .addChild(MACIpAdvRParserTest.createMacIpCont())
             .build();
@@ -119,29 +119,25 @@ public class EvpnNlriParserTest {
 
     @Test
     public void testExtractEvpnDestination() {
-        final EvpnDestination destResult = EvpnNlriParser.extractEvpnDestination(Builders.unkeyedListEntryBuilder()
-            .withNodeIdentifier(EVPN_NID)
-            .withChild(createMACIpAdvChoice())
-            .withChild(createValue(RD_MODEL, RD_NID))
-            .build());
-        final EvpnDestination expected = new EvpnDestinationBuilder()
+        assertEquals(new EvpnDestinationBuilder()
             .setRouteDistinguisher(RD)
             .setEvpnChoice(MACIpAdvRParserTest.createdExpectedResult())
-            .build();
-        assertEquals(expected, destResult);
+            .build(), EvpnNlriParser.extractEvpnDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
+                .withNodeIdentifier(EVPN_NID)
+                .withChild(createMACIpAdvChoice())
+                .withChild(createValue(RD_MODEL, RD_NID))
+                .build()));
     }
 
     @Test
     public void testExtractRouteKey() {
-        final EvpnDestination destResult = EvpnNlriParser.extractRouteKeyDestination(Builders.unkeyedListEntryBuilder()
-            .withNodeIdentifier(EVPN_CHOICE_NID)
-            .withChild(createValue(RD_MODEL, RD_NID))
-            .withChild(createMACIpAdvChoice())
-            .build());
-        final EvpnDestination expected = new EvpnDestinationBuilder()
+        assertEquals(new EvpnDestinationBuilder()
             .setRouteDistinguisher(RD)
             .setEvpnChoice(MACIpAdvRParserTest.createdExpectedRouteKey())
-            .build();
-        assertEquals(expected, destResult);
+            .build(), EvpnNlriParser.extractRouteKeyDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
+                .withNodeIdentifier(EVPN_CHOICE_NID)
+                .withChild(createValue(RD_MODEL, RD_NID))
+                .withChild(createMACIpAdvChoice())
+                .build()));
     }
 }
