@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.ClusteredDOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
@@ -75,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * For purposed of import policies such as Best Path Selection, application
  * peer needs to have a BGP-ID that is configurable.
  */
-public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTreeChangeListener {
+public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
     private static final String APP_PEER_GROUP = "application-peers";
 
@@ -143,16 +143,15 @@ public class ApplicationPeer extends AbstractPeer implements ClusteredDOMDataTre
         createDomChain();
         adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
         final RIBSupportContextRegistry context = rib.getRibSupportContext();
-        final RegisterAppPeerListener registerAppPeerListener = () -> {
-            synchronized (this) {
-                if (getDomChain() != null) {
-                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                }
-            }
-        };
         peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables,
-                Map.of(), registerAppPeerListener);
+        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(),
+            () -> {
+                synchronized (this) {
+                    if (getDomChain() != null) {
+                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+                    }
+                }
+            });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);

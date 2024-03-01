@@ -27,9 +27,9 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 // Non-final because of Mockito.spy()
-public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>, PeerGroupConfigLoader, AutoCloseable {
+public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGroupConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBgpDeployer.class);
 
     private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
@@ -140,7 +140,7 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     @PostConstruct
     // Split out of constructor to support partial mocking
     public synchronized void init() {
-        registration = dataBroker.registerDataTreeChangeListener(
+        registration = dataBroker.registerTreeChangeListener(
                 DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
                         networkInstanceIId.child(Protocols.class).child(Protocol.class)
                                 .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
@@ -163,17 +163,17 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
             return;
         }
 
-        for (final DataTreeModification<Bgp> dataTreeModification : changes) {
-            final InstanceIdentifier<Bgp> rootIdentifier = dataTreeModification.getRootPath().getRootIdentifier();
+        for (var dataTreeModification : changes) {
+            final InstanceIdentifier<Bgp> rootIdentifier = dataTreeModification.getRootPath().path();
             final DataObjectModification<Bgp> rootNode = dataTreeModification.getRootNode();
-            final List<DataObjectModification<? extends DataObject>> deletedConfig
-                    = rootNode.getModifiedChildren().stream()
-                    .filter(mod -> mod.getModificationType() == DataObjectModification.ModificationType.DELETE)
-                    .collect(Collectors.toList());
-            final List<DataObjectModification<? extends DataObject>> changedConfig
-                    = rootNode.getModifiedChildren().stream()
-                    .filter(mod -> mod.getModificationType() != DataObjectModification.ModificationType.DELETE)
-                    .collect(Collectors.toList());
+            final List<DataObjectModification<? extends DataObject>> deletedConfig = rootNode.modifiedChildren()
+                .stream()
+                .filter(mod -> mod.modificationType() == DataObjectModification.ModificationType.DELETE)
+                .collect(Collectors.toList());
+            final List<DataObjectModification<? extends DataObject>> changedConfig = rootNode.modifiedChildren()
+                .stream()
+                .filter(mod -> mod.modificationType() != DataObjectModification.ModificationType.DELETE)
+                .collect(Collectors.toList());
             handleDeletions(deletedConfig, rootIdentifier);
             handleModifications(changedConfig, rootIdentifier);
         }
@@ -182,10 +182,10 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     private void handleModifications(final List<DataObjectModification<? extends DataObject>> changedConfig,
                                      final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = changedConfig.stream()
-                .filter(mod -> mod.getDataType().equals(Global.class))
+                .filter(mod -> mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
         final List<DataObjectModification<? extends DataObject>> peerMod = changedConfig.stream()
-                .filter(mod -> !mod.getDataType().equals(Global.class))
+                .filter(mod -> !mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
         if (!globalMod.isEmpty()) {
             handleGlobalChange(globalMod, rootIdentifier);
@@ -198,10 +198,10 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
     private void handleDeletions(final List<DataObjectModification<? extends DataObject>> deletedConfig,
                                  final InstanceIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = deletedConfig.stream()
-                .filter(mod -> mod.getDataType().equals(Global.class))
+                .filter(mod -> mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
         final List<DataObjectModification<? extends DataObject>> peerMod = deletedConfig.stream()
-                .filter(mod -> !mod.getDataType().equals(Global.class))
+                .filter(mod -> !mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
         if (!globalMod.isEmpty()) {
             handleGlobalChange(globalMod, rootIdentifier);
@@ -223,18 +223,18 @@ public class DefaultBgpDeployer implements ClusteredDataTreeChangeListener<Bgp>,
             final List<DataObjectModification<? extends DataObject>> config,
             final InstanceIdentifier<Bgp> rootIdentifier) {
         for (final DataObjectModification<? extends DataObject> dataObjectModification : config) {
-            if (dataObjectModification.getDataType().equals(Neighbors.class)) {
+            if (dataObjectModification.dataType().equals(Neighbors.class)) {
                 onNeighborsChanged((DataObjectModification<Neighbors>) dataObjectModification, rootIdentifier);
-            } else if (dataObjectModification.getDataType().equals(PeerGroups.class)) {
+            } else if (dataObjectModification.dataType().equals(PeerGroups.class)) {
                 rebootNeighbors((DataObjectModification<PeerGroups>) dataObjectModification);
             }
         }
     }
 
     private synchronized void rebootNeighbors(final DataObjectModification<PeerGroups> dataObjectModification) {
-        PeerGroups extPeerGroups = dataObjectModification.getDataAfter();
+        PeerGroups extPeerGroups = dataObjectModification.dataAfter();
         if (extPeerGroups == null) {
-            extPeerGroups = dataObjectModification.getDataBefore();
+            extPeerGroups = dataObjectModification.dataBefore();
         }
         if (extPeerGroups == null) {
             return;

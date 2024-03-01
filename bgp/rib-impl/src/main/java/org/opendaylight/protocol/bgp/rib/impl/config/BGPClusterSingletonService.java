@@ -158,7 +158,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     }
 
     synchronized void onGlobalChanged(final DataObjectModification<Global> dataObjectModification) {
-        switch (dataObjectModification.getModificationType()) {
+        switch (dataObjectModification.modificationType()) {
             case DELETE:
                 LOG.debug("Removing RIB instance: {}", bgpIid);
                 if (ribImpl != null) {
@@ -170,7 +170,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                final Global global = dataObjectModification.getDataAfter();
+                final Global global = dataObjectModification.dataAfter();
                 if (ribImpl == null) {
                     onGlobalCreated(global);
                 } else if (!ribImpl.isGlobalEqual(requireNonNull(global))) {
@@ -252,14 +252,14 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     @VisibleForTesting
     @Holding("this")
     void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification) {
-        for (final DataObjectModification<?> neighborModification : dataObjectModification.getModifiedChildren()) {
-            switch (neighborModification.getModificationType()) {
+        for (var neighborModification : dataObjectModification.modifiedChildren()) {
+            switch (neighborModification.modificationType()) {
                 case DELETE:
-                    onNeighborRemoved((Neighbor) neighborModification.getDataBefore());
+                    onNeighborRemoved((Neighbor) neighborModification.dataBefore());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
-                    onNeighborModified((Neighbor) neighborModification.getDataAfter());
+                    onNeighborModified((Neighbor) neighborModification.dataAfter());
                     break;
                 default:
                     break;
