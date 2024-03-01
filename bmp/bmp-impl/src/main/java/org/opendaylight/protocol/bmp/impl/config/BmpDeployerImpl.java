@@ -22,10 +22,9 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
-import org.opendaylight.mdsal.binding.api.DataObjectModification.ModificationType;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
@@ -51,8 +50,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -62,16 +60,16 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 @Component(service = {})
-public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
+public final class BmpDeployerImpl implements DataTreeChangeListener<OdlBmpMonitors>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
 
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
     private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
             InstanceIdentifier.create(OdlBmpMonitors.class);
     private static final YangInstanceIdentifier BMP_MONITOR_YII = YangInstanceIdentifier.of(BmpMonitor.QNAME);
-    private static final ContainerNode EMPTY_PARENT_NODE = Builders.containerBuilder()
+    private static final ContainerNode EMPTY_PARENT_NODE = ImmutableNodes.newContainerBuilder()
         .withNodeIdentifier(new NodeIdentifier(BmpMonitor.QNAME))
-        .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build())
+        .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(new NodeIdentifier(Monitor.QNAME)).build())
         .build();
 
     private final BmpDispatcher dispatcher;
@@ -110,15 +108,15 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
-        registration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+        registration = dataBroker.registerTreeChangeListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
     }
 
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeModification<OdlBmpMonitors>> changes) {
         final DataTreeModification<OdlBmpMonitors> dataTreeModification = Iterables.getOnlyElement(changes);
         final Collection<? extends DataObjectModification<? extends DataObject>> rootNode =
-            dataTreeModification.getRootNode().getModifiedChildren();
+            dataTreeModification.getRootNode().modifiedChildren();
         if (rootNode.isEmpty()) {
             return;
         }
@@ -126,15 +124,15 @@ public final class BmpDeployerImpl implements ClusteredDataTreeChangeListener<Od
     }
 
     private synchronized void handleModification(final DataObjectModification<BmpMonitorConfig> config) {
-        final ModificationType modificationType = config.getModificationType();
+        final var modificationType = config.modificationType();
         LOG.trace("Bmp Monitor configuration has changed: {}, type modification {}", config, modificationType);
         switch (modificationType) {
             case DELETE:
-                removeBmpMonitor(config.getDataBefore().getMonitorId());
+                removeBmpMonitor(config.dataBefore().getMonitorId());
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                updateBmpMonitor(config.getDataAfter());
+                updateBmpMonitor(config.dataAfter());
                 break;
             default:
                 break;
