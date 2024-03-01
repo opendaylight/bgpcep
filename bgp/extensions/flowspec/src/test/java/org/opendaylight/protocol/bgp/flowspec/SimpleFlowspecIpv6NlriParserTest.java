@@ -69,9 +69,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class SimpleFlowspecIpv6NlriParserTest {
@@ -356,27 +354,25 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecFragments() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
+        final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(Builders.unkeyedListBuilder()
+        entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-            .withChild(Builders.unkeyedListEntryBuilder()
+            .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                 .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder()
+                    .withChild(ImmutableNodes.newUnkeyedListBuilder()
                         .withNodeIdentifier(AbstractFlowspecNlriParser.FRAGMENT_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder()
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                             .withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.AND_BIT_VALUE,
-                                    AbstractOperandParser.END_OF_LIST_VALUE, BitmaskOperandParser.MATCH_VALUE,
-                                    BitmaskOperandParser.NOT_VALUE)).build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Set.of(AbstractFlowspecNlriParser.DO_NOT_VALUE,
-                                    AbstractFlowspecNlriParser.FIRST_VALUE, AbstractFlowspecNlriParser.IS_A_VALUE,
-                                    AbstractFlowspecNlriParser.LAST_VALUE)).build()).build())
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.AND_BIT_VALUE, AbstractOperandParser.END_OF_LIST_VALUE,
+                                BitmaskOperandParser.MATCH_VALUE, BitmaskOperandParser.NOT_VALUE)))
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Set.of(
+                                AbstractFlowspecNlriParser.DO_NOT_VALUE, AbstractFlowspecNlriParser.FIRST_VALUE,
+                                AbstractFlowspecNlriParser.IS_A_VALUE, AbstractFlowspecNlriParser.LAST_VALUE)))
+                            .build())
                         .build()).build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new FragmentCaseBuilder().setFragments(List.of(new FragmentsBuilder()
@@ -387,34 +383,34 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecNextHeaders() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
+        final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(Builders.unkeyedListBuilder()
+        entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-            .withChild(Builders.unkeyedListEntryBuilder()
+            .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                 .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.END_OF_LIST_VALUE,
-                                    AbstractOperandParser.AND_BIT_VALUE)).build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Uint8.valueOf(100)).build()).build())
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.AND_BIT_VALUE)).build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Uint8.valueOf(200)).build()).build())
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.END_OF_LIST_VALUE,
-                                    AbstractOperandParser.AND_BIT_VALUE, AbstractNumericOperandParser.EQUALS_VALUE))
-                                .build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Uint8.valueOf(210)).build()).build())
+                    .withChild(ImmutableNodes.newUnkeyedListBuilder().withNodeIdentifier(NEXT_HEADER_NID)
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)))
+                            .withChild(
+                                ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Uint8.valueOf(100)))
+                            .build())
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.AND_BIT_VALUE)))
+                            .withChild(
+                                ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Uint8.valueOf(200)))
+                            .build())
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder().withNodeIdentifier(NEXT_HEADER_NID)
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE,
+                                AbstractNumericOperandParser.EQUALS_VALUE)))
+                            .withChild(
+                                ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Uint8.valueOf(210)))
+                            .build())
                         .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
@@ -431,27 +427,27 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecFlowLabels() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
+        final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(Builders.unkeyedListBuilder()
+        entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-            .withChild(Builders.unkeyedListEntryBuilder()
+            .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                 .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.unkeyedListBuilder().withNodeIdentifier(FLOW_LABEL_NID)
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.END_OF_LIST_VALUE,
-                                    AbstractOperandParser.AND_BIT_VALUE)).build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Uint32.valueOf(100)).build()).build())
-                        .withChild(Builders.unkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.OP_NID)
-                                .withValue(Set.of(AbstractOperandParser.AND_BIT_VALUE)).build())
-                            .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.VALUE_NID)
-                                .withValue(Uint32.valueOf(200)).build()).build())
+                    .withChild(ImmutableNodes.newUnkeyedListBuilder().withNodeIdentifier(FLOW_LABEL_NID)
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.END_OF_LIST_VALUE, AbstractOperandParser.AND_BIT_VALUE)))
+                            .withChild(
+                                ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Uint32.valueOf(100)))
+                            .build())
+                        .withChild(ImmutableNodes.newUnkeyedListEntryBuilder().withNodeIdentifier(FLOW_LABEL_NID)
+                            .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.OP_NID, Set.of(
+                                AbstractOperandParser.AND_BIT_VALUE)))
+                            .withChild(
+                                ImmutableNodes.leafNode(AbstractFlowspecNlriParser.VALUE_NID, Uint32.valueOf(200)))
+                            .build())
                         .build()).build()).build()).build());
 
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
@@ -466,17 +462,16 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecDestPrefix() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
+        final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(Builders.unkeyedListBuilder()
+        entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-            .withChild(Builders.unkeyedListEntryBuilder()
+            .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                 .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.leafBuilder().withNodeIdentifier(AbstractFlowspecNlriParser.DEST_PREFIX_NID)
-                        .withValue("102:304:500::/40").build()).build()).build()).build());
+                    .withChild(ImmutableNodes.leafNode(AbstractFlowspecNlriParser.DEST_PREFIX_NID, "102:304:500::/40"))
+                    .build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new DestinationIpv6PrefixCaseBuilder().setDestinationPrefix(
             new Ipv6Prefix("102:304:500::/40")).build());
@@ -485,17 +480,17 @@ public class SimpleFlowspecIpv6NlriParserTest {
 
     @Test
     public void testExtractFlowspecSourcePrefix() {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> entry =
-                Builders.mapEntryBuilder();
+        final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
-        entry.withChild(Builders.unkeyedListBuilder()
+        entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
             .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-            .withChild(Builders.unkeyedListEntryBuilder()
+            .withChild(ImmutableNodes.newUnkeyedListEntryBuilder()
                 .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_NID)
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractFlowspecNlriParser.FLOWSPEC_TYPE_NID)
-                    .withChild(Builders.leafBuilder().withNodeIdentifier(SimpleFlowspecIpv4NlriParser.SOURCE_PREFIX_NID)
-                        .withValue("102:304:600::/40").build()).build()).build()).build());
+                    .withChild(
+                        ImmutableNodes.leafNode(SimpleFlowspecIpv4NlriParser.SOURCE_PREFIX_NID, "102:304:600::/40"))
+                    .build()).build()).build());
         final FlowspecBuilder expectedFS = new FlowspecBuilder();
         expectedFS.setFlowspecType(new SourceIpv6PrefixCaseBuilder().setSourcePrefix(
             new Ipv6Prefix("102:304:600::/40")).build());
