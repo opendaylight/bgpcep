@@ -8,17 +8,12 @@
 package org.opendaylight.protocol.bmp.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bmp.impl.BmpDispatcherUtil.createClientBootstrap;
-import static org.opendaylight.protocol.bmp.impl.BmpDispatcherUtil.createServerBootstrap;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import java.net.InetSocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,37 +39,27 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
     private static final int CONNECT_TIMEOUT = 5000;
     private static final int INITIAL_BACKOFF = 30_000;
     private static final int MAXIMUM_BACKOFF = 720_000;
-    private static final long TIMEOUT = 10;
 
     private final BmpHandlerFactory hf;
-    private final EventLoopGroup bossGroup;
-    private final EventLoopGroup workerGroup;
+    private final BmpNettyGroups nettyGroups;
     private final BmpSessionFactory sessionFactory;
     @GuardedBy("this")
     private boolean close;
 
+
     @Activate
-    public BmpDispatcherImpl(
-            @Reference(target = "(type=global-boss-group)") final EventLoopGroup bossGroup,
-            @Reference(target = "(type=global-worker-group)") final EventLoopGroup workerGroup,
+    public BmpDispatcherImpl(@Reference final BmpNettyGroups nettyGroups,
             @Reference final BmpExtensionConsumerContext ctx, @Reference final BmpSessionFactory sessionFactory) {
-        if (Epoll.isAvailable()) {
-            this.bossGroup = new EpollEventLoopGroup();
-            this.workerGroup = new EpollEventLoopGroup();
-        } else {
-            this.bossGroup = requireNonNull(bossGroup);
-            this.workerGroup = requireNonNull(workerGroup);
-        }
-        this.hf = new BmpHandlerFactory(ctx.getBmpMessageRegistry());
+        this.nettyGroups = requireNonNull(nettyGroups);
+        hf = new BmpHandlerFactory(ctx.getBmpMessageRegistry());
         this.sessionFactory = requireNonNull(sessionFactory);
     }
 
     @Override
     public ChannelFuture createClient(final InetSocketAddress remoteAddress, final BmpSessionListenerFactory slf,
             final KeyMapping keys) {
-        final Bootstrap bootstrap = createClientBootstrap(this.sessionFactory, this.hf,
-                BmpDispatcherUtil::createChannelWithDecoder, slf, remoteAddress, this.workerGroup,
-                CONNECT_TIMEOUT, keys);
+        final Bootstrap bootstrap = nettyGroups.createClientBootstrap(sessionFactory, hf,
+                BmpNettyGroups::createChannelWithDecoder, slf, remoteAddress, CONNECT_TIMEOUT, keys);
         final ChannelFuture channelPromise = bootstrap.connect();
         channelPromise.addListener(new BootstrapListener(bootstrap, remoteAddress, slf, keys));
         LOG.debug("Initiated BMP Client {} at {}.", channelPromise, remoteAddress);
@@ -84,8 +69,8 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
     @Override
     public ChannelFuture createServer(final InetSocketAddress address, final BmpSessionListenerFactory slf,
             final KeyMapping keys) {
-        final ServerBootstrap serverBootstrap = createServerBootstrap(this.sessionFactory, this.hf, slf,
-                BmpDispatcherUtil::createChannelWithDecoder, this.bossGroup, this.workerGroup, keys);
+        final ServerBootstrap serverBootstrap = nettyGroups.createServerBootstrap(sessionFactory, hf, slf,
+                BmpNettyGroups::createChannelWithDecoder, keys);
         final ChannelFuture channelFuture = serverBootstrap.bind(address);
         LOG.debug("Initiated BMP server {} at {}.", channelFuture, address);
         return channelFuture;
@@ -95,11 +80,7 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
     @PreDestroy
     @Override
     public synchronized void close() {
-        this.close = true;
-        if (Epoll.isAvailable()) {
-            this.workerGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-            this.bossGroup.shutdownGracefully(0, TIMEOUT, TimeUnit.SECONDS);
-        }
+        close = true;
     }
 
     private class BootstrapListener implements ChannelFutureListener {
@@ -114,7 +95,7 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
                 final InetSocketAddress remoteAddress, final BmpSessionListenerFactory slf, final KeyMapping keys) {
             this.bootstrap = bootstrap;
             this.remoteAddress = remoteAddress;
-            this.delay = INITIAL_BACKOFF;
+            delay = INITIAL_BACKOFF;
             this.slf = slf;
             this.keys = keys;
         }
@@ -127,27 +108,26 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
                 LOG.debug("Connection {} succeeded!", future);
                 future.channel().closeFuture().addListener((ChannelFutureListener) channelFuture -> scheduleConnect());
             } else {
-                if (this.delay > MAXIMUM_BACKOFF) {
+                if (delay > MAXIMUM_BACKOFF) {
                     LOG.warn("The time of maximum backoff has been exceeded. No further connection attempts with BMP "
-                            + "router {}.", this.remoteAddress);
+                            + "router {}.", remoteAddress);
                     future.cancel(false);
                     return;
                 }
                 final EventLoop loop = future.channel().eventLoop();
-                loop.schedule(() -> this.bootstrap.connect().addListener(this), this.delay, TimeUnit.MILLISECONDS);
+                loop.schedule(() -> bootstrap.connect().addListener(this), delay, TimeUnit.MILLISECONDS);
                 LOG.info("The connection try to BMP router {} failed. Next reconnection attempt in {} milliseconds.",
-                        this.remoteAddress, this.delay);
-                this.delay *= 2;
+                        remoteAddress, delay);
+                delay *= 2;
             }
         }
 
         private void scheduleConnect() {
-            if (!BmpDispatcherImpl.this.close) {
+            if (!close) {
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        createClient(BootstrapListener.this.remoteAddress, BootstrapListener.this.slf,
-                                BootstrapListener.this.keys);
+                        createClient(remoteAddress, slf, keys);
                     }
                 }, 5);
             }

@@ -18,7 +18,6 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import org.junit.After;
 import org.junit.Before;
@@ -32,6 +31,7 @@ import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderC
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
+import org.opendaylight.protocol.bmp.impl.BmpNettyGroups;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -64,7 +64,7 @@ public class BmpDispatcherImplTest {
         bmpActivator = new BmpActivator(context);
         bmpActivator.start(ctx);
 
-        dispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
+        dispatcher = new BmpDispatcherImpl(new BmpNettyGroups(), ctx,
             (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
