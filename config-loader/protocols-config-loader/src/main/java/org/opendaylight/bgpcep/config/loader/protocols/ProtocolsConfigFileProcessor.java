@@ -31,8 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 @Singleton
@@ -81,7 +80,7 @@ public final class ProtocolsConfigFileProcessor extends AbstractConfigFileProces
         final DOMDataTreeWriteTransaction wtx = dataBroker.newWriteOnlyTransaction();
 
         // Ensure global-bgp exists
-        wtx.merge(LogicalDatastoreType.CONFIGURATION, GLOBAL_BGP_PATH, Builders.mapEntryBuilder()
+        wtx.merge(LogicalDatastoreType.CONFIGURATION, GLOBAL_BGP_PATH, ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(GLOBAL_BGP)
             .withChild(ImmutableNodes.leafNode(NAME, GLOBAL_BGP_NAME))
             .build());

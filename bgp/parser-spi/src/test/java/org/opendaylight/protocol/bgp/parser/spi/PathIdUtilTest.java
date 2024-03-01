@@ -7,74 +7,65 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-public class PathIdUtilTest {
+class PathIdUtilTest {
+    private final ByteBuf buffer = Unpooled.buffer();
 
-    private ByteBuf buffer;
-
-    @Before
-    public void setUp() {
-        this.buffer = Unpooled.buffer();
+    @Test
+    void testWritePathIdNull() {
+        PathIdUtil.writePathId(null, buffer);
+        assertEquals(0, buffer.readableBytes());
     }
 
     @Test
-    public void testWritePathIdNull() {
-        PathIdUtil.writePathId(null, this.buffer);
-        Assert.assertEquals(0, this.buffer.readableBytes());
+    void testWritePathIdZero() {
+        PathIdUtil.writePathId(PathIdUtil.NON_PATH_ID, buffer);
+        assertEquals(0, buffer.readableBytes());
     }
 
     @Test
-    public void testWritePathIdZero() {
-        PathIdUtil.writePathId(NON_PATH_ID, this.buffer);
-        Assert.assertEquals(0, this.buffer.readableBytes());
+    void testWritePathId() {
+        PathIdUtil.writePathId(new PathId(Uint32.TEN), buffer);
+        assertEquals(Integer.BYTES, buffer.readableBytes());
     }
 
     @Test
-    public void testWritePathId() {
-        PathIdUtil.writePathId(new PathId(Uint32.TEN), this.buffer);
-        Assert.assertEquals(Integer.BYTES, this.buffer.readableBytes());
+    void testReadPathId() {
+        buffer.writeInt(10);
+        final PathId pathId = PathIdUtil.readPathId(buffer);
+        assertEquals(Uint32.TEN, pathId.getValue());
     }
 
     @Test
-    public void testReadPathId() {
-        this.buffer.writeInt(10);
-        final PathId pathId = PathIdUtil.readPathId(this.buffer);
-        Assert.assertEquals(Uint32.TEN, pathId.getValue());
-    }
-
-    @Test
-    public void testExtractPathId() {
+    void testExtractPathId() {
         final NodeIdentifier NII = new NodeIdentifier(QName.create("urn:opendaylight:params:xml:ns:yang:bgp-inet",
             "2015-03-05", "path-id").intern());
-        final ContainerNode cont = Builders.containerBuilder()
+        final ContainerNode cont = ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(NII)
             .addChild(ImmutableNodes.leafNode(NII, Uint32.ZERO))
             .build();
-        Assert.assertEquals(0L, PathIdUtil.extractPathId(cont, NII).longValue());
+        assertEquals(0L, PathIdUtil.extractPathId(cont, NII).longValue());
     }
 
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testReadPathIdBufferNull() {
-        PathIdUtil.readPathId(null);
+    @Test
+    void testReadPathIdBufferNull() {
+        assertThrows(IllegalArgumentException.class, () -> PathIdUtil.readPathId(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testReadPathIdBufferEmpty() {
-        PathIdUtil.readPathId(this.buffer);
+    @Test
+    void testReadPathIdBufferEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> PathIdUtil.readPathId(buffer));
     }
 }
