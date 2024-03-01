@@ -33,17 +33,18 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 // This class is NOT thread-safe
 final class TableContext {
 
-    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.containerNode(BMP_ATTRIBUTES_QNAME);
+    private static final ContainerNode EMPTY_TABLE_ATTRIBUTES = ImmutableNodes.newContainerBuilder()
+        .withNodeIdentifier(NodeIdentifier.create(BMP_ATTRIBUTES_QNAME))
+        .build();
     private static final NodeIdentifier BGP_ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
 
     private final YangInstanceIdentifier tableId;
-    private final RIBSupport tableSupport;
+    private final RIBSupport<?, ?> tableSupport;
     private final BindingNormalizedNodeCachingCodec<Attributes> attributesCodec;
     private final BindingNormalizedNodeCachingCodec<MpReachNlri> reachNlriCodec;
     private final BindingNormalizedNodeCachingCodec<MpUnreachNlri> unreachNlriCodec;
@@ -79,7 +80,7 @@ final class TableContext {
     }
 
     void createTable(final DOMDataTreeWriteTransaction tx) {
-        final var tb = ImmutableNodes.mapEntryBuilder()
+        final var tb = ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier((NodeIdentifierWithPredicates) tableId.getLastPathArgument())
             .withChild(EMPTY_TABLE_ATTRIBUTES);
 
@@ -90,10 +91,10 @@ final class TableContext {
         }
 
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId,
-                tb.withChild(Builders.choiceBuilder()
-                    .withNodeIdentifier(new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME))
-                    .build())
-                .build());
+            tb.withChild(ImmutableNodes.newChoiceBuilder()
+                .withNodeIdentifier(new NodeIdentifier(TablesUtil.BMP_ROUTES_QNAME))
+                .build())
+            .build());
     }
 
     void writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {

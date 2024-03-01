@@ -44,7 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,12 +171,16 @@ public final class BmpMonitoringStationImpl implements BmpMonitoringStation, Clu
     private synchronized void createEmptyMonitor() {
         final DOMDataTreeWriteTransaction wTx = domDataBroker.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL,
-                YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
-                        .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build(),
-                ImmutableNodes.mapEntryBuilder(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue())
-                        .addChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, monitorId.getValue()))
-                        .addChild(ImmutableNodes.mapNodeBuilder(Router.QNAME).build())
-                        .build());
+            YangInstanceIdentifier.builder().node(BmpMonitor.QNAME).node(Monitor.QNAME)
+                .nodeWithKey(Monitor.QNAME, MONITOR_ID_QNAME, monitorId.getValue()).build(),
+            ImmutableNodes.newMapEntryBuilder()
+                .withNodeIdentifier(NodeIdentifierWithPredicates.of(Monitor.QNAME, MONITOR_ID_QNAME,
+                    monitorId.getValue()))
+                .withChild(ImmutableNodes.leafNode(MONITOR_ID_QNAME, monitorId.getValue()))
+                .withChild(ImmutableNodes.newSystemMapBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(Router.QNAME))
+                    .build())
+                .build());
         try {
             wTx.commit().get();
         } catch (final ExecutionException | InterruptedException e) {

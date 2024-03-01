@@ -16,7 +16,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import java.util.Locale;
 import java.util.Set;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
@@ -39,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.AdjRibInType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Mirror;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.MirrorInformationCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Peer.PeerDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerDownNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerUp;
@@ -48,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Stat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.StatsReportsMessage;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.up.ReceivedOpen;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.up.SentOpen;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.stat.Tlvs;
@@ -70,8 +67,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -179,12 +175,12 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     public void onPeerMessage(final Notification<?> message) {
         if (message instanceof PeerDownNotification) {
             onPeerDown();
-        } else if (message instanceof RouteMonitoringMessage) {
-            onRouteMonitoring((RouteMonitoringMessage) message);
-        } else if (message instanceof StatsReportsMessage) {
-            onStatsReports((StatsReportsMessage) message);
-        } else if (message instanceof RouteMirroringMessage) {
-            onRouteMirror((RouteMirroringMessage) message);
+        } else if (message instanceof RouteMonitoringMessage routeMonitoring) {
+            onRouteMonitoring(routeMonitoring);
+        } else if (message instanceof StatsReportsMessage statsReports) {
+            onStatsReports(statsReports);
+        } else if (message instanceof RouteMirroringMessage routeMirroring) {
+            onRouteMirror(routeMirroring);
         }
     }
 
@@ -283,17 +279,13 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private ContainerNode createPeerSessionUp(final PeerUp peerUp, final Timestamp timestamp) {
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder = Builders.containerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(PeerSession.QNAME))
-                .withChild(ImmutableNodes.leafNode(PEER_LOCAL_ADDRESS_QNAME,
-                        getStringIpAddress(peerUp.getLocalAddress())))
-                .withChild(ImmutableNodes.leafNode(PEER_LOCAL_PORT_QNAME, peerUp
-                        .getLocalPort().getValue()))
-                .withChild(ImmutableNodes.leafNode(PEER_REMOTE_PORT_QNAME, peerUp
-                        .getRemotePort().getValue()))
-                .withChild(ImmutableNodes.leafNode(PEER_STATUS_QNAME, "up"))
-                .withChild(ImmutableNodes.leafNode(PEER_UP_TIMESTAMP_QNAME,
-                        timestamp.getValue()));
+        final var builder = ImmutableNodes.newContainerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(PeerSession.QNAME))
+            .withChild(ImmutableNodes.leafNode(PEER_LOCAL_ADDRESS_QNAME, getStringIpAddress(peerUp.getLocalAddress())))
+            .withChild(ImmutableNodes.leafNode(PEER_LOCAL_PORT_QNAME, peerUp.getLocalPort().getValue()))
+            .withChild(ImmutableNodes.leafNode(PEER_REMOTE_PORT_QNAME, peerUp.getRemotePort().getValue()))
+            .withChild(ImmutableNodes.leafNode(PEER_STATUS_QNAME, "up"))
+            .withChild(ImmutableNodes.leafNode(PEER_UP_TIMESTAMP_QNAME, timestamp.getValue()));
         if (receivedOpenCodec != null) {
             builder.withChild((ContainerNode) receivedOpenCodec.serialize(peerUp.getReceivedOpen()));
         }
@@ -304,25 +296,28 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private MapEntryNode createPeerEntry(final PeerUpNotification peerUp) {
-        final PeerHeader peerHeader = peerUp.getPeerHeader();
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> mapEntryBuilder =
-                Builders.mapEntryBuilder()
-                        .withNodeIdentifier(NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_QNAME,
-                                peerId.getValue()))
-                        .withChild(ImmutableNodes.leafNode(PEER_ID_QNAME, peerId.getValue()))
-                        .withChild(ImmutableNodes.leafNode(PEER_TYPE_QNAME,
-                                peerHeader.getType().name().toLowerCase(Locale.ENGLISH)))
-                        .withChild(ImmutableNodes.leafNode(PEER_ADDRESS_QNAME,
-                                getStringIpAddress(peerHeader.getAddress())))
-                        .withChild(ImmutableNodes.leafNode(PEER_AS_QNAME, peerHeader.getAs().getValue()))
-                        .withChild(ImmutableNodes.leafNode(PEER_BGP_ID_QNAME, peerHeader.getBgpId().getValue()))
-                        .withChild(createPeerSessionUp(peerUp, peerHeader.getTimestampSec()))
-                        .withChild(
-                                Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(PrePolicyRib.QNAME))
-                                        .withChild(ImmutableNodes.mapNodeBuilder(BMP_TABLES_QNAME).build()).build())
-                        .withChild(
-                                Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(PostPolicyRib.QNAME))
-                                        .withChild(ImmutableNodes.mapNodeBuilder(BMP_TABLES_QNAME).build()).build());
+        final var peerHeader = peerUp.getPeerHeader();
+        final var mapEntryBuilder = ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID_QNAME, peerId.getValue()))
+            .withChild(ImmutableNodes.leafNode(PEER_ID_QNAME, peerId.getValue()))
+            .withChild(ImmutableNodes.leafNode(PEER_TYPE_QNAME, peerHeader.getType().getName()))
+            .withChild(ImmutableNodes.leafNode(PEER_ADDRESS_QNAME,
+                getStringIpAddress(peerHeader.getAddress())))
+            .withChild(ImmutableNodes.leafNode(PEER_AS_QNAME, peerHeader.getAs().getValue()))
+            .withChild(ImmutableNodes.leafNode(PEER_BGP_ID_QNAME, peerHeader.getBgpId().getValue()))
+            .withChild(createPeerSessionUp(peerUp, peerHeader.getTimestampSec()))
+            .withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(new NodeIdentifier(PrePolicyRib.QNAME))
+                .withChild(ImmutableNodes.newSystemMapBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(BMP_TABLES_QNAME))
+                    .build())
+                .build())
+            .withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(new NodeIdentifier(PostPolicyRib.QNAME))
+                .withChild(ImmutableNodes.newSystemMapBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(BMP_TABLES_QNAME))
+                    .build())
+                .build());
         final PeerDistinguisher pd = peerHeader.getPeerDistinguisher();
         if (pd != null) {
             mapEntryBuilder.withChild(ImmutableNodes.leafNode(PEER_DISTINGUISHER_QNAME, pd.getRouteDistinguisher()));
@@ -331,8 +326,7 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static ContainerNode createStats(final Stat stat, final Timestamp timestamp) {
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder =
-                Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
+        final var builder = ImmutableNodes.newContainerBuilder().withNodeIdentifier(new NodeIdentifier(Stats.QNAME));
         builder.withChild(ImmutableNodes.leafNode(PEER_STATS_TIMESTAMP_QNAME, timestamp.getValue()));
         final Tlvs tlvs = stat.getTlvs();
         if (tlvs != null) {
@@ -372,29 +366,36 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
                     tlvs.getInvalidatedAsConfedLoopTlv().getCount().getValue()));
         }
         if (tlvs.getAdjRibsInRoutesTlv() != null) {
-            builder.withChild(ImmutableNodes.leafNode(STAT7_QNAME,
-                    tlvs.getAdjRibsInRoutesTlv().getCount().getValue()));
+            builder.withChild(ImmutableNodes.leafNode(STAT7_QNAME, tlvs.getAdjRibsInRoutesTlv().getCount().getValue()));
         }
         if (tlvs.getLocRibRoutesTlv() != null) {
-            builder.withChild(ImmutableNodes.leafNode(STAT8_QNAME,
-                    tlvs.getLocRibRoutesTlv().getCount().getValue()));
+            builder.withChild(ImmutableNodes.leafNode(STAT8_QNAME, tlvs.getLocRibRoutesTlv().getCount().getValue()));
         }
         if (tlvs.getPerAfiSafiAdjRibInTlv() != null) {
-            builder.withChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(STAT9_QNAME))
-                .withChild(ImmutableNodes.mapNodeBuilder(AF_QNAME).withChild(Builders.mapEntryBuilder()
-                    .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
+            builder.withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(new NodeIdentifier(STAT9_QNAME))
+                .withChild(ImmutableNodes.newSystemMapBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(AF_QNAME))
+                    .withChild(ImmutableNodes.newMapEntryBuilder()
+                        .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
                             tlvs.getPerAfiSafiAdjRibInTlv().getCount().getValue()))
-                    .withNodeIdentifier(AFI_ITEM)
-                    .build()).build()).build());
+                        .withNodeIdentifier(AFI_ITEM)
+                        .build())
+                    .build())
+                .build());
         }
         if (tlvs.getPerAfiSafiLocRibTlv() != null) {
-            builder.withChild(Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(STAT10_QNAME))
-                    .withChild(ImmutableNodes.mapNodeBuilder(AF_QNAME)
-                            .withChild(Builders.mapEntryBuilder()
-                                    .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
-                                            tlvs.getPerAfiSafiLocRibTlv().getCount().getValue()))
-                                    .withNodeIdentifier(AFI_ITEM)
-                                    .build()).build()).build());
+            builder.withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(new NodeIdentifier(STAT10_QNAME))
+                .withChild(ImmutableNodes.newSystemMapBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(AF_QNAME))
+                    .withChild(ImmutableNodes.newMapEntryBuilder()
+                        .withChild(ImmutableNodes.leafNode(COUNT_QNAME,
+                            tlvs.getPerAfiSafiLocRibTlv().getCount().getValue()))
+                        .withNodeIdentifier(AFI_ITEM)
+                        .build())
+                    .build())
+                .build());
         }
         if (tlvs.getUpdatesTreatedAsWithdrawTlv() != null) {
             builder.withChild(ImmutableNodes.leafNode(STAT11_QNAME,
@@ -411,20 +412,12 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     }
 
     private static ContainerNode createMirrors(final Mirror mirror, final Timestamp timestamp) {
-        final DataContainerNodeBuilder<NodeIdentifier, ContainerNode> builder =
-                Builders.containerBuilder().withNodeIdentifier(new NodeIdentifier(Mirrors.QNAME));
-        builder.withChild(ImmutableNodes.leafNode(PEER_MIRROR_INFORMATION_QNAME, toDom(MirrorInformationCode.forValue(
-                mirror.getTlvs().getMirrorInformationTlv().getCode().getIntValue()))));
-        builder.withChild(ImmutableNodes.leafNode(PEER_MIRROR_TIMESTAMP_QNAME, timestamp.getValue()));
-        return builder.build();
-    }
-
-    private static String toDom(final MirrorInformationCode informationCode) {
-        return switch (informationCode) {
-            case ErroredPdu -> "errored-pdu";
-            case MessageLost -> "message-lost";
-            default -> null;
-        };
+        return ImmutableNodes.newContainerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(Mirrors.QNAME))
+            .withChild(ImmutableNodes.leafNode(PEER_MIRROR_INFORMATION_QNAME,
+                mirror.getTlvs().getMirrorInformationTlv().getCode().getName()))
+            .withChild(ImmutableNodes.leafNode(PEER_MIRROR_TIMESTAMP_QNAME, timestamp.getValue()))
+            .build();
     }
 
     private static String getStringIpAddress(final IpAddressNoZone ipAddress) {

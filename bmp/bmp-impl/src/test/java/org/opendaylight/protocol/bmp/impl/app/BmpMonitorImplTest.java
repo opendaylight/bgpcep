@@ -97,8 +97,7 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
@@ -111,8 +110,8 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private static final String REMOTE_ROUTER_ADDRESS_2 = "127.0.0.13";
     private static final Ipv4AddressNoZone PEER1 = new Ipv4AddressNoZone("20.20.20.20");
     private static final MonitorId MONITOR_ID = new MonitorId("monitor");
-    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID = InstanceIdentifier
-        .create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
+    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID =
+        InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
     private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private AdapterContext mappingService;
@@ -171,9 +170,12 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             MONITOR_LOCAL_PORT);
 
         final DOMDataTreeWriteTransaction wTx = getDomBroker().newWriteOnlyTransaction();
-        final ContainerNode parentNode = Builders.containerBuilder().withNodeIdentifier(
-                new NodeIdentifier(BmpMonitor.QNAME))
-                .addChild(ImmutableNodes.mapNodeBuilder(Monitor.QNAME).build()).build();
+        final ContainerNode parentNode = ImmutableNodes.newContainerBuilder()
+            .withNodeIdentifier(new NodeIdentifier(BmpMonitor.QNAME))
+            .addChild(ImmutableNodes.newSystemMapBuilder()
+                .withNodeIdentifier(new NodeIdentifier(Monitor.QNAME))
+                .build())
+            .build();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BmpMonitor.QNAME), parentNode);
         wTx.commit().get();
 
@@ -422,16 +424,15 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void deploySecondInstance() throws Exception {
-        final BmpMonitoringStation monitoringStation2 = new BmpMonitoringStationImpl(getDomBroker(), dispatcher,
+        try (var monitoringStation2 = new BmpMonitoringStationImpl(getDomBroker(), dispatcher,
             ribExtension, mappingService.currentSerializer(), clusterSSProv2, new MonitorId("monitor2"),
-            new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null);
+            new InetSocketAddress(InetAddresses.forString(MONITOR_LOCAL_ADDRESS_2), MONITOR_LOCAL_PORT), null)) {
 
-        readDataOperational(getDataBroker(), BMP_II, monitor -> {
-            assertEquals(2, monitor.nonnullMonitor().size());
-            return monitor;
-        });
-
-        monitoringStation2.close();
+            readDataOperational(getDataBroker(), BMP_II, monitor -> {
+                assertEquals(2, monitor.nonnullMonitor().size());
+                return monitor;
+            });
+        }
     }
 
     private static Channel connectTestClient(final String routerIp, final BmpMessageRegistry msgRegistry)

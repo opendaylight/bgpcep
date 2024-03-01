@@ -46,9 +46,9 @@ import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,12 +198,12 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
     private synchronized void createRouterEntry() {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, routerYangIId,
-                Builders.mapEntryBuilder()
-                .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
-                .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, routerIp))
-                .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, DOWN))
-                .withChild(ImmutableNodes.mapNodeBuilder(Peer.QNAME).build()).build());
+        wTx.put(LogicalDatastoreType.OPERATIONAL, routerYangIId, ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
+            .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, routerIp))
+            .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, DOWN))
+            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(new NodeIdentifier(Peer.QNAME)).build())
+            .build());
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -220,15 +220,15 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
     private synchronized void onInitiate(final InitiationMessage initiation) {
         Preconditions.checkState(isDatastoreWritable());
         final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
-        wTx.merge(LogicalDatastoreType.OPERATIONAL, routerYangIId,
-                Builders.mapEntryBuilder()
-                .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
-                .withChild(ImmutableNodes.leafNode(ROUTER_NAME_QNAME, initiation.getTlvs().getNameTlv().getName()))
-                .withChild(ImmutableNodes.leafNode(ROUTER_DESCRIPTION_QNAME, initiation.getTlvs().getDescriptionTlv()
-                        .getDescription()))
-                .withChild(ImmutableNodes.leafNode(ROUTER_INFO_QNAME, getStringInfo(initiation.getTlvs()
-                        .getStringInformation())))
-                .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, UP)).build());
+        wTx.merge(LogicalDatastoreType.OPERATIONAL, routerYangIId, ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
+            .withChild(ImmutableNodes.leafNode(ROUTER_NAME_QNAME, initiation.getTlvs().getNameTlv().getName()))
+            .withChild(ImmutableNodes.leafNode(ROUTER_DESCRIPTION_QNAME,
+                initiation.getTlvs().getDescriptionTlv().getDescription()))
+            .withChild(ImmutableNodes.leafNode(ROUTER_INFO_QNAME,
+                getStringInfo(initiation.getTlvs().getStringInformation())))
+            .withChild(ImmutableNodes.leafNode(ROUTER_STATUS_QNAME, UP))
+            .build());
         wTx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
