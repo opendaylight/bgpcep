@@ -101,7 +101,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final int HOLD_TIMER = 3;

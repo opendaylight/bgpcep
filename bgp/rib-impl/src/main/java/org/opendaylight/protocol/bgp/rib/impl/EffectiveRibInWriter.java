@@ -78,7 +78,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
@@ -114,7 +114,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             .xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
             .build();
-    private static final ChoiceNode EMPTY_ROUTES = Builders.choiceBuilder().withNodeIdentifier(ROUTES_NID).build();
+    private static final ChoiceNode EMPTY_ROUTES = ImmutableNodes.newChoiceBuilder()
+        .withNodeIdentifier(ROUTES_NID)
+        .build();
 
     private final RIBSupportContextRegistry registry;
     private final YangInstanceIdentifier peerIId;

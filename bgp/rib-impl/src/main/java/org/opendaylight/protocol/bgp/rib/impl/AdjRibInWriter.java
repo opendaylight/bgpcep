@@ -63,8 +63,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,12 +82,14 @@ final class AdjRibInWriter {
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
     // FIXME: is there a utility method to construct this?
-    private static final MapNode EMPTY_TABLES = ImmutableNodes.mapNodeBuilder(TABLES_NID).build();
-    private static final ContainerNode EMPTY_ADJRIBIN = Builders.containerBuilder()
+    private static final MapNode EMPTY_TABLES = ImmutableNodes.newSystemMapBuilder()
+        .withNodeIdentifier(TABLES_NID)
+        .build();
+    private static final ContainerNode EMPTY_ADJRIBIN = ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(ADJRIBIN_NID).addChild(EMPTY_TABLES).build();
-    private static final ContainerNode EMPTY_EFFRIBIN = Builders.containerBuilder()
+    private static final ContainerNode EMPTY_EFFRIBIN = ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(EFFRIBIN_NID).addChild(EMPTY_TABLES).build();
-    private static final ContainerNode EMPTY_ADJRIBOUT = Builders.containerBuilder()
+    private static final ContainerNode EMPTY_ADJRIBOUT = ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(ADJRIBOUT_NID).addChild(EMPTY_TABLES).build();
 
     private final Map<TablesKey, TableContext> tables;
@@ -210,7 +211,7 @@ final class AdjRibInWriter {
             final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
         final var tableKey = rs.getRibSupport().tablesKey();
         final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
-        final var tt = Builders.mapEntryBuilder().withNodeIdentifier(supTablesKey);
+        final var tt = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(supTablesKey);
         for (var e : supTablesKey.entrySet()) {
             tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
         }
@@ -232,11 +233,11 @@ final class AdjRibInWriter {
 
     @VisibleForTesting
     MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId) {
-        return Builders.mapEntryBuilder()
+        return ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(peerKey)
             .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
             .withChild(ImmutableNodes.leafNode(PEER_ROLE, PeerRoleUtil.roleForString(role)))
-            .withChild(Builders.mapBuilder().withNodeIdentifier(PEER_TABLES).build())
+            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_TABLES).build())
             .withChild(EMPTY_ADJRIBIN)
             .withChild(EMPTY_EFFRIBIN)
             .withChild(EMPTY_ADJRIBOUT)

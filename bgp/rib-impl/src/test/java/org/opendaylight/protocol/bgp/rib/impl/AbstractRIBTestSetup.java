@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,19 +53,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
@@ -160,11 +154,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         for (final Ipv4Prefix p : prefix) {
             final NodeIdentifierWithPredicates routekey =
                     NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, p);
-            final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> b =
-                    ImmutableNodes.mapEntryBuilder();
-            b.withNodeIdentifier(routekey);
-            b.addChild(Builders.leafBuilder()
-                    .withNodeIdentifier(new NodeIdentifier(PREFIX_QNAME)).withValue(p).build());
+            final var b = ImmutableNodes.newMapEntryBuilder()
+                .withNodeIdentifier(routekey)
+                .addChild(ImmutableNodes.leafNode(PREFIX_QNAME, p));
 
             final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
             doReturn(createIdentifier(p)).when(child).name();
@@ -191,12 +183,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return domTransWrite;
     }
 
-    private static final class TestListenerRegistration implements ListenerRegistration<EventListener> {
-        @Override
-        public EventListener getInstance() {
-            return null;
-        }
-
+    private static final class TestListenerRegistration implements Registration {
         @Override
         public void close() {
         }

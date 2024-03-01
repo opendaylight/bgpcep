@@ -69,8 +69,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceI
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,16 +309,17 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
         domChain = domDataBroker.createMergingTransactionChain();
         addCallback(domChain);
 
-        final ContainerNode bgpRib = Builders.containerBuilder().withNodeIdentifier(BGPRIB_NID)
-                .addChild(ImmutableNodes.mapNodeBuilder(RIB_NID).build()).build();
+        final ContainerNode bgpRib = ImmutableNodes.newContainerBuilder().withNodeIdentifier(BGPRIB_NID)
+                .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(RIB_NID).build()).build();
 
-        final MapEntryNode ribInstance = Builders.mapEntryBuilder().withNodeIdentifier(
-                NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
-                .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
-                .addChild(ImmutableNodes.mapNodeBuilder(PEER_NID).build())
-                .addChild(Builders.containerBuilder().withNodeIdentifier(LOCRIB_NID)
-                        .addChild(ImmutableNodes.mapNodeBuilder(TABLES_NID).build())
-                        .build()).build();
+        final MapEntryNode ribInstance = ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
+            .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
+            .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_NID).build())
+            .addChild(ImmutableNodes.newContainerBuilder().withNodeIdentifier(LOCRIB_NID)
+                .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
+                .build())
+            .build();
 
         final DOMDataTreeWriteTransaction trans = domChain.newWriteOnlyTransaction();
 
