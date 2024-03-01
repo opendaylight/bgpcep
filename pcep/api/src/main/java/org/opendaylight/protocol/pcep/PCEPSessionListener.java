@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.pcep;
 
-import java.util.EventListener;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Message;
 
@@ -15,7 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
  * Listener that receives session informations from the session.
  */
 @NonNullByDefault
-public interface PCEPSessionListener extends EventListener {
+public interface PCEPSessionListener {
     /**
      * Fired when the session was established successfully.
      *

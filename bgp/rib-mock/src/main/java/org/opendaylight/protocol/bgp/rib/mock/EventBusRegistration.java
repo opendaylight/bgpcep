@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
-import org.opendaylight.yangtools.concepts.AbstractListenerRegistration;
+import org.opendaylight.yangtools.concepts.AbstractObjectRegistration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
@@ -46,8 +46,7 @@ import org.slf4j.LoggerFactory;
  * This class has @Subscribe annotated methods which receive events from {@link EventBus} . Events are produced by
  * {@link BGPMock}, and each instance notifies exactly one {@link BGPSessionListener}.
  */
-final class EventBusRegistration extends AbstractListenerRegistration<BGPSessionListener> {
-
+final class EventBusRegistration extends AbstractObjectRegistration<BGPSessionListener> {
     private static final Logger LOG = LoggerFactory.getLogger(EventBusRegistration.class);
 
     private final EventBus eventBus;
@@ -70,7 +69,7 @@ final class EventBusRegistration extends AbstractListenerRegistration<BGPSession
 
     @Subscribe
     public void onMessage(final Notification<?> message) {
-        sendMessage(this.getInstance(), message);
+        sendMessage(getInstance(), message);
     }
 
     @Override

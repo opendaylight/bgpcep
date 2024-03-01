@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import java.util.EventListener;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
@@ -18,7 +17,7 @@ import org.opendaylight.yangtools.yang.binding.Notification;
  * Listener that receives session informations from the session.
  */
 @NonNullByDefault
-public interface BGPSessionListener extends PeerRPCs, EventListener {
+public interface BGPSessionListener extends PeerRPCs {
     /**
      * Marks synchronization finished for given Table key.
      *

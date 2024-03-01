@@ -21,7 +21,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.NotifyBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  * Mock BGP session. It provides a way how to route a set of messages to BGPSessionListener. This class is thread-safe.
  */
 public final class BGPMock implements Closeable {
-
     private static final Logger LOG = LoggerFactory.getLogger(BGPMock.class);
 
     static final Notify CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
@@ -73,7 +72,7 @@ public final class BGPMock implements Closeable {
         openRegistrations.clear();
     }
 
-    public ListenerRegistration<BGPSessionListener> registerUpdateListener(final BGPSessionListener listener) {
+    public Registration registerUpdateListener(final BGPSessionListener listener) {
         return EventBusRegistration.createAndRegister(eventBus, listener, allPreviousBGPMessages);
     }
 }
