@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -21,6 +22,7 @@ import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -52,7 +54,7 @@ public final class BGPNettyGroups implements AutoCloseable {
 
     private static final class EpollImpl extends AbstractImpl {
         EpollImpl() {
-            super(new EpollEventLoopGroup(), new EpollEventLoopGroup());
+            super(new EpollEventLoopGroup(BOSS_TF), new EpollEventLoopGroup(WORKER_TF));
         }
 
         @Override
@@ -75,7 +77,7 @@ public final class BGPNettyGroups implements AutoCloseable {
 
     private static final class NioImpl extends AbstractImpl {
         NioImpl() {
-            super(new NioEventLoopGroup(), new NioEventLoopGroup());
+            super(new NioEventLoopGroup(BOSS_TF), new NioEventLoopGroup(WORKER_TF));
         }
 
         @Override
@@ -94,6 +96,14 @@ public final class BGPNettyGroups implements AutoCloseable {
         }
     }
 
+    private static final ThreadFactory BOSS_TF = new ThreadFactoryBuilder()
+        .setNameFormat("bgp-boss-%d")
+        .setDaemon(true)
+        .build();
+    private static final ThreadFactory WORKER_TF = new ThreadFactoryBuilder()
+        .setNameFormat("bgp-worker-%d")
+        .setDaemon(true)
+        .build();
     private static final long TIMEOUT = 10;
 
     private AbstractImpl impl;
