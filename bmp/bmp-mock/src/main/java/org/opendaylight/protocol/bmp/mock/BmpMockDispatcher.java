@@ -14,8 +14,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Timer;
@@ -24,15 +22,14 @@ import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
-import org.opendaylight.protocol.bmp.impl.BmpDispatcherUtil;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
+import org.opendaylight.protocol.bmp.impl.BmpNettyGroups;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class BmpMockDispatcher implements AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpMockDispatcher.class);
     private static final int CONNECT_TIMEOUT = 2000;
     private static final int INITIAL_BACKOFF = 15_000;
@@ -40,8 +37,7 @@ final class BmpMockDispatcher implements AutoCloseable {
     private final BmpHandlerFactory hf;
     private final BmpSessionFactory sessionFactory;
 
-    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private final BmpNettyGroups nettyGroups;
     private final BmpMockSessionListenerFactory slf;
     @GuardedBy("this")
     private boolean close;
@@ -51,13 +47,14 @@ final class BmpMockDispatcher implements AutoCloseable {
         slf = new BmpMockSessionListenerFactory();
         requireNonNull(registry);
         hf = new BmpHandlerFactory(registry);
+        nettyGroups = new BmpNettyGroups();
     }
 
     ChannelFuture createClient(final @NonNull SocketAddress localAddress,
             final @NonNull InetSocketAddress remoteAddress) {
-        final Bootstrap bootstrap = BmpDispatcherUtil.createClientBootstrap(sessionFactory, hf,
-                BmpDispatcherUtil::createChannelWithEncoder, slf, remoteAddress, localAddress, workerGroup,
-                CONNECT_TIMEOUT, KeyMapping.of(), true, false);
+        final Bootstrap bootstrap = nettyGroups.createClientBootstrap(sessionFactory, hf,
+            BmpNettyGroups::createChannelWithEncoder, slf, remoteAddress, localAddress, CONNECT_TIMEOUT,
+            KeyMapping.of(), true);
         final ChannelFuture channelFuture = bootstrap.connect(remoteAddress);
         LOG.info("BMP client {} <--> {} deployed", localAddress, remoteAddress);
         channelFuture.addListener(new BootstrapListener(bootstrap, localAddress, remoteAddress));
@@ -66,9 +63,8 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     ChannelFuture createServer(final InetSocketAddress localAddress) {
         requireNonNull(localAddress);
-        final ServerBootstrap serverBootstrap = BmpDispatcherUtil.createServerBootstrap(sessionFactory,
-                hf, slf, BmpDispatcherUtil::createChannelWithEncoder,
-                bossGroup, workerGroup, KeyMapping.of(), false);
+        final ServerBootstrap serverBootstrap = nettyGroups.createServerBootstrap(sessionFactory, hf, slf,
+            BmpNettyGroups::createChannelWithEncoder, KeyMapping.of());
         final ChannelFuture channelFuture = serverBootstrap.bind(localAddress);
         LOG.info("Initiated BMP server at {}.", localAddress);
         return channelFuture;
@@ -76,7 +72,10 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     @Override
     public synchronized void close() {
-        close = true;
+        if (!close) {
+            close = true;
+            nettyGroups.close();
+        }
     }
 
     private class BootstrapListener implements ChannelFutureListener {

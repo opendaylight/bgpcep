@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -28,6 +27,7 @@ import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
+import org.opendaylight.protocol.bmp.impl.BmpNettyGroups;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderActivator;
@@ -48,8 +48,7 @@ public class BmpMockTest {
         bmpActivator = new BmpActivator(
             ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow());
         bmpActivator.start(ctx);
-        bmpDispatcher = new BmpDispatcherImpl(new NioEventLoopGroup(), new NioEventLoopGroup(), ctx,
-            new DefaultBmpSessionFactory());
+        bmpDispatcher = new BmpDispatcherImpl(new BmpNettyGroups(), ctx, new DefaultBmpSessionFactory());
     }
 
     @After

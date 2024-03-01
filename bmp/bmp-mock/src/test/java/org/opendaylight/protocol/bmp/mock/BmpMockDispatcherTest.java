@@ -16,7 +16,6 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.nio.NioEventLoopGroup;
 import java.net.InetSocketAddress;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
+import org.opendaylight.protocol.bmp.impl.BmpNettyGroups;
 import org.opendaylight.protocol.bmp.impl.session.DefaultBmpSessionFactory;
 import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
@@ -57,8 +57,8 @@ public class BmpMockDispatcherTest {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
+        var threadGroups = new BmpNettyGroups();
+        final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(threadGroups, ctx, sessionFactory);
         final ChannelFuture futureServer = bmpDispatcher
                 .createServer(serverAddr, slf, KeyMapping.of());
         waitFutureSuccess(futureServer);
@@ -71,15 +71,17 @@ public class BmpMockDispatcherTest {
         checkEquals(() -> assertTrue(sl.getStatus()));
         channel.close();
         bmpDispatcher.close();
+        threadGroups.close();
         checkEquals(() -> assertFalse(sl.getStatus()));
 
-        final BmpDispatcherImpl bmpDispatcher2 = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
+        threadGroups = new BmpNettyGroups();
+        final BmpDispatcherImpl bmpDispatcher2 = new BmpDispatcherImpl(threadGroups, ctx, sessionFactory);
         final ChannelFuture futureServer2 = bmpDispatcher2.createServer(serverAddr, slf, KeyMapping.of());
         futureServer2.sync();
         checkEquals(() -> assertTrue(sl.getStatus()));
 
         bmpDispatcher2.close();
+        threadGroups.close();
         bmpMockDispatcher.close();
         checkEquals(() -> assertFalse(sl.getStatus()));
     }
@@ -87,8 +89,8 @@ public class BmpMockDispatcherTest {
     @Test(timeout = 20000)
     public void testCreateServer() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
-        final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(
-                new NioEventLoopGroup(), new NioEventLoopGroup(), ctx, sessionFactory);
+        final BmpNettyGroups threadGroups = new BmpNettyGroups();
+        final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(threadGroups, ctx, sessionFactory);
         final ChannelFuture futureServer = bmpMockDispatcher.createServer(
                 new InetSocketAddress(InetAddresses.forString("0.0.0.0"), port));
         futureServer.sync();
@@ -102,6 +104,7 @@ public class BmpMockDispatcherTest {
         channel.close();
 
         bmpDispatcher.close();
+        threadGroups.close();
         bmpMockDispatcher.close();
         checkEquals(() -> assertFalse(sl.getStatus()));
     }
