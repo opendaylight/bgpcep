@@ -78,8 +78,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 public class LinkstateNlriParserTest {
 
@@ -161,9 +160,9 @@ public class LinkstateNlriParserTest {
 
         final DestinationLinkstate ls = ((DestinationLinkstateCase) builder.getAdvertizedRoutes().getDestinationType())
                 .getDestinationLinkstate();
-        assertEquals(1, ls.getCLinkstateDestination().size());
+        assertEquals(1, ls.nonnullCLinkstateDestination().size());
 
-        dest = ls.getCLinkstateDestination().get(0);
+        dest = ls.nonnullCLinkstateDestination().get(0);
     }
 
     @Test
@@ -190,22 +189,22 @@ public class LinkstateNlriParserTest {
         assertArrayEquals(nodeNlri, ByteArray.readAllBytes(buffer));
 
         // test BI form
-        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
             .withNodeIdentifier(C_LINKSTATE_NID)
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
-            .withChild(Builders.choiceBuilder()
+            .withChild(ImmutableNodes.newChoiceBuilder()
                 .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.NODE_DESCRIPTORS_NID)
                     .withChild(ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72)))
                     .withChild(ImmutableNodes.leafNode(NodeNlriParser.AREA_NID, Uint32.valueOf(2697513L)))
                     .withChild(ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(0x28282828L)))
-                    .withChild(Builders.choiceBuilder()
+                    .withChild(ImmutableNodes.newChoiceBuilder()
                         .withNodeIdentifier(C_ROUTER_ID_NID)
-                        .withChild(Builders.containerBuilder()
+                        .withChild(ImmutableNodes.newContainerBuilder()
                             .withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID)
-                            .withChild(Builders.containerBuilder()
+                            .withChild(ImmutableNodes.newContainerBuilder()
                                 .withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID)
                                 .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
                                     new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 }))
@@ -261,20 +260,20 @@ public class LinkstateNlriParserTest {
         final var asNumber = ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72));
         final var domainID = ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(0x28282828L));
 
-        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
             .withNodeIdentifier(C_LINKSTATE_NID)
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
-            .withChild(Builders.choiceBuilder()
+            .withChild(ImmutableNodes.newChoiceBuilder()
                 .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
                 // local node descriptors
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.LOCAL_NODE_DESCRIPTORS_NID)
                     .withChild(asNumber)
                     .withChild(domainID)
-                    .withChild(Builders.choiceBuilder()
+                    .withChild(ImmutableNodes.newChoiceBuilder()
                         .withNodeIdentifier(C_ROUTER_ID_NID)
-                        .withChild(Builders.containerBuilder()
+                        .withChild(ImmutableNodes.newContainerBuilder()
                             .withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID)
                             .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
                                 new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 }))
@@ -284,13 +283,13 @@ public class LinkstateNlriParserTest {
                     .withChild(ImmutableNodes.leafNode(NodeNlriParser.MEMBER_ASN_NID, Uint32.valueOf(258L)))
                     .build())
                 // remote descriptors
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.REMOTE_NODE_DESCRIPTORS_NID)
                     .withChild(asNumber)
                     .withChild(domainID)
-                    .withChild(Builders.choiceBuilder()
+                    .withChild(ImmutableNodes.newChoiceBuilder()
                         .withNodeIdentifier(C_ROUTER_ID_NID)
-                        .withChild(Builders.containerBuilder()
+                        .withChild(ImmutableNodes.newContainerBuilder()
                             .withNodeIdentifier(NodeNlriParser.OSPF_NODE_NID)
                             .withChild(
                                 ImmutableNodes.leafNode(NodeNlriParser.OSPF_ROUTER_NID, Uint32.valueOf(0x00000040L)))
@@ -300,7 +299,7 @@ public class LinkstateNlriParserTest {
                     .withChild(ImmutableNodes.leafNode(NodeNlriParser.MEMBER_ASN_NID, Uint32.valueOf(259)))
                     .build())
                 // link descriptors
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.LINK_DESCRIPTORS_NID)
                     .withChild(ImmutableNodes.leafNode(LinkNlriParser.LINK_LOCAL_NID, Uint32.valueOf(16909060L)))
                     .withChild(ImmutableNodes.leafNode(LinkNlriParser.LINK_REMOTE_NID, Uint32.valueOf(168496141L)))
@@ -344,20 +343,20 @@ public class LinkstateNlriParserTest {
         final var asNumber = ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72));
         final var domainID = ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(673720360L));
 
-        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
             .withNodeIdentifier(C_LINKSTATE_NID)
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
-            .withChild(Builders.choiceBuilder()
+            .withChild(ImmutableNodes.newChoiceBuilder()
                 .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
                 // advertising node descriptors
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.ADVERTISING_NODE_DESCRIPTORS_NID)
                     .withChild(asNumber)
                     .withChild(domainID)
-                    .withChild(Builders.choiceBuilder()
+                    .withChild(ImmutableNodes.newChoiceBuilder()
                         .withNodeIdentifier(C_ROUTER_ID_NID)
-                        .withChild(Builders.containerBuilder()
+                        .withChild(ImmutableNodes.newContainerBuilder()
                             .withNodeIdentifier(NodeNlriParser.ISIS_NODE_NID)
                             .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
                                 new byte[] { 0, 0, 0, 0, 0, (byte) 0x42 }))
@@ -365,7 +364,7 @@ public class LinkstateNlriParserTest {
                         .build())
                     .build())
                 // prefix descriptors
-                .withChild(Builders.containerBuilder()
+                .withChild(ImmutableNodes.newContainerBuilder()
                     .withNodeIdentifier(LinkstateNlriParser.PREFIX_DESCRIPTORS_NID)
                     .withChild(asNumber)
                     .withChild(domainID)
@@ -392,15 +391,15 @@ public class LinkstateNlriParserTest {
         assertEquals(new Ipv4Address("4.3.2.1"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelEndpointAddress());
 
         // test BI form
-        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(Builders.unkeyedListEntryBuilder()
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
             .withNodeIdentifier(C_LINKSTATE_NID)
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "rsvp-te"))
             .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
-            .withChild(Builders.choiceBuilder()
+            .withChild(ImmutableNodes.newChoiceBuilder()
                 .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
                 .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.LSP_ID, Uint32.ONE))
                 .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.TUNNEL_ID, Uint16.ONE))
-                .withChild(Builders.choiceBuilder()
+                .withChild(ImmutableNodes.newChoiceBuilder()
                     .withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY)
                     .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_SENDER_ADDRESS, "1.2.3.4"))
                     .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_ENDPOINT_ADDRESS, "4.3.2.1"))
