@@ -20,9 +20,9 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -44,11 +44,8 @@ import org.slf4j.LoggerFactory;
 @Component(service = BgpTopologyDeployer.class, immediate = true)
 @RequireServiceComponentRuntime
 public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoCloseable,
-        ClusteredDataTreeChangeListener<Topology> {
-
+        DataTreeChangeListener<Topology> {
     private static final Logger LOG = LoggerFactory.getLogger(BgpTopologyDeployerImpl.class);
-    private static final InstanceIdentifier<Topology> TOPOLOGY_IID =
-            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class);
 
     @GuardedBy("this")
     private final Set<BgpTopologyProvider> topologyProviders = new HashSet<>();
@@ -66,8 +63,9 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
             @Reference final ClusterSingletonServiceProvider singletonProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.singletonProvider = requireNonNull(singletonProvider);
-        registration = dataBroker.registerDataTreeChangeListener(
-            DataTreeIdentifier.create(LogicalDatastoreType.CONFIGURATION, TOPOLOGY_IID), this);
+        registration = dataBroker.registerTreeChangeListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class)), this);
         LOG.info("BGP topology deployer started.");
     }
 
@@ -77,29 +75,29 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
             LOG.trace("BGP Topology Provider Deployer was already closed, skipping changes.");
             return;
         }
-        for (final DataTreeModification<Topology> change : changes) {
+        for (var change : changes) {
             final DataObjectModification<Topology> rootNode = change.getRootNode();
-            final Topology dataBefore = rootNode.getDataBefore();
-            final Topology dataAfter = rootNode.getDataAfter();
+            final Topology dataBefore = rootNode.dataBefore();
+            final Topology dataAfter = rootNode.dataAfter();
             LOG.trace("BGP topology deployer configuration changed: modification type: [{}],"
-                    + " data before:[{}], data after: [{}]", rootNode.getModificationType(), dataBefore, dataAfter);
-            switch (rootNode.getModificationType()) {
+                    + " data before:[{}], data after: [{}]", rootNode.modificationType(), dataBefore, dataAfter);
+            switch (rootNode.modificationType()) {
                 case DELETE:
                     filterTopologyBuilders(dataBefore)
-                            .forEach(provider -> provider.onTopologyBuilderRemoved(dataBefore));
+                        .forEach(provider -> provider.onTopologyBuilderRemoved(dataBefore));
                     topologies.remove(dataBefore);
                     break;
                 case SUBTREE_MODIFIED:
-                    filterTopologyBuilders(dataBefore).forEach(provider
-                        -> provider.onTopologyBuilderRemoved(dataBefore));
+                    filterTopologyBuilders(dataBefore)
+                        .forEach(provider -> provider.onTopologyBuilderRemoved(dataBefore));
                     topologies.remove(dataBefore);
-                    filterTopologyBuilders(dataAfter).forEach(provider
-                        -> provider.onTopologyBuilderCreated(dataAfter));
+                    filterTopologyBuilders(dataAfter)
+                        .forEach(provider -> provider.onTopologyBuilderCreated(dataAfter));
                     topologies.add(dataAfter);
                     break;
                 case WRITE:
-                    filterTopologyBuilders(dataAfter).forEach(provider
-                        -> provider.onTopologyBuilderCreated(dataAfter));
+                    filterTopologyBuilders(dataAfter)
+                        .forEach(provider -> provider.onTopologyBuilderCreated(dataAfter));
                     topologies.add(dataAfter);
                     break;
                 default:

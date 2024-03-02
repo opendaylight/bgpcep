@@ -18,7 +18,6 @@ import java.util.List;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.RibReference;
@@ -136,17 +135,17 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     @Override
     protected void routeChanged(final DataTreeModification<LinkstateRoute> change, final ReadWriteTransaction trans) {
-        final DataObjectModification<LinkstateRoute> root = change.getRootNode();
-        switch (root.getModificationType()) {
+        final var root = change.getRootNode();
+        switch (root.modificationType()) {
             case DELETE:
-                removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                removeObject(trans, change.getRootPath().path(), root.dataBefore());
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
+                createObject(trans, change.getRootPath().path(), root.dataAfter());
                 break;
             default:
-                throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+                throw new IllegalArgumentException("Unhandled modification type " + root.modificationType());
         }
     }
 
@@ -388,12 +387,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     } else {
                         builder.setAdjSid6(adjSid);
                     }
+                } else if (!ipv6) {
+                    builder.setBackupAdjSid(adjSid);
                 } else {
-                    if (!ipv6) {
-                        builder.setBackupAdjSid(adjSid);
-                    } else {
-                        builder.setBackupAdjSid6(adjSid);
-                    }
+                    builder.setBackupAdjSid6(adjSid);
                 }
             }
         }

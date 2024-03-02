@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
-import org.opendaylight.mdsal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
@@ -49,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTopologyBuilder<T extends Route>
-        implements ClusteredDataTreeChangeListener<T>, TopologyReference, FutureCallback<Empty> {
+        implements DataTreeChangeListener<T>, TopologyReference, FutureCallback<Empty> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTopologyBuilder.class);
     // we limit the listener reset interval to be 5 min at most
     private static final long LISTENER_RESET_LIMIT_IN_MILLSEC = 5 * 60 * 1000;
@@ -118,10 +117,10 @@ public abstract class AbstractTopologyBuilder<T extends Route>
                 this.getInstanceIdentifier());
         final InstanceIdentifier<Tables> tablesId = locRibReference.getInstanceIdentifier()
                 .child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
-        final DataTreeIdentifier<T> id = DataTreeIdentifier.create(LogicalDatastoreType.OPERATIONAL,
+        final DataTreeIdentifier<T> id = DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
                 getRouteWildcard(tablesId));
 
-        listenerRegistration = dataProvider.registerDataTreeChangeListener(id, this);
+        listenerRegistration = dataProvider.registerTreeChangeListener(id, this);
         LOG.debug("Registered listener {} on topology {}. Timestamp={}", this, this.getInstanceIdentifier(),
                 listenerScheduledRestartTime);
     }
@@ -226,20 +225,21 @@ public abstract class AbstractTopologyBuilder<T extends Route>
 
     @VisibleForTesting
     protected void routeChanged(final DataTreeModification<T> change, final ReadWriteTransaction trans) {
-        final DataObjectModification<T> root = change.getRootNode();
-        switch (root.getModificationType()) {
+        final var root = change.getRootNode();
+        switch (root.modificationType()) {
             case DELETE:
-                removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                removeObject(trans, change.getRootPath().path(), root.dataBefore());
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                if (root.getDataBefore() != null) {
-                    removeObject(trans, change.getRootPath().getRootIdentifier(), root.getDataBefore());
+                final var before = root.dataBefore();
+                if (before != null) {
+                    removeObject(trans, change.getRootPath().path(), before);
                 }
-                createObject(trans, change.getRootPath().getRootIdentifier(), root.getDataAfter());
+                createObject(trans, change.getRootPath().path(), root.dataAfter());
                 break;
             default:
-                throw new IllegalArgumentException("Unhandled modification type " + root.getModificationType());
+                throw new IllegalArgumentException("Unhandled modification type " + root.modificationType());
         }
     }
 
@@ -247,9 +247,13 @@ public abstract class AbstractTopologyBuilder<T extends Route>
         requireNonNull(chain, "A valid transaction chain must be provided.");
         final WriteTransaction trans = chain.newWriteOnlyTransaction();
         trans.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, topology,
-                new TopologyBuilder().withKey(topologyKey).setServerProvided(Boolean.TRUE)
-                        .setTopologyTypes(topologyTypes)
-                        .setLink(Map.of()).setNode(Map.of()).build());
+                new TopologyBuilder()
+                    .withKey(topologyKey)
+                    .setServerProvided(Boolean.TRUE)
+                    .setTopologyTypes(topologyTypes)
+                    .setLink(Map.of())
+                    .setNode(Map.of())
+                    .build());
         trans.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

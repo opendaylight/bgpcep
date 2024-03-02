@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -485,7 +486,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 listenerResetLimitInMillsec, listenerResetEnforceCounter);
     }
 
-    private static LinkId buildLinkId(final UriBuilder base, final LinkCase link) {
+    private static @NonNull LinkId buildLinkId(final UriBuilder base, final LinkCase link) {
         return new LinkId(new UriBuilder(base, "link").add(link).toString());
     }
 
@@ -580,7 +581,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         return buildTp(id, t);
     }
 
-    private InstanceIdentifier<Link> buildLinkIdentifier(final LinkId id) {
+    private @NonNull InstanceIdentifier<Link> buildLinkIdentifier(final LinkId id) {
         return getInstanceIdentifier().child(
                 org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology
                         .topology.Link.class, new LinkKey(id));
@@ -719,7 +720,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     }
 
     private void removeLink(final WriteTransaction trans, final UriBuilder base, final LinkCase linkCase) {
-        final LinkId id = buildLinkId(base, linkCase);
+        final var id = buildLinkId(base, linkCase);
         final InstanceIdentifier<?> lid = buildLinkIdentifier(id);
         trans.delete(LogicalDatastoreType.OPERATIONAL, lid);
         LOG.debug("Removed link {}", lid);
