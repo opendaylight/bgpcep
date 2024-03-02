@@ -78,10 +78,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
+import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode.BuilderFactory;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
-import org.opendaylight.yangtools.yang.data.impl.schema.Builders;
-import org.opendaylight.yangtools.yang.data.impl.schema.ImmutableNodes;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +102,7 @@ public abstract class AbstractRIBSupport<
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private static final ImmutableOffsetMapTemplate<QName> TABLES_KEY_TEMPLATE = ImmutableOffsetMapTemplate.ordered(
         ImmutableList.of(AFI_QNAME, SAFI_QNAME));
+    private static final BuilderFactory BUILDER_FACTORY = ImmutableNodes.builderFactory();
 
     // Instance identifier to table/(choice routes)/(map of route)
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
@@ -387,9 +388,9 @@ public abstract class AbstractRIBSupport<
             final ContainerNode attributes) {
         final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> builder;
         if (route != null) {
-            builder = Builders.mapEntryBuilder(route);
+            builder = BUILDER_FACTORY.newMapEntryBuilder(route);
         } else {
-            builder = Builders.mapEntryBuilder();
+            builder = BUILDER_FACTORY.newMapEntryBuilder();
         }
 
         return builder
@@ -493,10 +494,12 @@ public abstract class AbstractRIBSupport<
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             // Build the DataContainer data
-            final var b = ImmutableNodes.mapEntryBuilder().withNodeIdentifier(routeKey);
+            final var b = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(routeKey);
             route.body().forEach(b::withChild);
             // Add attributes
-            b.withChild(Builders.containerBuilder(attributes).withNodeIdentifier(routeAttributesIdentifier()).build());
+            b.withChild(BUILDER_FACTORY.newContainerBuilder(attributes)
+                .withNodeIdentifier(routeAttributesIdentifier())
+                .build());
             tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());
         }
     }
