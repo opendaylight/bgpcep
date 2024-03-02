@@ -412,7 +412,6 @@ public abstract class AbstractRIBSupport<
     }
 
     @Override
-    @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
     public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
         final DataContainerChild routes = nlri.childByArg(WITHDRAWN_ROUTES);
