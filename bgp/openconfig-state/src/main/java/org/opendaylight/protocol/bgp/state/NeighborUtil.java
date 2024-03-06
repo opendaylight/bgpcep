@@ -313,7 +313,8 @@ public final class NeighborUtil {
     public static @NonNull NeighborErrorHandlingStateAugmentation buildErrorHandlingState(
             final long erroneousUpdateCount) {
         return new NeighborErrorHandlingStateAugmentationBuilder()
-                .setErroneousUpdateMessages(saturatedUint32(erroneousUpdateCount)).build();
+                .setErroneousUpdateMessages(Uint32.saturatedOf(erroneousUpdateCount))
+                .build();
     }
 
     /**
@@ -347,17 +348,12 @@ public final class NeighborUtil {
         builder.setActive(afiSafiSupported);
         if (afiSafiSupported) {
             builder.setPrefixes(new PrefixesBuilder()
-                    .setInstalled(saturatedUint32(neighbor.getPrefixesInstalledCount(tablesKey)))
-                    .setReceived(saturatedUint32(neighbor.getPrefixesReceivedCount(tablesKey)))
-                    .setSent(saturatedUint32(neighbor.getPrefixesSentCount(tablesKey))).build());
+                    .setInstalled(Uint32.saturatedOf(neighbor.getPrefixesInstalledCount(tablesKey)))
+                    .setReceived(Uint32.saturatedOf(neighbor.getPrefixesReceivedCount(tablesKey)))
+                    .setSent(Uint32.saturatedOf(neighbor.getPrefixesSentCount(tablesKey))).build());
         }
         return new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
                 .safi.list.afi.safi.StateBuilder().addAugmentation(builder.build()).build();
-    }
-
-    // FIXME: remove this with YANGTOOLS-5.0.7+
-    private static Uint32 saturatedUint32(final long value) {
-        return value < 4294967295L ? Uint32.valueOf(value) : Uint32.MAX_VALUE;
     }
 
     private static org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi
