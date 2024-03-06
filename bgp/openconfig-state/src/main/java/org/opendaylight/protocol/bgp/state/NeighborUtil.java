@@ -266,23 +266,14 @@ public final class NeighborUtil {
      * @return Neighbor State
      */
     public static NeighborStateAugmentation buildCapabilityState(final @NonNull BGPSessionState neighbor) {
-
-        final Set<BgpCapability> supportedCapabilities = buildSupportedCapabilities(neighbor);
-        SessionState sessionState = null;
-        switch (neighbor.getSessionState()) {
-            case IDLE:
-                sessionState = SessionState.IDLE;
-                break;
-            case UP:
-                sessionState = SessionState.ESTABLISHED;
-                break;
-            case OPEN_CONFIRM:
-                sessionState = SessionState.OPENCONFIRM;
-                break;
-            default:
-        }
-        return new NeighborStateAugmentationBuilder().setSupportedCapabilities(supportedCapabilities)
-                .setSessionState(sessionState).build();
+        return new NeighborStateAugmentationBuilder()
+            .setSupportedCapabilities(buildSupportedCapabilities(neighbor))
+            .setSessionState(switch (neighbor.getSessionState()) {
+                case IDLE -> SessionState.IDLE;
+                case UP -> SessionState.ESTABLISHED;
+                case OPEN_CONFIRM -> SessionState.OPENCONFIRM;
+            })
+            .build();
     }
 
     /**
