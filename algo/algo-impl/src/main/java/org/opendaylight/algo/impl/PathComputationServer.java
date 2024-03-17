@@ -9,7 +9,6 @@ package org.opendaylight.algo.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @Component(immediate = true, service = PathComputationProvider.class)
-public final class PathComputationServer implements AutoCloseable, PathComputationProvider {
+public final class PathComputationServer implements AutoCloseable, PathComputationProvider, GetConstrainedPath {
     private static final Logger LOG = LoggerFactory.getLogger(PathComputationServer.class);
 
     private final ConnectedGraphProvider graphProvider;
@@ -56,12 +55,11 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
     public PathComputationServer(@Reference final RpcProviderService rpcService,
             @Reference final ConnectedGraphProvider graphProvider) {
         this.graphProvider = requireNonNull(graphProvider);
-        registration = rpcService.registerRpcImplementations(
-            ImmutableClassToInstanceMap.of(GetConstrainedPath.class, this::getConstrainedPath));
+        registration = rpcService.registerRpcImplementation(this);
     }
 
-    private ListenableFuture<RpcResult<GetConstrainedPathOutput>> getConstrainedPath(
-            final GetConstrainedPathInput input) {
+    @Override
+    public ListenableFuture<RpcResult<GetConstrainedPathOutput>> invoke(final GetConstrainedPathInput input) {
         final GetConstrainedPathOutputBuilder output = new GetConstrainedPathOutputBuilder();
 
         LOG.info("Got Path Computation Service request");
