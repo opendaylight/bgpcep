@@ -11,9 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
 import java.util.Set;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 final class TopologyProgramming {
@@ -59,13 +58,12 @@ final class TopologyProgramming {
 
     Registration register(final RpcProviderService rpcProviderService,
             final KeyedInstanceIdentifier<Topology, TopologyKey> path) {
-        return rpcProviderService.registerRpcImplementations(ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-            .put(SubmitAddLsp.class, this::submitAddLsp)
-            .put(SubmitRemoveLsp.class, this::submitRemoveLsp)
-            .put(SubmitUpdateLsp.class, this::submitUpdateLsp)
-            .put(SubmitEnsureLspOperational.class, this::submitEnsureLspOperational)
-            .put(SubmitTriggerSync.class, this::submitTriggerSync)
-            .build(), Set.of(path));
+        return rpcProviderService.registerRpcImplementations(List.of(
+            (SubmitAddLsp) this::submitAddLsp,
+            (SubmitRemoveLsp) this::submitRemoveLsp,
+            (SubmitUpdateLsp) this::submitUpdateLsp,
+            (SubmitEnsureLspOperational) this::submitEnsureLspOperational,
+            (SubmitTriggerSync) this::submitTriggerSync), Set.of(path));
     }
 
     @VisibleForTesting

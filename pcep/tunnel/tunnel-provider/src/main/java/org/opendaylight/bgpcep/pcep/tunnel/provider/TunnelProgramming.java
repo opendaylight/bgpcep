@@ -10,9 +10,9 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +51,10 @@ public final class TunnelProgramming implements AutoCloseable {
     }
 
     Registration register(final KeyedInstanceIdentifier<Topology, TopologyKey> topologyPath) {
-        return dependencies.getRpcProviderRegistry().registerRpcImplementations(
-            ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-                .put(PcepCreateP2pTunnel.class, this::pcepCreateP2pTunnel)
-                .put(PcepDestroyTunnel.class, this::pcepDestroyTunnel)
-                .put(PcepUpdateTunnel.class, this::pcepUpdateTunnel)
-                .build(), Set.of(topologyPath));
+        return dependencies.getRpcProviderRegistry().registerRpcImplementations(List.of(
+            (PcepCreateP2pTunnel) this::pcepCreateP2pTunnel,
+            (PcepDestroyTunnel) this::pcepDestroyTunnel,
+            (PcepUpdateTunnel) this::pcepUpdateTunnel), Set.of(topologyPath));
     }
 
     @VisibleForTesting
