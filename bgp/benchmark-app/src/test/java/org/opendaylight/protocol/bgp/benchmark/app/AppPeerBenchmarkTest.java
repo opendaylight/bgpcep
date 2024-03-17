@@ -16,6 +16,7 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataConfiguration;
 
+import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,13 +54,13 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() {
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
-        doNothing().when(this.registration).close();
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
+        doNothing().when(registration).close();
     }
 
     @Test
     public void testRpcs() throws Exception {
-        final AppPeerBenchmark appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), this.rpcRegistry, PEER_RIB_ID);
+        final AppPeerBenchmark appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), rpcRegistry, PEER_RIB_ID);
         appPeerBenchmark.start();
         final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
