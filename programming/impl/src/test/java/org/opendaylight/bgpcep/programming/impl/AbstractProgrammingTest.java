@@ -12,7 +12,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
-import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -20,6 +19,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBro
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 
 abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest {
     @Mock
@@ -47,7 +47,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
             return null;
         }).when(singletonServiceRegistration).close();
 
-        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(Rpc[].class));
 
         doNothing().when(registration).close();
     }

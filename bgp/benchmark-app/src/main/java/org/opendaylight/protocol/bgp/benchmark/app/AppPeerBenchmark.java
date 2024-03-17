@@ -12,7 +12,6 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -70,7 +69,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -113,10 +111,8 @@ public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoClosea
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
             .child(Ipv4RoutesCase.class, Ipv4Routes.class);
         rpcRegistration = rpcProviderRegistry.registerRpcImplementations(
-            ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-                .put(AddPrefix.class, this::addPrefix)
-                .put(DeletePrefix.class, this::deletePrefix)
-                .build());
+            (AddPrefix) this::addPrefix,
+            (DeletePrefix) this::deletePrefix);
         LOG.info("BGP Application Peer Benchmark Application started.");
     }
 
