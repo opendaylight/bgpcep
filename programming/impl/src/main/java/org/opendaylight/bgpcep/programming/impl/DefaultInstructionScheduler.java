@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.programming.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -72,7 +71,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,10 +173,9 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     @Override
     public synchronized void instantiateServiceInstance() {
         LOG.info("Instruction Queue service {} instantiated", sgi.value());
-        reg = rpcProviderRegistry.registerRpcImplementations(ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-            .put(CancelInstruction.class, this::cancelInstruction)
-            .put(CleanInstructions.class, this::cleanInstructions)
-            .build());
+        reg = rpcProviderRegistry.registerRpcImplementations(
+            (CancelInstruction) this::cancelInstruction,
+            (CleanInstructions) this::cleanInstructions);
 
         final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, qid, new InstructionsQueueBuilder()
