@@ -10,10 +10,10 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import java.util.List;
 import java.util.Set;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 final class TopologyRPCs {
@@ -57,14 +56,13 @@ final class TopologyRPCs {
 
     Registration register(final RpcProviderService rpcProviderService,
             final KeyedInstanceIdentifier<Topology, TopologyKey> path) {
-        return rpcProviderService.registerRpcImplementations(ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-            .put(AddLsp.class, this::addLsp)
-            .put(RemoveLsp.class, this::removeLsp)
-            .put(TriggerSync.class, this::triggerSync)
-            .put(UpdateLsp.class, this::updateLsp)
-            .put(EnsureLspOperational.class, this::ensureLspOperational)
-            .put(TearDownSession.class, this::tearDownSession)
-            .build(), Set.of(path));
+        return rpcProviderService.registerRpcImplementations(List.of(
+            (AddLsp) this::addLsp,
+            (RemoveLsp) this::removeLsp,
+            (TriggerSync) this::triggerSync,
+            (UpdateLsp) this::updateLsp,
+            (EnsureLspOperational) this::ensureLspOperational,
+            (TearDownSession) this::tearDownSession), Set.of(path));
     }
 
     @VisibleForTesting
