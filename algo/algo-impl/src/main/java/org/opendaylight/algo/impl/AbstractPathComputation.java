@@ -33,12 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescriptionBuilder;
-import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPathComputation implements PathComputationAlgorithm {
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPathComputation.class);
 
     protected final ConnectedGraph graph;
@@ -233,16 +231,15 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     }
 
     private boolean verifyExcludeRoute(final ConnectedEdge edge, final EdgeAttributes attributes) {
-        if (constraints.getExcludeRoute() == null || constraints.getExcludeRoute().isEmpty()) {
+        final var xro = constraints.getExcludeRoute();
+        if (xro == null || xro.isEmpty()) {
             return false;
         }
 
-        final List<ExcludeRoute> xro = constraints.getExcludeRoute();
         switch (constraints.getAddressFamily()) {
-            case Ipv4:
-            case SrIpv4:
-                for (int i = 0; i < xro.size(); i++) {
-                    final Ipv4Address address = xro.get(i).getIpv4();
+            case Ipv4, SrIpv4:
+                for (ExcludeRoute element : xro) {
+                    final Ipv4Address address = element.getIpv4();
                     if (address.equals(attributes.getRemoteAddress())
                             || address.equals(attributes.getLocalAddress())
                             || address.equals(edge.getSource().getVertex().getRouterId())
@@ -251,10 +248,9 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     }
                 }
                 break;
-            case Ipv6:
-            case SrIpv6:
-                for (int i = 0; i < xro.size(); i++) {
-                    final Ipv6Address address = xro.get(i).getIpv6();
+            case Ipv6, SrIpv6:
+                for (ExcludeRoute element : xro) {
+                    final Ipv6Address address = element.getIpv6();
                     if (address.equals(attributes.getRemoteAddress6())
                             || address.equals(attributes.getLocalAddress6())
                             || address.equals(edge.getSource().getVertex().getRouterId6())
@@ -284,13 +280,15 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Edge could point to an unknown Vertex e.g. with inter-domain link */
-        if (edge.getDestination() == null || edge.getDestination().getVertex() == null) {
+        final var destination = edge.getDestination();
+        if (destination == null || destination.getVertex() == null) {
             LOG.debug("No Destination");
             return true;
         }
 
         /* Check that Edge have attributes */
-        EdgeAttributes attributes = edge.getEdge() != null ? edge.getEdge().getEdgeAttributes() : null;
+        final var graphEdge = edge.getEdge();
+        final var attributes = graphEdge != null ? graphEdge.getEdgeAttributes() : null;
         if (attributes == null) {
             LOG.debug("No attributes");
             return true;
@@ -303,13 +301,16 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
         /* Check only IGP Metric, if specified, for simple SPF algorithm */
         if (this instanceof ShortestPathFirst) {
-            if (constraints.getMetric() != null) {
-                if (attributes.getMetric() == null) {
+            final var metricConstraint = constraints.getMetric();
+            if (metricConstraint != null) {
+                final var metric = attributes.getMetric();
+                if (metric == null) {
                     return true;
                 }
-                int totalCost = attributes.getMetric().intValue() + path.getCost();
-                if (totalCost > constraints.getMetric().intValue()) {
-                    LOG.debug("Metric {} exceed constraint {}", totalCost, constraints.getMetric().intValue());
+                final int totalCost = metric.intValue() + path.getCost();
+                final var maxCost = metricConstraint.intValue();
+                if (totalCost > maxCost) {
+                    LOG.debug("Metric {} exceed constraint {}", totalCost, maxCost);
                     return true;
                 }
             }
@@ -328,8 +329,8 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Check that Edge belongs to admin group */
-        if (constraints.getAdminGroup() != null
-                && !constraints.getAdminGroup().equals(attributes.getAdminGroup())) {
+        final var adminGroup = constraints.getAdminGroup();
+        if (adminGroup != null && !adminGroup.equals(attributes.getAdminGroup())) {
             LOG.debug("Not in the requested admin-group");
             return true;
         }
@@ -357,22 +358,24 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /*
          * Check that Vertex is Segment Routing aware
          */
-        if (cvertex.getVertex() == null || cvertex.getVertex().getSrgb() == null) {
+        final var vertex = cvertex.getVertex();
+        if (vertex == null || vertex.getSrgb() == null) {
             return null;
         }
         /*
          * Find in Prefix List Node SID attached to the IPv4 of the next Vertex
          * and return the MPLS Label that corresponds to the index in the SRGB
          */
-        if (cvertex.getPrefixes() == null) {
-            return null;
-        }
-        for (Prefix prefix : cvertex.getPrefixes()) {
-            if (prefix.getPrefixSid() == null || prefix.getNodeSid() == null) {
-                continue;
-            }
-            if (prefix.getNodeSid() && prefix.getPrefix().getIpv4Prefix() != null) {
-                return new MplsLabel(Uint32.valueOf(prefix.getPrefixSid().intValue()));
+        final var prefixes = cvertex.getPrefixes();
+        if (prefixes != null) {
+            for (Prefix prefix : prefixes) {
+                final var prefixSid = prefix.getPrefixSid();
+                final var nodeSid = prefix.getNodeSid();
+                if (prefixSid != null && nodeSid != null) {
+                    if (nodeSid && prefix.getPrefix().getIpv4Prefix() != null) {
+                        return new MplsLabel(prefixSid);
+                    }
+                }
             }
         }
         return null;
@@ -389,22 +392,24 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /*
          * Check that Vertex is Segment Routing aware
          */
-        if (cvertex.getVertex() == null || cvertex.getVertex().getSrgb() == null) {
+        final var vertex = cvertex.getVertex();
+        if (cvertex == null || vertex.getSrgb() == null) {
             return null;
         }
         /*
          * Find in Prefix List Node SID attached to the IPv6 of the next Vertex
          * and return the MPLS Label that corresponds to the index in the SRGB
          */
-        if (cvertex.getPrefixes() == null) {
-            return null;
-        }
-        for (Prefix prefix : cvertex.getPrefixes()) {
-            if (prefix.getPrefixSid() == null || prefix.getNodeSid() == null) {
-                continue;
-            }
-            if (prefix.getNodeSid() && prefix.getPrefix().getIpv6Prefix() != null) {
-                return new MplsLabel(Uint32.valueOf(prefix.getPrefixSid().intValue()));
+        final var prefixes = cvertex.getPrefixes();
+        if (prefixes != null) {
+            for (var prefix : cvertex.getPrefixes()) {
+                final var prefixSid = prefix.getPrefixSid();
+                final var nodeSid = prefix.getNodeSid();
+                if (prefixSid != null && nodeSid != null) {
+                    if (nodeSid && prefix.getPrefix().getIpv6Prefix() != null) {
+                        return new MplsLabel(prefixSid);
+                    }
+                }
             }
         }
         return null;
@@ -420,92 +425,76 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
      * @return Path Description
      */
     protected List<PathDescription> getPathDescription(final List<ConnectedEdge> edges) {
-        ArrayList<PathDescription> list = new ArrayList<>();
-
-        for (ConnectedEdge edge : edges) {
-            PathDescription pathDesc = null;
-            switch (constraints.getAddressFamily()) {
-                case Ipv4:
-                    pathDesc = new PathDescriptionBuilder()
+        final var list = new ArrayList<PathDescription>(edges.size());
+        for (var edge : edges) {
+            final var pathDesc = switch (constraints.getAddressFamily()) {
+                case Ipv4 -> new PathDescriptionBuilder()
                             .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress())
                             .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress())
                             .build();
-                    break;
-                case Ipv6:
-                    pathDesc = new PathDescriptionBuilder()
+                case Ipv6 -> new PathDescriptionBuilder()
                             .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress6())
                             .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress6())
                             .build();
-                    break;
-                case SrIpv4:
-                    pathDesc = new PathDescriptionBuilder()
+                case SrIpv4 -> new PathDescriptionBuilder()
                             .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress())
                             .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
                             .build();
-                    break;
-                case SrIpv6:
-                    pathDesc = new PathDescriptionBuilder()
+                case SrIpv6 -> new PathDescriptionBuilder()
                             .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress6())
                             .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress6())
                             .setSid(edge.getEdge().getEdgeAttributes().getAdjSid6())
                             .build();
-                    break;
-                default:
-                    break;
-            }
+            };
             list.add(pathDesc);
         }
         return list;
     }
 
-    private VertexKey getVertexKey(final IncludeRoute iro, AddressFamily af) {
-        IpAddress address = null;
+    private VertexKey getVertexKey(final IncludeRoute iro, final AddressFamily af) {
+        final var address = switch (af) {
+            case Ipv4, SrIpv4 -> new IpAddress(iro.getIpv4());
+            case Ipv6, SrIpv6 -> new IpAddress(iro.getIpv6());
+        };
 
-        switch (af) {
-            case Ipv4:
-            case SrIpv4:
-                address = new IpAddress(iro.getIpv4());
-                break;
-            case Ipv6:
-            case SrIpv6:
-                address = new IpAddress(iro.getIpv6());
-                break;
-            default:
-                return null;
-        }
-
-        ConnectedVertex vertex = graph.getConnectedVertex(address);
+        final var vertex = graph.getConnectedVertex(address);
         return vertex != null ? vertex.getVertex().key() : null;
     }
 
-    private ConstrainedPath mergePath(ConstrainedPath cp1, ConstrainedPath cp2) {
-        ArrayList<PathDescription> mergePathDesc = new ArrayList<PathDescription>(cp1.getPathDescription());
+    private static ConstrainedPath mergePath(final ConstrainedPath cp1, final ConstrainedPath cp2) {
+        final var mergePathDesc = new ArrayList<>(cp1.getPathDescription());
         mergePathDesc.addAll(cp2.getPathDescription());
+
+        final var cp1status = cp1.getStatus();
+        final var cp2status = cp2.getStatus();
         return new ConstrainedPathBuilder(cp1)
-                .setPathDescription(mergePathDesc)
-                .setStatus(cp1.getStatus().equals(cp2.getStatus()) ? cp1.getStatus() : cp2.getStatus())
-                .build();
+            .setPathDescription(mergePathDesc)
+            .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status)
+            .build();
     }
 
     @Override
-    public ConstrainedPath computeP2pPath(VertexKey source, VertexKey destination, PathConstraints cts) {
-        this.constraints = cts;
+    public ConstrainedPath computeP2pPath(final VertexKey source, final VertexKey destination,
+            final PathConstraints cts) {
+        constraints = cts;
 
-        if (constraints.getIncludeRoute() == null || constraints.getIncludeRoute().isEmpty()) {
+        final var includeRoute = constraints.getIncludeRoute();
+        if (includeRoute == null || includeRoute.isEmpty()) {
             return computeSimplePath(source, destination);
         }
 
+        final var it = includeRoute.iterator();
         /* Start by computing Path from source to the first Include Route address */
-        VertexKey key = getVertexKey(constraints.getIncludeRoute().get(0), constraints.getAddressFamily());
+        VertexKey key = getVertexKey(it.next(), constraints.getAddressFamily());
         ConstrainedPath ctsPath = computeSimplePath(source, key);
         if (ctsPath.getStatus() != ComputationStatus.Completed) {
             return ctsPath;
         }
 
         /* Then, loop other subsequent Include Route address */
-        for (int i = 1; i < constraints.getIncludeRoute().size() - 1; i++) {
-            VertexKey next = getVertexKey(constraints.getIncludeRoute().get(i), constraints.getAddressFamily());
+        while (it.hasNext()) {
+            VertexKey next = getVertexKey(it.next(), constraints.getAddressFamily());
             ctsPath = mergePath(ctsPath, computeSimplePath(key, next));
             if (ctsPath.getStatus() != ComputationStatus.Completed) {
                 return ctsPath;
@@ -518,5 +507,4 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     }
 
     protected abstract ConstrainedPath computeSimplePath(VertexKey source, VertexKey destination);
-
 }
