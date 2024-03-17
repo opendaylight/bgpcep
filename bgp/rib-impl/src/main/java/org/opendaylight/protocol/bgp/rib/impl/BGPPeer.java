@@ -16,7 +16,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableClassToInstanceMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -97,7 +96,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.Notification;
-import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -420,15 +418,13 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
             if (rpcRegistry != null) {
                 final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
-                rpcRegistration = rpcRegistry.registerRpcImplementations(
-                    ImmutableClassToInstanceMap.<Rpc<?, ?>>builder()
-                        .put(ResetSession.class, bgpPeerHandler::resetSession)
-                        .put(RestartGracefully.class, bgpPeerHandler::restartGracefully)
-                        .put(RouteRefreshRequest.class, bgpPeerHandler::routeRefreshRequest)
-                        .build(),
-                    ImmutableSet.of(rib.getInstanceIdentifier().child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib
-                        .Peer.class, new PeerKey(peerId))));
+                rpcRegistration = rpcRegistry.registerRpcImplementations(List.of(
+                    (ResetSession) bgpPeerHandler::resetSession,
+                    (RestartGracefully) bgpPeerHandler::restartGracefully,
+                    (RouteRefreshRequest) bgpPeerHandler::routeRefreshRequest), ImmutableSet.of(
+                        rib.getInstanceIdentifier().child(
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib
+                            .rib.Peer.class, new PeerKey(peerId))));
             }
         } else {
             final Set<TablesKey> forwardingTables;

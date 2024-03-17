@@ -16,7 +16,6 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataConfiguration;
 
-import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.Result;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.Rpc;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -54,7 +54,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() {
-        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(Rpc[].class));
         doNothing().when(registration).close();
     }
 
