@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
+import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -46,7 +47,7 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
             return null;
         }).when(singletonServiceRegistration).close();
 
-        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any());
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
 
         doNothing().when(registration).close();
     }
