@@ -12,6 +12,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
+import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -39,16 +40,16 @@ abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest 
     @Before
     public void setUp() throws Exception {
         doAnswer(invocationOnMock -> {
-            this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
-            return this.singletonServiceRegistration;
-        }).when(this.cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
+            singletonService = invocationOnMock.getArgument(0);
+            return singletonServiceRegistration;
+        }).when(cssp).registerClusterSingletonService(any(ClusterSingletonService.class));
         doAnswer(invocationOnMock -> {
-            this.singletonService.closeServiceInstance().get();
+            singletonService.closeServiceInstance().get();
             return null;
-        }).when(this.singletonServiceRegistration).close();
+        }).when(singletonServiceRegistration).close();
 
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
 
-        doNothing().when(this.registration).close();
+        doNothing().when(registration).close();
     }
 }

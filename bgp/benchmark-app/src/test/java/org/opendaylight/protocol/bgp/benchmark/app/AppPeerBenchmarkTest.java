@@ -16,6 +16,7 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkNotPresentConfiguration;
 import static org.opendaylight.protocol.util.CheckTestUtil.readDataConfiguration;
 
+import com.google.common.collect.ClassToInstanceMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,40 +54,40 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() {
-        doReturn(this.registration).when(this.rpcRegistry).registerRpcImplementations(any());
-        doNothing().when(this.registration).close();
+        doReturn(registration).when(rpcRegistry).registerRpcImplementations(any(ClassToInstanceMap.class));
+        doNothing().when(registration).close();
     }
 
     @Test
     public void testRpcs() throws Exception {
-        final AppPeerBenchmark appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), this.rpcRegistry, PEER_RIB_ID);
-        appPeerBenchmark.start();
-        final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
+        try (var appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), rpcRegistry, PEER_RIB_ID)) {
+            appPeerBenchmark.start();
+            final InstanceIdentifier<Ipv4Routes> routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
-        final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(Uint32.ONE).setCount(Uint32.ONE)
+            final AddPrefixInput addPrefix = new AddPrefixInputBuilder().setBatchsize(Uint32.ONE).setCount(Uint32.ONE)
                 .setNexthop(new Ipv4AddressNoZone(NH)).setPrefix(new Ipv4Prefix(PREFIX)).build();
 
-        final RpcResult<AddPrefixOutput> addRpcResult = appPeerBenchmark.addPrefix(addPrefix).get();
-        final Result addResult = addRpcResult.getResult().getResult();
-        checkEquals(() -> assertEquals(1, addResult.getCount().intValue()));
-        checkEquals(() -> assertEquals(1, addResult.getRate().intValue()));
+            final RpcResult<AddPrefixOutput> addRpcResult = appPeerBenchmark.addPrefix(addPrefix).get();
+            final Result addResult = addRpcResult.getResult().getResult();
+            checkEquals(() -> assertEquals(1, addResult.getCount().intValue()));
+            checkEquals(() -> assertEquals(1, addResult.getRate().intValue()));
 
-        readDataConfiguration(getDataBroker(), routesIID, routes -> {
-            assertNotNull(routes.getIpv4Route());
-            assertEquals(1, routes.getIpv4Route().size());
-            return routes;
-        });
+            readDataConfiguration(getDataBroker(), routesIID, routes -> {
+                final var ipv4Route = routes.getIpv4Route();
+                assertNotNull(ipv4Route);
+                assertEquals(1, ipv4Route.size());
+                return routes;
+            });
 
-        final DeletePrefixInput deletePrefix = new DeletePrefixInputBuilder().setBatchsize(Uint32.ONE)
+            final DeletePrefixInput deletePrefix = new DeletePrefixInputBuilder().setBatchsize(Uint32.ONE)
                 .setCount(Uint32.ONE).setPrefix(new Ipv4Prefix(PREFIX)).build();
-        final RpcResult<DeletePrefixOutput> deleteRpcResult = appPeerBenchmark
+            final RpcResult<DeletePrefixOutput> deleteRpcResult = appPeerBenchmark
                 .deletePrefix(deletePrefix).get();
-        final Result deleteResult = deleteRpcResult.getResult().getResult();
-        checkEquals(() -> assertEquals(1, deleteResult.getCount().intValue()));
-        checkEquals(() -> assertEquals(1, deleteResult.getRate().intValue()));
+            final Result deleteResult = deleteRpcResult.getResult().getResult();
+            checkEquals(() -> assertEquals(1, deleteResult.getCount().intValue()));
+            checkEquals(() -> assertEquals(1, deleteResult.getRate().intValue()));
 
-        checkNotPresentConfiguration(getDataBroker(), appPeerBenchmark.getIpv4RoutesIID());
-
-        appPeerBenchmark.close();
+            checkNotPresentConfiguration(getDataBroker(), appPeerBenchmark.getIpv4RoutesIID());
+        }
     }
 }

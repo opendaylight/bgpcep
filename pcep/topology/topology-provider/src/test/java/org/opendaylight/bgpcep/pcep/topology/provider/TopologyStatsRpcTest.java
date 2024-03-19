@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 
+import com.google.common.collect.ClassToInstanceMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -89,7 +90,7 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setUp() throws Exception {
-        doReturn(rpcReg).when(rpcProviderService).registerRpcImplementations(any());
+        doReturn(rpcReg).when(rpcProviderService).registerRpcImplementations(any(ClassToInstanceMap.class));
         doNothing().when(rpcReg).close();
         rpcService = new TopologyStatsRpc(getDataBroker(), rpcProviderService);
 
