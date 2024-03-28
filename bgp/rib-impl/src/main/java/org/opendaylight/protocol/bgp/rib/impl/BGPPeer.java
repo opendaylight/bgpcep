@@ -167,12 +167,14 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Set<TablesKey> afiSafisGracefulAdvertized,
             final Map<TablesKey, Integer> llGracefulTablesAdvertised,
             final BgpPeer bgpPeer) {
-        super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId,
-                localAs, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
+        super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
+            afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
         this.bgpPeer = bgpPeer;
+
+        createDomChain();
     }
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {

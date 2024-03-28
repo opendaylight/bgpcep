@@ -13,8 +13,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -84,7 +82,7 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     //        hence we want to use the two chains concurrently. The problem is their lifecycle in response to errors,
     //        which needs figuring out.
     @GuardedBy("this")
-    private DOMTransactionChain domChain;
+    private DOMTransactionChain domChain = null;
     // FIXME: This is an invariant once the peer is 'resolved' -- which happens instantaneously for ApplicationPeer.
     //        There are also a number YangInstanceIdentifiers which are tied to it. We want to keep all of them in one
     //        structure for isolation. This could be a separate DTO (JDK16 record) or isolated into an abstract behavior
@@ -99,8 +97,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
-    @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
-        justification = "False positive on synchronized createDomChain()")
     AbstractPeer(
             final RIB rib,
             final String peerName,
@@ -119,18 +115,6 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         this.clusterId = clusterId;
         this.localAs = localAs;
         this.rib = rib;
-        createDomChain();
-    }
-
-    AbstractPeer(
-            final RIB rib,
-            final String peerName,
-            final String groupId,
-            final PeerRole role,
-            final IpAddressNoZone neighborAddress,
-            final Set<TablesKey> afiSafisGracefulAdvertized) {
-        this(rib, peerName, groupId, role, null, null, neighborAddress,
-                rib.getLocalTablesKeys(), afiSafisGracefulAdvertized, Collections.emptyMap());
     }
 
     final synchronized FluentFuture<? extends CommitInfo> removePeer(final @Nullable YangInstanceIdentifier peerPath) {

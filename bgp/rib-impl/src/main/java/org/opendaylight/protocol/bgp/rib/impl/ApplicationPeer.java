@@ -76,6 +76,14 @@ import org.slf4j.LoggerFactory;
  * peer needs to have a BGP-ID that is configurable.
  */
 public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeListener {
+    @FunctionalInterface
+    interface RegisterAppPeerListener {
+        /**
+         * Register Application Peer Change Listener once AdjRibIn has been successfully initialized.
+         */
+        void register();
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
     private static final String APP_PEER_GROUP = "application-peers";
 
@@ -98,32 +106,19 @@ public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeLi
     private Registration trackerRegistration;
     private YangInstanceIdentifier peerPath;
 
-    @Override
-    public List<RouteTarget> getMemberships() {
-        return List.of();
-    }
-
-    @FunctionalInterface
-    interface RegisterAppPeerListener {
-        /**
-         * Register Application Peer Change Listener once AdjRibIn has been successfully initialized.
-         */
-        void register();
-    }
-
     public ApplicationPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final ApplicationRibId applicationRibId, final Ipv4AddressNoZone ipAddress, final RIB rib) {
-        super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal,
-                new IpAddressNoZone(ipAddress), Set.of());
+        super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal, null, null,
+            new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Set.of(), Map.of());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
-        final RIB targetRib = requireNonNull(rib);
         peerId = RouterIds.createPeerId(ipAddress);
 
-        final YangInstanceIdentifier peerRib = targetRib.getYangRibId().node(PEER_NID)
-            .node(IdentifierUtils.domPeerId(peerId));
+        final var peerRib = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(peerId));
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
+
+        createDomChain();
     }
 
     public synchronized void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
@@ -161,6 +156,11 @@ public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeLi
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
         trackerRegistration = rib.getPeerTracker().registerPeer(this);
+    }
+
+    @Override
+    public List<RouteTarget> getMemberships() {
+        return List.of();
     }
 
     @Override
