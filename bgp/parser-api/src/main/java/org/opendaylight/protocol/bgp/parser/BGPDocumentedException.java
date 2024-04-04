@@ -10,8 +10,6 @@ package org.opendaylight.protocol.bgp.parser;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
 import org.opendaylight.protocol.util.Values;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * There are several errors documented in RFC4271 or in draft, that have specific meaning for the BGP.
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class BGPDocumentedException extends AbstractBGPException {
     private static final long serialVersionUID = -6212702584439430736L;
-    private static final Logger LOG = LoggerFactory.getLogger(BGPDocumentedException.class);
 
     /**
      * Used when an error occurred that is described in an RFC or a draft.
@@ -73,8 +70,6 @@ public final class BGPDocumentedException extends AbstractBGPException {
     public BGPDocumentedException(final String message, final BGPError error, final byte[] data,
             final Exception cause) {
         super(message, error, data, cause);
-        // FIXME: remove this error?
-        LOG.error("Error = {}", error, this);
     }
 
     /**
