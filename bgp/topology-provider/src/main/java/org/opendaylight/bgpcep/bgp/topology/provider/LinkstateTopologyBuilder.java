@@ -937,12 +937,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final ObjectType t = value.getObjectType();
         Preconditions.checkArgument(t != null, "Route %s value %s has null object type", id, value);
 
-        if (t instanceof LinkCase) {
-            createLink(trans, base, value, (LinkCase) t, value.getAttributes());
-        } else if (t instanceof NodeCase) {
-            createNode(trans, base, value, (NodeCase) t, value.getAttributes());
-        } else if (t instanceof PrefixCase) {
-            createPrefix(trans, base, value, (PrefixCase) t, value.getAttributes());
+        if (t instanceof LinkCase link) {
+            createLink(trans, base, value, link, value.getAttributes());
+        } else if (t instanceof NodeCase node) {
+            createNode(trans, base, value, node, value.getAttributes());
+        } else if (t instanceof PrefixCase prefix) {
+            createPrefix(trans, base, value, prefix, value.getAttributes());
         } else {
             LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
         }
@@ -959,12 +959,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final UriBuilder base = new UriBuilder(value);
 
         final ObjectType t = value.getObjectType();
-        if (t instanceof LinkCase) {
-            removeLink(trans, base, (LinkCase) t);
-        } else if (t instanceof NodeCase) {
-            removeNode(trans, base, (NodeCase) t);
-        } else if (t instanceof PrefixCase) {
-            removePrefix(trans, base, (PrefixCase) t);
+        if (t instanceof LinkCase link) {
+            removeLink(trans, base, link);
+        } else if (t instanceof NodeCase node) {
+            removeNode(trans, base, node);
+        } else if (t instanceof PrefixCase prefix) {
+            removePrefix(trans, base, prefix);
         } else {
             LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
         }
