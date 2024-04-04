@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -178,9 +176,9 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
                 }
             }
             gracefulCapability = findSingleCapability(bgpParameters, "Graceful Restart",
-                CParameters1::getGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_GR_CAPABILITY);
+                CParameters1::getGracefulRestartCapability, GracefulRestartUtil.EMPTY_GR_CAPABILITY);
             llGracefulCapability = findSingleCapability(bgpParameters, "Long-lived Graceful Restart",
-                CParameters1::getLlGracefulRestartCapability).orElse(GracefulRestartUtil.EMPTY_LLGR_CAPABILITY);
+                CParameters1::getLlGracefulRestartCapability, GracefulRestartUtil.EMPTY_LLGR_CAPABILITY);
         } else {
             gracefulCapability = GracefulRestartUtil.EMPTY_GR_CAPABILITY;
             llGracefulCapability = GracefulRestartUtil.EMPTY_LLGR_CAPABILITY;
@@ -204,14 +202,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
                 tableTypes, bgpParameters);
     }
 
-    private static <T extends ChildOf<MpCapabilities>> Optional<T> findSingleCapability(
-            final List<BgpParameters> bgpParameters, final String name, final Function<CParameters1, T> extractor) {
-        final List<T> found = new ArrayList<>(1);
-        for (BgpParameters bgpParams : bgpParameters) {
-            for (OptionalCapabilities optCapability : bgpParams.nonnullOptionalCapabilities()) {
-                final CParameters cparam = optCapability.getCParameters();
+    private static <T extends ChildOf<MpCapabilities>> T findSingleCapability(
+            final List<BgpParameters> bgpParameters, final String name, final Function<CParameters1, T> extractor,
+            final T empty) {
+        final var found = new ArrayList<T>(1);
+        for (var bgpParams : bgpParameters) {
+            for (var optCapability : bgpParams.nonnullOptionalCapabilities()) {
+                final var cparam = optCapability.getCParameters();
                 if (cparam != null) {
-                    final CParameters1 augment = cparam.augmentation(CParameters1.class);
+                    final var augment = cparam.augmentation(CParameters1.class);
                     if (augment != null) {
                         final T capa = extractor.apply(augment);
                         if (capa != null) {
@@ -222,17 +221,27 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
             }
         }
 
-        final Set<T> set = ImmutableSet.copyOf(found);
-        switch (set.size()) {
-            case 0:
+        return switch (found.size()) {
+            // irrecoverable
+            case 0 -> {
                 LOG.debug("{} capability not advertised.", name);
-                return Optional.empty();
-            case 1:
-                return Optional.of(found.get(0));
-            default:
-                LOG.warn("Multiple instances of {} capability advertised: {}, ignoring.", name, set);
-                return Optional.empty();
-        }
+                yield empty;
+            }
+
+            // fast path
+            case 1 -> found.get(0);
+
+            // slow path
+            default -> {
+                final var set = Set.copyOf(found);
+                if (set.size() != 1) {
+                    LOG.warn("Multiple instances of {} capability advertised: {}, ignoring.", name, set);
+                    yield empty;
+                } else {
+                    yield found.get(0);
+                }
+            }
+        };
     }
 
     /**
