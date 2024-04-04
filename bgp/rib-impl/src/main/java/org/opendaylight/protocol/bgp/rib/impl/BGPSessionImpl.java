@@ -19,6 +19,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.DecoderException;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.io.IOException;
 import java.nio.channels.NonWritableChannelException;
@@ -586,10 +587,33 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @Holding({"this.listener", "this"})
     @VisibleForTesting
     void handleException(final Throwable cause) {
-        LOG.warn("BGP session encountered error", cause);
-        final Throwable docCause = cause.getCause();
-        terminate(docCause instanceof BGPDocumentedException
-            ? (BGPDocumentedException) docCause : new BGPDocumentedException(BGPError.CEASE));
+        // We have two things to do here:
+        // - log a warning with appropriate context
+        final Throwable toLog;
+        // - terminate the session with the appropriate error
+        final BGPDocumentedException toReport;
+
+        if (cause instanceof BGPDocumentedException bde) {
+            // Easy case
+            toLog = toReport = bde;
+        } else if (cause.getCause() instanceof BGPDocumentedException bde) {
+            // we are going to report the cause, that's for sure
+            toReport = bde;
+
+            // if this is a DecoderException, assume it is coming from ByteToMessageDecoder.callDecode() and the context
+            // is just Netty thread call stack starting at a io.netty.util.internal.ThreadExecutorMap Runnable.
+            // Trim such context unless we have trace enabled.
+            toLog = cause instanceof DecoderException && !LOG.isTraceEnabled() ? bde : cause;
+        } else {
+            // if we can include the causal chain for terminate(), great, but only log cause, i.e. without us in
+            // in the picture.
+            toReport = cause instanceof Exception ex ? new BGPDocumentedException(null, BGPError.CEASE, ex)
+                : new BGPDocumentedException(BGPError.CEASE);
+            toLog = cause;
+        }
+
+        LOG.warn("BGP session encountered error", toLog);
+        terminate(toReport);
     }
 
     @Override
