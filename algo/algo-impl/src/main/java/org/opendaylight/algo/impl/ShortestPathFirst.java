@@ -8,13 +8,11 @@
 package org.opendaylight.algo.impl;
 
 import java.util.HashMap;
-import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +35,10 @@ public class ShortestPathFirst extends AbstractPathComputation {
 
     @Override
     protected ConstrainedPath computeSimplePath(final VertexKey src, final VertexKey dst) {
-        ConstrainedPathBuilder cpathBuilder;
-        List<ConnectedEdge> edges;
-        CspfPath currentPath;
-        int currentCost = Integer.MAX_VALUE;
-
         LOG.info("Start SPF Path Computation from {} to {} with constraints {}", src, dst, constraints);
 
         /* Initialize algorithm */
-        cpathBuilder = initializePathComputation(src, dst);
+        final var cpathBuilder = initializePathComputation(src, dst);
         if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
             LOG.warn("Initial configurations are not met. Abort!");
             return cpathBuilder.build();
@@ -53,11 +46,12 @@ public class ShortestPathFirst extends AbstractPathComputation {
 
         visitedVertices.clear();
 
+        int currentCost = Integer.MAX_VALUE;
         while (priorityQueue.size() != 0) {
-            currentPath = priorityQueue.poll();
+            final var currentPath = priorityQueue.poll();
             visitedVertices.put(currentPath.getVertexKey(), currentPath);
             LOG.debug("Process path to Vertex {} from Priority Queue", currentPath.getVertex());
-            edges = currentPath.getVertex().getOutputConnectedEdges();
+            final var edges = currentPath.getVertex().getOutputConnectedEdges();
 
             for (ConnectedEdge edge : edges) {
                 /* Check that Edge point to a valid Vertex and is suitable for the Constraint Address Family */
