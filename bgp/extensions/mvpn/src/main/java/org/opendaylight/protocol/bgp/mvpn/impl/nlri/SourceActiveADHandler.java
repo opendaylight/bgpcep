@@ -40,7 +40,7 @@ public final class SourceActiveADHandler extends AbstractMvpnNlri<SourceActiveAD
         final SourceActiveAD route = mvpn.getSourceActiveAD();
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         serializeRDMulticastSource(route, nlriByteBuf);
-        nlriByteBuf.writeBytes(IpAddressUtil.bytesFor(route.getMulticastGroup()));
+        IpAddressUtil.writeBytesFor(route.getMulticastGroup(), nlriByteBuf);
         return nlriByteBuf;
     }
 }

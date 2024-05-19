@@ -66,23 +66,25 @@ public final class IpAddressUtil {
     }
 
     /**
-     * Returns byte array containing IpAddress length and IpAddress.
+     * Writes the length of an {@link IpAddressNoZone} and its contents to specified buffer.
      *
      * @param address containing ipv4 or ipv6 address
-     * @return byte array
+     * @param output output buffer
      */
-    public static @NonNull ByteBuf bytesFor(final IpAddressNoZone address) {
-        final ByteBuf body = Unpooled.buffer();
-        if (address.getIpv4AddressNoZone() != null) {
-            body.writeByte(Ipv4Util.IP4_BITS_LENGTH);
-            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4AddressNoZone()));
-        } else if (address.getIpv6AddressNoZone() != null) {
-            body.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
-            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6AddressNoZone()));
+    public static void writeBytesFor(final IpAddressNoZone address, final ByteBuf output) {
+        final var ipv4 = address.getIpv4AddressNoZone();
+        if (ipv4 != null) {
+            output.writeByte(Ipv4Util.IP4_BITS_LENGTH);
+            output.writeBytes(Ipv4Util.bytesForAddress(ipv4));
         } else {
-            body.writeByte(0);
+            final var ipv6 = address.getIpv6AddressNoZone();
+            if (ipv6 != null) {
+                output.writeByte(Ipv6Util.IPV6_BITS_LENGTH);
+                output.writeBytes(Ipv6Util.bytesForAddress(ipv6));
+            } else {
+                throw new IllegalStateException("Invalid address " + address);
+            }
         }
-        return body;
     }
 
     /**

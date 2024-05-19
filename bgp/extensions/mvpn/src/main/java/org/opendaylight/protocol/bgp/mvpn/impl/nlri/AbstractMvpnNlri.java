@@ -68,6 +68,6 @@ public abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSeri
 
     static final void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), output);
-        output.writeBytes(IpAddressUtil.bytesFor(route.getMulticastSource()));
+        IpAddressUtil.writeBytesFor(route.getMulticastSource(), output);
     }
 }

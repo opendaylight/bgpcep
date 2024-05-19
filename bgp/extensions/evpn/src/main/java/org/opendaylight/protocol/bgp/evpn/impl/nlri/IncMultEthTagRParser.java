@@ -66,9 +66,7 @@ final class IncMultEthTagRParser extends AbstractEvpnNlri {
         final IncMultiEthernetTagRes evpn = ((IncMultiEthernetTagResCase) evpnChoice).getIncMultiEthernetTagRes();
         final ByteBuf body = Unpooled.buffer();
         ByteBufUtils.writeOrZero(body, evpn.getEthernetTagId().getVlanId());
-        final ByteBuf orig = IpAddressUtil.bytesFor(evpn.getOrigRouteIp());
-        Preconditions.checkArgument(orig.readableBytes() > 0);
-        body.writeBytes(orig);
+        IpAddressUtil.writeBytesFor(evpn.getOrigRouteIp(), body);
         return body;
     }
 

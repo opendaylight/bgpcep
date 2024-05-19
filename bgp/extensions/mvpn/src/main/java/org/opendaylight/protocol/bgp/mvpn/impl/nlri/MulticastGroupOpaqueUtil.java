@@ -32,23 +32,22 @@ final class MulticastGroupOpaqueUtil {
     }
 
     static MulticastGroup multicastGroupForByteBuf(final ByteBuf buffer) {
-        final short multicastGroupLength = buffer.readUnsignedByte();
-        switch (multicastGroupLength) {
-            case Ipv4Util.IP4_BITS_LENGTH:
-                return new CGAddressCaseBuilder()
-                    .setCGAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer))).build();
-            case Ipv6Util.IPV6_BITS_LENGTH:
-                return new CGAddressCaseBuilder()
-                    .setCGAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer))).build();
-            default:
-                return new LdpMpOpaqueValueCaseBuilder()
-                    .setLdpMpOpaqueValue(new LdpMpOpaqueValueBuilder(OpaqueUtil.parseOpaque(buffer)).build()).build();
-        }
+        return switch (buffer.readUnsignedByte()) {
+            case Ipv4Util.IP4_BITS_LENGTH -> new CGAddressCaseBuilder()
+                .setCGAddress(new IpAddressNoZone(Ipv4Util.addressForByteBuf(buffer)))
+                .build();
+            case Ipv6Util.IPV6_BITS_LENGTH -> new CGAddressCaseBuilder()
+                .setCGAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)))
+                .build();
+            default -> new LdpMpOpaqueValueCaseBuilder()
+                .setLdpMpOpaqueValue(new LdpMpOpaqueValueBuilder(OpaqueUtil.parseOpaque(buffer)).build())
+                .build();
+        };
     }
 
     static void bytesForMulticastGroup(final @NonNull MulticastGroup group, final ByteBuf nlriByteBuf) {
-        if (group instanceof CGAddressCase) {
-            nlriByteBuf.writeBytes(IpAddressUtil.bytesFor(((CGAddressCase) group).getCGAddress()));
+        if (group instanceof CGAddressCase cgAddress) {
+            IpAddressUtil.writeBytesFor(cgAddress.getCGAddress(), nlriByteBuf);
         } else {
             OpaqueUtil.serializeOpaque(((LdpMpOpaqueValueCase) group).getLdpMpOpaqueValue(), nlriByteBuf);
         }

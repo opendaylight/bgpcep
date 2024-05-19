@@ -39,7 +39,7 @@ final class CMulticastUtil {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), nlriByteBuf);
         nlriByteBuf.writeInt(route.getSourceAs().getValue().intValue());
-        nlriByteBuf.writeBytes(IpAddressUtil.bytesFor(route.getMulticastSource()));
+        IpAddressUtil.writeBytesFor(route.getMulticastSource(), nlriByteBuf);
         MulticastGroupOpaqueUtil.bytesForMulticastGroup(route.getMulticastGroup(), nlriByteBuf);
         return nlriByteBuf;
     }

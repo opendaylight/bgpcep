@@ -54,9 +54,7 @@ final class EthSegRParser extends AbstractEvpnNlri {
         final EsRoute evpn = ((EsRouteCase) evpnInput).getEsRoute();
         final ByteBuf body = Unpooled.buffer();
         SimpleEsiTypeRegistry.getInstance().serializeEsi(evpn.getEsi(), body);
-        final ByteBuf orig = IpAddressUtil.bytesFor(evpn.getOrigRouteIp());
-        checkArgument(orig.readableBytes() > 0);
-        body.writeBytes(orig);
+        IpAddressUtil.writeBytesFor(evpn.getOrigRouteIp(), body);
         return body;
     }
 
