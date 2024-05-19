@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.opendaylight.bgp.concepts.IpAddressUtil;
@@ -70,9 +68,7 @@ public final class LeafADHandler extends AbstractMvpnNlri<LeafADCase> {
                     .mvpn.choice.SPmsiADCaseBuilder((SPmsiADCase) key).build();
         }
         nlriByteBuf.writeBytes(SimpleMvpnNlriRegistry.getInstance().serializeMvpn(keyCase));
-        final ByteBuf orig = IpAddressUtil.bytesWOLengthFor(leaf.getOrigRouteIp());
-        checkArgument(orig.readableBytes() > 0);
-        nlriByteBuf.writeBytes(orig);
+        serializeAddress(leaf.getOrigRouteIp(), nlriByteBuf);
         return nlriByteBuf;
     }
 }

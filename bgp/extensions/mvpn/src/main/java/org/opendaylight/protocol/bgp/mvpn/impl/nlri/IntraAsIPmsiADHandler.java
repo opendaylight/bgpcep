@@ -50,9 +50,7 @@ public final class IntraAsIPmsiADHandler extends AbstractMvpnNlri<IntraAsIPmsiAD
         final IntraAsIPmsiAD route = mvpn.getIntraAsIPmsiAD();
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), nlriByteBuf);
-        final ByteBuf orig = IpAddressUtil.bytesWOLengthFor(route.getOrigRouteIp());
-        checkArgument(orig.readableBytes() > 0);
-        nlriByteBuf.writeBytes(orig);
+        serializeAddress(route.getOrigRouteIp(), nlriByteBuf);
         return nlriByteBuf;
     }
 }

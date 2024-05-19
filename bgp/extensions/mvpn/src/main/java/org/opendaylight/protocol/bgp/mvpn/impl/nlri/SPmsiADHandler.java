@@ -42,7 +42,7 @@ public final class SPmsiADHandler extends AbstractMvpnNlri<SPmsiADCase> {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         serializeRDMulticastSource(route, nlriByteBuf);
         MulticastGroupOpaqueUtil.bytesForMulticastGroup(route.getMulticastGroup(), nlriByteBuf);
-        nlriByteBuf.writeBytes(IpAddressUtil.bytesWOLengthFor(route.getOrigRouteIp()));
+        serializeAddress(route.getOrigRouteIp(), nlriByteBuf);
         return nlriByteBuf;
     }
 }

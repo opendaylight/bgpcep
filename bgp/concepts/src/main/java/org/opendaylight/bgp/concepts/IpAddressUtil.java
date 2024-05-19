@@ -8,7 +8,6 @@
 package org.opendaylight.bgp.concepts;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -85,24 +84,6 @@ public final class IpAddressUtil {
                 throw new IllegalStateException("Invalid address " + address);
             }
         }
-    }
-
-    /**
-     * Returns byte array containing IpAddress.
-     *
-     * @param address containing ipv4 or ipv6 address
-     * @return byte array
-     */
-    public static @NonNull ByteBuf bytesWOLengthFor(final IpAddressNoZone address) {
-        final ByteBuf body = Unpooled.buffer();
-        if (address.getIpv4AddressNoZone() != null) {
-            body.writeBytes(Ipv4Util.bytesForAddress(address.getIpv4AddressNoZone()));
-        } else if (address.getIpv6AddressNoZone() != null) {
-            body.writeBytes(Ipv6Util.bytesForAddress(address.getIpv6AddressNoZone()));
-        } else {
-            body.writeByte(0);
-        }
-        return body;
     }
 
     public static IpAddressNoZone extractIpAddress(final DataContainerNode route, final NodeIdentifier rdNid) {

@@ -16,6 +16,9 @@ import org.opendaylight.bgp.concepts.IpAddressUtil;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnParser;
 import org.opendaylight.protocol.bgp.mvpn.spi.nlri.MvpnSerializer;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.Ipv6Util;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.MulticastSourceRdGrouping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
@@ -69,5 +72,11 @@ public abstract class AbstractMvpnNlri<T extends MvpnChoice> implements MvpnSeri
     static final void serializeRDMulticastSource(final MulticastSourceRdGrouping route, final ByteBuf output) {
         RouteDistinguisherUtil.serializeRouteDistinquisher(route.getRouteDistinguisher(), output);
         IpAddressUtil.writeBytesFor(route.getMulticastSource(), output);
+    }
+
+    static final void serializeAddress(final IpAddressNoZone address, final ByteBuf output) {
+        final var ipv4 = address.getIpv4AddressNoZone();
+        output.writeBytes(ipv4 != null ? Ipv4Util.bytesForAddress(ipv4)
+            : Ipv6Util.bytesForAddress(address.getIpv6AddressNoZone()));
     }
 }
