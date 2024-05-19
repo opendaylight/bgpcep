@@ -179,27 +179,22 @@ public final class SrLinkAttributesParser {
         if (protocol == null) {
             return null;
         }
-        switch (protocol) {
-            case IsisLevel1:
-            case IsisLevel2:
-                return new IsisAdjFlagsCaseBuilder()
-                        .setIsisAdjFlags(new IsisAdjFlagsBuilder()
-                            .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
-                            .setBackup(flags.get(BACKUP_ISIS))
-                            .setSet(flags.get(SET_ISIS))
-                            .build())
-                        .build();
-            case Ospf:
-            case OspfV3:
-                return new OspfAdjFlagsCaseBuilder()
-                        .setOspfAdjFlags(new OspfAdjFlagsBuilder()
-                            .setBackup(flags.get(BACKUP_OSPF))
-                            .setSet(flags.get(SET_OSPF))
-                            .build())
-                        .build();
-            default:
-                return null;
-        }
+        return switch (protocol) {
+            case IsisLevel1, IsisLevel2 -> new IsisAdjFlagsCaseBuilder()
+                .setIsisAdjFlags(new IsisAdjFlagsBuilder()
+                    .setAddressFamily(flags.get(ADDRESS_FAMILY_FLAG))
+                    .setBackup(flags.get(BACKUP_ISIS))
+                    .setSet(flags.get(SET_ISIS))
+                    .build())
+                .build();
+            case Ospf, OspfV3 -> new OspfAdjFlagsCaseBuilder()
+                .setOspfAdjFlags(new OspfAdjFlagsBuilder()
+                    .setBackup(flags.get(BACKUP_OSPF))
+                    .setSet(flags.get(SET_OSPF))
+                    .build())
+                .build();
+            default -> null;
+        };
     }
 
     public static <T extends EpeAdjSidTlv> void serializeAdjacencySegmentIdentifiers(final List<T> adjSids,
@@ -237,7 +232,7 @@ public final class SrLinkAttributesParser {
         if (srLanAdjId.getIsoSystemId() != null) {
             value.writeBytes(srLanAdjId.getIsoSystemId().getValue());
         } else if (srLanAdjId.getNeighborId() != null) {
-            value.writeBytes(Ipv4Util.byteBufForAddress(srLanAdjId.getNeighborId()));
+            value.writeBytes(Ipv4Util.bytesForAddress(srLanAdjId.getNeighborId()));
         }
         value.writeBytes(SidLabelIndexParser.serializeSidValue(srLanAdjId.getSidLabelIndex()));
         return value;

@@ -68,7 +68,7 @@ public final class SrNodeAttributesParser {
     }
 
     public static SrAlgorithm parseSrAlgorithms(final ByteBuf buffer) {
-        final SrAlgorithmBuilder builder = new SrAlgorithmBuilder();
+        final var builder = new SrAlgorithmBuilder();
         final var algs = ImmutableSet.<Algorithm>builder();
         while (buffer.isReadable()) {
             algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
@@ -78,8 +78,9 @@ public final class SrNodeAttributesParser {
     }
 
     public static void serializeSrAlgorithms(final SrAlgorithm alg, final ByteBuf buffer) {
-        if (alg.getAlgorithms() != null) {
-            for (final Algorithm a : alg.getAlgorithms()) {
+        final var algorithms = alg.getAlgorithms();
+        if (algorithms != null) {
+            for (var a : algorithms) {
                 buffer.writeByte(a.getIntValue());
             }
         }

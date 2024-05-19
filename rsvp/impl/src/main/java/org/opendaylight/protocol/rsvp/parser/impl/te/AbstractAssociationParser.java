@@ -41,12 +41,12 @@ public abstract class AbstractAssociationParser extends AbstractRSVPObjectParser
             serializeAttributeHeader(BODY_SIZE_IPV4, CLASS_NUM, CTYPE_IPV4, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
             writeUint16(output, assObject.getAssociationId());
-            output.writeBytes(Ipv4Util.byteBufForAddress(ipAddress.getIpv4AddressNoZone()));
+            output.writeBytes(Ipv4Util.bytesForAddress(ipAddress.getIpv4AddressNoZone()));
         } else {
             serializeAttributeHeader(BODY_SIZE_IPV6, CLASS_NUM, CTYPE_IPV6, output);
             output.writeShort(assObject.getAssociationType().getIntValue());
             writeUint16(output, assObject.getAssociationId());
-            output.writeBytes(Ipv6Util.byteBufForAddress(ipAddress.getIpv6AddressNoZone()));
+            output.writeBytes(Ipv6Util.bytesForAddress(ipAddress.getIpv6AddressNoZone()));
         }
     }
 

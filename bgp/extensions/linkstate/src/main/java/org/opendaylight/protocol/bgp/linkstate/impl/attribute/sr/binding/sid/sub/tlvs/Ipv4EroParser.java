@@ -72,7 +72,7 @@ public final class Ipv4EroParser implements BindingSubTlvsParser, BindingSubTlvs
     static ByteBuf serializeIpv4EroCase(final Boolean loose, final Ipv4AddressNoZone address) {
         final ByteBuf buffer = Unpooled.buffer();
         serializeEroFlags(buffer, loose);
-        buffer.writeBytes(Ipv4Util.byteBufForAddress(address));
+        buffer.writeBytes(Ipv4Util.bytesForAddress(address));
         return buffer;
     }
 

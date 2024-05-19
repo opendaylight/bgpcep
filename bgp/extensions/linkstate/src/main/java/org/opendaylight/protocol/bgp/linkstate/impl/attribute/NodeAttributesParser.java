@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrAlgorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilities;
@@ -153,36 +152,38 @@ public final class NodeAttributesParser {
 
     static void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
         LOG.trace("Started serializing Node Attributes");
-        final NodeAttributes nodeAttributes = nodeAttributesCase.getNodeAttributes();
+        final var nodeAttributes = nodeAttributesCase.getNodeAttributes();
         serializeTopologyId(nodeAttributes.getTopologyIdentifier(), byteAggregator);
         serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
         if (nodeAttributes.getDynamicHostname() != null) {
             TlvUtil.writeTLV(DYNAMIC_HOSTNAME, Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(
                 nodeAttributes.getDynamicHostname())), byteAggregator);
         }
-        final Set<IsisAreaIdentifier> isisList = nodeAttributes.getIsisAreaId();
+        final var isisList = nodeAttributes.getIsisAreaId();
         if (isisList != null) {
-            for (final IsisAreaIdentifier isisAreaIdentifier : isisList) {
+            for (var isisAreaIdentifier : isisList) {
                 TlvUtil.writeTLV(ISIS_AREA_IDENTIFIER, Unpooled.wrappedBuffer(isisAreaIdentifier.getValue()),
                     byteAggregator);
             }
         }
-        if (nodeAttributes.getIpv4RouterId() != null) {
-            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress(nodeAttributes.getIpv4RouterId()),
-                byteAggregator);
+        final var ipv4 = nodeAttributes.getIpv4RouterId();
+        if (ipv4 != null) {
+            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID, Ipv4Util.byteBufForAddress(ipv4), byteAggregator);
         }
-        if (nodeAttributes.getIpv6RouterId() != null) {
-            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(nodeAttributes.getIpv6RouterId()),
-                byteAggregator);
+        final var ipv6 = nodeAttributes.getIpv6RouterId();
+        if (ipv6 != null) {
+            TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(ipv6), byteAggregator);
         }
-        if (nodeAttributes.getSrCapabilities() != null) {
-            final ByteBuf capBuffer = Unpooled.buffer();
-            SrNodeAttributesParser.serializeSrCapabilities(nodeAttributes.getSrCapabilities(), capBuffer);
+        final var srCapabilities = nodeAttributes.getSrCapabilities();
+        if (srCapabilities != null) {
+            final var capBuffer = Unpooled.buffer();
+            SrNodeAttributesParser.serializeSrCapabilities(srCapabilities, capBuffer);
             TlvUtil.writeTLV(SR_CAPABILITIES, capBuffer, byteAggregator);
         }
-        if (nodeAttributes.getSrAlgorithm() != null) {
-            final ByteBuf capBuffer = Unpooled.buffer();
-            SrNodeAttributesParser.serializeSrAlgorithms(nodeAttributes.getSrAlgorithm(), capBuffer);
+        final var srAlgorithm = nodeAttributes.getSrAlgorithm();
+        if (srAlgorithm != null) {
+            final var capBuffer = Unpooled.buffer();
+            SrNodeAttributesParser.serializeSrAlgorithms(srAlgorithm, capBuffer);
             TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
         }
         LOG.trace("Finished serializing Node Attributes");
