@@ -93,7 +93,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 Unicast family.
 
-**URL:** ``/ests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/ests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols,protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
