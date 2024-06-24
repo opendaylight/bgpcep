@@ -97,7 +97,7 @@ To enable ADD-PATH capability in BGP plugin, first configure BGP speaker instanc
 
 Here is an example for update a specific family with enable ADD-PATH capability
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST``
 
 **Method:** ``PUT``
 
@@ -139,7 +139,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -199,7 +199,7 @@ Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
 Here is an example for update specific family BGP peer configuration with enabled ADD-PATH capability.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST``
 
 **Method:** ``PUT``
 
