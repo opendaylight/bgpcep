@@ -10,7 +10,7 @@ Application Peer configuration
 ''''''''''''''''''''''''''''''
 Following configuration sample show a way to configure the *Application Peer*:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP/bgp-example/bgp/neighbors``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors``
 
 **Method:** ``POST``
 
