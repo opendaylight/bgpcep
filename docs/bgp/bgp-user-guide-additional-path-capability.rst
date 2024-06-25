@@ -199,7 +199,7 @@ Here is an example for BGP peer configuration with enabled ADD-PATH capability.
 
 Here is an example for update specific family BGP peer configuration with enabled ADD-PATH capability.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor=192.0.2.1/afi-safis=afi-safi/openconfig-bgp-types:IPV4%2DUNICAST``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST``
 
 **Method:** ``PUT``
 
