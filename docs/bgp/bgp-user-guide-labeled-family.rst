@@ -184,7 +184,7 @@ Usage
 ^^^^^
 The IPv4 Labeled Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-labeled-unicast:labeled-unicast-subsequent-address-family/bgp-labeled-unicast:labeled-unicast-routes?content=nonconfig``
 
 **Method:** ``GET``
 

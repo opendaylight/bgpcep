@@ -320,7 +320,7 @@ The RIBs can be checked via REST:
 
 Also the same route should appeared in Loc-RIB now:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
