@@ -583,7 +583,7 @@ Usage
 ^^^^^
 The Link-State table in a instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-linkstate:linkstate-address-family,bgp-linkstate:linkstate-subsequent-address-family/linkstate-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-linkstate:linkstate-address-family,bgp-linkstate:linkstate-subsequent-address-family/linkstate-routes?content=nonconfig``
 
 **Method:** ``GET``
 

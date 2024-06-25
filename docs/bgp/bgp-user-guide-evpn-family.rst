@@ -308,7 +308,7 @@ Usage
 ^^^^^
 The L2VPN EVPN table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=odl-bgp-evpn:l2vpn-address-family,odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=odl-bgp-evpn:l2vpn-address-family,odl-bgp-evpn:evpn-subsequent-address-family/evpn-routes?content=nonconfig``
 
 **Method:** ``GET``
 
