@@ -270,7 +270,7 @@ IPv4 Unicast
 ''''''''''''
 The IPv4 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -335,7 +335,7 @@ IPv6 Unicast
 ''''''''''''
 The IPv6 Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv6-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/ipv6-routes?content=nonconfig``
 
 **Method:** ``GET``
 

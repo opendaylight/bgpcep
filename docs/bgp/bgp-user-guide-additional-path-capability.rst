@@ -241,7 +241,7 @@ Usage
 ^^^^^
 The IPv4 Unicast table with enabled ADD-PATH capability in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 

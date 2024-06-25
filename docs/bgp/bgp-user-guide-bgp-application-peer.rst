@@ -364,7 +364,7 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 -----
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -464,7 +464,7 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 This route is also advertised to the remote peer (*192.0.2.1*), hence route appears in its Adj-RIB-Out:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
