@@ -357,7 +357,7 @@ IPv4 Flow Specification
 '''''''''''''''''''''''
 The IPv4 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -526,7 +526,7 @@ IPv6 Flows Specification
 ''''''''''''''''''''''''
 The IPv6 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -646,7 +646,7 @@ IPv4 L3VPN Flows Specification
 ''''''''''''''''''''''''''''''
 The IPv4 L3VPN Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib/bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes?content=nonconfig``
+**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
