@@ -19,7 +19,7 @@ Graceful Restart Timer
 ''''''''''''''''''''''
 Routing information for configured families are preserved for time given by Graceful Restart timer in seconds. This can be configured in *graceful-restart* section of *neighbor* or *peer-group* configuration.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor/192.0.2.1/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor=192.0.2.1/graceful-restart``
 
 or
 
@@ -74,7 +74,7 @@ BGP Neighbor Families Graceful Restart Configuration
 ''''''''''''''''''''''''''''''''''''''''''''''''''''
 Preserving specific family during Graceful Restart must be enabled in *graceful-restart* section of family configuration for *neighbor* or *peer-group*.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor/192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
+**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi/openconfig-bgp-types:IPV4%2DUNICAST/graceful-restart``
 
 or
 
