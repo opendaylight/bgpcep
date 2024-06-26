@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "016f67f2_26c58f46",
+        "filename": "docs/bgp/bgp-user-guide-labeled-family.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9063
+      },
+      "writtenOn": "2024-06-26T10:25:14Z",
+      "side": 1,
+      "message": "what about this one?",
+      "range": {
+        "startLine": 96,
+        "startChar": 184,
+        "endLine": 96,
+        "endChar": 187
+      },
+      "revId": "ef30290af1dc6c65d7b07410c779a15455cf959f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e62584c8_a1623736",
+        "filename": "docs/bgp/bgp-user-guide-long-lived-graceful-restart-capability.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9063
+      },
+      "writtenOn": "2024-06-26T10:25:14Z",
+      "side": 1,
+      "message": "here?",
+      "range": {
+        "startLine": 17,
+        "startChar": 184,
+        "endLine": 17,
+        "endChar": 187
+      },
+      "revId": "ef30290af1dc6c65d7b07410c779a15455cf959f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7439fea1_36042b3b",
+        "filename": "docs/bgp/bgp-user-guide-long-lived-graceful-restart-capability.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9063
+      },
+      "writtenOn": "2024-06-26T10:25:14Z",
+      "side": 1,
+      "message": "here?",
+      "range": {
+        "startLine": 21,
+        "startChar": 184,
+        "endLine": 21,
+        "endChar": 187
+      },
+      "revId": "ef30290af1dc6c65d7b07410c779a15455cf959f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce5e2385_e269f8fe",
+        "filename": "docs/bgp/bgp-user-guide-revised-error-handling.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9063
+      },
+      "writtenOn": "2024-06-26T10:25:14Z",
+      "side": 1,
+      "message": "here?",
+      "range": {
+        "startLine": 17,
+        "startChar": 184,
+        "endLine": 17,
+        "endChar": 187
+      },
+      "revId": "ef30290af1dc6c65d7b07410c779a15455cf959f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "131ed5b6_4a8b1939",
+        "filename": "docs/bgp/bgp-user-guide-revised-error-handling.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9063
+      },
+      "writtenOn": "2024-06-26T10:25:14Z",
+      "side": 1,
+      "message": "here?",
+      "range": {
+        "startLine": 21,
+        "startChar": 184,
+        "endLine": 21,
+        "endChar": 187
+      },
+      "revId": "ef30290af1dc6c65d7b07410c779a15455cf959f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
