@@ -37,11 +37,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesKey;
+import org.opendaylight.yangtools.binding.DataContainer;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,26 +67,26 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             new HandlerRegistry<>();
     private final Map<Registration, AttributeSerializer> serializers = new LinkedHashMap<>();
     private final AtomicReference<Iterable<AttributeSerializer>> roSerializers =
-        new AtomicReference<>(this.serializers.values());
+        new AtomicReference<>(serializers.values());
     private final List<UnrecognizedAttributes> unrecognizedAttributes = new ArrayList<>();
 
 
     Registration registerAttributeParser(final int attributeType, final AttributeParser parser) {
         checkArgument(attributeType >= 0 && attributeType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        return this.handlers.registerParser(attributeType, parser);
+        return handlers.registerParser(attributeType, parser);
     }
 
-    synchronized Registration registerAttributeSerializer(final Class<? extends DataObject> paramClass,
+    synchronized Registration registerAttributeSerializer(final Class<? extends DataContainer> paramClass,
             final AttributeSerializer serializer) {
-        final Registration reg = this.handlers.registerSerializer(paramClass, serializer);
+        final Registration reg = handlers.registerSerializer(paramClass, serializer);
 
-        this.serializers.put(reg, serializer);
+        serializers.put(reg, serializer);
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (SimpleAttributeRegistry.this) {
-                    SimpleAttributeRegistry.this.serializers.remove(reg);
-                    SimpleAttributeRegistry.this.roSerializers.set(SimpleAttributeRegistry.this.serializers.values());
+                    serializers.remove(reg);
+                    roSerializers.set(serializers.values());
                 }
                 reg.close();
             }
@@ -100,7 +99,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
         final BitArray flags = BitArray.valueOf(buffer.readByte());
         final int type = buffer.readUnsignedByte();
         final int len = flags.get(EXTENDED_LENGTH_BIT) ? buffer.readUnsignedShort() : buffer.readUnsignedByte();
-        final AttributeParser parser = this.handlers.getParser(type);
+        final AttributeParser parser = handlers.getParser(type);
         if (attributes.containsKey(type)) {
             if (parser != null && !parser.ignoreDuplicates(errorHandling)) {
                 throw new BGPDocumentedException("Duplicate attribute " + type, BGPError.MALFORMED_ATTR_LIST);
@@ -136,7 +135,7 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
             .setTransitive(flags.get(TRANSITIVE_BIT))
             .setType(typeVal)
             .setValue(ByteArray.readBytes(buffer, len)).build();
-        this.unrecognizedAttributes.add(unrecognizedAttribute);
+        unrecognizedAttributes.add(unrecognizedAttribute);
         LOG.debug("Unrecognized attribute were parsed: {}", unrecognizedAttribute);
     }
 
@@ -179,13 +178,13 @@ final class SimpleAttributeRegistry implements AttributeRegistry {
                 }
             }
         }
-        builder.setUnrecognizedAttributes(BindingMap.ordered(this.unrecognizedAttributes));
+        builder.setUnrecognizedAttributes(BindingMap.ordered(unrecognizedAttributes));
         return new ParsedAttributes(builder.build(), withdrawCause);
     }
 
     @Override
     public void serializeAttribute(final Attributes attribute,final ByteBuf byteAggregator) {
-        for (final AttributeSerializer serializer : this.roSerializers.get()) {
+        for (final AttributeSerializer serializer : roSerializers.get()) {
             serializer.serializeAttribute(attribute, byteAggregator);
         }
     }

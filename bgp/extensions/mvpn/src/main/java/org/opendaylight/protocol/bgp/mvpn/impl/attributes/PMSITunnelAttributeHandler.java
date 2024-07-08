@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
 import io.netty.buffer.ByteBuf;
@@ -19,12 +18,11 @@ import org.opendaylight.protocol.util.MplsLabelUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.PmsiTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.bgp.rib.route.PmsiTunnelAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.PmsiTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.PmsiTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.pmsi.tunnel.pmsi.tunnel.TunnelIdentifier;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 /**
  * PE Distinguisher Labels Attribute Handler.
@@ -53,10 +51,6 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         body.writeBytes(MplsLabelUtil.byteBufForMplsLabel(mplsLabel));
     }
 
-    private static void serializeFlag(final PmsiTunnel pmsiTunnelAttribute, final ByteBuf body) {
-        body.writeBoolean(pmsiTunnelAttribute.getLeafInformationRequired());
-    }
-
     @Override
     public void parseAttribute(final ByteBuf buffer, final AttributesBuilder builder,
             final PeerSpecificParserConstraint constraint) {
@@ -68,31 +62,26 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
         pmsiTunnelBuilder.setLeafInformationRequired(buffer.readBoolean());
         final int tunnelType = buffer.readUnsignedByte();
         parseMpls(pmsiTunnelBuilder, buffer);
-        final TunnelIdentifier tunnelIdentifier = this.tunnelIdentifierHandler.parse(tunnelType, buffer);
+        final TunnelIdentifier tunnelIdentifier = tunnelIdentifierHandler.parse(tunnelType, buffer);
         if (tunnelIdentifier != null) {
             pmsiTunnelBuilder.setTunnelIdentifier(tunnelIdentifier);
         }
         builder.addAugmentation(new PmsiTunnelAugmentationBuilder().setPmsiTunnel(pmsiTunnelBuilder.build()).build());
     }
 
-    public int getType() {
-        return PMSI_ATTRIBUTE;
-    }
-
     @Override
     public void serializeAttribute(final Attributes attribute, final ByteBuf byteAggregator) {
-        final PmsiTunnelAugmentation pmsiTunnelAugmentation = attribute
-                .augmentation(PmsiTunnelAugmentation.class);
+        final var pmsiTunnelAugmentation = attribute.augmentation(PmsiTunnelAugmentation.class);
         if (pmsiTunnelAugmentation == null) {
             return;
         }
 
-        final PmsiTunnel pmsiTunnelAttribute = pmsiTunnelAugmentation.getPmsiTunnel();
+        final var pmsiTunnelAttribute = pmsiTunnelAugmentation.getPmsiTunnel();
         final TunnelIdentifier tunnel = pmsiTunnelAttribute.getTunnelIdentifier();
         final ByteBuf tunnelBuffer = Unpooled.buffer();
-        final int tunnelType = this.tunnelIdentifierHandler.serialize(tunnel, tunnelBuffer);
+        final int tunnelType = tunnelIdentifierHandler.serialize(tunnel, tunnelBuffer);
         final ByteBuf body = Unpooled.buffer();
-        serializeFlag(pmsiTunnelAttribute, body);
+        body.writeBoolean(pmsiTunnelAttribute.getLeafInformationRequired());
         body.writeByte(tunnelType);
         serializeMpls(pmsiTunnelAttribute.getMplsLabel(), body);
         body.writeBytes(tunnelBuffer);
@@ -100,7 +89,11 @@ public final class PMSITunnelAttributeHandler implements AttributeParser, Attrib
                 byteAggregator);
     }
 
-    public Class<? extends DataObject> getClazz() {
-        return org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.PmsiTunnel.class;
+    public int getType() {
+        return PMSI_ATTRIBUTE;
+    }
+
+    public Class<PmsiTunnel> getClazz() {
+        return PmsiTunnel.class;
     }
 }
