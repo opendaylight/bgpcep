@@ -13,7 +13,7 @@ import com.google.common.annotations.Beta;
 import java.io.File;
 import java.nio.file.WatchKey;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
-import org.opendaylight.mdsal.binding.runtime.api.BindingRuntimeContext;
+import org.opendaylight.yangtools.binding.runtime.api.BindingRuntimeContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
