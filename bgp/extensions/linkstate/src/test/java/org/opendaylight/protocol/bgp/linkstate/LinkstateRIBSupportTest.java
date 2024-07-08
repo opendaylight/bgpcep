@@ -71,7 +71,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<LinkstateRoutesCase, LinkstateRoutes,
-        LinkstateRoute> {
+        LinkstateRoute, LinkstateRoute, LinkstateRoute> {
 
     private LinkstateRIBSupport ribSupport;
     private static final LinkstateRoute ROUTE;

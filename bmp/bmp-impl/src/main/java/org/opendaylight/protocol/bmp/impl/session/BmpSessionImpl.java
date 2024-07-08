@@ -26,12 +26,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Reason;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.TerminationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.termination.Tlvs;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notification<?>> implements BmpSession {
-
     private static final Logger LOG = LoggerFactory.getLogger(BmpSessionImpl.class);
 
     private final BmpSessionListener listener;
@@ -47,14 +46,14 @@ public final class BmpSessionImpl extends SimpleChannelInboundHandler<Notificati
 
     @Override
     protected void channelRead0(final ChannelHandlerContext channelHandlerContext, final Notification<?> msg) {
-        this.handleMessage(msg);
+        handleMessage(msg);
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void channelInactive(final ChannelHandlerContext ctx) {
         LOG.debug("Channel {} inactive.", ctx.channel());
-        this.endOfInput();
+        endOfInput();
 
         try {
             super.channelInactive(ctx);

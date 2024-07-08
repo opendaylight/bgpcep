@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.rib.loc.rib.tables.routes.FlowspecIpv6RoutesCase;
@@ -15,12 +14,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.route.FlowspecRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.ipv6.routes.FlowspecIpv6Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 
 public final class FlowspecIpv6RIBSupport
         extends AbstractFlowspecIpRIBSupport<SimpleFlowspecIpv6NlriParser,
         FlowspecIpv6RoutesCase,
         FlowspecIpv6Routes,
-        FlowspecRoute> {
+        FlowspecRoute, FlowspecRoute, FlowspecRoute> {
     public FlowspecIpv6RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
             FlowspecIpv6RoutesCase.class, FlowspecIpv6RoutesCase.QNAME,

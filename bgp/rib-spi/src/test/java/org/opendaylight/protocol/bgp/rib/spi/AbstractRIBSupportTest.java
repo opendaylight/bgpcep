@@ -24,8 +24,6 @@ import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer.NodeResult;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
@@ -50,11 +48,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChoiceIn;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.EntryObject;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingDataObjectCodecTreeNode;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer.NodeResult;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -66,8 +66,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & KeyAware<?>> extends AbstractConcurrentDataBrokerTest {
+        S extends ChildOf<? super C>, R extends ChildOf<? super S>, I extends Route, E extends EntryObject<?, ?>>
+        extends AbstractConcurrentDataBrokerTest {
     protected static final @NonNull PathId PATH_ID = new PathId(Uint32.ONE);
     protected static final @NonNull Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final InstanceIdentifier<LocRib> RIB = InstanceIdentifier.builder(BgpRib.class)
@@ -75,13 +75,13 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     @Mock
     protected DOMDataTreeWriteTransaction tx;
-    protected List<InstanceIdentifier<R>> deletedRoutes;
+    protected List<InstanceIdentifier<E>> deletedRoutes;
     protected List<Map.Entry<InstanceIdentifier<?>, DataObject>> insertedRoutes;
 
     protected AdapterContext adapter;
-    private AbstractRIBSupport<C, S, R> abstractRIBSupport;
+    private AbstractRIBSupport<C, S, R, I, E> abstractRIBSupport;
 
-    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R> ribSupport) throws Exception {
+    protected final void setUpTestCustomizer(final AbstractRIBSupport<C, S, R, I, E> ribSupport) throws Exception {
         abstractRIBSupport = ribSupport;
     }
 
@@ -92,7 +92,8 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
             final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
             final var data = invocation.getArgument(2, NormalizedNode.class);
 
-            AbstractRIBSupportTest.this.insertedRoutes.add(adapter.currentSerializer().fromNormalizedNode(path, data));
+            final var deser = adapter.currentSerializer().fromNormalizedNode(path, data);
+            AbstractRIBSupportTest.this.insertedRoutes.add(Map.entry(deser.getKey().toLegacy(), deser.getValue()));
             return null;
         }).when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
                 any(NormalizedNode.class));
@@ -101,7 +102,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
             final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
 
             AbstractRIBSupportTest.this.deletedRoutes.add((InstanceIdentifier)
-                adapter.currentSerializer().fromYangInstanceIdentifier(path));
+                adapter.currentSerializer().fromYangInstanceIdentifier(path).toLegacy());
             return null;
         }).when(tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         deletedRoutes = new ArrayList<>();
