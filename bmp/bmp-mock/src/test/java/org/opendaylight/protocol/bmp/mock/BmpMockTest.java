@@ -35,7 +35,7 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpExtensionProviderContext;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public class BmpMockTest {
     private final BmpSessionListener sessionListener = mock(BmpSessionListener.class);

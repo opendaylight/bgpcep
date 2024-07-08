@@ -9,9 +9,9 @@ package org.opendaylight.protocol.bmp.spi.registry;
 
 import org.opendaylight.protocol.bmp.spi.parser.BmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpMessageSerializer;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
 public interface BmpMessageRegistrator {
 

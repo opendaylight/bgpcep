@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
@@ -18,7 +17,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBQNames.AFI_QNAME;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBQNames.SAFI_QNAME;
 
-import com.google.common.annotations.Beta;
+import com.google.common.base.VerifyException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -29,7 +28,6 @@ import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
@@ -59,12 +57,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChoiceIn;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.EntryObject;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyAware;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -86,12 +85,12 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Beta
 public abstract class AbstractRIBSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & KeyAware<?>>
-        implements RIBSupport<C, S> {
+        L extends ChildOf<? super S>,
+        R extends Route,
+        E extends EntryObject<?, ?>> implements RIBSupport<C, S> {
     public static final String ROUTE_KEY = "route-key";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
     private static final NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
@@ -526,9 +525,12 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode normalizedNode) {
-        final DataObject node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
-        verify(node instanceof Route, "node %s is not a Route", node);
-        return (R) node;
+        final var node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
+        if (node instanceof Route route) {
+            return (R) route;
+        } else {
+            throw new VerifyException("node " + node + " is not a Route");
+        }
     }
 
     @Override

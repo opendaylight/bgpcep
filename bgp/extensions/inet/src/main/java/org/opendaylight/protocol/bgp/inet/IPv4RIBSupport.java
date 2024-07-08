@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.inet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -24,13 +23,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Ipv4PrefixAndPathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 
 /**
  * Class supporting IPv4 unicast RIBs.
  */
-final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route> {
+final class IPv4RIBSupport extends AbstractIPRibSupport<Ipv4RoutesCase, Ipv4Routes, Ipv4Route, Ipv4Route, Ipv4Route> {
     IPv4RIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
             Ipv4PrefixAndPathId.class,

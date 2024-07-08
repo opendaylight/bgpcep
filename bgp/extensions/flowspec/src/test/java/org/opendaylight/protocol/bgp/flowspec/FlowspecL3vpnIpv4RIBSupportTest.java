@@ -53,7 +53,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnIpv4RoutesCase,
-        FlowspecL3vpnIpv4Routes, FlowspecL3vpnRoute> {
+        FlowspecL3vpnIpv4Routes, FlowspecL3vpnRoute, FlowspecL3vpnRoute, FlowspecL3vpnRoute> {
 
     private static final FlowspecL3vpnRoute ROUTE;
     private static final FlowspecL3vpnRouteKey ROUTE_KEY;

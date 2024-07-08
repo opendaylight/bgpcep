@@ -44,7 +44,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
-public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesCase, Ipv6Routes, Ipv6Route> {
+public final class IPv6RIBSupportTest
+        extends AbstractRIBSupportTest<Ipv6RoutesCase, Ipv6Routes, Ipv6Route, Ipv6Route, Ipv6Route> {
     private IPv6RIBSupport ribSupport;
     private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final Ipv6Prefix PREFIX = new Ipv6Prefix("2001:db8:1:2::/64");

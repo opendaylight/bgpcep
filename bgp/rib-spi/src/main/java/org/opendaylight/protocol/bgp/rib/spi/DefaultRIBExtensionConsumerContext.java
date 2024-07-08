@@ -14,7 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.kohsuke.MetaInfServices;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 
 @Singleton
 @MetaInfServices(value = RIBExtensionConsumerContext.class)
