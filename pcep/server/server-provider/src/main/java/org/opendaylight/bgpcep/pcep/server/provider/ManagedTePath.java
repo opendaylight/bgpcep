@@ -78,7 +78,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.yang.binding.CodeHelpers;
+import org.opendaylight.yangtools.binding.lib.CodeHelpers;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -583,7 +583,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setNode(teNode.getId())
                 .setName(cfgLsp.getName())
                 .setArguments(args.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
                 .build();
     }
 
@@ -709,7 +709,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setNode(teNode.getId())
                 .setName(cfgLsp.getName())
                 .setArguments(args.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
                 .build();
     }
 
@@ -778,7 +778,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         final RemoveLspInput rli = new RemoveLspInputBuilder()
                 .setNode(id)
                 .setName(cfgLsp.getName())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
                 .build();
         final ListenableFuture<RpcResult<RemoveLspOutput>> enforce = removeLsp.invoke(rli);
         LOG.info("Call Remove LSP to {} with {}", removeLsp, enforce);

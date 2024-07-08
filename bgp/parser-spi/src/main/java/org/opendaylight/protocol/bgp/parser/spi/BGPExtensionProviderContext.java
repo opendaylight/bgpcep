@@ -16,9 +16,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
+import org.opendaylight.yangtools.binding.DataContainer;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Notification;
 
 /**
  * Context for registering providers of the various types of extension points BGP provides. These are then consumed by
@@ -32,7 +33,7 @@ public interface BGPExtensionProviderContext extends BGPExtensionConsumerContext
 
     Registration registerAttributeParser(int attributeType, AttributeParser parser);
 
-    Registration registerAttributeSerializer(Class<? extends DataObject> attributeClass,
+    Registration registerAttributeSerializer(Class<? extends DataContainer> attributeClass,
             AttributeSerializer serializer);
 
     Registration registerCapabilityParser(int capabilityType, CapabilityParser parser);

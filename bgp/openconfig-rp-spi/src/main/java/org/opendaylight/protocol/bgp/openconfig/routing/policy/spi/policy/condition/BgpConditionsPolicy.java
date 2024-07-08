@@ -8,10 +8,11 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition;
 
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpMatchConditions;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChildOf;
 
 /**
  * Condition Policy: Check if route matches defined condition.
  */
 public interface BgpConditionsPolicy<T extends ChildOf<BgpMatchConditions>, N> extends ConditionsPolicy<T, N> {
+    // Nothing else
 }

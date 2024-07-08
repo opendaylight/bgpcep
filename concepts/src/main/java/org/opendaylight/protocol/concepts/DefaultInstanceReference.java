@@ -9,7 +9,7 @@ package org.opendaylight.protocol.concepts;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class DefaultInstanceReference<T extends DataObject> implements InstanceReference<T> {
