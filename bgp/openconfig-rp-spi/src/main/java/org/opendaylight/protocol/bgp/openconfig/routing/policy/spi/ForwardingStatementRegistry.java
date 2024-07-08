@@ -28,9 +28,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Actions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Conditions;
+import org.opendaylight.yangtools.binding.Augmentation;
+import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
 
 abstract class ForwardingStatementRegistry extends ForwardingObject
         implements StatementRegistryConsumer, StatementRegistryProvider {
