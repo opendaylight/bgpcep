@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
@@ -20,6 +19,7 @@ import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.spi.BmpRouter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.Router;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
     RouterSessionManager(final YangInstanceIdentifier yangMonitorId, final DOMDataBroker domDataBroker,
             final RIBExtensionConsumerContext extensions, final BindingCodecTree tree) {
         this.domDataBroker = domDataBroker;
-        this.yangRoutersId = YangInstanceIdentifier.builder(yangMonitorId).node(Router.QNAME).build();
+        yangRoutersId = YangInstanceIdentifier.builder(yangMonitorId).node(Router.QNAME).build();
         this.extensions = extensions;
         this.tree = tree;
     }
@@ -50,7 +50,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
 
     private synchronized boolean isSessionExist(final BmpRouter sessionListener) {
         requireNonNull(sessionListener);
-        return this.sessionListeners.containsKey(requireNonNull(sessionListener.getRouterId()));
+        return sessionListeners.containsKey(requireNonNull(sessionListener.getRouterId()));
     }
 
     synchronized boolean addSessionListener(final BmpRouter sessionListener) {
@@ -58,7 +58,7 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
             LOG.warn("Session listener for router {} was already added.", sessionListener.getRouterId());
             return false;
         }
-        this.sessionListeners.put(sessionListener.getRouterId(), sessionListener);
+        sessionListeners.put(sessionListener.getRouterId(), sessionListener);
         return true;
     }
 
@@ -67,30 +67,30 @@ final class RouterSessionManager implements BmpSessionListenerFactory, AutoClose
             LOG.warn("Session listener for router {} was already removed.", sessionListener.getRouterId());
             return;
         }
-        this.sessionListeners.remove(sessionListener.getRouterId());
+        sessionListeners.remove(sessionListener.getRouterId());
     }
 
     @Override
     public void close() throws Exception {
-        for (final BmpRouter sessionListener : this.sessionListeners.values()) {
+        for (final BmpRouter sessionListener : sessionListeners.values()) {
             sessionListener.close();
         }
     }
 
     YangInstanceIdentifier getRoutersYangIId() {
-        return this.yangRoutersId;
+        return yangRoutersId;
     }
 
     DOMDataBroker getDomDataBroker() {
-        return this.domDataBroker;
+        return domDataBroker;
     }
 
     RIBExtensionConsumerContext getExtensions() {
-        return this.extensions;
+        return extensions;
     }
 
     BindingCodecTree getCodecTree() {
-        return this.tree;
+        return tree;
     }
 
 }

@@ -22,7 +22,7 @@ import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatusChanged;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 final class MockedNotificationServiceWrapper {
     private final List<Notification<?>> publishedNotifications = new ArrayList<>();
