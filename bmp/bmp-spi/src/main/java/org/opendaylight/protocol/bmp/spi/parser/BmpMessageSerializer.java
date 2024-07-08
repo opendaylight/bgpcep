@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public interface BmpMessageSerializer {
 

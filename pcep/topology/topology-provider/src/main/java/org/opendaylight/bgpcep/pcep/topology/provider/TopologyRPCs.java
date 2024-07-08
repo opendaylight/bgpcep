@@ -43,8 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 final class TopologyRPCs {
@@ -55,7 +55,7 @@ final class TopologyRPCs {
     }
 
     Registration register(final RpcProviderService rpcProviderService,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> path) {
+            final DataObjectIdentifier.WithKey<Topology, TopologyKey> path) {
         return rpcProviderService.registerRpcImplementations(List.of(
             (AddLsp) this::addLsp,
             (RemoveLsp) this::removeLsp,

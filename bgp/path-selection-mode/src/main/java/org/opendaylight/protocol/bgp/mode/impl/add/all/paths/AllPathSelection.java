@@ -11,9 +11,9 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChoiceIn;
+import org.opendaylight.yangtools.binding.DataObject;
 
 public final class AllPathSelection implements PathSelectionMode {
     public AllPathSelection() {
