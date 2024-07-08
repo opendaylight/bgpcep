@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -37,8 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.route.target.constrain.advertized._case.DestinationRouteTargetConstrainBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationRouteTargetConstrainWithdrawnCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
-import org.opendaylight.yangtools.yang.binding.BindingObject;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataContainer;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -62,13 +62,13 @@ import org.slf4j.LoggerFactory;
  */
 public final class RouteTargetConstrainRIBSupport
         extends AbstractRIBSupport<RouteTargetConstrainRoutesCase, RouteTargetConstrainRoutes,
-        RouteTargetConstrainRoute> {
+        RouteTargetConstrainRoute, RouteTargetConstrainRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(RouteTargetConstrainRIBSupport.class);
 
     private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(RouteTargetConstrainDestination.QNAME);
     private static final String ORIGIN_AS = "origin-as";
-    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects
-            = ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
+    private final ImmutableCollection<Class<? extends DataContainer>> cacheableNlriObjects =
+        ImmutableSet.of(RouteTargetConstrainRoutesCase.class);
     private final NodeIdentifier originAsNid;
 
     /**
@@ -91,7 +91,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    public ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    public ImmutableCollection<Class<? extends DataContainer>> cacheableNlriObjects() {
         return cacheableNlriObjects;
     }
 
