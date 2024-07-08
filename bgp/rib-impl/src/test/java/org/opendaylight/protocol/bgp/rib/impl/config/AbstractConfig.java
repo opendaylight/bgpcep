@@ -35,11 +35,11 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -103,7 +103,7 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doReturn(CommitInfo.emptyFluentFuture()).when(domDW).commit();
 
-        doReturn(YangInstanceIdentifier.of(Rib.QNAME)).when(rib).getYangRibId();
+        doReturn(YangInstanceIdentifier.of(RIBNodeIdentifiers.RIB_NID)).when(rib).getYangRibId();
         doReturn(dataTreeChangeService).when(rib).getService();
         doReturn(listener).when(dataTreeChangeService).registerTreeChangeListener(any(), any());
         doReturn(new BgpId("127.0.0.1")).when(rib).getBgpIdentifier();

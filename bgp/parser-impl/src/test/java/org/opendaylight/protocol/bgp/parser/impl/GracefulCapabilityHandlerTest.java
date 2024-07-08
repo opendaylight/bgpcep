@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 public class GracefulCapabilityHandlerTest {
@@ -124,7 +124,7 @@ public class GracefulCapabilityHandlerTest {
         assertEquals(new CParametersBuilder()
             .addAugmentation(new CParameters1Builder()
                 .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder()
-                    .setRestartFlags(new RestartFlags(Boolean.FALSE))
+                    .setRestartFlags(new RestartFlags(false))
                     .setRestartTime(Uint16.ZERO)
                     .build())
                 .build())
