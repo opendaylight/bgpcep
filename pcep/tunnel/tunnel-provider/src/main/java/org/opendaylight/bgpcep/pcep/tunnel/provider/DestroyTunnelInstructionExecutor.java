@@ -48,7 +48,8 @@ final class DestroyTunnelInstructionExecutor extends AbstractInstructionExecutor
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(pcepDestroyTunnelInput);
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(pcepDestroyTunnelInput)
+            .toLegacy();
         final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, pcepDestroyTunnelInput);
         try (ReadTransaction t = dataProvider.newReadOnlyTransaction()) {
             final Node node;

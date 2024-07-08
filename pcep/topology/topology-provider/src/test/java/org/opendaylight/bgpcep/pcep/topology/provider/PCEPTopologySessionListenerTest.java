@@ -190,7 +190,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(FALSE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
-                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier()))
                 .setNode(nodeId).build();
         topologyRpcs.updateLsp(update);
         assertEquals(2, receivedMsgs.size());
@@ -240,7 +240,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                 .xml.ns.yang.topology.pcep.rev220730.ensure.lsp.operational.args.ArgumentsBuilder();
         ensureArgs.addAugmentation(new Arguments1Builder().setOperational(OperationalStatus.Active).build());
         final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build())
-                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier()))
                 .setNode(nodeId).build();
         final OperationResult result = topologyRpcs.ensureLspOperational(ensure).get().getResult();
         //check result
@@ -248,7 +248,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
 
         // remove-lsp
         final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName)
-                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
+                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier())).setNode(nodeId).build();
         topologyRpcs.removeLsp(remove);
         assertEquals(3, receivedMsgs.size());
         final var pcinitiate2 =  receivedMsgs.get(2);
@@ -524,7 +524,9 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         updArgsBuilder.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
                 .setDelegate(TRUE).setAdministrative(TRUE).build()).build());
         final UpdateLspInput update = new UpdateLspInputBuilder().setArguments(updArgsBuilder.build())
-                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
+                .setName(tunnelName)
+                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier()))
+                .setNode(nodeId)
                 .build();
         final UpdateLspOutput result = topologyRpcs.updateLsp(update).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
@@ -563,7 +565,9 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                 .rev220730.update.lsp.args.ArgumentsBuilder()
                 .setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         final var input = new UpdateLspInputBuilder().setArguments(builder.build())
-                .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID)).setNode(nodeId)
+                .setName(tunnelName)
+                .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier()))
+                .setNode(nodeId)
                 .build();
         final var result = topologyRpcs.updateLsp(input).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
@@ -577,7 +581,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     public void testRemoveUnknownLsp() throws InterruptedException, ExecutionException {
         listener.onSessionUp(session);
         final RemoveLspInput remove = new RemoveLspInputBuilder().setName(tunnelName).setNetworkTopologyRef(
-                new NetworkTopologyRef(TOPO_IID)).setNode(nodeId).build();
+                new NetworkTopologyRef(TOPO_IID.toIdentifier())).setNode(nodeId).build();
         final OperationResult result = topologyRpcs.removeLsp(remove).get().getResult();
         assertEquals(FailureType.Unsent, result.getFailure());
         assertEquals(1, result.getError().size());
@@ -709,7 +713,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                     .setLsp(new LspBuilder().setDelegate(TRUE).setAdministrative(TRUE).build())
                     .build())
                 .build())
-            .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
+            .setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID.toIdentifier()))
             .setNode(nodeId)
             .build();
     }
