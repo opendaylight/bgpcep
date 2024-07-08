@@ -14,7 +14,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

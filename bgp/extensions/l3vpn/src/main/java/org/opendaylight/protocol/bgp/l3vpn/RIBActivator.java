@@ -11,13 +11,13 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.mcast.L3VpnMcastIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv4.VpnIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6.VpnIpv6RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderActivator;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 

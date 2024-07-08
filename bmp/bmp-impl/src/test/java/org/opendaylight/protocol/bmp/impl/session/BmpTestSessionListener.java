@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
