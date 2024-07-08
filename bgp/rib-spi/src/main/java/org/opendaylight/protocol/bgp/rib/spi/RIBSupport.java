@@ -22,10 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.yang.binding.BindingObject;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChoiceIn;
+import org.opendaylight.yangtools.binding.DataContainer;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -81,11 +81,11 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
      */
     @NonNull Class<? extends Route> routesListClass();
 
-    default @NonNull ImmutableCollection<Class<? extends BindingObject>> cacheableAttributeObjects() {
+    default @NonNull ImmutableCollection<Class<? extends DataContainer>> cacheableAttributeObjects() {
         return ImmutableSet.of();
     }
 
-    default @NonNull ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    default @NonNull ImmutableCollection<Class<? extends DataContainer>> cacheableNlriObjects() {
         return ImmutableSet.of();
     }
 
