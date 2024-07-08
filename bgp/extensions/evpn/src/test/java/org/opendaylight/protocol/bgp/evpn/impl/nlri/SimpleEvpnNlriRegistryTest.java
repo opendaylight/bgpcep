@@ -21,7 +21,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.Test;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.Evpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -67,7 +66,7 @@ public final class SimpleEvpnNlriRegistryTest {
     public void registryNullModelTest() {
         assertNull(SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(ImmutableNodes.newChoiceBuilder()
             .withNodeIdentifier(EVPN_NID)
-            .addChild(createContBuilder(new NodeIdentifier(QName.create(Evpn.QNAME, "test").intern())).build())
+            .addChild(createContBuilder(new NodeIdentifier(QName.create(EvpnChoice.QNAME, "test").intern())).build())
             .build()));
     }
 }
