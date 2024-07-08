@@ -92,8 +92,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -240,7 +240,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final Bandwidth bwd = new Bandwidth(new byte[] { 0x00, 0x00, 0x00, (byte) 0xff });
         final ClassType classType = new ClassType(Uint8.ONE);
         final String tunnelName = "create-tunnel";
-        final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
+        final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID.toIdentifier());
         // create tunnel
         tunnelProgramming.pcepCreateP2pTunnel(new PcepCreateP2pTunnelInputBuilder()
             .setDestination(new DestinationBuilder().setNode(NODE2_ID).setTp(TP2_ID).build())
