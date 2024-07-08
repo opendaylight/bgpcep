@@ -9,13 +9,11 @@ package org.opendaylight.protocol.bgp.flowspec;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -25,21 +23,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.KeyAware;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.EntryObject;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
-@Beta
 public abstract class AbstractFlowspecRIBSupport<
         T extends AbstractFlowspecNlriParser,
         C extends Routes & DataObject,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & KeyAware<?>> extends AbstractRIBSupport<C, S, R> {
+        R extends Route & ChildOf<? super S> & EntryObject<?, ?>> extends AbstractRIBSupport<C, S, R> {
     protected final @NonNull T nlriParser;
 
     protected AbstractFlowspecRIBSupport(

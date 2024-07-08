@@ -42,6 +42,27 @@
             <artifactId>bgp-rib-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>javax.inject</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-openconfig-api</artifactId>
         </dependency>
@@ -82,29 +103,8 @@
             <artifactId>mdsal-common-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-dom-codec-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.kohsuke.metainf-services</groupId>
-            <artifactId>metainf-services</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>javax.inject</artifactId>
-            <optional>true</optional>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>binding-data-codec-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -112,15 +112,6 @@
         </dependency>
 
         <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>mockito-configuration</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-runtime-spi</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-binding-test-utils</artifactId>
@@ -136,6 +127,15 @@
             <artifactId>mdsal-binding-dom-adapter</artifactId>
             <scope>test</scope>
             <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>binding-runtime-spi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>mockito-configuration</artifactId>
         </dependency>
     </dependencies>
 

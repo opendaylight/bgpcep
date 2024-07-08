@@ -102,7 +102,8 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
 
         reg = tp.register(InstanceIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(tunnelTopologyId))
-            .build());
+            .build()
+            .toIdentifier());
         ttp.init();
     }
 

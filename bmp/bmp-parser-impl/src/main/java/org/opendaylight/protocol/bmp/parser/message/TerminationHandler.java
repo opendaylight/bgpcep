@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.message;
 
 import com.google.common.base.Preconditions;
@@ -24,10 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.string.tlv.StringTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.termination.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.termination.TlvsBuilder;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public class TerminationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
-
     public TerminationHandler(final BmpTlvRegistry tlvRegistry) {
         super(tlvRegistry);
     }
