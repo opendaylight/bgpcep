@@ -51,9 +51,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
-public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecIpv6RoutesCase, FlowspecIpv6Routes,
-        FlowspecRoute> {
-
+public class FlowspecIpv6RIBSupportTest
+        extends AbstractRIBSupportTest<FlowspecIpv6RoutesCase, FlowspecIpv6Routes, FlowspecRoute> {
     private static final PathId PATH_ID = new PathId(Uint32.ONE);
     private static final DestinationIpv6PrefixCase DEST_PREFIX = new DestinationIpv6PrefixCaseBuilder()
             .setDestinationPrefix(new Ipv6Prefix("2001:db8:1:2::/64")).build();

@@ -51,8 +51,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
-public class FlowspecIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecRoutesCase, FlowspecRoutes,
-        FlowspecRoute> {
+public class FlowspecIpv4RIBSupportTest
+        extends AbstractRIBSupportTest<FlowspecRoutesCase, FlowspecRoutes, FlowspecRoute> {
 
     private FlowspecIpv4RIBSupport ribSupport;
     private FlowspecRoute route;

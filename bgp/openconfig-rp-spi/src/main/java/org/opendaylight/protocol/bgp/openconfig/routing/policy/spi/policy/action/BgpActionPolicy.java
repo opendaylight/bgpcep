@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action;
 
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.BgpActions;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChildOf;
 
 /**
  * Bgp Action Policy to be applied to Route Attributes.
  */
 public interface BgpActionPolicy<T extends ChildOf<BgpActions>> extends ActionsPolicy<T> {
-
+    // Nothing else
 }

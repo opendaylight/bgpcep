@@ -57,7 +57,8 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(updateTunnelInput);
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(updateTunnelInput)
+            .toLegacy();
         final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, updateTunnelInput);
         try (ReadTransaction t = dataProvider.newReadOnlyTransaction()) {
             final Link link;
