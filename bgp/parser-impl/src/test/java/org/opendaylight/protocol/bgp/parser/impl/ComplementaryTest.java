@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -56,7 +56,7 @@ public class ComplementaryTest {
             new TablesBuilder().setAfi(Ipv4AddressFamily.VALUE).setSafi(UnicastSubsequentAddressFamily.VALUE).build());
 
         final GracefulRestartCapability tlv3 = new GracefulRestartCapabilityBuilder()
-            .setRestartFlags(new RestartFlags(Boolean.FALSE)).setRestartTime(Uint16.ZERO).setTables(tt).build();
+            .setRestartFlags(new RestartFlags(false)).setRestartTime(Uint16.ZERO).setTables(tt).build();
 
         final CParameters tlv4 = new CParametersBuilder().setAs4BytesCapability(
             new As4BytesCapabilityBuilder().setAsNumber(new AsNumber(Uint32.valueOf(40))).build()).build();

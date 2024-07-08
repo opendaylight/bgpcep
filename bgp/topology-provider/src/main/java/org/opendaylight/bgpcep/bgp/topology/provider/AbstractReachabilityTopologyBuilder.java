@@ -21,7 +21,6 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
@@ -42,13 +41,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends AbstractTopologyBuilder<T> {
+abstract class AbstractReachabilityTopologyBuilder<T extends DataObject> extends AbstractTopologyBuilder<T> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractReachabilityTopologyBuilder.class);
     private final Map<NodeId, NodeUsage> nodes = new HashMap<>();
 
@@ -103,7 +102,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
     }
 
     private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
-        final NodeUsage present = this.nodes.get(ni);
+        final NodeUsage present = nodes.get(ni);
         if (present != null) {
             return present.attrId;
         }
@@ -116,7 +115,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             .addAugmentation(new Node1Builder().setIgpNodeAttributes(
                 new IgpNodeAttributesBuilder().setPrefix(Map.of()).build()).build()).build());
 
-        this.nodes.put(ni, new NodeUsage(ret));
+        nodes.put(ni, new NodeUsage(ret));
         return ret;
     }
 
@@ -150,7 +149,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
         if (ni == null) {
             return;
         }
-        final NodeUsage present = this.nodes.get(ni);
+        final NodeUsage present = nodes.get(ni);
         Preconditions.checkState(present != null, "Removing prefix from non-existent node %s", present);
 
         final PrefixKey pk = new PrefixKey(getPrefix(value));
@@ -176,13 +175,13 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route> extends Abst
             }
             if (present.useCount == 0) {
                 trans.delete(LogicalDatastoreType.OPERATIONAL, nodeInstanceId(ni));
-                this.nodes.remove(ni);
+                nodes.remove(ni);
             }
         }
     }
 
     @Override
     protected void clearTopology() {
-        this.nodes.clear();
+        nodes.clear();
     }
 }
