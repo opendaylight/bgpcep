@@ -49,7 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.Ipv4Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.ipv4.routes.ipv4.routes.Ipv4Route;
@@ -125,7 +124,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
         doReturn(destination).when(nlri).childByArg(new NodeIdentifier(WithdrawnRoutes.QNAME));
         doReturn(destination).when(nlri).childByArg(new NodeIdentifier(AdvertizedRoutes.QNAME));
         doReturn(destinations).when(destination).childByArg(new NodeIdentifier(DestinationType.QNAME));
-        doReturn(route).when(destinations).childByArg(new NodeIdentifier(Ipv4Prefixes.QNAME));
+        doReturn(route).when(destinations).childByArg(new NodeIdentifier(RIBSupportTestImp.QNAME));
         doReturn(Set.of()).when(route).body();
 
         doAnswer(invocation -> {

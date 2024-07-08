@@ -16,8 +16,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.Notification;
 
 public class SimpleBmpMessageRegistryTest {
 

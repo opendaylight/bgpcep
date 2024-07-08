@@ -244,8 +244,9 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
         // Register RPCs
         final RpcProviderService rpcRegistry = dependencies.getRpcProviderRegistry();
-        elementReg = new TopologyRPCs(manager).register(rpcRegistry, instanceIdentifier);
-        networkReg = new TopologyProgramming(scheduler, manager).register(rpcRegistry, instanceIdentifier);
+        elementReg = new TopologyRPCs(manager).register(rpcRegistry, instanceIdentifier.toIdentifier());
+        networkReg = new TopologyProgramming(scheduler, manager).register(rpcRegistry,
+            instanceIdentifier.toIdentifier());
 
         // We are now completely initialized
         LOG.info("PCEP Topology Provider {} enabled", topologyId());

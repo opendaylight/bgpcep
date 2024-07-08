@@ -43,8 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -52,7 +52,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
 public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnIpv6RoutesCase,
-        FlowspecL3vpnIpv6Routes, FlowspecL3vpnRoute> {
+        FlowspecL3vpnIpv6Routes, FlowspecL3vpnRoute, FlowspecL3vpnRoute> {
 
     private static final FlowspecL3vpnRoute ROUTE;
     private static final FlowspecL3vpnRouteKey ROUTE_KEY;

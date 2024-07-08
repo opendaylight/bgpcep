@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.PeDistinguisherLabelsAttributeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.pe.distinguisher.labels.attribute.pe.distinguisher.labels.attribute.PeDistinguisherLabelAttributeBuilder;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 /**
  * PE Distinguisher Labels Attribute Handler.
@@ -121,7 +120,7 @@ public final class PEDistinguisherLabelsAttributeHandler extends AbstractAttribu
         return TYPE;
     }
 
-    public Class<? extends DataObject> getClazz() {
+    public Class<PeDistinguisherLabelsAttribute> getClazz() {
         return PeDistinguisherLabelsAttribute.class;
     }
 }
