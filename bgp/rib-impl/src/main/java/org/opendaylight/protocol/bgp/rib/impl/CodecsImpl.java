@@ -11,12 +11,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 import java.util.Set;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingCodecTree;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingDataObjectCodecTreeNode;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeCachingCodec;
-import org.opendaylight.mdsal.binding.dom.codec.api.CommonDataObjectCodecTreeNode;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.ClusterId;
@@ -45,38 +40,38 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpAggregator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Community;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ExtendedCommunity;
-import org.opendaylight.yangtools.yang.binding.BindingObject;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.BindingObject;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingDataObjectCodecTreeNode;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeCachingCodec;
+import org.opendaylight.yangtools.binding.data.codec.api.CommonDataObjectCodecTreeNode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 public final class CodecsImpl implements Codecs {
+    private static final Set<Class<? extends BindingObject>> ATTRIBUTE_CACHEABLES =
+        ImmutableSet.<Class<? extends BindingObject>>builder()
+            .add(Aggregator.class)
+            .add(BgpAggregator.class)
+            .add(AsPath.class)
+            .add(ClusterId.class)
+            .add(Community.class)
+            .add(Communities.class)
+            .add(ExtendedCommunity.class)
+            .add(ExtendedCommunities.class)
+            .add(LocalPref.class)
+            .add(MultiExitDisc.class)
+            .add(Origin.class)
+            .add(OriginatorId.class)
+            .add(UnrecognizedAttributes.class)
+            .build();
 
-    private static final Set<Class<? extends DataObject>> ATTRIBUTE_CACHEABLES;
     private static final InstanceIdentifier<Tables> TABLE_BASE_II = InstanceIdentifier.builder(BgpRib.class)
             .child(Rib.class)
             .child(LocRib.class)
             .child(Tables.class)
             .build();
-
-    static {
-        final Builder<Class<? extends DataObject>> acb = ImmutableSet.builder();
-        acb.add(Aggregator.class);
-        acb.add(BgpAggregator.class);
-        acb.add(AsPath.class);
-        acb.add(ClusterId.class);
-        acb.add(Community.class);
-        acb.add(Communities.class);
-        acb.add(ExtendedCommunity.class);
-        acb.add(ExtendedCommunities.class);
-        acb.add(LocalPref.class);
-        acb.add(MultiExitDisc.class);
-        acb.add(Origin.class);
-        acb.add(OriginatorId.class);
-        acb.add(UnrecognizedAttributes.class);
-        ATTRIBUTE_CACHEABLES = acb.build();
-    }
 
     private final ImmutableSet<Class<? extends BindingObject>> cacheableAttributes;
     private BindingNormalizedNodeCachingCodec<Attributes> attributesCodec;
@@ -87,10 +82,10 @@ public final class CodecsImpl implements Codecs {
 
     public CodecsImpl(final RIBSupport<?, ?> ribSupport) {
         this.ribSupport = requireNonNull(ribSupport);
-        final Builder<Class<? extends BindingObject>> acb = ImmutableSet.builder();
-        acb.addAll(ATTRIBUTE_CACHEABLES);
-        acb.addAll(this.ribSupport.cacheableAttributeObjects());
-        cacheableAttributes = acb.build();
+        cacheableAttributes = ImmutableSet.<Class<? extends BindingObject>>builder()
+            .addAll(ATTRIBUTE_CACHEABLES)
+            .addAll(this.ribSupport.cacheableAttributeObjects())
+            .build();
     }
 
     @Override
