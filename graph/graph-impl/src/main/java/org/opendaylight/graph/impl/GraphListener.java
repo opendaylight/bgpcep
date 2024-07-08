@@ -27,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -60,7 +60,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerDataTreeChangeListener(
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
             DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, graphIdentifier), this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
