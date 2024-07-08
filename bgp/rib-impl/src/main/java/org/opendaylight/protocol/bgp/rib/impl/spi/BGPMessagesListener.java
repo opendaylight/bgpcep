@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 /**
  * BGP Operational Messages Listener State.

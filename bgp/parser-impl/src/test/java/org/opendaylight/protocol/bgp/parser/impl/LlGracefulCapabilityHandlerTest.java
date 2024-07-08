@@ -38,7 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.util.BindingMap;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -84,13 +84,13 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setAfiFlags(new Tables.AfiFlags(false))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
+                                .setAfiFlags(new Tables.AfiFlags(true))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())
                 ).build();
@@ -112,7 +112,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setAfiFlags(new Tables.AfiFlags(false))
                                 .setLongLivedStaleTime(TEN)
                                 .build())).build();
 
@@ -142,13 +142,13 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setAfiFlags(new Tables.AfiFlags(false))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setAfiFlags(new Tables.AfiFlags(false))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();
 
@@ -167,7 +167,7 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(BindingMap.of(new TablesBuilder()
                         .setAfi(Ipv4AddressFamily.VALUE)
                         .setSafi(SubsequentAddressFamily.VALUE)
-                        .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                        .setAfiFlags(new Tables.AfiFlags(false))
                         .setLongLivedStaleTime(TEN)
                         .build())).build();
 
@@ -198,13 +198,13 @@ public class LlGracefulCapabilityHandlerTest {
                 .setTables(BindingMap.ordered(new TablesBuilder()
                                 .setAfi(Ipv4AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.FALSE))
+                                .setAfiFlags(new Tables.AfiFlags(false))
                                 .setLongLivedStaleTime(TEN)
                                 .build(),
                         new TablesBuilder()
                                 .setAfi(Ipv6AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                                .setAfiFlags(new Tables.AfiFlags(Boolean.TRUE))
+                                .setAfiFlags(new Tables.AfiFlags(true))
                                 .setLongLivedStaleTime(new Uint24(Uint32.valueOf(160)))
                                 .build())).build();
 
