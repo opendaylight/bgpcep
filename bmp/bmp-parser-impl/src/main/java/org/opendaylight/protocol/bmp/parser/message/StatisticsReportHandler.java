@@ -34,10 +34,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.stat.tlvs.PrefixesTreatedAsWithdrawTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.stat.tlvs.RejectedPrefixesTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.stat.tlvs.UpdatesTreatedAsWithdrawTlv;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public class StatisticsReportHandler extends AbstractBmpPerPeerMessageParser<TlvsBuilder> {
-
     private static final int MESSAGE_TYPE = 1;
 
     public StatisticsReportHandler(final MessageRegistry bgpMssageRegistry, final BmpTlvRegistry tlvRegistry) {

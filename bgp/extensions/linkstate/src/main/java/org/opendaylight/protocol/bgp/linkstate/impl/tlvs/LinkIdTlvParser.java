@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkLrIdentifiers;
+import org.opendaylight.yang.svc.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.YangModuleInfoImpl;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -19,6 +20,10 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>,
         LinkstateTlvParser<LinkLrIdentifiers> {
     private static final int LINK_LR_IDENTIFIERS = 258;
+
+    // FIXME: what exactly is this QName? it used to be LinkLrIdentifiers.QName, but that's a grouping, so what gives?
+    @Deprecated
+    public static final QName QNAME = YangModuleInfoImpl.qnameOf("link-lr-identifiers");
 
     @Override
     public void serializeTlvBody(final LinkLrIdentifiers tlv, final ByteBuf body) {
@@ -35,7 +40,7 @@ public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSer
 
     @Override
     public QName getTlvQName() {
-        return LinkLrIdentifiers.QNAME;
+        return QNAME;
     }
 
     @Override
