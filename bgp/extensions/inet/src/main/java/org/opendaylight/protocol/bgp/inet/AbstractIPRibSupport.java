@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.dom.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -23,11 +22,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.yang.binding.BindingObject;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.ChoiceIn;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.KeyAware;
+import org.opendaylight.yangtools.binding.BindingObject;
+import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ChoiceIn;
+import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.EntryObject;
+import org.opendaylight.yangtools.binding.Grouping;
+import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -45,8 +46,8 @@ import org.slf4j.LoggerFactory;
 abstract class AbstractIPRibSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<S> & KeyAware<?>>
-        extends AbstractRIBSupport<C, S, R> {
+        R extends Route, X extends EntryObject<X, ?> & ChildOf<S>>
+        extends AbstractRIBSupport<C, S, R, X> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
 
     private final @NonNull ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects;
@@ -55,7 +56,7 @@ abstract class AbstractIPRibSupport<
 
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
-            final Class<? extends DataObject> prefixClass,
+            final Class<? extends Grouping> prefixClass,
             final AddressFamily afi, final QName afiQName,
             final Class<C> cazeClass, final QName cazeQName,
             final Class<S> containerClass, final QName containerQName,

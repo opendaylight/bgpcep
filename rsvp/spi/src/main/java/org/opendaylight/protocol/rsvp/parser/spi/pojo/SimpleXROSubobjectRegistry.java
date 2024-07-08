@@ -18,8 +18,8 @@ import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
+import org.opendaylight.yangtools.binding.DataContainer;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.DataContainer;
 
 public class SimpleXROSubobjectRegistry implements XROSubobjectRegistry {
     private final HandlerRegistry<DataContainer, XROSubobjectParser, XROSubobjectSerializer> handlers =
