@@ -55,7 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.TerminationPointType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
@@ -157,7 +157,7 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
     }
 
     private AddLspInput createAddLspInput(final ReadTransaction transaction) {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(p2pTunnelInput);
+        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(p2pTunnelInput).toLegacy();
         final TpReader dr = new TpReader(transaction, tii, p2pTunnelInput.getDestination());
         final TerminationPoint dp = requireNonNull(dr.getTp());
 
