@@ -11,7 +11,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.OriginatorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginatorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -55,7 +55,7 @@ public class AbstractBestPathSelector {
     protected boolean isExistingPathBetter(final @NonNull BestPathState state) {
         // 0. draft-uttaro-idr-bgp-persistence-04 defines "depreferenced" paths
         final boolean stateDepref = state.isDepreferenced();
-        if (this.bestState.isDepreferenced() != stateDepref) {
+        if (bestState.isDepreferenced() != stateDepref) {
             return stateDepref;
         }
 
@@ -67,7 +67,7 @@ public class AbstractBestPathSelector {
          * FIXME: for eBGP cases (when the LOCAL_PREF is missing), we should assign a policy-based preference
          *        before we ever get here.
          */
-        final Uint32 bestLocal = this.bestState.getLocalPref();
+        final Uint32 bestLocal = bestState.getLocalPref();
         final Uint32 stateLocal = state.getLocalPref();
         if (stateLocal != null) {
             if (bestLocal == null) {
@@ -86,21 +86,21 @@ public class AbstractBestPathSelector {
         // - we assume that all paths are learned
 
         // 4. prefer the path with the shortest AS_PATH.
-        if (this.bestState.getAsPathLength() != state.getAsPathLength()) {
-            return this.bestState.getAsPathLength() < state.getAsPathLength();
+        if (bestState.getAsPathLength() != state.getAsPathLength()) {
+            return bestState.getAsPathLength() < state.getAsPathLength();
         }
 
         // 5. prefer the path with the lowest origin type
         // - IGP is lower than Exterior Gateway Protocol (EGP), and EGP is lower than INCOMPLETE
-        if (!this.bestState.getOrigin().equals(state.getOrigin())) {
-            final BgpOrigin bo = this.bestState.getOrigin();
+        if (!bestState.getOrigin().equals(state.getOrigin())) {
+            final BgpOrigin bo = bestState.getOrigin();
             final BgpOrigin no = state.getOrigin();
 
             // This trick relies on the order in which the values are declared in the model.
             return no.ordinal() > bo.ordinal();
         }
         // FIXME: we should be able to cache the best AS
-        final long bestAs = this.bestState.getPeerAs();
+        final long bestAs = bestState.getPeerAs();
         final long newAs = state.getPeerAs();
 
         /*
@@ -112,11 +112,11 @@ public class AbstractBestPathSelector {
          */
         if (bestAs == newAs) {
             // 6. prefer the path with the lowest multi-exit discriminator (MED)
-            final Boolean cmp = firstLower(this.bestState.getMultiExitDisc(), state.getMultiExitDisc());
+            final Boolean cmp = firstLower(bestState.getMultiExitDisc(), state.getMultiExitDisc());
             if (cmp != null) {
                 return cmp;
             }
-        } else {
+        } else if (ourAs != bestAs && ourAs == newAs) {
             /*
              * 7. prefer eBGP over iBGP paths
              *
@@ -125,9 +125,7 @@ public class AbstractBestPathSelector {
              *
              * FIXME: we should know this information from the peer directly.
              */
-            if (this.ourAs != bestAs && this.ourAs == newAs) {
-                return true;
-            }
+            return true;
         }
 
         // 8. Prefer the path with the lowest IGP metric to the BGP next hop.

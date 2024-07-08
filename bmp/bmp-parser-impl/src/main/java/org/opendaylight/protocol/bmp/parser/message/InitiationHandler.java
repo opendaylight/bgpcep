@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bmp.parser.message;
 
 import com.google.common.base.Preconditions;
@@ -25,15 +24,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.string.informations.StringInformationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.string.tlv.StringTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.string.tlv.StringTlvBuilder;
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public class InitiationHandler extends AbstractBmpMessageWithTlvParser<TlvsBuilder> {
+    private static final int MESSAGE_TYPE = 4;
 
     public InitiationHandler(final BmpTlvRegistry tlvRegistry) {
         super(tlvRegistry);
     }
-
-    private static final int MESSAGE_TYPE = 4;
 
     @Override
     public void serializeMessageBody(final Notification<?> message, final ByteBuf buffer) {
