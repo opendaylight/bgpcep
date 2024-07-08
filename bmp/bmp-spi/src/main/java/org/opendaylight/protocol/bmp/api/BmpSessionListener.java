@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bmp.api;
 
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 public interface BmpSessionListener {
 

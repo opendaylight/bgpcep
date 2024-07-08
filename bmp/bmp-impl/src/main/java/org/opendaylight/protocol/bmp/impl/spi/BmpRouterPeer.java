@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bmp.impl.spi;
 
-import org.opendaylight.yangtools.yang.binding.Notification;
+import org.opendaylight.yangtools.binding.Notification;
 
 /**
  * Represent monitored router's peer. Is responsible of processing per-peer messages.
