@@ -87,14 +87,9 @@ public class OriginAttributeParserTest {
                 .setOrigin(new OriginBuilder().build())
                 .build(), Unpooled.buffer()))
             .getMessage();
-        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
-            + ".types.rev200120.BgpOrigin.getIntValue()\" because the return value of \"org.opendaylight.yang.gen.v1"
-            + ".urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin"
-            + ".getValue()\" is null"), message);
-    }
-
-    // FIXME: remove this method once we require JDK17+
-    private static String npeString(final String helpfulString) {
-        return Runtime.getRuntime().version().feature() >= 15 ? helpfulString : null;
+        assertEquals("""
+            Cannot invoke "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120
+            .BgpOrigin.getIntValue()" because the return value of "org.opendaylight.yang.gen.v1.urn.opendaylight.params
+            .xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin.getValue()" is null""", message);
     }
 }
