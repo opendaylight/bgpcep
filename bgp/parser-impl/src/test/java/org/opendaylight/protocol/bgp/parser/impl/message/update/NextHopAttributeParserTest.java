@@ -82,10 +82,11 @@ public class NextHopAttributeParserTest {
                 .setCNextHop(new Ipv4NextHopCaseBuilder().build())
                 .build(), Unpooled.buffer()))
             .getMessage();
-        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
-            + ".types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop.getGlobal()\" because the return "
-            + "value of \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop"
-            + ".c.next.hop.Ipv4NextHopCase.getIpv4NextHop()\" is null"), message);
+        assertEquals("""
+            Cannot invoke "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next\
+            .hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHop.getGlobal()" because the return value of "org.opendaylight\
+            .yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase\
+            .getIpv4NextHop()" is null""", message);
     }
 
     @Test
@@ -95,13 +96,8 @@ public class NextHopAttributeParserTest {
                 .setCNextHop(new Ipv6NextHopCaseBuilder().build())
                 .build(), Unpooled.buffer()))
             .getMessage();
-        assertEquals(npeString("Cannot invoke \"org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp"
-            + ".types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop.getGlobal()\" because \"nextHop\" "
-            + "is null"), message);
-    }
-
-    // FIXME: remove this method once we require JDK17+
-    private static String npeString(final String helpfulString) {
-        return Runtime.getRuntime().version().feature() >= 15 ? helpfulString : null;
+        assertEquals("""
+            Cannot invoke "org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next\
+            .hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop.getGlobal()" because "nextHop" is null""", message);
     }
 }
