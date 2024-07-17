@@ -1,0 +1,11 @@
+Code-Review+1: Oleksandr Zharov <oleksandr.zharov@pantheon.tech>
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Verified+1: jenkins-releng ODL
+Code-Review+1: Ivan Hrasko <ivan.hrasko@pantheon.tech>
+Code-Review+1: Samuel Schneider <samuel.schneider@pantheon.tech>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Wed, 17 Jul 2024 15:07:58 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/112279
+Project: bgpcep
+Branch: refs/heads/master
