@@ -59,11 +59,13 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
     public final void onTopologyBuilderCreated(final Topology topology) {
         LOG.debug("Creating topology builder instance {}", topology);
         final var currentInstance = topologyBuilders.get(topology.getTopologyId());
-        if (currentInstance == null || !currentInstance.getConfiguration().equals(topology)) {
-            final var topologyBuilder = createInstance(topology);
-            topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
-            LOG.debug("Topology builder instance created {}", topologyBuilder);
+        if (currentInstance != null && !currentInstance.getConfiguration().equals(topology)) {
+            onTopologyBuilderRemoved(topology);
         }
+
+        final var topologyBuilder = createInstance(topology);
+        topologyBuilders.put(topology.getTopologyId(), topologyBuilder);
+        LOG.debug("Topology builder instance created {}", topologyBuilder);
     }
 
     @Override
