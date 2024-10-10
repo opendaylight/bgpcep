@@ -85,7 +85,6 @@ parser.add_argument(
 parser.add_argument(
     "--password", default="admin", help="Password for restconf authentication"
 )
-parser.add_argument("--scope", default="sdn", help="Scope for restconf authentication")
 parser.add_argument(
     "--reuse",
     default="True",
@@ -256,7 +255,7 @@ queue_responses = collections.deque()  # thread safe
 threads = []
 for worker in range(args.workers):
     session = AuthStandalone.Init_Session(
-        args.odladdress, args.user, args.password, args.scope, args.reuse
+        args.odladdress, args.user, args.password, args.reuse
     )
     queue_messages = list_q_msg[worker]
     thread_args = (session, queue_messages, queue_responses)
