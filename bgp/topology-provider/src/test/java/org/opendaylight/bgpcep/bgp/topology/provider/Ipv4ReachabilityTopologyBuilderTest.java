@@ -58,12 +58,12 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     @Override
     public void setUp() {
         super.setUp();
-        this.ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
-        this.ipv4TopoBuilder.start();
+        ipv4TopoBuilder = new Ipv4ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
+        ipv4TopoBuilder.start();
         final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)).build();
 
-        this.ipv4RouteIID = path.builder().child(Ipv4RoutesCase.class, Ipv4Routes.class)
+        ipv4RouteIID = path.builder().child(Ipv4RoutesCase.class, Ipv4Routes.class)
             .child(Ipv4Route.class, new Ipv4RouteKey(new PathId(PATH_ID), ROUTE_IP4PREFIX)).build();
     }
 
@@ -72,7 +72,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
 
-        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
             final TopologyTypes1 topologyTypes = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyTypes);
             assertNotNull(topologyTypes.getBgpIpv4ReachabilityTopology());
@@ -86,7 +86,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
         // update route
         updateIpv4Route(createIpv4Route(NEW_NEXT_HOP));
-        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
             assertEquals(1, topology.nonnullNode().size());
             final Node nodeUpdated = topology.nonnullNode().values().iterator().next();
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
@@ -97,20 +97,20 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
         // delete route
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID);
+        wTx.delete(LogicalDatastoreType.OPERATIONAL, ipv4RouteIID);
         wTx.commit();
-        readDataOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
             assertNull(topology.getNode());
             return topology;
         });
 
-        this.ipv4TopoBuilder.close();
-        checkNotPresentOperational(getDataBroker(), this.ipv4TopoBuilder.getInstanceIdentifier());
+        ipv4TopoBuilder.close();
+        checkNotPresentOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier());
     }
 
     private void updateIpv4Route(final Ipv4Route data) {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, this.ipv4RouteIID, data);
+        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, ipv4RouteIID, data);
         wTx.commit();
     }
 

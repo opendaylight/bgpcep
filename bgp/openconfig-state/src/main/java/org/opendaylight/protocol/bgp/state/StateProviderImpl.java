@@ -53,8 +53,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
@@ -166,12 +164,13 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
     private synchronized void updateBGPStats(final WriteOperations wtx) {
         final Set<String> oldStats = new HashSet<>(instanceIdentifiersCache.keySet());
         stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
-            final KeyedInstanceIdentifier<Rib, RibKey> ribId = bgpStateConsumer.getInstanceIdentifier();
-            final List<BGPPeerState> peerStats = stateProvider.getPeerStats().stream()
-                    .filter(BGPPeerState::isActive).filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
+            final var ribId = bgpStateConsumer.getInstanceIdentifier();
+            final var peerStats = stateProvider.getPeerStats().stream()
+                    .filter(BGPPeerState::isActive)
+                    .filter(peerState -> ribId.equals(peerState.getInstanceIdentifier()))
                     .collect(Collectors.toList());
-            storeOperationalState(bgpStateConsumer, peerStats, ribId.getKey().getId().getValue(), wtx);
-            oldStats.remove(ribId.getKey().getId().getValue());
+            storeOperationalState(bgpStateConsumer, peerStats, ribId.key().getId().getValue(), wtx);
+            oldStats.remove(ribId.key().getId().getValue());
         });
         oldStats.forEach(ribId -> removeStoredOperationalState(ribId, wtx));
     }
@@ -189,7 +188,7 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
         InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.get(ribId);
         if (bgpIID == null) {
             final ProtocolKey protocolKey = new ProtocolKey(BGP.VALUE, bgpStateConsumer.getInstanceIdentifier()
-                    .getKey().getId().getValue());
+                    .key().getId().getValue());
             final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = networkInstanceIId
                     .child(Protocols.class).child(Protocol.class, protocolKey);
             bgpIID = protocolIId.augmentation(NetworkInstanceProtocol.class).child(Bgp.class);

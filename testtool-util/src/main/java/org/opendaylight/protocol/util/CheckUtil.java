@@ -26,7 +26,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public final class CheckUtil {
     private static final int SLEEP_FOR = 200;
@@ -49,33 +49,33 @@ public final class CheckUtil {
     }
 
     public static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
+            final DataObjectIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
                 ExecutionException {
         return readDataOperational(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
             throws InterruptedException, ExecutionException {
         return readData(dataBroker, OPERATIONAL, iid, function, timeout);
     }
 
     public static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
+            final DataObjectIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
                 ExecutionException {
         return readDataConfiguration(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
             throws InterruptedException, ExecutionException {
         return readData(dataBroker, CONFIGURATION, iid, function, timeout);
     }
 
     private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
-            final InstanceIdentifier<T> iid, final Function<T, R> function, final int timeout)
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
             throws InterruptedException, ExecutionException {
 
         AssertionError lastError;
@@ -98,27 +98,27 @@ public final class CheckUtil {
     }
 
     public static <T extends DataObject> T checkPresentOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
         return readData(dataBroker, OPERATIONAL, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> T checkPresentConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
         return readData(dataBroker, CONFIGURATION, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
         checkNotPresent(dataBroker, OPERATIONAL, iid);
     }
 
     public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
-            final InstanceIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
         checkNotPresent(dataBroker, CONFIGURATION, iid);
     }
 
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
-            final LogicalDatastoreType ldt, final InstanceIdentifier<T> iid) throws InterruptedException,
+            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid) throws InterruptedException,
                 ExecutionException {
         AssertionError lastError;
         final Stopwatch sw = Stopwatch.createStarted();
