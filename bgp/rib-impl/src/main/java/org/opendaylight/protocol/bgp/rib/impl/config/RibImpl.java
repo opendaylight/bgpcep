@@ -54,8 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +140,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
     }
 
     @Override
-    public synchronized KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
+    public synchronized DataObjectIdentifier.WithKey<Rib, RibKey> getInstanceIdentifier() {
         return ribImpl.getInstanceIdentifier();
     }
 

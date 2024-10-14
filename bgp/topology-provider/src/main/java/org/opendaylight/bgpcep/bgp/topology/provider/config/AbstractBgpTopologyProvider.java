@@ -25,8 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +84,7 @@ abstract class AbstractBgpTopologyProvider implements BgpTopologyProvider, AutoC
 
     private TopologyReferenceSingletonService createInstance(final Topology topology) {
         return new TopologyReferenceSingletonServiceImpl(createTopologyBuilder(dataBroker,
-            new DefaultRibReference(InstanceIdentifier.builder(BgpRib.class)
+            new DefaultRibReference(DataObjectIdentifier.builder(BgpRib.class)
                 .child(Rib.class, new RibKey(topology.augmentation(Topology1.class).getRibId()))
                 .build()), topology.getTopologyId()), deployer, topology);
     }

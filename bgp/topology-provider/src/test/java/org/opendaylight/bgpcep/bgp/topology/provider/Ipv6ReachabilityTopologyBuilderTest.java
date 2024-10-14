@@ -58,7 +58,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         super.setUp();
         ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         ipv6TopoBuilder.start();
-        final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
+        final var path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
             .child(Tables.class, new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)).build();
         ipv6RouteIID = path.builder().child(Ipv6RoutesCase.class, Ipv6Routes.class)
             .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX)).build();

@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.NoOpObjectRegistration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -138,9 +137,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        manager = customizeSessionManager(new ServerSessionManager(
-            // TODO: this cast should not be necessary
-            (KeyedInstanceIdentifier<Topology, TopologyKey>) TOPO_IID.toLegacy(), topologyDependencies,
+        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
             new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,

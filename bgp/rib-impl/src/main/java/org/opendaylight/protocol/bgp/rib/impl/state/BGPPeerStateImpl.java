@@ -40,8 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
@@ -74,7 +74,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     @GuardedBy("this")
     private boolean peerRestarting;
 
-    public BGPPeerStateImpl(final @NonNull KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
+    public BGPPeerStateImpl(final DataObjectIdentifier.@NonNull WithKey<Rib, RibKey> instanceIdentifier,
             final @Nullable String groupId, final @NonNull IpAddressNoZone neighborAddress,
             final @NonNull Set<TablesKey> afiSafisAdvertized,
             final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,

@@ -31,8 +31,8 @@ import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 final class PCEPTopologyProvider extends DefaultTopologyReference {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
 
-    private final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier;
+    private final WithKey<Topology, TopologyKey> instanceIdentifier;
     private final PCEPTopologyProviderDependencies dependencies;
     private final InstructionScheduler scheduler;
 
@@ -69,7 +69,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
     @GuardedBy("this")
     private Registration elementReg;
 
-    PCEPTopologyProvider(final KeyedInstanceIdentifier<Topology, TopologyKey> instanceIdentifier,
+    PCEPTopologyProvider(final WithKey<Topology, TopologyKey> instanceIdentifier,
             final PCEPTopologyProviderDependencies dependencies, final InstructionScheduler scheduler) {
         super(instanceIdentifier);
         this.instanceIdentifier = requireNonNull(instanceIdentifier);

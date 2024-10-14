@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.concepts;
 
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
- * A reference to an object identified by an InstanceIdentifier.
+ * A reference to an object identified by an {@link DataObjectIdentifier}.
  */
 public interface InstanceReference<T extends DataObject> {
     /**
@@ -19,5 +19,5 @@ public interface InstanceReference<T extends DataObject> {
      *
      * @return instance identifier
      */
-    InstanceIdentifier<T> getInstanceIdentifier();
+    DataObjectIdentifier<T> getInstanceIdentifier();
 }

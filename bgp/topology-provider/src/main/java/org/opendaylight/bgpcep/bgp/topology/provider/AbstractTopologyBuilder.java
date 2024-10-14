@@ -42,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
@@ -54,7 +56,8 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
     // we limit the listener reset interval to be 5 min at most
     private static final long LISTENER_RESET_LIMIT_IN_MILLSEC = 5 * 60 * 1000;
     private static final int LISTENER_RESET_ENFORCE_COUNTER = 3;
-    private final InstanceIdentifier<Topology> topology;
+
+    private final WithKey<Topology, TopologyKey> topology;
     private final RibReference locRibReference;
     private final DataBroker dataProvider;
     private final AddressFamily afi;
@@ -89,9 +92,7 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
         this.safi = safi;
         this.listenerResetLimitInMillsec = listenerResetLimitInMillsec;
         this.listenerResetEnforceCounter = listenerResetEnforceCounter;
-        topology = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, topologyKey)
-                .build();
+        topology = DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class, topologyKey).build();
     }
 
     protected AbstractTopologyBuilder(final DataBroker dataProvider, final RibReference locRibReference,
@@ -114,15 +115,16 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
      */
     private synchronized void registerDataChangeListener() {
         Preconditions.checkState(listenerRegistration == null,
-                "Topology Listener on topology %s has been registered before.",
-                this.getInstanceIdentifier());
-        final InstanceIdentifier<Tables> tablesId = locRibReference.getInstanceIdentifier()
-                .child(LocRib.class).child(Tables.class, new TablesKey(afi, safi));
-        final DataTreeIdentifier<T> id = DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
-                getRouteWildcard(tablesId));
+            "Topology Listener on topology %s has been registered before.", getInstanceIdentifier());
 
-        listenerRegistration = dataProvider.registerTreeChangeListener(id, this);
-        LOG.debug("Registered listener {} on topology {}. Timestamp={}", this, this.getInstanceIdentifier(),
+        listenerRegistration = dataProvider.registerTreeChangeListener(
+            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
+                getRouteWildcard(locRibReference.getInstanceIdentifier().toBuilder()
+                    .child(LocRib.class)
+                    .child(Tables.class, new TablesKey(afi, safi))
+                    .build())),
+            this);
+        LOG.debug("Registered listener {} on topology {}. Timestamp={}", this, getInstanceIdentifier(),
                 listenerScheduledRestartTime);
     }
 
@@ -131,13 +133,13 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
      */
     private synchronized void unregisterDataChangeListener() {
         if (listenerRegistration != null) {
-            LOG.debug("Unregistered listener {} on topology {}", this, this.getInstanceIdentifier());
+            LOG.debug("Unregistered listener {} on topology {}", this, getInstanceIdentifier());
             listenerRegistration.close();
             listenerRegistration = null;
         }
     }
 
-    protected abstract InstanceIdentifier<T> getRouteWildcard(InstanceIdentifier<Tables> tablesId);
+    protected abstract InstanceIdentifier<T> getRouteWildcard(DataObjectIdentifier<Tables> tablesId);
 
     protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
 
@@ -146,7 +148,7 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
     protected abstract void clearTopology();
 
     @Override
-    public final InstanceIdentifier<Topology> getInstanceIdentifier() {
+    public final DataObjectIdentifier<Topology> getInstanceIdentifier() {
         return topology;
     }
 
