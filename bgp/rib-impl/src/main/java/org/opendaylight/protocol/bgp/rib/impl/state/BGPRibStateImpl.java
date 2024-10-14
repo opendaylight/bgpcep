@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState, BGPRibStateProvider {
     private final BgpId routeId;
@@ -36,7 +36,7 @@ public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState,
     @GuardedBy("this")
     private boolean active;
 
-    protected BGPRibStateImpl(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier,
+    protected BGPRibStateImpl(final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier,
         final @NonNull BgpId routeId, final @NonNull AsNumber localAs) {
         super(instanceIdentifier);
         this.routeId = requireNonNull(routeId);
@@ -45,59 +45,59 @@ public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState,
 
     @Override
     public final synchronized Map<TablesKey, Long> getTablesPrefixesCount() {
-        return this.totalPrefixes.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-            (entry) -> entry.getValue().getPrefixesCount()));
+        return totalPrefixes.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getPrefixesCount()));
     }
 
     @Override
     public final synchronized Map<TablesKey, Long> getPathsCount() {
-        return this.totalPaths.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-            (entry) -> entry.getValue().getPathsCount()));
+        return totalPaths.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getPathsCount()));
     }
 
     @Override
     public final synchronized long getTotalPathsCount() {
-        return this.totalPaths.values().stream().mapToLong(TotalPathsCounter::getPathsCount).sum();
+        return totalPaths.values().stream().mapToLong(TotalPathsCounter::getPathsCount).sum();
     }
 
     @Override
     public final synchronized long getTotalPrefixesCount() {
-        return this.totalPrefixes.values().stream().mapToLong(TotalPrefixesCounter::getPrefixesCount).sum();
+        return totalPrefixes.values().stream().mapToLong(TotalPrefixesCounter::getPrefixesCount).sum();
     }
 
     @Override
     public final synchronized long getPathCount(final TablesKey tablesKey) {
-        return this.totalPaths.get(tablesKey).getPathsCount();
+        return totalPaths.get(tablesKey).getPathsCount();
     }
 
     @Override
     public final synchronized long getPrefixesCount(final TablesKey tablesKey) {
-        return this.totalPrefixes.get(tablesKey).getPrefixesCount();
+        return totalPrefixes.get(tablesKey).getPrefixesCount();
     }
 
     @Override
     public final AsNumber getAs() {
-        return this.localAs;
+        return localAs;
     }
 
     @Override
     public final BgpId getRouteId() {
-        return this.routeId;
+        return routeId;
     }
 
     protected final synchronized void registerTotalPathCounter(final @NonNull TablesKey key,
             final @NonNull TotalPathsCounter totalPathsCounter) {
-        this.totalPaths.put(key, totalPathsCounter);
+        totalPaths.put(key, totalPathsCounter);
     }
 
     protected final synchronized void registerTotalPrefixesCounter(final @NonNull TablesKey key,
             final @NonNull TotalPrefixesCounter totalPrefixesCounter) {
-        this.totalPrefixes.put(key, totalPrefixesCounter);
+        totalPrefixes.put(key, totalPrefixesCounter);
     }
 
     @Override
     public final synchronized boolean isActive() {
-        return this.active;
+        return active;
     }
 
     protected final synchronized void setActive(final boolean active) {

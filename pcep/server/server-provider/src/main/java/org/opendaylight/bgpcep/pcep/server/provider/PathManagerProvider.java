@@ -44,8 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -56,10 +55,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-
 public final class PathManagerProvider implements FutureCallback<Empty>, AutoCloseable, ConnectedGraphTrigger {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerProvider.class);
-    private final InstanceIdentifier<Topology> pcepTopology;
+
+    private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<>();
+    private final WithKey<Topology, TopologyKey> pcepTopology;
     private final DataBroker dataBroker;
     private final DefaultPceServerProvider pceServerProvider;
     private final AddLsp addLsp;
@@ -68,10 +68,8 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
     private TransactionChain chain = null;
     private ConnectedGraph tedGraph = null;
 
-    private final Map<NodeId, ManagedTeNode> mngNodes = new HashMap<>();
-
     public PathManagerProvider(final DataBroker dataBroker,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final RpcService rpcService,
+            final WithKey<Topology, TopologyKey> topology, final RpcService rpcService,
             final DefaultPceServerProvider pceServerProvider) {
         this.dataBroker = requireNonNull(dataBroker);
         this.pceServerProvider = requireNonNull(pceServerProvider);
@@ -81,7 +79,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
         pcepTopology = requireNonNull(topology);
         initTransactionChain();
         tedGraph = getGraph();
-        LOG.info("Path Manager Server started for topology {}", topology.getKey().getTopologyId().getValue());
+        LOG.info("Path Manager Server started for topology {}", topology.key().getTopologyId().getValue());
     }
 
     /**
@@ -93,7 +91,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
     public void close() {
         tedGraph = pceServerProvider.getTedGraph();
         if (tedGraph != null) {
-            tedGraph.unRegisterTrigger(this, InstanceIdentifier.keyOf(pcepTopology));
+            tedGraph.unRegisterTrigger(this, pcepTopology.key());
         }
         destroyTransactionChain();
     }
@@ -102,7 +100,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
         if (tedGraph == null) {
             tedGraph = pceServerProvider.getTedGraph();
             if (tedGraph != null) {
-                tedGraph.registerTrigger(this, InstanceIdentifier.keyOf(pcepTopology));
+                tedGraph.registerTrigger(this, pcepTopology.key());
             }
         }
         return tedGraph;

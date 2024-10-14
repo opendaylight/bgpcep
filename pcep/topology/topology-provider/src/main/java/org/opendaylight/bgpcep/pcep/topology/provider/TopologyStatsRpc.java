@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -48,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -65,18 +65,20 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
 
     TopologyStatsRpc(final DataBroker dataBroker, final RpcProviderService rpcProviderService) {
         LOG.info("Initializing PCEP Topology Stats RPC service.");
-        listenerRegistration = dataBroker.registerTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(Node.class)
-                    .augmentation(PcepTopologyNodeStatsAug.class).child(PcepSessionState.class).build()),
-            this);
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectReference.builder(NetworkTopology.class)
+                .child(Topology.class)
+                .child(Node.class)
+                .augmentation(PcepTopologyNodeStatsAug.class)
+                .child(PcepSessionState.class)
+                .build(), this);
         rpcRegistration = rpcProviderService.registerRpcImplementation((GetStats) this::getStats);
     }
 
     @Override
     public void onDataTreeChanged(final List<DataTreeModification<PcepSessionState>> changes) {
         changes.forEach(change -> {
-            final var iid = change.getRootPath().path();
+            final var iid = change.path().toLegacy();
             final var mod = change.getRootNode();
             switch (mod.modificationType()) {
                 case SUBTREE_MODIFIED, WRITE:

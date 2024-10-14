@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -114,22 +115,20 @@ public final class TunnelProviderDeployer implements DataTreeChangeListener<Topo
         if (!filterPcepTopologies(topology.getTopologyTypes())) {
             return;
         }
-        final TopologyId topologyId = topology.getTopologyId();
+        final var topologyId = topology.getTopologyId();
         if (pcepTunnelServices.containsKey(topology.getTopologyId())) {
             LOG.warn("Tunnel Topology {} already exist. New instance won't be created", topologyId);
             return;
         }
         LOG.debug("Create Tunnel Topology {}", topologyId);
 
-        final PcepTunnelTopologyConfig config = topology.augmentation(PcepTunnelTopologyConfig.class);
-        final String pcepTopoID = StringUtils
-                .substringBetween(config.getPcepTopologyReference().getValue(), "=\"", "\"");
-        final InstanceIdentifier<Topology> pcepTopoRef = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(pcepTopoID))).build();
+        final var config = topology.augmentation(PcepTunnelTopologyConfig.class);
+        final var pcepTopoID = StringUtils.substringBetween(config.getPcepTopologyReference().getValue(), "=\"", "\"");
+        final var pcepTopoRef = DataObjectIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(pcepTopoID)))
+                .build();
 
-
-        final PCEPTunnelClusterSingletonService tunnelTopoCss =
-                new PCEPTunnelClusterSingletonService(dependencies, pcepTopoRef, topologyId);
+        final var tunnelTopoCss = new PCEPTunnelClusterSingletonService(dependencies, pcepTopoRef, topologyId);
         pcepTunnelServices.put(topology.getTopologyId(), tunnelTopoCss);
     }
 

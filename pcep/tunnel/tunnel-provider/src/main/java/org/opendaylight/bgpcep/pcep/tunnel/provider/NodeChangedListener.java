@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.DestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.link.attributes.SourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.LinkKey;
@@ -68,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.DataObjectStep;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -76,12 +78,12 @@ import org.slf4j.LoggerFactory;
 
 public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(NodeChangedListener.class);
-    private final InstanceIdentifier<Topology> target;
+    private final WithKey<Topology, TopologyKey> target;
     private final DataBroker dataProvider;
     private final TopologyId source;
 
     NodeChangedListener(final DataBroker dataProvider, final TopologyId source,
-            final InstanceIdentifier<Topology> target) {
+            final WithKey<Topology, TopologyKey> target) {
         this.dataProvider = requireNonNull(dataProvider);
         this.target = requireNonNull(target);
         this.source = requireNonNull(source);
@@ -130,8 +132,8 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         return topology.child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name)));
     }
 
-    private InstanceIdentifier<Link> linkForLsp(final LinkId linkId) {
-        return target.child(Link.class, new LinkKey(linkId));
+    private WithKey<Link, LinkKey> linkForLsp(final LinkId linkId) {
+        return target.toBuilder().child(Link.class, new LinkKey(linkId)).build();
     }
 
     private SupportingNode createSupportingNode(final NodeId sni, final Boolean inControl) {
@@ -161,13 +163,15 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             }
             if (!have) {
                 final SupportingNode sn = createSupportingNode(k.getNodeId(), inControl);
-                trans.put(LogicalDatastoreType.OPERATIONAL,
-                    target.child(Node.class, node.key()).child(SupportingNode.class, sn.key()), sn);
+                trans.put(LogicalDatastoreType.OPERATIONAL, target.toBuilder()
+                    .child(Node.class, node.key())
+                    .child(SupportingNode.class, sn.key())
+                    .build(), sn);
             }
         }
     }
 
-    private InstanceIdentifier<TerminationPoint> getIpTerminationPoint(final ReadWriteTransaction trans,
+    private WithKey<TerminationPoint, TerminationPointKey> getIpTerminationPoint(final ReadWriteTransaction trans,
             final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
             throws ExecutionException, InterruptedException {
         final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, target).get().orElseThrow();
@@ -181,8 +185,10 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
                         for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
                             if (addr.equals(address)) {
                                 handleSni(sni, n, inControl, trans);
-                                return target.builder().child(Node.class, n.key())
-                                        .child(TerminationPoint.class, tp.key()).build();
+                                return target.toBuilder()
+                                    .child(Node.class, n.key())
+                                    .child(TerminationPoint.class, tp.key())
+                                    .build();
                             }
                         }
                     } else {
@@ -195,8 +201,8 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         return createTP(addr, sni, inControl, trans);
     }
 
-    private InstanceIdentifier<TerminationPoint> createTP(final IpAddress addr, final InstanceIdentifier<Node> sni,
-            final Boolean inControl, final ReadWriteTransaction trans) {
+    private WithKey<TerminationPoint, TerminationPointKey> createTP(final IpAddress addr,
+            final InstanceIdentifier<Node> sni, final Boolean inControl, final ReadWriteTransaction trans) {
         final String url = "ip://" + addr.toString();
         final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
         final TerminationPointBuilder tpb = new TerminationPointBuilder();
@@ -215,9 +221,9 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             nb.setSupportingNode(BindingMap.of(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
                     inControl)));
         }
-        final InstanceIdentifier<Node> nid = target.child(Node.class, nb.key());
+        final var nid = target.toBuilder().child(Node.class, nb.key()).build();
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
-        return nid.child(TerminationPoint.class, tpb.key());
+        return nid.toBuilder().child(TerminationPoint.class, tpb.key()).build();
     }
 
     private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
@@ -255,43 +261,43 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         }
         lab.setSymbolicPathName(value.getName());
 
-        final InstanceIdentifier<TerminationPoint> dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
-        final InstanceIdentifier<TerminationPoint> src = getIpTerminationPoint(trans, srcIp, ni,
-                rl.getLsp().getDelegate());
+        final var dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE).toLegacy();
+        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getDelegate()).toLegacy();
 
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720
-                .Link1Builder slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf
-                .stateful.rev200720.Link1Builder();
-        slab.setOperationalStatus(rl.getLsp().getOperational());
-        slab.setAdministrativeStatus(rl.getLsp().getAdministrative() ? AdministrativeStatus.Active :
-                AdministrativeStatus.Inactive);
+        final var slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
+            .rev200720.Link1Builder()
+            .setOperationalStatus(rl.getLsp().getOperational())
+            .setAdministrativeStatus(
+                rl.getLsp().getAdministrative() ? AdministrativeStatus.Active : AdministrativeStatus.Inactive);
 
-        final LinkId id = linkIdForLsp(identifier, value);
-        final LinkBuilder lb = new LinkBuilder();
-        lb.setLinkId(id);
+        final var linkId = linkIdForLsp(identifier, value);
+        final var lb = new LinkBuilder()
+            .setLinkId(linkId)
+            .setSource(new SourceBuilder()
+                .setSourceNode(src.firstKeyOf(Node.class).getNodeId())
+                .setSourceTp(src.firstKeyOf(TerminationPoint.class).getTpId())
+                .build())
+            .setDestination(new DestinationBuilder()
+                .setDestNode(dst.firstKeyOf(Node.class).getNodeId())
+                .setDestTp(dst.firstKeyOf(TerminationPoint.class).getTpId())
+                .build())
+            .addAugmentation(lab.build())
+            .addAugmentation(slab.build());
 
-        lb.setSource(new SourceBuilder().setSourceNode(src.firstKeyOf(Node.class).getNodeId())
-                .setSourceTp(src.firstKeyOf(TerminationPoint.class).getTpId()).build());
-        lb.setDestination(new DestinationBuilder().setDestNode(dst.firstKeyOf(Node.class).getNodeId())
-                .setDestTp(dst.firstKeyOf(TerminationPoint.class).getTpId()).build());
-        lb.addAugmentation(lab.build());
-        lb.addAugmentation(slab.build());
-
-        trans.put(LogicalDatastoreType.OPERATIONAL, linkForLsp(id), lb.build());
+        trans.put(LogicalDatastoreType.OPERATIONAL, linkForLsp(linkId), lb.build());
     }
 
-    private InstanceIdentifier<TerminationPoint> tpIdentifier(final NodeId node, final TpId tp) {
-        return target.builder().child(Node.class, new NodeKey(node)).child(TerminationPoint.class,
-                new TerminationPointKey(tp)).build();
+    private @NonNull WithKey<TerminationPoint, TerminationPointKey> tpIdentifier(final NodeId node, final TpId tp) {
+        return nodeIdentifier(node).toBuilder().child(TerminationPoint.class, new TerminationPointKey(tp)).build();
     }
 
-    private @NonNull InstanceIdentifier<Node> nodeIdentifier(final NodeId node) {
-        return target.child(Node.class, new NodeKey(node));
+    private @NonNull WithKey<Node, NodeKey> nodeIdentifier(final NodeId node) {
+        return target.toBuilder().child(Node.class, new NodeKey(node)).build();
     }
 
     private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ExecutionException, InterruptedException {
-        final InstanceIdentifier<Link> li = linkForLsp(linkIdForLsp(identifier, value));
+        final var li = linkForLsp(linkIdForLsp(identifier, value));
 
         final Optional<Link> ol = trans.read(LogicalDatastoreType.OPERATIONAL, li).get();
         if (ol.isEmpty()) {

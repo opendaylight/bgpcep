@@ -10,8 +10,8 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
@@ -23,12 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentDataBrokerTest {
     static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
-    static final RibReference LOC_RIB_REF = new DefaultRibReference(InstanceIdentifier.create(BgpRib.class)
-        .child(Rib.class, new RibKey(requireNonNull(new RibId("test-rib")))));
+    static final RibReference LOC_RIB_REF = new DefaultRibReference(DataObjectIdentifier.builder(BgpRib.class)
+        .child(Rib.class, new RibKey(requireNonNull(new RibId("test-rib"))))
+        .build());
 
     @Before
     public void setUp() {
@@ -36,9 +37,13 @@ public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentData
     }
 
     private void createEmptyTopology() {
-        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
+        final var wTx = getDataBroker().newWriteOnlyTransaction();
+        wTx.put(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(NetworkTopology.class).build(),
             new NetworkTopologyBuilder().setTopology(Map.of()).build());
-        wTx.commit();
+        try {
+            wTx.commit().get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new AssertionError(e);
+        }
     }
 }

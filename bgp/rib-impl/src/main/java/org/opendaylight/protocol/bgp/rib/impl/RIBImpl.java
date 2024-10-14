@@ -61,7 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -112,9 +112,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
             final DOMDataBroker domDataBroker,
             final BGPRibRoutingPolicy ribPolicies,
             final List<BgpTableType> localTables,
-            final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies
-    ) {
-        super(InstanceIdentifier.create(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))),
+            final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies) {
+        super(DataObjectIdentifier.builder(BgpRib.class).child(Rib.class, new RibKey(requireNonNull(ribId))).build(),
                 localBgpId, localAs);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.localAs = requireNonNull(localAs);

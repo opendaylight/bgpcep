@@ -41,9 +41,6 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProvider;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.BgpBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.PeerGroups;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -53,8 +50,8 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -86,10 +83,10 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
 
     private final BGPStateProvider stateProvider;
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
-    private final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
+    private final WithKey<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final DataBroker dataBroker;
     @GuardedBy("this")
-    private final Map<String, InstanceIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
+    private final Map<String, DataObjectIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
     @GuardedBy("this")
     private TransactionChain transactionChain;
     @GuardedBy("this")
@@ -123,8 +120,9 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
         this.bgpTableTypeRegistry = requireNonNull(bgpTableTypeRegistry);
         this.stateProvider = requireNonNull(stateProvider);
         networkInstanceIId =
-            InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
-                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName));
+            DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
+                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName))
+                .build();
         this.scheduler = scheduler;
 
         transactionChain = this.dataBroker.createMergingTransactionChain();
@@ -176,27 +174,24 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
     }
 
     private synchronized void removeStoredOperationalState(final String ribId, final WriteOperations wtx) {
-        final InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.remove(ribId);
+        final var bgpIID = instanceIdentifiersCache.remove(ribId);
         wtx.delete(LogicalDatastoreType.OPERATIONAL, bgpIID);
     }
 
     private synchronized void storeOperationalState(final BGPRibState bgpStateConsumer,
             final List<BGPPeerState> peerStats, final String ribId, final WriteOperations wtx) {
-        final Global global = GlobalUtil.buildGlobal(bgpStateConsumer, bgpTableTypeRegistry);
-        final PeerGroups peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);
-        final Neighbors neighbors = NeighborUtil.buildNeighbors(peerStats, bgpTableTypeRegistry);
-        InstanceIdentifier<Bgp> bgpIID = instanceIdentifiersCache.get(ribId);
-        if (bgpIID == null) {
-            final ProtocolKey protocolKey = new ProtocolKey(BGP.VALUE, bgpStateConsumer.getInstanceIdentifier()
-                    .key().getId().getValue());
-            final KeyedInstanceIdentifier<Protocol, ProtocolKey> protocolIId = networkInstanceIId
-                    .child(Protocols.class).child(Protocol.class, protocolKey);
-            bgpIID = protocolIId.augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-            instanceIdentifiersCache.put(ribId, bgpIID);
-        }
+        final var global = GlobalUtil.buildGlobal(bgpStateConsumer, bgpTableTypeRegistry);
+        final var peerGroups = PeerGroupUtil.buildPeerGroups(peerStats);
+        final var neighbors = NeighborUtil.buildNeighbors(peerStats, bgpTableTypeRegistry);
 
-        final Bgp bgp = new BgpBuilder().setGlobal(global).setNeighbors(neighbors).setPeerGroups(peerGroups).build();
-        wtx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp);
+        wtx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL,
+            instanceIdentifiersCache.computeIfAbsent(ribId, key -> networkInstanceIId.toBuilder()
+                .child(Protocols.class).child(Protocol.class, new ProtocolKey(BGP.VALUE,
+                    bgpStateConsumer.getInstanceIdentifier().key().getId().getValue()))
+                .augmentation(NetworkInstanceProtocol.class)
+                .child(Bgp.class)
+                .build()),
+            new BgpBuilder().setGlobal(global).setNeighbors(neighbors).setPeerGroups(peerGroups).build());
     }
 
     @Deactivate

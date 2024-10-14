@@ -138,8 +138,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -204,8 +202,9 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         doReturn(bgpRibStates).when(stateProvider).getRibStats();
         doReturn(bgpPeerStates).when(stateProvider).getPeerStats();
 
-        final KeyedInstanceIdentifier<Rib, RibKey> iid = InstanceIdentifier.create(BgpRib.class)
-            .child(Rib.class, new RibKey(new RibId(ribId)));
+        final var iid = DataObjectIdentifier.builder(BgpRib.class)
+            .child(Rib.class, new RibKey(new RibId(ribId)))
+            .build();
         doReturn(iid).when(bgpRibState).getInstanceIdentifier();
         doReturn(as).when(bgpRibState).getAs();
         doReturn(bgpId).when(bgpRibState).getRouteId();
@@ -441,7 +440,7 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
         try (StateProviderImpl stateProvider = new StateProviderImpl(getDataBroker(), period, unit, tableTypeRegistry,
                 this.stateProvider, "global-bgp", mockScheduler)) {
 
-            ArgumentCaptor<Runnable> timerTask = ArgumentCaptor.forClass(Runnable.class);
+            final var timerTask = ArgumentCaptor.forClass(Runnable.class);
             verify(mockScheduler).scheduleAtFixedRate(timerTask.capture(), eq(0L), eq((long)period), eq(unit));
 
             timerTask.getValue().run();
