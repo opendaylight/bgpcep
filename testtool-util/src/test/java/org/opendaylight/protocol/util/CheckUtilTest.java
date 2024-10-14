@@ -43,14 +43,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("topotest");
-    private static final KeyedInstanceIdentifier<Topology, TopologyKey> TOPOLOGY_IID =
-            InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID));
+    private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPOLOGY_IID =
+        DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
     private static final int TIMEOUT = 1;
 
     @Mock
