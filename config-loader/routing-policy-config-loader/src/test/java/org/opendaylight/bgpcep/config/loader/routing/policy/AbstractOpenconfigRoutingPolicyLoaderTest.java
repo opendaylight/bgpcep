@@ -15,11 +15,11 @@ import org.junit.Before;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoaderTest {
-    private static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
+    private static final DataObjectIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
 
     OpenconfigRoutingConfigFileProcessor policyLoader;
 
@@ -29,9 +29,9 @@ public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoa
         super.setUp();
         checkNotPresentConfiguration(getDataBroker(), ROUTING_POLICY_IID);
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/routing-policy-config.xml"));
-        this.policyLoader = new OpenconfigRoutingConfigFileProcessor(this.configLoader, getDomBroker());
-        this.policyLoader.init();
+        policyLoader = new OpenconfigRoutingConfigFileProcessor(configLoader, getDomBroker());
+        policyLoader.init();
         checkPresentConfiguration(getDataBroker(), ROUTING_POLICY_IID);
-        this.policyLoader.close();
+        policyLoader.close();
     }
 }

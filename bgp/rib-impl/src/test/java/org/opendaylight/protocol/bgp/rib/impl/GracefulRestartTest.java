@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkStateIsNotRestarting;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkUpState;
@@ -17,7 +19,6 @@ import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.ImmutableMap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
@@ -33,7 +34,6 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -65,8 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -90,14 +90,14 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private static final TablesKey IPV6_TABLES_KEY = new TablesKey(Ipv6AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE);
 
-    private static final InstanceIdentifier<LocRib> LOC_RIB_IID = InstanceIdentifier.builder(BgpRib.class)
+    private static final DataObjectIdentifier<LocRib> LOC_RIB_IID = DataObjectIdentifier.builder(BgpRib.class)
             .child(Rib.class, new RibKey(RIBID))
             .child(LocRib.class)
             .build();
-    private static final InstanceIdentifier<Tables> IPV4_IID = LOC_RIB_IID.builder()
-            .child(Tables.class,TABLES_KEY)
+    private static final DataObjectIdentifier<Tables> IPV4_IID = LOC_RIB_IID.toBuilder()
+            .child(Tables.class, TABLES_KEY)
             .build();
-    private static final InstanceIdentifier<Tables> IPV6_IID = LOC_RIB_IID.builder()
+    private static final DataObjectIdentifier<Tables> IPV6_IID = LOC_RIB_IID.toBuilder()
             .child(Tables.class, IPV6_TABLES_KEY)
             .build();
 
@@ -105,8 +105,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final Map<TablesKey, PathSelectionMode> pathTables
-                = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
+        final Map<TablesKey, PathSelectionMode> pathTables = Map.of(TABLES_KEY, new AllPathSelection());
         final ArrayList<BgpTableType> tableTypes = new ArrayList<>(TABLES_TYPE);
         tableTypes.add(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
         ribImpl = new RIBImpl(tableRegistry, RIBID, AS_NUMBER, BGP_ID, ribExtension,
@@ -122,10 +121,10 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         gracefulAfiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
-        final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
-        Mockito.doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
-        Mockito.doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
-        Mockito.doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
+        final BgpPeer bgpPeer = mock(BgpPeer.class);
+        doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
+        doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
+        doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
         peer = configurePeer(tableRegistry, PEER1, ribImpl, parameters, PeerRole.Ibgp,
                 serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bgpPeer);
