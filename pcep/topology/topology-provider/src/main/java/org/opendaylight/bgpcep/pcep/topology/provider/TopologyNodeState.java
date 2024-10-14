@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -30,12 +31,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +47,7 @@ final class TopologyNodeState implements FutureCallback<Empty> {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyNodeState.class);
 
     private final Map<String, Metadata> metadata = new HashMap<>();
-    private final KeyedInstanceIdentifier<Node, NodeKey> nodeId;
+    private final @NonNull WithKey<Node, NodeKey> nodeId;
     private final TransactionChain chain;
     private final long holdStateNanos;
     private long lastReleased = 0;
@@ -53,16 +55,16 @@ final class TopologyNodeState implements FutureCallback<Empty> {
     @GuardedBy("this")
     private Node initialNodeState = null;
 
-    TopologyNodeState(final DataBroker broker, final InstanceIdentifier<Topology> topology, final NodeId id,
+    TopologyNodeState(final DataBroker broker, final WithKey<Topology, TopologyKey> topology, final NodeId id,
             final long holdStateNanos) {
         checkArgument(holdStateNanos >= 0);
-        nodeId = topology.child(Node.class, new NodeKey(id));
+        nodeId = topology.toBuilder().child(Node.class, new NodeKey(id)).build();
         this.holdStateNanos = holdStateNanos;
         chain = broker.createMergingTransactionChain();
         chain.addCallback(this);
     }
 
-    @NonNull KeyedInstanceIdentifier<Node, NodeKey> getNodeId() {
+    @NonNull WithKey<Node, NodeKey> getNodeId() {
         return nodeId;
     }
 
@@ -116,7 +118,7 @@ final class TopologyNodeState implements FutureCallback<Empty> {
         if (retrieveNode) {
             try {
                 // FIXME: we really should not be performing synchronous operations
-                final Optional<Node> prevNode = readOperationalData(nodeId).get();
+                final var prevNode = readOperationalData(nodeId).get();
                 if (prevNode.isEmpty()) {
                     putTopologyNode();
                 } else {
@@ -140,7 +142,7 @@ final class TopologyNodeState implements FutureCallback<Empty> {
     }
 
     synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
-            final InstanceIdentifier<T> id) {
+            final DataObjectIdentifier<T> id) {
         try (ReadTransaction t = chain.newReadOnlyTransaction()) {
             return t.read(LogicalDatastoreType.OPERATIONAL, id);
         }
@@ -164,7 +166,7 @@ final class TopologyNodeState implements FutureCallback<Empty> {
 
     @Holding("this")
     private void putTopologyNode() {
-        final Node node = new NodeBuilder().withKey(nodeId.getKey()).build();
+        final Node node = new NodeBuilder().withKey(nodeId.key()).build();
         final WriteTransaction tx = chain.newWriteOnlyTransaction();
         LOG.trace("Put topology Node {}, value {}", nodeId, node);
         // FIXME: why is this a 'merge' and not a 'put'? This seems to be related to BGPCEP-739, but there is little
@@ -183,14 +185,14 @@ final class TopologyNodeState implements FutureCallback<Empty> {
         }, MoreExecutors.directExecutor());
     }
 
-    @NonNull FluentFuture<? extends @NonNull CommitInfo> storeNode(final InstanceIdentifier<Node1> topologyAugment,
+    @NonNull FluentFuture<? extends @NonNull CommitInfo> storeNode(final DataObjectIdentifier<Node1> topologyAugment,
             final Node1 ta) {
-        LOG.trace("Peer data {} set to {}", topologyAugment, ta);
+        LOG.trace("Peer data {} set to {}", requireNonNull(topologyAugment), requireNonNull(ta));
         synchronized (this) {
-            final WriteTransaction trans = chain.newWriteOnlyTransaction();
-            trans.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
+            final var tx = chain.newWriteOnlyTransaction();
+            tx.put(LogicalDatastoreType.OPERATIONAL, topologyAugment, ta);
             // All set, commit the modifications
-            return trans.commit();
+            return tx.commit();
         }
     }
 }

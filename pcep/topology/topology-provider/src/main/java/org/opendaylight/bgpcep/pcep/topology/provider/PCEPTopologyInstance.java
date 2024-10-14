@@ -15,13 +15,12 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.binding.api.DataListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +42,14 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
             final InstructionScheduler scheduler) {
         this.topology = requireNonNull(topology);
 
-        final var instanceIdentifier = InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, topology);
+        final var instanceIdentifier = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, topology)
+            .build();
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
 
-        reg = dependencies.getDataBroker().registerDataListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, instanceIdentifier), this);
+        reg = dependencies.getDataBroker().registerDataListener(LogicalDatastoreType.CONFIGURATION, instanceIdentifier,
+            this);
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 

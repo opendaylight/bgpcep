@@ -31,9 +31,7 @@ import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.S
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
@@ -50,14 +48,16 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class PCEPStatefulPeerProposalTest {
-    private static final InstanceIdentifier<Topology> TOPOLOGY_IID = InstanceIdentifier.create(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(new TopologyId("topology")));
+    private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPOLOGY_IID =
+        DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId("topology")))
+            .build();
     private static final LspDbVersion LSP_DB_VERSION = new LspDbVersionBuilder()
         .setLspDbVersionValue(Uint64.ONE)
         .build();
@@ -80,7 +80,7 @@ public class PCEPStatefulPeerProposalTest {
         tlvsBuilder = new TlvsBuilder().addAugmentation(new Tlvs1Builder()
             .setStateful(new StatefulBuilder().addAugmentation(new Stateful1Builder().build()).build())
             .build());
-        doReturn(listenerReg).when(dataBroker).registerTreeChangeListener(any(), captor.capture());
+        doReturn(listenerReg).when(dataBroker).registerTreeChangeListener(any(), any(), captor.capture());
         doNothing().when(listenerReg).close();
     }
 
@@ -91,13 +91,14 @@ public class PCEPStatefulPeerProposalTest {
             assertEquals(2, listeners.size());
 
             // not entirely accurate, but works well enough
-            final var modPath = TOPOLOGY_IID.child(Node.class,
-                new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
+            final var modPath = TOPOLOGY_IID.toBuilder()
+                .child(Node.class, new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())))
+                .build();
 
             final var dbverRoot = mock(DataObjectModification.class);
             doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(modPath).when(dbverMod).path();
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
             for (var listener : listeners) {
@@ -118,21 +119,21 @@ public class PCEPStatefulPeerProposalTest {
             assertEquals(2, listeners.size());
 
             // not entirely accurate, but works well enough
-            final var modPath = TOPOLOGY_IID.child(Node.class,
-                new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())));
+            final var modPath = TOPOLOGY_IID.toBuilder()
+                .child(Node.class, new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())))
+                .build();
 
             final var dbverRoot = mock(DataObjectModification.class);
             doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, modPath)).when(dbverMod).getRootPath();
+            doReturn(modPath).when(dbverMod).path();
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
             final var speakerRoot = mock(DataObjectModification.class);
             doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
                 .dataAfter();
             final var speakerMod = mock(DataTreeModification.class);
-            doReturn(DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, modPath)).when(speakerMod)
-                .getRootPath();
+            doReturn(modPath).when(speakerMod).path();
             doReturn(speakerRoot).when(speakerMod).getRootNode();
 
             for (var listener : listeners) {

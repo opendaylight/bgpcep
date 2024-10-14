@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PcepNodeConfig;
@@ -24,8 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,21 +34,19 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-
 public final class PathManagerListener implements DataTreeChangeListener<Node>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerListener.class);
 
-    private Registration listenerRegistration;
-
     private final PathManagerProvider pathManager;
 
-    public PathManagerListener(final DataBroker dataBroker,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final PathManagerProvider pathManager) {
+    private Registration listenerRegistration;
+
+    public PathManagerListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topology,
+            final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
-                DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, topology.child(Node.class)), this);
-        LOG.info("Registered listener for Managed TE Path on Topology {}",
-            topology.getKey().getTopologyId().getValue());
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            topology.toLegacy().child(Node.class), this);
+        LOG.info("Registered listener for Managed TE Path on Topology {}", topology.key().getTopologyId().getValue());
     }
 
     /**

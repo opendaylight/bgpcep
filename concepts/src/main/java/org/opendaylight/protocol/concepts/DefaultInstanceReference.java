@@ -10,17 +10,17 @@ package org.opendaylight.protocol.concepts;
 import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class DefaultInstanceReference<T extends DataObject> implements InstanceReference<T> {
-    private final InstanceIdentifier<T> instanceIdentifier;
+    private final DataObjectIdentifier<T> instanceIdentifier;
 
-    public DefaultInstanceReference(final InstanceIdentifier<T> instanceIdentifier) {
+    public DefaultInstanceReference(final DataObjectIdentifier<T> instanceIdentifier) {
         this.instanceIdentifier = requireNonNull(instanceIdentifier);
     }
 
     @Override
-    public final InstanceIdentifier<T> getInstanceIdentifier() {
-        return this.instanceIdentifier;
+    public final DataObjectIdentifier<T> getInstanceIdentifier() {
+        return instanceIdentifier;
     }
 }

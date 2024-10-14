@@ -36,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockMakers;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -102,8 +101,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.link.attributes.IgpLinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.IgpNodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.Prefix;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -129,13 +129,13 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static final int ADJ_SID = 24001;
 
     private LinkstateTopologyBuilder linkstateTopoBuilder;
-    private InstanceIdentifier<Tables> tablePathIID;
+    private WithKey<Tables, TablesKey> tablePathIID;
     private String linkstateNodeRouteKey;
     private String linkstatePrefixRouteKey;
     private String linkstateLinkRouteKey;
-    private InstanceIdentifier<LinkstateRoute> linkstateNodeRouteIID;
-    private InstanceIdentifier<LinkstateRoute> linkstatePrefixRouteIID;
-    private InstanceIdentifier<LinkstateRoute> linkstateLinkRouteIID;
+    private WithKey<LinkstateRoute, LinkstateRouteKey> linkstateNodeRouteIID;
+    private WithKey<LinkstateRoute, LinkstateRouteKey> linkstatePrefixRouteIID;
+    private WithKey<LinkstateRoute, LinkstateRouteKey> linkstateLinkRouteIID;
 
     @Before
     @Override
@@ -144,11 +144,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         linkstateTopoBuilder = new LinkstateTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID,
             LISTENER_RESTART_TIME, LISTENER_ENFORCE_COUNTER);
         linkstateTopoBuilder.start();
-        tablePathIID =
-                LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
-                        .child(Tables.class,
-                                new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE))
-                        .build();
+        tablePathIID = LOC_RIB_REF.getInstanceIdentifier().toBuilder()
+            .child(LocRib.class)
+            .child(Tables.class, new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE))
+            .build();
         linkstateNodeRouteKey = getLinkstateRouteKey("node-route");
         linkstatePrefixRouteKey = getLinkstateRouteKey("prefix-route");
         linkstateLinkRouteKey = getLinkstateRouteKey("link-route");
@@ -420,50 +419,60 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         return Unpooled.wrappedBuffer(StandardCharsets.UTF_8.encode(routeKey)).array().toString();
     }
 
-    private InstanceIdentifier<LinkstateRoute> createLinkstateRouteIID(final String linkstateRouteKey) {
-        return tablePathIID.builder().child(LinkstateRoutesCase.class, LinkstateRoutes.class)
-                .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(Uint32.ZERO), linkstateRouteKey)).build();
+    private WithKey<LinkstateRoute, LinkstateRouteKey> createLinkstateRouteIID(final String linkstateRouteKey) {
+        return tablePathIID.toBuilder()
+            .child(LinkstateRoutesCase.class, LinkstateRoutes.class)
+            .child(LinkstateRoute.class, new LinkstateRouteKey(new PathId(Uint32.ZERO), linkstateRouteKey))
+            .build();
     }
 
-    private void updateLinkstateRoute(final InstanceIdentifier<LinkstateRoute> linkstateRouteIID,
+    private void updateLinkstateRoute(final DataObjectIdentifier<LinkstateRoute> linkstateRouteIID,
             final LinkstateRoute data) {
-        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, linkstateRouteIID, data);
-        wTx.commit();
+        final var tx = getDataBroker().newWriteOnlyTransaction();
+        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, linkstateRouteIID, data);
+        tx.commit();
     }
 
-    private void removeLinkstateRoute(final InstanceIdentifier<LinkstateRoute> linkstateRouteIID) {
-        final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, linkstateRouteIID);
-        wTx.commit();
+    private void removeLinkstateRoute(final DataObjectIdentifier<LinkstateRoute> linkstateRouteIID) {
+        final var t = getDataBroker().newWriteOnlyTransaction();
+        t.delete(LogicalDatastoreType.OPERATIONAL, linkstateRouteIID);
+        t.commit();
     }
 
     private LinkstateRoute createLinkstateNodeRoute(final ProtocolId protocolId, final String nodeName,
             final AsNumber asNumber, final String ipv4RouterId) {
         return createBaseBuilder(linkstateNodeRouteKey, protocolId)
-                .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate
-                        .rev200120.linkstate.object.type.NodeCaseBuilder()
-                        .setNodeDescriptors(new NodeDescriptorsBuilder()
-                                .setCRouterIdentifier(new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder()
-                                        .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 1, 2, 3, 4})).build())
-                                        .build())
-                                .setAsNumber(asNumber).build()).build())
-                .setAttributes(new AttributesBuilder()
-                        .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
-                        .addAugmentation(new Attributes1Builder()
-                                .setLinkStateAttribute(new NodeAttributesCaseBuilder()
-                                        .setNodeAttributes(new NodeAttributesBuilder()
-                                                .setDynamicHostname(nodeName)
-                                                .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
-                                                .setIsisAreaId(Set.of(new IsisAreaIdentifier(new byte[]{0x47})))
-                                                .setSrCapabilities(new SrCapabilitiesBuilder()
-                                                        .setRangeSize(new Uint24(Uint32.valueOf(SRGB_RANGE)))
-                                                        .setSidLabelIndex(new LocalLabelCaseBuilder()
-                                                                .setLocalLabel(
-                                                                        new MplsLabel(Uint32.valueOf(SRGB_START)))
-                                                                .build())
-                                                        .build())
-                                                .build()).build()).build()).build()).build();
+            .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
+                .linkstate.object.type.NodeCaseBuilder()
+                    .setNodeDescriptors(new NodeDescriptorsBuilder()
+                        .setCRouterIdentifier(new IsisNodeCaseBuilder()
+                            .setIsisNode(new IsisNodeBuilder()
+                                .setIsoSystemId(new IsoSystemIdentifier(new byte[]{0, 0, 1, 2, 3, 4}))
+                                .build())
+                            .build())
+                        .setAsNumber(asNumber)
+                        .build())
+                    .build())
+            .setAttributes(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+                .addAugmentation(new Attributes1Builder()
+                    .setLinkStateAttribute(new NodeAttributesCaseBuilder()
+                        .setNodeAttributes(new NodeAttributesBuilder()
+                            .setDynamicHostname(nodeName)
+                            .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
+                            .setIsisAreaId(Set.of(new IsisAreaIdentifier(new byte[]{0x47})))
+                            .setSrCapabilities(new SrCapabilitiesBuilder()
+                                .setRangeSize(new Uint24(Uint32.valueOf(SRGB_RANGE)))
+                                .setSidLabelIndex(new LocalLabelCaseBuilder()
+                                    .setLocalLabel(
+                                        new MplsLabel(Uint32.valueOf(SRGB_START)))
+                                    .build())
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build();
     }
 
     private LinkstateRoute createLinkstatePrefixRoute(final ProtocolId protocolId, final AsNumber asNumber,

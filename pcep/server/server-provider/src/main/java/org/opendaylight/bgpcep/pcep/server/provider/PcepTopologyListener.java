@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -59,8 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -72,7 +71,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-
 public final class PcepTopologyListener implements DataTreeChangeListener<Node>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PcepTopologyListener.class);
 
@@ -80,13 +78,13 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
 
     private Registration listenerRegistration;
 
-    public PcepTopologyListener(final DataBroker dataBroker,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topology, final PathManagerProvider pathManager) {
+    public PcepTopologyListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topology,
+            final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
-                DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, topology.child(Node.class)), this);
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            topology.toLegacy().child(Node.class), this);
         LOG.info("Registered PCE Server listener {} for Operational PCEP Topology {}",
-                listenerRegistration, topology.getKey().getTopologyId().getValue());
+                listenerRegistration, topology.key().getTopologyId().getValue());
     }
 
     /**

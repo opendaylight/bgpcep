@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -97,10 +96,10 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, TUNNEL_TOPO_IID, new TopologyBuilder()
                 .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build());
         wTx.commit().get();
-        final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
-                PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID.toLegacy());
-        listenerRegistration = getDataBroker().registerTreeChangeListener(DataTreeIdentifier.of(
-                LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
+        final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(), PCEP_TOPOLOGY_ID,
+            TUNNEL_TOPO_IID);
+        listenerRegistration = getDataBroker().registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            PCEP_TOPO_IID.child(Node.class), nodeListener);
     }
 
     @Test
