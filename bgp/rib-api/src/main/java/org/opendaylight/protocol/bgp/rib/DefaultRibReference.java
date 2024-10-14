@@ -11,17 +11,17 @@ import static java.util.Objects.requireNonNull;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class DefaultRibReference implements RibReference {
-    private final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier;
+    private final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier;
 
-    public DefaultRibReference(final KeyedInstanceIdentifier<Rib, RibKey> instanceIdentifier) {
+    public DefaultRibReference(final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier) {
         this.instanceIdentifier = requireNonNull(instanceIdentifier);
     }
 
     @Override
-    public final KeyedInstanceIdentifier<Rib, RibKey> getInstanceIdentifier() {
-        return this.instanceIdentifier;
+    public final DataObjectIdentifier.WithKey<Rib, RibKey> getInstanceIdentifier() {
+        return instanceIdentifier;
     }
 }

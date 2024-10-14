@@ -18,7 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -35,11 +34,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCEPPeerProposal {
     private abstract static class AbstractListener<D extends DataObject, V> implements DataTreeChangeListener<D> {
@@ -49,8 +50,8 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
             justification = "Stateless specializations in this nest")
         AbstractListener(final DataBroker dataBroker, final @NonNull LogicalDatastoreType datastore,
-                final @NonNull InstanceIdentifier<D> wildcard) {
-            reg = dataBroker.registerTreeChangeListener(DataTreeIdentifier.of(datastore, wildcard), this);
+                final @NonNull DataObjectReference<D> wildcard) {
+            reg = dataBroker.registerTreeChangeListener(datastore, wildcard, this);
         }
 
         final void remove(final DataTreeModification<?> modification) {
@@ -73,10 +74,13 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
 
     @VisibleForTesting
     static final class SpeakerIdListener extends AbstractListener<PcepNodeSyncConfig, byte[]> {
-        SpeakerIdListener(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
-            super(dataBroker, LogicalDatastoreType.CONFIGURATION, topologyId.child(Node.class)
-                .augmentation(Node1.class).child(SessionConfig.class)
-                .augmentation(PcepNodeSyncConfig.class));
+        SpeakerIdListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topologyId) {
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION, topologyId.toBuilder()
+                .child(Node.class)
+                .augmentation(Node1.class)
+                .child(SessionConfig.class)
+                .augmentation(PcepNodeSyncConfig.class)
+                .build());
         }
 
         @Override
@@ -94,10 +98,14 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
 
     @VisibleForTesting
     static final class LspDbVersionListener extends AbstractListener<LspDbVersion, LspDbVersion> {
-        LspDbVersionListener(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
-            super(dataBroker, LogicalDatastoreType.OPERATIONAL, topologyId.child(Node.class)
-                .augmentation(Node1.class).child(PathComputationClient.class)
-                .augmentation(PathComputationClient1.class).child(LspDbVersion.class));
+        LspDbVersionListener(final DataBroker dataBroker, final DataObjectReference<Topology> topologyId) {
+            super(dataBroker, LogicalDatastoreType.OPERATIONAL, topologyId.toBuilder()
+                .child(Node.class)
+                .augmentation(Node1.class)
+                .child(PathComputationClient.class)
+                .augmentation(PathComputationClient1.class)
+                .child(LspDbVersion.class)
+                .build());
         }
 
         @Override
@@ -111,7 +119,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
     private final LspDbVersionListener lspDbVersions;
     private final SpeakerIdListener speakerIds;
 
-    PCEPStatefulPeerProposal(final DataBroker dataBroker, final InstanceIdentifier<Topology> topologyId) {
+    PCEPStatefulPeerProposal(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topologyId) {
         lspDbVersions = new LspDbVersionListener(dataBroker, topologyId);
         speakerIds = new SpeakerIdListener(dataBroker, topologyId);
     }

@@ -47,7 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -73,7 +73,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         }
     }
 
-    private final @NonNull KeyedInstanceIdentifier<Topology, TopologyKey> topology;
+    private final @NonNull WithKey<Topology, TopologyKey> topology;
     private final @NonNull PCEPTopologyProviderDependencies dependencies;
     private final @Nullable GraphKey graphKey;
 
@@ -86,7 +86,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     private volatile short rpcTimeout;
     private volatile boolean closed;
 
-    ServerSessionManager(final KeyedInstanceIdentifier<Topology, TopologyKey> topology,
+    ServerSessionManager(final WithKey<Topology, TopologyKey> topology,
             final PCEPTopologyProviderDependencies dependencies, final GraphKey graphKey,
             final short rpcTimeout, final long updateInterval) {
         this.dependencies = requireNonNull(dependencies);
@@ -101,7 +101,7 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
         LOG.info("Creating PCEP Topology {}", topologyId());
         final var tx = dependencies.getDataBroker().newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, topology, new TopologyBuilder()
-            .withKey(topology.getKey())
+            .withKey(topology.key())
             .setTopologyTypes(new TopologyTypesBuilder()
                 .addAugmentation(new TopologyTypes1Builder().setTopologyPcep(new TopologyPcepBuilder().build()).build())
                 .build())
@@ -161,9 +161,9 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
             server.unRegisterPcepTopology(topology);
         }
 
-        final WriteTransaction t = dependencies.getDataBroker().newWriteOnlyTransaction();
-        t.delete(LogicalDatastoreType.OPERATIONAL, topology);
-        final FluentFuture<? extends CommitInfo> future = t.commit();
+        final WriteTransaction tx = dependencies.getDataBroker().newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, topology);
+        final var future = tx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

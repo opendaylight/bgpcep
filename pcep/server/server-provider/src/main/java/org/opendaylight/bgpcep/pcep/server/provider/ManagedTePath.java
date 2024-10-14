@@ -24,7 +24,6 @@ import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.graph.ConnectedVertexTrigger;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -76,16 +75,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.lib.CodeHelpers;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigger {
+    private static final Logger LOG = LoggerFactory.getLogger(ManagedTePath.class);
 
     private ConfiguredLsp cfgLsp = null;
     private ConfiguredLsp prevLsp = null;
@@ -93,25 +95,31 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
     private boolean sent = false;
     private boolean triggerFlag = false;
     private PathType type = PathType.Pcc;
-    private final InstanceIdentifier<Topology> pcepTopology;
-    private final InstanceIdentifier<PathComputationClient1> pccIdentifier;
+    private final WithKey<Topology, TopologyKey> pcepTopology;
+    private final DataObjectIdentifier<PathComputationClient1> pccIdentifier;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ManagedTePath.class);
-
-    public ManagedTePath(final ManagedTeNode teNode, final InstanceIdentifier<Topology> topology) {
+    public ManagedTePath(final ManagedTeNode teNode, final WithKey<Topology, TopologyKey> topology) {
         this.teNode = requireNonNull(teNode);
         pcepTopology = requireNonNull(topology);
-        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
-                .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
+        pccIdentifier = pcepTopology.toBuilder()
+            .child(Node.class, new NodeKey(teNode.getId()))
+            .augmentation(Node1.class)
+            .child(PathComputationClient.class)
+            .augmentation(PathComputationClient1.class)
+            .build();
     }
 
     public ManagedTePath(final ManagedTeNode teNode, final ConfiguredLsp lsp,
-            final InstanceIdentifier<Topology> topology) {
+            final WithKey<Topology, TopologyKey> topology) {
         cfgLsp = requireNonNull(lsp);
         this.teNode = requireNonNull(teNode);
         pcepTopology = requireNonNull(topology);
-        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
-                .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
+        pccIdentifier = pcepTopology.toBuilder()
+            .child(Node.class, new NodeKey(teNode.getId()))
+            .augmentation(Node1.class)
+            .child(PathComputationClient.class)
+            .augmentation(PathComputationClient1.class)
+            .build();
     }
 
     public ManagedTePath(final ManagedTeNode teNode, final ManagedTePath mngPath) {
@@ -121,8 +129,12 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         type = mngPath.getType();
         this.teNode = requireNonNull(teNode);
         pcepTopology = mngPath.getTopology();
-        pccIdentifier = pcepTopology.child(Node.class, new NodeKey(teNode.getId())).augmentation(Node1.class)
-                .child(PathComputationClient.class).augmentation(PathComputationClient1.class);
+        pccIdentifier = pcepTopology.toBuilder()
+            .child(Node.class, new NodeKey(teNode.getId()))
+            .augmentation(Node1.class)
+            .child(PathComputationClient.class)
+            .augmentation(PathComputationClient1.class)
+            .build();
     }
 
     public ConfiguredLsp getLsp() {
@@ -137,7 +149,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         return type;
     }
 
-    public InstanceIdentifier<Topology> getTopology() {
+    public WithKey<Topology, TopologyKey> getTopology() {
         return pcepTopology;
     }
 
@@ -780,9 +792,9 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setName(cfgLsp.getName())
                 .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
                 .build();
-        final ListenableFuture<RpcResult<RemoveLspOutput>> enforce = removeLsp.invoke(rli);
+        final var enforce = removeLsp.invoke(rli);
         LOG.info("Call Remove LSP to {} with {}", removeLsp, enforce);
-        Futures.addCallback(enforce, new FutureCallback<RpcResult<RemoveLspOutput>>() {
+        Futures.addCallback(enforce, new FutureCallback<>() {
             @Override
             public void onSuccess(final RpcResult<RemoveLspOutput> result) {
                 if (result.isSuccessful()) {
@@ -813,9 +825,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             return;
         }
 
-        final WriteTransaction trans = teNode.getTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, pccIdentifier.child(ConfiguredLsp.class, cfgLsp.key()), cfgLsp);
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var tx = teNode.getTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL,
+            pccIdentifier.toBuilder().child(ConfiguredLsp.class, cfgLsp.key()).build(), cfgLsp);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.debug("Configured LSP {} has been published in operational datastore ", cfgLsp.getName());
@@ -824,7 +837,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Cannot write Configured LSP {} to the operational datastore (transaction: {})",
-                        cfgLsp.getName(), trans.getIdentifier());
+                        cfgLsp.getName(), tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -838,9 +851,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             return;
         }
 
-        final WriteTransaction trans = teNode.getTransaction();
-        trans.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier.child(ConfiguredLsp.class, cfgLsp.key()), cfgLsp);
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var tx = teNode.getTransaction();
+        tx.merge(LogicalDatastoreType.OPERATIONAL,
+            pccIdentifier.toBuilder().child(ConfiguredLsp.class, cfgLsp.key()).build(), cfgLsp);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.debug("Configured LSP {} has been updated in operational datastore ", cfgLsp.getName());
@@ -849,7 +863,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Cannot update Configured LSP {} to the operational datastore (transaction: {})",
-                        cfgLsp.getName(), trans.getIdentifier());
+                        cfgLsp.getName(), tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -863,9 +877,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             return;
         }
 
-        final WriteTransaction trans = teNode.getTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, pccIdentifier.child(ConfiguredLsp.class, cfgLsp.key()));
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var tx = teNode.getTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL,
+            pccIdentifier.toBuilder().child(ConfiguredLsp.class, cfgLsp.key()).build());
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.debug("Configured LSP {} has been deleted in operational datastore ", cfgLsp.getName());
@@ -874,7 +889,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Cannot delete Configured LSP {} from the operational datastore (transaction: {})",
-                        cfgLsp.getName(), trans.getIdentifier());
+                        cfgLsp.getName(), tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -887,5 +902,4 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         CodeHelpers.appendValue(helper, "Sent", sent);
         return helper.toString();
     }
-
 }

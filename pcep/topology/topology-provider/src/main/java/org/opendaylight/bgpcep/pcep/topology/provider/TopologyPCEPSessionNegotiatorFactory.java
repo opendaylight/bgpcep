@@ -18,7 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.con
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class TopologyPCEPSessionNegotiatorFactory extends DefaultPCEPSessionNegotiatorFactory {
@@ -27,7 +27,7 @@ final class TopologyPCEPSessionNegotiatorFactory extends DefaultPCEPSessionNegot
     TopologyPCEPSessionNegotiatorFactory(final PCEPSessionListenerFactory listenerFactory,
             final PCEPTimerProposal timers, final List<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
             final PcepSessionTls tlsConfiguration, final DataBroker dataBroker,
-            final KeyedInstanceIdentifier<Topology, TopologyKey> topology) {
+            final WithKey<Topology, TopologyKey> topology) {
         super(listenerFactory, timers, capabilities, maxUnknownMessages, tlsConfiguration);
         proposal = new PCEPStatefulPeerProposal(dataBroker, topology);
     }
