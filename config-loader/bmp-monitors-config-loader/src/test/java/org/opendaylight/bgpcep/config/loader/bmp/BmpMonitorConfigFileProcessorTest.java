@@ -15,24 +15,23 @@ import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration
 import org.junit.Test;
 import org.opendaylight.bgpcep.config.loader.impl.AbstractConfigLoaderTest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.config.rev200120.OdlBmpMonitors;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoaderTest {
-    private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
-            InstanceIdentifier.create(OdlBmpMonitors.class);
+    private static final DataObjectIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
+        DataObjectIdentifier.builder(OdlBmpMonitors.class).build();
 
     @Test
     public void configFileTest() throws Exception {
         checkNotPresentConfiguration(getDataBroker(), ODL_BMP_MONITORS_IID);
 
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/odl-bmp-monitors-config.xml"));
-        final BmpMonitorConfigFileProcessor processor = new BmpMonitorConfigFileProcessor(this.configLoader,
-                getDomBroker());
-        processor.init();
-        checkPresentConfiguration(getDataBroker(), ODL_BMP_MONITORS_IID);
+        try (var processor = new BmpMonitorConfigFileProcessor(configLoader, getDomBroker())) {
+            processor.init();
+            checkPresentConfiguration(getDataBroker(), ODL_BMP_MONITORS_IID);
 
-        assertEquals(Absolute.of(OdlBmpMonitors.QNAME), processor.fileRootSchema());
-        processor.close();
+            assertEquals(Absolute.of(OdlBmpMonitors.QNAME), processor.fileRootSchema());
+        }
     }
 }

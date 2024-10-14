@@ -136,6 +136,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
@@ -153,13 +154,14 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final PortNumber remotePort = new PortNumber(Uint16.valueOf(179));
     private final Uint16 restartTime = Uint16.valueOf(15);
     private final String ribId = "identifier-test";
-    private final InstanceIdentifier<Bgp> bgpInstanceIdentifier =
-        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+    private final DataObjectIdentifier<Bgp> bgpInstanceIdentifier =
+        DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
             .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
             .child(Protocols.class)
             .child(Protocol.class, new ProtocolKey(BGP.VALUE, ribId))
             .augmentation(NetworkInstanceProtocol.class)
-            .child(Bgp.class);
+            .child(Bgp.class)
+            .build();
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private final AsNumber as = new AsNumber(Uint32.valueOf(72));
     private final BgpId bgpId = new BgpId("127.0.0.1");

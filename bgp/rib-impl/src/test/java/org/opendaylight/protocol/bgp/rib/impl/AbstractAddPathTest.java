@@ -84,8 +84,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -114,11 +114,11 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final Update UPD_NA_200 = createSimpleUpdate(PREFIX1, null, CLUSTER_ID, 200);
     static final Update UPD_NA_200_EBGP = createSimpleUpdateEbgp(PREFIX1);
     static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-    static final List<BgpTableType> TABLES_TYPE = List.of(new BgpTableTypeImpl(TABLES_KEY.getAfi(),
-        TABLES_KEY.getSafi()));
+    static final List<BgpTableType> TABLES_TYPE = List.of(
+        new BgpTableTypeImpl(TABLES_KEY.getAfi(), TABLES_KEY.getSafi()));
     static final Set<TablesKey> AFI_SAFIS_ADVERTIZED = Set.of(TABLES_KEY);
 
-    static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    static final DataObjectIdentifier<BgpRib> BGP_IID = DataObjectIdentifier.builder(BgpRib.class).build();
     static final int GRACEFUL_RESTART_TIME = 5;
     @Mock
     protected ClusterSingletonServiceProvider clusterSingletonServiceProvider;

@@ -91,9 +91,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.peers.peer.Stats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.RouterKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -110,10 +109,12 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     private static final String REMOTE_ROUTER_ADDRESS_2 = "127.0.0.13";
     private static final Ipv4AddressNoZone PEER1 = new Ipv4AddressNoZone("20.20.20.20");
     private static final MonitorId MONITOR_ID = new MonitorId("monitor");
-    private static final KeyedInstanceIdentifier<Monitor, MonitorKey> MONITOR_IID =
-        InstanceIdentifier.create(BmpMonitor.class).child(Monitor.class, new MonitorKey(MONITOR_ID));
+    private static final DataObjectIdentifier<BmpMonitor> BMP_II =
+        DataObjectIdentifier.builder(BmpMonitor.class).build();
+    private static final DataObjectIdentifier.WithKey<Monitor, MonitorKey> MONITOR_IID = BMP_II.toBuilder()
+        .child(Monitor.class, new MonitorKey(MONITOR_ID))
+        .build();
     private static final PeerId PEER_ID = new PeerId(PEER1.getValue());
-    private static final InstanceIdentifier<BmpMonitor> BMP_II = InstanceIdentifier.create(BmpMonitor.class);
     private AdapterContext mappingService;
     private final RIBActivator ribActivator = new RIBActivator();
     private final BGPActivator bgpActivator = new BGPActivator();
@@ -306,8 +307,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         });
 
         waitWriteAndFlushSuccess(channel.writeAndFlush(TestUtil.createPeerUpNotification(PEER1, true)));
-        final KeyedInstanceIdentifier<Router, RouterKey> routerIId =
-                MONITOR_IID.child(Router.class, new RouterKey(routerId));
+        final var routerIId = MONITOR_IID.toBuilder().child(Router.class, new RouterKey(routerId)).build();
 
         readDataOperational(getDataBroker(), routerIId, router -> {
             final Map<PeerKey, Peer> peers = router.getPeer();
@@ -350,9 +350,9 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
 
         final StatsReportsMessage statsMsg = TestUtil.createStatsReportMsg(PEER1);
         waitWriteAndFlushSuccess(channel.writeAndFlush(statsMsg));
-        final KeyedInstanceIdentifier<Peer, PeerKey> peerIId = routerIId.child(Peer.class, new PeerKey(PEER_ID));
+        final var peerIId = routerIId.toBuilder().child(Peer.class, new PeerKey(PEER_ID)).build();
 
-        readDataOperational(getDataBroker(), peerIId.child(Stats.class), peerStats -> {
+        readDataOperational(getDataBroker(), peerIId.toBuilder().child(Stats.class).build(), peerStats -> {
             assertNotNull(peerStats.getTimestampSec());
             final Tlvs tlvs = statsMsg.getTlvs();
             assertEquals(tlvs.getAdjRibsInRoutesTlv().getCount(), peerStats.getAdjRibsInRoutes());
@@ -379,7 +379,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         final RouteMirroringMessage routeMirrorMsg = TestUtil.createRouteMirrorMsg(PEER1);
         waitWriteAndFlushSuccess(channel.writeAndFlush(routeMirrorMsg));
 
-        readDataOperational(getDataBroker(), peerIId.child(Mirrors.class), routeMirrors -> {
+        readDataOperational(getDataBroker(), peerIId.toBuilder().child(Mirrors.class).build(), routeMirrors -> {
             assertNotNull(routeMirrors.getTimestampSec());
             return routeMirrors;
         });
@@ -389,7 +389,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonMsgWithEndOfRibMarker(PEER1,
                 AdjRibInType.PrePolicy)));
 
-        readDataOperational(getDataBroker(), peerIId.child(PrePolicyRib.class), prePolicyRib -> {
+        readDataOperational(getDataBroker(), peerIId.toBuilder().child(PrePolicyRib.class).build(), prePolicyRib -> {
             assertFalse(prePolicyRib.nonnullTables().isEmpty());
             final Tables tables = prePolicyRib.nonnullTables().values().iterator().next();
             assertTrue(tables.getAttributes().getUptodate());
@@ -402,7 +402,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         waitWriteAndFlushSuccess(channel.writeAndFlush(createRouteMonMsgWithEndOfRibMarker(PEER1,
                 AdjRibInType.PostPolicy)));
 
-        readDataOperational(getDataBroker(), peerIId.child(PostPolicyRib.class), postPolicyRib -> {
+        readDataOperational(getDataBroker(), peerIId.toBuilder().child(PostPolicyRib.class).build(), postPolicyRib -> {
             assertFalse(postPolicyRib.nonnullTables().isEmpty());
             final Tables tables = postPolicyRib.nonnullTables().values().iterator().next();
             assertTrue(tables.getAttributes().getUptodate());

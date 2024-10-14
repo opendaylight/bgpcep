@@ -19,25 +19,23 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @Test
     public void configFileTest() throws InterruptedException, ExecutionException {
-        final KeyedInstanceIdentifier<Topology, TopologyKey> topologyIIdKeyed =
-                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                        new TopologyKey(new TopologyId("topology-test")));
+        final var topologyIIdKeyed = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId("topology-test")))
+            .build();
         checkNotPresentConfiguration(getDataBroker(), topologyIIdKeyed);
 
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/network-topology-config.xml"));
-        final NetworkTopologyConfigFileProcessor processor = new NetworkTopologyConfigFileProcessor(this.configLoader,
-                getDomBroker());
-        processor.init();
-        checkPresentConfiguration(getDataBroker(), topologyIIdKeyed);
+        try (var processor = new NetworkTopologyConfigFileProcessor(configLoader, getDomBroker())) {
+            processor.init();
+            checkPresentConfiguration(getDataBroker(), topologyIIdKeyed);
 
-        assertEquals(Absolute.of(NetworkTopology.QNAME), processor.fileRootSchema());
-        processor.close();
+            assertEquals(Absolute.of(NetworkTopology.QNAME), processor.fileRootSchema());
+        }
     }
 }

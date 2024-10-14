@@ -61,24 +61,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
-
     private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE);
     private static final String NETWORK_INSTANCE_NAME = "network-test";
-    private static final KeyedInstanceIdentifier<NetworkInstance, NetworkInstanceKey> NETWORK_II =
-        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
-            .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME));
+    private static final DataObjectIdentifier.WithKey<NetworkInstance, NetworkInstanceKey> NETWORK_II =
+        DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
+            .child(NetworkInstance.class, new NetworkInstanceKey(NETWORK_INSTANCE_NAME))
+            .build();
     private static final String KEY = "bgp";
-    private static final InstanceIdentifier<Bgp> BGP_II = NETWORK_II.child(Protocols.class)
-            .child(Protocol.class, new ProtocolKey(BGP.VALUE, KEY))
-            .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-    private static final InstanceIdentifier<Global> GLOBAL_II = BGP_II.child(Global.class);
-    private static final InstanceIdentifier<Neighbors> NEIGHBORS_II = BGP_II.child(Neighbors.class);
+    private static final DataObjectIdentifier<Bgp> BGP_II = NETWORK_II.toBuilder()
+        .child(Protocols.class)
+        .child(Protocol.class, new ProtocolKey(BGP.VALUE, KEY))
+        .augmentation(NetworkInstanceProtocol.class)
+        .child(Bgp.class)
+        .build();
+    private static final DataObjectIdentifier<Global> GLOBAL_II = BGP_II.toBuilder().child(Global.class).build();
+    private static final DataObjectIdentifier<Neighbors> NEIGHBORS_II =
+        BGP_II.toBuilder().child(Neighbors.class).build();
     private static final int VERIFY_TIMEOUT_MILIS = 5000;
 
     @Mock
@@ -122,8 +125,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
                 codecsRegistry, getDomBroker(), getDataBroker(), tableTypeRegistry, stateProviderRegistry));
         bgpSingletonObtainedLatch = new CountDownLatch(1);
         doAnswer(invocationOnMock -> {
-                final BGPClusterSingletonService real =
-                        (BGPClusterSingletonService) invocationOnMock.callRealMethod();
+                final var real = (BGPClusterSingletonService) invocationOnMock.callRealMethod();
                 if (spiedBgpSingletonService == null) {
                     spiedBgpSingletonService = spy(real);
                 }

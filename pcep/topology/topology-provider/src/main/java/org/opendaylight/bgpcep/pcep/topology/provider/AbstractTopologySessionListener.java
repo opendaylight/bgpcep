@@ -165,7 +165,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
                 synced.set(isSynchronized());
 
-                final InstanceIdentifier<Node1> topologyAugment = nodeId.augmentation(Node1.class);
+                final var topologyAugment = nodeId.augmentation(Node1.class);
                 pccIdentifier = topologyAugment.child(PathComputationClient.class);
 
                 if (haveLspDbVersion) {

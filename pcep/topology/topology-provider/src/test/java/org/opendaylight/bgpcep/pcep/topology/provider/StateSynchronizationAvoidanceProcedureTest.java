@@ -72,9 +72,10 @@ public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSess
             .build(), Optional.of(MsgBuilderUtil.createSrp(Uint32.ONE)), null);
         listener.onMessage(session, pcRpt);
         //check topology
-        readDataOperational(getDataBroker(), pathComputationClientIId.builder()
-                .augmentation(PathComputationClient1.class)
-                .child(LspDbVersion.class).build(), dbVersion -> {
+        readDataOperational(getDataBroker(), pathComputationClientIId.toBuilder()
+            .augmentation(PathComputationClient1.class)
+            .child(LspDbVersion.class)
+            .build(), dbVersion -> {
                 assertEquals(1L, dbVersion.getLspDbVersionValue().longValue());
                 return dbVersion;
             });

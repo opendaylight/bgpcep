@@ -56,9 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.NoOpObjectRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -67,16 +67,16 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
 
     static final short RPC_TIMEOUT = 4;
     private static final TopologyKey TEST_TOPOLOGY_ID = new TopologyKey(new TopologyId("testtopo"));
-    static final KeyedInstanceIdentifier<Topology, TopologyKey> TOPO_IID =
-        InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, TEST_TOPOLOGY_ID);
+    static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPO_IID =
+        DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class, TEST_TOPOLOGY_ID).build();
     private static final String IPV4_MASK = "/32";
     final String testAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final NodeId nodeId = new NodeId("pcc://" + testAddress);
-    protected final InstanceIdentifier<PathComputationClient> pathComputationClientIId = TOPO_IID.builder()
-            .child(Node.class, new NodeKey(nodeId))
-            .augmentation(Node1.class)
-            .child(PathComputationClient.class)
-            .build();
+    protected final DataObjectIdentifier<PathComputationClient> pathComputationClientIId = TOPO_IID.toBuilder()
+        .child(Node.class, new NodeKey(nodeId))
+        .augmentation(Node1.class)
+        .child(PathComputationClient.class)
+        .build();
     final String eroIpPrefix = testAddress + IPV4_MASK;
     final String newDestinationAddress = InetSocketAddressUtil.getRandomLoopbackIpAddress();
     final String dstIpPrefix = newDestinationAddress + IPV4_MASK;
@@ -138,8 +138,10 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         doReturn(timer).when(topologyDependencies).getTimer();
         doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
-                new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
+        manager = customizeSessionManager(new ServerSessionManager(
+            // TODO: this cast should not be necessary
+            (KeyedInstanceIdentifier<Topology, TopologyKey>) TOPO_IID.toLegacy(), topologyDependencies,
+            new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
         startSessionManager();
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,
             localPrefs, Uint16.valueOf(5));
