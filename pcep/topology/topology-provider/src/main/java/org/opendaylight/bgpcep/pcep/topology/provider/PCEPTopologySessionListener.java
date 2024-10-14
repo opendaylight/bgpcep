@@ -12,7 +12,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -95,10 +94,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.PathComputationClientBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
@@ -168,8 +168,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         LOG.trace("Trigger Lsp Resynchronization {}", input);
 
         // Make sure the LSP exists
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-        final FluentFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final var lsp = lspIdentifier(input.getName());
+        final var f = readOperationalData(lsp);
         if (f == null) {
             return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
         }
@@ -424,8 +424,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final var lsp = lspIdentifier(input.getName());
+        final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
                 : Futures.transformAsync(f, new AddFunction(input, lsp), MoreExecutors.directExecutor());
     }
@@ -436,8 +436,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final var lsp = lspIdentifier(input.getName());
+        final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
                 : Futures.transformAsync(f, rep -> {
                     final Lsp reportedLsp = validateReportedLsp(rep, input);
@@ -509,8 +509,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
-        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final var lsp = lspIdentifier(input.getName());
+        final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
                 : Futures.transformAsync(f, new UpdateFunction(input), MoreExecutors.directExecutor());
     }
@@ -530,9 +530,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         }
 
         // Make sure the LSP exists
-        final InstanceIdentifier<ReportedLsp> lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.getName());
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
-        final ListenableFuture<Optional<ReportedLsp>> f = readOperationalData(lsp);
+        final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
                 : listenableFuture(f, input, op);
     }
@@ -546,13 +546,13 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 return OperationResults.UNSENT;
             }
             // check if at least one of the paths has the same status as requested
-            for (final Path p : rep.orElseThrow().nonnullPath().values()) {
-                final Path1 p1 = p.augmentation(Path1.class);
-                if (p1 == null) {
+            for (var path : rep.orElseThrow().nonnullPath().values()) {
+                final var lspPath = path.augmentation(Path1.class);
+                if (lspPath == null) {
                     LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
                     return OperationResults.UNSENT;
                 }
-                if (op.equals(p1.getLsp().getOperational())) {
+                if (op.equals(lspPath.getLsp().getOperational())) {
                     return OperationResults.SUCCESS;
                 }
             }
@@ -686,11 +686,10 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     }
 
     private class AddFunction implements AsyncFunction<Optional<ReportedLsp>, OperationResult> {
-
         private final AddLspArgs input;
-        private final InstanceIdentifier<ReportedLsp> lsp;
+        private final WithKey<ReportedLsp, ReportedLspKey> lsp;
 
-        AddFunction(final AddLspArgs input, final InstanceIdentifier<ReportedLsp> lsp) {
+        AddFunction(final AddLspArgs input, final WithKey<ReportedLsp, ReportedLspKey> lsp) {
             this.input = input;
             this.lsp = lsp;
         }

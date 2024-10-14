@@ -16,8 +16,8 @@ import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingle
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     }
 
     @Override
-    public InstanceIdentifier<Topology> getInstanceIdentifier() {
+    public DataObjectIdentifier<Topology> getInstanceIdentifier() {
         return topologyBuilder.getInstanceIdentifier();
     }
 
@@ -59,7 +59,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     @Override
     public ServiceGroupIdentifier getIdentifier() {
         return new ServiceGroupIdentifier(
-            getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
+            getInstanceIdentifier().toLegacy().firstKeyOf(Topology.class).getTopologyId().getValue());
     }
 
     @Override

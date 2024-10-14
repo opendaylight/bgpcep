@@ -69,8 +69,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private final ServerSessionManager serverSessionManager;
     private final SessionStateRegistry stateRegistry;
 
-    private InstanceIdentifier<PathComputationClient> pccIdentifier;
+    private DataObjectIdentifier<PathComputationClient> pccIdentifier;
     @GuardedBy("this")
     private TopologyNodeState nodeState;
     private final AtomicBoolean synced = new AtomicBoolean(false);
@@ -165,8 +166,8 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
                 synced.set(isSynchronized());
 
-                final var topologyAugment = nodeId.augmentation(Node1.class);
-                pccIdentifier = topologyAugment.child(PathComputationClient.class);
+                final var topologyAugment = nodeId.toBuilder().augmentation(Node1.class).build();
+                pccIdentifier = topologyAugment.toBuilder().child(PathComputationClient.class).build();
 
                 if (haveLspDbVersion) {
                     final Node initialNodeState = state.getInitialNodeState();
@@ -503,7 +504,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         LOG.debug("Saved LSP {} with name {}", id, name);
         lsps.put(id, name);
 
-        final ReportedLsp previous = lspData.get(name);
+        final var previous = lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
             final Map<PathKey, Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
@@ -525,8 +526,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             rlb.setMetadata(nodeState.getLspMetadata(name));
         }
 
-        final ReportedLsp rl = rlb.build();
-        ctx.trans.put(LogicalDatastoreType.OPERATIONAL, pccIdentifier.child(ReportedLsp.class, rlb.key()), rl);
+        final var rl = rlb.build();
+        ctx.trans.put(LogicalDatastoreType.OPERATIONAL,
+            pccIdentifier.toBuilder().child(ReportedLsp.class, rlb.key()).build(), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
 
         lspData.put(name, rl);
@@ -602,8 +604,8 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier, pcc);
     }
 
-    protected final @NonNull InstanceIdentifier<ReportedLsp> lspIdentifier(final String name) {
-        return pccIdentifier.child(ReportedLsp.class, new ReportedLspKey(name));
+    protected final @NonNull WithKey<ReportedLsp, ReportedLspKey> lspIdentifier(final String name) {
+        return pccIdentifier.toBuilder().child(ReportedLsp.class, new ReportedLspKey(name)).build();
     }
 
     /**
@@ -625,14 +627,14 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     /**
-     * Reads operational data on this node. Doesn't attempt to read the data,
-     * if the node does not exist. In this case returns null.
+     * Reads operational data on this node. Doesn't attempt to read the data, if the node does not exist. In this case
+     * returns null.
      *
-     * @param id InstanceIdentifier of the node
+     * @param id DataObjectIdentifier of the node
      * @return null if the node does not exists, or operational data
      */
     final synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
-            final InstanceIdentifier<T> id) {
+            final DataObjectIdentifier<T> id) {
         return nodeState == null ? null : nodeState.readOperationalData(id);
     }
 
