@@ -55,16 +55,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @Ignore
 public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
-    private static final TablesKey TABLE_KEY
-            = new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE);
-    private static final InstanceIdentifier<BgpRib> BGP_IID = InstanceIdentifier.create(BgpRib.class);
+    private static final TablesKey TABLE_KEY =
+        new TablesKey(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE);
+    private static final DataObjectIdentifier<BgpRib> BGP_IID = DataObjectIdentifier.builder(BgpRib.class).build();
     private final IpAddressNoZone localAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));
     private BGPMock mock;
     private final RIBExtensionProviderActivator baseact = new RIBActivator();
@@ -98,19 +98,18 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     @Test
     public void testWithLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = List.of(new BgpTableTypeImpl(LinkstateAddressFamily.VALUE,
-                LinkstateSubsequentAddressFamily.VALUE));
+        final var tables = List.<BgpTableType>of(
+            new BgpTableTypeImpl(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE));
 
-        final RIBImpl rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext2,
-                dispatcher, codecsRegistry, getDomBroker(), policies,
-                tables, Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+        final var rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext2, dispatcher,
+            codecsRegistry, getDomBroker(), policies, tables,
+            Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
-            localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final var peer = AbstractAddPathTest.configurePeer(tableRegistry, localAddress.getIpv4AddressNoZone(), rib,
+            null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final Registration reg = mock.registerUpdateListener(peer);
-        reg.close();
+        mock.registerUpdateListener(peer).close();
     }
 
     @Test

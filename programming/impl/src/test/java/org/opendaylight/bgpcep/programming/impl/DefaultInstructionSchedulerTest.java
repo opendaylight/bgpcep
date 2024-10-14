@@ -47,8 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.DetailsBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -352,15 +352,14 @@ public class DefaultInstructionSchedulerTest extends AbstractProgrammingTest {
     }
 
     private static CancelInstructionInput getCancelInstruction(final String instructionId) {
-        final CancelInstructionInputBuilder builder = new CancelInstructionInputBuilder();
-        builder.setId(new InstructionId(instructionId));
-        return builder.build();
+        return new CancelInstructionInputBuilder().setId(new InstructionId(instructionId)).build();
     }
 
-    private static KeyedInstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming
-            .rev150720.instruction.queue.Instruction, InstructionKey> buildInstructionIID(final InstructionId id) {
-        return InstanceIdentifier.builder(InstructionsQueue.class, new InstructionsQueueKey(INSTRUCTIONS_QUEUE_KEY))
-                .build().child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
-                        .instruction.queue.Instruction.class, new InstructionKey(id));
+    private static WithKey<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
+            .instruction.queue.Instruction, InstructionKey> buildInstructionIID(final InstructionId id) {
+        return DataObjectIdentifier.builder(InstructionsQueue.class, new InstructionsQueueKey(INSTRUCTIONS_QUEUE_KEY))
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
+                .instruction.queue.Instruction.class, new InstructionKey(id))
+            .build();
     }
 }

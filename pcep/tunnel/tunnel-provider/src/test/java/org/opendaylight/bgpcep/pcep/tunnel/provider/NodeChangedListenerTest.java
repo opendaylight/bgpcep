@@ -57,6 +57,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.node.attributes.SupportingNode;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -78,9 +79,12 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final Uint32 LSP2_ID = Uint32.TWO;
 
     private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID)).build();
-    private static final InstanceIdentifier<Topology> TUNNEL_TOPO_IID = InstanceIdentifier
-            .builder(NetworkTopology.class).child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID)).build();
+            .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID))
+            .build();
+    private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TUNNEL_TOPO_IID =
+        DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(TUNNEL_TOPOLOGY_ID))
+            .build();
 
     private Registration listenerRegistration;
 
@@ -94,7 +98,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                 .withKey(new TopologyKey(TUNNEL_TOPOLOGY_ID)).setTopologyId(TUNNEL_TOPOLOGY_ID).build());
         wTx.commit().get();
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(),
-                PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID);
+                PCEP_TOPOLOGY_ID, TUNNEL_TOPO_IID.toLegacy());
         listenerRegistration = getDataBroker().registerTreeChangeListener(DataTreeIdentifier.of(
                 LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.child(Node.class)), nodeListener);
     }

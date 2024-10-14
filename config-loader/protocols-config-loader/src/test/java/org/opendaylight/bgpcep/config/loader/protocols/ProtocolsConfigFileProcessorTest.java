@@ -20,28 +20,28 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstanceKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.Protocols;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @VisibleForTesting
-    static final InstanceIdentifier<Protocols> BGP_PROTOCOLS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
+    static final DataObjectIdentifier<Protocols> BGP_PROTOCOLS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
         .child(NetworkInstance.class, new NetworkInstanceKey(ProtocolsConfigFileProcessor.GLOBAL_BGP_NAME))
-        .child(Protocols.class);
+        .child(Protocols.class)
+        .build();
 
     @Test
     public void configFileTest() throws Exception {
         checkNotPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
 
         assertNotNull(ClassLoader.getSystemClassLoader().getResource("initial/protocols-config.xml"));
-        final ProtocolsConfigFileProcessor processor = new ProtocolsConfigFileProcessor(this.configLoader,
-                getDomBroker());
-        processor.init();
-        checkPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
+        try (var processor = new ProtocolsConfigFileProcessor(configLoader, getDomBroker())) {
+            processor.init();
+            checkPresentConfiguration(getDataBroker(), BGP_PROTOCOLS_IID);
 
-        assertEquals(Absolute.of(NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME),
+            assertEquals(Absolute.of(NetworkInstances.QNAME, NetworkInstance.QNAME, Protocols.QNAME),
                 processor.fileRootSchema());
-        processor.close();
+        }
     }
 }
