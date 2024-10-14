@@ -41,7 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 
 public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
@@ -50,7 +50,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private static final String NEW_NEXT_HOP = "2001:db8:a::125";
 
     private Ipv6ReachabilityTopologyBuilder ipv6TopoBuilder;
-    private InstanceIdentifier<Ipv6Route> ipv6RouteIID;
+    private WithKey<Ipv6Route, Ipv6RouteKey> ipv6RouteIID;
 
     @Before
     @Override
@@ -58,10 +58,12 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         super.setUp();
         ipv6TopoBuilder = new Ipv6ReachabilityTopologyBuilder(getDataBroker(), LOC_RIB_REF, TEST_TOPOLOGY_ID);
         ipv6TopoBuilder.start();
-        final InstanceIdentifier<Tables> path = LOC_RIB_REF.getInstanceIdentifier().builder().child(LocRib.class)
-            .child(Tables.class, new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)).build();
-        ipv6RouteIID = path.builder().child(Ipv6RoutesCase.class, Ipv6Routes.class)
-            .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX)).build();
+        ipv6RouteIID = LOC_RIB_REF.getInstanceIdentifier().toBuilder()
+            .child(LocRib.class)
+            .child(Tables.class, new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
+            .child(Ipv6RoutesCase.class, Ipv6Routes.class)
+            .child(Ipv6Route.class, new Ipv6RouteKey(new PathId(PATH_ID), ROUTE_IP6PREFIX))
+            .build();
     }
 
     @Test

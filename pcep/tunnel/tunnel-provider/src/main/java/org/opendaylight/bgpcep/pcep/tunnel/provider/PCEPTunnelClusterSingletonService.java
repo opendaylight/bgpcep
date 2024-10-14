@@ -23,6 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -51,11 +53,11 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
 
     public PCEPTunnelClusterSingletonService(
             final TunnelProviderDependencies dependencies,
-            final InstanceIdentifier<Topology> pcepTopology,
+            final WithKey<Topology, TopologyKey> pcepTopology,
             final TopologyId tunnelTopologyId
     ) {
         this.tunnelTopologyId = requireNonNull(tunnelTopologyId);
-        final TopologyId pcepTopologyId = pcepTopology.firstKeyOf(Topology.class).getTopologyId();
+        final TopologyId pcepTopologyId = pcepTopology.key().getTopologyId();
         final BundleContext bundleContext = dependencies.getBundleContext();
 
         final InstructionScheduler scheduler;
@@ -78,8 +80,9 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
             }
         }
 
-        final InstanceIdentifier<Topology> tunnelTopology = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(tunnelTopologyId)).build();
+        final var tunnelTopology = DataObjectIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(tunnelTopologyId))
+                .build();
         ttp = new PCEPTunnelTopologyProvider(dependencies.getDataBroker(), pcepTopology, pcepTopologyId,
                 tunnelTopology, tunnelTopologyId);
 

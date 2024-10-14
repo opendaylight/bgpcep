@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.ReadOperations;
@@ -43,8 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.node.attributes.igp.node.attributes.PrefixKey;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,10 +53,11 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
     private final Map<NodeId, NodeUsage> nodes = new HashMap<>();
 
     private static final class NodeUsage {
-        private final InstanceIdentifier<IgpNodeAttributes> attrId;
+        private final DataObjectIdentifier<IgpNodeAttributes> attrId;
+
         private int useCount = 1;
 
-        NodeUsage(final InstanceIdentifier<IgpNodeAttributes> attrId) {
+        NodeUsage(final DataObjectIdentifier<IgpNodeAttributes> attrId) {
             this.attrId = requireNonNull(attrId);
         }
     }
@@ -86,35 +87,38 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
         }
     }
 
-    private KeyedInstanceIdentifier<Node, NodeKey> nodeInstanceId(final NodeId ni) {
-        return getInstanceIdentifier().child(Node.class, new NodeKey(ni));
+    private WithKey<Node, NodeKey> nodeInstanceId(final NodeId ni) {
+        return getInstanceIdentifier().toBuilder().child(Node.class, new NodeKey(ni)).build();
     }
 
-    private static <T extends DataObject> T read(final ReadOperations rt, final InstanceIdentifier<T> id) {
-        final Optional<T> optional;
+    private static <T extends DataObject> T read(final ReadOperations rt, final DataObjectIdentifier<T> id) {
         try {
-            optional = rt.read(LogicalDatastoreType.OPERATIONAL, id).get();
+            return rt.read(LogicalDatastoreType.OPERATIONAL, id).get().orElse(null);
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read {}, assuming non-existent", id, e);
             return null;
         }
-
-        return optional.orElse(null);
     }
 
-    private InstanceIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans, final NodeId ni) {
+    private DataObjectIdentifier<IgpNodeAttributes> ensureNodePresent(final ReadWriteTransaction trans,
+            final NodeId ni) {
         final NodeUsage present = nodes.get(ni);
         if (present != null) {
             return present.attrId;
         }
 
-        final KeyedInstanceIdentifier<Node, NodeKey> nii = nodeInstanceId(ni);
-        final InstanceIdentifier<IgpNodeAttributes> ret = nii.builder().augmentation(Node1.class)
-                .child(IgpNodeAttributes.class).build();
+        final var nii = nodeInstanceId(ni);
+        final var ret = nii.toBuilder()
+            .augmentation(Node1.class)
+            .child(IgpNodeAttributes.class)
+            .build();
 
-        trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().withKey(nii.getKey()).setNodeId(ni)
-            .addAugmentation(new Node1Builder().setIgpNodeAttributes(
-                new IgpNodeAttributesBuilder().setPrefix(Map.of()).build()).build()).build());
+        trans.merge(LogicalDatastoreType.OPERATIONAL, nii, new NodeBuilder().withKey(nii.key())
+            .setNodeId(ni)
+            .addAugmentation(new Node1Builder()
+                .setIgpNodeAttributes(new IgpNodeAttributesBuilder().setPrefix(Map.of()).build())
+                .build())
+            .build());
 
         nodes.put(ni, new NodeUsage(ret));
         return ret;
@@ -130,13 +134,13 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
         if (ni == null) {
             return;
         }
-        final InstanceIdentifier<IgpNodeAttributes> nii = ensureNodePresent(trans, ni);
+        final var nii = ensureNodePresent(trans, ni);
 
         final IpPrefix prefix = getPrefix(value);
         final PrefixKey pk = new PrefixKey(prefix);
 
-        trans.put(LogicalDatastoreType.OPERATIONAL,
-                nii.child(Prefix.class, pk), new PrefixBuilder().withKey(pk).setPrefix(prefix).build());
+        trans.put(LogicalDatastoreType.OPERATIONAL, nii.toBuilder().child(Prefix.class, pk).build(),
+            new PrefixBuilder().withKey(pk).setPrefix(prefix).build());
     }
 
     @Override
@@ -154,7 +158,7 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
         Preconditions.checkState(present != null, "Removing prefix from non-existent node %s", present);
 
         final PrefixKey pk = new PrefixKey(getPrefix(value));
-        trans.delete(LogicalDatastoreType.OPERATIONAL, present.attrId.child(Prefix.class, pk));
+        trans.delete(LogicalDatastoreType.OPERATIONAL, present.attrId.toBuilder().child(Prefix.class, pk).build());
 
         /*
          * This is optimization magic: we are reading a list and we want to remove it once it
