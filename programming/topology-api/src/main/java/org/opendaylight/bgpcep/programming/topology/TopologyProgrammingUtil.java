@@ -9,7 +9,8 @@ package org.opendaylight.bgpcep.programming.topology;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.programming.rev131102.TopologyInstructionInput;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 
 public final class TopologyProgrammingUtil {
     private TopologyProgrammingUtil() {
@@ -17,10 +18,10 @@ public final class TopologyProgrammingUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static DataObjectIdentifier<Topology> topologyForInput(final TopologyInstructionInput input) {
+    public static WithKey<Topology, TopologyKey> topologyForInput(final TopologyInstructionInput input) {
         final var biid = input.requireNetworkTopologyRef().getValue();
         return switch(biid) {
-            case DataObjectIdentifier<?> id -> (DataObjectIdentifier<Topology>) id;
+            case WithKey<?, ?> id -> (WithKey<Topology, TopologyKey>) id;
             default -> throw new IllegalArgumentException("Unexpected non-object reference " + biid);
         };
     }

@@ -17,7 +17,6 @@ import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.AdministrativeStatus;
@@ -33,10 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev220730.UpdateLspInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepUpdateTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.Link1;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,17 +54,16 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(updateTunnelInput)
-            .toLegacy();
-        final InstanceIdentifier<Link> lii = TunnelProgrammingUtil.linkIdentifier(tii, updateTunnelInput);
-        try (ReadTransaction t = dataProvider.newReadOnlyTransaction()) {
+        final var tii = TopologyProgrammingUtil.topologyForInput(updateTunnelInput);
+        final var lii = TunnelProgrammingUtil.linkIdentifier(tii, updateTunnelInput);
+        try (var tx = dataProvider.newReadOnlyTransaction()) {
             final Link link;
             final Node node;
             try {
                 // The link has to exist
-                link = t.read(LogicalDatastoreType.OPERATIONAL, lii).get().orElseThrow();
+                link = tx.read(LogicalDatastoreType.OPERATIONAL, lii).get().orElseThrow();
                 // The source node has to exist
-                node = TunelProgrammingUtil.sourceNode(t, tii, link).orElseThrow();
+                node = TunelProgrammingUtil.sourceNode(tx, tii, link).orElseThrow();
             } catch (final InterruptedException | ExecutionException e) {
                 LOG.debug("Link or node does not exist.", e);
                 return TunelProgrammingUtil.RESULT;
