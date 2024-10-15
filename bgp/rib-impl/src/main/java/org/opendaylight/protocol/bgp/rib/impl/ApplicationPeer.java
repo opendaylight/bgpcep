@@ -60,20 +60,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Application Peer is a special case of BGP peer. It serves as an interface
- * for user to advertise user routes to ODL and through ODL to other BGP peers.
+ * Application Peer is a special case of BGP peer. It serves as an interface for user to advertise user routes to ODL
+ * and through ODL to other BGP peers.
  *
- * <p>
- * This peer has it's own RIB, where it stores all user routes. This RIB is
- * located in configurational datastore. Routes are added through RESTCONF.
+ * <p>This peer has it's own RIB, where it stores all user routes. This RIB is located in configurational datastore.
+ * Routes are added through RESTCONF.
  *
- * <p>
- * They are then processed as routes from any other peer, through AdjRib,
- * EffectiveRib,LocRib and if they are advertised further, through AdjRibOut.
+ * <p>They are then processed as routes from any other peer, through AdjRib, EffectiveRib, LocRib and if they are
+ * advertised further, through AdjRibOut.
  *
- * <p>
- * For purposed of import policies such as Best Path Selection, application
- * peer needs to have a BGP-ID that is configurable.
+ * <p>For purposed of import policies such as Best Path Selection, application peer needs to have a BGP-ID that is
+ * configurable.
  */
 public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeListener {
     @FunctionalInterface

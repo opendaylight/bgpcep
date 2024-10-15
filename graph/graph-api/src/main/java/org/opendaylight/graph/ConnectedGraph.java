@@ -24,8 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 /**
  * Connected Graph class is the connected version of the Graph class from the graph yang model.
  *
- * <p>
- * Connected Graph is composed by Connected Vertex, Connected Edges and Prefix. It models Unidirectional Connected
+ * <p>Connected Graph is composed by Connected Vertex, Connected Edges and Prefix. It models Unidirectional Connected
  * Graph (see graph theory). So, Edge and Connected Edge are unidirectional, thus to connect bi-directionally 2 vertices
  * Va and Vb, it is necessary to setup 2 edges: Va to Vb and Vb to Va.
  * <pre>

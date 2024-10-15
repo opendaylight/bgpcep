@@ -14,8 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 /**
  * Connected Edge class is the connected version of the Edge class from the graph yang model.
  *
- * <p>
- * It is composed of a reference to the associated Edge class from the Graph class,
+ * <p>It is composed of a reference to the associated Edge class from the Graph class,
  * a unique Key identifier in the associated Connected Graph,
  * and two references to the associated Connected Vertex in the connected Graph: source and destination.
  * <pre>

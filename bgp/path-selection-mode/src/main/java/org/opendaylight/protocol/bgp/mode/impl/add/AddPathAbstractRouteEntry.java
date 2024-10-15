@@ -38,8 +38,7 @@ import org.slf4j.LoggerFactory;
  * stored in arrays with a shared map of offsets for peers to allow lookups. This is needed to maintain low memory
  * overhead in face of large number of routes and peers, where individual object overhead becomes the dominating factor.
  *
- * <p>
- * This class is NOT thread-safe.
+ * <p>This class is NOT thread-safe.
  */
 public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>> implements RouteEntry<C, S> {

@@ -17,11 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A best-effort output limiter. It does not provide any fairness, and acts as a blocking gate-keeper
- * for a sessions' channel.
+ * A best-effort output limiter. It does not provide any fairness, and acts as a blocking gate-keeper for a session's
+ * channel.
  *
- * <p>
- * This class is thread-safe.
+ * <p>This class is thread-safe.
  */
 public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelOutputLimiter.class);

@@ -21,12 +21,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A registry which allows multiple values for a particular key. One of those is considered the best and returned as the
- * representative.
- * When selecting the candidate, we evaluate the order of insertion, picking the value inserted first, but then we look
- * at all the other candidates and if there is one which is a subclass of the first one, we select that one.
+ * representative. When selecting the candidate, we evaluate the order of insertion, picking the value inserted first,
+ * but then we look at all the other candidates and if there is one which is a subclass of the first one, we select that
+ * one.
  *
- * <p>
- * This class is thread-safe.
+ * <p>This class is thread-safe.
  *
  * @param <K> key type
  * @param <V> value type

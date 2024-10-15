@@ -86,20 +86,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of the BGP import policy. Listens on peer's Adj-RIB-In, inspects all inbound
- * routes in the context of the advertising peer's role and applies the inbound policy.
+ * Implementation of the BGP import policy. Listens on peer's Adj-RIB-In, inspects all inbound routes in the context of
+ * the advertising peer's role and applies the inbound policy.
  *
- * <p>
- * Inbound policy is applied as follows:
+ * <p>Inbound policy is applied as follows:
+ * <ol>
+ *   <li>if the peer is an eBGP peer, perform attribute replacement and filtering</li>
+ *   <li>check if a route is admissible based on attributes attached to it, as well as the advertising peer's role</li>
+ *   <li>output admitting routes with edited attributes into /bgp-rib/rib/peer/effective-rib-in/tables/routes</li>
+ * </ol>
  *
- * <p>
- * 1) if the peer is an eBGP peer, perform attribute replacement and filtering
- * 2) check if a route is admissible based on attributes attached to it, as well as the
- * advertising peer's role
- * 3) output admitting routes with edited attributes into /bgp-rib/rib/peer/effective-rib-in/tables/routes
- *
- * <p>
- * This class is NOT thread-safe.
+ * <p>This class is NOT thread-safe.
  */
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
         AutoCloseable, DOMDataTreeChangeListener {

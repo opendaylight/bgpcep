@@ -12,12 +12,8 @@ import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * An exception thrown when the parsing of an attribute results in treat-as-withdraw being applied to the UPDATE
- * message, as per the rules in RFC7606 and related documents.
- *
- * <p>
- * This exception must not be thrown when Revised Error Handling procedures are not in effect.
- *
- * @author Robert Varga
+ * message, as per the rules in RFC7606 and related documents. This exception must not be thrown when Revised Error
+ * Handling procedures are not in effect.
  */
 public final class BGPTreatAsWithdrawException extends AbstractBGPException {
     private static final long serialVersionUID = 1L;

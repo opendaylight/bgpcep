@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.graph;
 
 import java.util.List;
@@ -16,17 +15,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 /**
  * Connected Graph Provider is a new service provided by the Graph feature to manage the Connected Graph.
  *
- * <p>
- * It allows to get, create, add and delete Connected Graph. All associated Graph are automatically
+ * <p>It allows to get, create, add and delete Connected Graph. All associated Graph are automatically
  * stored in the DataStore.
  *
  * @author Olivier Dugeon
  * @author Philippe Niger
- *
  */
-
 public interface ConnectedGraphProvider {
-
     /**
      * Returns Graph for the given graph name.
      *
@@ -98,5 +93,4 @@ public interface ConnectedGraphProvider {
      *
      */
     void deleteGraph(GraphKey key);
-
 }

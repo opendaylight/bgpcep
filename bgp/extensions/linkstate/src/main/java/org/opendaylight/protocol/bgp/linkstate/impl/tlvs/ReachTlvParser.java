@@ -31,16 +31,14 @@ public final class ReachTlvParser implements LinkstateTlvParser.LinkstateTlvSeri
     /**
      * {@inheritDoc}
      *
-     * <p>
-     * IP Reachability TLV serves to convey both an IPV4 or an IPV6 prefix as per
-     * <a href="https://datatracker.ietf.org/doc/html/rfc7752#section-3.2.3.2">RFC7752 Section 3.2.3.2</a>. However, the
-     * Length of the IP Reachability TLV could not be used to distinguish the two types of prefixes as it will be the
-     * same: for example {@code byteBuffer == [24][192][168][01]} could be parsed as IPv4 prefix {@code 192.168.1.0/24}
-     * or as IPv6 prefix {@code c0a8:100::/24}.
+     * <p>IP Reachability TLV serves to convey both an IPV4 or an IPV6 prefix as per
+     * <a href="https://www.rfc-editor.org/rfc/rfc7752#section-3.2.3.2">RFC7752 Section 3.2.3.2</a>. However, the Length
+     * of the IP Reachability TLV could not be used to distinguish the two types of prefixes as it will be the same: for
+     * example {@code byteBuffer == [24][192][168][01]} could be parsed as IPv4 prefix {@code 192.168.1.0/24} or as IPv6
+     * prefix {@code c0a8:100::/24}.
      *
-     * <p>
-     * Thus, we could just verify if the length is greater than 4 bytes. In this case, it is certain that the prefix is
-     * IPv6. For a length less than or equal to 4 bytes, the parser assumes that the prefix is IPv4. In addition, the
+     * <p>Thus, we could just verify if the length is greater than 4 bytes. In this case, it is certain that the prefix
+     * is IPv6. For a length less than or equal to 4 bytes, the parser assumes that the prefix is IPv4. In addition, the
      * probability that an IS-IS domain advertises an IPv6 prefix with a length lower than /32 is very low.
      */
     // FIXME: perhaps we need a dedicated type, or just always use IPv6?

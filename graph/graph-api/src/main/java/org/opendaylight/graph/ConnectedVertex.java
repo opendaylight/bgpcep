@@ -16,8 +16,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 /**
  * Connected Vertex class is the connected version of the Vertex class from the graph yang model.
  *
- * <p>
- * It is composed of a reference to the associated Vertex class from the Graph class,
+ * <p>It is composed of a reference to the associated Vertex class from the Graph class,
  * a unique Key identifier in the associated Connected Graph,
  * and two lists to the associated Connected Edges in the connected Graph: input and output.
  * <pre>
