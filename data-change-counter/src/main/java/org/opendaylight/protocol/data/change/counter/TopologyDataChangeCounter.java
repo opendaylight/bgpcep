@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -32,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ final class TopologyDataChangeCounter
 
     private final DataBroker dataBroker;
     private final String counterId;
-    private final InstanceIdentifier<Counter> counterInstanceId;
+    private final DataObjectIdentifier.@NonNull WithKey<Counter, CounterKey> counterInstanceId;
     private final LongAdder count = new LongAdder();
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private final Registration registration;
@@ -54,15 +54,16 @@ final class TopologyDataChangeCounter
 
     TopologyDataChangeCounter(final DataBroker dataBroker, final String counterId, final String topologyName) {
         this.dataBroker = requireNonNull(dataBroker);
+        this.counterId = requireNonNull(counterId);
+        counterInstanceId = DataObjectIdentifier.builder(DataChangeCounter.class)
+            .child(Counter.class, new CounterKey(counterId))
+            .build();
         transactionChain = dataBroker.createMergingTransactionChain();
-        this.counterId = counterId;
-        counterInstanceId = InstanceIdentifier.builder(DataChangeCounter.class)
-                .child(Counter.class, new CounterKey(this.counterId)).build();
         putCount(count.longValue());
-        final InstanceIdentifier<Topology> topoIId = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyName))).build();
-        registration = dataBroker.registerTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, topoIId), this);
+        registration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            DataObjectIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyName)))
+                .build(), this);
         LOG.debug("Data change counter {} initiated", this.counterId);
         transactionChain.addCallback(this);
     }

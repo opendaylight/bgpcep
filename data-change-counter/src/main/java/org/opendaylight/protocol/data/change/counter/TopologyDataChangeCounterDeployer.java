@@ -19,12 +19,11 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgpcep.data.change.counter.config.rev170424.DataChangeCounterConfig;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -34,11 +33,9 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 @Component(service = { })
-public final class TopologyDataChangeCounterDeployer implements DataTreeChangeListener<DataChangeCounterConfig>,
-        AutoCloseable {
+public final class TopologyDataChangeCounterDeployer
+        implements DataTreeChangeListener<DataChangeCounterConfig>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounterDeployer.class);
-    private static final InstanceIdentifier<DataChangeCounterConfig> DATA_CHANGE_COUNTER_IID =
-            InstanceIdentifier.builder(DataChangeCounterConfig.class).build();
 
     private final @NonNull DataBroker dataBroker;
     @GuardedBy("this")
@@ -50,8 +47,8 @@ public final class TopologyDataChangeCounterDeployer implements DataTreeChangeLi
     @Activate
     public TopologyDataChangeCounterDeployer(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-        registration = dataBroker.registerTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, DATA_CHANGE_COUNTER_IID), this);
+        registration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            DataObjectReference.builder(DataChangeCounterConfig.class).build(), this);
         LOG.info("Data change counter Deployer started");
     }
 
