@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
@@ -28,35 +29,34 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
  * @author Olivier Dugeon
  * @author Philippe Niger
  */
-
 public class ConnectedVertexImpl implements ConnectedVertex {
 
     /* Reference to input and output Connected Edge within the Connected Graph */
-    private ArrayList<ConnectedEdgeImpl> input = new ArrayList<>();
-    private ArrayList<ConnectedEdgeImpl> output = new ArrayList<>();
+    private final ArrayList<ConnectedEdgeImpl> input = new ArrayList<>();
+    private final ArrayList<ConnectedEdgeImpl> output = new ArrayList<>();
 
     /* List of Prefixes announced by this Vertex */
-    private ArrayList<Prefix> prefixes = new ArrayList<>();
+    private final ArrayList<Prefix> prefixes = new ArrayList<>();
 
     /* Reference to the Vertex of the standard Graph associated to the Connected Graph */
     private Vertex vertex = null;
 
     /* Connected Vertex Identifier */
-    private Long cvid;
+    private final @NonNull Long cvid;
 
     /* List of Connected Edge Trigger */
-    private ConcurrentMap<String, ConnectedVertexTrigger> triggers =
-            new ConcurrentHashMap<String, ConnectedVertexTrigger>();
+    private final ConcurrentMap<String, ConnectedVertexTrigger> triggers = new ConcurrentHashMap<>();
 
-    public ConnectedVertexImpl(@NonNull Long key) {
+    public ConnectedVertexImpl(final @NonNull Long key) {
         checkArgument(key != 0, "Vertex Key must not be equal to 0");
-        this.cvid = key;
-        this.vertex = null;
+        cvid = key;
+        vertex = null;
     }
 
-    public ConnectedVertexImpl(@NonNull Vertex vertex) {
-        checkArgument(vertex.getVertexId().longValue() != 0, "Vertex Key must not be equal to 0");
-        this.cvid = vertex.getVertexId().longValue();
+    public ConnectedVertexImpl(final @NonNull Vertex vertex) {
+        final var id = vertex.getVertexId().longValue();
+        checkArgument(id != 0, "Vertex Key must not be equal to 0");
+        cvid = id;
         this.vertex = vertex;
     }
 
@@ -64,8 +64,8 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * When vertex is removed, we must disconnect all Connected Edges.
      */
     void close() {
-        this.triggers.clear();
-        this.disconnect();
+        triggers.clear();
+        disconnect();
     }
 
     /**
@@ -73,7 +73,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param vertex Vertex
      */
-    public ConnectedVertexImpl setVertex(Vertex vertex) {
+    public ConnectedVertexImpl setVertex(final Vertex vertex) {
         this.vertex = vertex;
         return this;
     }
@@ -83,7 +83,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param edge Connected Edge
      */
-    public ConnectedVertexImpl addInput(ConnectedEdgeImpl edge) {
+    public ConnectedVertexImpl addInput(final ConnectedEdgeImpl edge) {
         if (!input.contains(edge)) {
             input.add(edge);
         }
@@ -95,7 +95,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param edge Connected Edge
      */
-    public ConnectedVertexImpl addOutput(ConnectedEdgeImpl edge) {
+    public ConnectedVertexImpl addOutput(final ConnectedEdgeImpl edge) {
         if (!output.contains(edge)) {
             output.add(edge);
         }
@@ -107,7 +107,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param edge Connected Edge
      */
-    public ConnectedVertexImpl removeInput(ConnectedEdgeImpl edge) {
+    public ConnectedVertexImpl removeInput(final ConnectedEdgeImpl edge) {
         input.remove(edge);
         return this;
     }
@@ -117,7 +117,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param edge Connected Edge
      */
-    public ConnectedVertexImpl removeOutput(ConnectedEdgeImpl edge) {
+    public ConnectedVertexImpl removeOutput(final ConnectedEdgeImpl edge) {
         output.remove(edge);
         return this;
     }
@@ -126,10 +126,10 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Disconnect all input and output Connected Edge.
      */
     public void disconnect() {
-        for (ConnectedEdgeImpl edge : input) {
+        for (var edge : input) {
             edge.disconnectDestination();
         }
-        for (ConnectedEdgeImpl edge : output) {
+        for (var edge : output) {
             edge.disconnectSource();
         }
     }
@@ -139,7 +139,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param prefix Prefix
      */
-    public ConnectedVertexImpl addPrefix(Prefix prefix) {
+    public ConnectedVertexImpl addPrefix(final Prefix prefix) {
         if (!prefixes.contains(prefix)) {
             prefixes.add(prefix);
         }
@@ -151,7 +151,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      *
      * @param prefix Prefix
      */
-    public void removePrefix(Prefix prefix) {
+    public void removePrefix(final Prefix prefix) {
         if (prefixes.contains(prefix)) {
             prefixes.remove(prefix);
         }
@@ -159,70 +159,58 @@ public class ConnectedVertexImpl implements ConnectedVertex {
 
     @Override
     public Long getKey() {
-        return this.cvid;
+        return cvid;
     }
 
     @Override
     public Vertex getVertex() {
-        return this.vertex;
+        return vertex;
     }
 
     @Override
-    public List<ConnectedEdge> getEdgeTo(Long dstRid) {
-        ArrayList<ConnectedEdge> edgeList = new ArrayList<ConnectedEdge>();
-        for (ConnectedEdge edge : output) {
-            if (edge.getDestination().getKey().equals(dstRid)) {
-                edgeList.add(edge);
-            }
-        }
-        return edgeList;
+    public List<ConnectedEdge> getEdgeTo(final Long dstRid) {
+        return output.stream()
+            .filter(edge -> edge.getDestination().getKey().equals(dstRid))
+            .collect(Collectors.toList());
     }
 
     @Override
     public List<Edge> getInputEdges() {
-        ArrayList<Edge> edgeList = new ArrayList<Edge>();
-        for (ConnectedEdge edge : input) {
-            edgeList.add(edge.getEdge());
-        }
-        return edgeList;
+        return input.stream().map(ConnectedEdgeImpl::getEdge).collect(Collectors.toList());
     }
 
     @Override
     public List<ConnectedEdge> getInputConnectedEdges() {
-        return new ArrayList<ConnectedEdge>(this.input);
+        return new ArrayList<>(input);
     }
 
     @Override
     public List<Edge> getOutputEdges() {
-        ArrayList<Edge> edgeList = new ArrayList<Edge>();
-        for (ConnectedEdge edge : output) {
-            edgeList.add(edge.getEdge());
-        }
-        return edgeList;
+        return output.stream().map(ConnectedEdgeImpl::getEdge).collect(Collectors.toList());
     }
 
     @Override
     public List<ConnectedEdge> getOutputConnectedEdges() {
-        return new ArrayList<ConnectedEdge>(this.output);
+        return new ArrayList<>(output);
     }
 
     @Override
     public List<Prefix> getPrefixes() {
-        return this.prefixes;
+        return prefixes;
     }
 
     @Override
-    public boolean registerTrigger(ConnectedVertexTrigger trigger, String key) {
+    public boolean registerTrigger(final ConnectedVertexTrigger trigger, final String key) {
         return triggers.putIfAbsent(key, trigger) == null;
     }
 
     @Override
-    public boolean unRegisterTrigger(ConnectedVertexTrigger trigger, String key) {
+    public boolean unRegisterTrigger(final ConnectedVertexTrigger trigger, final String key) {
         return triggers.remove(key, trigger);
     }
 
     public List<ConnectedVertexTrigger> getTriggers() {
-        return new ArrayList<ConnectedVertexTrigger>(triggers.values());
+        return new ArrayList<>(triggers.values());
     }
 
     /**

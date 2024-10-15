@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
  * @author Olivier Dugeon
  * @author Philippe Niger
  */
-
 public class ConnectedEdgeImpl implements ConnectedEdge {
 
     /* Reference to Source and Destination Connected Vertex within the Connected Graph */
@@ -37,35 +36,34 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     private Edge edge;
 
     /* Edge key in the Connected Graph */
-    private Long ceid;
+    private final Long ceid;
 
     /* Total amount of Bandwidth reserved by Constrained Paths */
-    private static int MAX_PRIORITY = 8;
+    private static final int MAX_PRIORITY = 8;
     private Long globalResvBandwidth = 0L;
-    private Long[] cosResvBandwidth = {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
+    private final Long[] cosResvBandwidth = {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
 
     /* List of Connected Edge Trigger */
-    private ConcurrentMap<String, ConnectedEdgeTrigger> triggers =
-            new ConcurrentHashMap<String, ConnectedEdgeTrigger>();
+    private final ConcurrentMap<String, ConnectedEdgeTrigger> triggers = new ConcurrentHashMap<>();
 
-    public ConnectedEdgeImpl(@NonNull Long key) {
+    public ConnectedEdgeImpl(final @NonNull Long key) {
         checkArgument(key != 0, "Edge Key must not be equal to 0");
-        this.ceid = key;
-        this.edge = null;
+        ceid = key;
+        edge = null;
     }
 
-    public ConnectedEdgeImpl(@NonNull Edge edge) {
+    public ConnectedEdgeImpl(final @NonNull Edge edge) {
         checkArgument(edge.getEdgeId().longValue() != 0, "Edge Key must not be equal to 0");
         this.edge = edge;
-        this.ceid = edge.getEdgeId().longValue();
+        ceid = edge.getEdgeId().longValue();
     }
 
     /**
      * When edge is removed, we must disconnect source and destination Connected Vertices.
      */
     void close() {
-        this.triggers.clear();
-        this.disconnect();
+        triggers.clear();
+        disconnect();
     }
 
     /**
@@ -73,7 +71,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
      *
      * @param vertex Vertex
      */
-    public ConnectedEdgeImpl setSource(ConnectedVertexImpl vertex) {
+    public ConnectedEdgeImpl setSource(final ConnectedVertexImpl vertex) {
         source = vertex;
         return this;
     }
@@ -83,7 +81,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
      *
      * @param vertex Vertex
      */
-    public ConnectedEdgeImpl setDestination(ConnectedVertexImpl vertex) {
+    public ConnectedEdgeImpl setDestination(final ConnectedVertexImpl vertex) {
         destination = vertex;
         return this;
     }
@@ -121,29 +119,29 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
      *
      * @param edge Edge
      */
-    public ConnectedEdgeImpl setEdge(Edge edge) {
+    public ConnectedEdgeImpl setEdge(final Edge edge) {
         this.edge = edge;
         return this;
     }
 
     @Override
     public @NonNull Long getKey() {
-        return this.ceid;
+        return ceid;
     }
 
     @Override
     public ConnectedVertex getSource() {
-        return this.source;
+        return source;
     }
 
     @Override
     public ConnectedVertex getDestination() {
-        return this.destination;
+        return destination;
     }
 
     @Override
     public Edge getEdge() {
-        return this.edge;
+        return edge;
     }
 
     @Override
@@ -152,7 +150,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     }
 
     @Override
-    public Long getCosResvBandwidth(int cos) {
+    public Long getCosResvBandwidth(final int cos) {
         if (cos < 0 || cos > MAX_PRIORITY) {
             return null;
         } else {
@@ -161,7 +159,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     }
 
     @Override
-    public void addBandwidth(Long bw, int cos) {
+    public void addBandwidth(final Long bw, final int cos) {
         if (cos < 0 || cos > MAX_PRIORITY) {
             return;
         }
@@ -170,7 +168,7 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     }
 
     @Override
-    public void delBandwidth(Long bw, int cos) {
+    public void delBandwidth(final Long bw, final int cos) {
         if (cos < 0 || cos > MAX_PRIORITY) {
             return;
         }
@@ -185,17 +183,17 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     }
 
     @Override
-    public boolean registerTrigger(ConnectedEdgeTrigger trigger, String key) {
+    public boolean registerTrigger(final ConnectedEdgeTrigger trigger, final String key) {
         return triggers.putIfAbsent(key, trigger) == null;
     }
 
     @Override
-    public boolean unRegisterTrigger(ConnectedEdgeTrigger trigger, String key) {
+    public boolean unRegisterTrigger(final ConnectedEdgeTrigger trigger, final String key) {
         return triggers.remove(key, trigger);
     }
 
     public List<ConnectedEdgeTrigger> getTriggers() {
-        return new ArrayList<ConnectedEdgeTrigger>(triggers.values());
+        return new ArrayList<>(triggers.values());
     }
 
     /**

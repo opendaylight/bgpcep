@@ -25,7 +25,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -37,10 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.EdgeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.PrefixKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -60,8 +63,8 @@ import org.slf4j.LoggerFactory;
 @Component(immediate = true, service = ConnectedGraphProvider.class)
 public final class ConnectedGraphServer implements ConnectedGraphProvider, FutureCallback<Empty>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectedGraphServer.class);
-    private static final @NonNull InstanceIdentifier<GraphTopology> GRAPH_TOPOLOGY_IDENTIFIER =
-        InstanceIdentifier.create(GraphTopology.class);
+    private static final @NonNull DataObjectIdentifier<GraphTopology> GRAPH_TOPOLOGY_IDENTIFIER =
+        DataObjectIdentifier.builder(GraphTopology.class).build();
 
     private final Map<GraphKey, ConnectedGraphImpl> graphs = new HashMap<>();
     private final DataBroker dataBroker;
@@ -172,20 +175,29 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
     /**
      *  DataStore Instance Identifier creation for the various Graph components.
      */
-    private static InstanceIdentifier<Graph> getGraphInstanceIdentifier(final String name) {
-        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, new GraphKey(name));
+    private static WithKey<Graph, GraphKey> getGraphInstanceIdentifier(final String name) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.toBuilder().child(Graph.class, new GraphKey(name)).build();
     }
 
-    private static InstanceIdentifier<Vertex> getVertexInstanceIdentifier(final Graph graph, final Vertex vertex) {
-        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Vertex.class, vertex.key());
+    private static WithKey<Vertex, VertexKey> getVertexInstanceIdentifier(final Graph graph, final Vertex vertex) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.toBuilder()
+            .child(Graph.class, graph.key())
+            .child(Vertex.class, vertex.key())
+            .build();
     }
 
-    private static InstanceIdentifier<Edge> getEdgeInstanceIdentifier(final Graph graph, final Edge edge) {
-        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Edge.class, edge.key());
+    private static WithKey<Edge, EdgeKey> getEdgeInstanceIdentifier(final Graph graph, final Edge edge) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.toBuilder()
+            .child(Graph.class, graph.key())
+            .child(Edge.class, edge.key())
+            .build();
     }
 
-    private static InstanceIdentifier<Prefix> getPrefixInstanceIdentifier(final Graph graph, final Prefix prefix) {
-        return GRAPH_TOPOLOGY_IDENTIFIER.child(Graph.class, graph.key()).child(Prefix.class, prefix.key());
+    private static WithKey<Prefix, PrefixKey> getPrefixInstanceIdentifier(final Graph graph, final Prefix prefix) {
+        return GRAPH_TOPOLOGY_IDENTIFIER.toBuilder()
+            .child(Graph.class, graph.key())
+            .child(Prefix.class, prefix.key())
+            .build();
     }
 
     /**
@@ -196,11 +208,11 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
      * @param data  Data Object (Graph, Vertex, Edge or Prefix)
      * @param info  Information to be logged
      */
-    private synchronized <T extends DataObject> void addToDataStore(final InstanceIdentifier<T> id, final T data,
+    private synchronized <T extends DataObject> void addToDataStore(final DataObjectIdentifier<T> id, final T data,
             final String info) {
-        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
-        trans.put(LogicalDatastoreType.OPERATIONAL, id, data);
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var tx = chain.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, id, data);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.info("GraphModel: {} has been published in operational datastore ", info);
@@ -209,7 +221,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("GrahModel: Cannot write {} to the operational datastore (transaction: {})", info,
-                        trans.getIdentifier());
+                        tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -224,14 +236,14 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
      * @param old   Instance Identifier of the previous version of the Data Object
      * @param info  Information to be logged
      */
-    private synchronized <T extends DataObject> void updateToDataStore(final InstanceIdentifier<T> id, final T data,
-            final InstanceIdentifier<T> old, final String info) {
-        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
+    private synchronized <T extends DataObject> void updateToDataStore(final DataObjectIdentifier<T> id, final T data,
+            final DataObjectIdentifier<T> old, final String info) {
+        final var tx = chain.newWriteOnlyTransaction();
         if (old != null) {
-            trans.delete(LogicalDatastoreType.OPERATIONAL, old);
+            tx.delete(LogicalDatastoreType.OPERATIONAL, old);
         }
-        trans.put(LogicalDatastoreType.OPERATIONAL, id, data);
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        tx.put(LogicalDatastoreType.OPERATIONAL, id, data);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.info("GraphModel: {} has been published in operational datastore ", info);
@@ -240,7 +252,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("GrahModel: Cannot write {} to the operational datastore (transaction: {})", info,
-                        trans.getIdentifier());
+                        tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -252,11 +264,11 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
      * @param id   Instance Identifier of the Data Object
      * @param info Information to be logged
      */
-    private synchronized <T extends DataObject> void removeFromDataStore(final InstanceIdentifier<T> id,
+    private synchronized <T extends DataObject> void removeFromDataStore(final DataObjectIdentifier<T> id,
             final String info) {
-        final ReadWriteTransaction trans = chain.newReadWriteTransaction();
-        trans.delete(LogicalDatastoreType.OPERATIONAL, id);
-        trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var tx = chain.newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, id);
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.info("GraphModel: {} has been deleted in operational datastore ", info);
@@ -265,7 +277,7 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("GraphModel: Cannot delete {} to the operational datastore (transaction: {})", info,
-                        trans.getIdentifier());
+                        tx.getIdentifier());
             }
         }, MoreExecutors.directExecutor());
     }
@@ -292,11 +304,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
     public void addVertex(final Graph graph, final Vertex vertex, final Vertex old) {
         checkArgument(graph != null, "Provided Graph is a null object");
         checkArgument(vertex != null, "Provided Vertex is a null object");
-        InstanceIdentifier<Vertex> oldId = null;
         /* Remove old Vertex if it exists before storing the new Vertex */
-        if (old != null) {
-            oldId = getVertexInstanceIdentifier(graph, old);
-        }
+        final var oldId = old != null ? getVertexInstanceIdentifier(graph, old) : null;
         updateToDataStore(getVertexInstanceIdentifier(graph, vertex), vertex, oldId,
                 "Vertex(" + vertex.getName() + ")");
     }
@@ -325,11 +334,8 @@ public final class ConnectedGraphServer implements ConnectedGraphProvider, Futur
     public void addEdge(final Graph graph, final Edge edge, final Edge old) {
         checkArgument(graph != null, "Provided Graph is a null object");
         checkArgument(edge != null, "Provided Edge is a null object");
-        InstanceIdentifier<Edge> oldId = null;
         /* Remove old Edge if it exists before storing the new Edge */
-        if (old != null) {
-            oldId = getEdgeInstanceIdentifier(graph, old);
-        }
+        final var oldId = old != null ? getEdgeInstanceIdentifier(graph, old) : null;
         updateToDataStore(getEdgeInstanceIdentifier(graph, edge), edge, oldId, "Edge(" + edge.getName() + ")");
     }
 

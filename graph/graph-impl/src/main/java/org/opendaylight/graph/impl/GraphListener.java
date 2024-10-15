@@ -19,7 +19,6 @@ import org.opendaylight.graph.ConnectedGraphProvider;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.GraphTopology;
@@ -28,8 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -58,10 +57,10 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public GraphListener(@Reference final DataBroker dataBroker, @Reference final ConnectedGraphProvider provider) {
         graphProvider = requireNonNull(provider);
 
-        final var graphIdentifier = InstanceIdentifier.builder(GraphTopology.class).child(Graph.class).build();
+        final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, graphIdentifier), this);
+        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
 
@@ -128,7 +127,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
         for (var change : changes) {
             final var root = change.getRootNode();
-            final var key = change.getRootPath().path().firstKeyOf(Graph.class);
+            final var key = change.path().toLegacy().firstKeyOf(Graph.class);
             switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
