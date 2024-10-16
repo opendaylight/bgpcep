@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -97,7 +96,7 @@ public final class MvpnIpv6RIBSupportTest
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
         ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
-        final InstanceIdentifier<MvpnRoute> instanceIdentifier = deletedRoutes.get(0);
+        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(MvpnRoute.class));
     }
 

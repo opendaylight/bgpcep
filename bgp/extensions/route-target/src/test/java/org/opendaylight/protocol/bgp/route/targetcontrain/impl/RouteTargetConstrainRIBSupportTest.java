@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rout
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.as._4.route.target.extended.community.grouping.As4RouteTargetExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.as._4.spec.common.As4SpecificCommon;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.as._4.spec.common.As4SpecificCommonBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -108,7 +107,7 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
         ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
-        final InstanceIdentifier<RouteTargetConstrainRoute> instanceIdentifier = deletedRoutes.get(0);
+        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(RouteTargetConstrainRoute.class));
     }
 

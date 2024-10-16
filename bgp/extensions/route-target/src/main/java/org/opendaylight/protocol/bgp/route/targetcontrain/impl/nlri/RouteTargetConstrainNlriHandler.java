@@ -49,10 +49,10 @@ public final class RouteTargetConstrainNlriHandler implements NlriParser, NlriSe
 
     private static List<RouteTargetConstrainDestination> parseNlriDestinations(final ByteBuf nlri,
             final boolean addPathSupported) {
-        final List<RouteTargetConstrainDestination> dests = new ArrayList<>();
+        final var dests = new ArrayList<RouteTargetConstrainDestination>();
 
         while (nlri.isReadable()) {
-            final RouteTargetConstrainDestinationBuilder builder = new RouteTargetConstrainDestinationBuilder();
+            final var builder = new RouteTargetConstrainDestinationBuilder();
             if (addPathSupported) {
                 builder.setPathId(PathIdUtil.readPathId(nlri));
             }
