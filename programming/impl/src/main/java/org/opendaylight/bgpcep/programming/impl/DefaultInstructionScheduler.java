@@ -68,37 +68,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.queue.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction.status.changed.Details;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.submit.instruction.output.result.failure._case.FailureBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class DefaultInstructionScheduler implements ClusterSingletonService, InstructionScheduler {
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultInstructionScheduler.class);
-
-    private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
-    private final InstanceIdentifier<InstructionsQueue> qid;
-    private final NotificationPublishService notifs;
-    private final Executor executor;
-    private final DataBroker dataProvider;
-    private final Timer timer;
-    private final String instructionId;
-    private final ServiceGroupIdentifier sgi;
-    private final Registration csspReg;
-    private final RpcProviderService rpcProviderRegistry;
-    @GuardedBy("this")
-    private Registration reg;
-
     private final class InstructionPusher implements QueueInstruction {
-        private final InstructionBuilder builder = new InstructionBuilder();
+        private final InstructionBuilder builder;
 
         InstructionPusher(final InstructionId id, final Nanotime deadline) {
-            builder.setDeadline(deadline);
-            builder.setId(id);
-            builder.withKey(new InstructionKey(id));
-            builder.setStatus(InstructionStatus.Queued);
+            builder = new InstructionBuilder()
+                .setDeadline(deadline)
+                .setId(id)
+                .withKey(new InstructionKey(id))
+                .setStatus(InstructionStatus.Queued);
         }
 
         @Override
@@ -107,11 +93,10 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
                 builder.setStatus(status);
 
                 final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
-                wt.put(LogicalDatastoreType.OPERATIONAL,
-                        qid.child(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming
-                                        .rev150720.instruction.queue.Instruction.class,
-                                new InstructionKey(builder.getId())), builder.build());
+                wt.put(LogicalDatastoreType.OPERATIONAL, qid.toBuilder()
+                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
+                        .instruction.queue.Instruction.class, new InstructionKey(builder.getId()))
+                    .build(), builder.build());
                 wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
@@ -136,10 +121,10 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         @Override
         public void instructionRemoved() {
             final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
-            wt.delete(LogicalDatastoreType.OPERATIONAL, qid.child(
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.instruction
-                            .queue.Instruction.class,
-                    new InstructionKey(builder.getId())));
+            wt.delete(LogicalDatastoreType.OPERATIONAL, qid.toBuilder()
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
+                    .instruction.queue.Instruction.class, new InstructionKey(builder.getId()))
+                .build());
             wt.commit().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
@@ -154,6 +139,21 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         }
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultInstructionScheduler.class);
+
+    private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
+    private final WithKey<InstructionsQueue, InstructionsQueueKey> qid;
+    private final NotificationPublishService notifs;
+    private final Executor executor;
+    private final DataBroker dataProvider;
+    private final Timer timer;
+    private final String instructionId;
+    private final ServiceGroupIdentifier sgi;
+    private final Registration csspReg;
+    private final RpcProviderService rpcProviderRegistry;
+    @GuardedBy("this")
+    private Registration reg;
+
     DefaultInstructionScheduler(final DataBroker dataProvider, final NotificationPublishService notifs,
             final Executor executor, final RpcProviderService rpcProviderRegistry,
             final ClusterSingletonServiceProvider cssp, final Timer timer, final String instructionId) {
@@ -163,8 +163,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         this.executor = requireNonNull(executor);
         this.rpcProviderRegistry = requireNonNull(rpcProviderRegistry);
         this.timer = requireNonNull(timer);
-        qid = KeyedInstanceIdentifier.builder(InstructionsQueue.class,
-                new InstructionsQueueKey(this.instructionId)).build();
+        qid = DataObjectIdentifier.builder(InstructionsQueue.class, new InstructionsQueueKey(instructionId)).build();
         sgi = new ServiceGroupIdentifier(this.instructionId + "-service-group");
         LOG.info("Creating Programming Service {}.", sgi.value());
         csspReg = cssp.registerClusterSingletonService(this);
@@ -223,11 +222,11 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     }
 
     private synchronized RpcResult<CleanInstructionsOutput> realCleanInstructions(final CleanInstructionsInput input) {
-        final Set<InstructionId> failed = new HashSet<>();
+        final var failed = new HashSet<InstructionId>();
 
-        for (final InstructionId id : input.getId()) {
+        for (var id : input.getId()) {
             // Find the instruction
-            final InstructionImpl instruction = insns.get(id);
+            final var instruction = insns.get(id);
             if (instruction == null) {
                 LOG.debug("Instruction {} not present in the graph", input.getId());
                 failed.add(id);
@@ -236,20 +235,16 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
 
             // Check its status
             switch (instruction.getStatus()) {
-                case Cancelled:
-                case Failed:
-                case Successful:
-                    break;
-                case Executing:
-                case Queued:
-                case Scheduled:
-                case Unknown:
-                    LOG.debug("Instruction {} cannot be cleaned because of it's in state {}",
-                            id, instruction.getStatus());
+                case null -> throw new NullPointerException();
+                case Cancelled, Failed, Successful -> {
+                    // No-op
+                }
+                case Executing, Queued, Scheduled, Unknown -> {
+                    LOG.debug("Instruction {} cannot be cleaned because of it's in state {}", id,
+                        instruction.getStatus());
                     failed.add(id);
                     continue;
-                default:
-                    break;
+                }
             }
 
             // The instruction is in a terminal state, we need to just unlink
