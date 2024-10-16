@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.cli.utils;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
@@ -36,7 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -198,22 +199,24 @@ public final class PcepStateUtils {
         table.addRow().addContent("Keep Alive", preferences.getKeepalive());
     }
 
-    private static Node readNodeFromDataStore(final DataBroker dataBroker,
-            final String topologyId, final String nodeId) {
-        final InstanceIdentifier<Node> topology = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
-                .child(Node.class, new NodeKey(new NodeId(nodeId))).build();
+    private static Node readNodeFromDataStore(final DataBroker dataBroker, final String topologyId,
+            final String nodeId) {
+        final ListenableFuture<Optional<Node>> future;
 
-        final ReadTransaction rot = dataBroker.newReadOnlyTransaction();
+        try (var tx = dataBroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(new TopologyId(topologyId)))
+                .child(Node.class, new NodeKey(new NodeId(nodeId)))
+                .build());
+        }
 
         try {
-            return rot.read(LogicalDatastoreType.OPERATIONAL, topology).get().orElse(null);
+            return future.get().orElse(null);
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read node {}", nodeId, e);
+            return null;
         }
-        return null;
     }
-
 
     private static void addHeader(final ShellTable table, final String header) {
         table.addRow().addContent("                      ", "");

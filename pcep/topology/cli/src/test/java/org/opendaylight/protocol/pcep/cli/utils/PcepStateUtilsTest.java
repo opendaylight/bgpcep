@@ -16,7 +16,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
@@ -40,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -53,36 +52,36 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
 
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    private final PrintStream stream = new PrintStream(this.output);
+    private final PrintStream stream = new PrintStream(output);
 
     @Test
     public void testNodeStateNotFound() {
-        PcepStateUtils.displayNodeState(getDataBroker(), this.stream, PCEP_TOPOLOGY, NODE_ID);
-        assertEquals(RIB_NOT_FOUND, this.output.toString());
+        PcepStateUtils.displayNodeState(getDataBroker(), stream, PCEP_TOPOLOGY, NODE_ID);
+        assertEquals(RIB_NOT_FOUND, output.toString());
     }
 
     @Test
     public void testDisplayNodeState() throws IOException, ExecutionException, InterruptedException {
         createDefaultProtocol();
-        PcepStateUtils.displayNodeState(getDataBroker(), this.stream, PCEP_TOPOLOGY, NODE_ID);
+        PcepStateUtils.displayNodeState(getDataBroker(), stream, PCEP_TOPOLOGY, NODE_ID);
         final String expected = Resources.toString(getClass().getClassLoader().getResource("node.txt"),
             StandardCharsets.UTF_8);
-        assertEquals(expected, this.output.toString());
+        assertEquals(expected, output.toString());
     }
 
     private void createDefaultProtocol() throws ExecutionException, InterruptedException {
-        final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
-        final Node node = new NodeBuilder()
+        final var tx = getDataBroker().newWriteOnlyTransaction();
+        final var node = new NodeBuilder()
                 .setNodeId(new NodeId(NODE_ID))
                 .addAugmentation(new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(createPcepSessionState())
                     .build())
                 .build();
 
-        final InstanceIdentifier<Node> topology = InstanceIdentifier.builder(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(new TopologyId(PCEP_TOPOLOGY)))
-                .child(Node.class, new NodeKey(new NodeId(NODE_ID))).build();
-        wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, topology, node);
-        wt.commit().get();
+        tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId(PCEP_TOPOLOGY)))
+            .child(Node.class, new NodeKey(new NodeId(NODE_ID)))
+            .build(), node);
+        tx.commit().get();
     }
 
     private static PcepSessionState createPcepSessionState() {
