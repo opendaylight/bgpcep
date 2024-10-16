@@ -18,7 +18,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -29,7 +28,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     static final String RIB_ID = "test-rib";
@@ -53,17 +51,19 @@ public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTe
     }
 
     private void createDefaultProtocol() throws ExecutionException, InterruptedException {
-        final WriteTransaction wt = getDataBroker().newWriteOnlyTransaction();
+        final var wt = getDataBroker().newWriteOnlyTransaction();
         final Bgp bgp = new BgpBuilder()
                 .setGlobal(GlobalStateCliUtilsTest.buildGlobal(true).build())
-                .setNeighbors(new NeighborsBuilder().setNeighbor(
-                        BindingMap.of(NeighborStateCliUtilsTest.createBasicNeighbor())).build())
+                .setNeighbors(new NeighborsBuilder()
+                    .setNeighbor(BindingMap.of(NeighborStateCliUtilsTest.createBasicNeighbor()))
+                    .build())
                 .build();
         GlobalStateCliUtilsTest.buildGlobal(true);
-        final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
-                .child(Protocol.class, new ProtocolKey(BGP.VALUE, RIB_ID))
-                .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-        wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, bgpIID, bgp);
+        wt.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, PROTOCOLS_IID.toBuilder()
+            .child(Protocol.class, new ProtocolKey(BGP.VALUE, RIB_ID))
+            .augmentation(NetworkInstanceProtocol.class)
+            .child(Bgp.class)
+            .build(), bgp);
         wt.commit().get();
     }
 

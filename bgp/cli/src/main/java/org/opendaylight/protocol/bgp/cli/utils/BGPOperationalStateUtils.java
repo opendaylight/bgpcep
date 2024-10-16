@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.cli.utils;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.io.PrintStream;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
@@ -25,7 +26,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +35,12 @@ import org.slf4j.LoggerFactory;
  */
 public final class BGPOperationalStateUtils {
     private static final Logger LOG = LoggerFactory.getLogger(BGPOperationalStateUtils.class);
-    static final InstanceIdentifier<Protocols> PROTOCOLS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
-        .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
-        .child(Protocols.class);
+
+    static final DataObjectIdentifier<Protocols> PROTOCOLS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
+            .child(NetworkInstance.class, new NetworkInstanceKey("global-bgp"))
+            .child(Protocols.class)
+            .build();
 
     private BGPOperationalStateUtils() {
         // Hidden on purpose
@@ -83,14 +86,17 @@ public final class BGPOperationalStateUtils {
     }
 
     private static Bgp readGlobalFromDataStore(final DataBroker dataBroker, final String ribId) {
-        final InstanceIdentifier<Bgp> bgpIID = PROTOCOLS_IID
+        final ListenableFuture<Optional<Bgp>> future;
+        try (var tx = dataBroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.OPERATIONAL, PROTOCOLS_IID.toBuilder()
                 .child(Protocol.class, new ProtocolKey(BGP.VALUE, ribId))
-                .augmentation(NetworkInstanceProtocol.class).child(Bgp.class);
-
-        final ReadTransaction rot = dataBroker.newReadOnlyTransaction();
+                .augmentation(NetworkInstanceProtocol.class)
+                .child(Bgp.class)
+                .build());
+        }
 
         try {
-            return rot.read(LogicalDatastoreType.OPERATIONAL, bgpIID).get().orElse(null);
+            return future.get().orElse(null);
         } catch (final InterruptedException | ExecutionException e) {
             LOG.warn("Failed to read rib {}", ribId, e);
         }
