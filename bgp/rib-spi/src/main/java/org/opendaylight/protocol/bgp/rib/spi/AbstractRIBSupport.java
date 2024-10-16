@@ -60,10 +60,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.EntryObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -94,8 +94,8 @@ public abstract class AbstractRIBSupport<
     private static final NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
     private static final NodeIdentifier WITHDRAWN_ROUTES = NodeIdentifier.create(WithdrawnRoutes.QNAME);
     private static final NodeIdentifier DESTINATION_TYPE = NodeIdentifier.create(DestinationType.QNAME);
-    private static final InstanceIdentifier<Tables> TABLES_II = InstanceIdentifier.builder(BgpRib.class)
-            .child(Rib.class).child(LocRib.class).child(Tables.class).build();
+    private static final DataObjectReference<Tables> TABLES_II =
+        DataObjectReference.builder(BgpRib.class).child(Rib.class).child(LocRib.class).child(Tables.class).build();
     private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
     private static final ImmutableOffsetMapTemplate<QName> TABLES_KEY_TEMPLATE = ImmutableOffsetMapTemplate.ordered(
         ImmutableList.of(AFI_QNAME, SAFI_QNAME));
