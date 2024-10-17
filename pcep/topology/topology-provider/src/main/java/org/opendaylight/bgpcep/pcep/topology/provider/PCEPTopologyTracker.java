@@ -29,7 +29,6 @@ import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -43,8 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -131,9 +130,9 @@ public final class PCEPTopologyTracker
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
-        reg = dataBroker.registerTreeChangeListener(DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
-            InstanceIdentifier.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
-                .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build()), this);
+        reg = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            DataObjectReference.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
+                .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build(), this);
         LOG.info("PCEP Topology tracker initialized");
     }
 

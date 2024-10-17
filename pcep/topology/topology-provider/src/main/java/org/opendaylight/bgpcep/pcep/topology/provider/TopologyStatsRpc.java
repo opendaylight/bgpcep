@@ -47,10 +47,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
 final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsRpc.class);
 
-    private final ConcurrentMap<InstanceIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
+    private final ConcurrentMap<DataObjectIdentifier<PcepSessionState>, PcepSessionState> sessionStateMap =
             new ConcurrentHashMap<>();
     private Registration listenerRegistration;
     private Registration rpcRegistration;
@@ -78,7 +78,7 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
     @Override
     public void onDataTreeChanged(final List<DataTreeModification<PcepSessionState>> changes) {
         changes.forEach(change -> {
-            final var iid = change.path().toLegacy();
+            final var iid = change.path();
             final var mod = change.getRootNode();
             switch (mod.modificationType()) {
                 case SUBTREE_MODIFIED, WRITE:
@@ -148,8 +148,8 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
                         .setTopologyId(iTopologyId)
                         .setNode(iNodeIds.stream()
                             .map(iNodeId -> {
-                                final PcepSessionState state = sessionStateMap.get(
-                                    InstanceIdentifier.builder(NetworkTopology.class)
+                                final var state = sessionStateMap.get(
+                                    DataObjectIdentifier.builder(NetworkTopology.class)
                                         .child(Topology.class, new TopologyKey(iTopologyId))
                                         .child(Node.class, new NodeKey(iNodeId))
                                         .augmentation(PcepTopologyNodeStatsAug.class)
@@ -232,13 +232,18 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
     }
 
     private List<TopologyId> getAvailableTopologyIds() {
-        return sessionStateMap.keySet().stream().map(iid -> iid.firstKeyOf(Topology.class).getTopologyId()).distinct()
-                .collect(Collectors.toList());
+        return sessionStateMap.keySet().stream()
+            .map(DataObjectIdentifier::toLegacy)
+            .map(iid -> iid.firstKeyOf(Topology.class).getTopologyId())
+            .distinct()
+            .collect(Collectors.toList());
     }
 
     private List<NodeId> getAvailableNodeIds(final TopologyId topologyId) {
         return sessionStateMap.keySet().stream()
-                .filter(iid -> iid.firstKeyOf(Topology.class).getTopologyId().equals(topologyId))
-                .map(iid -> iid.firstKeyOf(Node.class).getNodeId()).collect(Collectors.toList());
+            .map(DataObjectIdentifier::toLegacy)
+            .filter(iid -> iid.firstKeyOf(Topology.class).getTopologyId().equals(topologyId))
+            .map(iid -> iid.firstKeyOf(Node.class).getNodeId())
+            .collect(Collectors.toList());
     }
 }
