@@ -22,7 +22,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAugBuilder;
@@ -60,9 +59,9 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -104,11 +103,9 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
         final Topology t3 = createTopology(NONPCEP_TOPOLOGY,
                 BindingMap.of(new NodeBuilder().setNodeId(new NodeId(NONPCEP_NODE)).build()));
 
-        final WriteTransaction wtx = getDataBroker().newWriteOnlyTransaction();
-        final NetworkTopologyBuilder ntb = new NetworkTopologyBuilder();
-        ntb.setTopology(BindingMap.of(t1, t2, t3));
-        wtx.put(LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(NetworkTopology.class).build(),
-                ntb.build());
+        final var wtx = getDataBroker().newWriteOnlyTransaction();
+        wtx.put(LogicalDatastoreType.OPERATIONAL, DataObjectIdentifier.builder(NetworkTopology.class).build(),
+            new NetworkTopologyBuilder().setTopology(BindingMap.of(t1, t2, t3)).build());
         wtx.commit().get();
     }
 
