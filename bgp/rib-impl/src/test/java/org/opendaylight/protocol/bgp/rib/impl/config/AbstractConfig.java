@@ -48,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -129,7 +128,6 @@ class AbstractConfig extends DefaultRibPoliciesMockTest {
         doReturn(bgpPeerRegistry).when(dispatcher).getBGPPeerRegistry();
         doReturn(peerTracker).when(rib).getPeerTracker();
         doReturn(policies).when(rib).getRibPolicies();
-        doReturn(null).when(peerGroupLoader)
-                .getPeerGroup(any(InstanceIdentifier.class), any(String.class));
+        doReturn(null).when(peerGroupLoader).getPeerGroup(any(DataObjectIdentifier.class), any(String.class));
     }
 }

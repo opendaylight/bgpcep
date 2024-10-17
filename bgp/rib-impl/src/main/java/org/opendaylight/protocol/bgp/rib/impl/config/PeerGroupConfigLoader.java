@@ -11,7 +11,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.peer.group.PeerGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Loads Peer GROUP configuration from CONFIG DS.
@@ -24,5 +24,5 @@ public interface PeerGroupConfigLoader {
      * @param neighbor           peer Group name.
      * @return peer group or null.
      */
-    @Nullable PeerGroup getPeerGroup(@NonNull InstanceIdentifier<Bgp> instanceIdentifier, @NonNull String neighbor);
+    @Nullable PeerGroup getPeerGroup(@NonNull DataObjectIdentifier<Bgp> instanceIdentifier, @NonNull String neighbor);
 }

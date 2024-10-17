@@ -47,12 +47,14 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfig;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +64,7 @@ import org.slf4j.LoggerFactory;
 public class BGPClusterSingletonService implements ClusterSingletonService, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BGPClusterSingletonService.class);
 
-    private final InstanceIdentifier<Bgp> bgpIid;
+    private final DataObjectIdentifier<Bgp> bgpIid;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final @NonNull ServiceGroupIdentifier serviceGroupIdentifier;
     private final AtomicBoolean instantiated = new AtomicBoolean(false);
@@ -76,7 +78,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     private final DOMDataBroker domDataBroker;
 
     @GuardedBy("this")
-    private final Map<InstanceIdentifier<Neighbor>, PeerBean> peers = new HashMap<>();
+    private final Map<WithKey<Neighbor, NeighborKey>, PeerBean> peers = new HashMap<>();
     @GuardedBy("this")
     private final Map<String, List<PeerBean>> peersGroups = new HashMap<>();
     @GuardedBy("this")
@@ -95,7 +97,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             final @NonNull CodecsRegistry codecsRegistry,
             final @NonNull BGPStateProviderRegistry stateProviderRegistry,
             final @NonNull DOMDataBroker domDataBroker,
-            final @NonNull InstanceIdentifier<Bgp> bgpIid) {
+            final @NonNull DataObjectIdentifier<Bgp> bgpIid) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
         this.rpcRegistry = rpcRegistry;
@@ -288,8 +290,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         } else {
             bgpPeer = new BgpPeer(rpcRegistry, stateProviderRegistry);
         }
-        final InstanceIdentifier<Neighbor> neighborInstanceIdentifier =
-                getNeighborInstanceIdentifier(bgpIid, neighbor.key());
+        final var neighborInstanceIdentifier = getNeighborInstanceIdentifier(bgpIid, neighbor.key());
         initiatePeerInstance(neighbor, bgpPeer);
         peers.put(neighborInstanceIdentifier, bgpPeer);
 

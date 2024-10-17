@@ -65,8 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,7 +133,7 @@ public class BgpPeer extends PeerBean {
     }
 
     @Override
-    synchronized void start(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
+    synchronized void start(final RIB rib, final Neighbor neighbor, final DataObjectIdentifier<Bgp> bgpIid,
             final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         checkState(bgpPeerSingletonService == null, "Previous peer instance was not closed.");
         LOG.info("Starting BgPeer instance {}", neighbor.getNeighborAddress());
@@ -237,7 +237,7 @@ public class BgpPeer extends PeerBean {
         private final RevisedErrorHandlingSupport errorHandling;
 
 
-        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final InstanceIdentifier<Bgp> bgpIid,
+        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final DataObjectIdentifier<Bgp> bgpIid,
                 final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
             neighborAddress = OpenConfigMappingUtil.convertIpAddress(neighbor.getNeighborAddress());
 

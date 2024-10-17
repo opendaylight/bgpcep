@@ -30,11 +30,8 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -61,8 +58,9 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +69,7 @@ import org.slf4j.LoggerFactory;
 public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGroupConfigLoader, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultBgpDeployer.class);
 
-    private final InstanceIdentifier<NetworkInstance> networkInstanceIId;
+    private final WithKey<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ClusterSingletonServiceProvider provider;
     private final RpcProviderService rpcRegistry;
@@ -84,13 +82,17 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     private final DataBroker dataBroker;
 
     @GuardedBy("this")
-    private final Map<InstanceIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
-    private final LoadingCache<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>> peerGroups =
-        CacheBuilder.newBuilder().build(new CacheLoader<InstanceIdentifier<PeerGroup>, Optional<PeerGroup>>() {
+    private final Map<DataObjectIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
+    private final LoadingCache<WithKey<PeerGroup, PeerGroupKey>, Optional<PeerGroup>> peerGroups =
+        CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
-            public Optional<PeerGroup> load(final InstanceIdentifier<PeerGroup> key)
+            public Optional<PeerGroup> load(final WithKey<PeerGroup, PeerGroupKey> key)
                     throws ExecutionException, InterruptedException {
-                return loadPeerGroup(key);
+                final FluentFuture<Optional<PeerGroup>> future;
+                try (var tx = dataBroker.newReadOnlyTransaction()) {
+                    future = tx.read(LogicalDatastoreType.CONFIGURATION, key);
+                }
+                return future.get();
             }
         });
     private final String networkInstanceName;
@@ -122,8 +124,9 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
         this.codecsRegistry = requireNonNull(codecsRegistry);
         this.domDataBroker = requireNonNull(domDataBroker);
         networkInstanceIId =
-            InstanceIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class).build()
-                .child(NetworkInstance.class, new NetworkInstanceKey(this.networkInstanceName));
+            DataObjectIdentifier.builderOfInherited(OpenconfigNetworkInstanceData.class, NetworkInstances.class)
+                .child(NetworkInstance.class, new NetworkInstanceKey(networkInstanceName))
+                .build();
         initializeNetworkInstance(dataBroker, networkInstanceIId).addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -140,20 +143,14 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     @PostConstruct
     // Split out of constructor to support partial mocking
     public synchronized void init() {
-        registration = dataBroker.registerTreeChangeListener(
-                DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION,
-                        networkInstanceIId.child(Protocols.class).child(Protocol.class)
-                                .augmentation(NetworkInstanceProtocol.class).child(Bgp.class)), this);
+        registration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            networkInstanceIId.toLegacy().toBuilder()
+                .child(Protocols.class)
+                .child(Protocol.class)
+                .augmentation(NetworkInstanceProtocol.class)
+                .child(Bgp.class)
+                .build(), this);
         LOG.info("BGP Deployer {} started.", networkInstanceName);
-    }
-
-    private Optional<PeerGroup> loadPeerGroup(final InstanceIdentifier<PeerGroup> peerGroupIid)
-            throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<PeerGroup>> future;
-        try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-            future = tx.read(LogicalDatastoreType.CONFIGURATION, peerGroupIid);
-        }
-        return future.get();
     }
 
     @Override
@@ -164,8 +161,8 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
         }
 
         for (var dataTreeModification : changes) {
-            final InstanceIdentifier<Bgp> rootIdentifier = dataTreeModification.getRootPath().path();
-            final DataObjectModification<Bgp> rootNode = dataTreeModification.getRootNode();
+            final var rootIdentifier = dataTreeModification.path();
+            final var rootNode = dataTreeModification.getRootNode();
             final List<DataObjectModification<? extends DataObject>> deletedConfig = rootNode.modifiedChildren()
                 .stream()
                 .filter(mod -> mod.modificationType() == DataObjectModification.ModificationType.DELETE)
@@ -180,7 +177,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     }
 
     private void handleModifications(final List<DataObjectModification<? extends DataObject>> changedConfig,
-                                     final InstanceIdentifier<Bgp> rootIdentifier) {
+                                     final DataObjectIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = changedConfig.stream()
                 .filter(mod -> mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
@@ -196,7 +193,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     }
 
     private void handleDeletions(final List<DataObjectModification<? extends DataObject>> deletedConfig,
-                                 final InstanceIdentifier<Bgp> rootIdentifier) {
+                                 final DataObjectIdentifier<Bgp> rootIdentifier) {
         final List<DataObjectModification<? extends DataObject>> globalMod = deletedConfig.stream()
                 .filter(mod -> mod.dataType().equals(Global.class))
                 .collect(Collectors.toList());
@@ -213,16 +210,16 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
 
     private void handleGlobalChange(
             final List<DataObjectModification<? extends DataObject>> config,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
-        for (final DataObjectModification<? extends DataObject> dataObjectModification : config) {
+            final DataObjectIdentifier<Bgp> rootIdentifier) {
+        for (var dataObjectModification : config) {
             onGlobalChanged((DataObjectModification<Global>) dataObjectModification, rootIdentifier);
         }
     }
 
     private void handlePeersChange(
             final List<DataObjectModification<? extends DataObject>> config,
-            final InstanceIdentifier<Bgp> rootIdentifier) {
-        for (final DataObjectModification<? extends DataObject> dataObjectModification : config) {
+            final DataObjectIdentifier<Bgp> rootIdentifier) {
+        for (var dataObjectModification : config) {
             if (dataObjectModification.dataType().equals(Neighbors.class)) {
                 onNeighborsChanged((DataObjectModification<Neighbors>) dataObjectModification, rootIdentifier);
             } else if (dataObjectModification.dataType().equals(PeerGroups.class)) {
@@ -232,14 +229,14 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     }
 
     private synchronized void rebootNeighbors(final DataObjectModification<PeerGroups> dataObjectModification) {
-        PeerGroups extPeerGroups = dataObjectModification.dataAfter();
+        var extPeerGroups = dataObjectModification.dataAfter();
         if (extPeerGroups == null) {
             extPeerGroups = dataObjectModification.dataBefore();
         }
         if (extPeerGroups == null) {
             return;
         }
-        for (final PeerGroup peerGroup : extPeerGroups.nonnullPeerGroup().values()) {
+        for (var peerGroup : extPeerGroups.nonnullPeerGroup().values()) {
             bgpCss.values().forEach(css -> css.restartPeerGroup(peerGroup.getPeerGroupName()));
         }
     }
@@ -265,27 +262,28 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     }
 
     private static FluentFuture<? extends CommitInfo> initializeNetworkInstance(
-            final DataBroker dataBroker, final InstanceIdentifier<NetworkInstance> networkInstance) {
-        final WriteTransaction wTx = dataBroker.newWriteOnlyTransaction();
-        wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance,
-                new NetworkInstanceBuilder().setName(networkInstance.firstKeyOf(NetworkInstance.class).getName())
-                        .setProtocols(new ProtocolsBuilder().build()).build());
+            final DataBroker dataBroker, final WithKey<NetworkInstance, NetworkInstanceKey> networkInstance) {
+        final var wTx = dataBroker.newWriteOnlyTransaction();
+        wTx.merge(LogicalDatastoreType.CONFIGURATION, networkInstance, new NetworkInstanceBuilder()
+            .withKey(networkInstance.key())
+            .setProtocols(new ProtocolsBuilder().build())
+            .build());
         return wTx.commit();
     }
 
     synchronized void onGlobalChanged(final DataObjectModification<Global> dataObjectModification,
-                                      final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
+                                      final DataObjectIdentifier<Bgp> bgpInstanceIdentifier) {
         getBgpClusterSingleton(bgpInstanceIdentifier).onGlobalChanged(dataObjectModification);
     }
 
     synchronized void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification,
-                                         final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
+                                         final DataObjectIdentifier<Bgp> bgpInstanceIdentifier) {
         getBgpClusterSingleton(bgpInstanceIdentifier).onNeighborsChanged(dataObjectModification);
     }
 
     @VisibleForTesting
     synchronized BGPClusterSingletonService getBgpClusterSingleton(
-            final InstanceIdentifier<Bgp> bgpInstanceIdentifier) {
+            final DataObjectIdentifier<Bgp> bgpInstanceIdentifier) {
         BGPClusterSingletonService old = bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, provider, tableTypeRegistry,
@@ -297,10 +295,12 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     }
 
     @Override
-    public PeerGroup getPeerGroup(final InstanceIdentifier<Bgp> bgpIid, final String peerGroupName) {
-        final InstanceIdentifier<PeerGroup> peerGroupsIid = bgpIid.child(PeerGroups.class)
-                .child(PeerGroup.class, new PeerGroupKey(peerGroupName));
-        return peerGroups.getUnchecked(peerGroupsIid).orElse(null);
+    public PeerGroup getPeerGroup(final DataObjectIdentifier<Bgp> bgpIid, final String peerGroupName) {
+        return peerGroups.getUnchecked(bgpIid.toBuilder()
+            .child(PeerGroups.class)
+            .child(PeerGroup.class, new PeerGroupKey(peerGroupName))
+            .build())
+            .orElse(null);
     }
 
 }

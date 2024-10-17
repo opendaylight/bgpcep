@@ -30,7 +30,6 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.concepts.KeyMapping;
-import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
@@ -73,7 +72,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 final class OpenConfigMappingUtil {
@@ -89,8 +89,8 @@ final class OpenConfigMappingUtil {
         // Hidden on purpose
     }
 
-    static String getRibInstanceName(final InstanceIdentifier<?> rootIdentifier) {
-        return rootIdentifier.firstKeyOf(Protocol.class).getName();
+    static String getRibInstanceName(final DataObjectIdentifier<Bgp> rootIdentifier) {
+        return rootIdentifier.toLegacy().firstKeyOf(Protocol.class).getName();
     }
 
     static KeyMapping getNeighborKey(final Neighbor neighbor) {
@@ -104,10 +104,9 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static InstanceIdentifier<Neighbor> getNeighborInstanceIdentifier(
-            final InstanceIdentifier<Bgp> rootIdentifier,
+    static WithKey<Neighbor, NeighborKey> getNeighborInstanceIdentifier(final DataObjectIdentifier<Bgp> rootIdentifier,
             final NeighborKey neighborKey) {
-        return rootIdentifier.child(Neighbors.class).child(Neighbor.class, neighborKey);
+        return rootIdentifier.toBuilder().child(Neighbors.class).child(Neighbor.class, neighborKey).build();
     }
 
     static IpAddressNoZone convertIpAddress(final IpAddress addr) {
@@ -121,10 +120,6 @@ final class OpenConfigMappingUtil {
         final Ipv6Address ipv6 = addr.getIpv6Address();
         checkState(ipv6 != null, "Unexpected address %s", addr);
         return new IpAddressNoZone(IetfInetUtil.ipv6AddressNoZoneFor(ipv6));
-    }
-
-    static String getNeighborInstanceName(final InstanceIdentifier<?> rootIdentifier) {
-        return Ipv4Util.toStringIP(convertIpAddress(rootIdentifier.firstKeyOf(Neighbor.class).getNeighborAddress()));
     }
 
     //make sure IPv4 Unicast (RFC 4271) when required
