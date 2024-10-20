@@ -56,10 +56,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.peers.peer.PrePolicyRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.peers.peer.Stats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.routers.Router;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingDataObjectCodecTreeNode;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -115,15 +115,21 @@ public final class BmpRouterPeerImpl implements BmpRouterPeer {
     private static final TablesKey DEFAULT_TABLE =
             new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
-    private static final InstanceIdentifier<PeerSession> PEER_SESSION_ID = InstanceIdentifier.builder(BmpMonitor.class)
+    private static final DataObjectReference<PeerSession> PEER_SESSION_ID =
+        DataObjectReference.builder(BmpMonitor.class)
             .child(Monitor.class)
             .child(Router.class)
             .child(Peer.class)
-            .child(PeerSession.class).build();
+            .child(PeerSession.class)
+            .build();
 
-    private static final InstanceIdentifier<SentOpen> SENT_OPEN_IID = PEER_SESSION_ID.child(SentOpen.class);
+    private static final DataObjectReference<SentOpen> SENT_OPEN_IID = PEER_SESSION_ID.toBuilder()
+        .child(SentOpen.class)
+        .build();
 
-    private static final InstanceIdentifier<ReceivedOpen> RECEIVED_OPEN_IID = PEER_SESSION_ID.child(ReceivedOpen.class);
+    private static final DataObjectReference<ReceivedOpen> RECEIVED_OPEN_IID = PEER_SESSION_ID.toBuilder()
+        .child(ReceivedOpen.class)
+        .build();
 
     private final DOMTransactionChain domTxChain;
     private final PeerId peerId;

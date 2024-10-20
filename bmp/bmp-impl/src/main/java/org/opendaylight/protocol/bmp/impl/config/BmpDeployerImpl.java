@@ -24,7 +24,6 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -41,9 +40,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.BmpMonitor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.MonitorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.monitor.rev200120.bmp.monitor.Monitor;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -61,8 +60,8 @@ public final class BmpDeployerImpl implements DataTreeChangeListener<OdlBmpMonit
     private static final Logger LOG = LoggerFactory.getLogger(BmpDeployerImpl.class);
 
     private static final long TIMEOUT_NS = TimeUnit.SECONDS.toNanos(5);
-    private static final InstanceIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
-            InstanceIdentifier.create(OdlBmpMonitors.class);
+    private static final DataObjectIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
+        DataObjectIdentifier.builder(OdlBmpMonitors.class).build();
     private static final YangInstanceIdentifier BMP_MONITOR_YII = YangInstanceIdentifier.of(BmpMonitor.QNAME);
     private static final ContainerNode EMPTY_PARENT_NODE = ImmutableNodes.newContainerBuilder()
         .withNodeIdentifier(new NodeIdentifier(BmpMonitor.QNAME))
@@ -105,8 +104,8 @@ public final class BmpDeployerImpl implements DataTreeChangeListener<OdlBmpMonit
                 LOG.error("Failed commit", trw);
             }
         }, MoreExecutors.directExecutor());
-        registration = dataBroker.registerTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID), this);
+        registration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION, ODL_BMP_MONITORS_IID,
+            this);
     }
 
     @Override
