@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
@@ -30,15 +29,16 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class AbstractCommunityHandler {
-    private static final InstanceIdentifier<CommunitySets> COMMUNITY_SETS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<CommunitySets> COMMUNITY_SETS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
             .augmentation(DefinedSets1.class)
             .child(BgpDefinedSets.class)
-            .child(CommunitySets.class);
+            .child(CommunitySets.class)
+            .build();
     protected final LoadingCache<String, List<Communities>> communitySets;
 
     public AbstractCommunityHandler(final DataBroker dataBroker) {
@@ -48,9 +48,9 @@ public class AbstractCommunityHandler {
                 @Override
                 public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
                     final FluentFuture<Optional<CommunitySet>> future;
-                    try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
+                    try (var tr = dataBroker.newReadOnlyTransaction()) {
                         future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                            COMMUNITY_SETS_IID.child(CommunitySet.class, new CommunitySetKey(key)));
+                            COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
                     }
 
                     return future.get().map(set -> set.nonnullCommunities().stream()

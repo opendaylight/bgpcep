@@ -13,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.AbstractStatementRegistryTest;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistry;
@@ -24,7 +23,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.PolicyDefinitionKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.Statements;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegistryTest {
     protected final StatementRegistry statementRegistry  = new StatementRegistry();
@@ -47,12 +46,13 @@ public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegi
     @Override
     protected List<Statement> loadStatement(final String policyName) throws ExecutionException, InterruptedException {
         final ListenableFuture<Optional<Statements>> future;
-        try (ReadTransaction rt = getDataBroker().newReadOnlyTransaction()) {
+        try (var rt = getDataBroker().newReadOnlyTransaction()) {
             future = rt.read(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
                     .child(PolicyDefinitions.class)
                     .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName))
-                    .child(Statements.class));
+                    .child(Statements.class)
+                    .build());
         }
         return future.get().orElseThrow().getStatement();
     }

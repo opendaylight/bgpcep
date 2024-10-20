@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -38,41 +37,39 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.originator.id.sets.OriginatorIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSetKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Match an Originator Id(ANY, INVERT).
  */
 public final class MatchOriginatorIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchOriginatorIdSetCondition, OriginatorId> {
-    private static final InstanceIdentifier<OriginatorIdSets> ORIGINATOR_ID_SETS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<OriginatorIdSets> ORIGINATOR_ID_SETS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
             .augmentation(DefinedSets1.class)
             .child(BgpDefinedSets.class)
             .augmentation(BgpOriginatorIdSets.class)
-            .child(OriginatorIdSets.class);
+            .child(OriginatorIdSets.class)
+            .build();
 
     private final LoadingCache<String, OriginatorIdSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
                 public OriginatorIdSet load(final String key) throws ExecutionException, InterruptedException {
-                    return loadSets(key);
+                    final FluentFuture<Optional<OriginatorIdSet>> future;
+                    try (var tr = dataBroker.newReadOnlyTransaction()) {
+                        future = tr.read(LogicalDatastoreType.CONFIGURATION, ORIGINATOR_ID_SETS_IID.toBuilder()
+                            .child(OriginatorIdSet.class, new OriginatorIdSetKey(key))
+                            .build());
+                    }
+                    return  future.get().orElse(null);
                 }
             });
     private final DataBroker dataBroker;
 
     public MatchOriginatorIdSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    private OriginatorIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<OriginatorIdSet>> future;
-        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
-            future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                    ORIGINATOR_ID_SETS_IID.child(OriginatorIdSet.class, new OriginatorIdSetKey(key)));
-        }
-        return  future.get().orElse(null);
     }
 
     @Override
