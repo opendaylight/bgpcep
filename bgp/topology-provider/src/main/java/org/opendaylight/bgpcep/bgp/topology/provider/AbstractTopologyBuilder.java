@@ -141,9 +141,9 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
 
     protected abstract InstanceIdentifier<T> getRouteWildcard(DataObjectIdentifier<Tables> tablesId);
 
-    protected abstract void createObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
+    protected abstract void createObject(ReadWriteTransaction trans, DataObjectIdentifier<T> id, T value);
 
-    protected abstract void removeObject(ReadWriteTransaction trans, InstanceIdentifier<T> id, T value);
+    protected abstract void removeObject(ReadWriteTransaction trans, DataObjectIdentifier<T> id, T value);
 
     protected abstract void clearTopology();
 
@@ -231,15 +231,15 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
         final var root = change.getRootNode();
         switch (root.modificationType()) {
             case DELETE:
-                removeObject(trans, change.getRootPath().path(), root.dataBefore());
+                removeObject(trans, change.path(), root.dataBefore());
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
                 final var before = root.dataBefore();
                 if (before != null) {
-                    removeObject(trans, change.getRootPath().path(), before);
+                    removeObject(trans, change.path(), before);
                 }
-                createObject(trans, change.getRootPath().path(), root.dataAfter());
+                createObject(trans, change.path(), root.dataAfter());
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled modification type " + root.modificationType());

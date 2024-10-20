@@ -44,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -129,7 +128,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
     protected abstract IpPrefix getPrefix(T value);
 
     @Override
-    protected final void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
+    protected final void createObject(final ReadWriteTransaction trans, final DataObjectIdentifier<T> id,
+            final T value) {
         final NodeId ni = advertizingNode(getAttributes(value));
         if (ni == null) {
             return;
@@ -144,7 +144,8 @@ abstract class AbstractReachabilityTopologyBuilder<T extends Route & DataObject>
     }
 
     @Override
-    protected final void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<T> id, final T value) {
+    protected final void removeObject(final ReadWriteTransaction trans, final DataObjectIdentifier<T> id,
+            final T value) {
         if (value == null) {
             LOG.error("Empty before-data received in delete data change notification for instance id {}", id);
             return;

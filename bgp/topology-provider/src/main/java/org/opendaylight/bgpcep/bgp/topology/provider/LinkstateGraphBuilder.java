@@ -139,11 +139,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         final var root = change.getRootNode();
         switch (root.modificationType()) {
             case DELETE:
-                removeObject(trans, change.getRootPath().path(), root.dataBefore());
+                removeObject(trans, change.path(), root.dataBefore());
                 break;
             case SUBTREE_MODIFIED:
             case WRITE:
-                createObject(trans, change.getRootPath().path(), root.dataAfter());
+                createObject(trans, change.path(), root.dataAfter());
                 break;
             default:
                 throw new IllegalArgumentException("Unhandled modification type " + root.modificationType());
@@ -151,7 +151,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     @Override
-    protected void createObject(final ReadWriteTransaction trans, final InstanceIdentifier<LinkstateRoute> id,
+    protected void createObject(final ReadWriteTransaction trans, final DataObjectIdentifier<LinkstateRoute> id,
             final LinkstateRoute value) {
         final ObjectType t = value.getObjectType();
         checkArgument(t != null, "Route %s value %s has null object type", id, value);
@@ -573,7 +573,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     @Override
-    protected void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<LinkstateRoute> id,
+    protected void removeObject(final ReadWriteTransaction trans, final DataObjectIdentifier<LinkstateRoute> id,
             final LinkstateRoute value) {
         if (value == null) {
             LOG.error("Empty before-data received in delete data change notification for instance id {}", id);

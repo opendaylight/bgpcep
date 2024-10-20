@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
@@ -944,26 +943,23 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
     }
 
     @Override
-    protected void createObject(final ReadWriteTransaction trans,
-            final InstanceIdentifier<LinkstateRoute> id, final LinkstateRoute value) {
+    protected void createObject(final ReadWriteTransaction trans, final DataObjectIdentifier<LinkstateRoute> id,
+            final LinkstateRoute value) {
         final UriBuilder base = new UriBuilder(value);
 
         final ObjectType t = value.getObjectType();
-        Preconditions.checkArgument(t != null, "Route %s value %s has null object type", id, value);
-
-        if (t instanceof LinkCase link) {
-            createLink(trans, base, value, link, value.getAttributes());
-        } else if (t instanceof NodeCase node) {
-            createNode(trans, base, value, node, value.getAttributes());
-        } else if (t instanceof PrefixCase prefix) {
-            createPrefix(trans, base, value, prefix, value.getAttributes());
-        } else {
-            LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
+        switch (t) {
+            case null -> throw new IllegalArgumentException(
+                "Route %s value %s has null object type".formatted(id, value));
+            case LinkCase link -> createLink(trans, base, value, link, value.getAttributes());
+            case NodeCase node -> createNode(trans, base, value, node, value.getAttributes());
+            case PrefixCase prefix -> createPrefix(trans, base, value, prefix, value.getAttributes());
+            default -> LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
         }
     }
 
     @Override
-    protected void removeObject(final ReadWriteTransaction trans, final InstanceIdentifier<LinkstateRoute> id,
+    protected void removeObject(final ReadWriteTransaction trans, final DataObjectIdentifier<LinkstateRoute> id,
             final LinkstateRoute value) {
         if (value == null) {
             LOG.error("Empty before-data received in delete data change notification for instance id {}", id);
