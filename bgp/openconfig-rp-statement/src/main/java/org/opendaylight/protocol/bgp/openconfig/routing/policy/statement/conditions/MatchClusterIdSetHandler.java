@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -41,40 +40,38 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.cluster.id.sets.ClusterIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSetKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Match a set of Cluster Id(ALL, NAY, INVERT).
  */
 public final class MatchClusterIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchClusterIdSetCondition, ClusterId> {
-    private static final InstanceIdentifier<ClusterIdSets> CLUSTERS_ID_SETS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<ClusterIdSets> CLUSTERS_ID_SETS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
             .augmentation(DefinedSets1.class)
             .child(BgpDefinedSets.class)
             .augmentation(BgpClusterIdSets.class)
-            .child(ClusterIdSets.class);
+            .child(ClusterIdSets.class)
+            .build();
     private final DataBroker dataBroker;
     private final LoadingCache<String, ClusterIdSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
                 public ClusterIdSet load(final String key) throws ExecutionException, InterruptedException {
-                    return loadSets(key);
+                    final FluentFuture<Optional<ClusterIdSet>> future;
+                    try (var tr = dataBroker.newReadOnlyTransaction()) {
+                        future = tr.read(LogicalDatastoreType.CONFIGURATION, CLUSTERS_ID_SETS_IID.toBuilder()
+                            .child(ClusterIdSet.class, new ClusterIdSetKey(key))
+                            .build());
+                    }
+                    return  future.get().orElse(null);
                 }
             });
 
     public MatchClusterIdSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    private ClusterIdSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<ClusterIdSet>> future;
-        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
-            future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                    CLUSTERS_ID_SETS_IID.child(ClusterIdSet.class, new ClusterIdSetKey(key)));
-        }
-        return  future.get().orElse(null);
     }
 
     @Override

@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -41,39 +40,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.match.role.set.condition.grouping.match.role.set.ToRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.role.set.RoleSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.role.set.RoleSetKey;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Match a Peer Role (FROM, TO).
  */
 public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolicy<MatchRoleSetCondition, Void> {
-    private static final InstanceIdentifier<RoleSets> ROLE_SET_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<RoleSets> ROLE_SET_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
             .augmentation(DefinedSets1.class)
             .child(BgpDefinedSets.class)
             .augmentation(BgpRoleSets.class)
-            .child(RoleSets.class);
+            .child(RoleSets.class)
+            .build();
     private final DataBroker dataBroker;
     private final LoadingCache<String, Set<PeerRole>> roleSets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
                 @Override
                 public Set<PeerRole> load(final String key) throws ExecutionException, InterruptedException {
-                    return loadRoleSets(key);
+                    final FluentFuture<Optional<RoleSet>> future;
+                    try (var tr = dataBroker.newReadOnlyTransaction()) {
+                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                            ROLE_SET_IID.toBuilder().child(RoleSet.class, new RoleSetKey(key)).build());
+                    }
+                    return future.get().map(RoleSet::getRole).orElse(Set.of());
                 }
             });
 
     public MatchRoleSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    private Set<PeerRole> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<RoleSet>> future;
-        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
-            future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                    ROLE_SET_IID.child(RoleSet.class, new RoleSetKey(key)));
-        }
-        return future.get().map(RoleSet::getRole).orElse(Set.of());
     }
 
     @Override
