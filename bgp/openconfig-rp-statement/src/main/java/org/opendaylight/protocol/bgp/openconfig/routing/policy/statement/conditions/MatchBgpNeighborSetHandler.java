@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -39,17 +38,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpNeighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.match.bgp.neighbor.grouping.MatchBgpNeighborSet;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Match a set of Neighbors(ip address) (ANY, INVERT).
  */
 public final class MatchBgpNeighborSetHandler
         implements BgpConditionsAugmentationPolicy<MatchBgpNeighborCondition, Void> {
-    private static final InstanceIdentifier<NeighborSets> NEIGHBOR_SET_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<NeighborSets> NEIGHBOR_SET_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
-            .child(NeighborSets.class);
+            .child(NeighborSets.class)
+            .build();
     private final DataBroker dataBroker;
     private final LoadingCache<String, List<PeerId>> peerSets = CacheBuilder.newBuilder()
             .build(new CacheLoader<>() {
@@ -65,14 +65,16 @@ public final class MatchBgpNeighborSetHandler
 
     private List<PeerId> loadRoleSets(final String key) throws ExecutionException, InterruptedException {
         final FluentFuture<Optional<NeighborSet>> future;
-        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
+        try (var tr = dataBroker.newReadOnlyTransaction()) {
             future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                    NEIGHBOR_SET_IID.child(NeighborSet.class, new NeighborSetKey(key)));
+                NEIGHBOR_SET_IID.toBuilder().child(NeighborSet.class, new NeighborSetKey(key)).build());
 
         }
-        return future.get().map(neighboursSet -> neighboursSet.getNeighbor().values().stream()
-                                                         .map(nei -> RouterIds.createPeerId(nei.getAddress()))
-                                                         .collect(Collectors.toUnmodifiableList())).orElse(List.of());
+        return future.get()
+            .map(neighboursSet -> neighboursSet.getNeighbor().values().stream()
+                .map(nei -> RouterIds.createPeerId(nei.getAddress()))
+                .collect(Collectors.toUnmodifiableList()))
+            .orElse(List.of());
     }
 
     @Override

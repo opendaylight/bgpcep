@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -46,38 +45,35 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AsPathSegment;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
  * Match a set of AS (All, ANY, INVERT).
  */
 public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsPathSet, AsPath> {
-    private static final InstanceIdentifier<AsPathSets> AS_PATHS_SETS_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
+    private static final DataObjectIdentifier<AsPathSets> AS_PATHS_SETS_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
             .augmentation(DefinedSets1.class)
             .child(BgpDefinedSets.class)
-            .child(AsPathSets.class);
+            .child(AsPathSets.class)
+            .build();
     private final DataBroker dataBroker;
     private final LoadingCache<String, AsPathSet> sets = CacheBuilder.newBuilder()
             .build(new CacheLoader<String, AsPathSet>() {
                 @Override
                 public AsPathSet load(final String key) throws ExecutionException, InterruptedException {
-                    return loadSets(key);
+                    final FluentFuture<Optional<AsPathSet>> future;
+                    try (var tr = dataBroker.newReadOnlyTransaction()) {
+                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                            AS_PATHS_SETS_IID.toBuilder().child(AsPathSet.class, new AsPathSetKey(key)).build());
+                    }
+                    return future.get().orElse(null);
                 }
             });
 
     public MatchAsPathSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
-    }
-
-    private AsPathSet loadSets(final String key) throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<AsPathSet>> future;
-        try (ReadTransaction tr = dataBroker.newReadOnlyTransaction()) {
-            future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                    AS_PATHS_SETS_IID.child(AsPathSet.class, new AsPathSetKey(key)));
-        }
-        return future.get().orElse(null);
     }
 
     @Override
