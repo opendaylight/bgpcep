@@ -437,24 +437,20 @@ public class PCEPObjectParserTest {
                 .setProtectionAvailable(false).setProtectionInUse(false).build());
         builder.setSubobject(subs);
 
+        // Verify Non empty RRO subObject
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buf = Unpooled.buffer();
         parser.serializeObject(builder.build(), buf);
         assertArrayEquals(result.array(), ByteArray.getAllBytes(buf));
 
-        try {
-            parser.parseObject(new ObjectHeaderImpl(true, true), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-        }
+        // Verify empty RRO subObject
+        final RroBuilder emptyBuilder = new RroBuilder();
+        emptyBuilder.setIgnore(false);
+        emptyBuilder.setProcessingRule(false);
+        assertEquals(emptyBuilder.build(), parser.parseObject(new ObjectHeaderImpl(false, false), null));
+        assertEquals(emptyBuilder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+            Unpooled.EMPTY_BUFFER));
     }
 
     @Test
