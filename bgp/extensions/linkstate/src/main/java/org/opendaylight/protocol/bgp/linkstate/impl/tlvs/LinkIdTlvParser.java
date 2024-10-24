@@ -19,7 +19,7 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class LinkIdTlvParser implements LinkstateTlvParser.LinkstateTlvSerializer<LinkLrIdentifiers>,
         LinkstateTlvParser<LinkLrIdentifiers> {
-    private static final int LINK_LR_IDENTIFIERS = 258;
+    public static final int LINK_LR_IDENTIFIERS = 258;
 
     // FIXME: what exactly is this QName? it used to be LinkLrIdentifiers.QName, but that's a grouping, so what gives?
     @Deprecated
