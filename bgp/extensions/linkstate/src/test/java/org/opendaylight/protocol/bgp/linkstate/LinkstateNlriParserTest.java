@@ -9,7 +9,9 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
 
@@ -21,16 +23,13 @@ import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.DomainIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.OspfRouteType;
@@ -41,14 +40,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.TeLspCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.Srv6SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.RemoteNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.prefix._case.PrefixDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.te.lsp._case.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.srv6.sid._case.Srv6Attributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.srv6.sid._case.Srv6SidInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
@@ -71,8 +72,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -92,7 +91,8 @@ public class LinkstateNlriParserTest {
         (byte) 0x48, (byte) 0x02, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28,
         (byte) 0x28, (byte) 0x02, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x29, (byte) 0x29,
         (byte) 0x29, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x39, (byte) 0x05 };
+        (byte) 0x00, (byte) 0x00, (byte) 0x39, (byte) 0x05
+    };
 
     private final byte[] linkNlri = new byte[] {
         (byte) 0x00, (byte) 0x02, (byte) 0x00, (byte) 0x85, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -121,7 +121,8 @@ public class LinkstateNlriParserTest {
         0x0b, 0x0c, 0x0d, (byte) 0x01, (byte) 0x03, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0,
         (byte) 0x2a,
         (byte) 0x01, (byte) 0x04, (byte) 0x00, (byte) 0x04, (byte) 0xc5, (byte) 0x14, (byte) 0xa0, (byte) 0x28,
-        1, 7, 0, 2, 0, 3 };
+        1, 7, 0, 2, 0, 3
+    };
 
     private final byte[] prefixNlri = new byte[] {
         (byte) 0x00, (byte) 0x03, (byte) 0x00, (byte) 0x39, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -134,16 +135,26 @@ public class LinkstateNlriParserTest {
         (byte) 0x00, (byte) 0x03, (byte) 0x10, (byte) 0xFF, (byte) 0xFF
     };
 
-    private final byte[] teLspNlri = new byte[] {
-        (byte) 0x00, (byte) 0x05, //NLRI Type Te-IPV4
-        (byte) 0x00, (byte) 0x15, // length
-        (byte) 0x08,    //Protocol-ID
-        // Identifier
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
-        (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, //IPv4 Tunnel Sender Address
-        (byte) 0x00, (byte) 0x01, //Tunnel ID
-        (byte) 0x00, (byte) 0x01, //LSP ID
-        (byte) 0x04, (byte) 0x03, (byte) 0x02, (byte) 0x01 }; // IPv4 Tunnel End-point Address
+    private final byte[] srv6Nlri = new byte[] {
+        (byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x64, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00,
+        (byte) 0x23, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x48, (byte) 0x02, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28,
+        (byte) 0x28, (byte) 0x02, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x29, (byte) 0x29,
+        (byte) 0x29, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x39, (byte) 0x05,
+        // SRv6 SID information TLV
+        (byte) 0x02, (byte) 0x06, (byte) 0x00, (byte) 0x10, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
+        (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
+        // SRv6 Endpoint Behavior
+        (byte) 0x04, (byte) 0xe2, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01,
+        // SRv6 BGP Peer Node SID
+        (byte) 0x04, (byte) 0xe3, (byte) 0x00, (byte) 0x0c, (byte) 0x60, (byte) 0x0a, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x50, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a,
+        // SRv5 SID Structure
+        (byte) 0x04, (byte) 0xe4, (byte) 0x00, (byte) 0x04, (byte) 0x08, (byte) 0x08, (byte) 0x04, (byte) 0x04
+    };
 
     private CLinkstateDestination dest;
     private SimpleNlriTypeRegistry registry;
@@ -152,7 +163,7 @@ public class LinkstateNlriParserTest {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
         final MpReachNlriBuilder builder = new MpReachNlriBuilder();
         registry = SimpleNlriTypeRegistry.getInstance();
-        final BGPActivator act = new BGPActivator(new SimpleRSVPExtensionProviderContext());
+        final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
 
@@ -377,35 +388,44 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testTELspNlri() throws BGPParsingException {
-        setUp(teLspNlri);
-        // test BA form
+    public void testSrv6Nlri() throws BGPParsingException {
+        setUp(srv6Nlri);
+
         assertNull(dest.getRouteDistinguisher());
-        assertEquals(ProtocolId.RsvpTe, dest.getProtocolId());
+        assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
         assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
-        final TeLspCase teCase = (TeLspCase) dest.getObjectType();
+        final Srv6SidCase srv6Case = (Srv6SidCase) dest.getObjectType();
 
-        assertEquals(new LspId(Uint32.ONE), teCase.getLspId());
-        assertEquals(new TunnelId(Uint16.ONE), teCase.getTunnelId());
-        assertEquals(new Ipv4Address("1.2.3.4"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelSenderAddress());
-        assertEquals(new Ipv4Address("4.3.2.1"), ((Ipv4Case) teCase.getAddressFamily()).getIpv4TunnelEndpointAddress());
+        final Srv6NodeDescriptors nodeD = srv6Case.getSrv6NodeDescriptors();
+        assertEquals(new AsNumber(Uint32.valueOf(72)), nodeD.getAsNumber());
+        assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), nodeD.getDomainId());
+        assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
+            new IsisPseudonodeBuilder().setPsn(Uint8.valueOf(5)).setIsIsRouterIdentifier(
+                new IsIsRouterIdentifierBuilder().setIsoSystemId(
+                    new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
+            nodeD.getCRouterIdentifier());
 
-        // test BI form
-        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
-            .withNodeIdentifier(C_LINKSTATE_NID)
-            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "rsvp-te"))
-            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
-            .withChild(ImmutableNodes.newChoiceBuilder()
-                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
-                .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.LSP_ID, Uint32.ONE))
-                .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.TUNNEL_ID, Uint16.ONE))
-                .withChild(ImmutableNodes.newChoiceBuilder()
-                    .withNodeIdentifier(AbstractTeLspNlriCodec.ADDRESS_FAMILY)
-                    .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_SENDER_ADDRESS, "1.2.3.4"))
-                    .withChild(ImmutableNodes.leafNode(AbstractTeLspNlriCodec.IPV4_TUNNEL_ENDPOINT_ADDRESS, "4.3.2.1"))
-                    .build())
-                .build())
-            .build()));
+        final Srv6SidInformation sidInformation = srv6Case.getSrv6SidInformation();
+        assertArrayEquals(new byte [] {0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1},
+            sidInformation.getSrv6SidTlv().getValue());
+
+        final Srv6Attributes sidAttr = srv6Case.getSrv6Attributes();
+        assertEquals(1, sidAttr.getSrv6EndpointBehavior().getEndpointBehavior().intValue());
+        assertEquals(1, sidAttr.getSrv6EndpointBehavior().getAlgo().intValue());
+        assertFalse(sidAttr.getSrv6BgpPeerNode().getFlags().getBackup());
+        assertTrue(sidAttr.getSrv6BgpPeerNode().getFlags().getSet());
+        assertTrue(sidAttr.getSrv6BgpPeerNode().getFlags().getPersistent());
+        assertEquals(10, sidAttr.getSrv6BgpPeerNode().getWeight().intValue());
+        assertEquals(Uint32.valueOf(80), sidAttr.getSrv6BgpPeerNode().getPeerAsNumber().getValue());
+        assertEquals("42.42.42.42", sidAttr.getSrv6BgpPeerNode().getPeerBgpId().getValue());
+        assertEquals(8, sidAttr.getSrv6SidStructure().getLocatorBlockLength().intValue());
+        assertEquals(8, sidAttr.getSrv6SidStructure().getLocatorNodeLength().intValue());
+        assertEquals(4, sidAttr.getSrv6SidStructure().getFunctionLength().intValue());
+        assertEquals(4, sidAttr.getSrv6SidStructure().getArgumentLength().intValue());
+
+        final ByteBuf buffer = Unpooled.buffer();
+        registry.serializeNlriType(dest, buffer);
+        assertArrayEquals(srv6Nlri, ByteArray.readAllBytes(buffer));
     }
 
     @Test
