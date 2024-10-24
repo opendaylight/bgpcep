@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f62f67a4_dc4175fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2024-10-24T14:38:40Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nCan you have a look to this small patch?\n\nRegards\n\nOlivier",
+      "revId": "e63c64b3f07e80effba7b9e367a1959cb20786e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
