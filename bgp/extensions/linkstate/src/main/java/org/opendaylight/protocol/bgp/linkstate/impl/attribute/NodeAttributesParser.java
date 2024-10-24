@@ -7,7 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
@@ -16,8 +18,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SRv6AttributesParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
@@ -34,8 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrAlgorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.FlexAlgoDefinition;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.sr.capabilities.NodeMsd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Srms;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.local.block.tlv.Srlb;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +67,13 @@ public final class NodeAttributesParser {
     private static final int DYNAMIC_HOSTNAME = 1026;
     private static final int ISIS_AREA_IDENTIFIER = 1027;
     /* Segment routing TLVs */
+    private static final int SR_NODE_MSD = 266;
     private static final int SR_CAPABILITIES = 1034;
     private static final int SR_ALGORITHMS = 1035;
+    private static final int SR_LOCAL_BLOCK = 1036;
+    private static final int SRMS = 1037;
+    private static final int SRV6_CAPABILITIES = 1038;
+    private static final int SR_FLEX_ALGO = 1039;
 
     private NodeAttributesParser() {
 
@@ -77,6 +91,8 @@ public final class NodeAttributesParser {
         final var topologyMembership = ImmutableSet.<TopologyIdentifier>builder();
         final var areaMembership = ImmutableSet.<IsisAreaIdentifier>builder();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
+        final SrCapabilitiesBuilder srBuilder = new SrCapabilitiesBuilder();
+        boolean srCapabilities = false;
         for (final Entry<Integer, ByteBuf> entry : attributes.entries()) {
             final int key = entry.getKey();
             final ByteBuf value = entry.getValue();
@@ -113,17 +129,46 @@ public final class NodeAttributesParser {
                     LOG.debug("Parsed IPv6 Router Identifier {}", ip6);
                     break;
                 case SR_CAPABILITIES:
-                    final SrCapabilities caps = SrNodeAttributesParser.parseSrCapabilities(value, protocolId);
-                    builder.setSrCapabilities(caps);
-                    LOG.debug("Parsed SR Capabilities {}", caps);
+                    SrNodeAttributesParser.parseSrCapabilities(srBuilder, value, protocolId);
+                    srCapabilities = true;
+                    LOG.debug("Parsed SR Capabilities {}", srBuilder);
                     break;
                 case SR_ALGORITHMS:
-                    final SrAlgorithm algs = SrNodeAttributesParser.parseSrAlgorithms(value);
-                    builder.setSrAlgorithm(algs);
+                    final Set<Algorithm> algs = SrNodeAttributesParser.parseSrAlgorithms(value);
+                    srBuilder.setAlgorithms(algs);
+                    srCapabilities = true;
                     LOG.debug("Parsed SR Algorithms {}", algs);
+                    break;
+                case SR_LOCAL_BLOCK:
+                    final List<Srlb> srlbs = SrNodeAttributesParser.parseSrLocalBlock(value);
+                    srBuilder.setSrlb(srlbs);
+                    srCapabilities = true;
+                    LOG.debug("Parsed SR Local Block {}", srlbs);
+                    break;
+                case SR_NODE_MSD:
+                    final List<NodeMsd> msds = SrNodeAttributesParser.parseSrNodeMsd(value);
+                    srBuilder.setNodeMsd(msds);
+                    srCapabilities = true;
+                    LOG.debug("Parsed SR Node MSD {}", msds);
+                    break;
+                case SRMS:
+                    srBuilder.setPreference(new Srms(readUint8(value)));
+                    LOG.debug("Parsed SRMS {}", srBuilder.getPreference());
+                    break;
+                case SRV6_CAPABILITIES:
+                    builder.setSrv6Capabilities(SRv6AttributesParser.parseSrv6Capabilities(value));
+                    LOG.debug("Parsed SRv6 Capabilities {}", builder.getSrv6Capabilities());
+                    break;
+                case SR_FLEX_ALGO:
+                    final FlexAlgoDefinition fad = SrFlexAlgoParser.parseSrFlexAlgoDefinition(value);
+                    builder.setFlexAlgoDefinition(fad);
+                    LOG.debug("Parsed Flex Algo Definition {}", fad);
                     break;
                 default:
                     LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
+            }
+            if (srCapabilities) {
+                builder.setSrCapabilities(srBuilder.build());
             }
         }
         LOG.trace("Finished parsing Node Attributes.");
@@ -179,12 +224,42 @@ public final class NodeAttributesParser {
             final var capBuffer = Unpooled.buffer();
             SrNodeAttributesParser.serializeSrCapabilities(srCapabilities, capBuffer);
             TlvUtil.writeTLV(SR_CAPABILITIES, capBuffer, byteAggregator);
+            final var srAlgorithm = srCapabilities.getAlgorithms();
+            if (srAlgorithm != null) {
+                capBuffer.clear();
+                SrNodeAttributesParser.serializeSrAlgorithms(srAlgorithm, capBuffer);
+                TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
+            }
+            final var srlb = srCapabilities.getSrlb();
+            if (srlb != null) {
+                capBuffer.clear();
+                SrNodeAttributesParser.serializeSrLocalBlock(srlb, capBuffer);
+                TlvUtil.writeTLV(SR_LOCAL_BLOCK, capBuffer, byteAggregator);
+            }
+            final var msd = srCapabilities.getNodeMsd();
+            if (msd != null) {
+                capBuffer.clear();
+                SrNodeAttributesParser.serializeSrNodeMsd(msd, capBuffer);
+                TlvUtil.writeTLV(SR_NODE_MSD, capBuffer, byteAggregator);
+            }
+            final var srms = srCapabilities.getPreference();
+            if (srms != null) {
+                capBuffer.clear();
+                writeUint8(capBuffer, srms.getValue());
+                TlvUtil.writeTLV(SRMS, capBuffer, byteAggregator);
+            }
         }
-        final var srAlgorithm = nodeAttributes.getSrAlgorithm();
-        if (srAlgorithm != null) {
-            final var capBuffer = Unpooled.buffer();
-            SrNodeAttributesParser.serializeSrAlgorithms(srAlgorithm, capBuffer);
-            TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
+        final var fad = nodeAttributes.getFlexAlgoDefinition();
+        if (fad != null) {
+            final var fadBuffer = Unpooled.buffer();
+            SrFlexAlgoParser.serializeSrFlexAlgoDefinition(fad, fadBuffer);
+            TlvUtil.writeTLV(SR_FLEX_ALGO, fadBuffer, byteAggregator);
+        }
+        final var srv6Cap = nodeAttributes.getSrv6Capabilities();
+        if (srv6Cap != null) {
+            final var srv6Buffer = Unpooled.buffer();
+            SRv6AttributesParser.serialiseSrv6Capabilities(srv6Cap, srv6Buffer);
+            TlvUtil.writeTLV(SRV6_CAPABILITIES, srv6Buffer, byteAggregator);
         }
         LOG.trace("Finished serializing Node Attributes");
     }

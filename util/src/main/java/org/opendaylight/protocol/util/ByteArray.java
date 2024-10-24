@@ -54,6 +54,7 @@ public final class ByteArray {
      * @param buffer byteBuf from which the bytes are going to be taken
      * @return byte array
      */
+    // FIXME: deprecated in favor of ByteBufUtil.getBytes()
     public static byte[] readAllBytes(final ByteBuf buffer) {
         return readBytes(buffer, buffer.readableBytes());
     }

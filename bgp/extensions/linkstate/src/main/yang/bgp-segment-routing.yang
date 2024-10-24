@@ -1,18 +1,19 @@
 module bgp-segment-routing {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:bgp-segment-routing-ext";
+    namespace "urn:opendaylight:params:xml:ns:yang:bgp-segment-routing";
     prefix "bgp-sr";
 
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-routing-types { prefix rt-types; }
+    import rsvp { prefix rsvp; revision-date 2015-08-20; }
 
     organization "Cisco Systems, Inc.";
     contact "Iveta Halanova <ihalanov@cisco.com>";
 
     description
-        "This module contains the base data concepts contained
-        in draft-gredler-idr-bgp-ls-segment-routing-ext-02.
+        "This module contains the base data concepts contained in RFC9085
+        (Segment Routing) and RFC9514 (SRv6).
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -30,34 +31,14 @@ module bgp-segment-routing {
             "Initial revision.";
     }
 
-    typedef algorithm {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.1.2";
-        type enumeration {
-            enum shortest-path-first {
-                value 0;
-            }
-            enum strict-shortest-path-first {
-                value 1;
-            }
-        }
-    }
-
-    typedef weight {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2";
-        type uint8;
-    }
+    // Common Definitions
 
     grouping sid-label-index {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.4";
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.1";
         choice sid-label-index {
-            case local-label-case {
-                leaf local-label {
+            case label-case {
+                leaf label {
                     type netc:mpls-label;
-                }
-            }
-            case ipv6-address-case {
-                leaf ipv6-address {
-                    type inet:ipv6-address-no-zone;
                 }
             }
             case sid-case {
@@ -68,21 +49,83 @@ module bgp-segment-routing {
         }
     }
 
+    typedef extended-admin-group {
+        reference "http://tools.ietf.org/html/rfc7308#section-2.1";
+        type uint32;
+    }
+
+    typedef msd-type {
+        reference "https://www.iana.org/assignments/igp-parameters/igp-parameters.xhtml#igp-msd-types";
+        type enumeration {
+            enum base-mpls {
+                value 1;
+            }
+            enum erld {
+                value 2;
+            }
+            enum srh-max-sl {
+                value 41;
+            }
+            enum srh-max-endpop {
+                value 42;
+            }
+            enum srh-max-endcaps {
+                value 44;
+            }
+            enum srh-max-end {
+                value 45;
+            }
+        }
+    }
+
+    grouping msd-tlv {
+        reference "https://tools.ietf.org/html/rfc8814#section-3 and section-4";
+        leaf type {
+            type msd-type;
+        }
+        leaf value {
+            type uint8;
+        }
+    }
+
+    // Node Attributes
+
+    typedef algorithm {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
+        type enumeration {
+            enum shortest-path-first {
+                value 0;
+            }
+            enum strict-shortest-path-first {
+                value 1;
+            }
+        }
+    }
+
+    typedef srms {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.5";
+        type uint8;
+    }
+
+    typedef weight {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.2.1";
+        type uint8;
+    }
+
     grouping sr-capabilities-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.1.1";
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
         leaf mpls-ipv4 {
             type boolean;
         }
         leaf mpls-ipv6 {
             type boolean;
         }
-        leaf sr-ipv6 {
-            type boolean;
+        list srgb {
+            leaf range-size {
+                type rt-types:uint24;
+            }
+            uses sid-label-index;
         }
-        leaf range-size {
-            type rt-types:uint24;
-        }
-        uses sid-label-index;
     }
 
     grouping sr-algorithms-tlv {
@@ -91,12 +134,132 @@ module bgp-segment-routing {
         }
     }
 
-    grouping ospf-adj-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-7.1";
+    grouping sr-local-block-tlv {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.4";
+        list srlb {
+            leaf range-size {
+                type rt-types:uint24;
+            }
+            uses sid-label-index;
+        }
+    }
+
+    grouping srms-tlv {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.5";
+        leaf preference {
+            type srms;
+        }
+    }
+
+    grouping srv6-capabilities-tlv {
+        reference "https://tools.ietf.org/html/rfc9514#section3.1";
+        leaf o-flag {
+            type boolean;
+        }
+    }
+
+    // Flex Algo
+
+    typedef flex-metric {
+        reference "http://tools.ietf.org/html/rfc9351#section-5.1";
+        type enumeration {
+            enum igp {
+                value 0;
+            }
+            enum delay {
+                value 1;
+            }
+            enum te {
+                value 2;
+            }
+        }
+    }
+
+    typedef flex-algo-definition-flag {
+        reference "http://tools.ietf.org/html/rfc9351#section-6.4";
+        type bits {
+            bit inter-area {
+                position 0;
+            }
+        }
+    }
+
+    typedef flex-algo {
+        reference "http://tools.ietf.org/html/rfc9351";
+        type uint8 {
+            range "128..255";
+        }
+    }
+
+    grouping unsupported-tlvs {
+        reference "https://tools.ietf.org/html/rfc9351#section-3.6";
+        leaf protocol-id {
+            type uint8;
+        }
+        leaf-list protocol-type {
+            type uint16;
+        }
+    }
+
+    grouping flex-algo-subtlv {
+        reference "https://tools.ietf.org/html/rfc9351#section-3.1 to 3.6";
+        leaf-list exclude-any {
+            type extended-admin-group;
+        }
+        leaf-list include-any {
+            type extended-admin-group;
+        }
+        leaf-list include-all {
+            type extended-admin-group;
+        }
+        leaf flags {
+            type flex-algo-definition-flag;
+        }
+        leaf-list exclude-srlg {
+            type rsvp:srlg-id;
+        }
+        container unsupported-tlv {
+            uses unsupported-tlvs;
+        }
+    }
+
+    grouping flex-algo-definitions {
+        reference "https://tools.ietf.org/html/rfc9351#section-3";
+        list flex-algo-definition-tlv {
+            leaf flex-algo {
+                type flex-algo;
+            }
+            leaf metric-type {
+                type flex-metric;
+            }
+            leaf calc-type {
+                type uint8 {
+                    range "0..127";
+                }
+            }
+            leaf priority {
+                type uint8;
+            }
+            container flex-algo-subtlvs {
+                uses flex-algo-subtlv;
+            }
+        }
+    }
+
+    // Link Attributes
+
+    grouping common-adj-flags {
+        reference "https://tools.ietf.org/html/rfc9085#section-2 and https://tools.ietf.org/html/rfc9086#section-5";
         leaf backup {
             type boolean;
         }
-        leaf set {
+        leaf value {
+            type boolean;
+        }
+        leaf local {
+            type boolean;
+        }
+        leaf persistent {
             type boolean;
         }
     }
@@ -104,29 +267,39 @@ module bgp-segment-routing {
     grouping adj-flags {
         choice flags {
             case ospf-adj-flags-case {
+                reference "https://tools.ietf.org/html/rfc8665#section-6
+                    and https://tools.ietf.org/html/rfc8667#section-6";
                 container ospf-adj-flags {
-                    uses ospf-adj-flags;
+                    uses common-adj-flags;
+                    leaf set {
+                        type boolean;
+                    }
                 }
             }
             case isis-adj-flags-case {
-                reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-06#section-2.2.1";
+                reference "https://tools.ietf.org/html/rfc8667#section-2.2.1";
                 container isis-adj-flags {
-                    uses ospf-adj-flags;
                     leaf address-family {
                         type boolean;
                     }
+                    uses common-adj-flags;
+                    leaf set {
+                        type boolean;
+                    }
+                }
+            }
+            case epe-adj-flags-case {
+                reference "https://tools.ietf.org/html/rfc9086#section-5";
+                container epe-adj-flags {
+                    uses common-adj-flags;
                 }
             }
         }
     }
 
     grouping adj-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2.1";
+        reference "https://tools.ietf.org/html/rfc9085#section-2.2.1";
         uses adj-flags;
-        uses epe-adj-sid-tlv;
-    }
-
-    grouping epe-adj-sid-tlv {
         leaf weight {
             type weight;
         }
@@ -134,51 +307,165 @@ module bgp-segment-routing {
     }
 
     grouping lan-adj-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.2.2";
+        reference "https://tools.ietf.org/html/rfc9085#section-2.2.2";
         uses adj-flags;
         leaf weight {
             type weight;
         }
-        leaf iso-system-id {
-            type netc:iso-system-identifier;
-        }
-        leaf neighbor-id {
-            type inet:ipv4-address-no-zone;
+        choice neighbor-type {
+            case ospf-neighbor-case {
+                leaf neighbor-id {
+                    type inet:ipv4-address-no-zone;
+                }
+            }
+            case isis-neighbor-case {
+                leaf iso-system-id {
+                    type netc:iso-system-identifier;
+                }
+            }
         }
         uses sid-label-index;
     }
 
+    grouping epe-sid-tlv {
+        reference "https://tools.ietf.org/html/rfc9086#section-5";
+        uses adj-flags;
+        leaf weight {
+            type weight;
+        }
+        uses sid-label-index;
+    }
+
+    // SRv6
+
+    typedef srv6-sid {
+        reference "https://www.rfc-editor.org/rfc/rfc8986#section-3";
+        type binary {
+            length 16;
+        }
+    }
+
+    grouping srv6-flags {
+        reference "https://tools.ietf.org/html/rfc9352#section-8.1 and rfc9513#section-9.1";
+        container flags {
+            leaf backup {
+                type boolean;
+            }
+            leaf set {
+                type boolean;
+            }
+            leaf persistent {
+                type boolean;
+            }
+        }
+    }
+
+    grouping srv6-sid-subtlvs {
+        reference "https://tools.ietf.org/html/rfc9514#section-8";
+        container srv6-sid-structure {
+            leaf locator-block-length {
+                type uint8;
+            }
+            leaf locator-node-length {
+                type uint8;
+            }
+            leaf function-length {
+                type uint8;
+            }
+            leaf argument-length {
+                type uint8;
+            }
+        }
+    }
+
+    grouping srv6-end-x-sid {
+        reference "https://tools.ietf.org/html/rfc9514#section-4.1";
+        leaf endpoint-behavior {
+            type uint16;
+        }
+        uses srv6-flags;
+        leaf algo {
+            type uint8;
+        }
+        leaf weight {
+            type uint8;
+        }
+        leaf sid {
+            type srv6-sid;
+        }
+        uses srv6-sid-subtlvs;
+    }
+
+    grouping srv6-lan-end-x-sid {
+        reference "https://tools.ietf.org/html/rfc9514#section-4.2";
+        leaf endpoint-behavior {
+            type uint16;
+        }
+        uses srv6-flags;
+        leaf algo {
+            type uint8;
+        }
+        leaf weight {
+            type uint8;
+        }
+        choice neighbor-type {
+            case ospfv3-neighbor-case {
+                leaf neighbor-id {
+                    type inet:ipv4-address-no-zone;
+                }
+            }
+            case isis-neighbor-case {
+                leaf iso-system-id {
+                    type netc:iso-system-identifier;
+                }
+            }
+        }
+        leaf sid {
+            type srv6-sid;
+        }
+        uses srv6-sid-subtlvs;
+    }
+
+    // Prefix Attributes
+
     grouping prefix-flags {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.3.1";
         leaf no-php {
             type boolean;
         }
         leaf explicit-null {
             type boolean;
         }
+        leaf value {
+            type boolean;
+        }
+        leaf local {
+            type boolean;
+        }
     }
 
     grouping prefix-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.1";
+        reference "https://tools.ietf.org/html/rfc9085#section-2.3.1";
         choice flags {
             case isis-prefix-flags-case {
                 container isis-prefix-flags {
-                    reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-5";
-                    uses prefix-flags;
-                    leaf readvertisement {
+                    reference "https://tools.ietf.org/html/rfc8667#section-2.2.1";
+                    leaf re-advertisement {
                         type boolean;
                     }
                     leaf node-sid {
                         type boolean;
                     }
+                    uses prefix-flags;
                 }
             }
             case ospf-prefix-flags-case {
                 container ospf-prefix-flags {
-                    reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-05#section-5";
-                    uses prefix-flags;
+                    reference "https://tools.ietf.org/html/rfc8665#section-5";
                     leaf mapping-server {
                         type boolean;
                     }
+                    uses prefix-flags;
                 }
             }
         }
@@ -188,101 +475,30 @@ module bgp-segment-routing {
         uses sid-label-index;
     }
 
-    grouping ipv6-prefix-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-previdi-isis-ipv6-prefix-sid-02#page-2";
-        leaf algorithm {
-            type algorithm;
+    typedef flex-algo-prefix-flag {
+        reference "http://tools.ietf.org/html/rfc9350#section-9";
+        type bits {
+            bit external-metric {
+                position 0;
+            }
         }
     }
 
-    grouping ero-flags {
-        leaf loose {
-            type boolean;
+    grouping flex-algo-prefix-metric {
+        reference "https://tools.ietf.org/html/rfc9351#section-4";
+        leaf flex-algo {
+            type flex-algo;
         }
-    }
-
-    grouping ero-ipv4-address {
-        uses ero-flags;
-        leaf address {
-            type inet:ipv4-address-no-zone;
-            mandatory true;
+        leaf flags {
+            type flex-algo-prefix-flag;
         }
-    }
-
-    grouping ero-ipv6-address {
-        uses ero-flags;
-        leaf address {
-            type inet:ipv6-address-no-zone;
-            mandatory true;
-        }
-    }
-
-    grouping ero-unnumbered {
-        uses ero-flags;
-        leaf router-id {
-            type uint32;
-        }
-        leaf interface-id {
+        leaf metric {
             type uint32;
         }
     }
 
-    grouping binding-sub-tlvs {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.4";
-        choice binding-sub-tlv {
-            case prefix-sid-case {
-                container prefix-sid {
-                    uses prefix-sid-tlv;
-                }
-            }
-            case ipv6-prefix-sid-case {
-                container ipv6-prefix-sid {
-                    uses ipv6-prefix-sid-tlv;
-                }
-            }
-            case sid-label-case {
-                uses sid-label-index;
-            }
-            case ero-metric-case {
-                leaf ero-metric {
-                    type netc:te-metric;
-                }
-            }
-            case ipv4-ero-case {
-                container ipv4-ero {
-                    uses ero-ipv4-address;
-                }
-            }
-            case ipv6-ero-case {
-                container ipv6-ero {
-                    uses ero-ipv6-address;
-                }
-            }
-            case unnumbered-interface-id-ero-case {
-                container unnumbered-interface-id-ero {
-                    uses ero-unnumbered;
-                }
-            }
-            case ipv4-ero-backup-case {
-                container ipv4-ero-backup {
-                    uses ero-ipv4-address;
-                }
-            }
-            case ipv6-ero-backup-case {
-                container ipv6-ero-backup {
-                    uses ero-ipv6-address;
-                }
-            }
-            case unnumbered-interface-id-backup-ero-case {
-                container unnumbered-interface-id-backup-ero {
-                    uses ero-unnumbered;
-                }
-            }
-        }
-    }
-
-    grouping isis-binding-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-isis-segment-routing-extensions-06#section-2.4";
+    grouping isis-range-flags {
+        reference "https://tools.ietf.org/html/rfc8667#section-2.4.1";
         leaf address-family {
             type boolean;
         }
@@ -300,62 +516,134 @@ module bgp-segment-routing {
         }
     }
 
-    grouping ospf-binding-flags {
-        reference "https://tools.ietf.org/html/draft-ietf-ospf-segment-routing-extensions-08#section-6";
-        leaf mirroring {
+    grouping ospf-range-flags {
+        reference "https://tools.ietf.org/html/rfc8665#section-4";
+        leaf inter-area {
             type boolean;
         }
     }
 
-    grouping binding-sid-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.3";
-        leaf weight {
-            type weight;
+    grouping isis-attribute-flags {
+        reference "http://tools.ietf.org/html/rfc7794#section-2.1";
+        leaf external-flag {
+            type boolean;
         }
-        choice flags {
-            case isis-binding-flags-case {
-                uses isis-binding-flags;
-            }
-            case ospf-binding-flags-case {
-                uses ospf-binding-flags;
-            }
-        }
-        list binding-sub-tlvs {
-            uses binding-sub-tlvs;
+        leaf re-advertisement-flag {
+            type boolean;
         }
     }
 
-    grouping range-sub-tlvs {
-        choice range-sub-tlv {
-            case binding-sid-tlv-case {
-                uses binding-sid-tlv;
+    grouping ospf-attribute-flags {
+        reference "http://tools.ietf.org/html/rfc7684#section-2.1";
+        leaf attach-flag {
+            type boolean;
+        }
+    }
+
+    grouping ospfv3-attribute-flags {
+        reference "http://tools.ietf.org/html/rfc8362#section-3.1";
+        leaf dn-flag {
+            type boolean;
+        }
+        leaf propagate-flag {
+            type boolean;
+        }
+        leaf local-address-flag {
+            type boolean;
+        }
+        leaf no-unicast-flag {
+            type boolean;
+        }
+    }
+
+    grouping prefix-attribute-flags {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.3.2";
+        leaf node-flag {
+            type boolean;
+        }
+        choice igp-attribute-flags {
+            case isis-attribute-flags-case {
+                uses isis-attribute-flags;
             }
-            case prefix-sid-tlv-case {
-                container prefix-sid-tlv {
-                    uses prefix-sid-tlv;
-                }
+            case ospf-attribute-flags-case {
+                uses ospf-attribute-flags;
             }
-            case ipv6-prefix-sid-tlv-case {
-                container ipv6-prefix-sid-tlv {
-                    uses ipv6-prefix-sid-tlv;
-                }
-            }
-            case sid-label-tlv-case {
-                uses sid-label-index;
+            case ospfv3-attribute-flags-case {
+                uses ospfv3-attribute-flags;
             }
         }
     }
 
     grouping range-tlv {
-        reference "https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-02#section-2.3.2";
-        leaf inter-area {
-            type boolean;
+        reference "https://tools.ietf.org/html/rfc9085#section-2.3.5";
+        choice range-flags {
+            case isis-range-flags-case {
+                uses isis-range-flags;
+            }
+            case ospf-range-flags-case {
+                uses ospf-range-flags;
+            }
         }
         leaf range-size {
             type uint16;
         }
-        list sub-tlvs {
-            uses range-sub-tlvs;
+        container prefix-sid {
+            uses prefix-sid-tlv;
         }
     }
+
+    grouping srv6-locator {
+        reference "https://tools.ietf.org/html/rfc9514#section-5.1";
+        container flags {
+            leaf up-down {
+                type boolean;
+            }
+        }
+        leaf algo {
+            type uint8;
+        }
+        leaf metric {
+            type uint32;
+        }
+    }
+
+    // NLRI
+
+    grouping srv6-endpoint-behavior {
+        reference "https://tools.ietf.org/html/rfc9514#section-7.1";
+        leaf endpoint-behavior {
+            type uint16;
+        }
+        leaf algo {
+            type uint8;
+        }
+    }
+
+    grouping srv6-bgp-peer-node {
+        reference "https://tools.ietf.org/html/rfc9514#section-7.2";
+        uses srv6-flags;
+        leaf weight {
+            type uint8;
+        }
+        leaf peer-as-number {
+            description "Peer AS Number.";
+            type inet:as-number;
+        }
+        leaf peer-bgp-id {
+            description "Peer BGP Router Identifier.";
+            type inet:ipv4-address-no-zone;
+        }
+    }
+
+    grouping srv6-attributes {
+        reference "https://tools.ietf.org/html/rfc9514#section-7";
+        container srv6-endpoint-behavior {
+            uses srv6-endpoint-behavior;
+        }
+        container srv6-bgp-peer-node {
+            uses srv6-bgp-peer-node;
+        }
+        uses srv6-sid-subtlvs;
+    }
+
 }

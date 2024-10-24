@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.NodeFlagBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.NodeIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.TopologyIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.StandardMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
@@ -230,20 +231,23 @@ public final class ProtocolUtil {
                 .ospf.topology.rev131021.ospf.link.attributes.ospf.link.attributes.TedBuilder();
 
         if (la != null) {
-            if (la.getAdminGroup() != null) {
-                tb.setColor(la.getAdminGroup().getValue());
-            }
-            if (la.getTeMetric() != null) {
-                tb.setTeDefaultMetric(la.getTeMetric().getValue());
-            }
-            if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
-            }
-            if (la.getMaxLinkBandwidth() != null) {
-                tb.setMaxLinkBandwidth(bandwidthToDecimal64(la.getMaxLinkBandwidth()));
-            }
-            if (la.getMaxReservableBandwidth() != null) {
-                tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(la.getMaxReservableBandwidth()));
+            if (la.getStandardMetric() != null) {
+                final StandardMetric sm = la.getStandardMetric();
+                if (sm.getAdminGroup() != null) {
+                    tb.setColor(sm.getAdminGroup().getValue());
+                }
+                if (sm.getTeMetric() != null) {
+                    tb.setTeDefaultMetric(sm.getTeMetric().getValue());
+                }
+                if (sm.getUnreservedBandwidth() != null) {
+                    tb.setUnreservedBandwidth(unreservedBandwidthList(sm.nonnullUnreservedBandwidth().values()));
+                }
+                if (sm.getMaxLinkBandwidth() != null) {
+                    tb.setMaxLinkBandwidth(bandwidthToDecimal64(sm.getMaxLinkBandwidth()));
+                }
+                if (sm.getMaxReservableBandwidth() != null) {
+                    tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(sm.getMaxReservableBandwidth()));
+                }
             }
             if (la.getSharedRiskLinkGroups() != null) {
                 tb.setSrlg(new SrlgBuilder()
@@ -273,20 +277,23 @@ public final class ProtocolUtil {
                 .xml.ns.yang.network.isis.topology.rev131021.isis.link.attributes.isis.link.attributes.TedBuilder();
 
         if (la != null) {
-            if (la.getAdminGroup() != null) {
-                tb.setColor(la.getAdminGroup().getValue());
-            }
-            if (la.getTeMetric() != null) {
-                tb.setTeDefaultMetric(la.getTeMetric().getValue());
-            }
-            if (la.getUnreservedBandwidth() != null) {
-                tb.setUnreservedBandwidth(unreservedBandwidthList(la.nonnullUnreservedBandwidth().values()));
-            }
-            if (la.getMaxLinkBandwidth() != null) {
-                tb.setMaxLinkBandwidth(bandwidthToDecimal64(la.getMaxLinkBandwidth()));
-            }
-            if (la.getMaxReservableBandwidth() != null) {
-                tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(la.getMaxReservableBandwidth()));
+            if (la.getStandardMetric() != null) {
+                final StandardMetric sm = la.getStandardMetric();
+                if (sm.getAdminGroup() != null) {
+                    tb.setColor(sm.getAdminGroup().getValue());
+                }
+                if (sm.getTeMetric() != null) {
+                    tb.setTeDefaultMetric(sm.getTeMetric().getValue());
+                }
+                if (sm.getUnreservedBandwidth() != null) {
+                    tb.setUnreservedBandwidth(unreservedBandwidthList(sm.nonnullUnreservedBandwidth().values()));
+                }
+                if (sm.getMaxLinkBandwidth() != null) {
+                    tb.setMaxLinkBandwidth(bandwidthToDecimal64(sm.getMaxLinkBandwidth()));
+                }
+                if (sm.getMaxReservableBandwidth() != null) {
+                    tb.setMaxResvLinkBandwidth(bandwidthToDecimal64(sm.getMaxReservableBandwidth()));
+                }
             }
             if (la.getSharedRiskLinkGroups() != null) {
                 tb.setSrlg(new SrlgBuilder()

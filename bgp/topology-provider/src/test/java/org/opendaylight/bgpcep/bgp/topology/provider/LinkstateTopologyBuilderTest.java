@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -52,9 +53,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrAdjIdsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.UnreservedBandwidthBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.UnreservedBandwidthKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrAttributeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.StandardMetricBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.LinkDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.LocalNodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.link._case.RemoteNodeDescriptorsBuilder;
@@ -76,15 +76,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefixBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.sr.attributes.SrAdjIdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.standard.attributes.UnreservedBandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.standard.attributes.UnreservedBandwidthKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.Algorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.LabelCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.SidCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.capabilities.tlv.Srgb;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.capabilities.tlv.SrgbBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
@@ -441,6 +446,11 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private LinkstateRoute createLinkstateNodeRoute(final ProtocolId protocolId, final String nodeName,
             final AsNumber asNumber, final String ipv4RouterId) {
+        final List<Srgb> srgbs = new ArrayList<Srgb>();
+        srgbs.add(new SrgbBuilder()
+                .setRangeSize(new Uint24(Uint32.valueOf(SRGB_RANGE)))
+                .setSidLabelIndex(new LabelCaseBuilder().setLabel(new MplsLabel(Uint32.valueOf(SRGB_START))).build())
+                .build());
         return createBaseBuilder(linkstateNodeRouteKey, protocolId)
             .setObjectType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
                 .linkstate.object.type.NodeCaseBuilder()
@@ -461,13 +471,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                             .setDynamicHostname(nodeName)
                             .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
                             .setIsisAreaId(Set.of(new IsisAreaIdentifier(new byte[]{0x47})))
-                            .setSrCapabilities(new SrCapabilitiesBuilder()
-                                .setRangeSize(new Uint24(Uint32.valueOf(SRGB_RANGE)))
-                                .setSidLabelIndex(new LocalLabelCaseBuilder()
-                                    .setLocalLabel(
-                                        new MplsLabel(Uint32.valueOf(SRGB_START)))
-                                    .build())
-                                .build())
+                            .setSrCapabilities(new SrCapabilitiesBuilder().setSrgb(srgbs).build())
                             .build())
                         .build())
                     .build())
@@ -524,22 +528,26 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                     .setLinkAttributes(new LinkAttributesBuilder()
                                         .setSharedRiskLinkGroups(ImmutableSet.of(
                                             new SrlgId(Uint32.valueOf(5)), new SrlgId(Uint32.valueOf(15))))
-                                        .setAdminGroup(new AdministrativeGroup(Uint32.ZERO))
-                                        .setMaxLinkBandwidth(
+                                        .setStandardMetric(new StandardMetricBuilder()
+                                            .setAdminGroup(new AdministrativeGroup(Uint32.ZERO))
+                                            .setMaxLinkBandwidth(
                                                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
-                                        .setMaxReservableBandwidth(
+                                            .setMaxReservableBandwidth(
                                                 new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0x1f}))
-                                        .setUnreservedBandwidth(BindingMap.of(new UnreservedBandwidthBuilder()
+                                            .setUnreservedBandwidth(BindingMap.of(new UnreservedBandwidthBuilder()
                                                 .withKey(new UnreservedBandwidthKey(Uint8.ONE))
                                                 .setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, 0x00, (byte) 0xff}))
                                                 .build()))
-                                        .setTeMetric(new TeMetric(Uint32.valueOf(100)))
+                                            .setTeMetric(new TeMetric(Uint32.valueOf(100)))
+                                            .build())
                                         .setLinkName(linkName)
-                                        .setSrAdjIds(List.of(new SrAdjIdsBuilder()
-                                                .setSidLabelIndex(new LocalLabelCaseBuilder()
-                                                        .setLocalLabel(new MplsLabel(Uint32.valueOf(ADJ_SID)))
+                                        .setSrAttribute(new SrAttributeBuilder()
+                                            .setSrAdjIds(List.of(new SrAdjIdsBuilder()
+                                                .setSidLabelIndex(new LabelCaseBuilder()
+                                                        .setLabel(new MplsLabel(Uint32.valueOf(ADJ_SID)))
                                                         .build())
                                                 .build()))
+                                            .build())
                                         .build())
                                     .build())
                                 .build())
