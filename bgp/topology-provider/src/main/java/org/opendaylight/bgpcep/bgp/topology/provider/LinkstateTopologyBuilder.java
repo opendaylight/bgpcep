@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.TopologyIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.ObjectType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
@@ -50,13 +49,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.LinkstateRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.routes.linkstate.routes.linkstate.route.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.sr.attributes.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopologyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.sr.rev130819.SegmentId;
@@ -337,8 +337,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             srPrefixes.put(ippfx, srPrefix);
             final SidLabelIndex sidLabelIndex = srPrefix.getSidLabelIndex();
             Long prefixSid = null;
-            if (sidLabelIndex instanceof LocalLabelCase) {
-                prefixSid = ((LocalLabelCase) sidLabelIndex).getLocalLabel().getValue().longValue();
+            if (sidLabelIndex instanceof LabelCase) {
+                prefixSid = ((LabelCase) sidLabelIndex).getLabel().getValue().longValue();
             } else if (sidLabelIndex instanceof SidCase) {
                 if (srgbFirstValue != null && srgbRangeSize != null) {
                     final Long sidIndex = ((SidCase) sidLabelIndex).getSid().longValue();
@@ -627,12 +627,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 ilab.setMetric(la.getMetric().getValue());
             }
             ilab.setName(la.getLinkName());
-            if (la.getSrAdjIds() != null && !la.getSrAdjIds().isEmpty()) {
-                final SrAdjIds srAdjIds = la.getSrAdjIds().get(0);
+            if (la.getSrAttribute().getSrAdjIds() != null && !la.getSrAttribute().getSrAdjIds().isEmpty()) {
+                final SrAdjIds srAdjIds = la.getSrAttribute().getSrAdjIds().getFirst();
                 if (srAdjIds != null) {
                     final SidLabelIndex sidLabelIndex = srAdjIds.getSidLabelIndex();
-                    if (sidLabelIndex instanceof LocalLabelCase) {
-                        adjSid = ((LocalLabelCase) sidLabelIndex).getLocalLabel().getValue().longValue();
+                    if (sidLabelIndex instanceof LabelCase) {
+                        adjSid = ((LabelCase) sidLabelIndex).getLabel().getValue().longValue();
                     }
                 }
             }
@@ -766,12 +766,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 inab.setName(new DomainName(na.getDynamicHostname()));
             }
             if (na.getSrCapabilities() != null) {
-                final SidLabelIndex sidLabelIndex = na.getSrCapabilities().getSidLabelIndex();
-                if (sidLabelIndex instanceof LocalLabelCase) {
-                    srgbFirstValue = ((LocalLabelCase) sidLabelIndex).getLocalLabel().getValue().longValue();
+                final SidLabelIndex sidLabelIndex = na.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex();
+                if (sidLabelIndex instanceof LabelCase) {
+                    srgbFirstValue = ((LabelCase) sidLabelIndex).getLabel().getValue().longValue();
                 }
-                srgbRangeSize = na.getSrCapabilities().getRangeSize() != null
-                        ? na.getSrCapabilities().getRangeSize().getValue().intValue()
+                srgbRangeSize = na.getSrCapabilities().getSrgb().getFirst().getRangeSize() != null
+                        ? na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue().intValue()
                         : null;
             }
         }
