@@ -611,9 +611,57 @@ The Link-State table in a instance of the speaker's Loc-RIB can be verified via 
 
 .. note:: Link-State routes mapping to topology links/nodes/prefixes is supported by BGP Topology Provider.
 
+BGP-LS supported TLVs
+^^^^^^^^^^^^^^^^^^^^^
+
+Here it is the list of the supported TLVs and subTLVs by the BGP Link State implementation.
+TLVs in bold are newly supported since latest stable release scandium.
+
+* [x] 256 - 257: Node Descriptors (rfc9552 section 5.2.1)
+* [x] 258 - 263: Link Descriptors (rfc9552 section 5.2.2)
+* [x] 263 - 265: Prefix Descriptors (rfc9552 section 5.2.3)
+* [x] **266**: Node MSD (rfc8814)
+* [x] **267**: Link MSD (rfc8814)
+* [x] 512 - 517: Local Node Decriptors (rfc9552 section 5.2.1)
+* [x] **518**: SRv6 SId Information (rfc9514)
+* [ ] 550 - 557: tunel, LSP, MPLS ID (drafts bgp-ls-te-path)
+* [ ] 554: SR Policy (draft-ietf-idr-bgp-ls-sr-policy-02)
+* [x] 1024 - 1029: Node Attributes (rfc9552 section 5.3.1)
+* [x] 1028 - 1031: Link Attributes (rfc9552 section 5.3.2)
+* [ ] 1032 - S-BFD Discriminators (rfc9247)
+* [x] **1034 - 1037**: SR (rfc9085 section 2.1)
+* [x] **1038**: SRv6 (rfc9514)
+* [x] **1039 - 1046**: Flex-Algo (rfc 9351)
+* [x] 1088 - 1098: Link Attributes (rfc9552 section 5.3.2)
+* [x] 1099 - **1100**: Adjacency & LAN Adjacency SID (rfc9085 / 2.2.1 & 2.2.2)
+* [x] 1101 - 1103: Peer SIDs (rfc9086)
+* [ ] 1105: RTM Capability (rfc8169)
+* [x] **1106 - 1108**: SRv6 (rfc9514)
+* [x] 1114 - 1120: Extended TE metric (rfc8571)
+* [ ] 1121: Gracefull restart (8379)
+* [x] **1122**: ASLA (rfc9294)
+* [x] 1152 - 1157: Prefix Attributes (rfc9552 section 5.3.3)
+* [x] 1158: Prefix-SID (rfc9085)
+* [x] 1159: Range (rfc9085)
+* [ ] 1160: IS-IS Flood reflection (draft bgp-ls-isis-flood-reflection)
+* [x] 1161: SID/Label (rfc9085 section 2.1.1)
+* [x] **1162**: SRv6 locator (rfc9514)
+* [x] 1170 - **1172**: Prefix attributes (rfc9085 section 2.3.2 & 2.3.3)
+* [x] **1173**: Extended Administrative Group (rfc9104)
+* [x] **1174**: Source OSPF Router-ID (rfc9085 / 2.3.4)
+* [ ] 1180 - 1184: SPF (draft lsvr-bgp-spf)
+* [ ] 1200 - 1217: SR Policy (draft bgp-ls-sr-policy)
+* [ ] 1220: NRP (draft bgp-ls-sr-policy-nrp)
+* [x] **1250 - 1252**: SRv6 (rfc9514)
+
 References
 ^^^^^^^^^^
-* `North-Bound Distribution of Link-State and Traffic Engineering (TE) Information Using BGP <https://tools.ietf.org/html/rfc7752>`_
-* `BGP Link-State extensions for Segment Routing <https://tools.ietf.org/html/draft-gredler-idr-bgp-ls-segment-routing-ext-03>`_
-* `Segment Routing BGP Egress Peer Engineering BGP-LS Extensions <https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05>`_
+* `Distribution of Link-State and Traffic Engineering (TE) Information Using BGP <https://tools.ietf.org/html/rfc9552>`_
+* `Border Gateway Protocol - Link-State (BGP-LS) Extensions for Segment Routing <https://tools.ietf.org/html/rfc9085>`_
+* `Border Gateway Protocol - Link-State (BGP-LS) Extensions for Segment Routing BGP Egress Peer Engineering <https://tools.ietf.org/html/rfc9086>`_
+* `Border Gateway Protocol - Link-State (BGP-LS) Extensions for Flexible Algorithm Advertisement <https://tools.ietf.org/html/rfc9351>`_
+* `Border Gateway Protocol - Link-State (BGP-LS) Extensions for Segment Routing over IPv6 (SRv6) <https://tools.ietf.org/html/rfc9514>`_
+* `Signaling Maximum SID Depth (MSD) Using the Border Gateway Protocol - Link State <https://tools.ietf.org/html/rfc8814>`_
+* `BGP - Link State (BGP-LS) Advertisement of IGP Traffic Engineering Performance Metric Extensions <https://tools.ietf.org/html/rfc8571>`_
+* `Application-Specific Link Attributes Advertisement Using the Border Gateway Protocol - Link State (BGP‑LS) <https://tools.ietf.org/html/rfc9294>`_
 * `BGP Link-State Information Distribution Implementation Report <https://tools.ietf.org/html/draft-ietf-idr-ls-distribution-impl-04>`_
