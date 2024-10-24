@@ -19,8 +19,7 @@ import org.opendaylight.protocol.bgp.linkstate.impl.nlri.Ipv4PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.Ipv6PrefixNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.NodeNlriParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.nlri.TeLspIpv4NlriParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.nlri.TeLspIpv6NlriParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.nlri.Srv6SidNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.AdvertisingNodeDescriptorTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.AreaIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.AsNumTlvParser;
@@ -39,6 +38,11 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RemoteNodeDescriptorTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RouterIdTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6EndpointTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6NodeDescriptorTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6PeerNodeTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6SidInformationTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6SidStructureTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.NlriTypeCaseParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.NlriTypeCaseSerializer;
@@ -50,7 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.TeLspCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.Srv6SidCase;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,11 +86,9 @@ public final class SimpleNlriTypeRegistry {
         final Ipv6PrefixNlriParser ipv6PrefixParser = new Ipv6PrefixNlriParser();
         nlriRegistry.registerParser(ipv6PrefixParser.getNlriType(), ipv6PrefixParser);
 
-        final TeLspIpv4NlriParser teLspIpv4Parser = new TeLspIpv4NlriParser();
-        nlriRegistry.registerParser(teLspIpv4Parser.getNlriType(), teLspIpv4Parser);
-        nlriRegistry.registerSerializer(TeLspCase.class, teLspIpv4Parser);
-        final TeLspIpv6NlriParser teLspIpv6Parser = new TeLspIpv6NlriParser();
-        nlriRegistry.registerParser(teLspIpv6Parser.getNlriType(), teLspIpv6Parser);
+        final Srv6SidNlriParser srv6SidNlriParser = new Srv6SidNlriParser();
+        nlriRegistry.registerParser(srv6SidNlriParser.getNlriType(), srv6SidNlriParser);
+        nlriRegistry.registerSerializer(Srv6SidCase.class, srv6SidNlriParser);
 
         // TLVs
         final LocalNodeDescriptorTlvParser localParser = new LocalNodeDescriptorTlvParser();
@@ -158,6 +160,26 @@ public final class SimpleNlriTypeRegistry {
         final OspfRouteTlvParser ospfRouterParser = new OspfRouteTlvParser();
         tlvParsers.register(ospfRouterParser.getType(), ospfRouterParser);
         tlvSerializers.register(ospfRouterParser.getTlvQName(), ospfRouterParser);
+
+        final SRv6NodeDescriptorTlvParser srv6NodeDescriptorTlvParser = new SRv6NodeDescriptorTlvParser();
+        tlvParsers.register(srv6NodeDescriptorTlvParser.getType(), srv6NodeDescriptorTlvParser);
+        tlvSerializers.register(srv6NodeDescriptorTlvParser.getTlvQName(), srv6NodeDescriptorTlvParser);
+
+        final SRv6SidInformationTlvParser srv6SidInformationTlvParser = new SRv6SidInformationTlvParser();
+        tlvParsers.register(srv6SidInformationTlvParser.getType(), srv6SidInformationTlvParser);
+        tlvSerializers.register(srv6SidInformationTlvParser.getTlvQName(), srv6SidInformationTlvParser);
+
+        final SRv6EndpointTlvParser srv6EndPointTlvParser = new SRv6EndpointTlvParser();
+        tlvParsers.register(srv6EndPointTlvParser.getType(), srv6EndPointTlvParser);
+        tlvSerializers.register(srv6EndPointTlvParser.getTlvQName(), srv6EndPointTlvParser);
+
+        final SRv6PeerNodeTlvParser srv6PeerNodeTlvParser = new SRv6PeerNodeTlvParser();
+        tlvParsers.register(srv6PeerNodeTlvParser.getType(), srv6PeerNodeTlvParser);
+        tlvSerializers.register(srv6PeerNodeTlvParser.getTlvQName(), srv6PeerNodeTlvParser);
+
+        final SRv6SidStructureTlvParser srv6SidStructureParser = new SRv6SidStructureTlvParser();
+        tlvParsers.register(srv6SidStructureParser.getType(), srv6SidStructureParser);
+        tlvSerializers.register(srv6SidStructureParser.getTlvQName(), srv6SidStructureParser);
     }
 
     public static @NonNull SimpleNlriTypeRegistry getInstance() {
