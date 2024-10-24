@@ -29,7 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.ObjectType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrAdjIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.PerformanceMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.StandardMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
@@ -47,14 +48,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.OspfNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.sr.attributes.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.IsisAdjFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.OspfAdjFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.OspfAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Loss;
@@ -315,53 +317,59 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         if (la.getMetric() != null) {
             builder.setMetric(la.getMetric().getValue());
         }
-        if (la.getTeMetric() != null) {
-            builder.setTeMetric(la.getTeMetric().getValue());
-        }
-        if (la.getMaxLinkBandwidth() != null) {
-            builder.setMaxLinkBandwidth(bandwithToDecimalBandwidth(la.getMaxLinkBandwidth()));
-        }
-        if (la.getMaxReservableBandwidth() != null) {
-            builder.setMaxResvLinkBandwidth(bandwithToDecimalBandwidth(la.getMaxReservableBandwidth()));
-        }
-        if (la.getUnreservedBandwidth() != null) {
-            int upperBound = Math.min(la.getUnreservedBandwidth().size(), MAX_PRIORITY);
-            final List<UnreservedBandwidth> unRsvBw = new ArrayList<>(upperBound);
-
-            for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
-                    .UnreservedBandwidth bandwidth : la.nonnullUnreservedBandwidth().values()) {
-                unRsvBw.add(new UnreservedBandwidthBuilder()
-                        .setBandwidth(bandwithToDecimalBandwidth(bandwidth.getBandwidth()))
-                        .withKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
+        if (la.getStandardMetric() != null) {
+            final StandardMetric sm = la.getStandardMetric();
+            if (sm.getTeMetric() != null) {
+                builder.setTeMetric(sm.getTeMetric().getValue());
             }
-            builder.setUnreservedBandwidth(unRsvBw);
+            if (sm.getMaxLinkBandwidth() != null) {
+                builder.setMaxLinkBandwidth(bandwithToDecimalBandwidth(sm.getMaxLinkBandwidth()));
+            }
+            if (sm.getMaxReservableBandwidth() != null) {
+                builder.setMaxResvLinkBandwidth(bandwithToDecimalBandwidth(sm.getMaxReservableBandwidth()));
+            }
+            if (sm.getUnreservedBandwidth() != null) {
+                int upperBound = Math.min(sm.getUnreservedBandwidth().size(), MAX_PRIORITY);
+                final List<UnreservedBandwidth> unRsvBw = new ArrayList<>(upperBound);
+
+                for (final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120
+                        .UnreservedBandwidth bandwidth : sm.nonnullUnreservedBandwidth().values()) {
+                    unRsvBw.add(new UnreservedBandwidthBuilder()
+                            .setBandwidth(bandwithToDecimalBandwidth(bandwidth.getBandwidth()))
+                            .withKey(new UnreservedBandwidthKey(bandwidth.getPriority())).build());
+                }
+                builder.setUnreservedBandwidth(unRsvBw);
+            }
+            if (sm.getAdminGroup() != null) {
+                builder.setAdminGroup(sm.getAdminGroup().getValue());
+            }
         }
-        if (la.getAdminGroup() != null) {
-            builder.setAdminGroup(la.getAdminGroup().getValue());
-        }
-        if (la.getLinkDelay() != null) {
-            builder.setDelay(new Delay(la.getLinkDelay().getValue()));
-        }
-        if (la.getLinkMinMaxDelay() != null && la.getLinkMinMaxDelay() != null) {
-            MinMaxDelay mmDelay = new MinMaxDelayBuilder()
-                    .setMaxDelay(new Delay(la.getLinkMinMaxDelay().getMaxDelay().getValue()))
-                    .setMinDelay(new Delay(la.getLinkMinMaxDelay().getMinDelay().getValue())).build();
-            builder.setMinMaxDelay(mmDelay);
-        }
-        if (la.getDelayVariation() != null) {
-            builder.setJitter(new Delay(la.getDelayVariation().getValue()));
-        }
-        if (la.getLinkLoss() != null) {
-            builder.setLoss(new Loss(la.getLinkLoss().getValue()));
-        }
-        if (la.getAvailableBandwidth() != null) {
-            builder.setAvailableBandwidth(bandwithToDecimalBandwidth(la.getAvailableBandwidth()));
-        }
-        if (la.getResidualBandwidth() != null) {
-            builder.setResidualBandwidth(bandwithToDecimalBandwidth(la.getResidualBandwidth()));
-        }
-        if (la.getUtilizedBandwidth() != null) {
-            builder.setUtilizedBandwidth(bandwithToDecimalBandwidth(la.getUtilizedBandwidth()));
+        if (la.getPerformanceMetric() != null) {
+            final PerformanceMetric pm = la.getPerformanceMetric();
+            if (pm.getLinkDelay() != null) {
+                builder.setDelay(new Delay(pm.getLinkDelay().getValue()));
+            }
+            if (pm.getLinkMinMaxDelay() != null && pm.getLinkMinMaxDelay() != null) {
+                MinMaxDelay mmDelay = new MinMaxDelayBuilder()
+                        .setMaxDelay(new Delay(pm.getLinkMinMaxDelay().getMaxDelay().getValue()))
+                        .setMinDelay(new Delay(pm.getLinkMinMaxDelay().getMinDelay().getValue())).build();
+                builder.setMinMaxDelay(mmDelay);
+            }
+            if (pm.getDelayVariation() != null) {
+                builder.setJitter(new Delay(pm.getDelayVariation().getValue()));
+            }
+            if (pm.getLinkLoss() != null) {
+                builder.setLoss(new Loss(pm.getLinkLoss().getValue()));
+            }
+            if (pm.getAvailableBandwidth() != null) {
+                builder.setAvailableBandwidth(bandwithToDecimalBandwidth(pm.getAvailableBandwidth()));
+            }
+            if (pm.getResidualBandwidth() != null) {
+                builder.setResidualBandwidth(bandwithToDecimalBandwidth(pm.getResidualBandwidth()));
+            }
+            if (pm.getUtilizedBandwidth() != null) {
+                builder.setUtilizedBandwidth(bandwithToDecimalBandwidth(pm.getUtilizedBandwidth()));
+            }
         }
         if (la.getSharedRiskLinkGroups() != null) {
             final var srlgs = ImmutableSet.<Uint32>builder();
@@ -370,28 +378,30 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             }
             builder.setSrlgs(srlgs.build());
         }
-        for (SrAdjIds adj : la.nonnullSrAdjIds()) {
-            if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
-                boolean backup = false;
-                boolean ipv6 = false;
-                if (adj.getFlags() instanceof OspfAdjFlagsCase) {
-                    backup = ((OspfAdjFlagsCase) adj.getFlags()).getOspfAdjFlags().getBackup();
-                }
-                if (adj.getFlags() instanceof IsisAdjFlagsCase) {
-                    backup = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getBackup();
-                    ipv6 = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getAddressFamily();
-                }
-                final Uint32 adjSid = ((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue();
-                if (!backup) {
-                    if (!ipv6) {
-                        builder.setAdjSid(adjSid);
-                    } else {
-                        builder.setAdjSid6(adjSid);
+        if (la.getSrAttribute() != null) {
+            for (SrAdjIds adj : la.getSrAttribute().nonnullSrAdjIds()) {
+                if (adj.getSidLabelIndex() instanceof LabelCase) {
+                    boolean backup = false;
+                    boolean ipv6 = false;
+                    if (adj.getFlags() instanceof OspfAdjFlagsCase) {
+                        backup = ((OspfAdjFlagsCase) adj.getFlags()).getOspfAdjFlags().getBackup();
                     }
-                } else if (!ipv6) {
-                    builder.setBackupAdjSid(adjSid);
-                } else {
-                    builder.setBackupAdjSid6(adjSid);
+                    if (adj.getFlags() instanceof IsisAdjFlagsCase) {
+                        backup = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getBackup();
+                        ipv6 = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getAddressFamily();
+                    }
+                    final Uint32 adjSid = ((LabelCase) adj.getSidLabelIndex()).getLabel().getValue();
+                    if (!backup) {
+                        if (!ipv6) {
+                            builder.setAdjSid(adjSid);
+                        } else {
+                            builder.setAdjSid6(adjSid);
+                        }
+                    } else if (!ipv6) {
+                        builder.setBackupAdjSid(adjSid);
+                    } else {
+                        builder.setBackupAdjSid6(adjSid);
+                    }
                 }
             }
         }
@@ -449,16 +459,16 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
-            final SidLabelIndex labelIndex = na.getSrCapabilities().getSidLabelIndex();
-            if (labelIndex instanceof LocalLabelCase) {
+            final SidLabelIndex labelIndex = na.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex();
+            if (labelIndex instanceof LabelCase) {
                 builder.setSrgb(new SrgbBuilder()
-                        .setLowerBound(((LocalLabelCase) labelIndex).getLocalLabel().getValue())
-                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                        .setRangeSize(na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue())
                         .build());
             } else if (labelIndex instanceof SidCase) {
                 builder.setSrgb(new SrgbBuilder()
                         .setLowerBound(((SidCase) labelIndex).getSid())
-                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .setRangeSize(na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue())
                         .build());
             }
         }
