@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
-import org.opendaylight.protocol.bgp.linkstate.spi.AbstractTeLspNlriCodec;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
@@ -182,7 +181,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             case "direct" -> ProtocolId.Direct.getIntValue();
             case "static" -> ProtocolId.Static.getIntValue();
             case "ospf-v3" -> ProtocolId.OspfV3.getIntValue();
-            case "rsvp-te" -> ProtocolId.RsvpTe.getIntValue();
             case "bgp-epe" -> ProtocolId.BgpEpe.getIntValue();
             case "segment-routing" -> ProtocolId.SegmentRouting.getIntValue();
             default -> 0;
@@ -248,11 +246,6 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             return new NodeCaseBuilder()
                 .setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) node))
                 .build();
-        }
-
-        final var teLsp = AbstractTeLspNlriCodec.serializeObjectType(objectType);
-        if (teLsp != null) {
-            return teLsp;
         }
 
         LOG.warn("Ignoring unknown Object Type: {}.", objectType);
