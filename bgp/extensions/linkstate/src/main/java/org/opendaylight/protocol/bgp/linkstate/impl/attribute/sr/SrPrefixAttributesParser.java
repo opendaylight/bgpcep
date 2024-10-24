@@ -13,17 +13,17 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.Algorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.SidLabelIndex;
 
 public final class SrPrefixAttributesParser {
 
@@ -31,7 +31,7 @@ public final class SrPrefixAttributesParser {
     private static final int RE_ADVERTISEMENT = 0;
     private static final int NODE_SID = 1;
     private static final int NO_PHP_OSPF = 1;
-    private static final int NO_PHP = 2;
+    private static final int NO_PHP_ISIS = 2;
     private static final int MAPPING_SERVER = 2;
     private static final int EXPLICIT_NULL = 3;
     private static final int VALUE = 4;
@@ -61,10 +61,12 @@ public final class SrPrefixAttributesParser {
             case IsisLevel2:
                 return new IsisPrefixFlagsCaseBuilder()
                         .setIsisPrefixFlags(new IsisPrefixFlagsBuilder()
-                            .setReadvertisement(flags.get(RE_ADVERTISEMENT))
+                            .setReAdvertisement(flags.get(RE_ADVERTISEMENT))
                             .setNodeSid(flags.get(NODE_SID))
-                            .setNoPhp(flags.get(NO_PHP))
+                            .setNoPhp(flags.get(NO_PHP_ISIS))
                             .setExplicitNull(flags.get(EXPLICIT_NULL))
+                            .setValue(flags.get(VALUE))
+                            .setLocal(flags.get(LOCAL))
                             .build())
                         .build();
             case Ospf:
@@ -74,6 +76,8 @@ public final class SrPrefixAttributesParser {
                             .setExplicitNull(flags.get(EXPLICIT_NULL))
                             .setMappingServer(flags.get(MAPPING_SERVER))
                             .setNoPhp(flags.get(NO_PHP_OSPF))
+                            .setValue(flags.get(VALUE))
+                            .setLocal(flags.get(LOCAL))
                             .build())
                         .build();
             default:
@@ -103,12 +107,16 @@ public final class SrPrefixAttributesParser {
             bitFlags.set(NO_PHP_OSPF, ospfFlags.getNoPhp());
             bitFlags.set(MAPPING_SERVER, ospfFlags.getMappingServer());
             bitFlags.set(EXPLICIT_NULL, ospfFlags.getExplicitNull());
+            bitFlags.set(VALUE, ospfFlags.getValue());
+            bitFlags.set(LOCAL, ospfFlags.getLocal());
         } else if (flags instanceof IsisPrefixFlagsCase) {
             final IsisPrefixFlags isisFlags = ((IsisPrefixFlagsCase) flags).getIsisPrefixFlags();
-            bitFlags.set(RE_ADVERTISEMENT, isisFlags.getReadvertisement());
+            bitFlags.set(RE_ADVERTISEMENT, isisFlags.getReAdvertisement());
             bitFlags.set(NODE_SID, isisFlags.getNodeSid());
-            bitFlags.set(NO_PHP, isisFlags.getNoPhp());
+            bitFlags.set(NO_PHP_ISIS, isisFlags.getNoPhp());
             bitFlags.set(EXPLICIT_NULL, isisFlags.getExplicitNull());
+            bitFlags.set(VALUE, isisFlags.getValue());
+            bitFlags.set(LOCAL, isisFlags.getLocal());
         }
         return bitFlags;
     }

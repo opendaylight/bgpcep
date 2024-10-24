@@ -60,20 +60,22 @@ module bgp-linkstate {
         reference "draft-ietf-idr-ls-distribution-03";
     }
 
-    identity linkstate-address-family {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
+    // BGP Link State family definition
 
+    identity linkstate-address-family {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2";
         base bgp-t:address-family;
     }
 
     identity linkstate-subsequent-address-family {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
-
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2";
         base bgp-t:subsequent-address-family;
     }
 
+    // BGP Link State NLRI definitions
+
     typedef nlri-type {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2";
         type enumeration {
             enum node {
                 value 1;
@@ -87,21 +89,19 @@ module bgp-linkstate {
             enum ipv6-prefix {
                 value 4;
             }
-            enum ipv4-te-lsp {
-                status deprecated;
-                reference "http://tools.ietf.org/html/rfc7752#section-4.1";
+            enum sr-policy {
+                reference "http://tools.ietf.org/html/draft-ietf-idr-bgp-ls-sr-policy-02#section-8.1";
                 value 5;
             }
-            enum ipv6-te-lsp {
-                status deprecated;
-                reference "http://tools.ietf.org/html/rfc7752#section-4.1";
+            enum srv6-sid {
+                reference "http://tools.ietf.org/html/rfc9514#section-6";
                 value 6;
             }
         }
     }
 
     typedef protocol-id {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2";
         type enumeration {
             enum isis-level1 {
                 value 1;
@@ -122,24 +122,18 @@ module bgp-linkstate {
                 value 6;
             }
             enum bgp-epe {
-                reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4";
+                reference "https://tools.ietf.org/html/rfc9086#section-4";
                 value 7;
             }
-            enum rsvp-te {
-                status deprecated;
-                reference "http://tools.ietf.org/html/rfc7752#section-2.1";
-                value 8; // rsvp-te protocol-id TBD by IANA
-            }
             enum segment-routing {
-                status deprecated;
-                reference "http://tools.ietf.org/html/rfc7752#section-2.1";
+                reference "http://tools.ietf.org/html/draft-ietf-idr-bgp-ls-sr-policy-02#section-8.2";
                 value 9; // segment-routing protocol-id TBD by IANA
             }
         }
     }
 
     typedef ospf-route-type {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.3.1";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.3.1";
         type enumeration {
             enum intra-area {
                 value 1;
@@ -163,16 +157,17 @@ module bgp-linkstate {
     }
 
     typedef identifier {
+        reference "https://tools.ietf.org/html/rfc5307#section-1.1";
         type uint64;
     }
 
     typedef domain-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         type uint32;
     }
 
     typedef area-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         type uint32;
     }
 
@@ -187,20 +182,19 @@ module bgp-linkstate {
     }
 
     typedef ospf-interface-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         type uint32;
     }
 
     typedef topology-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.5";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.2.1";
         type uint16 {
             range "0..4095";
         }
     }
 
-
     grouping isis-router-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         leaf iso-system-id {
             type netc:iso-system-identifier;
             mandatory true;
@@ -208,7 +202,7 @@ module bgp-linkstate {
     }
 
     grouping isis-lan-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         container is-is-router-identifier {
             uses isis-router-identifier;
         }
@@ -221,7 +215,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-router-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         leaf ospf-router-id {
             type uint32;
             mandatory true;
@@ -229,7 +223,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-v2-lan-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         uses ospf-router-identifier;
         leaf ipv4-address {
             type ipv4-interface-identifier;
@@ -238,7 +232,7 @@ module bgp-linkstate {
     }
 
     grouping ospf-v3-lan-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.2.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         uses ospf-router-identifier;
         leaf lan-interface {
             type ospf-interface-identifier;
@@ -247,6 +241,7 @@ module bgp-linkstate {
     }
 
     grouping node-identifier {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.1.4";
         leaf as-number {
             type inet:as-number;
         }
@@ -291,6 +286,7 @@ module bgp-linkstate {
     }
 
     grouping prefix-identifiers {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.3";
         leaf multi-topology-id {
             type topology-identifier;
         }
@@ -304,6 +300,7 @@ module bgp-linkstate {
     }
 
     grouping link-identifier {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2.2";
         uses link-lr-identifiers;
         leaf ipv4-interface-address {
             type ipv4-interface-identifier;
@@ -322,7 +319,10 @@ module bgp-linkstate {
         }
     }
 
+    // BGP Link State top TLV
+
     grouping linkstate {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.2";
         uses bgp-t:route-distinguisher-grouping {
             refine route-distinguisher {
                 mandatory false;
@@ -338,11 +338,13 @@ module bgp-linkstate {
         }
         choice object-type {
             case node-case {
+                reference "https://tools.ietf.org/html/rfc9552#section-5.2.1";
                 container node-descriptors {
                     uses node-identifier;
                 }
             }
             case link-case {
+                reference "https://tools.ietf.org/html/rfc9552#section-5.2.2";
                 container local-node-descriptors {
                     uses node-identifier;
                     uses bgp-epe:epe-node-descriptors;
@@ -356,6 +358,7 @@ module bgp-linkstate {
                 }
             }
             case prefix-case {
+                reference "https://tools.ietf.org/html/rfc9552#section-5.2.3";
                 container advertising-node-descriptors {
                     uses node-identifier;
                 }
@@ -363,34 +366,19 @@ module bgp-linkstate {
                     uses prefix-identifiers;
                 }
             }
-            case te-lsp-case {
-                choice address-family {
-                    case ipv4-case {
-                        leaf ipv4-tunnel-sender-address {
-                            type inet:ipv4-address-no-zone;
-                            mandatory true;
-                        }
-                        leaf ipv4-tunnel-endpoint-address {
-                            type inet:ipv4-address-no-zone;
-                            mandatory true;
-                        }
-                    }
-                    case ipv6-case {
-                        leaf ipv6-tunnel-sender-address {
-                            type inet:ipv6-address-no-zone;
-                            mandatory true;
-                        }
-                        leaf ipv6-tunnel-endpoint-address {
-                            type inet:ipv6-address-no-zone;
-                            mandatory true;
-                        }
+            case srv6-sid-case {
+                reference "https://tools.ietf.org/html/rfc9514#section-6";
+                container srv6-node-descriptors {
+                    uses node-identifier;
+                    uses bgp-epe:epe-node-descriptors;
+                }
+                container srv6-sid-information {
+                    leaf srv6-sid-tlv {
+                        type bgp-sr:srv6-sid;
                     }
                 }
-                leaf tunnel-id {
-                    type rsvp:tunnel-id;
-                }
-                leaf lsp-id {
-                    type rsvp:lsp-id;
+                container srv6-attributes {
+                    uses bgp-sr:srv6-attributes;
                 }
             }
         }
@@ -419,8 +407,10 @@ module bgp-linkstate {
         }
     }
 
+    // BGP-LS Node Attributes
+
     typedef node-flag-bits {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.1";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.1.1";
         type bits {
             bit overload {
                 position 0;
@@ -444,24 +434,24 @@ module bgp-linkstate {
     }
 
     typedef isis-area-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.1.2";
         type binary {
             length "1..20";
         }
     }
 
     typedef ipv4-router-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.1.4";
         type inet:ipv4-address-no-zone;
     }
 
     typedef ipv6-router-identifier {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1.4";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.1.4";
         type inet:ipv6-address-no-zone;
     }
 
     grouping node-state {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.1";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.1";
         leaf-list topology-identifier {
             type topology-identifier;
         }
@@ -480,13 +470,36 @@ module bgp-linkstate {
         leaf ipv6-router-id {
             type ipv6-router-identifier;
         }
+        leaf ipv4-remote-router-id {
+            type ipv4-router-identifier;
+        }
+        leaf ipv6-remote-router-id {
+            type ipv6-router-identifier;
+        }
         container sr-capabilities {
             uses bgp-sr:sr-capabilities-tlv;
         }
         container sr-algorithm {
             uses bgp-sr:sr-algorithms-tlv;
         }
+        container sr-local-block {
+            uses bgp-sr:sr-local-block-tlv;
+        }
+        container node-msd {
+            uses bgp-sr:node-msd-tlv;
+        }
+        container srms {
+            uses bgp-sr:srms-tlv;
+        }
+        container srv6-capabilities {
+            uses bgp-sr:srv6-capabilities-tlv;
+        }
+        container flex-algo-definition {
+            uses bgp-sr:flex-algo-definition-tlv;
+        }
     }
+
+    // BGP-LS Link Attributes
 
     typedef link-protection-type {
         reference "http://tools.ietf.org/html/rfc5307#section-1.2";
@@ -512,9 +525,8 @@ module bgp-linkstate {
         }
     }
 
-    // linkstate
     typedef mpls-protocol-mask {
-        reference "http://tools.ietf.org/html/rfc7752#section-3.3.2.2";
+        reference "http://tools.ietf.org/html/rfc9552#section-5.3.2.2";
         type bits {
             bit ldp {
                 position 0;
@@ -562,8 +574,160 @@ module bgp-linkstate {
         units percent;
     }
 
+    grouping standard-attributes {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.2";
+        leaf admin-group {
+            type administrative-group;
+        }
+        leaf max-link-bandwidth {
+            type netc:bandwidth;
+        }
+        leaf max-reservable-bandwidth {
+            type netc:bandwidth;
+        }
+        list unreserved-bandwidth {
+            key "priority";
+            uses unreserved-bandwidth;
+        }
+        leaf te-metric {
+            type netc:te-metric;
+        }
+        leaf link-protection {
+            type link-protection-type;
+        }
+    }
+
+    grouping sr-attributes {
+        list sr-adj-ids {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.2.1";
+            uses bgp-sr:adj-sid-tlv;
+        }
+        list sr-lan-adj-ids {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.2.2";
+            uses bgp-sr:lan-adj-sid-tlv;
+        }
+    }
+
+    grouping performance-metric {
+        reference "Performance Metric https://tools.ietf.org/html/rfc8571#section-2";
+        leaf link-delay {
+            description "Unidirectional Link Delay";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.1";
+            type delay;
+        }
+        container link-min-max-delay {
+            description "Min/Max Unidirectional Link Delay";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.2";
+            leaf min-delay {
+                type delay;
+            }
+            leaf max-delay {
+                type delay;
+            }
+        }
+        leaf delay-variation {
+            description "Unidirectional Delay Variation";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.3";
+            type delay;
+        }
+        leaf link-loss {
+            description "Unidirectional Link Loss";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.4";
+            type loss;
+        }
+        leaf residual-bandwidth {
+            description "Unidirectional Residual Bandwidth";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.5";
+            type netc:bandwidth;
+        }
+        leaf available-bandwidth {
+            description "Unidirectional Available Bandwidth";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.6";
+            type netc:bandwidth;
+        }
+        leaf utilized-bandwidth {
+            description "Unidirectional Utilized Bandwidth";
+            reference "https://tools.ietf.org/html/rfc8571#section-2.7";
+            type netc:bandwidth;
+        }
+    }
+
+    grouping l2-bundle-member {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.2.3";
+        leaf descriptor {
+            type uint32;
+        }
+        container l2-subtlvs {
+            uses standard-attributes;
+            uses sr-attributes;
+            uses performance-metric;
+        }
+    }
+
+    typedef abm-length {
+        reference "http://tools.ietf.org/html/rfc9294#section-2";
+        type enumeration {
+            enum zero {
+                value 0;
+            }
+            enum four {
+                value 4;
+            }
+            enum eight {
+                value 8;
+            }
+        }
+    }
+
+    typedef asla-bit-mask {
+        reference "http://tools.ietf.org/html/rfc8919#section-4.1";
+        type bits {
+            bit rsvp-te {
+                position 0;
+            }
+            bit sr {
+                position 1;
+            }
+            bit lfa {
+                position 2;
+            }
+        }
+    }
+
+    grouping asla-tlv {
+        reference "http://tools.ietf.org/html/rfc9294#section-2";
+        leaf sabm-length {
+            type abm-length;
+        }
+        leaf udabm-length {
+            type abm-length;
+        }
+        leaf standard-bit-mask {
+            type asla-bit-mask;
+        }
+        leaf user-bit-mask {
+            type uint64;
+        }
+        container asla-subtlvs {
+            reference "http://tools.ietf.org/html/rfc9294#section-3";
+            leaf admin-group {
+                type administrative-group;
+            }
+            leaf te-metric {
+                type netc:te-metric;
+            }
+            leaf-list shared-risk-link-groups {
+                type rsvp:srlg-id;
+            }
+            uses performance-metric;
+            leaf-list extended-admin-group {
+                type bgp-sr:extended-admin-group;
+            }
+        }
+    }
+
     grouping linkstate-attribute {
-        reference "http://tools.ietf.org/html/rfc7752#section-3.3.2";
+        reference "http://tools.ietf.org/html/rfc9552#section-5.3.2";
         leaf local-ipv4-router-id {
             type ipv4-router-identifier;
         }
@@ -576,11 +740,9 @@ module bgp-linkstate {
         leaf remote-ipv6-router-id {
             type ipv6-router-identifier;
         }
+        uses standard-attributes;
         leaf mpls-protocol {
             type mpls-protocol-mask;
-        }
-        leaf te-metric {
-            type netc:te-metric;
         }
         leaf metric {
             type netc:metric;
@@ -588,91 +750,58 @@ module bgp-linkstate {
         leaf-list shared-risk-link-groups {
             type rsvp:srlg-id;
         }
+        leaf opaque-link {
+            type binary;
+        }
         leaf link-name {
             type string;
         }
-        leaf max-link-bandwidth {
-            type netc:bandwidth;
-        }
-        leaf max-reservable-bandwidth {
-            type netc:bandwidth;
-        }
-        list unreserved-bandwidth {
-            key "priority";
-            uses unreserved-bandwidth;
-        }
-        leaf link-protection {
-            type link-protection-type;
-        }
-        leaf admin-group {
-            type administrative-group;
-        }
-        list sr-adj-ids {
-            uses bgp-sr:adj-sid-tlv;
-        }
-        list sr-lan-adj-ids {
-            uses bgp-sr:lan-adj-sid-tlv;
+        uses sr-attributes;
+        container link-msd {
+            uses bgp-sr:link-msd-tlv;
         }
         container peer-node-sid {
             description "The SID representing the peer of the BGP session.";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4.3";
-            uses bgp-sr:epe-adj-sid-tlv;
+            reference "https://tools.ietf.org/html/rfc9086#section-5";
+            uses bgp-sr:epe-sid-tlv;
         }
         container peer-adj-sid {
             description "The SID representing the peer of the BGP session.";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4.3";
-            uses bgp-sr:epe-adj-sid-tlv;
+            reference "https://tools.ietf.org/html/rfc9086#section-5";
+            uses bgp-sr:epe-sid-tlv;
         }
         list peer-set-sids {
             description "The SID representing the group the peer is part of.";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-bgpls-segment-routing-epe-05#section-4.3";
-            uses bgp-sr:epe-adj-sid-tlv;
+            reference "https://tools.ietf.org/html/rfc9086#section-5";
+            uses bgp-sr:epe-sid-tlv;
         }
-        // Performance Metric https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2
-        leaf link-delay {
-            description "Unidirectional Link Delay";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.1";
-            type delay;
+        container srv6-end-x-sid {
+            reference "https://tools.ietf.org/html/rfc9514#section-4.1";
+            uses bgp-sr:srv6-end-x-sid;
         }
-        container link-min-max-delay {
-            description "Min/Max Unidirectional Link Delay";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.2";
-            leaf min-delay {
-                type delay;
-            }
-            leaf max-delay {
-                type delay;
-            }
+        container srv6-lan-end-x-sid {
+            reference "https://tools.ietf.org/html/rfc9514#section-4.2";
+            uses bgp-sr:srv6-lan-end-x-sid;
         }
-        leaf delay-variation {
-            description "Unidirectional Delay Variation";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.3";
-            type delay;
+        uses performance-metric;
+        container asla {
+            reference "https://tools.ietf.org/html/rfc9294#section-2";
+            uses asla-tlv;
         }
-        leaf link-loss {
-            description "Unidirectional Link Loss";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.4";
-            type loss;
+        leaf-list extended-admin-group {
+            reference "https://tools.ietf.org/html/rfc9104#section-2";
+            type bgp-sr:extended-admin-group;
         }
-        leaf residual-bandwidth {
-            description "Unidirectional Residual Bandwidth";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.5";
-            type netc:bandwidth;
-        }
-        leaf available-bandwidth {
-            description "Unidirectional Available Bandwidth";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.6";
-            type netc:bandwidth;
-        }
-        leaf utilized-bandwidth {
-            description "Unidirectional Utilized Bandwidth";
-            reference "https://tools.ietf.org/html/draft-ietf-idr-te-pm-bgp-17#section-2.7";
-            type netc:bandwidth;
+        list l2-bundle-member {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.2.3";
+            uses l2-bundle-member;
         }
     }
 
+    // BGP-LS Prefix Attributes
+
     typedef route-tag {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.3.2";
         description "Carries original IGP TAGs of the prefix.";
         type binary {
             length "4";
@@ -680,7 +809,7 @@ module bgp-linkstate {
     }
 
     typedef extended-route-tag {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.3";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.3.3";
         description "Carries IS-IS Extended Route Tags of the prefix.";
         type binary {
             length "8";
@@ -688,15 +817,7 @@ module bgp-linkstate {
     }
 
     grouping igp-bits {
-        reference "https://tools.ietf.org/html/rfc7752#section-3.3.3.1";
-        leaf up-down {
-            status deprecated;
-            type bits {
-                bit up-down {
-                    position 0;
-                }
-            }
-        }
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.3.1";
         leaf is-is-up-down {
             type boolean;
         }
@@ -712,6 +833,7 @@ module bgp-linkstate {
     }
 
     grouping prefix-state {
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.3";
         container igp-bits {
             uses igp-bits;
         }
@@ -728,16 +850,32 @@ module bgp-linkstate {
             type inet:ip-address-no-zone;
         }
         container sr-prefix {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.3.1";
             uses bgp-sr:prefix-sid-tlv;
         }
-        container ipv6-sr-prefix {
-            uses bgp-sr:ipv6-prefix-sid-tlv;
-        }
         container sr-range {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.3.5";
             uses bgp-sr:range-tlv;
         }
-        list sr-binding-sid-labels {
-            uses bgp-sr:binding-sid-tlv;
+        container flex-algo-prefix-metric {
+            reference "https://tools.ietf.org/html/rfc9351#section-3";
+            uses bgp-sr:flex-algo-prefix-metric;
+        }
+        container srv6-locator {
+            reference "https://tools.ietf.org/html/rfc9514#section-5.1";
+            uses bgp-sr:srv6-locator;
+        }
+        container attribute-flags {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.3.2";
+            uses bgp-sr:prefix-attribute-flags;
+        }
+        leaf source-router-id {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.3.3";
+            type inet:ip-address-no-zone;
+        }
+        leaf source-ospf-router-id {
+            reference "https://tools.ietf.org/html/rfc9085#section-2.3.4";
+            type inet:ipv4-address-no-zone;
         }
     }
 
@@ -756,31 +894,6 @@ module bgp-linkstate {
             case prefix-attributes-case {
                 container prefix-attributes {
                     uses prefix-state;
-                }
-            }
-            case te-lsp-attributes-case {
-                status deprecated;
-                description "LSP Object";
-                reference "http://tools.ietf.org/html/rfc7752#section-2.2";
-                container te-lsp-attributes {
-                    uses rsvp:tspec-object;
-                    uses rsvp:flow-spec-object;
-                    uses rsvp:session-attribute-object;
-                    uses rsvp:explicit-route-object;
-                    uses rsvp:secondary-explicit-route-object;
-                    uses rsvp:record-route-object;
-                    uses rsvp:secondary-record-route-object;
-                    uses rsvp:fast-reroute-object;
-                    uses rsvp:detour-object;
-                    uses rsvp:exclude-route-object;
-                    uses rsvp:lsp-attributes-object;
-                    uses rsvp:lsp-required-attributes-object;
-                    uses rsvp:protection-object;
-                    uses rsvp:association-object;
-                    uses rsvp:primary-path-route-object;
-                    uses rsvp:admin-status-object;
-                    uses rsvp:bandwidth-object;
-                    uses rsvp:metric-object;
                 }
             }
         }
