@@ -7,82 +7,131 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
-import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.binding.sid.sub.tlvs.SIDParser.SID_TYPE;
+import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser.SID_LABEL;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrAlgorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrAlgorithmBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.SrCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.sr.capabilities.NodeMsd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.sr.capabilities.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.MsdType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.capabilities.tlv.Srgb;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.capabilities.tlv.SrgbBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.local.block.tlv.Srlb;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sr.local.block.tlv.SrlbBuilder;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SrNodeAttributesParser {
-
     private static final int FLAGS_SIZE = 8;
-    /* SR Capabilities flags */
+
+    // SR Capabilities flags
     private static final int MPLS_IPV4 = 0;
     private static final int MPLS_IPV6 = 1;
-    private static final int SR_IPV6 = 2;
-    private static final int RESERVERED = 1;
+    private static final int RESERVED = 1;
+    private static final int SKIP_FLAG = 1;
 
     private SrNodeAttributesParser() {
-
+        // Hidden on purpose
     }
 
-    public static SrCapabilities parseSrCapabilities(final ByteBuf buffer, final ProtocolId protocol) {
-        final SrCapabilitiesBuilder builder = new SrCapabilitiesBuilder();
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+    public static void parseSrCapabilities(final SrCapabilitiesBuilder builder, final ByteBuf buffer,
+            final ProtocolId protocol) {
+        final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         setFlags(flags, protocol, builder);
-        buffer.skipBytes(RESERVERED);
-        builder.setRangeSize(RFC8294ByteBufUtils.readUint24(buffer));
-        builder.setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer));
-        return builder.build();
+        buffer.skipBytes(RESERVED);
+        final var srgb = new ArrayList<Srgb>();
+        while (buffer.isReadable()) {
+            srgb.add(new SrgbBuilder()
+                    .setRangeSize(RFC8294ByteBufUtils.readUint24(buffer))
+                    .setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer))
+                    .build());
+        }
+        builder.setSrgb(srgb);
     }
 
     private static void setFlags(final BitArray flags, final ProtocolId protocol, final SrCapabilitiesBuilder builder) {
         if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
             builder.setMplsIpv4(flags.get(MPLS_IPV4));
             builder.setMplsIpv6(flags.get(MPLS_IPV6));
-            builder.setSrIpv6(flags.get(SR_IPV6));
         } else {
             builder.setMplsIpv4(Boolean.FALSE);
             builder.setMplsIpv6(Boolean.FALSE);
-            builder.setSrIpv6(Boolean.FALSE);
         }
     }
 
     public static void serializeSrCapabilities(final SrCapabilities caps, final ByteBuf buffer) {
-        final BitArray bs = new BitArray(FLAGS_SIZE);
+        final var bs = new BitArray(FLAGS_SIZE);
         bs.set(MPLS_IPV4, caps.getMplsIpv4());
         bs.set(MPLS_IPV6, caps.getMplsIpv6());
-        bs.set(SR_IPV6, caps.getSrIpv6());
         bs.toByteBuf(buffer);
-        buffer.writeZero(RESERVERED);
-        RFC8294ByteBufUtils.writeUint24(buffer, caps.getRangeSize());
-        TlvUtil.writeTLV(SID_TYPE, SidLabelIndexParser.serializeSidValue(caps.getSidLabelIndex()), buffer);
+        buffer.writeZero(RESERVED);
+        for (var range: caps.nonnullSrgb()) {
+            RFC8294ByteBufUtils.writeUint24(buffer, range.getRangeSize());
+            TlvUtil.writeTLV(SID_LABEL, SidLabelIndexParser.serializeSidValue(range.getSidLabelIndex()), buffer);
+        }
     }
 
-    public static SrAlgorithm parseSrAlgorithms(final ByteBuf buffer) {
-        final var builder = new SrAlgorithmBuilder();
+    public static Set<Algorithm> parseSrAlgorithms(final ByteBuf buffer) {
         final var algs = ImmutableSet.<Algorithm>builder();
         while (buffer.isReadable()) {
             algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
         }
-        builder.setAlgorithms(algs.build());
-        return builder.build();
+        return algs.build();
     }
 
-    public static void serializeSrAlgorithms(final SrAlgorithm alg, final ByteBuf buffer) {
-        final var algorithms = alg.getAlgorithms();
-        if (algorithms != null) {
-            for (var a : algorithms) {
-                buffer.writeByte(a.getIntValue());
-            }
+    public static void serializeSrAlgorithms(final Set<Algorithm> algs, final ByteBuf buffer) {
+        algs.forEach(alg -> buffer.writeByte(alg.getIntValue()));
+    }
+
+    public static List<Srlb> parseSrLocalBlock(final ByteBuf buffer) {
+        // Skip Flags as no one has been defined for the moment. See rfc9085#section-2.1.4 and rfc8667#section-3.3
+        buffer.skipBytes(SKIP_FLAG);
+        buffer.skipBytes(RESERVED);
+        final var srlbs = new ArrayList<Srlb>();
+        while (buffer.isReadable()) {
+            srlbs.add(new SrlbBuilder()
+                .setRangeSize(RFC8294ByteBufUtils.readUint24(buffer))
+                .setSidLabelIndex(SidLabelIndexParser.parseSidSubTlv(buffer))
+                .build());
         }
+        return srlbs;
+    }
+
+    public static void serializeSrLocalBlock(final List<Srlb> srlbs, final ByteBuf buffer) {
+        // Skip Flags as no one has been defined for the moment. See rfc9085#section-2.1.4 and rfc8667#section-3.3
+        buffer.writeZero(SKIP_FLAG);
+        buffer.writeZero(RESERVED);
+        for (var srlb : srlbs) {
+            RFC8294ByteBufUtils.writeUint24(buffer, srlb.getRangeSize());
+            TlvUtil.writeTLV(SID_LABEL, SidLabelIndexParser.serializeSidValue(srlb.getSidLabelIndex()), buffer);
+        }
+    }
+
+    public static List<NodeMsd> parseSrNodeMsd(final ByteBuf buffer) {
+        final var msds = new ArrayList<NodeMsd>();
+        while (buffer.isReadable()) {
+            msds.add(new NodeMsdBuilder()
+                .setType(MsdType.forValue(buffer.readByte()))
+                .setValue(readUint8(buffer))
+                .build());
+        }
+        return msds;
+    }
+
+    public static void serializeSrNodeMsd(final List<NodeMsd> msds, final ByteBuf buffer) {
+        msds.forEach(msd -> {
+            buffer.writeByte(msd.getType().getIntValue());
+            ByteBufUtils.writeUint8(buffer, msd.getValue());
+        });
     }
 }
