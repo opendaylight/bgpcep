@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.ObjectType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.attribute.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
@@ -47,14 +46,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.identifier.c.router.identifier.OspfNodeCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.sr.attributes.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.IsisAdjFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.OspfAdjFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.OspfAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Loss;
@@ -371,7 +371,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             builder.setSrlgs(srlgs.build());
         }
         for (SrAdjIds adj : la.nonnullSrAdjIds()) {
-            if (adj.getSidLabelIndex() instanceof LocalLabelCase) {
+            if (adj.getSidLabelIndex() instanceof LabelCase) {
                 boolean backup = false;
                 boolean ipv6 = false;
                 if (adj.getFlags() instanceof OspfAdjFlagsCase) {
@@ -381,7 +381,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     backup = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getBackup();
                     ipv6 = ((IsisAdjFlagsCase) adj.getFlags()).getIsisAdjFlags().getAddressFamily();
                 }
-                final Uint32 adjSid = ((LocalLabelCase) adj.getSidLabelIndex()).getLocalLabel().getValue();
+                final Uint32 adjSid = ((LabelCase) adj.getSidLabelIndex()).getLabel().getValue();
                 if (!backup) {
                     if (!ipv6) {
                         builder.setAdjSid(adjSid);
@@ -449,16 +449,16 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                     (key << 24 & 0xFF) + "." + (key << 16 & 0xFF) + "." + (key << 8 & 0xFF) + "." + (key & 0xFF));
         }
         if (na.getSrCapabilities() != null) {
-            final SidLabelIndex labelIndex = na.getSrCapabilities().getSidLabelIndex();
-            if (labelIndex instanceof LocalLabelCase) {
+            final SidLabelIndex labelIndex = na.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex();
+            if (labelIndex instanceof LabelCase) {
                 builder.setSrgb(new SrgbBuilder()
-                        .setLowerBound(((LocalLabelCase) labelIndex).getLocalLabel().getValue())
-                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                        .setRangeSize(na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue())
                         .build());
             } else if (labelIndex instanceof SidCase) {
                 builder.setSrgb(new SrgbBuilder()
                         .setLowerBound(((SidCase) labelIndex).getSid())
-                        .setRangeSize(na.getSrCapabilities().getRangeSize().getValue())
+                        .setRangeSize(na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue())
                         .build());
             }
         }
