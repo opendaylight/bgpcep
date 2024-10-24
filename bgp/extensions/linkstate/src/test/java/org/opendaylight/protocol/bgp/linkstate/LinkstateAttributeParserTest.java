@@ -15,21 +15,18 @@ import static org.junit.Assert.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
-import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
-import org.opendaylight.protocol.rsvp.parser.spi.RSVPExtensionProviderContext;
-import org.opendaylight.protocol.rsvp.parser.spi.pojo.SimpleRSVPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.protocol.util.Ipv4Util;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.LinkProtectionType;
@@ -41,16 +38,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.TeLspCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.TeLspAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.te.lsp.attributes._case.TeLspAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.node.state.FlexAlgoDefinitionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.IgpBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
@@ -61,36 +56,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.IsisAdjFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.IsisAdjFlagsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.adj.flags.flags.isis.adj.flags._case.IsisAdjFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.LocalLabelCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.sid.label.index.SidCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AssociationType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.association.object.AssociationObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.tspec.object.TspecObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.ExtendedAdminGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.FlexAlgo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.FlexAlgoDefinitionFlag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.FlexMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.MsdType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.IsisAdjFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.IsisAdjFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.adj.flags.flags.isis.adj.flags._case.IsisAdjFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.flex.algo.definitions.FlexAlgoDefinitionTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.flex.algo.definitions.FlexAlgoDefinitionTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.flex.algo.definitions.flex.algo.definition.tlv.FlexAlgoSubtlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.flex.algo.subtlv.UnsupportedTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.node.msd.tlv.Msd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.node.msd.tlv.MsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.attribute.flags.igp.attribute.flags.IsisAttributeFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.LabelCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.sid.label.index.SidCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.srv6.lan.end.x.sid.neighbor.type.IsisNeighborCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class LinkstateAttributeParserTest {
-
-    private static final byte[] TE_LSP_ATTR = {
-        0x00, (byte) 0x63, 0x00, (byte) 0x30, // TE LSP Attribute Type, length, value
-        0x00, (byte) 0x20, (byte) 0x0c, 0x02,  // Length, Class, Ctype
-        0x00, 0x00, 0x00, 0x07,
-        0x01, 0x00, 0x00, 0x06,
-        (byte) 0x7f, 0x00, 0x00, 0x05,
-        0x00, 0x00, 0x00, 0x01, //Token Bucket Rate
-        0x00, 0x00, 0x00, 0x02, //Token Bucket Size
-        0x00, 0x00, 0x00, 0x03, //Peak Data Rate
-        0x00, 0x00, 0x00, 0x04, //Minimum Policed Unit
-        0x00, 0x00, 0x00, 0x05, //Maximum Packet Size
-        0x00, (byte) 0x08, (byte) 0xc7, 0x01,  // Length, Class, Ctype
-        0x00, 0x01, 0x00, 0x02,
-        0x01, 0x02, 0x03, 0x04
-    };
 
     private static final byte[] LINK_ATTR = {
         0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b, 0x04, 0x40, 0, 0x04,
@@ -114,43 +104,76 @@ public class LinkstateAttributeParserTest {
         0x04, 0x5e, 0, 0x04, 0x46, 0x43, 0x50, 0, // Residual Bandwidth
         0x04, 0x5f, 0, 0x04, 0x46, 0x43, 0x50, 0, // Available Bandwidth
         0x04, 0x60, 0, 0x04, 0, 0, 0, 0,  // Utilized Bandwidth
-        0x04, (byte) 0x88, 0, 0x01, 0x0a
+        0x04, (byte) 0x95, 0, 4, 0, 1, 0, 8, // Extended Admin Group
+        0x04, (byte) 0x88, 0, 0x01, 0x0a // Unknown TLV
+    };
+
+    private static final byte[] LINK_ATTR_SRV6 = {
+        // Local IPv6 Router-ID
+        0x04, 0x05, 0, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0, 0, 0, 0, 0, 0, 0, 0x01,
+        // Remote IPv6 Router-ID
+        0x04, 0x07, 0, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0, 0, 0, 0, 0, 0, 0, 0x02,
+        // SRv6 EndX SID
+        0x04, 0x52, 0, 0x1e, 0, 0x01, (byte) 0x60, 0x01, 0x0a, 0, 0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0, 0, 0, 0, 0, 0, 0, 0x01,
+        0x04, (byte) 0xe4, 0, 0x04, 0x08, 0x08, 0x04, 0x04, // SRv6 SID Structure SubTlvs
+        // IS-IS SRv6 LAN EndX SID
+        0x04, 0x53, 0, 0x24, 0, 1, (byte) 0xa0, 0x01, 0x0a, 0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0, 0, 0, 0, 0, 0, 0, 0x01,
+        0x04, (byte) 0xe4, 0, 0x04, 0x08, 0x08, 0x04, 0x04 // SRv6 SID Structure SubTlvs
     };
 
     private static final byte[] NODE_ATTR = {
         0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0, 0x05, 0x31, 0x32, 0x4b,
-        0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29,
-        0x04, (byte) 0x88, 0, 0x01, 0x0a,
-        4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
-        4, 0x0b, 0, 2, 0, 1 // sr-algorythms
+        0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29
     };
 
-    private static final byte[] NODE_ATTR_S = {
+    private static final byte[] NODE_ATTR_SR = {
         0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0, 0x05, 0x31, 0x32, 0x4b,
         0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29,
-        4, 0x0a, 0, 0x0c, (byte)0xe0, 0, 1, 2, 3, 4, (byte)0x89, 0, 3, 1, 2, 0, // sr-caps
-        4, 0x0b, 0, 2, 0, 1 // sr-algorythms
+        0x04, 0x0a, 0, 0x0d, (byte) 0xc0, 0, 0, 0, 0x0a, 0x04, (byte) 0x89, 0, 0x04, 0x01, 0x02, 0x03, 0x04, // sr-caps
+        0x04, 0x0b, 0, 0x02, 0, 0x01, // sr-algorithms
+        0x04, 0x0c, 0, 0x0c, 0, 0, 0, 0, 0x0a, 0x04, (byte) 0x89, 0, 0x03, 0, 0x01, 0x02, // SRLB
+        0x01, 0x0a, 0, 0x04, 0x01, 0x0a, 0x02, 0x08, // MSD
+        0x04, 0x0d, 0, 0x01, (byte)0xdd, // SRMS
+        0x04, 0x0f, 0, 0x32, (byte)0x80, 0x01, 0x01, 0x0a,  // Flex-Algo Definition + Flex-Algo SubTLVS bellow
+        0x04, 0x10, 0, 0x04, 0, 0, 0, 0x01,    // exclude-any
+        0x04, 0x11, 0, 0x04, 0, 0, 0, 0,    // include-any
+        0x04, 0x12, 0, 0x04, 0, 0, 0, 0x02,    // include-all
+        0x04, 0x13, 0, 0x04, (byte)0x80, 0, 0, 0,    // flags
+        0x04, 0x15, 0, 0x04, 0, 0, 0, 0x0a, // exclude-SRLG
+        0x04, 0x16, 0, 0x02, 0x01, 0x0a        // unsupported TLVs
+    };
+
+    private static final byte[] NODE_ATTR_SRV6 = {
+        0x01, 0x07, 0, 0x04, 0, 0x2a, 0, 0x2b, 0x04, 0, 0, 0x01, (byte) 0xbc, 0x04, 0x02, 0, 0x05, 0x31, 0x32, 0x4b,
+        0x2d, 0x32, 0x04, 0x03, 0, 0x01, 0x72, 0x04, 0x03, 0, 0x01, 0x73, 0x04, 0x04, 0, 0x04, 0x29, 0x29, 0x29, 0x29,
+        0x04, 0x0e, 0, 0x04, 0x40, 0, 0, 0 // SRv6 Capabilities
     };
 
     private static final byte[] P4_ATTR = {
         0x04, (byte) 0x80, 0, 0x01, (byte) 0xF0, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a, 0x04, (byte) 0x84, 0, 0x04, 0x0a, 0x19, 0x02, 0x1b,
-        4, (byte)0x86, 0,8, (byte)0xf0, 0, 0,0, 1,2,3,4, // prefix-sid tlv
-        4, (byte)0x87, 0,0x0c, 0, 0, 0, 5, 4, (byte)0x89, 0, 4, 1,2,3,4, // range tlv
-        4, (byte)0x88, 0, 4, 1, (byte)0xf0, 0, 0 // binding sid tlv
+        0x04, (byte) 0x87, 0, 0x10, 0, 0, 0, 0x05, // range tlv
+        0x04, (byte) 0x86, 0, 0x08, (byte) 0xf0, 0, 0, 0, 0x01, 0x02, 0x03, 0x04, // prefix-sid tlv
+        0x04, (byte) 0x92, 0, 0x01, 0x60, // Prefix Attribute Flags
+        0x04, (byte) 0x93, 0, 0x10, 0, 0x01, 0, 0x02, 0, 0x03, 0, 0x04, 0, 0, 0, 0, 0, 0, 0, 0x02, // Source Router ID
+        0x04, (byte) 0x96, 0, 0x04, 0xa, 0, 0, 0x01 // Source OSPF Router ID
     };
 
-    private RSVPExtensionProviderContext context;
-    private RSVPActivator rsvpActivator;
+    private static final byte[] P6_ATTR = {
+        0x04, (byte) 0x80, 0, 0x01, (byte) 0xF0, 0x04, (byte) 0x81, 0, 0x08, 0x12, 0x34, 0x56, 0x78,
+        0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
+        0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a,
+        0x04, (byte) 0x8a, 0, 0x08, (byte) 0x80, 0x01, 0, 0, 0, 0, 0, 0xa // SRv6 Locator
+    };
+
     private LinkstateAttributeParser parser;
 
     @Before
     public final void setUp() {
-        context = new SimpleRSVPExtensionProviderContext();
-        rsvpActivator = new RSVPActivator();
-        rsvpActivator.start(context);
-        parser = new LinkstateAttributeParser(false,context.getRsvpRegistry());
+        parser = new LinkstateAttributeParser(false);
     }
 
     private static AttributesBuilder createBuilder(final ObjectType type) {
@@ -267,15 +290,18 @@ public class LinkstateAttributeParserTest {
                 .setIsisAdjFlags(new IsisAdjFlagsBuilder()
                     .setAddressFamily(Boolean.TRUE)
                     .setBackup(Boolean.FALSE)
+                    .setValue(Boolean.TRUE)
+                    .setLocal(Boolean.TRUE)
                     .setSet(Boolean.FALSE)
+                    .setPersistent(Boolean.FALSE)
                     .build())
                 .build();
         assertEquals(flags, ls.getSrAdjIds().get(0).getFlags());
         assertEquals(flags, ls.getSrAdjIds().get(1).getFlags());
         assertEquals(Uint32.valueOf(1048575L),
-            ((LocalLabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLocalLabel().getValue());
+            ((LabelCase)ls.getSrAdjIds().get(0).getSidLabelIndex()).getLabel().getValue());
         assertEquals(Uint32.valueOf(1048559L),
-            ((LocalLabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLocalLabel().getValue());
+            ((LabelCase)ls.getSrAdjIds().get(1).getSidLabelIndex()).getLabel().getValue());
         assertEquals(Uint32.valueOf(168496141L), ((SidCase) ls.getPeerNodeSid().getSidLabelIndex()).getSid());
         assertEquals(Uint8.valueOf(5), ls.getPeerNodeSid().getWeight().getValue());
         assertEquals(Uint32.valueOf(168496142L), ((SidCase) ls.getPeerSetSids().get(0).getSidLabelIndex()).getSid());
@@ -296,7 +322,7 @@ public class LinkstateAttributeParserTest {
         assertArrayEquals(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00 },
                 ls.getUtilizedBandwidth().getValue());
 
-        //serialization
+        // serialization
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeAttribute(builder.build(), buff);
         // The LINK_ATTR buffer is now greater than 255 bytes. Need to skip one more byte
@@ -304,6 +330,61 @@ public class LinkstateAttributeParserTest {
         // there is unresolved TLV at the end, that needs to be cut off
 
         assertArrayEquals(ByteArray.subByte(LINK_ATTR, 0, LINK_ATTR.length - 5), ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testSRv6Link() throws BGPParsingException, BGPDocumentedException {
+        final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
+        parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR_SRV6), builder, null);
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
+        final LinkAttributes ls = ((LinkAttributesCase) attrs.getLinkStateAttribute()).getLinkAttributes();
+        assertNotNull(ls);
+
+        // Local and Remote RouterID IPv6
+        assertNotNull(ls.getLocalIpv6RouterId());
+        assertEquals("102:304:506:708::1", ls.getLocalIpv6RouterId().getValue());
+        assertNotNull(ls.getRemoteIpv6RouterId());
+        assertEquals("102:304:506:708::2", ls.getRemoteIpv6RouterId().getValue());
+
+        // SRv6 End X SID
+        assertNotNull(ls.getSrv6EndXSid());
+        assertEquals(1, ls.getSrv6EndXSid().getEndpointBehavior().intValue());
+        assertFalse(ls.getSrv6EndXSid().getFlags().getBackup());
+        assertTrue(ls.getSrv6EndXSid().getFlags().getSet());
+        assertTrue(ls.getSrv6EndXSid().getFlags().getPersistent());
+        assertEquals(1, ls.getSrv6EndXSid().getAlgo().intValue());
+        assertEquals(10, ls.getSrv6EndXSid().getWeight().intValue());
+        assertArrayEquals(new byte [] {0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1},
+            ls.getSrv6EndXSid().getSid().getValue());
+        assertNotNull(ls.getSrv6EndXSid().getSrv6SidStructure());
+        assertEquals(8, ls.getSrv6EndXSid().getSrv6SidStructure().getLocatorBlockLength().intValue());
+        assertEquals(8, ls.getSrv6EndXSid().getSrv6SidStructure().getLocatorNodeLength().intValue());
+        assertEquals(4, ls.getSrv6EndXSid().getSrv6SidStructure().getFunctionLength().intValue());
+        assertEquals(4, ls.getSrv6EndXSid().getSrv6SidStructure().getArgumentLength().intValue());
+
+        // SRv6 LAN End X SID
+        assertNotNull(ls.getSrv6LanEndXSid());
+        assertEquals(1, ls.getSrv6LanEndXSid().getEndpointBehavior().intValue());
+        assertTrue(ls.getSrv6LanEndXSid().getFlags().getBackup());
+        assertFalse(ls.getSrv6LanEndXSid().getFlags().getSet());
+        assertTrue(ls.getSrv6LanEndXSid().getFlags().getPersistent());
+        assertEquals(1, ls.getSrv6LanEndXSid().getAlgo().intValue());
+        assertEquals(10, ls.getSrv6LanEndXSid().getWeight().intValue());
+        assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6},
+            ((IsisNeighborCase) ls.getSrv6LanEndXSid().getNeighborType()).getIsoSystemId().getValue());
+        assertArrayEquals(new byte [] {0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1},
+            ls.getSrv6EndXSid().getSid().getValue());
+        assertNotNull(ls.getSrv6LanEndXSid().getSrv6SidStructure());
+        assertEquals(8, ls.getSrv6LanEndXSid().getSrv6SidStructure().getLocatorBlockLength().intValue());
+        assertEquals(8, ls.getSrv6LanEndXSid().getSrv6SidStructure().getLocatorNodeLength().intValue());
+        assertEquals(4, ls.getSrv6LanEndXSid().getSrv6SidStructure().getFunctionLength().intValue());
+        assertEquals(4, ls.getSrv6LanEndXSid().getSrv6SidStructure().getArgumentLength().intValue());
+
+        // serialization
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeAttribute(builder.build(), buff);
+        buff.skipBytes(3);
+        assertArrayEquals(LINK_ATTR_SRV6, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -328,11 +409,94 @@ public class LinkstateAttributeParserTest {
         assertEquals(2, ls.getIsisAreaId().size());
         assertEquals("41.41.41.41", ls.getIpv4RouterId().getValue());
 
-        //serialization
+        // serialization
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
-        assertArrayEquals(NODE_ATTR_S, ByteArray.getAllBytes(buff));
+        assertArrayEquals(NODE_ATTR, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testSrNodesAttributes() throws BGPParsingException, BGPDocumentedException {
+        final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
+        parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR_SR), builder, null);
+
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
+        final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
+        assertNotNull(ls);
+
+        // SR Capabilities
+        assertNotNull(ls.getSrCapabilities());
+        assertTrue(ls.getSrCapabilities().getMplsIpv4());
+        assertTrue(ls.getSrCapabilities().getMplsIpv6());
+        assertEquals(Uint32.valueOf(10), ls.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue());
+        assertEquals(Uint32.valueOf(16909060L),
+                ((SidCase) ls.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex()).getSid());
+        // SR Algorithm
+        assertNotNull(ls.getSrAlgorithm());
+        assertEquals(Set.of(Algorithm.ShortestPathFirst, Algorithm.StrictShortestPathFirst),
+                ls.getSrAlgorithm().getAlgorithms());
+        // SRLB
+        assertNotNull(ls.getSrLocalBlock());
+        assertEquals(10, ls.getSrLocalBlock().getSrlb().getFirst().getRangeSize().getValue().intValue());
+        assertEquals(Uint32.valueOf(258L),
+                ((LabelCase) ls.getSrLocalBlock().getSrlb().getFirst().getSidLabelIndex()).getLabel().getValue());
+        // SRMS
+        assertNotNull(ls.getSrms());
+        assertEquals(221, ls.getSrms().getPreference().getValue().intValue());
+        // Node MSD
+        final List<Msd> msds = new ArrayList<Msd>();
+        msds.add(new MsdBuilder().setType(MsdType.forValue(1)).setValue(Uint8.valueOf(10)).build());
+        msds.add(new MsdBuilder().setType(MsdType.forValue(2)).setValue(Uint8.valueOf(8)).build());
+        assertNotNull(ls.getNodeMsd());
+        assertEquals(msds, ls.getNodeMsd().getMsd());
+        // Flex Algo Definition
+        final FlexAlgoDefinitionTlv fadTlv = new FlexAlgoDefinitionTlvBuilder()
+            .setFlexAlgo(new FlexAlgo(Uint8.valueOf(128)))
+            .setMetricType(FlexMetric.Delay)
+            .setCalcType(Uint8.ONE)
+            .setPriority(Uint8.TEN)
+            .setFlexAlgoSubtlvs(new FlexAlgoSubtlvsBuilder()
+                .setExcludeAny(Set.of(new ExtendedAdminGroup(Uint32.ONE)))
+                .setIncludeAny(Set.of(new ExtendedAdminGroup(Uint32.ZERO)))
+                .setIncludeAll(Set.of(new ExtendedAdminGroup(Uint32.TWO)))
+                .setFlags(new FlexAlgoDefinitionFlag(true))
+                .setExcludeSrlg(Set.of(new SrlgId(Uint32.TEN)))
+                .setUnsupportedTlv(new UnsupportedTlvBuilder()
+                        .setProtocolId(Uint8.valueOf(ProtocolId.IsisLevel1.getIntValue()))
+                        .setProtocolType(Set.of(Uint16.TEN))
+                        .build())
+                .build())
+            .build();
+        assertNotNull(ls.getFlexAlgoDefinition());
+        assertEquals(new FlexAlgoDefinitionBuilder().setFlexAlgoDefinitionTlv(List.of(fadTlv)).build(),
+                ls.getFlexAlgoDefinition());
+
+        // serialization
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeAttribute(builder.build(), buff);
+        buff.skipBytes(3);
+        assertArrayEquals(NODE_ATTR_SR, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testSRv6NodesAttributes() throws BGPParsingException, BGPDocumentedException {
+        final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
+        parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR_SRV6), builder, null);
+
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
+        final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
+        assertNotNull(ls);
+
+        // SRv6 Capabilities
+        assertNotNull(ls.getSrv6Capabilities());
+        assertTrue(ls.getSrv6Capabilities().getOFlag());
+
+        // serialization
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeAttribute(builder.build(), buff);
+        buff.skipBytes(3);
+        assertArrayEquals(NODE_ATTR_SRV6, ByteArray.getAllBytes(buff));
     }
 
     @Test
@@ -347,11 +511,8 @@ public class LinkstateAttributeParserTest {
         assertNotNull(ls);
 
         assertNotNull(ls.getSrRange());
-        assertFalse(ls.getSrRange().getInterArea());
-        assertEquals(1, ls.getSrRange().getSubTlvs().size());
-        assertNotNull(ls.getSrBindingSidLabels());
+        assertEquals(5, ls.getSrRange().getRangeSize().intValue());
         final IgpBits ispBits = ls.getIgpBits();
-        assertTrue(ispBits.getUpDown().getUpDown());
         assertTrue(ispBits.getIsIsUpDown());
         assertTrue(ispBits.getOspfNoUnicast());
         assertTrue(ispBits.getOspfLocalAddress());
@@ -365,47 +526,54 @@ public class LinkstateAttributeParserTest {
         }, ls.getExtendedTags().iterator().next().getValue());
         assertEquals(10, ls.getPrefixMetric().getValue().intValue());
         assertEquals("10.25.2.27", ls.getOspfForwardingAddress().getIpv4AddressNoZone().getValue());
+        assertTrue(ls.getAttributeFlags().getNodeFlag());
+        assertTrue(((IsisAttributeFlagsCase) ls.getAttributeFlags().getIgpAttributeFlags()).getReAdvertisementFlag());
+        assertEquals("10.0.0.1", ls.getSourceOspfRouterId().getValue());
+        assertEquals("1:2:3:4::2", ls.getSourceRouterId().getIpv6AddressNoZone().getValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
-        // there is unresolved TLV at the end, that needs to be cut off
         assertArrayEquals(P4_ATTR, ByteArray.getAllBytes(buff));
     }
 
     @Test
-    public void testPositiveTELspAttribute() throws BGPParsingException, BGPDocumentedException {
-        final AttributesBuilder builder = createBuilder(new TeLspCaseBuilder().build());
-        parser.parseAttribute(Unpooled.copiedBuffer(TE_LSP_ATTR), builder, null);
+    public void testPositiveV6Prefixes() throws BGPParsingException, BGPDocumentedException {
+        final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
+            new PrefixDescriptorsBuilder().setIpReachabilityInformation(
+                new IpPrefix(new Ipv6Prefix("0102:0304:0506:0708::1/128"))).build())
+            .build());
+        parser.parseAttribute(Unpooled.copiedBuffer(P6_ATTR), builder, null);
 
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
-        final TeLspAttributes teLspAttributes = ((TeLspAttributesCase) attrs.getLinkStateAttribute())
-                .getTeLspAttributes();
-        assertNotNull(teLspAttributes);
-        final TspecObject tSpec = teLspAttributes.getTspecObject();
-        assertNotNull(tSpec);
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01}),
-            tSpec.getTokenBucketRate());
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x02}),
-            teLspAttributes.getTspecObject().getTokenBucketSize());
-        assertEquals(new Float32(new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x03}),
-            tSpec.getPeakDataRate());
-        assertEquals(Uint32.valueOf(4), tSpec.getMinimumPolicedUnit());
-        assertEquals(Uint32.valueOf(5), tSpec.getMaximumPacketSize());
+        final PrefixAttributes ls = ((PrefixAttributesCase) attrs.getLinkStateAttribute()).getPrefixAttributes();
+        assertNotNull(ls);
 
-        final AssociationObject associationObject = teLspAttributes.getAssociationObject();
-        assertEquals(AssociationType.Recovery, associationObject.getAssociationType());
-        final IpAddressNoZone ipv4 = new IpAddressNoZone(Ipv4Util.addressForByteBuf(Unpooled.copiedBuffer(
-            new byte[]{0x01, 0x02, 0x03, 0x04})));
-        assertEquals(ipv4, associationObject.getIpAddress());
-        final short associationId = 2;
-        assertEquals(associationId, associationObject.getAssociationId().shortValue());
+        final IgpBits ispBits = ls.getIgpBits();
+        assertTrue(ispBits.getIsIsUpDown());
+        assertTrue(ispBits.getOspfNoUnicast());
+        assertTrue(ispBits.getOspfLocalAddress());
+        assertTrue(ispBits.getOspfPropagateNssa());
+        assertEquals(2, ls.getRouteTags().size());
+        assertArrayEquals(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78 },
+            ls.getRouteTags().iterator().next().getValue());
+        assertEquals(1, ls.getExtendedTags().size());
+        assertArrayEquals(new byte[] {
+            (byte) 0x12, (byte) 0x34, (byte) 0x56, (byte) 0x78, (byte) 0x10, (byte) 0x30, (byte) 0x50, (byte) 0x70
+        }, ls.getExtendedTags().iterator().next().getValue());
+        assertEquals(10, ls.getPrefixMetric().getValue().intValue());
+
+        // SRv6 Locator
+        assertNotNull(ls.getSrv6Locator());
+        assertTrue(ls.getSrv6Locator().getFlags().getUpDown());
+        assertEquals(1, ls.getSrv6Locator().getAlgo().intValue());
+        assertEquals(10, ls.getSrv6Locator().getMetric().intValue());
 
         //serialization
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeAttribute(builder.build(), buff);
-        assertArrayEquals(TE_LSP_ATTR, ByteArray.getAllBytes(buff));
-        assertTrue(Arrays.equals(TE_LSP_ATTR, ByteArray.getAllBytes(buff)));
+        buff.skipBytes(3);
+        assertArrayEquals(P6_ATTR, ByteArray.getAllBytes(buff));
     }
 }
