@@ -8,22 +8,19 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser.Size;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.prefix.state.SrPrefixBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.Algorithm;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.Flags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlags;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.ext.rev200120.sid.label.index.SidLabelIndex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.Flags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.IsisPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.OspfPrefixFlagsCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.sid.label.index.SidLabelIndex;
 
 public final class SrPrefixAttributesParser {
 
@@ -31,7 +28,7 @@ public final class SrPrefixAttributesParser {
     private static final int RE_ADVERTISEMENT = 0;
     private static final int NODE_SID = 1;
     private static final int NO_PHP_OSPF = 1;
-    private static final int NO_PHP = 2;
+    private static final int NO_PHP_ISIS = 2;
     private static final int MAPPING_SERVER = 2;
     private static final int EXPLICIT_NULL = 3;
     private static final int VALUE = 4;
@@ -44,41 +41,39 @@ public final class SrPrefixAttributesParser {
     }
 
     public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
-        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        final SrPrefixBuilder builder = new SrPrefixBuilder()
+        final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        final var builder = new SrPrefixBuilder()
                 .setFlags(parsePrefixFlags(flags, protocol))
                 .setAlgorithm(Algorithm.forValue(buffer.readUnsignedByte()));
         buffer.skipBytes(RESERVED_PREFIX);
-        return builder.setSidLabelIndex(
-                    SidLabelIndexParser.parseSidLabelIndexByFlags(Size.forValue(buffer.readableBytes()), buffer,
-                        flags.get(VALUE), flags.get(LOCAL)))
-                .build();
+        return builder
+            .setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndexByFlags(buffer, flags.get(VALUE), flags.get(LOCAL)))
+            .build();
     }
 
     private static Flags parsePrefixFlags(final BitArray flags, final ProtocolId protocol) {
-        switch (protocol) {
-            case IsisLevel1:
-            case IsisLevel2:
-                return new IsisPrefixFlagsCaseBuilder()
-                        .setIsisPrefixFlags(new IsisPrefixFlagsBuilder()
-                            .setReadvertisement(flags.get(RE_ADVERTISEMENT))
-                            .setNodeSid(flags.get(NODE_SID))
-                            .setNoPhp(flags.get(NO_PHP))
-                            .setExplicitNull(flags.get(EXPLICIT_NULL))
-                            .build())
-                        .build();
-            case Ospf:
-            case OspfV3:
-                return new OspfPrefixFlagsCaseBuilder()
-                        .setOspfPrefixFlags(new OspfPrefixFlagsBuilder()
-                            .setExplicitNull(flags.get(EXPLICIT_NULL))
-                            .setMappingServer(flags.get(MAPPING_SERVER))
-                            .setNoPhp(flags.get(NO_PHP_OSPF))
-                            .build())
-                        .build();
-            default:
-                return null;
-        }
+        return switch (protocol) {
+            case IsisLevel1, IsisLevel2 -> new IsisPrefixFlagsCaseBuilder()
+                .setIsisPrefixFlags(new IsisPrefixFlagsBuilder()
+                    .setReAdvertisement(flags.get(RE_ADVERTISEMENT))
+                    .setNodeSid(flags.get(NODE_SID))
+                    .setNoPhp(flags.get(NO_PHP_ISIS))
+                    .setExplicitNull(flags.get(EXPLICIT_NULL))
+                    .setValue(flags.get(VALUE))
+                    .setLocal(flags.get(LOCAL))
+                    .build())
+                .build();
+            case Ospf, OspfV3 -> new OspfPrefixFlagsCaseBuilder()
+                .setOspfPrefixFlags(new OspfPrefixFlagsBuilder()
+                    .setExplicitNull(flags.get(EXPLICIT_NULL))
+                    .setMappingServer(flags.get(MAPPING_SERVER))
+                    .setNoPhp(flags.get(NO_PHP_OSPF))
+                    .setValue(flags.get(VALUE))
+                    .setLocal(flags.get(LOCAL))
+                    .build())
+                .build();
+            default -> null;
+        };
     }
 
     public static void serializeSrPrefix(final SrPrefix srPrefix, final ByteBuf aggregator) {
@@ -98,17 +93,27 @@ public final class SrPrefixAttributesParser {
     private static BitArray serializePrefixFlags(final Flags flags, final SidLabelIndex sidLabelIndex) {
         final BitArray bitFlags = new BitArray(FLAGS_SIZE);
         SidLabelIndexParser.setFlags(sidLabelIndex, bitFlags, VALUE, LOCAL);
-        if (flags instanceof OspfPrefixFlagsCase) {
-            final OspfPrefixFlags ospfFlags = ((OspfPrefixFlagsCase) flags).getOspfPrefixFlags();
-            bitFlags.set(NO_PHP_OSPF, ospfFlags.getNoPhp());
-            bitFlags.set(MAPPING_SERVER, ospfFlags.getMappingServer());
-            bitFlags.set(EXPLICIT_NULL, ospfFlags.getExplicitNull());
-        } else if (flags instanceof IsisPrefixFlagsCase) {
-            final IsisPrefixFlags isisFlags = ((IsisPrefixFlagsCase) flags).getIsisPrefixFlags();
-            bitFlags.set(RE_ADVERTISEMENT, isisFlags.getReadvertisement());
-            bitFlags.set(NODE_SID, isisFlags.getNodeSid());
-            bitFlags.set(NO_PHP, isisFlags.getNoPhp());
-            bitFlags.set(EXPLICIT_NULL, isisFlags.getExplicitNull());
+        switch (flags) {
+            case OspfPrefixFlagsCase ospf -> {
+                final var ospfFlags = ospf.getOspfPrefixFlags();
+                bitFlags.set(NO_PHP_OSPF, ospfFlags.getNoPhp());
+                bitFlags.set(MAPPING_SERVER, ospfFlags.getMappingServer());
+                bitFlags.set(EXPLICIT_NULL, ospfFlags.getExplicitNull());
+                bitFlags.set(VALUE, ospfFlags.getValue());
+                bitFlags.set(LOCAL, ospfFlags.getLocal());
+            }
+            case IsisPrefixFlagsCase isis -> {
+                final var isisFlags = isis.getIsisPrefixFlags();
+                bitFlags.set(RE_ADVERTISEMENT, isisFlags.getReAdvertisement());
+                bitFlags.set(NODE_SID, isisFlags.getNodeSid());
+                bitFlags.set(NO_PHP_ISIS, isisFlags.getNoPhp());
+                bitFlags.set(EXPLICIT_NULL, isisFlags.getExplicitNull());
+                bitFlags.set(VALUE, isisFlags.getValue());
+                bitFlags.set(LOCAL, isisFlags.getLocal());
+            }
+            case null, default -> {
+                // no-op
+            }
         }
         return bitFlags;
     }
