@@ -17,7 +17,6 @@ import org.opendaylight.protocol.bgp.parser.spi.AttributeSerializer;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandling;
-import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Attributes1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.ProtocolId;
@@ -26,12 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.PrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.object.type.TeLspCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.linkstate.path.attribute.link.state.attribute.TeLspAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
@@ -56,14 +53,11 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
 
     private final int type;
 
-    private final RSVPTeObjectRegistry rsvpTeObjectRegistry;
-
-    public LinkstateAttributeParser(final boolean isIanaAssignedType, final RSVPTeObjectRegistry rsvpTeObjectRegistry) {
+    public LinkstateAttributeParser(final boolean isIanaAssignedType) {
         this.type = isIanaAssignedType ? TYPE : LEGACY_TYPE;
-        this.rsvpTeObjectRegistry = rsvpTeObjectRegistry;
     }
 
-    private static Multimap<Integer, ByteBuf> getAttributesMap(final ByteBuf buffer) {
+    public static Multimap<Integer, ByteBuf> getAttributesMap(final ByteBuf buffer) {
         /*
          * e.g. IS-IS Area Identifier TLV can occur multiple times
          */
@@ -132,9 +126,6 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
             return LinkAttributesParser.parseLinkAttributes(getAttributesMap(buffer), protocolId);
         } else if (nlri instanceof NodeCase) {
             return NodeAttributesParser.parseNodeAttributes(getAttributesMap(buffer), protocolId);
-        } else if (nlri instanceof TeLspCase) {
-            return TeLspAttributesParser.parseTeLspAttributes(this.rsvpTeObjectRegistry, getAttributesMap(buffer)
-                .entries().iterator().next().getValue());
         } else {
             throw new IllegalStateException("Unhandled NLRI type " + nlri);
         }
@@ -161,11 +152,6 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
             NodeAttributesParser.serializeNodeAttributes((NodeAttributesCase) linkState, lsBuffer);
         } else if (linkState instanceof PrefixAttributesCase) {
             PrefixAttributesParser.serializePrefixAttributes((PrefixAttributesCase) linkState, lsBuffer);
-        } else if (linkState instanceof TeLspAttributesCase) {
-            TeLspAttributesParser.serializeLspAttributes(this.rsvpTeObjectRegistry, (TeLspAttributesCase) linkState,
-                lsBuffer);
-            byteAggregator.writeBytes(lsBuffer);
-            return;
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), lsBuffer, byteAggregator);
     }
