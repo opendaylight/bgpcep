@@ -1,0 +1,27 @@
+<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+    <node>pcc://$IP</node>
+    <name>$NAME</name>
+    <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">
+    /topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]
+    </network-topology-ref>
+    <arguments>
+        <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
+            <delegate>true</delegate>
+            <administrative>true</administrative>
+        </lsp>
+        <ero>
+            <subobject>
+                <loose>false</loose>
+                <ip-prefix>
+                    <ip-prefix>2.2.2.2/32</ip-prefix>
+                </ip-prefix>
+            </subobject>
+            <subobject>
+                <loose>false</loose>
+                <ip-prefix>
+                    <ip-prefix>1.1.1.1/32</ip-prefix>
+                </ip-prefix>
+            </subobject>
+        </ero>
+    </arguments>
+</input>

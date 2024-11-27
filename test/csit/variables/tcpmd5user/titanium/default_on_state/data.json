@@ -1,0 +1,113 @@
+{
+    "network-topology:topology": [
+        {
+            "node": [
+                {
+                    "network-pcep-topology-stats:pcep-session-state": {
+                        "delegated-lsps-count": 1,
+                        "local-pref": {
+                            "deadtimer": 120,
+                            "ip-address": "$IP_ODL",
+                            "keepalive": 30,
+                            "session-id": "*"
+                        },
+                        "messages": {
+                            "error-messages": {$ERRORS
+                                "received-error-msg-count": 0,
+                                "sent-error-msg-count": 0
+                            },
+                            "last-sent-msg-timestamp": 0,
+                            "odl-pcep-stateful-stats:last-received-rpt-msg-timestamp": "*",
+                            "odl-pcep-stateful-stats:received-rpt-msg-count": 2,
+                            "odl-pcep-stateful-stats:sent-init-msg-count": 0,
+                            "odl-pcep-stateful-stats:sent-upd-msg-count": 0,
+                            "received-msg-count": 2,
+                            "reply-time": {
+                                "average-time": 0,
+                                "max-time": 0,
+                                "min-time": 0
+                            },
+                            "sent-msg-count": 0,
+                            "unknown-msg-received": 0
+                        },
+                        "peer-capabilities": {
+                            "odl-pcep-stateful-stats:active": true,
+                            "odl-pcep-stateful-stats:instantiation": true,
+                            "odl-pcep-stateful-stats:stateful": true
+                        },
+                        "peer-pref": {
+                            "deadtimer": 120,
+                            "ip-address": "$IP",
+                            "keepalive": 30,
+                            "session-id": "*"
+                        },
+                        "session-duration": "*",
+                        "synchronized": true
+                    },
+                    "network-topology-pcep:path-computation-client": {
+                        "ip-address": "$IP",
+                        "reported-lsp": [
+                            {
+                                "name": "$NAME",
+                                "path": [
+                                    {
+                                        "ero": {
+                                            "ignore": false,
+                                            "processing-rule": false,
+                                            "subobject": [
+                                                {
+                                                    "ip-prefix": {
+                                                        "ip-prefix": "1.1.1.1/32"
+                                                    },
+                                                    "loose": false
+                                                }
+                                            ]
+                                        },
+                                        "lsp-id": 1,
+                                        "odl-pcep-ietf-stateful:lsp": {
+                                            "administrative": true,
+                                            "delegate": true,
+                                            "ignore": false,
+                                            "odl-pcep-ietf-initiated:create": false,
+                                            "operational": "up",
+                                            "plsp-id": 1,
+                                            "processing-rule": false,
+                                            "remove": false,
+                                            "sync": true,
+                                            "tlvs": {
+                                                "lsp-identifiers": {
+                                                    "ipv4": {
+                                                        "ipv4-extended-tunnel-id": "$IP",
+                                                        "ipv4-tunnel-endpoint-address": "1.1.1.1",
+                                                        "ipv4-tunnel-sender-address": "$IP"
+                                                    },
+                                                    "lsp-id": 1,
+                                                    "tunnel-id": 1
+                                                },
+                                                "symbolic-path-name": {
+                                                    "path-name": "$CODE"
+                                                }
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        "state-sync": "synchronized",
+                        "stateful-tlv": {
+                            "odl-pcep-ietf-stateful:stateful": {
+                                "lsp-update-capability": true,
+                                "odl-pcep-ietf-initiated:initiation": true
+                            }
+                        }
+                    },
+                    "node-id": "pcc://$IP"
+                }
+            ],
+            "topology-id": "pcep-topology",
+            "topology-types": {
+                "network-topology-pcep:topology-pcep": {}
+            }
+        }
+    ]
+}
