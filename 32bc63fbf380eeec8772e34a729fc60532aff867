@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2efef1c_ea804ea7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2024-12-19T15:09:15Z",
+      "side": 1,
+      "message": "Hello Robert,\n\nHere it is a patch to enhance BGP-LS with latest RFCs. It is huge, but it was very difficult to split it due to the fact that I must perform a major revision of bgp-linkstate and bgp-semgent-ruouting yang model. I hope you could review it. Don\u0027t hesitate to contact me for any clarification.\n\nI wish you a merry Christmas and happy new year.\n\nOlivier",
+      "revId": "32bc63fbf380eeec8772e34a729fc60532aff867",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
