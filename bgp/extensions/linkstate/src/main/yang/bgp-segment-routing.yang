@@ -13,7 +13,7 @@ module bgp-segment-routing {
 
     description
         "This module contains the base data concepts contained in RFC9085
-        (Segment Routing) and RFC9514 (SRv6).
+        (Segment Routing), RFC9514 (SRv6) and RFC9351 (Flex-Algo).
 
         Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
 
@@ -21,6 +21,11 @@ module bgp-segment-routing {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2024-12-19 {
+        description "Update to RFC9085 (SR), RFC9514 (SRv6) and RFC9351 (Flex-Algo)";
+        reference "https://www.iana.org/assignments/bgp-ls-parameters/bgp-ls-parameters.xhtml";
+    }
 
     revision 2020-01-20 {
         description "Update to use -no-zone-adresses";

@@ -11,8 +11,8 @@ module bgp-linkstate {
     import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
-    import bgp-segment-routing { prefix bgp-sr; revision-date 2020-01-20; }
-    import bgp-epe { prefix bgp-epe; revision-date 2020-01-20; }
+    import bgp-segment-routing { prefix bgp-sr; revision-date 2024-12-19; }
+    import bgp-epe { prefix bgp-epe; revision-date 2024-12-19; }
     import bmp-monitor { prefix bmp-mon; revision-date 2020-01-20; }
 
     organization "Cisco Systems, Inc.";
@@ -29,6 +29,12 @@ module bgp-linkstate {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2024-12-19 {
+        description "Update to RFC9552 (BGP-LS), RFC9085 (SR), RFC9514 (SRv6), RFC9351 (Flex-Algo),
+                     RFC9104 (Extended Admin Group), RFC8814 (MSD), RFC9086 (EPE) and RFC9294 (ASLA)";
+        reference "https://www.iana.org/assignments/bgp-ls-parameters/bgp-ls-parameters.xhtml";
+    }
 
     revision 2020-01-20 {
         description "Update to use -no-zone-adresses";
