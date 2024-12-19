@@ -14,9 +14,9 @@ import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUin
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.srv6.attributes.Srv6EndpointBehavior;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.srv6.attributes.Srv6EndpointBehaviorBuilder;
-import org.opendaylight.yang.svc.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev200120.YangModuleInfoImpl;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.attributes.Srv6EndpointBehavior;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.attributes.Srv6EndpointBehaviorBuilder;
+import org.opendaylight.yang.svc.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.YangModuleInfoImpl;
 import org.opendaylight.yangtools.yang.common.QName;
 
 public final class SRv6EndpointTlvParser implements LinkstateTlvParser<Srv6EndpointBehavior>,
