@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
-import org.opendaylight.yang.svc.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev200120.YangModuleInfoImpl;
+import org.opendaylight.yang.svc.v1.urn.opendaylight.params.xml.ns.yang.bgp.epe.rev241219.YangModuleInfoImpl;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
