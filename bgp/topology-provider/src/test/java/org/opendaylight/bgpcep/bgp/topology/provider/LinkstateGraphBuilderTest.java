@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.bgp.topology.provider;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev200120.Ipv6InterfaceIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.Ipv6InterfaceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class LinkstateGraphBuilderTest {
