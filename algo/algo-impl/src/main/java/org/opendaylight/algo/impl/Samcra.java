@@ -13,8 +13,8 @@ import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Delay;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
@@ -285,13 +285,16 @@ public class Samcra extends AbstractPathComputation {
          * that have no Delay or TE Metric if the Delay, respectively the TE Metric are not specified in constraints.
          * So, Delay and TE Metric presence in edge attributes must be checked again.
          */
-        if (edge.getEdge().getEdgeAttributes().getTeMetric() != null) {
-            teCost = edge.getEdge().getEdgeAttributes().getTeMetric().intValue() + currentPath.getCost();
+        if (edge.getEdge().getEdgeAttributes().getTeMetric() != null
+                && edge.getEdge().getEdgeAttributes().getTeMetric().getMetric() != null) {
+            teCost = edge.getEdge().getEdgeAttributes().getTeMetric().getMetric().intValue() + currentPath.getCost();
         } else {
             teCost = currentPath.getCost();
         }
-        if (edge.getEdge().getEdgeAttributes().getDelay() != null) {
-            delayCost = edge.getEdge().getEdgeAttributes().getDelay().getValue().intValue() + currentPath.getDelay();
+        if (edge.getEdge().getEdgeAttributes().getExtendedMetric() != null
+                && edge.getEdge().getEdgeAttributes().getExtendedMetric().getDelay() != null) {
+            delayCost = edge.getEdge().getEdgeAttributes().getExtendedMetric().getDelay().getValue().intValue()
+                    + currentPath.getDelay();
         } else {
             delayCost = currentPath.getDelay();
         }

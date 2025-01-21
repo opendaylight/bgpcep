@@ -19,10 +19,11 @@ import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.EdgeAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.TeMetric;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.edge.EdgeAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.te.metric.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
@@ -133,7 +134,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     LOG.debug("No Node-SID for IPv4");
                     return true;
                 }
-                if (attributes.getAdjSid() == null) {
+                if (attributes.getSrLinkAttributes() == null || attributes.getSrLinkAttributes().getAdjSid() == null) {
                     LOG.debug("No SR Adjacency-SID for IPv4");
                     return true;
                 }
@@ -143,7 +144,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                     LOG.debug("No Node-SID for IPv6");
                     return true;
                 }
-                if (attributes.getAdjSid6() == null) {
+                if (attributes.getSrLinkAttributes() == null || attributes.getSrLinkAttributes().getAdjSid6() == null) {
                     LOG.debug("No SR Adjacency-SID for IPv6");
                     return true;
                 }
@@ -161,7 +162,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             if (attributes.getTeMetric() == null) {
                 return true;
             } else {
-                int totalCost = attributes.getTeMetric().intValue() + path.getCost();
+                int totalCost = attributes.getTeMetric().getMetric().intValue() + path.getCost();
                 if (totalCost > constraints.getTeMetric().intValue()) {
                     LOG.debug("TeMetric {} exceed constraint {}", totalCost, constraints.getTeMetric().intValue());
                     return true;
@@ -171,10 +172,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
         /* If specified, check that total Delay up to this edge respects the initial constraints */
         if (constraints.getDelay() != null) {
-            if (attributes.getDelay() == null) {
+            if (attributes.getExtendedMetric().getDelay() == null) {
                 return true;
             } else {
-                int totalDelay = attributes.getDelay().getValue().intValue() + path.getDelay();
+                int totalDelay = attributes.getExtendedMetric().getDelay().getValue().intValue() + path.getDelay();
                 if (totalDelay > constraints.getDelay().getValue().intValue()) {
                     LOG.debug("Delay {} exceed constraint {}", totalDelay,
                             constraints.getDelay().getValue().intValue());
@@ -185,8 +186,8 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
         /* Check that Edge respect Loss constraint */
         if (constraints.getLoss() != null) {
-            if (attributes.getLoss() == null
-                    || attributes.getLoss().getValue().intValue() > constraints.getLoss().getValue().intValue()) {
+            if (attributes.getExtendedMetric().getLoss() == null || attributes.getExtendedMetric().getLoss()
+                    .getValue().intValue() > constraints.getLoss().getValue().intValue()) {
                 return true;
             }
         }
@@ -194,34 +195,34 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         return false;
     }
 
-    private boolean verifyBandwidth(final ConnectedEdge edge, final EdgeAttributes attributes) {
+    private boolean verifyBandwidth(final ConnectedEdge edge, final TeMetric teMetric) {
         if (constraints.getBandwidth() == null) {
             return false;
         }
 
         int cos = constraints.getClassType() != null ? constraints.getClassType().intValue() : 0;
-        if (attributes.getMaxLinkBandwidth() == null
-                || attributes.getMaxResvLinkBandwidth() == null
-                || attributes.getUnreservedBandwidth() == null
-                || attributes.getUnreservedBandwidth().get(cos) == null) {
+        if (teMetric.getMaxLinkBandwidth() == null
+                || teMetric.getMaxResvLinkBandwidth() == null
+                || teMetric.getUnreservedBandwidth() == null
+                || teMetric.getUnreservedBandwidth().get(cos) == null) {
             return true;
         }
 
         /* Get Unreserved Bandwidth for the given Class of Service / Priority */
         Long bandwidth = constraints.getBandwidth().getValue().longValue();
         Long unrsv = 0L;
-        for (UnreservedBandwidth unResBw : attributes.getUnreservedBandwidth()) {
+        for (UnreservedBandwidth unResBw : teMetric.getUnreservedBandwidth()) {
             if (unResBw.getClassType().intValue() == cos) {
                 unrsv = unResBw.getBandwidth().getValue().longValue();
                 break;
             }
         }
-        Long maxBW = attributes.getMaxLinkBandwidth().getValue().longValue();
+        Long maxBW = teMetric.getMaxLinkBandwidth().getValue().longValue();
         if (bandwidth > List.of(unrsv,
                 // maxBW might be on the list but will always be greater
                 // than the next items
                 maxBW - edge.getCosResvBandwidth(cos), maxBW - edge.getGlobalResvBandwidth(),
-                attributes.getMaxResvLinkBandwidth().getValue().longValue()).stream().mapToLong(v -> v).min()
+                teMetric.getMaxResvLinkBandwidth().getValue().longValue()).stream().mapToLong(v -> v).min()
                 .getAsLong()) {
             LOG.debug("Bandwidth constraint is not met");
             return true;
@@ -324,13 +325,13 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Check that Edge meet Bandwidth constraint */
-        if (verifyBandwidth(edge, attributes)) {
+        if (verifyBandwidth(edge, attributes.getTeMetric())) {
             return true;
         }
 
         /* Check that Edge belongs to admin group */
         final var adminGroup = constraints.getAdminGroup();
-        if (adminGroup != null && !adminGroup.equals(attributes.getAdminGroup())) {
+        if (adminGroup != null && !adminGroup.equals(attributes.getTeMetric().getAdminGroup())) {
             LOG.debug("Not in the requested admin-group");
             return true;
         }
@@ -359,7 +360,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
          * Check that Vertex is Segment Routing aware
          */
         final var vertex = cvertex.getVertex();
-        if (vertex == null || vertex.getSrgb() == null) {
+        if (vertex == null || vertex.getSrNodeAttributes() == null || vertex.getSrNodeAttributes().getSrgb() == null) {
             return null;
         }
         /*
@@ -369,8 +370,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         final var prefixes = cvertex.getPrefixes();
         if (prefixes != null) {
             for (Prefix prefix : prefixes) {
-                final var prefixSid = prefix.getPrefixSid();
-                final var nodeSid = prefix.getNodeSid();
+                if (prefix.getSrPrefixAttributes() == null) {
+                    continue;
+                }
+                final var prefixSid = prefix.getSrPrefixAttributes().getPrefixSid();
+                final var nodeSid = prefix.getSrPrefixAttributes().getPrefixSrFlags().getNodeSid();
                 if (prefixSid != null && nodeSid != null) {
                     if (nodeSid && prefix.getPrefix().getIpv4Prefix() != null) {
                         return new MplsLabel(prefixSid);
@@ -393,7 +397,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
          * Check that Vertex is Segment Routing aware
          */
         final var vertex = cvertex.getVertex();
-        if (cvertex == null || vertex.getSrgb() == null) {
+        if (cvertex == null || vertex.getSrNodeAttributes() == null || vertex.getSrNodeAttributes().getSrgb() == null) {
             return null;
         }
         /*
@@ -403,8 +407,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         final var prefixes = cvertex.getPrefixes();
         if (prefixes != null) {
             for (var prefix : cvertex.getPrefixes()) {
-                final var prefixSid = prefix.getPrefixSid();
-                final var nodeSid = prefix.getNodeSid();
+                if (prefix.getSrPrefixAttributes() == null) {
+                    continue;
+                }
+                final var prefixSid = prefix.getSrPrefixAttributes().getPrefixSid();
+                final var nodeSid = prefix.getSrPrefixAttributes().getPrefixSrFlags().getNodeSid();
                 if (prefixSid != null && nodeSid != null) {
                     if (nodeSid && prefix.getPrefix().getIpv6Prefix() != null) {
                         return new MplsLabel(prefixSid);
@@ -439,12 +446,12 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                 case SrIpv4 -> new PathDescriptionBuilder()
                             .setIpv4(edge.getEdge().getEdgeAttributes().getLocalAddress())
                             .setRemoteIpv4(edge.getEdge().getEdgeAttributes().getRemoteAddress())
-                            .setSid(edge.getEdge().getEdgeAttributes().getAdjSid())
+                            .setSid(edge.getEdge().getEdgeAttributes().getSrLinkAttributes().getAdjSid())
                             .build();
                 case SrIpv6 -> new PathDescriptionBuilder()
                             .setIpv6(edge.getEdge().getEdgeAttributes().getLocalAddress6())
                             .setRemoteIpv6(edge.getEdge().getEdgeAttributes().getRemoteAddress6())
-                            .setSid(edge.getEdge().getEdgeAttributes().getAdjSid6())
+                            .setSid(edge.getEdge().getEdgeAttributes().getSrLinkAttributes().getAdjSid6())
                             .build();
             };
             list.add(pathDesc);
