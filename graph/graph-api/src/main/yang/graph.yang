@@ -7,7 +7,8 @@ module graph {
     import ietf-routing-types { prefix rt-types; }
 
     organization "Orange";
-    contact "Philippe Niger <philippe.niger@orange.com>";
+    contact "Philippe Niger <philippe.niger@orange.com>
+             Olivier Dugeon <olivier.dugeon@orange.com>";
 
     description
         "This module contains the graph data model for network topology and datastore
@@ -19,6 +20,12 @@ module graph {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2025-01-15" {
+        description "Update to ASLA, Flex-Algo, SR-MPLS and SRv6";
+        reference "RFC9552 (BGP-LS), RFC9085 (SR), RFC9514 (SRv6), RFC9351 (Flex-Algo),
+                   RFC9104 (Extended Admin Group), RFC8814 (MSD), RFC9086 (EPE) and RFC9294 (ASLA)";
+    }
 
     revision "2022-07-20" {
         description
@@ -52,38 +59,13 @@ module graph {
         }
     }
 
-    grouping edge-attributes {
-        description "Attributes associated with the Edge";
-        reference "RFC 3630 & RFC 7471, RFC 3784 & RFC8570: OSPF / IS-IS Traffic Engineering (TE) & Extended Metrics";
-
+    grouping te-metric {
         leaf metric {
-            description "Standard Metric from the routing protocol";
-            type uint32;
-        }
-        leaf te-metric {
             description "Traffic Engineering Metric";
             type uint32;
         }
         leaf admin-group {
             description "Administrative group or color of the link";
-            type uint32;
-        }
-        leaf local-address {
-            type inet:ipv4-address;
-        }
-        leaf remote-address {
-            type inet:ipv4-address;
-        }
-        leaf local-address6 {
-            type inet:ipv6-address;
-        }
-        leaf remote-address6 {
-            type inet:ipv6-address;
-        }
-        leaf local-identifier {
-            type uint32;
-        }
-        leaf remote-identifier {
             type uint32;
         }
         leaf max-link-bandwidth {
@@ -109,6 +91,9 @@ module graph {
                 type decimal-bandwidth;
             }
         }
+    }
+
+    grouping extended-metric {
         leaf delay {
             description "Unidirectional Delay.";
             type delay;
@@ -142,6 +127,23 @@ module graph {
             description "Unidirectional Utilized Bandwidth";
             type decimal-bandwidth;
         }
+        leaf-list extended-admin-group {
+            description "List of Extended Admin Group";
+            type uint32;
+        }
+    }
+
+    grouping msd {
+        description "Maximum SID Depth";
+        leaf msd-type {
+            type uint8;
+        }
+        leaf value {
+            type uint8;
+        }
+    }
+
+    grouping sr-link-attributes {
         leaf adj-sid {
             description "Segment Routing Adjacency Identifier for IPv4";
             units "MPLS label";
@@ -162,9 +164,108 @@ module graph {
             units "MPLS label";
             type uint32;
         }
+        list link-msd {
+            uses msd;
+        }
+    }
+
+    grouping egress-peer-engineering {
+        leaf peer-node-sid {
+            description "The SID representing the peer of the BGP session.";
+            type uint32;
+        }
+        leaf peer-adj-sid {
+            description "The SID representing the peer of the BGP session.";
+            type uint32;
+        }
+        leaf-list peer-set-sids {
+            description "The SID representing the group the peer is part of.";
+            type uint32;
+        }
+    }
+
+    grouping asla-type {
+        description "Standardized Applications for ASLA";
+        leaf rsvp-te {
+            type boolean;
+        }
+        leaf segment-routing {
+            type boolean;
+        }
+        leaf lfa {
+            type boolean;
+        }
+        leaf flex-algo {
+            type boolean;
+        }
+    }
+
+    grouping asla-metric {
+        description "Application Specific Link Attributes";
+        container applications {
+            uses asla-type;
+        }
+        leaf admin-group {
+            type uint32;
+        }
+        leaf te-metric {
+            type uint32;
+        }
+        leaf-list srlgs {
+            type uint32;
+        }
+        uses extended-metric;
+    }
+
+    grouping edge-attributes {
+        description "Attributes associated with the Edge";
+        reference "RFC 3630 & RFC 7471, RFC 3784 & RFC8570: OSPF / IS-IS Traffic Engineering (TE) & Extended Metrics";
+        // Link local and remote ID: IP address or link identifier
+        leaf local-address {
+            type inet:ipv4-address;
+        }
+        leaf remote-address {
+            type inet:ipv4-address;
+        }
+        leaf local-address6 {
+            type inet:ipv6-address;
+        }
+        leaf remote-address6 {
+            type inet:ipv6-address;
+        }
+        leaf local-identifier {
+            type uint32;
+        }
+        leaf remote-identifier {
+            type uint32;
+        }
+        leaf metric {
+            description "Standard Metric from the routing protocol";
+            type uint32;
+        }
+        container te-metric {
+            description "Standard Traffic Engineering Metrics";
+            uses te-metric;
+        }
+        container extended-metric {
+            description "Performance (Extended) Metrics";
+            uses extended-metric;
+        }
         leaf-list srlgs {
             description "List of Shared Risk Link Group Attributes";
             type uint32;
+        }
+        container sr-link-attributes {
+            description "Segment Routing information of the Link";
+            uses sr-link-attributes;
+        }
+        container egress-peer-engineering {
+            description "Egress Peer Engineering (EPE) SID";
+            uses egress-peer-engineering;
+        }
+        container asla-metric {
+            description "Application Specific Link Attributes";
+            uses asla-metric;
         }
     }
 
@@ -192,16 +293,120 @@ module graph {
         }
     }
 
-    grouping srgb {
-        description "Segment Routing Global Block: lower-bound + range-size";
-        leaf lower-bound {
-            description "Lower bound of label range in SRGB. Unit MPLS label";
+    typedef algorithm {
+        type enumeration {
+            enum spf {
+                value 0;
+            }
+            enum strict-spf {
+                value 1;
+            }
+        }
+    }
+
+    typedef flex-metric {
+        type enumeration {
+            enum igp {
+                value 0;
+            }
+            enum delay {
+                value 1;
+            }
+            enum te {
+                value 2;
+            }
+        }
+    }
+
+    grouping node-flex-algo {
+        leaf flex-algo {
+            type uint8 {
+                range "128..255";
+            }
+        }
+        leaf metric-type {
+            type flex-metric;
+        }
+        leaf calc-type {
+            type uint8 {
+                range "0..127";
+            }
+        }
+        leaf priority {
+            type uint8;
+        }
+        leaf-list exclude-any {
             type uint32;
         }
-        leaf range-size {
-            description "Label range size in SRGB. Unit MPLS label";
+        leaf-list include-any {
             type uint32;
         }
+        leaf-list include-all {
+            type uint32;
+        }
+        leaf-list exclude-srlg {
+            type uint32;
+        }
+    }
+
+    grouping sr-node-attributes {
+        description "Segment Routing information";
+        leaf mpls-ipv4 {
+            type boolean;
+        }
+        leaf mpls-ipv6 {
+            type boolean;
+        }
+        leaf-list algorithms {
+            description "Supported SR Algorithm";
+            type algorithm;
+        }
+        list srgb {
+            description "List of Segment Routing Global Block: lower-bound + range-size";
+            leaf lower-bound {
+                type uint32;
+            }
+            leaf range-size {
+                type uint32;
+            }
+        }
+        list srlb {
+            description "List of Segment Routing Local Block: lower-bound + range-size";
+            leaf lower-bound {
+                type uint32;
+            }
+            leaf range-size {
+                type uint32;
+            }
+        }
+        list node-msd {
+            uses msd;
+        }
+        list flex-algo {
+            description "Supported Flex Algorithms";
+            uses node-flex-algo;
+        }
+    }
+
+    typedef node-type {
+        type enumeration {
+            enum standard {
+                value 0;
+            }
+            enum abr {
+                value 1;
+            }
+            enum asbr-in {
+                value 2;
+            }
+            enum asbr-out {
+                value 3;
+            }
+            enum pseudo {
+                value 4;
+            }
+        }
+        default standard;
     }
 
     grouping vertex {
@@ -223,53 +428,84 @@ module graph {
             description "Global unique IPv6 Trafic Engineering Router ID";
             type inet:ipv6-address;
         }
-        leaf vertex-type {
-            type enumeration {
-                enum standard {
-                    value 0;
-                }
-                enum abr {
-                    value 1;
-                }
-                enum asbr-in {
-                    value 2;
-                }
-                enum asbr-out {
-                    value 3;
-                }
-                enum pseudo {
-                    value 4;
-                }
-            }
-            default standard;
-        }
-        container srgb {
-            description "Segment Routing Global Block";
-            uses srgb;
+        leaf type {
+            type node-type;
         }
         leaf asn {
             description "AS Number";
             type uint32;
         }
+        container sr-node-attributes {
+            description "Vertex Segment Routing information";
+            uses sr-node-attributes;
+        }
+    }
+
+    grouping prefix-sr-flags {
+        leaf node-sid {
+            description "Prefix is a Node Segment Routing Identifier (Node-SID)";
+            type boolean;
+        }
+        leaf no-php {
+            description "Prefix SID requested No Pinultimate-Hop-Popping (PHP) for the last hop";
+            type boolean;
+        }
+        leaf explicit-null {
+            description "Prefix SID requested explicit-Null for the last hop";
+            type boolean;
+        }
+        leaf value {
+            description "Prefix SID is an MPLS label";
+            type boolean;
+        }
+        leaf local {
+            description "Prefix SID is local";
+            type boolean;
+        }
+    }
+
+    grouping sr-prefix-attributes {
+        leaf prefix-sid {
+            description "Segment Routing prefix Identifier. Unit MPLS label";
+            type uint32;
+        }
+        leaf prefix-algo {
+            description "Algorithm (SPF or S-SPF) associated to this SID";
+            type uint8;
+        }
+        container prefix-sr-flags {
+            uses prefix-sr-flags;
+        }
+        container prefix-flex-algo {
+            description "Flexible Algorithm";
+            leaf flex-algo {
+                type uint8 {
+                    range "128..255";
+                }
+            }
+            leaf metric {
+                type uint32;
+            }
+        }
     }
 
     grouping prefix {
+        leaf vertex-id {
+            description "Reference to the Vertex where the prefix is attached";
+            type uint64;
+        }
         leaf prefix {
             description "IP (v4 or v6) Prefix.";
             type inet:ip-prefix;
             mandatory true;
         }
-        leaf prefix-sid {
-            description "Segment Routing prefix Identifier. Unit MPLS label";
+        leaf igp-metric {
+            description "Metric associated to the prefix by the IGP";
             type uint32;
         }
-        leaf node-sid {
-            description "Prefix is a Node Segment Routing Identifier (Node-SID)";
-            type boolean;
-        }
-        leaf vertex-id {
-            description "Reference to the Vertex where the prefix is attached";
-            type uint64;
+        container sr-prefix-attributes {
+            description "Prefix Segment Routing information";
+            uses sr-prefix-attributes;
         }
     }
 
