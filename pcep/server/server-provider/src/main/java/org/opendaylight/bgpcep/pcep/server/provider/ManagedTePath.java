@@ -29,9 +29,9 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Edge;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.Vertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.edge.attributes.UnreservedBandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Edge;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Vertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.te.metric.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
@@ -382,8 +382,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         /* Check if Vertex changed its Segment Routing Global Block */
         final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
-        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6) && !current.getSrgb().equals(vertex.getSrgb())) {
-            LOG.debug("Vertex {} modified its SRGB {} / {}", vertex.getName(), current.getSrgb(), vertex.getSrgb());
+        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6)
+                && !current.getSrNodeAttributes().getSrgb().equals(vertex.getSrNodeAttributes().getSrgb())) {
+            LOG.debug("Vertex {} modified its SRGB {} / {}", vertex.getName(), current.getSrNodeAttributes().getSrgb(),
+                vertex.getSrNodeAttributes().getSrgb());
             triggerFlag = true;
             return true;
         }
@@ -417,10 +419,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         Long metric = 0L;
         Long delta = 0L;
         if (constraints.getDelay() != null) {
-            if (edge.getEdgeAttributes().getDelay() != null) {
+            if (edge.getEdgeAttributes().getExtendedMetric().getDelay() != null) {
                 metric = constraints.getDelay().getValue().longValue();
-                delta = edge.getEdgeAttributes().getDelay().getValue().longValue()
-                        - current.getEdgeAttributes().getDelay().getValue().longValue();
+                delta = edge.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue()
+                        - current.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue();
             } else {
                 triggerFlag = true;
                 return true;
@@ -429,8 +431,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         if (constraints.getTeMetric() != null) {
             if (edge.getEdgeAttributes().getTeMetric() != null) {
                 metric = constraints.getTeMetric().longValue();
-                delta = edge.getEdgeAttributes().getTeMetric().longValue()
-                        - current.getEdgeAttributes().getTeMetric().longValue();
+                delta = edge.getEdgeAttributes().getTeMetric().getMetric().longValue()
+                        - current.getEdgeAttributes().getTeMetric().getMetric().longValue();
             } else {
                 triggerFlag = true;
                 return true;
@@ -457,28 +459,28 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         /* Check if Bandwidth is always met */
         if (constraints.getBandwidth() != null) {
-            if (edge.getEdgeAttributes().getMaxLinkBandwidth() == null
-                    || edge.getEdgeAttributes().getMaxResvLinkBandwidth() == null
-                    || edge.getEdgeAttributes().getUnreservedBandwidth() == null) {
+            if (edge.getEdgeAttributes().getTeMetric().getMaxLinkBandwidth() == null
+                    || edge.getEdgeAttributes().getTeMetric().getMaxResvLinkBandwidth() == null
+                    || edge.getEdgeAttributes().getTeMetric().getUnreservedBandwidth() == null) {
                 triggerFlag = true;
                 return true;
             }
             Long bandwidth = constraints.getBandwidth().getValue().longValue();
             Long unrsv = 0L;
             int cos = 0;
-            for (UnreservedBandwidth unResBw : edge.getEdgeAttributes().getUnreservedBandwidth()) {
+            for (UnreservedBandwidth unResBw : edge.getEdgeAttributes().getTeMetric().getUnreservedBandwidth()) {
                 if (unResBw.getClassType().intValue() == cos) {
                     unrsv = unResBw.getBandwidth().getValue().longValue();
                     break;
                 }
             }
-            Long maxBW = edge.getEdgeAttributes().getMaxLinkBandwidth().getValue().longValue();
+            Long maxBW = edge.getEdgeAttributes().getTeMetric().getMaxLinkBandwidth().getValue().longValue();
             if (bandwidth > List.of(
                     unrsv,
                     /* maxBW might be on the list but will always be greater than the next items */
                     maxBW - next.getCosResvBandwidth(cos),
                     maxBW - next.getGlobalResvBandwidth(),
-                    edge.getEdgeAttributes().getMaxResvLinkBandwidth().getValue().longValue())
+                    edge.getEdgeAttributes().getTeMetric().getMaxResvLinkBandwidth().getValue().longValue())
                     .stream().mapToLong(v -> v)
                     .min().getAsLong()
             ) {
@@ -490,8 +492,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         /* Check if Edge changed its Adjacency SID */
         final AddressFamily af = cfgLsp.getIntendedPath().getConstraints().getAddressFamily();
-        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6)
-                && !current.getEdgeAttributes().getAdjSid().equals(edge.getEdgeAttributes().getAdjSid())) {
+        if ((af == AddressFamily.SrIpv4 || af == AddressFamily.SrIpv6) && !current.getEdgeAttributes()
+                .getSrLinkAttributes().getAdjSid().equals(edge.getEdgeAttributes().getSrLinkAttributes().getAdjSid())) {
             LOG.debug("Edge {} has modified its Adjacency SID", edge.getName());
             triggerFlag = true;
             return true;
