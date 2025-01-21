@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.VertexKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
@@ -106,7 +106,8 @@ public class ConstrainedShortestPathFirst extends AbstractPathComputation {
         /* Add or update the CspfPath in the Priority Queue if total path Cost is lower than cost associated
          * to this next Vertex. This could occurs if we process a Vertex that as not yet been visited in the Graph
          * or if we found a shortest path up to this Vertex. */
-        int totalCost = edge.getEdge().getEdgeAttributes().getTeMetric().intValue() + currentPath.getCost();
+        int totalCost = edge.getEdge().getEdgeAttributes().getTeMetric().getMetric().intValue()
+            + currentPath.getCost();
         if (totalCost < nextPath.getCost()) {
             nextPath.setCost(totalCost)
                     .replacePath(currentPath.getPath())
