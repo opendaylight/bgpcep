@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46d5d313_e6b7ea59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-01-28T16:08:01Z",
+      "side": 1,
+      "message": "Hi Robert, Ivan,\n\nFollowing BGP-LS yang model update, I updated also the Graph yang model and algorithms for PCEP.\n\nCan you review these 3 pathes?\n\nThanks\n\nOlivier",
+      "revId": "51f21301ae5e5e0e1adbe622474cdffbfbf2d85b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
