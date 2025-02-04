@@ -20,6 +20,7 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
@@ -68,7 +69,8 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         private static @NonNull NodeId extractNodeId(final DataTreeModification<?> modification) {
-            return verifyNotNull(modification.path().toLegacy().firstKeyOf(Node.class)).getNodeId();
+            final var iid = new DefaultInstanceReference<>(modification.path());
+            return verifyNotNull(iid.firstKeyOf(Node.class)).getNodeId();
         }
     }
 

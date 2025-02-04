@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
@@ -97,7 +98,7 @@ public class MvpnIpv4RIBSupportTest extends AbstractRIBSupportTest<MvpnRoutesIpv
     public void testDeleteRoutes() {
         final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
         ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
+        final var instanceIdentifier = new DefaultInstanceReference<MvpnRoute>(deletedRoutes.getFirst());
         assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(MvpnRoute.class));
     }
 

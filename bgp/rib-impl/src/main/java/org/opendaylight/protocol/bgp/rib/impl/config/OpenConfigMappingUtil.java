@@ -29,6 +29,7 @@ import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelec
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -90,7 +91,8 @@ final class OpenConfigMappingUtil {
     }
 
     static String getRibInstanceName(final DataObjectIdentifier<Bgp> rootIdentifier) {
-        return rootIdentifier.toLegacy().firstKeyOf(Protocol.class).getName();
+        final var instanceIdentifier = new DefaultInstanceReference<Bgp>(rootIdentifier);
+        return instanceIdentifier.firstKeyOf(Protocol.class).getName();
     }
 
     static KeyMapping getNeighborKey(final Neighbor neighbor) {

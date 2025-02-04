@@ -24,6 +24,7 @@ import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.RibReference;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.DomainName;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -913,11 +914,12 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         if (srAwareTopologyTypeAdded) {
             return;
         }
-        final var iid = getInstanceIdentifier();
+        final var iid = new DefaultInstanceReference<Topology>(getInstanceIdentifier());
         LOG.debug("Adding SR-aware topology-type for topology {}",
-            iid.toLegacy().firstKeyOf(Topology.class).getTopologyId().getValue());
-        trans.put(LogicalDatastoreType.OPERATIONAL, iid.toBuilder().child(TopologyTypes.class).build(),
-            SR_AWARE_LINKSTATE_TOPOLOGY_TYPE);
+            iid.firstKeyOf(Topology.class).getTopologyId().getValue());
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier().toBuilder()
+            .child(TopologyTypes.class)
+            .build(), SR_AWARE_LINKSTATE_TOPOLOGY_TYPE);
         srAwareTopologyTypeAdded = true;
     }
 
@@ -933,10 +935,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             return;
         }
 
-        final var iid = getInstanceIdentifier();
+        final var iid = new DefaultInstanceReference<Topology>(getInstanceIdentifier());
         LOG.debug("Removing SR-aware topology-type from topology {}",
-            iid.toLegacy().firstKeyOf(Topology.class).getTopologyId().getValue());
-        trans.put(LogicalDatastoreType.OPERATIONAL, iid.toBuilder()
+            iid.firstKeyOf(Topology.class).getTopologyId().getValue());
+        trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier().toBuilder()
             .child(TopologyTypes.class)
             .build(), LINKSTATE_TOPOLOGY_TYPE);
         srAwareTopologyTypeAdded = false;

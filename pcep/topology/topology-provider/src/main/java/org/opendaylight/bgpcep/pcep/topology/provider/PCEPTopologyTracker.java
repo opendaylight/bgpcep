@@ -33,6 +33,7 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionConsumerContext;
@@ -256,7 +257,7 @@ public final class PCEPTopologyTracker
     }
 
     private static @NonNull TopologyKey extractTopologyKey(final DataTreeModification<?> change) {
-        final var path = change.path().toLegacy();
+        final var path = new DefaultInstanceReference<>(change.path());
         return verifyNotNull(path.firstKeyOf(Topology.class), "No topology key in %s", path);
     }
 }
