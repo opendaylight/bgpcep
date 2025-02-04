@@ -59,7 +59,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
@@ -127,7 +127,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
         for (var change : changes) {
             final var root = change.getRootNode();
-            final var key = change.path().toLegacy().firstKeyOf(Graph.class);
+            final var key = change.path().firstKeyOf(Graph.class);
             switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
