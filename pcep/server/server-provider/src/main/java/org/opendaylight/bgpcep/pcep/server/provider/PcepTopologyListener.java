@@ -81,8 +81,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     public PcepTopologyListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topology,
             final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
-            topology.toLegacy().child(Node.class), this);
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
+            topology.toLegacy().child(Node.class).toReference(), this);
         LOG.info("Registered PCE Server listener {} for Operational PCEP Topology {}",
                 listenerRegistration, topology.key().getTopologyId().getValue());
     }
