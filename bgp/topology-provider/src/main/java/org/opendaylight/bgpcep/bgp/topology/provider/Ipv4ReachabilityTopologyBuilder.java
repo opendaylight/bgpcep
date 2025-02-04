@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 
 public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv4Route> {
     public static final TopologyTypes IPV4_TOPOLOGY_TYPE = new TopologyTypesBuilder()
@@ -47,8 +47,8 @@ public final class Ipv4ReachabilityTopologyBuilder extends AbstractReachabilityT
     }
 
     @Override
-    protected InstanceIdentifier<Ipv4Route> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
-        return tablesId.toBuilder().child(Ipv4RoutesCase.class, Ipv4Routes.class).build().toLegacy()
-            .child(Ipv4Route.class);
+    protected DataObjectReference<Ipv4Route> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
+        return tablesId.toBuilder().child(Ipv4RoutesCase.class, Ipv4Routes.class).build()
+            .toLegacy().child(Ipv4Route.class).toReference();
     }
 }

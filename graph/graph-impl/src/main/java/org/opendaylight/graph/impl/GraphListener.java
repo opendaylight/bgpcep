@@ -59,7 +59,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
