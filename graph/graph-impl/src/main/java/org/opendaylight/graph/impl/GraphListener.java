@@ -21,6 +21,7 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.protocol.concepts.DefaultInstanceReference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.GraphTopology;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.Graph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
@@ -59,7 +60,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
@@ -127,7 +128,8 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
         for (var change : changes) {
             final var root = change.getRootNode();
-            final var key = change.path().toLegacy().firstKeyOf(Graph.class);
+            final DefaultInstanceReference<Graph> instance = new DefaultInstanceReference<Graph>(change.path());
+            final var key = instance.firstKeyOf(Graph.class);
             switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
