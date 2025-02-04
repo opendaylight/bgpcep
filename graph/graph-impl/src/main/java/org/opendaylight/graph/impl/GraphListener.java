@@ -37,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This Class Implements the DataStoreService interface providing the methods required to manage the network
- * representation elements in the Data Store.
+ * This Class Implements the DataStoreService interface providing the methods
+ * required to manage the network representation elements in the Data Store.
  *
  * @author Olivier Dugeon
  * @author Philippe Niger
@@ -59,8 +59,8 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
-            graphIdentifier, this);
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+                graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
 
@@ -79,13 +79,18 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     }
 
     /**
-     * Parse Sub Tree modification. This method is called with the Modified Children from
-     * the Data Tree Modification root.This method is necessary as the getModificationType() method returns
-     * SUBTREE_MODIFIED only when Data Object is already present in the Data Store. Thus, this is indication is only
-     * relevant for deletion not for insertion where WRITE modification type is return even if it concerns a child.
+     * Parse Sub Tree modification. This method is called with the Modified
+     * Children from the Data Tree Modification root.This method is necessary as
+     * the getModificationType() method returns SUBTREE_MODIFIED only when Data
+     * Object is already present in the Data Store. Thus, this is indication is
+     * only relevant for deletion not for insertion where WRITE modification
+     * type is return even if it concerns a child.
      *
-     * @param cgraph   Connected Graph where children Data Object must insert or remove
-     * @param children List of children (Vertex, Edge or Prefix)
+     * @param cgraph
+     *            Connected Graph where children Data Object must insert or
+     *            remove
+     * @param children
+     *            List of children (Vertex, Edge or Prefix)
      */
     private static void parseSubTree(final ConnectedGraph cgraph,
             final Collection<? extends DataObjectModification<? extends DataObject>> children) {
@@ -133,9 +138,12 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
                     graphProvider.deleteGraph(key);
                     break;
                 case SUBTREE_MODIFIED:
-                    /* getModificationType() returns SUBTREE_MODIFIED only when Data Object is already present in the
-                     * Data Store, thus, only for deletion. Thus, to insert children, we must used parseSubTree()
-                     * method (See above). This method is called only when the graph already exists.
+                    /*
+                     * getModificationType() returns SUBTREE_MODIFIED only when
+                     * Data Object is already present in the Data Store, thus,
+                     * only for deletion. Thus, to insert children, we must used
+                     * parseSubTree() method (See above). This method is called
+                     * only when the graph already exists.
                      */
                 case WRITE:
                     /* First look if the Graph was not already configured */
@@ -154,4 +162,3 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     }
 
 }
-
