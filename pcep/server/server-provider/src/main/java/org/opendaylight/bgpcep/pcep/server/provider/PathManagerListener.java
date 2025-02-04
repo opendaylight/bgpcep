@@ -44,8 +44,8 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
     public PathManagerListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topology,
             final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
-            topology.toLegacy().child(Node.class), this);
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+            topology.toLegacy().child(Node.class).toReference(), this);
         LOG.info("Registered listener for Managed TE Path on Topology {}", topology.key().getTopologyId().getValue());
     }
 

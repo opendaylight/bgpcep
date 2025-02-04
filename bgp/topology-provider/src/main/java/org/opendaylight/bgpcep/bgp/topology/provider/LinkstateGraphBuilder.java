@@ -84,7 +84,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.Logger;
@@ -669,9 +669,9 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     @Override
-    protected InstanceIdentifier<LinkstateRoute> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
+    protected DataObjectReference<LinkstateRoute> getRouteWildcard(final DataObjectReference<Tables> tablesId) {
         return tablesId.toBuilder().child(LinkstateRoutesCase.class, LinkstateRoutes.class).build()
-            .toLegacy().child(LinkstateRoute.class);
+            .toLegacy().child(LinkstateRoute.class).toReference();
     }
 
     @Override

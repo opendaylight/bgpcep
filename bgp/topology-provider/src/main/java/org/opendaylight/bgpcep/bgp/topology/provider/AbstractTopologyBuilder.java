@@ -21,7 +21,6 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
-import org.opendaylight.mdsal.binding.api.DataTreeIdentifier;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
@@ -44,8 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,11 +117,11 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
             "Topology Listener on topology %s has been registered before.", getInstanceIdentifier());
 
         listenerRegistration = dataProvider.registerTreeChangeListener(
-            DataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL,
-                getRouteWildcard(locRibReference.getInstanceIdentifier().toBuilder()
-                    .child(LocRib.class)
-                    .child(Tables.class, new TablesKey(afi, safi))
-                    .build())),
+            LogicalDatastoreType.OPERATIONAL,
+            getRouteWildcard(locRibReference.getInstanceIdentifier().toBuilder()
+                .child(LocRib.class)
+                .child(Tables.class, new TablesKey(afi, safi))
+                .build()),
             this);
         LOG.debug("Registered listener {} on topology {}. Timestamp={}", this, getInstanceIdentifier(),
                 listenerScheduledRestartTime);
@@ -139,7 +138,7 @@ public abstract class AbstractTopologyBuilder<T extends Route & DataObject>
         }
     }
 
-    protected abstract InstanceIdentifier<T> getRouteWildcard(DataObjectIdentifier<Tables> tablesId);
+    protected abstract DataObjectReference<T> getRouteWildcard(DataObjectReference<Tables> tablesId);
 
     protected abstract void createObject(ReadWriteTransaction trans, DataObjectIdentifier<T> id, T value);
 
