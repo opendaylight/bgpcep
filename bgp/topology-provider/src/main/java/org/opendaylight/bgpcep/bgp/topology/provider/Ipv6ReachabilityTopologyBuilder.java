@@ -22,8 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
-import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 
 public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityTopologyBuilder<Ipv6Route> {
     public static final TopologyTypes IPV6_TOPOLOGY_TYPE = new TopologyTypesBuilder()
@@ -47,8 +46,8 @@ public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityT
     }
 
     @Override
-    protected InstanceIdentifier<Ipv6Route> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
+    protected DataObjectReference<Ipv6Route> getRouteWildcard(final DataObjectReference<Tables> tablesId) {
         return tablesId.toBuilder().child(Ipv6RoutesCase.class, Ipv6Routes.class).build()
-            .toLegacy().child(Ipv6Route.class);
+            .toLegacy().child(Ipv6Route.class).toReference();
     }
 }
