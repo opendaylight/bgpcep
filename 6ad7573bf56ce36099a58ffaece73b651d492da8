@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60b78f7e_b13170d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-02-04T10:47:32Z",
+      "side": 1,
+      "message": "Hi all,\n\nI just started code update to remove deprecated function, in particular whose around Instance Identifier.\n\nIf most of them are simple, it remains the `fistKeyOf()` method which need to use the deprecated `toLegacy()` method. This method is used 35 times in the whole BGPCEP project. @Robert, is there a new method to replace this `firstKeyOf()` method, or do you plan to re-implement it within the new DataObjectIdendifier class?\n\nRegards\n\nOlivier",
+      "revId": "6ad7573bf56ce36099a58ffaece73b651d492da8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
