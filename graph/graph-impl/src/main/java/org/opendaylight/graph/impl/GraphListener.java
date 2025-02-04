@@ -23,11 +23,13 @@ import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.GraphTopology;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.Graph;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.GraphKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev220720.graph.topology.graph.Vertex;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectReference;
+import org.opendaylight.yangtools.binding.KeyStep;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -59,7 +61,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
 
         final var graphIdentifier = DataObjectReference.builder(GraphTopology.class).child(Graph.class).build();
 
-        listenerRegistration = dataBroker.registerLegacyTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+        listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             graphIdentifier, this);
         LOG.info("Registered listener {} on Graph Model at {}", this, graphIdentifier);
     }
@@ -127,7 +129,17 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
         for (var change : changes) {
             final var root = change.getRootNode();
-            final var key = change.path().toLegacy().firstKeyOf(Graph.class);
+            // final var key = change.path().toLegacy().firstKeyOf(Graph.class);
+            GraphKey key = null;
+            for (var step : change.path().steps()) {
+                if (step instanceof KeyStep<?, ?> keyPredicate && Graph.class.equals(step.type())) {
+                    key = (GraphKey) keyPredicate.key();
+                    break;
+                }
+            }
+            if (key == null) {
+                return;
+            }
             switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
