@@ -113,6 +113,7 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
     @Override
     public List<? extends Registration> start(final BGPExtensionProviderContext context) {
         initMock();
+
         final List<Registration> regs = new ArrayList<>();
         regs.add(context.registerAttributeParser(TYPE, attrParser));
         regs.add(context.registerAttributeSerializer(DataObject.class, attrSerializer));
@@ -162,7 +163,7 @@ public class BgpTestActivator implements BGPExtensionProviderActivator {
     }
 
     private void initMock() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         try {
             doNothing().when(attrParser).parseAttribute(any(ByteBuf.class), any(AttributesBuilder.class),
                 any(RevisedErrorHandling.class), any(PeerSpecificParserConstraint.class));

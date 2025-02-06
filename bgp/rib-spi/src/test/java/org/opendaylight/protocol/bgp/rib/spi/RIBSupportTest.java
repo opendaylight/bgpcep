@@ -95,7 +95,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        MockitoAnnotations.initMocks(this);
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
         ribSupportTestImp = new RIBSupportTestImp(context.currentSerializer());
         emptyTree = Mockito.mock(DataTreeCandidateNode.class);
         emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
@@ -141,6 +141,7 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 any(NormalizedNode.class));
 
         mapEntryNode = Mockito.mock(MapEntryNode.class);
+        mock.close();
     }
 
     @Override

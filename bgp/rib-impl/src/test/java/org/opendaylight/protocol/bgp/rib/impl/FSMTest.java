@@ -91,8 +91,8 @@ public class FSMTest {
     private Open classicOpen;
 
     @Before
-    public void setUp() throws UnknownHostException {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() throws UnknownHostException, Exception {
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
 
@@ -175,6 +175,7 @@ public class FSMTest {
                 .setBgpParameters(tlvs)
                 .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
                 .build();
+        mock.close();
     }
 
     @Test
