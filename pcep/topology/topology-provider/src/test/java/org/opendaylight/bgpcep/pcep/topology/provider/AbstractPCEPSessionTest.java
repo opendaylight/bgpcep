@@ -109,40 +109,41 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        receivedMsgs = new ArrayList<>();
-        doAnswer(invocation -> {
-            receivedMsgs.add(invocation.getArgument(0, Notification.class));
-            return channelFuture;
-        }).when(clientListener).writeAndFlush(any(Notification.class));
-        doReturn(null).when(channelFuture).addListener(any());
-        doReturn("TestingChannel").when(clientListener).toString();
-        doReturn(pipeline).when(clientListener).pipeline();
-        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
-            any(ChannelHandler.class));
-        doReturn(eventLoop).when(clientListener).eventLoop();
-        doAnswer(inv -> NoOpObjectRegistration.of(inv.getArgument(0, SessionStateUpdater.class)))
-            .when(stateRegistry).bind(any());
-        doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn(true).when(clientListener).isActive();
-        final InetSocketAddress ra = new InetSocketAddress(testAddress, 4189);
-        doReturn(ra).when(clientListener).remoteAddress();
-        final InetSocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
-        doReturn(la).when(clientListener).localAddress();
+        try (var mock = MockitoAnnotations.openMocks(this)) {
+            receivedMsgs = new ArrayList<>();
+            doAnswer(invocation -> {
+                receivedMsgs.add(invocation.getArgument(0, Notification.class));
+                return channelFuture;
+            }).when(clientListener).writeAndFlush(any(Notification.class));
+            doReturn(null).when(channelFuture).addListener(any());
+            doReturn("TestingChannel").when(clientListener).toString();
+            doReturn(pipeline).when(clientListener).pipeline();
+            doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
+                any(ChannelHandler.class));
+            doReturn(eventLoop).when(clientListener).eventLoop();
+            doAnswer(inv -> NoOpObjectRegistration.of(inv.getArgument(0, SessionStateUpdater.class)))
+                .when(stateRegistry).bind(any());
+            doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+            doReturn(true).when(clientListener).isActive();
+            final InetSocketAddress ra = new InetSocketAddress(testAddress, 4189);
+            doReturn(ra).when(clientListener).remoteAddress();
+            final InetSocketAddress la = new InetSocketAddress(testAddress, InetSocketAddressUtil.getRandomPort());
+            doReturn(la).when(clientListener).localAddress();
 
-        doReturn(mock(ChannelFuture.class)).when(clientListener).close();
+            doReturn(mock(ChannelFuture.class)).when(clientListener).close();
 
-        doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
-        doReturn(stateRegistry).when(topologyDependencies).getStateRegistry();
-        doReturn(timer).when(topologyDependencies).getTimer();
-        doReturn(null).when(topologyDependencies).getPceServerProvider();
+            doReturn(getDataBroker()).when(topologyDependencies).getDataBroker();
+            doReturn(stateRegistry).when(topologyDependencies).getStateRegistry();
+            doReturn(timer).when(topologyDependencies).getTimer();
+            doReturn(null).when(topologyDependencies).getPceServerProvider();
 
-        manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
-            new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
-        startSessionManager();
-        neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,
-            localPrefs, Uint16.valueOf(5));
-        topologyRpcs = new TopologyRPCs(manager);
+            manager = customizeSessionManager(new ServerSessionManager(TOPO_IID, topologyDependencies,
+                new GraphKey("graph-test"), RPC_TIMEOUT, TimeUnit.SECONDS.toNanos(5)));
+            startSessionManager();
+            neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,
+                localPrefs, Uint16.valueOf(5));
+            topologyRpcs = new TopologyRPCs(manager);
+        }
     }
 
     // Visible for TopologyProgrammingTest

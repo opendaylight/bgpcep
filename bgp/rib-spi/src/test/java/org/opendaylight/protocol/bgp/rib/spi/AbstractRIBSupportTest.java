@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static com.google.common.base.Verify.verifyNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -90,26 +90,27 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
-        doAnswer(invocation -> {
-            final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
-            final var data = invocation.getArgument(2, NormalizedNode.class);
+        try (var mock = openMocks(this)) {
+            doAnswer(invocation -> {
+                final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
+                final var data = invocation.getArgument(2, NormalizedNode.class);
 
-            final var deser = adapter.currentSerializer().fromNormalizedNode(path, data);
-            AbstractRIBSupportTest.this.insertedRoutes.add(Map.entry(deser.getKey().toIdentifier(), deser.getValue()));
-            return null;
-        }).when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
-                any(NormalizedNode.class));
+                final var deser = adapter.currentSerializer().fromNormalizedNode(path, data);
+                insertedRoutes.add(Map.entry(deser.getKey().toIdentifier(), deser.getValue()));
+                return null;
+            }).when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
+                    any(NormalizedNode.class));
 
-        doAnswer(invocation -> {
-            final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
+            doAnswer(invocation -> {
+                final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
 
-            AbstractRIBSupportTest.this.deletedRoutes.add((DataObjectIdentifier)
-                adapter.currentSerializer().fromYangInstanceIdentifier(path).toIdentifier());
-            return null;
-        }).when(tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
-        deletedRoutes = new ArrayList<>();
-        insertedRoutes = new ArrayList<>();
+                AbstractRIBSupportTest.this.deletedRoutes.add((DataObjectIdentifier)
+                    adapter.currentSerializer().fromYangInstanceIdentifier(path).toIdentifier());
+                return null;
+            }).when(tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
+            deletedRoutes = new ArrayList<>();
+            insertedRoutes = new ArrayList<>();
+        }
     }
 
     @Override

@@ -91,90 +91,91 @@ public class FSMTest {
     private Open classicOpen;
 
     @Before
-    public void setUp() throws UnknownHostException {
-        MockitoAnnotations.initMocks(this);
-        final List<BgpParameters> tlvs = new ArrayList<>();
-        final List<OptionalCapabilities> capas = new ArrayList<>();
+    public void setUp() throws UnknownHostException, Exception {
+        try (var mock = MockitoAnnotations.openMocks(this)) {
+            final var tlvs = new ArrayList<BgpParameters>();
+            final var capas = new ArrayList<OptionalCapabilities>();
 
-        capas.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder()
-                .addAugmentation(new CParameters1Builder()
-                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                        .setAfi(ipv4tt.getAfi())
-                        .setSafi(ipv4tt.getSafi())
-                        .build())
-                    .build())
-                .build())
-            .build());
-        capas.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder()
-                .addAugmentation(new CParameters1Builder()
-                    .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                        .setAfi(linkstatett.getAfi())
-                        .setSafi(linkstatett.getSafi())
-                        .build())
-                    .build())
-                .build())
-            .build());
-        capas.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(new CParametersBuilder()
-                .setAs4BytesCapability(new As4BytesCapabilityBuilder()
-                    .setAsNumber(new AsNumber(Uint32.valueOf(30)))
-                    .build())
-                .build())
-            .build());
-        capas.add(new OptionalCapabilitiesBuilder()
-                .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
-        capas.add(new OptionalCapabilitiesBuilder()
+            capas.add(new OptionalCapabilitiesBuilder()
                 .setCParameters(new CParametersBuilder()
                     .addAugmentation(new CParameters1Builder()
-                        .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build())
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(ipv4tt.getAfi())
+                            .setSafi(ipv4tt.getSafi())
+                            .build())
                         .build())
                     .build())
                 .build());
+            capas.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .addAugmentation(new CParameters1Builder()
+                        .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                            .setAfi(linkstatett.getAfi())
+                            .setSafi(linkstatett.getSafi())
+                            .build())
+                        .build())
+                    .build())
+                .build());
+            capas.add(new OptionalCapabilitiesBuilder()
+                .setCParameters(new CParametersBuilder()
+                    .setAs4BytesCapability(new As4BytesCapabilityBuilder()
+                        .setAsNumber(new AsNumber(Uint32.valueOf(30)))
+                        .build())
+                    .build())
+                .build());
+            capas.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build());
+            capas.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(new CParametersBuilder()
+                        .addAugmentation(new CParameters1Builder()
+                            .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build())
+                            .build())
+                        .build())
+                    .build());
 
 
-        tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
-        final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(Uint32.valueOf(30)), (short) 3,
-                new BgpId("1.1.1.1"), new AsNumber(Uint32.valueOf(30)), tlvs);
+            tlvs.add(new BgpParametersBuilder().setOptionalCapabilities(capas).build());
+            final BGPSessionPreferences prefs = new BGPSessionPreferences(new AsNumber(Uint32.valueOf(30)), (short) 3,
+                    new BgpId("1.1.1.1"), new AsNumber(Uint32.valueOf(30)), tlvs);
 
-        final ChannelFuture f = mock(ChannelFuture.class);
-        doReturn(null).when(f).addListener(any(GenericFutureListener.class));
+            final ChannelFuture f = mock(ChannelFuture.class);
+            doReturn(null).when(f).addListener(any(GenericFutureListener.class));
 
-        final InetAddress peerAddress = InetAddress.getByName("1.1.1.2");
-        doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            FSMTest.this.receivedMsgs.add((Notification<?>) args[0]);
-            return f;
-        }).when(speakerListener).writeAndFlush(any(Notification.class));
-        doReturn(eventLoop).when(speakerListener).eventLoop();
-        doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class),
-                any(TimeUnit.class));
-        doReturn("TestingChannel").when(speakerListener).toString();
-        doReturn(new InetSocketAddress(peerAddress, 179)).when(speakerListener).remoteAddress();
-        doReturn(new InetSocketAddress(peerAddress, 179)).when(speakerListener).localAddress();
-        doReturn(pipeline).when(speakerListener).pipeline();
-        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
-                any(ChannelHandler.class));
-        doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
-                any(ChannelHandler.class));
-        doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
-        doReturn(mock(ChannelFuture.class)).when(speakerListener).close();
+            final InetAddress peerAddress = InetAddress.getByName("1.1.1.2");
+            doAnswer(invocation -> {
+                final Object[] args = invocation.getArguments();
+                FSMTest.this.receivedMsgs.add((Notification<?>) args[0]);
+                return f;
+            }).when(speakerListener).writeAndFlush(any(Notification.class));
+            doReturn(eventLoop).when(speakerListener).eventLoop();
+            doReturn(null).when(eventLoop).schedule(any(Runnable.class), any(long.class),
+                    any(TimeUnit.class));
+            doReturn("TestingChannel").when(speakerListener).toString();
+            doReturn(new InetSocketAddress(peerAddress, 179)).when(speakerListener).remoteAddress();
+            doReturn(new InetSocketAddress(peerAddress, 179)).when(speakerListener).localAddress();
+            doReturn(pipeline).when(speakerListener).pipeline();
+            doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
+                    any(ChannelHandler.class));
+            doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
+                    any(ChannelHandler.class));
+            doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+            doReturn(mock(ChannelFuture.class)).when(speakerListener).close();
 
-        final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
-        peerRegistry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(peerAddress.getHostAddress())),
-                new SimpleSessionListener(), prefs);
+            final BGPPeerRegistry peerRegistry = new StrictBGPPeerRegistry();
+            peerRegistry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(peerAddress.getHostAddress())),
+                    new SimpleSessionListener(), prefs);
 
-        clientSession = new BGPClientSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
-                speakerListener, peerRegistry);
+            clientSession = new BGPClientSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
+                    speakerListener, peerRegistry);
 
-        classicOpen = new OpenBuilder()
-                .setMyAsNumber(Uint16.valueOf(30))
-                .setHoldTimer(Uint16.valueOf(3))
-                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
-                .setBgpParameters(tlvs)
-                .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
-                .build();
+            classicOpen = new OpenBuilder()
+                    .setMyAsNumber(Uint16.valueOf(30))
+                    .setHoldTimer(Uint16.valueOf(3))
+                    .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                    .setBgpParameters(tlvs)
+                    .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
+                    .build();
+        }
     }
 
     @Test

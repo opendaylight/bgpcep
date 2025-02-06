@@ -36,9 +36,10 @@ public class BGPPeerTrackerMock extends AbstractConcurrentDataBrokerTest {
     protected Peer peerMock2;
 
     @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        mockPeerTracker();
+    public void setUp() throws Exception {
+        try (var mock = MockitoAnnotations.openMocks(this)) {
+            mockPeerTracker();
+        }
     }
 
     private void mockPeerTracker() {

@@ -100,63 +100,68 @@ public class BGPSessionImplTest {
     private SimpleSessionListener listener;
 
     @Before
-    public void setUp() throws UnknownHostException {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() throws UnknownHostException, Exception {
+        try (var mock = MockitoAnnotations.openMocks(this)) {
 
-        final List<OptionalCapabilities> capa = new ArrayList<>();
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
-            .addAugmentation(new CParameters1Builder()
-                .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
-                    .setAfi(ipv4tt.getAfi()).setSafi(ipv4tt.getSafi()).build())
-                .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
-            .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build()).build()).build());
-        capa.add(new OptionalCapabilitiesBuilder().setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY)
-            .build());
+            final var capa = new ArrayList<OptionalCapabilities>();
+            capa.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(new CParametersBuilder()
+                        .addAugmentation(new CParameters1Builder()
+                            .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
+                                .setAfi(ipv4tt.getAfi()).setSafi(ipv4tt.getSafi()).build())
+                            .setGracefulRestartCapability(new GracefulRestartCapabilityBuilder().build()).build())
+                        .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(AS_NUMBER).build())
+                        .build())
+                    .build());
+            capa.add(new OptionalCapabilitiesBuilder()
+                    .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY)
+                .build());
 
-        classicOpen = new OpenBuilder()
-                .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
-                .setHoldTimer(HOLD_TIMER)
-                .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
-                .setBgpParameters(List.of(new BgpParametersBuilder().setOptionalCapabilities(capa).build()))
-                .setBgpIdentifier(BGP_ID)
-                .build();
+            classicOpen = new OpenBuilder()
+                    .setMyAsNumber(Uint16.valueOf(AS_NUMBER.getValue()))
+                    .setHoldTimer(HOLD_TIMER)
+                    .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
+                    .setBgpParameters(List.of(new BgpParametersBuilder().setOptionalCapabilities(capa).build()))
+                    .setBgpIdentifier(BGP_ID)
+                    .build();
 
-        final ChannelFuture f = mock(ChannelFuture.class);
-        doReturn(null).when(f).addListener(any());
+            final ChannelFuture f = mock(ChannelFuture.class);
+            doReturn(null).when(f).addListener(any());
 
-        doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            BGPSessionImplTest.this.receivedMsgs.add((Notification<?>) args[0]);
-            return f;
-        }).when(speakerListener).writeAndFlush(any(Notification.class));
-        doReturn(eventLoop).when(speakerListener).eventLoop();
-        doReturn(true).when(speakerListener).isActive();
-        doAnswer(invocation -> {
-            final Runnable command = (Runnable) invocation.getArguments()[0];
-            final long delay = (long) invocation.getArguments()[1];
-            final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
-            return null;
-        }).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
-        doReturn("TestingChannel").when(speakerListener).toString();
-        doReturn(true).when(speakerListener).isWritable();
-        doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(speakerListener)
-        .remoteAddress();
-        doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(speakerListener)
-        .localAddress();
-        doReturn(pipeline).when(speakerListener).pipeline();
-        doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
-            any(ChannelHandler.class));
-        doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
-            any(ChannelHandler.class));
-        doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
-        final ChannelFuture futureChannel = mock(ChannelFuture.class);
-        doReturn(null).when(futureChannel).addListener(any());
-        doReturn(futureChannel).when(speakerListener).close();
-        listener = new SimpleSessionListener();
-        bgpSession = new BGPSessionImpl(listener, speakerListener, classicOpen,
-            classicOpen.getHoldTimer().toJava(), null);
-        bgpSession.setChannelExtMsgCoder(classicOpen);
+            doAnswer(invocation -> {
+                final Object[] args = invocation.getArguments();
+                BGPSessionImplTest.this.receivedMsgs.add((Notification<?>) args[0]);
+                return f;
+            }).when(speakerListener).writeAndFlush(any(Notification.class));
+            doReturn(eventLoop).when(speakerListener).eventLoop();
+            doReturn(true).when(speakerListener).isActive();
+            doAnswer(invocation -> {
+                final Runnable command = (Runnable) invocation.getArguments()[0];
+                final long delay = (long) invocation.getArguments()[1];
+                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
+                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+                return null;
+            }).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
+            doReturn("TestingChannel").when(speakerListener).toString();
+            doReturn(true).when(speakerListener).isWritable();
+            doReturn(new InetSocketAddress(InetAddress.getByName(BGP_ID.getValue()), 179)).when(speakerListener)
+            .remoteAddress();
+            doReturn(new InetSocketAddress(InetAddress.getByName(LOCAL_IP), LOCAL_PORT)).when(speakerListener)
+            .localAddress();
+            doReturn(pipeline).when(speakerListener).pipeline();
+            doReturn(pipeline).when(pipeline).replace(any(ChannelHandler.class), any(String.class),
+                any(ChannelHandler.class));
+            doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
+                any(ChannelHandler.class));
+            doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+            final ChannelFuture futureChannel = mock(ChannelFuture.class);
+            doReturn(null).when(futureChannel).addListener(any());
+            doReturn(futureChannel).when(speakerListener).close();
+            listener = new SimpleSessionListener();
+            bgpSession = new BGPSessionImpl(listener, speakerListener, classicOpen,
+                classicOpen.getHoldTimer().toJava(), null);
+            bgpSession.setChannelExtMsgCoder(classicOpen);
+        }
     }
 
     @Test

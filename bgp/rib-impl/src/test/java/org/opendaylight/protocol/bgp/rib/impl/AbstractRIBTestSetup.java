@@ -118,26 +118,27 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     }
 
     private void mockedMethods() throws Exception {
-        MockitoAnnotations.initMocks(this);
-        doReturn(new TestListenerRegistration()).when(service)
+        try (var mock = MockitoAnnotations.openMocks(this)) {
+            doReturn(new TestListenerRegistration()).when(service)
                 .registerTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
-        doNothing().when(domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
+            doNothing().when(domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doNothing().when(domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
+            doNothing().when(domTransWrite).delete(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class));
-        doNothing().when(domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
+            doNothing().when(domTransWrite).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doNothing().when(domChain).close();
-        doReturn(domTransWrite).when(domChain).newWriteOnlyTransaction();
-        doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
+            doNothing().when(domChain).close();
+            doReturn(domTransWrite).when(domChain).newWriteOnlyTransaction();
+            doNothing().when(getTransaction()).put(eq(LogicalDatastoreType.OPERATIONAL),
                 eq(YangInstanceIdentifier.of(BgpRib.QNAME)), any(NormalizedNode.class));
-        doReturn(service).when(dom).extension(DataTreeChangeExtension.class);
-        doReturn(domChain).when(dom).createMergingTransactionChain();
-        doNothing().when(domChain).addCallback(any());
-        doReturn(Optional.empty()).when(future).get();
-        doReturn(future).when(domTransWrite).commit();
-        doCallRealMethod().when(future).addCallback(any(), any());
-        doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
+            doReturn(service).when(dom).extension(DataTreeChangeExtension.class);
+            doReturn(domChain).when(dom).createMergingTransactionChain();
+            doNothing().when(domChain).addCallback(any());
+            doReturn(Optional.empty()).when(future).get();
+            doReturn(future).when(domTransWrite).commit();
+            doCallRealMethod().when(future).addCallback(any(), any());
+            doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
+        }
     }
 
     public List<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,

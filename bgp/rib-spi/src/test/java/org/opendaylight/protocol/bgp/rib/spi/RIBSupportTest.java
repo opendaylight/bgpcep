@@ -95,52 +95,53 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     @Before
     public void setUp() throws Exception {
         super.setup();
-        MockitoAnnotations.initMocks(this);
-        ribSupportTestImp = new RIBSupportTestImp(context.currentSerializer());
-        emptyTree = Mockito.mock(DataTreeCandidateNode.class);
-        emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
-        subTree = Mockito.mock(DataTreeCandidateNode.class);
-        final DataTreeCandidateNode emptyNode = Mockito.mock(DataTreeCandidateNode.class);
-        final DataTreeCandidateNode node = Mockito.mock(DataTreeCandidateNode.class);
-        doReturn(null).when(emptyTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
+        try (var mock = MockitoAnnotations.openMocks(this)) {
+            ribSupportTestImp = new RIBSupportTestImp(context.currentSerializer());
+            emptyTree = Mockito.mock(DataTreeCandidateNode.class);
+            emptySubTree = Mockito.mock(DataTreeCandidateNode.class);
+            subTree = Mockito.mock(DataTreeCandidateNode.class);
+            final DataTreeCandidateNode emptyNode = Mockito.mock(DataTreeCandidateNode.class);
+            final DataTreeCandidateNode node = Mockito.mock(DataTreeCandidateNode.class);
+            doReturn(null).when(emptyTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
 
-        doReturn(emptyNode).when(emptySubTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(null).when(emptyNode).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+            doReturn(emptyNode).when(emptySubTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
+            doReturn(null).when(emptyNode).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
 
-        doReturn(node).when(subTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
-        doReturn(node).when(node).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
-        doReturn(Set.of()).when(node).childNodes();
+            doReturn(node).when(subTree).modifiedChild(IPV4_ROUTES_IDENTIFIER);
+            doReturn(node).when(node).modifiedChild(new NodeIdentifier(Ipv4Route.QNAME));
+            doReturn(Set.of()).when(node).childNodes();
 
-        tx = Mockito.mock(DOMDataTreeWriteTransaction.class);
-        nlri = Mockito.mock(ContainerNode.class);
-        attributes = ImmutableNodes.newContainerBuilder()
-                .withNodeIdentifier(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME
-                    .getLocalName().intern())))
-                .build();
-        final ContainerNode destination = Mockito.mock(ContainerNode.class);
-        final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
-        final ContainerNode route = Mockito.mock(ContainerNode.class);
+            tx = Mockito.mock(DOMDataTreeWriteTransaction.class);
+            nlri = Mockito.mock(ContainerNode.class);
+            attributes = ImmutableNodes.newContainerBuilder()
+                    .withNodeIdentifier(new NodeIdentifier(QName.create(Ipv4Routes.QNAME, Attributes.QNAME
+                        .getLocalName().intern())))
+                    .build();
+            final ContainerNode destination = Mockito.mock(ContainerNode.class);
+            final ChoiceNode destinations = Mockito.mock(ChoiceNode.class);
+            final ContainerNode route = Mockito.mock(ContainerNode.class);
 
-        doReturn(destination).when(nlri).childByArg(new NodeIdentifier(WithdrawnRoutes.QNAME));
-        doReturn(destination).when(nlri).childByArg(new NodeIdentifier(AdvertizedRoutes.QNAME));
-        doReturn(destinations).when(destination).childByArg(new NodeIdentifier(DestinationType.QNAME));
-        doReturn(route).when(destinations).childByArg(new NodeIdentifier(RIBSupportTestImp.QNAME));
-        doReturn(Set.of()).when(route).body();
+            doReturn(destination).when(nlri).childByArg(new NodeIdentifier(WithdrawnRoutes.QNAME));
+            doReturn(destination).when(nlri).childByArg(new NodeIdentifier(AdvertizedRoutes.QNAME));
+            doReturn(destinations).when(destination).childByArg(new NodeIdentifier(DestinationType.QNAME));
+            doReturn(route).when(destinations).childByArg(new NodeIdentifier(RIBSupportTestImp.QNAME));
+            doReturn(Set.of()).when(route).body();
 
-        doAnswer(invocation -> {
-            final var arg = invocation.getArgument(1);
-            routesMap.remove(arg);
-            return arg;
-        }).when(tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
-        doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            final NormalizedNode node1 = (NormalizedNode) args[2];
-            routesMap.put((YangInstanceIdentifier) args[1], node1);
-            return args[1];
-        }).when(tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
-                any(NormalizedNode.class));
+            doAnswer(invocation -> {
+                final var arg = invocation.getArgument(1);
+                routesMap.remove(arg);
+                return arg;
+            }).when(tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
+            doAnswer(invocation -> {
+                final Object[] args = invocation.getArguments();
+                final NormalizedNode node1 = (NormalizedNode) args[2];
+                routesMap.put((YangInstanceIdentifier) args[1], node1);
+                return args[1];
+            }).when(tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
+                    any(NormalizedNode.class));
 
-        mapEntryNode = Mockito.mock(MapEntryNode.class);
+            mapEntryNode = Mockito.mock(MapEntryNode.class);
+        }
     }
 
     @Override
