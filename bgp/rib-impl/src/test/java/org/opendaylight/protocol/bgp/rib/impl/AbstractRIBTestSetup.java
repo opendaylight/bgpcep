@@ -118,7 +118,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     }
 
     private void mockedMethods() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
         doReturn(new TestListenerRegistration()).when(service)
                 .registerTreeChangeListener(any(DOMDataTreeIdentifier.class), any(DOMDataTreeChangeListener.class));
         doNothing().when(domTransWrite).put(eq(LogicalDatastoreType.OPERATIONAL),
@@ -138,6 +138,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         doReturn(future).when(domTransWrite).commit();
         doCallRealMethod().when(future).addCallback(any(), any());
         doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
+        mock.close();
     }
 
     public List<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,

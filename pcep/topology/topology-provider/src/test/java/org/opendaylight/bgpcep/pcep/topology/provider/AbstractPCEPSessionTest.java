@@ -109,7 +109,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
         receivedMsgs = new ArrayList<>();
         doAnswer(invocation -> {
             receivedMsgs.add(invocation.getArgument(0, Notification.class));
@@ -143,6 +143,7 @@ public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrok
         neg = new DefaultPCEPSessionNegotiator(promise, clientListener, manager.getSessionListener(), Uint8.ONE,
             localPrefs, Uint16.valueOf(5));
         topologyRpcs = new TopologyRPCs(manager);
+        mock.close();
     }
 
     // Visible for TopologyProgrammingTest

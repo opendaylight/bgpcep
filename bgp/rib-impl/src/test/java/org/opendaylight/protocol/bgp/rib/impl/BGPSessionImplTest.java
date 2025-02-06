@@ -100,8 +100,8 @@ public class BGPSessionImplTest {
     private SimpleSessionListener listener;
 
     @Before
-    public void setUp() throws UnknownHostException {
-        MockitoAnnotations.initMocks(this);
+    public void setUp() throws UnknownHostException, Exception {
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
 
         final List<OptionalCapabilities> capa = new ArrayList<>();
         capa.add(new OptionalCapabilitiesBuilder().setCParameters(new CParametersBuilder()
@@ -157,6 +157,7 @@ public class BGPSessionImplTest {
         bgpSession = new BGPSessionImpl(listener, speakerListener, classicOpen,
             classicOpen.getHoldTimer().toJava(), null);
         bgpSession.setChannelExtMsgCoder(classicOpen);
+        mock.close();
     }
 
     @Test

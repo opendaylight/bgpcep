@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static com.google.common.base.Verify.verifyNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterables;
@@ -90,7 +90,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
 
     @Before
     public void setUp() throws Exception {
-        initMocks(this);
+        final AutoCloseable mock = openMocks(this);
         doAnswer(invocation -> {
             final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
             final var data = invocation.getArgument(2, NormalizedNode.class);
@@ -110,6 +110,7 @@ public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & Cho
         }).when(tx).delete(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class));
         deletedRoutes = new ArrayList<>();
         insertedRoutes = new ArrayList<>();
+        mock.close();
     }
 
     @Override

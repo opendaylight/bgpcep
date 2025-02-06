@@ -43,9 +43,10 @@ public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBro
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        final AutoCloseable mock = MockitoAnnotations.openMocks(this);
         doNothing().when(processor).loadConfiguration(any());
         configLoader.updateModelContext(modelContext());
+        mock.close();
     }
 
     @Override
