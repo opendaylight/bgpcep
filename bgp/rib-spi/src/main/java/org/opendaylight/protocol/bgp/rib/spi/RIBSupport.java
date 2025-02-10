@@ -103,11 +103,10 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
     /**
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes
      * from the DOM model and delete them from RIBs.
-     * <p>
-     * Use this method when removing routes stored in RIBs out of the "bgp-rib" module.
+     *
+     * <p>Use this method when removing routes stored in RIBs out of the "bgp-rib" module.
      * Provide {@link NodeIdentifier} with customized "routes" QName.
      * For default "bgp-rib" RIBs use {@link #deleteRoutes}
-     * </p>
      *
      * @param tx           DOMDataWriteTransaction
      * @param tablePath    YangInstanceIdentifier
@@ -133,11 +132,10 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
-     * <p>
-     * Use this method when putting routes stored in RIBs out of the "bgp-rib" module.
+     *
+     * <p>Use this method when putting routes stored in RIBs out of the "bgp-rib" module.
      * Provide {@link NodeIdentifier} with customized "routes" QName.
      * For default "bgp-rib" RIBs use {@link #putRoutes}
-     * </p>
      *
      * @param tx           DOMDataWriteTransaction
      * @param tablePath    YangInstanceIdentifier
