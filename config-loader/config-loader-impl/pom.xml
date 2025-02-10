@@ -23,6 +23,10 @@
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
 
+    <properties>
+        <odlparent.modernizer.enforce>false</odlparent.modernizer.enforce>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
