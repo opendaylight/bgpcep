@@ -6,7 +6,7 @@ module odl-pcep-stateful-stats {
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2022-07-30; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
     import network-pcep-topology-stats { prefix npts; revision-date 2018-11-09; }
     import odl-pcep-sync-optimizations { prefix opso; revision-date 2020-07-20; }
     import pcep-topology-stats-rpc { prefix ptsr; revision-date 2019-03-21; }
@@ -64,14 +64,14 @@ module odl-pcep-stateful-stats {
 
     augment "/nt:network-topology/nt:topology/nt:node/npts:pcep-session-state/npts:messages" {
         when "../../../nt:topology-types/pn:topology-pcep";
-        ext:augment-identifier stateful-messages-stats-aug;
+        oce:augment-identifier stateful-messages-stats-aug;
         description "Augment Pcep topology node with Stateful session stats";
 
         uses stateful-messages-grouping;
     }
 
     augment "/ptsr:get-stats/ptsr:output/ptsr:topology/ptsr:node/ptsr:pcep-session-state/ptsr:messages" {
-        ext:augment-identifier stateful-messages-rpc-aug;
+        oce:augment-identifier stateful-messages-rpc-aug;
         description "Augment Pcep session stats RPC output with Stateful session stats";
 
         uses stateful-messages-grouping;
@@ -99,14 +99,14 @@ module odl-pcep-stateful-stats {
 
     augment "/nt:network-topology/nt:topology/nt:node/npts:pcep-session-state/npts:peer-capabilities" {
         when "../../../nt:topology-types/pn:topology-pcep";
-        ext:augment-identifier stateful-capabilities-stats-aug;
+        oce:augment-identifier stateful-capabilities-stats-aug;
         description "Remote peer's (PCC) advertised stateful capabilities.";
 
         uses stateful-preferences;
     }
 
     augment "/ptsr:get-stats/ptsr:output/ptsr:topology/ptsr:node/ptsr:pcep-session-state/ptsr:peer-capabilities" {
-        ext:augment-identifier stateful-capabilities-rpc-aug;
+        oce:augment-identifier stateful-capabilities-rpc-aug;
         description "Augment Pcep session stats RPC output with Remote peer's (PCC) advertised stateful capabilities.";
 
         uses stateful-preferences;
@@ -114,14 +114,14 @@ module odl-pcep-stateful-stats {
 
     augment "/nt:network-topology/nt:topology/nt:node/npts:pcep-session-state/npts:local-pref" {
         when "../../../nt:topology-types/pn:topology-pcep";
-        ext:augment-identifier pcep-entity-id-stats-aug;
+        oce:augment-identifier pcep-entity-id-stats-aug;
         description "PCEP Entity Identifier";
 
         uses opso:speaker-entity-id;
     }
 
     augment "/ptsr:get-stats/ptsr:output/ptsr:topology/ptsr:node/ptsr:pcep-session-state/ptsr:local-pref" {
-        ext:augment-identifier pcep-entity-id-rpc-aug;
+        oce:augment-identifier pcep-entity-id-rpc-aug;
         description "Augment Pcep session stats RPC output with PCEP Entity Identifier";
 
         uses opso:speaker-entity-id;

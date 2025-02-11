@@ -3,7 +3,7 @@ module odl-bgp-policy {
     namespace "urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy";
     prefix "odl-bgp-policy";
 
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
     import openconfig-bgp-types { prefix oc-bgp-t; }
     import bgp-rib { prefix rib; revision-date 2018-03-29; }
     import openconfig-routing-policy { prefix rpol; }
@@ -209,7 +209,7 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets {
-        ext:augment-identifier bgp-cluster-id-sets;
+        oce:augment-identifier bgp-cluster-id-sets;
         container cluster-id-sets {
             description "Enclosing container for defined cluster-id sets for matching";
             uses cluster-id-set;
@@ -217,7 +217,7 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets {
-        ext:augment-identifier bgp-role-sets;
+        oce:augment-identifier bgp-role-sets;
         container role-sets {
             description "Enclosing container for defined role sets for matching";
             uses role-set;
@@ -225,7 +225,7 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:defined-sets/bgppol:bgp-defined-sets {
-        ext:augment-identifier bgp-originator-id-sets;
+        oce:augment-identifier bgp-originator-id-sets;
         container originator-id-sets {
             description "Enclosing container for defined role sets for matching";
             uses originator-id-set;
@@ -233,7 +233,7 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier match-afi-safi-not-in-condition;
+        oce:augment-identifier match-afi-safi-not-in-condition;
         leaf-list afi-safi-not-in {
             type identityref {
               base "oc-bgp-t:afi-safi-type";
@@ -244,55 +244,55 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier match-bgp-neighbor-condition;
+        oce:augment-identifier match-bgp-neighbor-condition;
         uses match-bgp-neighbor-grouping;
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier match-role-set-condition;
+        oce:augment-identifier match-role-set-condition;
         uses match-role-set-condition-grouping;
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier match-originator-id-set-condition;
+        oce:augment-identifier match-originator-id-set-condition;
         uses match-originator-id-set-condition-grouping;
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier match-cluster-id-set-condition;
+        oce:augment-identifier match-cluster-id-set-condition;
         uses match-cluster-id-set-condition-grouping;
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:conditions/bgppol:bgp-conditions {
-        ext:augment-identifier vpn-non-member-condition;
+        oce:augment-identifier vpn-non-member-condition;
         container vpn-non-member {
             presence "Match Route Target Attribute with Route Target memberships of destiny peer. Asserts peers is a non member.";
         }
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
-        ext:augment-identifier reflect-attributes-actions;
+        oce:augment-identifier reflect-attributes-actions;
         container reflect-attributes-actions {
             presence "Modify attributes so they are updated as per RFC4456 route reflection";
         }
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
-        ext:augment-identifier non-transitive-attributes-filter;
+        oce:augment-identifier non-transitive-attributes-filter;
         container non-transitive-attributes-filter {
             presence "Filters attributes, removing non transitive attributes";
         }
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
-        ext:augment-identifier local-as-path-prepend;
+        oce:augment-identifier local-as-path-prepend;
         container local-as-path-prepend {
             presence "Prepends local AS Path";
         }
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
-        ext:augment-identifier set-cluster-id-prepend;
+        oce:augment-identifier set-cluster-id-prepend;
         container set-cluster-id-prepend {
 
         presence "node is present in the config data to use the Cluster Id prepend action";
@@ -301,7 +301,7 @@ module odl-bgp-policy {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgppol:bgp-actions {
-        ext:augment-identifier set-originator-id-prepend;
+        oce:augment-identifier set-originator-id-prepend;
         container set-originator-id-prepend {
             presence "node is present in the config data to use the Originator Id prepend action";
             description "action to prepend Originator Id if non Originator Id is present. If no Originator Id"

@@ -8,7 +8,7 @@ module odl-pcep-sync-optimizations {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2022-07-30; }
     import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
-    import yang-ext { prefix ext; }
+    import odl-codegen-extensions { prefix oce; }
 
     organization "Pantheon Technologies";
     contact "Iveta Halanova <iveta.halanova@pantheon.sk>";
@@ -93,13 +93,13 @@ module odl-pcep-sync-optimizations {
     }
 
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
-        ext:augment-identifier tlvs3;
+        oce:augment-identifier tlvs3;
         uses lsp-db-version-tlv;
         uses speaker-entity-id-tlv;
     }
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-        ext:augment-identifier tlvs4;
+        oce:augment-identifier tlvs4;
         uses lsp-db-version-tlv;
         uses speaker-entity-id-tlv;
     }
@@ -109,7 +109,7 @@ module odl-pcep-sync-optimizations {
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path/stateful:lsp/stateful:tlvs" {
-        ext:augment-identifier tlvs2;
+        oce:augment-identifier tlvs2;
         uses lsp-db-version-tlv;
     }
 
@@ -118,22 +118,22 @@ module odl-pcep-sync-optimizations {
     }
 
     augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:lsp/stateful:tlvs" {
-        ext:augment-identifier tlvs5;
+        oce:augment-identifier tlvs5;
         uses lsp-db-version-tlv;
     }
 
     augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:lsp/stateful:tlvs" {
-        ext:augment-identifier tlvs6;
+        oce:augment-identifier tlvs6;
         uses lsp-db-version-tlv;
     }
 
     augment "/topo:add-lsp/topo:input/topo:arguments/stateful:lsp/stateful:tlvs" {
-        ext:augment-identifier tlvs1;
+        oce:augment-identifier tlvs1;
         uses lsp-db-version-tlv;
     }
 
     augment "/topo:update-lsp/topo:input/topo:arguments/stateful:lsp/stateful:tlvs" {
-        ext:augment-identifier tlvs7;
+        oce:augment-identifier tlvs7;
         uses lsp-db-version-tlv;
     }
 }

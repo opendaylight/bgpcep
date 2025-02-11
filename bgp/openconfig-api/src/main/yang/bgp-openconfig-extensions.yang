@@ -7,7 +7,7 @@ module bgp-openconfig-extensions {
     import openconfig-network-instance { prefix netinst; }
     import openconfig-bgp { prefix openconfig-bgp; }
     import ietf-inet-types { prefix inet; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
     import openconfig-bgp-operational { prefix bgp-op; }
 
     organization "Cisco Systems, Inc.";
@@ -135,33 +135,33 @@ module bgp-openconfig-extensions {
     }
 
     augment /netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol {
-        ext:augment-identifier network-instance-protocol;
+        oce:augment-identifier network-instance-protocol;
         uses openconfig-bgp:bgp-top {
             augment bgp/neighbors/neighbor/afi-safis/afi-safi {
-                ext:augment-identifier neighbor-add-paths-config;
+                oce:augment-identifier neighbor-add-paths-config;
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
             augment bgp/global/afi-safis/afi-safi {
-                ext:augment-identifier global-add-paths-config;
+                oce:augment-identifier global-add-paths-config;
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
             augment bgp/global/afi-safis/afi-safi/state {
-                ext:augment-identifier global-afi-safi_state-augmentation;
+                oce:augment-identifier global-afi-safi_state-augmentation;
                 uses bgp-op:bgp-global-afi-safi_state;
             }
             augment bgp/neighbors/neighbor/transport/config {
-                ext:augment-identifier neighbor-transport-config;
+                oce:augment-identifier neighbor-transport-config;
                 uses transport-config;
             }
             augment bgp/neighbors/neighbor/config {
-                ext:augment-identifier neighbor-peer-group-config;
+                oce:augment-identifier neighbor-peer-group-config;
                 description
                     "Augmentation to allow association of a neighbor with a
                      peer-group";
                 uses openconfig-bgp:bgp-neighbor-peer-group_config;
             }
             augment bgp/global/config {
-                ext:augment-identifier global-config-augmentation;
+                oce:augment-identifier global-config-augmentation;
                 leaf route-reflector-cluster-id {
                     type bgp-types:rr-cluster-id-type;
                     description
@@ -170,11 +170,11 @@ module bgp-openconfig-extensions {
                   }
             }
             augment bgp/neighbors/neighbor/state {
-                ext:augment-identifier neighbor_state-augmentation;
+                oce:augment-identifier neighbor_state-augmentation;
                 uses bgp-op:bgp-neighbor_state;
             }
             augment bgp/neighbors/neighbor/state {
-                ext:augment-identifier bgp-neighbor_state-augmentation;
+                oce:augment-identifier bgp-neighbor_state-augmentation;
                 container messages {
                     container sent {
                         uses bgp-op:bgp-neighbor-message-counters-sent_state;
@@ -190,43 +190,42 @@ module bgp-openconfig-extensions {
                 }
             }
             augment bgp/neighbors/neighbor/timers/state {
-                ext:augment-identifier neighbor-timers_state-augmentation;
+                oce:augment-identifier neighbor-timers_state-augmentation;
                 uses bgp-op:bgp-neighbor-timers_state;
             }
             augment bgp/neighbors/neighbor/transport/state {
-                ext:augment-identifier neighbor-transport_state-augmentation;
+                oce:augment-identifier neighbor-transport_state-augmentation;
                 uses bgp-op:bgp-neighbor-transport_state;
             }
             augment bgp/neighbors/neighbor/error-handling/state {
-                ext:augment-identifier neighbor-error-handling_state-augmentation;
+                oce:augment-identifier neighbor-error-handling_state-augmentation;
                 uses bgp-op:bgp-neighbor-error-handling_state;
             }
             augment bgp/neighbors/neighbor/afi-safis/afi-safi/state {
-                ext:augment-identifier neighbor-afi-safi_state-augmentation;
+                oce:augment-identifier neighbor-afi-safi_state-augmentation;
                 uses bgp-op:bgp-neighbor-afi-safi_state;
             }
             augment bgp/neighbors/neighbor/graceful-restart/state {
-                ext:augment-identifier neighbor-graceful-restart_state-augmentation;
+                oce:augment-identifier neighbor-graceful-restart_state-augmentation;
                 uses bgp-op:bgp-afi-safi-graceful-restart_state;
             }
             augment bgp/neighbors/neighbor/afi-safis/afi-safi/graceful-restart/state {
-                ext:augment-identifier neighbor-afi-safi-graceful-restart_state-augmentation;
+                oce:augment-identifier neighbor-afi-safi-graceful-restart_state-augmentation;
                 uses bgp-op:bgp-neighbor-afi-safi-graceful-restart_state;
                 uses neighbor-afi-safi-ll-graceful-restart-state;
             }
             augment bgp/peer-groups/peer-group/state {
-                ext:augment-identifier peer-group_state-augmentation;
+                oce:augment-identifier peer-group_state-augmentation;
                 uses bgp-op:bgp-peer-group_state;
             }
             augment bgp/peer-groups/peer-group/transport/config {
-                ext:augment-identifier peer-group-transport-config;
+                oce:augment-identifier peer-group-transport-config;
                 uses transport-config;
             }
             augment bgp/peer-groups/peer-group/afi-safis/afi-safi {
-                ext:augment-identifier group-add-paths-config;
+                oce:augment-identifier group-add-paths-config;
                 uses openconfig-bgp:bgp-neighbor-add-paths_config;
             }
         }
     }
-
 }

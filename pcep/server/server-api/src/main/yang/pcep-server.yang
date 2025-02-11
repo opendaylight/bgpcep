@@ -7,7 +7,7 @@ module pcep-server {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import path-computation { prefix algo; revision-date 2022-03-24; }
     import network-topology-pcep { prefix topo; revision-date 2022-07-30; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
 
     organization "Orange";
     contact "Olivier Dugeon <olivier.dugeon@orange.com>";
@@ -131,7 +131,7 @@ module pcep-server {
     /* Add Configured LSP to the Configuration PCEP Network Topology */
     augment "/nt:network-topology/nt:topology/nt:node" {
         when "../nt:topology-types/topo:topology-pcep";
-        ext:augment-identifier pcep-node-config;
+        oce:augment-identifier pcep-node-config;
         description "Augment Pcep topology node with Configured LSP config";
 
         uses pcc-configured-lsp;

@@ -6,7 +6,7 @@ module odl-pcep-p2mp-te-lsp {
 
     import pcep-types { prefix pcep; revision-date 2018-11-09; }
     import pcep-message { prefix msg; revision-date 2018-11-09; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
 
     description
         "This module contains the data model of PCEP extensions defined
@@ -40,12 +40,12 @@ module odl-pcep-p2mp-te-lsp {
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
         reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
         uses p2mp-pce-capability-tlv;
-        ext:augment-identifier tlvs-p2mp-capability-aug;
+        oce:augment-identifier tlvs-p2mp-capability-aug;
     }
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
         reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
         uses p2mp-pce-capability-tlv;
-        ext:augment-identifier tlvs-p2mp-capability-error-aug;
+        oce:augment-identifier tlvs-p2mp-capability-error-aug;
     }
 }

@@ -138,7 +138,6 @@
                         <ignoredNonTestScopedDependencies>org.opendaylight.bgpcep:concepts</ignoredNonTestScopedDependencies>
                     </ignoredNonTestScopedDependencies>
                     <ignoredUnusedDeclaredDependencies combine.children="append">
-                        <ignoredUnusedDeclaredDependency>org.opendaylight.mdsal.model:yang-ext</ignoredUnusedDeclaredDependency>
                         <ignoredUnusedDeclaredDependency>org.opendaylight.bgpcep:bgp-bmp-api</ignoredUnusedDeclaredDependency>
                     </ignoredUnusedDeclaredDependencies>
                 </configuration>

@@ -6,7 +6,7 @@ module topology-tunnel-pcep-config {
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import topology-tunnel-pcep { prefix ttp; revision-date 2018-11-09; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
 
     description
         "This module contains the PCEP Tunnel config extensions to base topology model.
@@ -43,7 +43,7 @@ module topology-tunnel-pcep-config {
 
     augment "/nt:network-topology/nt:topology" {
         when "nt:topology-types/ttp:topology-tunnel-pcep";
-        ext:augment-identifier pcep-tunnel-topology-config;
+        oce:augment-identifier pcep-tunnel-topology-config;
         description "Augment Pcep topology with session config";
 
         uses topology-ref;
