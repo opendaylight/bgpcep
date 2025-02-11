@@ -9,15 +9,15 @@ package org.opendaylight.protocol.util;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.CharStreams;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -38,21 +38,25 @@ public final class PCEPHexDumpParser {
         // Hidden on purpose
     }
 
+    @Deprecated(since = "0.23.0", forRemoval = true)
     public static List<byte[]> parseMessages(final File file) throws IOException {
-        Preconditions.checkArgument(file != null, "Filename cannot be null");
-        return parseMessages(new FileInputStream(file));
+        return parseMessages(file.toPath());
+    }
+
+    public static List<byte[]> parseMessages(final Path file) throws IOException {
+        return parseMessages(Files.readString(file));
     }
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
-        try (InputStreamReader isr = new InputStreamReader(requireNonNull(is), StandardCharsets.UTF_8)) {
+        try (var isr = new InputStreamReader(requireNonNull(is), StandardCharsets.UTF_8)) {
             return parseMessages(CharStreams.toString(isr));
         }
     }
 
     private static List<byte[]> parseMessages(final String msg) {
-        final String content = clearWhiteSpaceToUpper(msg);
+        final var content = clearWhiteSpaceToUpper(msg);
 
-        final List<byte[]> messages = new LinkedList<>();
+        final var messages = new LinkedList<byte[]>();
         int idx = content.indexOf(LENGTH, 0);
         while (idx > -1) {
             // next chars are final length, ending with '.'
@@ -60,13 +64,14 @@ public final class PCEPHexDumpParser {
             final int messageIdx = content.indexOf('.', lengthIdx);
             final int length = Integer.parseInt(content.substring(lengthIdx, messageIdx));
             // dot
-            final int messageEndIdx = messageIdx + (length * 2) + 1;
+            final int messageEndIdx = messageIdx + length * 2 + 1;
 
-            // Assert that message is longer than minimum 4(header.length == 4)
-            // If length in PCEP message would be 0, loop would never end
-            Preconditions.checkArgument(length >= MINIMAL_LENGTH,
-                    "Invalid message at index " + idx + ", length atribute is lower than "
-                            + MINIMAL_LENGTH);
+            // Assert that message is longer than minimum 4(header.length == 4). If length in PCEP message would be 0,
+            // the loop would never end
+            if (length < MINIMAL_LENGTH) {
+                throw new IllegalArgumentException(
+                    "Invalid message at index " + idx + ", length atribute is lower than " + MINIMAL_LENGTH);
+            }
 
             // dot
             final String hexMessage = content.substring(messageIdx + 1, messageEndIdx);

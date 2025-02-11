@@ -7,38 +7,31 @@
  */
 package org.opendaylight.protocol.util;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
-import org.junit.Test;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
 
-public class PCEPHexDumpParserTest {
-
+class PCEPHexDumpParserTest {
     private static final String HEX_DUMP_FILE_NAME = "pcep-hex.txt";
     private static final int EXPECTED_SIZE = 6;
 
     @Test
-    public void testParsing() throws Exception {
-        final List<byte[]> result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
-                PCEPHexDumpParserTest.HEX_DUMP_FILE_NAME));
+    void testParsing() throws Exception {
+        final var result = PCEPHexDumpParser.parseMessages(getClass().getClassLoader().getResourceAsStream(
+                HEX_DUMP_FILE_NAME));
         assertEquals(EXPECTED_SIZE, result.size());
-        final List<byte[]> result1 = PCEPHexDumpParser.parseMessages(new File(getClass().getClassLoader().getResource(
-                PCEPHexDumpParserTest.HEX_DUMP_FILE_NAME).toURI()));
+        final var result1 = PCEPHexDumpParser.parseMessages(Path.of(getClass().getClassLoader().getResource(
+                HEX_DUMP_FILE_NAME).toURI()));
         assertEquals(EXPECTED_SIZE, result1.size());
     }
 
     @Test
-    public void testParsingInvalidFile() throws Exception {
-        try {
-            PCEPHexDumpParser.parseMessages(new File("bad file name"));
-            fail("Exception should have occured.");
-        } catch (final FileNotFoundException e) {
-            assertThat(e.getMessage(), containsString("bad file name"));
-        }
+    void testParsingInvalidFile() {
+        final var ex = assertThrows(NoSuchFileException.class,
+            () -> PCEPHexDumpParser.parseMessages(Path.of("bad file name")));
+        assertEquals("bad file name", ex.getMessage());
     }
 }

@@ -10,12 +10,12 @@ package org.opendaylight.protocol.util;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import org.slf4j.Logger;
@@ -166,26 +166,11 @@ public final class ByteArray {
      *
      * @param name path to file to by parsed
      * @return parsed array of bytes
+     * @deprecated Replace with {@code Files.readAllBytes(Path.of(name))}.
      */
+    @Deprecated(since = "0.23.0", forRemoval = true)
     public static byte[] fileToBytes(final String name) throws IOException {
-        final File file = new File(name);
-        int offset = 0;
-        int numRead;
-
-        if (file.length() > Integer.MAX_VALUE) {
-            throw new IOException("Too large file to load in byte array.");
-        }
-        final byte[] byteArray = new byte[(int) file.length()];
-        try (FileInputStream fin = new FileInputStream(file)) {
-            while (offset < byteArray.length) {
-                numRead = fin.read(byteArray, offset, byteArray.length - offset);
-                if (numRead >= 0) {
-                    offset += numRead;
-                }
-            }
-            fin.close();
-        }
-        return byteArray;
+        return Files.readAllBytes(Path.of(name));
     }
 
     /**

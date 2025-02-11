@@ -7,38 +7,40 @@
  */
 package org.opendaylight.protocol.util;
 
-import io.netty.buffer.ByteBuf;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
 import org.junit.Test;
 
-public class BitArrayTest {
-
+class BitArrayTest {
     @Test
-    public void testCreateBitArray() {
-        Assert.assertArrayEquals(new byte[1], new BitArray(5).array());
-        Assert.assertArrayEquals(new byte[3], new BitArray(23).array());
-        Assert.assertArrayEquals(new byte[3], new BitArray(24).array());
-        Assert.assertArrayEquals(new byte[4], new BitArray(25).array());
+    void testCreateBitArray() {
+        assertArrayEquals(new byte[1], new BitArray(5).array());
+        assertArrayEquals(new byte[3], new BitArray(23).array());
+        assertArrayEquals(new byte[3], new BitArray(24).array());
+        assertArrayEquals(new byte[4], new BitArray(25).array());
 
-        final byte[] a = new byte[] {1, 2, 3, 4};
-        Assert.assertArrayEquals(a, BitArray.valueOf(a).array());
+        final var a = new byte[] {1, 2, 3, 4};
+        assertArrayEquals(a, BitArray.valueOf(a).array());
 
         final byte b = 44;
-        Assert.assertEquals(b, BitArray.valueOf(b).toByte());
+        assertEquals(b, BitArray.valueOf(b).toByte());
 
-        final ByteBuf buf = Unpooled.wrappedBuffer(a);
-        Assert.assertArrayEquals(new byte[] {1, 2}, BitArray.valueOf(buf, 12).array());
+        final var buf = Unpooled.wrappedBuffer(a);
+        assertArrayEquals(new byte[] {1, 2}, BitArray.valueOf(buf, 12).array());
 
-        final ByteBuf res = Unpooled.buffer();
-        final BitArray i = BitArray.valueOf(a);
+        final var res = Unpooled.buffer();
+        final var i = BitArray.valueOf(a);
         i.toByteBuf(res);
-        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4}, ByteArray.readAllBytes(res));
+        assertArrayEquals(new byte[] {1, 2, 3, 4}, ByteArray.readAllBytes(res));
     }
 
     @Test
-    public void testSetAndGet() {
-        final BitArray ba = new BitArray(10);
+    void testSetAndGet() {
+        final var ba = new BitArray(10);
         ba.set(0, null);
         ba.set(1, Boolean.TRUE);
         ba.set(2, Boolean.FALSE);
@@ -47,14 +49,14 @@ public class BitArrayTest {
         ba.set(8, Boolean.TRUE);
         ba.set(9, Boolean.TRUE);
 
-        Assert.assertEquals("BitArray [1 1000111]", ba.toString());
+        assertEquals("BitArray [1 1000111]", ba.toString());
 
-        Assert.assertFalse(ba.get(0));
-        Assert.assertTrue(ba.get(1));
-        Assert.assertFalse(ba.get(2));
-        Assert.assertTrue(ba.get(3));
-        Assert.assertTrue(ba.get(7));
-        Assert.assertTrue(ba.get(8));
-        Assert.assertTrue(ba.get(9));
+        assertFalse(ba.get(0));
+        assertTrue(ba.get(1));
+        assertFalse(ba.get(2));
+        assertTrue(ba.get(3));
+        assertTrue(ba.get(7));
+        assertTrue(ba.get(8));
+        assertTrue(ba.get(9));
     }
 }
