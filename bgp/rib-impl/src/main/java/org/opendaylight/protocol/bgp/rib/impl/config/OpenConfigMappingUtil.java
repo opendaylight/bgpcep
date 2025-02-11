@@ -9,10 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,11 +124,11 @@ final class OpenConfigMappingUtil {
     static Map<AfiSafiKey, AfiSafi> getAfiSafiWithDefault(
             final BgpCommonAfiSafiList afiSAfis, final boolean setDeafultIPv4) {
         if (afiSAfis == null || afiSAfis.getAfiSafi() == null) {
-            return setDeafultIPv4 ? DEFAULT_AFISAFI : Collections.emptyMap();
+            return setDeafultIPv4 ? DEFAULT_AFISAFI : Map.of();
         }
-        final Map<AfiSafiKey, AfiSafi> afiSafi = afiSAfis.nonnullAfiSafi();
+        final var afiSafi = afiSAfis.nonnullAfiSafi();
         if (setDeafultIPv4 && !afiSafi.containsKey(IPV4_AFISAFI.key())) {
-            final Map<AfiSafiKey, AfiSafi> newAfiSafi = Maps.newHashMapWithExpectedSize(afiSafi.size() + 1);
+            final var newAfiSafi = HashMap.<AfiSafiKey, AfiSafi>newHashMap(afiSafi.size() + 1);
             newAfiSafi.putAll(afiSafi);
             newAfiSafi.put(IPV4_AFISAFI.key(), IPV4_AFISAFI);
             return newAfiSafi;
