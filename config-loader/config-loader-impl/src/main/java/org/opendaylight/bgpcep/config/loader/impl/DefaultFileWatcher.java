@@ -11,13 +11,12 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 import static java.util.Objects.requireNonNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.ref.Cleaner;
 import java.lang.ref.Cleaner.Cleanable;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.WatchService;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -56,7 +55,7 @@ public final class DefaultFileWatcher extends AbstractRegistration implements Fi
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultFileWatcher.class);
     //BGPCEP config folder OS agnostic path
-    private static final Path PATH = Paths.get("etc","opendaylight","bgpcep");
+    private static final @NonNull Path PATH = Path.of("etc", "opendaylight", "bgpcep");
 
     private final State state;
     private final Cleanable cleanable;
@@ -67,8 +66,8 @@ public final class DefaultFileWatcher extends AbstractRegistration implements Fi
     }
 
     @Override
-    public String getPathFile() {
-        return PATH.toString();
+    public Path getPathFile() {
+        return PATH;
     }
 
     @Override
@@ -79,9 +78,10 @@ public final class DefaultFileWatcher extends AbstractRegistration implements Fi
     @Activate
     @PostConstruct
     public void activate() throws IOException {
-        final File file = new File(PATH.toString());
-        if (!file.exists() && !file.mkdirs()) {
-            LOG.warn("Failed to create config directory {}", PATH);
+        try {
+            Files.createDirectories(PATH);
+        } catch (IOException e) {
+            LOG.warn("Failed to create config directory {}", PATH, e);
             return;
         }
 
