@@ -26,7 +26,6 @@
 
     <properties>
         <odlparent.dependency.enforce>false</odlparent.dependency.enforce>
-        <odlparent.modernizer.enforce>false</odlparent.modernizer.enforce>
     </properties>
 
     <dependencies>
