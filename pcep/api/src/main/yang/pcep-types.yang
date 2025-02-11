@@ -161,23 +161,6 @@ module pcep-types {
         }
     }
 
-    grouping vs-tlv {
-        description "Vendor-specific TLV.";
-        container vs-tlv {
-                status obsolete;
-                description "This model is obsolete, please use vendor-information-tlvs instead";
-
-                uses tlv;
-
-                leaf enterprise-number {
-                    type iana:enterprise-number;
-                }
-
-                choice vendor-payload {
-                }
-        }
-    }
-
     grouping path-setup-type-tlv {
         description "PATH-SETUP-TYPE TLV";
         reference "https://tools.ietf.org/html/draft-ietf-pce-lsp-setup-type-00#section-3";

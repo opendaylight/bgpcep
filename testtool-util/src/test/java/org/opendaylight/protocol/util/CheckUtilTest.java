@@ -64,6 +64,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testWaitFutureSuccess() {
         when(future.isSuccess()).thenReturn(true);
         doAnswer(invocation -> {
