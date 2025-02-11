@@ -10,7 +10,7 @@ package org.opendaylight.bgpcep.config.loader.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 
-import java.io.File;
+import java.nio.file.Path;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -22,8 +22,8 @@ import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBrokerTest {
     protected final class TestConfigLoader extends AbstractConfigLoader {
         @Override
-        File directory() {
-            return new File(getResourceFolder());
+        Path directory() {
+            return Path.of(getResourceFolder());
         }
 
         public void triggerEvent(final String filename) {

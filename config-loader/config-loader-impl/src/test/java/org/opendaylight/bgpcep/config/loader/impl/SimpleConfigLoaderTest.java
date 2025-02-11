@@ -13,6 +13,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
@@ -47,7 +48,7 @@ public class SimpleConfigLoaderTest {
     public void before() throws InterruptedException {
         doReturn(domContext).when(bindingContext).modelContext();
         doReturn(watchService).when(watcher).getWatchService();
-        doReturn("foo").when(watcher).getPathFile();
+        doReturn(Path.of("foo")).when(watcher).getPathFile();
         doReturn(watchKey).when(watchService).take();
         doAnswer(inv -> {
             doThrow(new RuntimeException("enough!")).when(watchKey).pollEvents();
