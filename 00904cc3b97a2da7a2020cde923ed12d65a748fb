@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40d5a633_20651aee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-02-11T16:56:10Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nThis is a complement to ditch with new .firstOfKey() method.\n\nOlivier",
+      "revId": "00904cc3b97a2da7a2020cde923ed12d65a748fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
