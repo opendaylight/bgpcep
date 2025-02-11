@@ -48,7 +48,6 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
@@ -105,10 +104,8 @@ public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<R
 
     @Test
     public void testDeleteRoutes() {
-        final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
-        ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(RouteTargetConstrainRoute.class));
+        ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(RouteTargetConstrainRoute.class));
     }
 
     @Test

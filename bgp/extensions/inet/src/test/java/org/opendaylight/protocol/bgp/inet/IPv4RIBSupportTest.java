@@ -81,8 +81,7 @@ public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesC
     @Test
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(Ipv4Route.class));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(Ipv4Route.class));
     }
 
     @Test

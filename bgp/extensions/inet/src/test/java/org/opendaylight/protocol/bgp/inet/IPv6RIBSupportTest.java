@@ -78,8 +78,7 @@ public final class IPv6RIBSupportTest extends AbstractRIBSupportTest<Ipv6RoutesC
     @Test
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(Ipv6Route.class));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(Ipv6Route.class));
     }
 
     @Test

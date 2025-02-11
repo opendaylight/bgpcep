@@ -133,8 +133,7 @@ public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<Linkst
     @Test
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(LinkstateRoute.class));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(LinkstateRoute.class));
     }
 
     @Test
