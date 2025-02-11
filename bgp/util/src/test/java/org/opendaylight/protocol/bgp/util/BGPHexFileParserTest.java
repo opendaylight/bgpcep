@@ -12,8 +12,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.Test;
 
@@ -51,9 +51,9 @@ public class BGPHexFileParserTest {
     @Test
     public void testParsingInvalidFile() throws Exception {
         try {
-            HexDumpBGPFileParser.parseMessages(new File("bad file name"));
+            HexDumpBGPFileParser.parseMessages(Path.of("bad file name"));
             fail("Exception should have occured.");
-        } catch (final FileNotFoundException e) {
+        } catch (NoSuchFileException e) {
             assertThat(e.getMessage(), containsString("bad file name"));
         }
     }
