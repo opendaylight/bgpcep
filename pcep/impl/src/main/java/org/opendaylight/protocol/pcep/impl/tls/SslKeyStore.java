@@ -7,11 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.impl.tls;
 
-import com.google.common.base.Preconditions;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev230112.pcep.session.tls.PathType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,25 +33,24 @@ public final class SslKeyStore {
      * @return key as InputStream
      */
     public static InputStream asInputStream(final String filename, final PathType pathType) {
-        InputStream in;
-        switch (pathType) {
-            case CLASSPATH:
-                in = SslKeyStore.class.getResourceAsStream(filename);
-                Preconditions.checkArgument(in != null, "KeyStore file not found: %s", filename);
-                break;
-            case PATH:
-                LOG.debug("Current dir using System: {}", System.getProperty("user.dir"));
-                final File keystorefile = new File(filename);
-                try {
-                    in = new FileInputStream(keystorefile);
-                } catch (final FileNotFoundException e) {
-                    throw new IllegalStateException("KeyStore file not found: " + filename,e);
+        return switch (pathType) {
+            case CLASSPATH -> {
+                final var in = SslKeyStore.class.getResourceAsStream(filename);
+                if (in != null) {
+                    yield in;
                 }
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown path type: " + pathType);
-        }
-        return in;
+                throw new IllegalArgumentException("KeyStore file not found: " + filename);
+            }
+            case PATH -> {
+                LOG.debug("Current dir using System: {}", System.getProperty("user.dir"));
+                final var keystorefile = Path.of(filename);
+                try {
+                    yield Files.newInputStream(keystorefile);
+                } catch (IOException e) {
+                    throw new IllegalStateException("KeyStore file not found: " + filename, e);
+                }
+            }
+        };
     }
 }
 
