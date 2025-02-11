@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedBytes;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import org.opendaylight.protocol.util.ByteArray;
 import org.slf4j.Logger;
@@ -37,8 +36,7 @@ public final class BinaryBGPDumpFileParser {
      * @return list with byte arrays representing extracted messages.
      */
     public static List<byte[]> parseMessages(final byte[] byteArray) {
-
-        final List<byte[]> messages = new LinkedList();
+        final var messages = new ArrayList<byte[]>();
         // search for 16 FFs
         for (int i = 0; i < byteArray.length; i++) {
             final byte b = byteArray[i];
@@ -56,9 +54,10 @@ public final class BinaryBGPDumpFileParser {
                             // Parse length
                             final int length = ByteArray.bytesToInt(new byte[]{ byteArray[j], byteArray[j + 1] });
 
-                            Preconditions.checkArgument(length >= MINIMAL_LENGTH,
-                                    "Invalid message at index " + start
+                            if (length < MINIMAL_LENGTH) {
+                                throw new IllegalArgumentException("Invalid message at index " + start
                                     + ", length atribute is lower than " + MINIMAL_LENGTH);
+                            }
 
                             final byte[] message = Arrays.copyOfRange(byteArray, start, start + length);
                             messages.add(message);

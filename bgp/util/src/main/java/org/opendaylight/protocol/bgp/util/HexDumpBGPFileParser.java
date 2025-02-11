@@ -7,20 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import static java.util.Objects.requireNonNull;
-
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.io.BaseEncoding;
-import com.google.common.io.CharStreams;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import org.opendaylight.protocol.util.ByteArray;
@@ -34,21 +29,24 @@ import org.slf4j.LoggerFactory;
 public final class HexDumpBGPFileParser {
     private static final int MINIMAL_LENGTH = 19;
     private static final Logger LOG = LoggerFactory.getLogger(HexDumpBGPFileParser.class);
-    private static final String FF_16 = Strings.repeat("FF", 16);
+    private static final String FF_16 = "FF".repeat(16);
 
     private HexDumpBGPFileParser() {
         // Hidden on purpose
     }
 
+    @Deprecated
     public static List<byte[]> parseMessages(final File file) throws IOException {
-        Preconditions.checkArgument(file != null, "Filename cannot be null");
-        return parseMessages(new FileInputStream(file));
+        return parseMessages(file.toPath());
+    }
+
+    public static List<byte[]> parseMessages(final Path file) throws IOException {
+        return parseMessages(Files.readString(file));
     }
 
     public static List<byte[]> parseMessages(final InputStream is) throws IOException {
-        requireNonNull(is);
-        try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            return parseMessages(CharStreams.toString(isr));
+        try {
+            return parseMessages(new String(is.readAllBytes(), StandardCharsets.UTF_8));
         } finally {
             is.close();
         }
@@ -60,24 +58,23 @@ public final class HexDumpBGPFileParser {
         final int four = 4;
         // search for 16 FFs
 
-        final List<byte[]> messages = new LinkedList<>();
+        final var messages = new ArrayList<byte[]>();
         int idx = content.indexOf(FF_16, 0);
         while (idx > -1) {
             // next 2 bytes are length
             final int lengthIdx = idx + sixteen * 2;
             final int messageIdx = lengthIdx + four;
-            final String hexLength = content.substring(lengthIdx, messageIdx);
-            final byte[] byteLength = BaseEncoding.base16().decode(hexLength);
-            final int length = ByteArray.bytesToInt(byteLength);
+            final int length = ByteArray.bytesToInt(HexFormat.of().parseHex(content, lengthIdx, messageIdx));
             final int messageEndIdx = idx + length * 2;
 
             // Assert that message is longer than minimum 19(header.length == 19)
             // If length in BGP message would be 0, loop would never end
-            Preconditions.checkArgument(length >= MINIMAL_LENGTH, "Invalid message at index "
-                    + idx + ", length atribute is lower than " + MINIMAL_LENGTH);
+            if (length < MINIMAL_LENGTH) {
+                throw new IllegalArgumentException("Invalid message at index " + idx
+                    + ", length atribute is lower than " + MINIMAL_LENGTH);
+            }
 
-            final String hexMessage = content.substring(idx, messageEndIdx);
-            final byte[] message = BaseEncoding.base16().decode(hexMessage);
+            final byte[] message = HexFormat.of().parseHex(content, idx, messageEndIdx);
             messages.add(message);
             idx = messageEndIdx;
             idx = content.indexOf(FF_16, idx);
@@ -88,6 +85,6 @@ public final class HexDumpBGPFileParser {
 
     @VisibleForTesting
     static String clearWhiteSpaceToUpper(final String line) {
-        return line.replaceAll("\\s", "").toUpperCase(Locale.ENGLISH);
+        return line.replaceAll("\\s", "").toUpperCase(Locale.ROOT);
     }
 }
