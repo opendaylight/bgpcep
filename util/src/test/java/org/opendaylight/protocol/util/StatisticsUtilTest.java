@@ -5,27 +5,26 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class StatisticsUtilTest {
-
+class StatisticsUtilTest {
     @Test
-    public void testGetCurrentTimestampInSeconds() {
+    void testGetCurrentTimestampInSeconds() {
         assertEquals(System.currentTimeMillis() / 1000, StatisticsUtil.getCurrentTimestampInSeconds());
     }
 
     @Test
-    public void testFormatElapsedTime() {
+    void testFormatElapsedTime() {
         assertEquals("1:01:01:01", StatisticsUtil.formatElapsedTime(90061));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testFormatElapsedTimeInvalidInput() {
-        StatisticsUtil.formatElapsedTime(-1);
+    @Test
+    void testFormatElapsedTimeInvalidInput() {
+        assertThrows(IllegalArgumentException.class, () -> StatisticsUtil.formatElapsedTime(-1));
     }
 }
