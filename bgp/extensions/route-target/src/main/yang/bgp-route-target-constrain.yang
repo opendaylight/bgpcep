@@ -11,7 +11,7 @@ module bgp-route-target-constrain {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import openconfig-routing-policy { prefix rpol; }
     import openconfig-bgp-policy { prefix bgp-pol; }
-    import yang-ext { prefix ext; revision-date "2013-07-09"; }
+    import odl-codegen-extensions { prefix oce; }
 
     organization "AT&T Services, Inc.";
 
@@ -142,7 +142,7 @@ module bgp-route-target-constrain {
     }
 
     augment /rpol:routing-policy/rpol:policy-definitions/rpol:policy-definition/rpol:statements/rpol:statement/rpol:actions/bgp-pol:bgp-actions {
-        ext:augment-identifier client-attribute-prepend;
+        oce:augment-identifier client-attribute-prepend;
         container client-attribute-prepend {
 
         presence "node is present in the config data to use the client attributes prepend action";

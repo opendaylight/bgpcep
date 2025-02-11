@@ -12,7 +12,7 @@ module odl-pcep-ietf-stateful {
     import topology-tunnel { prefix tt; revision-date 2013-08-19; }
     import topology-tunnel-pcep { prefix tun; revision-date 2018-11-09; }
     import topology-tunnel-pcep-programming { prefix ttpp; revision-date 2018-11-09; }
-    import yang-ext { prefix ext; revision-date 2013-07-09; }
+    import odl-codegen-extensions { prefix oce; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
@@ -357,13 +357,13 @@ module odl-pcep-ietf-stateful {
 
     augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
         uses stateful-capability-tlv;
-        ext:augment-identifier tlvs-1;
+        oce:augment-identifier tlvs-1;
     }
 
     augment "/msg:pcrep/msg:pcrep-message/msg:replies" {
         reference "https://tools.ietf.org/html/rfc8231#section-6.5";
         uses lsp-object;
-        ext:augment-identifier tlvs-4;
+        oce:augment-identifier tlvs-4;
     }
 
     augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p" {
@@ -389,7 +389,7 @@ module odl-pcep-ietf-stateful {
 
     augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
         uses stateful-capability-tlv;
-        ext:augment-identifier tlvs-3;
+        oce:augment-identifier tlvs-3;
     }
 
     augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:reported-lsp/topo:path" {
@@ -402,20 +402,20 @@ module odl-pcep-ietf-stateful {
     }
 
     augment "/topo:ensure-lsp-operational/topo:input/topo:arguments" {
-        ext:augment-identifier arguments-1;
+        oce:augment-identifier arguments-1;
         leaf operational {
             type operational-status;
         }
     }
 
     augment "/topo:add-lsp/topo:input/topo:arguments" {
-        ext:augment-identifier arguments-2;
+        oce:augment-identifier arguments-2;
         uses lsp-object;
         uses pcep:path-setup-type-tlv;
     }
 
     augment "/topo:update-lsp/topo:input/topo:arguments" {
-        ext:augment-identifier arguments-3;
+        oce:augment-identifier arguments-3;
         uses lsp-object;
         uses pcep:path-setup-type-tlv;
     }
