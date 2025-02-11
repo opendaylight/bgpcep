@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlv;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vs.tlv.VsTlv;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
@@ -102,8 +101,6 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
             builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
         } else if (tlv instanceof SymbolicPathName) {
             builder.setSymbolicPathName((SymbolicPathName) tlv);
-        } else if (tlv instanceof VsTlv) {
-            builder.setVsTlv((VsTlv) tlv);
         } else if (tlv instanceof PathBinding) {
             builder.setPathBinding((PathBinding) tlv);
         }
@@ -155,9 +152,6 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         }
         if (tlvs.getSymbolicPathName() != null) {
             serializeTlv(tlvs.getSymbolicPathName(), body);
-        }
-        if (tlvs.getVsTlv() != null) {
-            serializeTlv(tlvs.getVsTlv(), body);
         }
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         if (tlvs.getPathBinding() != null) {

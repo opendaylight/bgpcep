@@ -246,8 +246,6 @@ module odl-pcep-ietf-stateful {
 
                 uses symbolic-path-name-tlv;
 
-                uses pcep:vs-tlv;
-
                 uses pcep:vendor-information-tlvs;
 
                 uses path-binding-tlv;
