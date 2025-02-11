@@ -69,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
 import org.opendaylight.yangtools.binding.DataObject;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.binding.DataObjectStep;
 import org.opendaylight.yangtools.binding.util.BindingMap;
@@ -89,24 +90,26 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         this.source = requireNonNull(source);
     }
 
-    private static void categorizeIdentifier(final InstanceIdentifier<?> identifier,
-            final Set<InstanceIdentifier<ReportedLsp>> changedLsps,
-            final Set<InstanceIdentifier<Node>> changedNodes) {
-        final InstanceIdentifier<ReportedLsp> li = identifier.firstIdentifierOf(ReportedLsp.class);
+    private static void categorizeIdentifier(final DataObjectIdentifier<?> identifier,
+            final Set<DataObjectIdentifier<ReportedLsp>> changedLsps,
+            final Set<DataObjectIdentifier<Node>> changedNodes) {
+        final var legacy = identifier.toLegacy();
+
+        final var li = legacy.firstIdentifierOf(ReportedLsp.class);
         if (li == null) {
-            final InstanceIdentifier<Node> ni = identifier.firstIdentifierOf(Node.class);
+            final var ni = legacy.firstIdentifierOf(Node.class);
             if (ni == null) {
                 LOG.warn("Ignoring uncategorized identifier {}", identifier);
             } else {
-                changedNodes.add(ni);
+                changedNodes.add(ni.toIdentifier());
             }
         } else {
-            changedLsps.add(li);
+            changedLsps.add(li.toIdentifier());
         }
     }
 
-    private static void enumerateLsps(final InstanceIdentifier<Node> id, final Node node,
-            final Set<InstanceIdentifier<ReportedLsp>> lsps) {
+    private static void enumerateLsps(final DataObjectIdentifier<Node> id, final Node node,
+            final Set<DataObjectIdentifier<ReportedLsp>> lsps) {
         if (node == null) {
             LOG.trace("Skipping null node {}", id);
             return;
@@ -117,13 +120,16 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             return;
         }
 
-        for (final ReportedLsp l : pccnode.getPathComputationClient().nonnullReportedLsp().values()) {
-            lsps.add(id.builder().augmentation(Node1.class).child(PathComputationClient.class)
-                    .child(ReportedLsp.class, l.key()).build());
+        for (var lsp : pccnode.getPathComputationClient().nonnullReportedLsp().values()) {
+            lsps.add(id.toBuilder()
+                .augmentation(Node1.class)
+                .child(PathComputationClient.class)
+                .child(ReportedLsp.class, lsp.key())
+                .build());
         }
     }
 
-    private static LinkId linkIdForLsp(final InstanceIdentifier<ReportedLsp> identifier, final ReportedLsp lsp) {
+    private static LinkId linkIdForLsp(final DataObjectIdentifier<ReportedLsp> identifier, final ReportedLsp lsp) {
         return new LinkId(identifier.firstKeyOf(Node.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
     }
 
@@ -145,10 +151,10 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
                 .build();
     }
 
-    private void handleSni(final InstanceIdentifier<Node> sni, final Node node, final Boolean inControl,
+    private void handleSni(final DataObjectIdentifier<Node> sni, final Node node, final Boolean inControl,
             final ReadWriteTransaction trans) {
         if (sni != null) {
-            final NodeKey k = InstanceIdentifier.keyOf(sni);
+            final NodeKey k = InstanceIdentifier.keyOf(sni.toLegacy());
             boolean have = false;
             /*
              * We may have found a termination point which has been created as a destination,
@@ -172,7 +178,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     }
 
     private WithKey<TerminationPoint, TerminationPointKey> getIpTerminationPoint(final ReadWriteTransaction trans,
-            final IpAddress addr, final InstanceIdentifier<Node> sni, final Boolean inControl)
+            final IpAddress addr, final DataObjectIdentifier<Node> sni, final Boolean inControl)
             throws ExecutionException, InterruptedException {
         final Topology topo = trans.read(LogicalDatastoreType.OPERATIONAL, target).get().orElseThrow();
         for (final Node n : topo.nonnullNode().values()) {
@@ -202,7 +208,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     }
 
     private WithKey<TerminationPoint, TerminationPointKey> createTP(final IpAddress addr,
-            final InstanceIdentifier<Node> sni, final Boolean inControl, final ReadWriteTransaction trans) {
+            final DataObjectIdentifier<Node> sni, final Boolean inControl, final ReadWriteTransaction trans) {
         final String url = "ip://" + addr.toString();
         final TerminationPointKey tpk = new TerminationPointKey(new TpId(url));
         final TerminationPointBuilder tpb = new TerminationPointBuilder();
@@ -218,17 +224,17 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         nb.withKey(nk).setNodeId(nk.getNodeId());
         nb.setTerminationPoint(BindingMap.of(tpb.build()));
         if (sni != null) {
-            nb.setSupportingNode(BindingMap.of(createSupportingNode(InstanceIdentifier.keyOf(sni).getNodeId(),
-                    inControl)));
+            nb.setSupportingNode(BindingMap.of(
+                createSupportingNode(InstanceIdentifier.keyOf(sni.toLegacy()).getNodeId(), inControl)));
         }
         final var nid = target.toBuilder().child(Node.class, nb.key()).build();
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
         return nid.toBuilder().child(TerminationPoint.class, tpb.key()).build();
     }
 
-    private void create(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
+    private void create(final ReadWriteTransaction trans, final DataObjectIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ExecutionException, InterruptedException {
-        final InstanceIdentifier<Node> ni = identifier.firstIdentifierOf(Node.class);
+        final var ni = identifier.toLegacy().firstIdentifierOf(Node.class).toIdentifier();
 
         final Path1 rl = value.nonnullPath().values().iterator().next().augmentation(Path1.class);
 
@@ -261,8 +267,8 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         }
         lab.setSymbolicPathName(value.getName());
 
-        final var dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE).toLegacy();
-        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getDelegate()).toLegacy();
+        final var dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
+        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getDelegate());
 
         final var slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
             .rev200720.Link1Builder()
@@ -295,7 +301,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         return target.toBuilder().child(Node.class, new NodeKey(node)).build();
     }
 
-    private void remove(final ReadWriteTransaction trans, final InstanceIdentifier<ReportedLsp> identifier,
+    private void remove(final ReadWriteTransaction trans, final DataObjectIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ExecutionException, InterruptedException {
         final var li = linkForLsp(linkIdForLsp(identifier, value));
 
@@ -403,16 +409,15 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
         final var trans = dataProvider.newReadWriteTransaction();
 
-        final var lsps = new HashSet<InstanceIdentifier<ReportedLsp>>();
-        final var nodes = new HashSet<InstanceIdentifier<Node>>();
+        final var lsps = new HashSet<DataObjectIdentifier<ReportedLsp>>();
+        final var nodes = new HashSet<DataObjectIdentifier<Node>>();
 
-        final var original = new HashMap<InstanceIdentifier<?>, DataObject>();
-        final var updated = new HashMap<InstanceIdentifier<?>, DataObject>();
-        final var created = new HashMap<InstanceIdentifier<?>, DataObject>();
+        final var original = new HashMap<DataObjectIdentifier<?>, DataObject>();
+        final var updated = new HashMap<DataObjectIdentifier<?>, DataObject>();
+        final var created = new HashMap<DataObjectIdentifier<?>, DataObject>();
 
         for (final var change : changes) {
-            handleChangedNode(change.getRootNode(), change.getRootPath().path(), lsps, nodes, original, updated,
-                created);
+            handleChangedNode(change.getRootNode(), change.path(), lsps, nodes, original, updated, created);
         }
 
         // Now walk all nodes, check for removals/additions and cascade them to LSPs
@@ -438,10 +443,11 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         }, MoreExecutors.directExecutor());
     }
 
-    private void handleChangedNode(final DataObjectModification<?> changedNode, final InstanceIdentifier<?> iid,
-            final Set<InstanceIdentifier<ReportedLsp>> lsps, final Set<InstanceIdentifier<Node>> nodes,
-            final Map<InstanceIdentifier<?>, DataObject> original, final Map<InstanceIdentifier<?>, DataObject> updated,
-            final Map<InstanceIdentifier<?>, DataObject> created) {
+    private void handleChangedNode(final DataObjectModification<?> changedNode, final DataObjectIdentifier<?> iid,
+            final Set<DataObjectIdentifier<ReportedLsp>> lsps, final Set<DataObjectIdentifier<Node>> nodes,
+            final Map<DataObjectIdentifier<?>, DataObject> original,
+            final Map<DataObjectIdentifier<?>, DataObject> updated,
+            final Map<DataObjectIdentifier<?>, DataObject> created) {
 
         // Categorize reported identifiers
         categorizeIdentifier(iid, lsps, nodes);
@@ -466,37 +472,37 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             final var pathArguments = new ArrayList<DataObjectStep<?>>();
             iid.getPathArguments().forEach(pathArguments::add);
             pathArguments.add(child.step());
-            final var childIID = InstanceIdentifier.unsafeOf(pathArguments);
+            final var childIID = InstanceIdentifier.unsafeOf(pathArguments).toIdentifier();
             handleChangedNode(child, childIID, lsps, nodes, original, updated, created);
         }
     }
 
     private void updateTransaction(final ReadWriteTransaction trans,
-            final Set<InstanceIdentifier<ReportedLsp>> lsps,
-            final Map<InstanceIdentifier<?>, ? extends DataObject> old,
-            final Map<InstanceIdentifier<?>, DataObject> updated,
-            final Map<InstanceIdentifier<?>, DataObject> created) {
+            final Set<DataObjectIdentifier<ReportedLsp>> lsps,
+            final Map<DataObjectIdentifier<?>, ? extends DataObject> old,
+            final Map<DataObjectIdentifier<?>, DataObject> updated,
+            final Map<DataObjectIdentifier<?>, DataObject> created) {
 
-        for (final InstanceIdentifier<ReportedLsp> i : lsps) {
-            final ReportedLsp oldValue = (ReportedLsp) old.get(i);
-            ReportedLsp newValue = (ReportedLsp) updated.get(i);
+        for (var lsp : lsps) {
+            final ReportedLsp oldValue = (ReportedLsp) old.get(lsp);
+            ReportedLsp newValue = (ReportedLsp) updated.get(lsp);
             if (newValue == null) {
-                newValue = (ReportedLsp) created.get(i);
+                newValue = (ReportedLsp) created.get(lsp);
             }
 
-            LOG.debug("Updating lsp {} value {} -> {}", i, oldValue, newValue);
+            LOG.debug("Updating lsp {} value {} -> {}", lsp, oldValue, newValue);
             if (oldValue != null) {
                 try {
-                    remove(trans, i, oldValue);
+                    remove(trans, lsp, oldValue);
                 } catch (final ExecutionException | InterruptedException e) {
-                    LOG.warn("Failed to remove LSP {}", i, e);
+                    LOG.warn("Failed to remove LSP {}", lsp, e);
                 }
             }
             if (newValue != null) {
                 try {
-                    create(trans, i, newValue);
+                    create(trans, lsp, newValue);
                 } catch (final ExecutionException | InterruptedException e) {
-                    LOG.warn("Failed to add LSP {}", i, e);
+                    LOG.warn("Failed to add LSP {}", lsp, e);
                 }
             }
         }
