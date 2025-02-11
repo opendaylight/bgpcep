@@ -25,11 +25,13 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-server-provider</artifactId>
+            <artifactId>odl-bgpcep-algo</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
+            <artifactId>odl-bgpcep-pcep-segment-routing</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -41,9 +43,13 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>odl-bgpcep-algo</artifactId>
+            <artifactId>odl-bgpcep-topology-tunnel-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-server-provider</artifactId>
         </dependency>
     </dependencies>
 </project>
