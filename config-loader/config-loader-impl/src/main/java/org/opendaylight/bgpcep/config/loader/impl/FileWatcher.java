@@ -7,6 +7,7 @@
  */
 package org.opendaylight.bgpcep.config.loader.impl;
 
+import java.nio.file.Path;
 import java.nio.file.WatchService;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
@@ -17,7 +18,7 @@ public interface FileWatcher {
      *
      * @return Path
      */
-    String getPathFile();
+    Path getPathFile();
 
     /**
      * Return WatchService.
