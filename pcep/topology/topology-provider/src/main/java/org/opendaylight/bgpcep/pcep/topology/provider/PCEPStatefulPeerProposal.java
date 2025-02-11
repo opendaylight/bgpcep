@@ -68,7 +68,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         private static @NonNull NodeId extractNodeId(final DataTreeModification<?> modification) {
-            return verifyNotNull(modification.path().toLegacy().firstKeyOf(Node.class)).getNodeId();
+            return verifyNotNull(modification.path().firstKeyOf(Node.class)).getNodeId();
         }
     }
 

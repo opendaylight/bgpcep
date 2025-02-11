@@ -127,7 +127,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
     public void onDataTreeChanged(final List<DataTreeModification<Graph>> changes) {
         for (var change : changes) {
             final var root = change.getRootNode();
-            final var key = change.path().toLegacy().firstKeyOf(Graph.class);
+            final var key = change.path().firstKeyOf(Graph.class);
             switch (root.modificationType()) {
                 case DELETE:
                     graphProvider.deleteGraph(key);
@@ -152,6 +152,5 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
             }
         }
     }
-
 }
 

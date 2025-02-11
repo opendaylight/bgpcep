@@ -256,7 +256,7 @@ public final class PCEPTopologyTracker
     }
 
     private static @NonNull TopologyKey extractTopologyKey(final DataTreeModification<?> change) {
-        final var path = change.path().toLegacy();
+        final var path = change.path();
         return verifyNotNull(path.firstKeyOf(Topology.class), "No topology key in %s", path);
     }
 }
