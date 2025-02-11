@@ -5,18 +5,16 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NoopReferenceCacheTest {
+import org.junit.jupiter.api.Test;
 
-    private static final Object OBJ = new Object();
-
+class NoopReferenceCacheTest {
     @Test
-    public void testSharedReference() {
-        Assert.assertEquals(OBJ, NoopReferenceCache.getInstance().getSharedReference(OBJ));
+    void testSharedReference() {
+        final var obj = new Object();
+        assertEquals(obj, NoopReferenceCache.getInstance().getSharedReference(obj));
     }
 }
