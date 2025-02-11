@@ -48,7 +48,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
@@ -94,10 +93,8 @@ public final class MvpnIpv6RIBSupportTest
 
     @Test
     public void testDeleteRoutes() {
-        final ContainerNode withdraw = createNlriWithDrawnRoute(UNREACH_NLRI);
-        ribSupport.deleteRoutes(tx, getTablePath(), withdraw);
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(MvpnRoute.class));
+        ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(MvpnRoute.class));
     }
 
     @Test

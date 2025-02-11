@@ -76,8 +76,7 @@ public class VpnIpv6RIBSupportTest extends AbstractRIBSupportTest<VpnIpv6RoutesC
     @Test
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(ROUTE_KEY, instanceIdentifier.firstKeyOf(VpnRoute.class));
+        assertEquals(ROUTE_KEY, deletedRoutes.getFirst().firstKeyOf(VpnRoute.class));
     }
 
     @Test

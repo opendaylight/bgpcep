@@ -90,8 +90,7 @@ public class FlowspecIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecI
     @Test
     public void testDeleteRoutes() {
         ribSupport.deleteRoutes(tx, getTablePath(), createNlriWithDrawnRoute(UNREACH_NLRI));
-        final var instanceIdentifier = deletedRoutes.getFirst().toLegacy();
-        assertEquals(routeKey, instanceIdentifier.firstKeyOf(FlowspecRoute.class));
+        assertEquals(routeKey, deletedRoutes.getFirst().firstKeyOf(FlowspecRoute.class));
     }
 
     @Test
