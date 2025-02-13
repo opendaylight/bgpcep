@@ -22,6 +22,30 @@
       },
       "revId": "83450d07ad84e0a15a185f76969c02aba8e012fc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ac22f99_0f958ee7",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/BGPActivator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-02-13T13:28:54Z",
+      "side": 0,
+      "message": "This directive was already there and there is no empty constructor. Do I need to create a new empty constructor and move the @Inject directive to it?",
+      "parentUuid": "cf921a3b_dcb72e68",
+      "range": {
+        "startLine": 69,
+        "startChar": 5,
+        "endLine": 69,
+        "endChar": 11
+      },
+      "revId": "83450d07ad84e0a15a185f76969c02aba8e012fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
