@@ -259,6 +259,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1756d04e_8bef6b63",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T14:38:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b50f4160_765a631a",
+      "range": {
+        "startLine": 270,
+        "startChar": 13,
+        "endLine": 270,
+        "endChar": 30
+      },
+      "revId": "da3dbb51839467e3278cb925215d9a1d54bf8a37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ac8134b_1f43e71d",
@@ -282,6 +306,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96859a22_b1d47844",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T14:38:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ac8134b_1f43e71d",
+      "range": {
+        "startLine": 281,
+        "startChar": 12,
+        "endLine": 281,
+        "endChar": 40
+      },
+      "revId": "da3dbb51839467e3278cb925215d9a1d54bf8a37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9b332446_cdea10e2",
@@ -295,6 +343,30 @@
       "writtenOn": "2025-02-13T13:26:39Z",
       "side": 1,
       "message": "switch",
+      "range": {
+        "startLine": 307,
+        "startChar": 12,
+        "endLine": 307,
+        "endChar": 17
+      },
+      "revId": "da3dbb51839467e3278cb925215d9a1d54bf8a37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f5eb5e6_5cbf2046",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/sr/SrLinkAttributesParser.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T14:38:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b332446_cdea10e2",
       "range": {
         "startLine": 307,
         "startChar": 12,
