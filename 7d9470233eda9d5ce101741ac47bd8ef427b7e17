@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce2879d2_16bbd9fa",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "local variable type inference",
+      "range": {
+        "startLine": 193,
+        "startChar": 14,
+        "endLine": 193,
+        "endChar": 28
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a9864f9_424532c5",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "already imported",
+      "range": {
+        "startLine": 209,
+        "startChar": 51,
+        "endLine": 209,
+        "endChar": 74
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22c05307_d4c4db5d",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "local variable type inference",
+      "range": {
+        "startLine": 468,
+        "startChar": 13,
+        "endLine": 468,
+        "endChar": 42
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcc335e5_e2f87db1",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 628,
+        "startChar": 21,
+        "endLine": 628,
+        "endChar": 34
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "340a00de_b5a733bd",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "single access",
+      "range": {
+        "startLine": 664,
+        "startChar": 12,
+        "endLine": 664,
+        "endChar": 43
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4ea157d_6c920bf2",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/LinkAttributesParser.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T09:12:22Z",
+      "side": 1,
+      "message": "single access",
+      "range": {
+        "startLine": 761,
+        "startChar": 16,
+        "endLine": 761,
+        "endChar": 48
+      },
+      "revId": "7d9470233eda9d5ce101741ac47bd8ef427b7e17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
