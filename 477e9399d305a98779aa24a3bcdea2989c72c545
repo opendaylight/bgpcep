@@ -623,6 +623,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42ed8558_66fd8228",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/ProtocolUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T15:32:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4796d42_41e510ff",
+      "range": {
+        "startLine": 236,
+        "startChar": 23,
+        "endLine": 236,
+        "endChar": 36
+      },
+      "revId": "477e9399d305a98779aa24a3bcdea2989c72c545",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8f078e65_26c8f953",
@@ -636,6 +660,30 @@
       "writtenOn": "2025-02-13T14:08:19Z",
       "side": 1,
       "message": "single access",
+      "range": {
+        "startLine": 280,
+        "startChar": 19,
+        "endLine": 280,
+        "endChar": 36
+      },
+      "revId": "477e9399d305a98779aa24a3bcdea2989c72c545",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd1e8c07_9db8698d",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/ProtocolUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T15:32:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f078e65_26c8f953",
       "range": {
         "startLine": 280,
         "startChar": 19,
