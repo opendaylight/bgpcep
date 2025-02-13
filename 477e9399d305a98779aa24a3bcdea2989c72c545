@@ -164,6 +164,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0b005473_ce50a7c8",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/SRv6EndpointTlvParser.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T14:05:16Z",
+      "side": 1,
+      "message": "fluent",
+      "range": {
+        "startLine": 45,
+        "startChar": 16,
+        "endLine": 45,
+        "endChar": 23
+      },
+      "revId": "477e9399d305a98779aa24a3bcdea2989c72c545",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0fe3f130_0bef7205",
         "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/SRv6NodeDescriptorTlvParser.java",
         "patchSetId": 14
@@ -180,6 +203,29 @@
         "startChar": 7,
         "endLine": 14,
         "endChar": 12
+      },
+      "revId": "477e9399d305a98779aa24a3bcdea2989c72c545",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2633910_1b68a9fa",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/tlvs/SRv6PeerNodeTlvParser.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-02-13T14:05:16Z",
+      "side": 1,
+      "message": "fluent",
+      "range": {
+        "startLine": 64,
+        "startChar": 8,
+        "endLine": 64,
+        "endChar": 15
       },
       "revId": "477e9399d305a98779aa24a3bcdea2989c72c545",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
