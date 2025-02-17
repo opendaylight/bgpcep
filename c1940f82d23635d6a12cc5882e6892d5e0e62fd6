@@ -22,6 +22,30 @@
       },
       "revId": "c1940f82d23635d6a12cc5882e6892d5e0e62fd6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4edb55f2_e90be140",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-02-17T13:00:12Z",
+      "side": 1,
+      "message": "If I use a DataObjectIdentifier\u003cT\u003e instead of a DataObjectReference\u003cT\u003e, the junit tests failed. More precisely, call to .toIdentifier() failed while call to .toRefernce() works fine.\n\nI think is come from the fact that what we are looking for here is of nature `KeyLessStep`and not of `KeyedStep`, but perhaps I\u0027m wrong",
+      "parentUuid": "2eac8384_c74a58ec",
+      "range": {
+        "startLine": 141,
+        "startChar": 73,
+        "endLine": 141,
+        "endChar": 82
+      },
+      "revId": "c1940f82d23635d6a12cc5882e6892d5e0e62fd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
