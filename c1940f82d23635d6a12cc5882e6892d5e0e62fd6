@@ -46,6 +46,30 @@
       },
       "revId": "c1940f82d23635d6a12cc5882e6892d5e0e62fd6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c49c24b3_1644b649",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/AbstractTopologyBuilder.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-02-17T14:47:30Z",
+      "side": 1,
+      "message": "Resolved in patchset 11",
+      "parentUuid": "4edb55f2_e90be140",
+      "range": {
+        "startLine": 141,
+        "startChar": 73,
+        "endLine": 141,
+        "endChar": 82
+      },
+      "revId": "c1940f82d23635d6a12cc5882e6892d5e0e62fd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
