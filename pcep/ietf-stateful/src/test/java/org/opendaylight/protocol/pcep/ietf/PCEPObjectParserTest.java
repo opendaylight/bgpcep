@@ -13,6 +13,8 @@ import static org.junit.Assert.assertEquals;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
@@ -87,8 +89,8 @@ public class PCEPObjectParserTest {
 
         final SyncOptimizationsOpenObjectParser parser = new SyncOptimizationsOpenObjectParser(
             ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
-        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
-            "src/test/resources/PCEPOpenObject1.bin"));
+        final ByteBuf result = Unpooled.wrappedBuffer(
+            Files.readAllBytes(Path.of("src/test/resources/PCEPOpenObject1.bin")));
 
         final var builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109
             .open.object.OpenBuilder()
@@ -129,8 +131,8 @@ public class PCEPObjectParserTest {
 
         final SyncOptimizationsLspObjectParser parser = new SyncOptimizationsLspObjectParser(
             ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
-        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
-            "src/test/resources/PCEPLspObject1WithTLV.bin"));
+        final ByteBuf result = Unpooled.wrappedBuffer(
+            Files.readAllBytes(Path.of("src/test/resources/PCEPLspObject1WithTLV.bin")));
 
         final LspBuilder builder = new LspBuilder()
             .setProcessingRule(true)
@@ -166,8 +168,8 @@ public class PCEPObjectParserTest {
         new StatefulActivator().start(ctx);
 
         final StatefulLspObjectParser parser = new StatefulLspObjectParser(tlvRegistry, viTlvRegistry);
-        final ByteBuf result = Unpooled.wrappedBuffer(ByteArray.fileToBytes(
-            "src/test/resources/PCEPLspObject2WithTLV.bin"));
+        final ByteBuf result = Unpooled.wrappedBuffer(
+            Files.readAllBytes(Path.of("src/test/resources/PCEPLspObject2WithTLV.bin")));
 
         final LspBuilder builder = new LspBuilder()
                 .setProcessingRule(true)
