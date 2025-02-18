@@ -22,20 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements EROSubobjectParser,
         EROSubobjectSerializer {
 
-    @Deprecated
-    private static final int LEGACY_TYPE = 5;
-    private static final int IANA_TYPE = 36;
-
-    @Deprecated
-    private final int type;
+    public static final int TYPE = 36;
 
     SrEroSubobjectParser() {
-        type = IANA_TYPE;
-    }
-
-    @Deprecated
-    SrEroSubobjectParser(final boolean isIanaAssignedType) {
-        type = isIanaAssignedType ? IANA_TYPE : LEGACY_TYPE;
+        // Hidden on purpose
     }
 
     @Override
@@ -46,7 +36,7 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
 
         final SrSubobject srSubobject = (SrSubobject) subobject.getSubobjectType();
         final ByteBuf body = serializeSubobject(srSubobject);
-        EROSubobjectUtil.formatSubobject(type, subobject.getLoose(), body, buffer);
+        EROSubobjectUtil.formatSubobject(TYPE, subobject.getLoose(), body, buffer);
     }
 
     @Override
@@ -56,10 +46,5 @@ public class SrEroSubobjectParser extends AbstractSrSubobjectParser implements E
         subobjectBuilder.setLoose(loose);
         subobjectBuilder.setSubobjectType(srEroSubobjectBuilder.build());
         return subobjectBuilder.build();
-    }
-
-    @Deprecated
-    public int getCodePoint() {
-        return type;
     }
 }
