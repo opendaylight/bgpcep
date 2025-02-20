@@ -3,13 +3,13 @@ module odl-bgp-policy {
     namespace "urn:opendaylight:params:xml:ns:yang:odl:bgp:default:policy";
     prefix "odl-bgp-policy";
 
-    import odl-codegen-extensions { prefix oce; }
-    import openconfig-bgp-types { prefix oc-bgp-t; }
-    import bgp-rib { prefix rib; revision-date 2018-03-29; }
-    import openconfig-routing-policy { prefix rpol; }
-    import openconfig-bgp-policy { prefix bgppol; }
+    import openconfig-bgp-policy { prefix bgppol; revision-date 2015-10-09; }
+    import openconfig-bgp-types { prefix oc-bgp-t; revision-date 2015-10-09; }
+    import openconfig-routing-policy { prefix rpol; revision-date 2015-10-09; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import bgp-rib { prefix rib; revision-date 2018-03-29; }
     import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
+    import odl-codegen-extensions { prefix oce; }
 
     organization "AT&T Services, Inc.";
     contact "Claudio D. Gasparini <claudio.gasparini@pantheon.tech>";

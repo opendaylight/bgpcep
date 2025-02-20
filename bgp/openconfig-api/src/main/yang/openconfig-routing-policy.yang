@@ -9,8 +9,8 @@ module openconfig-routing-policy {
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import openconfig-policy-types { prefix pt; }
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-policy-types { prefix pt; revision-date 2015-10-09; }
+  import openconfig-extensions { prefix oc-ext; revision-date 2015-10-09; }
 
   // meta
   organization

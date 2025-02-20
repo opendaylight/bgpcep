@@ -9,7 +9,7 @@ module openconfig-policy-types {
 
   // import some basic types
   import ietf-yang-types { prefix yang; }
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-extensions { prefix oc-ext; revision-date 2015-10-09; }
 
   // meta
   organization

@@ -3,9 +3,9 @@ module bgp-ll-graceful-restart {
     namespace "urn:opendaylight:params:xml:ns:yang:bgp:ll-graceful-restart";
     prefix "odl-bgp-ll-graceful-restart";
 
-    import openconfig-network-instance { prefix netinst; }
+    import openconfig-network-instance { prefix netinst; revision-date 2015-10-18; }
+    import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
     import bgp-openconfig-extensions { prefix bgp-op-ext; }
-    import openconfig-bgp-types { prefix bgp-types; }
     import ietf-routing-types { prefix rt-types; }
 
     description

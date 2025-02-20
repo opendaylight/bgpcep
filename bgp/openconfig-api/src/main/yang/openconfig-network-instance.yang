@@ -11,12 +11,12 @@ module openconfig-network-instance {
   //import ietf-inet-types { prefix inet; }
   import ietf-yang-types { prefix "yang"; }
   import ietf-inet-types { prefix "inet"; }
-  import openconfig-network-instance-types { prefix "nit"; }
-  import openconfig-policy-types { prefix "pt"; }
-  import openconfig-routing-policy { prefix "rpol"; }
-  import openconfig-local-routing { prefix "lroute"; }
-  import openconfig-interfaces { prefix "ocif"; }
-  import openconfig-extensions { prefix "ocext"; }
+  import openconfig-network-instance-types { prefix "nit"; revision-date 2015-10-18; }
+  import openconfig-policy-types { prefix "pt"; revision-date 2015-10-09; }
+  import openconfig-routing-policy { prefix "rpol"; revision-date 2015-10-09; }
+  import openconfig-local-routing { prefix "lroute"; revision-date 2015-10-09; }
+  import openconfig-interfaces { prefix "ocif"; revision-date 2016-04-12; }
+  import openconfig-extensions { prefix "ocext"; revision-date 2015-10-09; }
 
   // meta
   organization "OpenConfig working group";
