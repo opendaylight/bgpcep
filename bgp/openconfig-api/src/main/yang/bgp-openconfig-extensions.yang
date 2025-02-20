@@ -1,14 +1,14 @@
 module bgp-openconfig-extensions {
-    yang-version 1;
+    yang-version 1.1;
     namespace "urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions";
     prefix "odl-oc-ext";
 
-    import openconfig-bgp-types { prefix bgp-types; }
-    import openconfig-network-instance { prefix netinst; }
-    import openconfig-bgp { prefix openconfig-bgp; }
+    import openconfig-bgp { prefix openconfig-bgp; revision-date 2015-10-09; }
+    import openconfig-bgp-operational { prefix bgp-op; revision-date 2015-10-09; }
+    import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
+    import openconfig-network-instance { prefix netinst; revision-date 2015-10-18; }
     import ietf-inet-types { prefix inet; }
     import odl-codegen-extensions { prefix oce; }
-    import openconfig-bgp-operational { prefix bgp-op; }
 
     organization "Cisco Systems, Inc.";
     contact "Milos Fabian <milfabia@cisco.com>";
