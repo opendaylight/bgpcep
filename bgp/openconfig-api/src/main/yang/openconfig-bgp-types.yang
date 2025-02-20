@@ -5,9 +5,9 @@ module openconfig-bgp-types {
 
   prefix "bgp-types";
 
-  import ietf-inet-types { prefix inet; revision-date 2013-07-15;}
-  import openconfig-types { prefix oc-types; }
-  import openconfig-extensions { prefix oc-ext; }
+  import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+  import openconfig-types { prefix oc-types; revision-date 2015-10-09; }
+  import openconfig-extensions { prefix oc-ext; revision-date 2015-10-09; }
 
   // meta
   organization
