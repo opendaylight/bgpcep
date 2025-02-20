@@ -7,7 +7,7 @@ module openconfig-network-instance-types {
 
   prefix "nit";
 
-  import openconfig-extensions { prefix "ocext"; }
+  import openconfig-extensions { prefix "ocext"; revision-date 2015-10-09; }
 
   // meta
   organization "OpenConfig working group";

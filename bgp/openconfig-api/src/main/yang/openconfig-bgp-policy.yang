@@ -9,10 +9,10 @@ module openconfig-bgp-policy {
 
   // import some basic types
   import ietf-inet-types { prefix inet; }
-  import openconfig-routing-policy {prefix rpol; }
-  import openconfig-policy-types { prefix pt; }
-  import openconfig-bgp-types { prefix bgp-types; }
-  import openconfig-extensions { prefix oc-ext; }
+  import openconfig-routing-policy {prefix rpol; revision-date 2015-10-09; }
+  import openconfig-policy-types { prefix pt; revision-date 2015-10-09; }
+  import openconfig-bgp-types { prefix bgp-types; revision-date 2015-10-09; }
+  import openconfig-extensions { prefix oc-ext; revision-date 2015-10-09; }
   import bgp-types { prefix bgp-t; revision-date 2020-01-20; }
 
 

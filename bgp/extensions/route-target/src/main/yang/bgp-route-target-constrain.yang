@@ -9,8 +9,8 @@ module bgp-route-target-constrain {
     import bmp-monitor { prefix bmp-mon; revision-date 2020-01-20; }
     import bgp-message { prefix bgp-msg; revision-date 2020-01-20; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
-    import openconfig-routing-policy { prefix rpol; }
-    import openconfig-bgp-policy { prefix bgp-pol; }
+    import openconfig-routing-policy { prefix rpol; revision-date 2015-10-09; }
+    import openconfig-bgp-policy { prefix bgp-pol; revision-date 2015-10-09; }
     import odl-codegen-extensions { prefix oce; }
 
     organization "AT&T Services, Inc.";
