@@ -113,7 +113,7 @@ public class PCEPRequestParameterObjectParser extends AbstractObjectWithTlvsPars
                 .setRequestId(new RequestId(reqId))
                 .setTlvs(tlvsBuilder.build());
 
-        short priority = 0;
+        int priority = 0;
         priority |= flags.get(PRI_SF_OFFSET + 2) ? 1 : 0;
         priority |= (flags.get(PRI_SF_OFFSET + 1) ? 1 : 0) << 1;
         priority |= (flags.get(PRI_SF_OFFSET) ? 1 : 0) << 2;

@@ -114,6 +114,7 @@ public class PCEPNotificationMessageParser extends AbstractMessageParser {
                 .setRps(requestParameters).build();
     }
 
+    @SuppressWarnings("fallthrough")
     private static State insertObject(final State state, final Object obj, final List<Message> errors,
             final List<Rps> requestParameters,
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.pcntf

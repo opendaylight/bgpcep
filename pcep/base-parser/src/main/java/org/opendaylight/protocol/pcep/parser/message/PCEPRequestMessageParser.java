@@ -353,6 +353,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
     }
 
     // Note: objects is expected to be non-empty and caller will remove the first object if non-empty
+    @SuppressWarnings("fallthrough")
     private static P2PState insertP2PObject(final P2PState p2PState,
                                             final Queue<Object> objects,
                                             final List<VendorInformationObject> viObjects,
@@ -447,6 +448,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         }
     }
 
+    @SuppressWarnings("fallthrough")
     private static SvecState insertP2PObject(final SvecState state, final Object obj, final SvecBuilder builder,
             final List<Metrics> metrics, final List<VendorInformationObject> viObjects) {
         switch (state) {
@@ -551,6 +553,7 @@ public class PCEPRequestMessageParser extends AbstractMessageParser {
         return true;
     }
 
+    @SuppressWarnings("fallthrough")
     private static P2MPState insertP2MPObject(final P2MPState p2MPState, final Queue<Object> objects,
             final P2mpBuilder builder, final List<EndpointRroPair> epRros,
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.pcreq

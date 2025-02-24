@@ -261,6 +261,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
+    @SuppressWarnings("fallthrough")
     private static State insertObject(final State state, final Object obj, final FailureCaseBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
@@ -296,6 +297,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
         }
     }
 
+    @SuppressWarnings("fallthrough")
     private static State insertObject(final State state, final Object obj, final PathsBuilder builder,
             final List<Metrics> pathMetrics) {
         switch (state) {
