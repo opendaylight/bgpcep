@@ -140,6 +140,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
         return new PcerrBuilder().setPcerrMessage(msgBuilder.setErrors(errorObjects).build()).build();
     }
 
+    @SuppressWarnings("fallthrough")
     private static State insertObject(final State state, final List<Errors> errorObjects, final Object obj,
             final List<Rps> requestParameters, final PcerrMessageBuilder msgBuilder) {
         switch (state) {
@@ -149,7 +150,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                     return State.RP_IN;
                 }
                 // fallthrough
-            case ERROR_IN:
+            case ERROR_IN: // fall-through
                 if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR_IN;
