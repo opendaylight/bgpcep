@@ -24,6 +24,7 @@ public final class Util {
         // Hidden on purpose
     }
 
+    @SuppressWarnings("fallthrough")
     private static State insertObject(final MetricPceBuilder metricPceBuilder, final State state, final Object obj) {
         switch (state) {
             case START :
