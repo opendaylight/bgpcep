@@ -680,8 +680,10 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
     @Override
     protected DataObjectReference<LinkstateRoute> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
-        return tablesId.toBuilder().child(LinkstateRoutesCase.class, LinkstateRoutes.class).build()
-            .toLegacy().child(LinkstateRoute.class).toReference();
+        return tablesId.toBuilder().toReferenceBuilder()
+            .child(LinkstateRoutesCase.class, LinkstateRoutes.class)
+            .child(LinkstateRoute.class)
+            .build();
     }
 
     @Override

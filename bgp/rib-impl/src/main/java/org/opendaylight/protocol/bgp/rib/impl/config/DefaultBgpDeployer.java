@@ -144,7 +144,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     // Split out of constructor to support partial mocking
     public synchronized void init() {
         registration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
-            networkInstanceIId.toLegacy().toBuilder()
+            networkInstanceIId.toBuilder().toReferenceBuilder()
                 .child(Protocols.class)
                 .child(Protocol.class)
                 .augmentation(NetworkInstanceProtocol.class)

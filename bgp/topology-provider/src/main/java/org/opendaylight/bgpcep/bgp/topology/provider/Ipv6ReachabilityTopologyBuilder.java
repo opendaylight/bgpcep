@@ -48,7 +48,9 @@ public final class Ipv6ReachabilityTopologyBuilder extends AbstractReachabilityT
 
     @Override
     protected DataObjectReference<Ipv6Route> getRouteWildcard(final DataObjectIdentifier<Tables> tablesId) {
-        return tablesId.toBuilder().child(Ipv6RoutesCase.class, Ipv6Routes.class).build()
-            .toLegacy().child(Ipv6Route.class).toReference();
+        return tablesId.toBuilder().toReferenceBuilder()
+            .child(Ipv6RoutesCase.class, Ipv6Routes.class)
+            .child(Ipv6Route.class)
+            .build();
     }
 }

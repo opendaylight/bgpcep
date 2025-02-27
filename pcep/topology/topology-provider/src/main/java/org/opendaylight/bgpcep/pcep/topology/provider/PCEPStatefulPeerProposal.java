@@ -75,12 +75,12 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
     @VisibleForTesting
     static final class SpeakerIdListener extends AbstractListener<PcepNodeSyncConfig, byte[]> {
         SpeakerIdListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topologyId) {
-            super(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                topologyId.toLegacy().child(Node.class).toReference().toBuilder()
-                    .augmentation(Node1.class)
-                    .child(SessionConfig.class)
-                    .augmentation(PcepNodeSyncConfig.class)
-                    .build());
+            super(dataBroker, LogicalDatastoreType.CONFIGURATION, topologyId.toBuilder().toReferenceBuilder()
+                .child(Node.class)
+                .augmentation(Node1.class)
+                .child(SessionConfig.class)
+                .augmentation(PcepNodeSyncConfig.class)
+                .build());
         }
 
         @Override
@@ -98,14 +98,14 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
 
     @VisibleForTesting
     static final class LspDbVersionListener extends AbstractListener<LspDbVersion, LspDbVersion> {
-        LspDbVersionListener(final DataBroker dataBroker, final DataObjectReference<Topology> topologyId) {
-            super(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                topologyId.toLegacy().child(Node.class).toReference().toBuilder()
-                    .augmentation(Node1.class)
-                    .child(PathComputationClient.class)
-                    .augmentation(PathComputationClient1.class)
-                    .child(LspDbVersion.class)
-                    .build());
+        LspDbVersionListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topologyId) {
+            super(dataBroker, LogicalDatastoreType.OPERATIONAL, topologyId.toBuilder().toReferenceBuilder()
+                .child(Node.class)
+                .augmentation(Node1.class)
+                .child(PathComputationClient.class)
+                .augmentation(PathComputationClient1.class)
+                .child(LspDbVersion.class)
+                .build());
         }
 
         @Override
