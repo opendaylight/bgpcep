@@ -16,6 +16,24 @@
       "message": "Hello Robert,\n\nI just updated + rebased this patch since you merge the BGP-LS update.\nCan you review it end merge it please?\n\nRegards\n\nOlivier",
       "revId": "748222240a7c8747adecbc746c22a4148878df90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c8b5757_5ec526e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-03-05T09:01:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c7f3690_dfc08d56",
+      "revId": "748222240a7c8747adecbc746c22a4148878df90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
