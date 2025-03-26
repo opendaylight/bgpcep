@@ -306,7 +306,6 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             }
         }
         rlb.setPath(BindingMap.of(buildPath(report, srp, lsp)));
-
         String name = lookupLspName(plspid);
         if (lsp.getTlvs() != null && lsp.getTlvs().getSymbolicPathName() != null) {
             name = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName()
@@ -476,6 +475,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             final UpdatesBuilder rb = new UpdatesBuilder();
             rb.setSrp(srp);
             rb.setLsp(lsp);
+            if (input.getArguments().getAssociationGroup() != null) {
+                rb.setAssociationGroup(input.getArguments().getAssociationGroup());
+            }
             final PathBuilder pb = new PathBuilder();
             pb.fieldsFrom(input.getArguments());
             rb.setPath(pb.build());
@@ -752,7 +754,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                                 .setPathSetupType(args2.getPathSetupType()).build());
             }
             rb.setSrp(srpBuilder.build());
-
+            if (args.getAssociationGroup() != null) {
+                rb.setAssociationGroup(args.getAssociationGroup());
+            }
             rb.setLsp(new LspBuilder()
                 .setAdministrative(inputLsp.getAdministrative())
                 .setDelegate(inputLsp.getDelegate())

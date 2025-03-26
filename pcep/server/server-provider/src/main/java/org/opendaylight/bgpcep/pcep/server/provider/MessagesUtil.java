@@ -240,7 +240,7 @@ public final class MessagesUtil {
     public static Pcrep createNoPathMessage(final Rp rp, final byte reason) {
 
         /* Prepare NoPath Object */
-        final Flags flags = new Flags(false, false, false, false, false, false,
+        final Flags flags = new Flags(false, false, false, false, false, false, false, false,
                 reason == UNKNOWN_DESTINATION, reason == UNKNOWN_SOURCE);
         final NoPathVectorBuilder npvBuilder = new NoPathVectorBuilder().setFlags(flags);
         final TlvsBuilder tlvsBuilder = new TlvsBuilder().setNoPathVector(npvBuilder.build());
