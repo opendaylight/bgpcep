@@ -24,6 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.range.tlv.AssociationRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.type.list.tlv.AssociationTypeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
@@ -98,6 +100,12 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         if (tlv instanceof OfList) {
             tbuilder.setOfList((OfList) tlv);
         }
+        if (tlv instanceof AssociationTypeList) {
+            tbuilder.setAssociationTypeList((AssociationTypeList) tlv);
+        }
+        if (tlv instanceof AssociationRange) {
+            tbuilder.setAssociationRange((AssociationRange ) tlv);
+        }
     }
 
     @Override
@@ -118,6 +126,12 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         if (tlvs != null) {
             if (tlvs.getOfList() != null) {
                 serializeTlv(tlvs.getOfList(), body);
+            }
+            if (tlvs.getAssociationTypeList() != null) {
+                serializeTlv(tlvs.getAssociationTypeList(), body);
+            }
+            if (tlvs.getAssociationRange() != null) {
+                serializeTlv(tlvs.getAssociationRange(), body);
             }
             serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }

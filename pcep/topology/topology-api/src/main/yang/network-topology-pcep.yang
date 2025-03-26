@@ -142,6 +142,8 @@ module network-topology-pcep {
                     uses pcep:path-definition;
                 }
                 uses lsp-metadata;
+                // FIXME: This cause a java.lang.IllegalArgumentException. Why?
+                // uses pcep:association-object;
             }
         }
     }
@@ -236,6 +238,8 @@ module network-topology-pcep {
 
             uses pcep:path-definition;
 
+            uses pcep:association-object;
+
             uses lsp-metadata;
         }
     }
@@ -270,6 +274,8 @@ module network-topology-pcep {
         container arguments {
 
             uses pcep:path-definition;
+
+            uses pcep:association-object;
 
             uses lsp-metadata;
         }

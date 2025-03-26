@@ -22,6 +22,8 @@ import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
@@ -84,6 +86,8 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey128SubobjectPar
 import org.opendaylight.protocol.pcep.parser.subobject.XROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AssociationTypeListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
@@ -107,6 +111,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Starttls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.AssociationGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.range.tlv.AssociationRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.type.list.tlv.AssociationTypeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
@@ -319,6 +326,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         regs.add(context.registerObjectParser(closeParser));
         regs.add(context.registerObjectSerializer(CClose.class, closeParser));
 
+        final PCEPAssociationIPv4ObjectParser associationIpv4Parser = new PCEPAssociationIPv4ObjectParser();
+        regs.add(context.registerObjectParser(associationIpv4Parser));
+        regs.add(context.registerObjectSerializer(AssociationGroup.class, associationIpv4Parser));
+
+        final PCEPAssociationIPv6ObjectParser associationIpv6Parser = new PCEPAssociationIPv6ObjectParser();
+        regs.add(context.registerObjectParser(associationIpv6Parser));
+        regs.add(context.registerObjectSerializer(AssociationGroup.class, associationIpv6Parser));
+
         registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg, rroSubReg);
     }
 
@@ -479,6 +494,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final PathSetupTypeTlvParser pstParser = new PathSetupTypeTlvParser();
         regs.add(context.registerTlvParser(PathSetupTypeTlvParser.TYPE, pstParser));
         regs.add(context.registerTlvSerializer(PathSetupType.class, pstParser));
+
+        final AssociationTypeListTlvParser assocTypeParser = new AssociationTypeListTlvParser();
+        regs.add(context.registerTlvParser(AssociationTypeListTlvParser.TYPE, assocTypeParser));
+        regs.add(context.registerTlvSerializer(AssociationTypeList.class, assocTypeParser));
+
+        final AssociationRangeTlvParser assocRangeParser = new AssociationRangeTlvParser();
+        regs.add(context.registerTlvParser(AssociationRangeTlvParser.TYPE, assocRangeParser));
+        regs.add(context.registerTlvSerializer(AssociationRange.class, assocRangeParser));
     }
 
     private static void registerMonitoringExtensionParsers(final List<Registration> regs,
