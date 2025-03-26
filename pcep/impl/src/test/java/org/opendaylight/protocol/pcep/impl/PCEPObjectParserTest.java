@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -29,6 +30,8 @@ import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
@@ -85,15 +88,23 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.P2mpLeaves;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.AssociationGroupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.BidirectionalTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.DisjointnessTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PathProtectionTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PolicyTlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.close.object.CCloseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.disjointness.tlvs.ConfigurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.disjointness.tlvs.StatusBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.Ipv6CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.endpoints.address.family.P2mpIpv4CaseBuilder;
@@ -118,6 +129,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.monitoring.object.MonitoringBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.non.branch.node.object.NonBranchNodeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.notification.object.CNotificationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.object.OfBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.order.tlv.OrderBuilder;
@@ -152,6 +164,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.vendor.information.tlvs.VendorInformationTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.ExcludeRouteSubobjects.Attribute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PathKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.PceId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCaseBuilder;
@@ -1723,6 +1736,187 @@ public class PCEPObjectParserTest {
 
         try {
             parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPcepAssociationIpv4Object() throws Exception {
+        final byte[] pathProtection = {
+            // Object Header
+            0x28, 0x10, 0x00, 0x2c,
+            // Association Group Object
+            0x00, 0x00, 0x00, 0x01, // Reserved + Remove Flag set
+            0x00, 0x01, 0x00, 0x01, // Association-Type = 1 (Path Protection) + Association-Id = 1
+            0x0a, 0x01, 0x02, 0x03, // Association-Source IPv4 (10.1.2.3)
+            0x00, 0x1e, 0x00, 0x04, // Global Association TLV
+            0x01, 0x02, 0x03, 0x04,
+            0x00, 0x1f, 0x00, 0x08, // Extended Association ID
+            0x01, 0x02, 0x03, 0x04,
+            0x05, 0x06, 0x07, 0x08,
+            0x00, 0x26, 0x00, 0x04, // Path Protection TLV
+            0x08, 0x00, 0x00, 0x01
+        };
+
+        final byte[] disjointness = {
+            // Object Header
+            0x28, 0x10, 0x00, 0x3c,
+            // Association Group Object
+            0x00, 0x00, 0x00, 0x00, // Reserved + Remove Flag unset
+            0x00, 0x02, 0x00, 0x01, // Association-Type = 2 (Disjointness) + Association-Id = 1
+            0x0a, 0x01, 0x02, 0x03, // Association-Source IPv4 (10.1.2.3)
+            0x00, 0x1e, 0x00, 0x04, // Global Association TLV
+            0x01, 0x02, 0x03, 0x04,
+            0x00, 0x2e, 0x00, 0x04, // Disjointness Configuration TLVs
+            0x00, 0x00, 0x00, 0x05,
+            0x00, 0x2f, 0x00, 0x04, // Disjointness Status TLV
+            0x00, 0x00, 0x00, 0x1a,
+            0x00, 0x04, 0x00, 0x02, // Objective Function TLV
+            0x00, 0x0f, 0x00, 0x00,
+            0x00, 0x07, 0x00, 0x08, // Vendor Information TLV
+            0x00, 0x00, 0x05, 0x58,
+            (byte )0xde, (byte )0xad, (byte )0xbe, (byte )0xef
+        };
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association
+            .object.association.group.TlvsBuilder associationTlvs = new org.opendaylight.yang.gen.v1.urn.opendaylight
+            .params.xml.ns.yang.pcep.types.rev181109.association.object.association.group.TlvsBuilder();
+        associationTlvs.setExtendedAssociationId(List.of(Uint32.valueOf(16909060), Uint32.valueOf(84281096)))
+            .setGlobalAssociationSource(Uint32.valueOf(16909060))
+            .setAssociationTlvs(new PathProtectionTlvsBuilder()
+                .setProtecting(true)
+                .setSecondary(false)
+                .setProtectionType(LspFlag.UnidirectionalProtection)
+                .build()
+            );
+        final AssociationGroupBuilder builder = new AssociationGroupBuilder()
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setRemovalFlag(true)
+            .setAssociationType(AssociationType.forValue(1))
+            .setAssociationId(Uint16.ONE)
+            .setAssociationSource(new IpAddressNoZone(new Ipv4AddressNoZone("10.1.2.3")))
+            .setTlvs(associationTlvs.build());
+
+        final PCEPAssociationIPv4ObjectParser parser = new PCEPAssociationIPv4ObjectParser();
+        final ByteBuf protectionResult = Unpooled.wrappedBuffer(pathProtection);
+
+        // Test Association Group with Path Protection
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+                protectionResult.slice(4, protectionResult.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(pathProtection, ByteArray.getAllBytes(buf));
+
+        // Test Association Group with Disjointness
+        associationTlvs.setExtendedAssociationId(null).setAssociationTlvs(new DisjointnessTlvsBuilder()
+            .setConfiguration(new ConfigurationBuilder().setLinkDiverse(true).setNodeDiverse(false).setSrlgDiverse(true)
+                .setShortestPath(false).setStrictDisjointness(false).build())
+            .setStatus(new StatusBuilder().setLinkDiverse(false).setNodeDiverse(true).setSrlgDiverse(false)
+                .setShortestPath(true).setStrictDisjointness(true).build())
+            .setOfList(new OfListBuilder()
+                .setCodes(Set.of(new OfId(Uint16.valueOf(15)))).build())
+            .build()
+        );
+        builder.setRemovalFlag(false).setAssociationType(AssociationType.Disjoint).setTlvs(associationTlvs.build());
+        final ByteBuf disjointResult = Unpooled.wrappedBuffer(disjointness);
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+                disjointResult.slice(4, disjointResult.readableBytes() - 4)));
+        buf.clear();
+        parser.serializeObject(builder.build(), buf);
+        // Skip Vendor Information and change Object Size before comparison
+        final byte[] expected = Arrays.copyOfRange(disjointness, 0, disjointness.length - 12);
+        expected[3] = 0x30;
+        assertArrayEquals(expected, ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPcepAssociationIpv6Object() throws Exception {
+        final byte[] policyParameter = {
+            // Object Header
+            0x28, 0x20, 0x00, 0x30,
+            // Association Group Object
+            0x00, 0x00, 0x00, 0x01, // Reserved + Remove Flag set
+            0x00, 0x03, 0x00, 0x01, // Association-Type = 3 (Policy Parameters) + Association-Id = 1
+            0x00, 0x00, 0x00, 0x00, // Association-Source IPv6 (::1)
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01,
+            0x00, 0x1f, 0x00, 0x04, // Extended Association ID
+            0x05, 0x06, 0x07, 0x08,
+            0x00, 0x30, 0x00, 0x07, // Policy Parameters TLV
+            0x01, 0x02, 0x03, 0x04,
+            0x05, 0x06, 0x07, 0x00
+        };
+
+        final byte[] bidirectional = {
+            // Object Header
+            0x28, 0x20, 0x00, 0x24,
+            // Association Group Object
+            0x00, 0x00, 0x00, 0x00, // Reserved + Remove Flag unset
+            0x00, 0x04, 0x00, 0x01, // Association-Type = 4 (Bidirectional) + Association-Id = 1
+            0x00, 0x00, 0x00, 0x00, // Association-Source IPv6 (::1)
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01,
+            0x00, 0x36, 0x00, 0x04, // Bidirectional TLV
+            0x00, 0x00, 0x00, 0x03
+        };
+
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association
+            .object.association.group.TlvsBuilder associationTlvs = new org.opendaylight.yang.gen.v1.urn.opendaylight
+            .params.xml.ns.yang.pcep.types.rev181109.association.object.association.group.TlvsBuilder();
+        associationTlvs.setExtendedAssociationId(List.of(Uint32.valueOf(84281096)))
+            .setAssociationTlvs(new PolicyTlvsBuilder()
+                .setPolicyParameters(new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07})
+                .build()
+            );
+        final AssociationGroupBuilder builder = new AssociationGroupBuilder()
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setRemovalFlag(true)
+            .setAssociationType(AssociationType.forValue(3))
+            .setAssociationId(Uint16.ONE)
+            .setAssociationSource(new IpAddressNoZone(new Ipv6AddressNoZone("::1")))
+            .setTlvs(associationTlvs.build());
+
+        final PCEPAssociationIPv6ObjectParser parser = new PCEPAssociationIPv6ObjectParser();
+        final ByteBuf protectionResult = Unpooled.wrappedBuffer(policyParameter);
+
+        // Test Association Group with Policy Parameter
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+                protectionResult.slice(4, protectionResult.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(policyParameter, ByteArray.getAllBytes(buf));
+
+        // Test Association Group with Bidirectional LSP
+        associationTlvs.setExtendedAssociationId(null).setAssociationTlvs(new BidirectionalTlvsBuilder()
+            .setCoRoutedPath(true).setReverseLsp(true).build()
+        );
+        builder.setRemovalFlag(false)
+            .setAssociationType(AssociationType.SingleSideLsp)
+            .setTlvs(associationTlvs.build());
+        final ByteBuf disjointResult = Unpooled.wrappedBuffer(bidirectional);
+
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+                disjointResult.slice(4, disjointResult.readableBytes() - 4)));
+        buf.clear();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(bidirectional, ByteArray.getAllBytes(buf));
+
+        try {
+            parser.parseObject(new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
             fail();
         } catch (final IllegalArgumentException e) {
             assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());

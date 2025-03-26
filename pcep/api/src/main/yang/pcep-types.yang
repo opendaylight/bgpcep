@@ -24,6 +24,12 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    // revision "2025-03-15" {
+    //    description
+    //        "Add Association Group";
+    //    reference "RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059";
+    // }
+
     revision "2018-11-09" {
         description
             "P2MP extension.";
@@ -818,8 +824,6 @@ module pcep-types {
         }
     }
 
-
-
     grouping path-key-object {
         description "PATH-KEY Object";
         reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
@@ -1057,6 +1061,160 @@ module pcep-types {
         }
     }
 
+    // Association Object
+
+    typedef association-type {
+        description "Association Type definition";
+        reference "https://www.iana.org/assignments/pcep/pcep.xhtml#association-type-field";
+        type enumeration {
+            enum path-protection {
+                value 1;
+            }
+            enum disjoint {
+                value 2;
+            }
+            enum policy {
+                value 3;
+            }
+            enum single-side-lsp {
+                value 4;
+            }
+            enum double-side-lsp {
+                value 5;
+            }
+            enum sr-policy {
+                value 6;
+            }
+            enum virtual-network-lsp {
+                value 7;
+            }
+        }
+    }
+
+    grouping path-protection-tlvs {
+        description "Path protection TLVs definition";
+        reference "https://tools.ietf.org/html/rfc8745#section-3.2";
+        uses tlv;
+        leaf protecting {
+            type boolean;
+        }
+        leaf secondary {
+            type boolean;
+        }
+        leaf protection-type {
+            type rsvp:lsp-flag;
+        }
+    }
+
+    grouping disjointness-flags {
+        description "Disjoint path association TLVs (flags) definition";
+        reference "https://tools.ietf.org/html/rfc8800#section-5.2";
+        leaf link-diverse {
+            type boolean;
+        }
+        leaf node-diverse {
+            type boolean;
+        }
+        leaf srlg-diverse {
+            type boolean;
+        }
+        leaf shortest-path {
+            type boolean;
+        }
+        leaf strict-disjointness {
+            type boolean;
+        }
+    }
+
+    grouping disjointness-tlvs {
+        description "Disjoint path association TLVs (flags) definition";
+        reference "https://tools.ietf.org/html/rfc8800#section-5.2";
+        container configuration {
+            uses tlv;
+            uses disjointness-flags;
+        }
+        container status {
+            uses tlv;
+            uses disjointness-flags;
+        }
+        container vendor-information {
+            uses tlv;
+            uses vendor-information;
+        }
+        uses of-list-tlv;
+    }
+
+    grouping policy-association-tlvs {
+        description "Policy parameter TLVs definition";
+        reference "https://tools.ietf.org/html/rfc9005#section-5.1";
+        uses tlv;
+        leaf policy-parameters {
+            type binary;
+        }
+    }
+
+    grouping bidirectional-tlvs {
+        description "Bidirectional LSP TLVs definition";
+        reference "https://tools.ietf.org/html/rfc9059#section-4.2";
+        uses tlv;
+        leaf reverse-lsp {
+            type boolean;
+        }
+        leaf co-routed-path {
+            type boolean;
+        }
+    }
+
+    grouping association-tlvs {
+        choice association-tlvs {
+            case path-protection-tlvs {
+                uses path-protection-tlvs;
+            }
+            case disjointness-tlvs {
+                uses disjointness-tlvs;
+            }
+            case policy-tlvs {
+                uses policy-association-tlvs;
+            }
+            case bidirectional-tlvs {
+                uses bidirectional-tlvs;
+            }
+        }
+    }
+
+    grouping association-object {
+        description "Association Group Object definition.";
+        reference "https://tools.ietf.org/html/rfc8697#section-6";
+        container association-group {
+            uses object;
+            leaf association-type {
+                type association-type;
+            }
+            leaf association-id {
+                type uint16;
+            }
+            leaf removal-flag {
+                type boolean;
+            }
+            leaf association-source {
+                type inet:ip-address-no-zone;
+            }
+            container tlvs {
+                description "Base Association TLVs definition";
+                reference "https://tools.ietf.org/html/rfc8697#section-6.1";
+                leaf global-association-source {
+                    type uint32;
+                }
+                leaf-list extended-association-id {
+                    type uint32;
+                    ordered-by user;
+                    min-elements 1;
+                }
+                uses association-tlvs;
+            }
+        }
+    }
+
     // Messages
     grouping message {
         description "Marker grouping for message groupings.";
@@ -1188,6 +1346,8 @@ module pcep-types {
                             uses metric-object;
                         }
 
+                        uses association-object;
+
                         choice iro-bnc-choice {
                             case iro-case {
                                 uses include-route-object;
@@ -1290,6 +1450,8 @@ module pcep-types {
                 uses vendor-information-objects;
                 uses monitoring;
                 uses monitoring-metrics;
+
+                uses association-object;
 
                 choice result {
                     case success-case {

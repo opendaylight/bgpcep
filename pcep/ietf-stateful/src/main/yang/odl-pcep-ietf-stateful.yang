@@ -317,6 +317,8 @@ module odl-pcep-ietf-stateful {
 
                 uses lsp-object;
 
+                uses pcep:association-object;
+
                 container path {
                     uses pcep:path-definition;
                 }
@@ -337,6 +339,8 @@ module odl-pcep-ietf-stateful {
                 uses srp-object;
 
                 uses lsp-object;
+
+                uses pcep:association-object;
 
                 container path {
                     uses pcep:path-definition;
