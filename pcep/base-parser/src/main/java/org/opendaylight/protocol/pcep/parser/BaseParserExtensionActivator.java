@@ -22,6 +22,8 @@ import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPReplyMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv4ObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPClassTypeObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPCloseObjectParser;
@@ -107,6 +109,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev181109.Starttls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.AssociationGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.bandwidth.object.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.branch.node.object.BranchNodeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.classtype.object.ClassType;
@@ -318,6 +321,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final PCEPCloseObjectParser closeParser = new PCEPCloseObjectParser(tlvReg, viTlvReg);
         regs.add(context.registerObjectParser(closeParser));
         regs.add(context.registerObjectSerializer(CClose.class, closeParser));
+
+        final PCEPAssociationIPv4ObjectParser associationIpv4Parser = new PCEPAssociationIPv4ObjectParser();
+        regs.add(context.registerObjectParser(associationIpv4Parser));
+        regs.add(context.registerObjectSerializer(AssociationGroup.class, associationIpv4Parser));
+
+        final PCEPAssociationIPv6ObjectParser associationIpv6Parser = new PCEPAssociationIPv6ObjectParser();
+        regs.add(context.registerObjectParser(associationIpv6Parser));
+        regs.add(context.registerObjectSerializer(AssociationGroup.class, associationIpv6Parser));
 
         registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg, rroSubReg);
     }

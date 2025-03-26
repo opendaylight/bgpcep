@@ -1,0 +1,406 @@
+/*
+ * Copyright (c) 2025 Orange.  All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+package org.opendaylight.protocol.pcep.parser.object;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint16;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
+
+import com.google.common.collect.ImmutableSet;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import java.util.Set;
+import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
+import org.opendaylight.protocol.pcep.spi.CommonObjectParser;
+import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
+import org.opendaylight.protocol.pcep.spi.ObjectUtil;
+import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.protocol.pcep.spi.VendorInformationUtil;
+import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.AssociationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.DisjointnessFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.AssociationGroup;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.AssociationGroupBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.association.group.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.object.association.group.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.AssociationTlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.BidirectionalTlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.BidirectionalTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.DisjointnessTlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.DisjointnessTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PathProtectionTlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PathProtectionTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PolicyTlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.tlvs.association.tlvs.PolicyTlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.disjointness.tlvs.ConfigurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.disjointness.tlvs.StatusBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspFlag;
+import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public abstract class AbstractAssociationGroupParser extends CommonObjectParser implements ObjectSerializer {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAssociationGroupParser.class);
+
+    private static final int CLASS = 40;
+
+    // Association Object Flags definition
+    private static final int RESERVED = 2;
+    private static final int FLAGS_SIZE = 16;
+    private static final int R_FLAG = 15;
+
+    // TLVs Code Point definition
+    private static final int GLOBAL_ASSOCIATION_SOURCE_TLV = 30;
+    private static final int EXTENDED_ASSOCIATION_ID_TLV = 31;
+    private static final int PATH_PROTECTION_TLV = 38;
+    private static final int DISJOINTNESS_CONFIGURATION_TLV = 46;
+    private static final int DISJOINTNESS_STATUS_TLV = 47;
+    private static final int POLICY_PARAMETERS_TLV = 48;
+    private static final int BIDIRECTIONAL_LSP_TLV = 54;
+
+    // TLVs Flags definition
+    private static final int TLV_FLAGS_SIZE = 32;
+    // Path Protection Flags
+    private static final int PROTECTION_P_FLAG = 31;
+    private static final int PROTECTION_S_FLAG = 30;
+    private static final int LSP_FLAG_FULL_REROUTING = 1;
+    private static final int LSP_FLAG_TRAFFIC_REROUTING = 2;
+    private static final int LSP_FLAG_TRAFFIC_PROTECTION = 3;
+    private static final int LSP_FLAG_UNI_PROTECION = 4;
+    private static final int LSP_FLAG_BIDIR_PROTECTION = 5;
+    // Disjointness Flags
+    private static final int LINK_DIVERSE_FLAG = 31;
+    private static final int NODE_DIVERSE_FLAG = 30;
+    private static final int SRLG_DIVERSE_FLAG = 29;
+    private static final int SHORTEST_PATH_FLAG = 28;
+    private static final int STRICT_DISJOINT_FLAG = 27;
+    // Bidirectional Flags
+    private static final int REVERSE_FLAG = 31;
+    private static final int CO_ROUTED_FLAG = 30;
+
+    public AbstractAssociationGroupParser(final int objectType) {
+        super(CLASS, objectType);
+    }
+
+    @Override
+    public Object parseObject(final ObjectHeader header, final ByteBuf buffer) throws PCEPDeserializerException {
+        checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
+        buffer.skipBytes(RESERVED);
+        final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        final AssociationType type = AssociationType.forValue(readUint16(buffer).intValue());
+        return new AssociationGroupBuilder()
+            .setIgnore(header.getIgnore())
+            .setProcessingRule(header.getProcessingRule())
+            .setRemovalFlag(flags.get(R_FLAG))
+            .setAssociationType(type)
+            .setAssociationId(readUint16(buffer))
+            .setAssociationSource(parseAssociationSource(buffer))
+            .setTlvs(parseAssociationTlvs(type, buffer))
+            .build();
+    }
+
+    protected abstract IpAddressNoZone parseAssociationSource(ByteBuf buffer);
+
+    private static Tlvs parseAssociationTlvs(final AssociationType associationType, final ByteBuf buffer)
+            throws PCEPDeserializerException {
+        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
+        // First, parse common Association TLVs
+        boolean commonTlvs = true;
+        while (buffer.isReadable() && commonTlvs) {
+            switch (buffer.getUnsignedShort(buffer.readerIndex())) {
+                case GLOBAL_ASSOCIATION_SOURCE_TLV ->
+                    tlvsBuilder.setGlobalAssociationSource(parseGlobalAssociation(buffer));
+                case EXTENDED_ASSOCIATION_ID_TLV ->
+                    tlvsBuilder.setExtendedAssociationId(parseExtendedAssociationId(buffer));
+                default -> commonTlvs = false;
+            }
+        }
+        // Then, look to specific Association TLVs according to Association Type
+        final AssociationTlvs associationTlvs = switch (associationType) {
+            case PathProtection -> parsePathProtection(buffer);
+            case Disjoint -> parseDisjointness(buffer);
+            case Policy -> parsePolicy(buffer);
+            case SingleSideLsp, DoubleSideLsp -> parseBidirectionalLSP(buffer);
+            default -> {
+                LOG.debug("Unsupported Association Group Type: {}", associationType);
+                yield null;
+            }
+        };
+        return tlvsBuilder.setAssociationTlvs(associationTlvs).build();
+    }
+
+    private static Uint32 parseGlobalAssociation(final ByteBuf buffer) throws PCEPDeserializerException {
+        final int type = buffer.readUnsignedShort();
+        if (type != GLOBAL_ASSOCIATION_SOURCE_TLV) {
+            throw new PCEPDeserializerException("Wrong Global Association Source TLV. Passed: " + type
+                    + "; Expected: <= " + GLOBAL_ASSOCIATION_SOURCE_TLV + ".");
+        }
+        final int length = buffer.readUnsignedShort();
+        if (length > buffer.readableBytes()) {
+            throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                + buffer.readableBytes() + ".");
+        }
+        return readUint32(buffer);
+    }
+
+    private static Set<Uint32> parseExtendedAssociationId(final ByteBuf buffer) throws PCEPDeserializerException {
+        final int type = buffer.readUnsignedShort();
+        if (type != EXTENDED_ASSOCIATION_ID_TLV) {
+            throw new PCEPDeserializerException("Wrong Extended Association ID TLV. Passed: " + type
+                    + "; Expected: <= " + EXTENDED_ASSOCIATION_ID_TLV + ".");
+        }
+        final int length = buffer.readUnsignedShort();
+        if (length > buffer.readableBytes()) {
+            throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                + buffer.readableBytes() + ".");
+        }
+        final var extendedAssociationId = ImmutableSet.<Uint32>builder();
+        for (int i = 0; i < length / 4; i++) {
+            extendedAssociationId.add(readUint32(buffer));
+        }
+        return extendedAssociationId.build();
+    }
+
+    private static PathProtectionTlvs parsePathProtection(final ByteBuf buffer) throws PCEPDeserializerException {
+        final int type = buffer.readUnsignedShort();
+        if (type != PATH_PROTECTION_TLV) {
+            throw new PCEPDeserializerException("Wrong Path Protection TLV. Passed: " + type + "; Expected: <= "
+                + PATH_PROTECTION_TLV + ".");
+        }
+        final int length = buffer.readUnsignedShort();
+        if (length > buffer.readableBytes()) {
+            throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                + buffer.readableBytes() + ".");
+        }
+        final BitArray flags = BitArray.valueOf(buffer, TLV_FLAGS_SIZE);
+        return new PathProtectionTlvsBuilder()
+            .setProtecting(flags.get(PROTECTION_P_FLAG))
+            .setSecondary(flags.get(PROTECTION_S_FLAG))
+            .setProtectionType(LspFlag.forValue(flags.array()[0]))
+            .build();
+    }
+
+    private static DisjointnessTlvs parseDisjointness(final ByteBuf buffer) throws PCEPDeserializerException {
+        final DisjointnessTlvsBuilder disjointBuilder = new DisjointnessTlvsBuilder();
+
+        while (buffer.isReadable()) {
+            final int type = buffer.readUnsignedShort();
+            final int length = buffer.readUnsignedShort();
+            if (length > buffer.readableBytes()) {
+                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                    + buffer.readableBytes() + ".");
+            }
+            switch (type) {
+                case DISJOINTNESS_CONFIGURATION_TLV -> {
+                    final BitArray flags = BitArray.valueOf(buffer, TLV_FLAGS_SIZE);
+                    disjointBuilder.setConfiguration(new ConfigurationBuilder()
+                        .setLinkDiverse(flags.get(LINK_DIVERSE_FLAG))
+                        .setNodeDiverse(flags.get(NODE_DIVERSE_FLAG))
+                        .setSrlgDiverse(flags.get(SRLG_DIVERSE_FLAG))
+                        .setShortestPath(flags.get(SHORTEST_PATH_FLAG))
+                        .setStrictDisjointness(flags.get(STRICT_DISJOINT_FLAG))
+                        .build());
+                }
+                case DISJOINTNESS_STATUS_TLV -> {
+                    final BitArray flags = BitArray.valueOf(buffer, TLV_FLAGS_SIZE);
+                    disjointBuilder.setStatus(new StatusBuilder()
+                        .setLinkDiverse(flags.get(LINK_DIVERSE_FLAG))
+                        .setNodeDiverse(flags.get(NODE_DIVERSE_FLAG))
+                        .setSrlgDiverse(flags.get(SRLG_DIVERSE_FLAG))
+                        .setShortestPath(flags.get(SHORTEST_PATH_FLAG))
+                        .setStrictDisjointness(flags.get(STRICT_DISJOINT_FLAG))
+                        .build());
+                }
+                case OFListTlvParser.TYPE -> {
+                    final var ofCodes = ImmutableSet.<OfId>builder();
+                    for (int i = 0; i < length / 2; i++) {
+                        ofCodes.add(new OfId(ByteBufUtils.readUint16(buffer)));
+                    }
+                    disjointBuilder.setOfList(new OfListBuilder().setCodes(ofCodes.build()).build());
+                }
+                case VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE -> {
+                    buffer.skipBytes(length);
+                    LOG.debug("Skipped unsupported Vendor Information");
+                }
+                default -> {
+                    buffer.skipBytes(length);
+                    LOG.warn("Unknow Disjointness TLVs: {}", type);
+                }
+            }
+            // Skip padding if any
+            buffer.skipBytes(TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
+        }
+        return disjointBuilder.build();
+    }
+
+    private static PolicyTlvs parsePolicy(final ByteBuf buffer) throws PCEPDeserializerException {
+        final int type = buffer.readUnsignedShort();
+        if (type != POLICY_PARAMETERS_TLV) {
+            throw new PCEPDeserializerException("Wrong Policy Parmeter TLV. Passed: " + type
+                    + "; Expected: <= " + POLICY_PARAMETERS_TLV + ".");
+        }
+        final int length = buffer.readUnsignedShort();
+        if (length > buffer.readableBytes()) {
+            throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                + buffer.readableBytes() + ".");
+        }
+        final var policyParameters = ImmutableSet.<Uint32>builder();
+        for (int i = 0; i < length / 4; i++) {
+            policyParameters.add(readUint32(buffer));
+        }
+        return new PolicyTlvsBuilder().setPolicyParameters(policyParameters.build()).build();
+    }
+
+    private static BidirectionalTlvs parseBidirectionalLSP(final ByteBuf buffer) throws PCEPDeserializerException {
+        final int type = buffer.readUnsignedShort();
+        if (type != BIDIRECTIONAL_LSP_TLV) {
+            throw new PCEPDeserializerException("Wrong Bidirectional LSP TLV. Passed: " + type + "; Expected: <= "
+                + BIDIRECTIONAL_LSP_TLV + ".");
+        }
+        final int length = buffer.readUnsignedShort();
+        if (length > buffer.readableBytes()) {
+            throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                + buffer.readableBytes() + ".");
+        }
+        final BitArray flags = BitArray.valueOf(buffer, TLV_FLAGS_SIZE);
+        return new BidirectionalTlvsBuilder()
+            .setReverseLsp(flags.get(REVERSE_FLAG))
+            .setCoRoutedPath(flags.get(CO_ROUTED_FLAG))
+            .build();
+    }
+
+    @Override
+    public void serializeObject(final Object object, final ByteBuf buffer) {
+        checkArgument(object instanceof AssociationGroup,
+            "Wrong instance of PCEPObject. Passed %s. Needed AssociationGroup.", object.getClass());
+        final AssociationGroup assoc = (AssociationGroup) object;
+        final ByteBuf body = Unpooled.buffer();
+
+        body.writeZero(RESERVED);
+        final BitArray bs = new BitArray(FLAGS_SIZE);
+        bs.set(R_FLAG, assoc.getRemovalFlag());
+        bs.toByteBuf(body);
+        body.writeShort(assoc.getAssociationType().getIntValue());
+        writeUint16(body, assoc.getAssociationId());
+        if (!serializeAssociationSource(assoc.getAssociationSource(), body)) {
+            /*
+             * Association Source is mandatory. Stop serialization if IPv4 respectively IPv6 is not set
+             * according to the Association Group Type (IPv4 or IPv6).
+             */
+            LOG.warn("Missing mandatory Association Source");
+            return;
+        }
+        // Serialize TLVs according to the Association Type
+        if (assoc.getTlvs() != null) {
+            serializeTlvs(assoc.getAssociationType(), assoc.getTlvs(), body);
+        }
+        ObjectUtil.formatSubobject(getObjectType(), getObjectClass(), object.getProcessingRule(),
+                object.getIgnore(), body, buffer);
+    }
+
+    protected abstract boolean serializeAssociationSource(IpAddressNoZone source, ByteBuf buffer);
+
+    private static void serializeTlvs(final AssociationType associationType, final Tlvs tlvs, final ByteBuf buffer) {
+        // First, serialize common Association TLVs
+        if (tlvs.getGlobalAssociationSource() != null) {
+            final var tlvBuf = Unpooled.buffer();
+            writeUint32(tlvBuf, tlvs.getGlobalAssociationSource());
+            TlvUtil.formatTlv(GLOBAL_ASSOCIATION_SOURCE_TLV, tlvBuf, buffer);
+        } if (tlvs.getExtendedAssociationId() != null) {
+            final var tlvBuf = Unpooled.buffer();
+            tlvs.getExtendedAssociationId().forEach(id -> writeUint32(tlvBuf, id));
+            TlvUtil.formatTlv(EXTENDED_ASSOCIATION_ID_TLV, tlvBuf, buffer);
+        }
+        // Then, serialize specific Association TLVs according to Association Type
+        if (tlvs.getAssociationTlvs() != null) {
+            final var nextTlvs = tlvs.getAssociationTlvs();
+            switch (associationType) {
+                case PathProtection -> serializePathProtection((PathProtectionTlvs )nextTlvs, buffer);
+                case Disjoint -> serializeDisjointness((DisjointnessTlvs )nextTlvs, buffer);
+                case Policy -> serializePolicy((PolicyTlvs )nextTlvs, buffer);
+                case SingleSideLsp, DoubleSideLsp -> serializeBidirectionalLSP((BidirectionalTlvs )nextTlvs, buffer);
+                default -> {
+                    LOG.debug("Unsupported Association Group Type: {}", associationType);
+                }
+            }
+        }
+    }
+
+    private static void serializePathProtection(final PathProtectionTlvs tlvs, final ByteBuf buffer) {
+        final BitArray bs = new BitArray(TLV_FLAGS_SIZE);
+        bs.set(PROTECTION_P_FLAG, tlvs.getProtecting());
+        bs.set(PROTECTION_S_FLAG, tlvs.getSecondary());
+        final var flags = tlvs.getProtectionType();
+        if (flags != null) {
+            switch (flags) {
+                case FullRerouting -> bs.set(LSP_FLAG_FULL_REROUTING, true);
+                case ReroutingWithoutExtraTraffic -> bs.set(LSP_FLAG_TRAFFIC_REROUTING,  true);
+                case ProtectionWithExtraTraffic -> bs.set(LSP_FLAG_TRAFFIC_PROTECTION, true);
+                case UnidirectionalProtection -> bs.set(LSP_FLAG_UNI_PROTECION, true);
+                case BidirectionalProtection -> bs.set(LSP_FLAG_BIDIR_PROTECTION, true);
+                default -> {
+                    LOG.debug("Unknown Path Protection Flag: {}", flags);
+                }
+            }
+        }
+        final var tlvBuf = Unpooled.buffer();
+        bs.toByteBuf(tlvBuf);
+        TlvUtil.formatTlv(PATH_PROTECTION_TLV, tlvBuf, buffer);
+    }
+
+    private static void serializeDisjointness(final DisjointnessTlvs tlvs, final ByteBuf buffer) {
+        if (tlvs.getConfiguration() != null) {
+            serializeDisjointFlags(tlvs.getConfiguration(), DISJOINTNESS_CONFIGURATION_TLV, buffer);
+        }
+        if (tlvs.getStatus() != null) {
+            serializeDisjointFlags(tlvs.getStatus(), DISJOINTNESS_STATUS_TLV, buffer);
+        }
+        if (tlvs.getOfList() != null) {
+            final ByteBuf tlvBuf = Unpooled.buffer();
+            tlvs.getOfList().getCodes().forEach(id -> ByteBufUtils.write(tlvBuf, id.getValue()));
+            TlvUtil.formatTlv(OFListTlvParser.TYPE, tlvBuf, buffer);
+        }
+        // Skip Vendor Information which is not used by ODL
+    }
+
+    private static void serializeDisjointFlags(final DisjointnessFlags flags, final int type, final ByteBuf buffer) {
+        final BitArray bs = new BitArray(TLV_FLAGS_SIZE);
+        bs.set(LINK_DIVERSE_FLAG, flags.getLinkDiverse());
+        bs.set(NODE_DIVERSE_FLAG, flags.getNodeDiverse());
+        bs.set(SRLG_DIVERSE_FLAG, flags.getSrlgDiverse());
+        bs.set(SHORTEST_PATH_FLAG, flags.getShortestPath());
+        bs.set(STRICT_DISJOINT_FLAG, flags.getStrictDisjointness());
+        final var tlvBuf = Unpooled.buffer();
+        bs.toByteBuf(tlvBuf);
+        TlvUtil.formatTlv(type, tlvBuf, buffer);
+    }
+
+    private static void serializePolicy(final PolicyTlvs tlvs, final ByteBuf buffer) {
+        final var tlvBuf = Unpooled.buffer();
+        tlvs.getPolicyParameters().forEach(tlv -> writeUint32(tlvBuf, tlv));
+        TlvUtil.formatTlv(POLICY_PARAMETERS_TLV, tlvBuf, buffer);
+    }
+
+    private static void serializeBidirectionalLSP(final BidirectionalTlvs tlvs, final ByteBuf buffer) {
+        final BitArray bs = new BitArray(TLV_FLAGS_SIZE);
+        bs.set(REVERSE_FLAG, tlvs.getReverseLsp());
+        bs.set(CO_ROUTED_FLAG, tlvs.getCoRoutedPath());
+        final var tlvBuf = Unpooled.buffer();
+        bs.toByteBuf(tlvBuf);
+        TlvUtil.formatTlv(BIDIRECTIONAL_LSP_TLV, tlvBuf, buffer);
+    }
+}
