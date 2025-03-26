@@ -14,9 +14,13 @@ import static org.junit.Assert.assertNull;
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
+import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AssociationTypeListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
@@ -25,9 +29,15 @@ import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.NoPathVectorTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.range.tlv.AssociationRange;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.range.tlv.AssociationRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.range.tlv.association.range.AssociationRangesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.type.list.tlv.AssociationTypeList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.association.type.list.tlv.AssociationTypeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.of.list.tlv.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.order.tlv.Order;
@@ -65,6 +75,10 @@ public class PCEPTlvParserTest {
         0x00, 0x00, 0x00, 0x00,
         /* Enterprise specific information */
         0x00, 0x00, 0x00, 0x05
+    };
+    private static final byte[] ASSOCIATION_TYPE_BYTES = { 0x00, 0x23, 0x00, 0x02, 0x00, 0x02, 0x00, 0x00 };
+    private static final byte[] ASSOCIATION_RANGE_BYTES = {
+        0x00, 0x1d, 0x00, 0x08, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, (byte )0xff
     };
 
     private static final byte[] PST_TLV_BYTES = { 0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
@@ -176,5 +190,34 @@ public class PCEPTlvParserTest {
         final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(Uint8.ONE).build();
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(pstTlv, buff);
+    }
+
+    @Test
+    public void testAssociationTypeListTlvParser()  throws PCEPDeserializerException {
+        final AssociationTypeListTlvParser parser = new AssociationTypeListTlvParser();
+        final AssociationTypeList assocTypeList = new AssociationTypeListBuilder()
+            .setAssociationType(Set.of(AssociationType.Disjoint)).build();
+        assertEquals(assocTypeList,
+            parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.subByte(ASSOCIATION_TYPE_BYTES, 4, 2))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(assocTypeList, buff);
+        assertArrayEquals(ASSOCIATION_TYPE_BYTES, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testAssociationRangeTlvParser()  throws PCEPDeserializerException {
+        final AssociationRangeTlvParser parser = new AssociationRangeTlvParser();
+        final AssociationRange assocRangeList = new AssociationRangeBuilder()
+            .setAssociationRanges(List.of(new AssociationRangesBuilder()
+                .setAssociationType(AssociationType.Disjoint)
+                .setAssociationIdStart(Uint16.ONE)
+                .setRange(Uint16.valueOf(255))
+                .build()))
+            .build();
+        assertEquals(assocRangeList,
+            parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(ASSOCIATION_RANGE_BYTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(assocRangeList, buff);
+        assertArrayEquals(ASSOCIATION_RANGE_BYTES, ByteArray.getAllBytes(buff));
     }
 }
