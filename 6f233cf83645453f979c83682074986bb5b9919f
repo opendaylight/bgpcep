@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0eab9ce_6dbba30f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-03-27T17:35:37Z",
+      "side": 1,
+      "message": "Hi,\n\nHere it is a new patch to update PCEP protocol this time according to new series of RFCs for the Association Group. I\u0027ll publish another patch which update the Path Binding RFC9604 and then bump the yang model revision in a third one.\n\nCan you start by reviewing this one (the bigger)?\n\nRegards\n\nOlivier",
+      "revId": "6f233cf83645453f979c83682074986bb5b9919f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
