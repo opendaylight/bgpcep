@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e4c3aa1_58dd40b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-03-28T18:43:20Z",
+      "side": 1,
+      "message": "Hi,\n\nThis is the latest patch which simply bump the yang model revision.\n\nCan you also review it?\n\nBest regards\n\nOlivier",
+      "revId": "75340452824c75cd8abaf42837feaeded7ae035f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
