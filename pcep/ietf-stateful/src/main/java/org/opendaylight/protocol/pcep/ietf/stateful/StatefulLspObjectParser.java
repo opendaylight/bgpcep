@@ -53,6 +53,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
     protected static final int REMOVE = 9;
     protected static final int ADMINISTRATIVE = 8;
     protected static final int OPERATIONAL = 5;
+    protected static final int PCE_ALLOCATION = 0;
 
     protected static final int FOUR_BITS_SHIFT = 4;
     protected static final int FLAGS_SIZE = 12;
@@ -80,6 +81,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
 
     protected void parseFlags(final LspBuilder builder, final ByteBuf bytes) {
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
+        builder.setPceAllocation(flags.get(PCE_ALLOCATION));
         builder.setDelegate(flags.get(DELEGATE));
         builder.setSync(flags.get(SYNC));
         builder.setRemove(flags.get(REMOVE));
@@ -130,6 +132,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
 
     protected BitArray serializeFlags(final Lsp specObj) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(PCE_ALLOCATION, specObj.getPceAllocation());
         flags.set(DELEGATE, specObj.getDelegate());
         flags.set(REMOVE, specObj.getRemove());
         flags.set(SYNC, specObj.getSync());

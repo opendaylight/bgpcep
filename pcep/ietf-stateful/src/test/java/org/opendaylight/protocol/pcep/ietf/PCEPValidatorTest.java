@@ -275,6 +275,7 @@ public class PCEPValidatorTest {
 
         final LspBuilder lspBuilder = new LspBuilder()
                 .setIgnore(false)
+                .setPceAllocation(false)
                 .setProcessingRule(false)
                 .setAdministrative(false)
                 .setDelegate(false)
@@ -383,6 +384,7 @@ public class PCEPValidatorTest {
 
         final Lsp lspReq = new LspBuilder()
                 .setIgnore(false)
+                .setPceAllocation(false)
                 .setProcessingRule(false)
                 .setAdministrative(false)
                 .setDelegate(false)
