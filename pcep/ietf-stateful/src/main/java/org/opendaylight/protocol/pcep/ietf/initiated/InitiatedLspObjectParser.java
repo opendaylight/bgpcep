@@ -32,6 +32,7 @@ public class InitiatedLspObjectParser extends StatefulLspObjectParser {
     @Override
     protected void parseFlags(final LspBuilder builder, final ByteBuf bytes) {
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
+        builder.setPceAllocation(flags.get(PCE_ALLOCATION));
         builder.setDelegate(flags.get(DELEGATE));
         builder.setSync(flags.get(SYNC));
         builder.setRemove(flags.get(REMOVE));
@@ -47,6 +48,7 @@ public class InitiatedLspObjectParser extends StatefulLspObjectParser {
     @Override
     protected BitArray serializeFlags(final Lsp specObj) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(PCE_ALLOCATION, specObj.getPceAllocation());
         flags.set(DELEGATE, specObj.getDelegate());
         flags.set(REMOVE, specObj.getRemove());
         flags.set(SYNC, specObj.getSync());

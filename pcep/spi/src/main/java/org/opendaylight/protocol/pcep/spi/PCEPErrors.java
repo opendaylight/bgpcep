@@ -578,9 +578,36 @@ public enum PCEPErrors {
     /**
      * SR Policy Candidate Path Identifier Mismatch.
      */
-    SR_POLICY_CANDIDATE_MISMATCH(26, 21);
+    SR_POLICY_CANDIDATE_MISMATCH(26, 21),
 
-    // FIXME: Add Error-Type 27 to 33
+    // FIXME: Add Error-Type 27 to 31
+
+    // Path Binding Error: Error-Types = 32.
+
+    /**
+     * Invalid SID
+     */
+    INVALID_SID(32, 1),
+    /**
+     * Unable to allocate the specified binding value
+     */
+    CANNOT_ALLOCATE_SPECIFIED_BINDING(32, 2),
+    /**
+     * Unable to allocate a new binding label/SID
+     */
+    CANNOT_ALLOCATE_BINDING(32, 3),
+    /**
+     * Unable to remove the binding value
+     */
+    CANNOT_REMOVE_BINDING(32, 4),
+    /**
+     * Inconsistent binding types
+     */
+    INCONSISTENT_BINDING_TYPES(32, 5),
+
+    // FIXME: Add Error-Type 33
+
+    LAST_ERROR(255, 255);
 
     private static final ImmutableMap<PCEPErrorIdentifier, PCEPErrors> VALUE_MAP = Maps.uniqueIndex(
         Arrays.asList(values()), PCEPErrors::getErrorIdentifier);
