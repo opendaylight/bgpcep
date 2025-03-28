@@ -24,11 +24,11 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
-    // revision "2025-03-15" {
-    //    description
-    //        "Add Association Group";
-    //    reference "RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059";
-    // }
+    revision "2025-03-28" {
+        description
+            "Add Association Group";
+        reference "RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059";
+    }
 
     revision "2018-11-09" {
         description

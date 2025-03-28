@@ -3,11 +3,11 @@ module odl-pcep-ietf-initiated {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:ietf:initiated";
     prefix "initiated";
 
-    import pcep-types { prefix pcep; revision-date 2018-11-09; }
+    import pcep-types { prefix pcep; revision-date 2025-03-28; }
     import pcep-message { prefix msg; revision-date 2018-11-09; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2022-07-30; }
-    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2020-07-20; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2025-03-28; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
