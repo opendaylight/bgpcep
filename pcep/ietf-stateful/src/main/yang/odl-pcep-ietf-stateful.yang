@@ -6,7 +6,7 @@ module odl-pcep-ietf-stateful {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2022-07-30; }
-    import pcep-types { prefix pcep; revision-date 2018-11-09; }
+    import pcep-types { prefix pcep; revision-date 2025-03-28; }
     import pcep-message { prefix msg; revision-date 2018-11-09; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
     import topology-tunnel { prefix tt; revision-date 2013-08-19; }
@@ -29,6 +29,11 @@ module odl-pcep-ietf-stateful {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2025-03-28" {
+        description "Update Path Binding to RFC9604";
+        reference "https://tools.ietf.org/html/rfc9604";
+    }
 
     revision "2020-07-20" {
         description "Update to PCEP Stateful RFC & PCE binding label sid draft";
