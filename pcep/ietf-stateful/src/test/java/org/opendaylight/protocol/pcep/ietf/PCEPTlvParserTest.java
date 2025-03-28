@@ -27,8 +27,10 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.BindingType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.error.code.tlv.LspErrorCodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.LspIdentifiers;
@@ -39,8 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.iet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.PathBindingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.type.value.MplsLabelBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.type.value.MplsLabelEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.FlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.value.MplsLabelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.value.MplsLabelEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.value.Srv6BehaviorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.path.binding.tlv.path.binding.binding.value.Srv6Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.rsvp.error.spec.tlv.RsvpErrorSpec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev200720.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
@@ -247,39 +252,99 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvMplsLabel() {
+    public void testPathBindingTlvMplsLabel() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
-            0x00, 0x1f, 0x00, 0x06, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00, 0x00, 0x00
+            0x00, 0x37, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00
         };
         final PathBindingTlvParser parser = new PathBindingTlvParser();
-        final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingTypeValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(Uint32.valueOf(688374))).build());
+        final PathBinding tlv = new PathBindingBuilder()
+            .setBindingType(BindingType.MplsLabel)
+            .setFlags(new FlagsBuilder().setRemoval(false).setSpecified(false).build())
+            .setBindingValue(new MplsLabelBuilder().setMplsLabel(new MplsLabel(Uint32.valueOf(688374))).build())
+            .build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
-        parser.serializeTlv(builder.build(), buff);
+        parser.serializeTlv(tlv, buff);
         assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
 
         try {
-            final byte[] wrong = {0, 0x1f, 0, 4, 1, 1, 2, 3};
+            final byte[] wrong = {0x00, 0x37, 0x00, 0x07, (byte)0xff, 0x00, 0x00, 0x00, 3, 2, 1, 0};
             parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(wrong, 4)));
             fail();
         } catch (final PCEPDeserializerException e) {
-            assertEquals("Unsupported Path Binding Type: 257", e.getMessage());
+            assertEquals("Unsupported Path Binding Type", e.getMessage());
         }
     }
 
     @Test
-    public void testPathBindingTlvMplsLabelEntry() {
+    public void testPathBindingTlvMplsLabelEntry() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
-            0x00, 0x1f, 0x00, 0x06, 0x00, 0x01, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte)0xAD, 0x00, 0x00
+            0x00, 0x37, 0x00, 0x08, 0x01, (byte) 0x80, 0x00, 0x00, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte) 0xAD
         };
         final PathBindingTlvParser parser = new PathBindingTlvParser();
-        final PathBindingBuilder builder = new PathBindingBuilder();
-        builder.setBindingTypeValue(new MplsLabelEntryBuilder()
-            .setTrafficClass(Uint8.valueOf(6))
-            .setTimeToLive(Uint8.valueOf(173))
-            .setBottomOfStack(true)
-            .setLabel(new MplsLabel(Uint32.valueOf(688374))).build());
-        final PathBinding tlv = builder.build();
+        final PathBinding tlv = new PathBindingBuilder()
+            .setBindingType(BindingType.MplsLabelEntry)
+            .setFlags(new FlagsBuilder().setRemoval(true).setSpecified(false).build())
+            .setBindingValue(new MplsLabelEntryBuilder()
+                .setTrafficClass(Uint8.valueOf(6))
+                .setTimeToLive(Uint8.valueOf(173))
+                .setBottomOfStack(true)
+                .setLabel(new MplsLabel(Uint32.valueOf(688374))).build())
+            .build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
+    }
+
+    @Test
+    public void testPathBindingTlvSrv6Entry() throws PCEPDeserializerException {
+        final byte[] pathBindingBytes = {
+            0x00, 0x37, 0x00, 0x14,
+            0x02, 0x40, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01
+        };
+        final PathBindingTlvParser parser = new PathBindingTlvParser();
+        final PathBinding tlv = new PathBindingBuilder()
+            .setBindingType(BindingType.Srv6)
+            .setFlags(new FlagsBuilder().setRemoval(false).setSpecified(true).build())
+            .setBindingValue(new Srv6Builder().setSrv6Address(new Ipv6AddressNoZone("::1")).build())
+            .build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(tlv, buff);
+        assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
+    }
+
+    @Test
+    public void testPathBindingTlvSrv6BehaviorEntry() throws PCEPDeserializerException {
+        final byte[] pathBindingBytes = {
+            0x00, 0x37, 0x00, 0x1c,
+            0x03, 0x40, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x01,
+            0x00, 0x00, 0x00, 0x0a,
+            0x0a, 0x01, 0x02, 0x00
+        };
+        final PathBindingTlvParser parser = new PathBindingTlvParser();
+        final PathBinding tlv = new PathBindingBuilder()
+            .setBindingType(BindingType.Srv6Behavior)
+            .setFlags(new FlagsBuilder().setRemoval(false).setSpecified(true).build())
+            .setBindingValue(new Srv6BehaviorBuilder()
+                .setSrv6Sid(new Ipv6AddressNoZone("::1"))
+                .setEndpointBehavior(Uint16.TEN)
+                .setLocatorBlockLength(Uint8.TEN)
+                .setLocatorNodeLength(Uint8.ONE)
+                .setFunctionLength(Uint8.TWO)
+                .setArgumentLength(Uint8.ZERO)
+                .build())
+            .build();
+        assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(pathBindingBytes, 4))));
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(pathBindingBytes, ByteArray.readAllBytes(buff));
