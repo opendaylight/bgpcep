@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02e771fe_1a991ef5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-03-28T18:42:32Z",
+      "side": 1,
+      "message": "Hi,\n\nThis the second patch of the PCEP update series. This one update the Path Binding according to RFC9604.\n\nCan you review it?\n\nBest Regards\n\nOlivier",
+      "revId": "d00a4fb413f2f58674fed5b90e9cd3a682b686a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
