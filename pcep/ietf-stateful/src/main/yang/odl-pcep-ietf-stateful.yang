@@ -90,11 +90,47 @@ module odl-pcep-ietf-stateful {
         }
     }
 
+    typedef binding-type {
+        description "Path Binding Type definition";
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
+        type enumeration {
+            enum mpls-label {
+                value 0;
+            }
+            enum mpls-label-entry {
+                value 1;
+            }
+            enum srv6 {
+                value 2;
+            }
+            enum srv6-behavior {
+                value 3;
+            }
+        }
+    }
+
+    grouping binding-flags {
+        description "Path Binding Flags definition";
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
+        leaf removal {
+            type boolean;
+        }
+        leaf specified {
+            type boolean;
+        }
+    }
+
     grouping path-binding-tlv {
-        reference "https://tools.ietf.org/html/draft-ietf-pce-binding-label-sid-03#section-3";
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
         container path-binding {
             uses pcep:tlv;
-            choice binding-type-value {
+            container flags {
+                uses binding-flags;
+            }
+            leaf binding-type {
+                type binding-type;
+            }
+            choice binding-value {
                 case mpls-label {
                     leaf mpls-label {
                         type netc:mpls-label;
@@ -277,6 +313,10 @@ module odl-pcep-ietf-stateful {
 
             leaf operational {
                 type operational-status;
+            }
+
+            leaf pce-allocation {
+                type boolean;
             }
         }
     }
