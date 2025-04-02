@@ -24,6 +24,7 @@ import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability;
 import org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability;
+import org.opendaylight.protocol.pcep.segment.routing.PCEPSrv6Capability;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -118,6 +119,9 @@ final class PCEPTopologyConfiguration implements Immutable {
         }
         if (capabilities.nonnullSegmentRouting().requireEnabled()) {
             builder.add(PCEPSegmentRoutingCapability.of());
+        }
+        if (capabilities.nonnullSrv6().requireEnabled()) {
+            builder.add(PCEPSrv6Capability.of());
         }
         return builder.build();
     }

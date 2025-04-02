@@ -43,6 +43,12 @@ module odl-pcep-topology-provider {
                     default true;
                 }
             }
+            container srv6 {
+                leaf enabled {
+                    type boolean;
+                    default true;
+                }
+            }
         }
     }
 }

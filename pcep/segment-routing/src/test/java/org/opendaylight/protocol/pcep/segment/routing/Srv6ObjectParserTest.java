@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2025 Orange.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.segment.routing;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -24,38 +23,45 @@ import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.NaiType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.pce.capability.tlv.SrPceCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.Srv6EroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.pce.capability.tlv.Srv6PceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.pce.capability.tlv.srv6.pce.capability.MsdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.subobject.SidStructureBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.ero.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.TlvsBuilder;
-import org.opendaylight.yangtools.yang.common.Uint32;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class SrObjectParserTest {
+public class Srv6ObjectParserTest {
 
     private static final byte[] OPEN_OBJECT_BYTES = {
-        0x01,0x10,0x00,0x10,
-        0x20,0x1e,0x78,0x01,
-        /* sr-capability-tlv */
-        0x00,0x1a,0x00,0x04,
-        0x00,0x00,0x03,0x01};
+        0x01, 0x10, 0x00, 0x14,
+        0x20, 0x1e, 0x78, 0x01,
+        /* srv6-capability-tlv */
+        0x00, 0x1b, 0x00, 0x06,
+        0x00, 0x00, 0x00, 0x02,
+        0x01, 0x0a, 0x00, 0x00
+    };
 
-    private static final byte[] SR_ERO_OBJECT_BYTES = {
-        0x07,0x10,0x00,0x10,
+    private static final byte[] SRV6_ERO_OBJECT_BYTES = {
+        0x07, 0x10, 0x00, 0x24,
         /* ero-subobject */
-        0x24,0x0c,(byte) 0x10,0x00,
-        0x00,0x01,(byte)0xe2,0x40,
-        0x4A,0x7D,0x2b,0x63,
+        0x28, 0x20, 0x20, 0x06,
+        0x00, 0x00, 0x00, 0x0a,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x01,
+        0x0a, 0x02, 0x01, 0x00,
+        0x00, 0x00, 0x00, 0x00
     };
 
     private TlvRegistry tlvRegistry;
@@ -74,7 +80,7 @@ public class SrObjectParserTest {
     }
 
     @Test
-    public void testOpenObjectWithSpcTlv() throws PCEPDeserializerException {
+    public void testOpenObjectWithSv6pcTlv() throws PCEPDeserializerException {
         final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(tlvRegistry,
             viTlvRegistry);
 
@@ -90,8 +96,9 @@ public class SrObjectParserTest {
                 .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
                     .rev250328.Tlvs1Builder().build())
                 .addAugmentation(new Tlvs1Builder()
-                    .setSrPceCapability(new SrPceCapabilityBuilder().setNFlag(Boolean.TRUE).setXFlag(Boolean.TRUE)
-                        .setMsd(Uint8.ONE).build())
+                    .setSrv6PceCapability(new Srv6PceCapabilityBuilder().setNFlag(Boolean.TRUE)
+                        .setMsds(List.of(new MsdsBuilder().setMsdType(Uint8.ONE).setMsdValue(Uint8.TEN).build()))
+                        .build())
                     .build())
                 .addAugmentation(new Tlvs3Builder().build()).build());
 
@@ -100,13 +107,11 @@ public class SrObjectParserTest {
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeObject(builder.build(), buffer);
-        parser.serializeTlvs(null, Unpooled.EMPTY_BUFFER);
-        parser.serializeTlvs(new TlvsBuilder().build(), Unpooled.EMPTY_BUFFER);
         assertArrayEquals(OPEN_OBJECT_BYTES, ByteArray.getAllBytes(buffer));
     }
 
     @Test
-    public void testSrEroObjectWithSubobjects() throws PCEPDeserializerException {
+    public void testSrv6EroObjectWithSubobjects() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
             ctx.getEROSubobjectHandlerRegistry());
 
@@ -115,52 +120,28 @@ public class SrObjectParserTest {
         builder.setIgnore(false);
         final List<Subobject> subobjects = new ArrayList<>();
 
-        final SrEroTypeBuilder srEroSubBuilder = new SrEroTypeBuilder()
-                .setCFlag(false)
-                .setMFlag(false)
-                .setNaiType(NaiType.Ipv4NodeId)
-                .setSid(Uint32.valueOf(123456))
-                .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-                    new Ipv4AddressNoZone("74.125.43.99"))).build());
-        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build())
+        final Srv6EroTypeBuilder srv6EroSubBuilder = new Srv6EroTypeBuilder()
+            .setSrv6NaiType(NaiType.Ipv6NodeId)
+            .setEndpointBehavior(Uint16.TEN)
+            .setVFlag(false)
+            .setSrv6Sid(new Ipv6AddressNoZone("::1"))
+            .setSidStructure(new SidStructureBuilder()
+                .setLocatorBlockLength(Uint8.TEN)
+                .setLocatorNodeLength(Uint8.TWO)
+                .setFunctionLength(Uint8.ONE)
+                .setArgumentLength(Uint8.ZERO)
+                .build());
+        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srv6EroSubBuilder.build())
                 .setLoose(false);
         subobjects.add(subobjBuilder.build());
 
         builder.setSubobject(subobjects);
 
-        final ByteBuf result = Unpooled.wrappedBuffer(SR_ERO_OBJECT_BYTES);
+        final ByteBuf result = Unpooled.wrappedBuffer(SRV6_ERO_OBJECT_BYTES);
         assertEquals(builder.build(),
                 parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeObject(builder.build(), buffer);
-        assertArrayEquals(SR_ERO_OBJECT_BYTES, ByteArray.getAllBytes(buffer));
-    }
-
-    @Test
-    public void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
-        final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
-            ctx.getEROSubobjectHandlerRegistry());
-
-        final EroBuilder builder = new EroBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.update.lsp
-            .input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder srEroSubBuilder =
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402
-                    .update.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder()
-                    .setCFlag(false)
-                    .setMFlag(false)
-                    .setNaiType(NaiType.Ipv4NodeId)
-                    .setSid(Uint32.valueOf(123456))
-                    .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-                        new Ipv4AddressNoZone("74.125.43.99"))).build());
-        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build())
-                .setLoose(false);
-        builder.setSubobject(Lists.newArrayList(subobjBuilder.build()));
-
-        final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeObject(builder.build(), buffer);
-        assertArrayEquals(SR_ERO_OBJECT_BYTES, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(SRV6_ERO_OBJECT_BYTES, ByteArray.getAllBytes(buffer));
     }
 }
