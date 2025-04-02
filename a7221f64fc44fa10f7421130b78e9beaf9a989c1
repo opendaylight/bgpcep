@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7878a50_e57b54da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-04-02T17:02:07Z",
+      "side": 1,
+      "message": "Hello Robert, Ivan,\n\nOne more patch to enhance PCEP. This one is adding SRv6 support.\nCan you review it?\n\nThanks,\n\nOlivier",
+      "revId": "a7221f64fc44fa10f7421130b78e9beaf9a989c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
