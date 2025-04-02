@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.parser.object;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
@@ -120,6 +121,7 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ByteBufUtils.writeMandatory(body, open.getSessionId(), "SessionId");
         serializeTlvs(open.getTlvs(), body);
         ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
+        LOG.info("Serialize Object:\n{}\n", ByteBufUtil.prettyHexDump(buffer));
     }
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {

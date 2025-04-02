@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2025 Orange.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,28 +11,25 @@ import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.pce.capability.tlv.SrPceCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.pce.capability.tlv.Srv6PceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.TlvsBuilder;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
-public final class PCEPSegmentRoutingCapability extends PCEPCapability {
-    private static final @NonNull PCEPSegmentRoutingCapability INSTANCE = new PCEPSegmentRoutingCapability();
+public final class PCEPSrv6Capability extends PCEPCapability {
+    private static final @NonNull PCEPSrv6Capability INSTANCE = new PCEPSrv6Capability();
 
-    private PCEPSegmentRoutingCapability() {
+    private PCEPSrv6Capability() {
         // Hidden on purpose
     }
 
-    public static @NonNull PCEPSegmentRoutingCapability of() {
+    public static @NonNull PCEPSrv6Capability of() {
         return INSTANCE;
     }
 
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
         builder.addAugmentation(new Tlvs1Builder()
-            .setSrPceCapability(new SrPceCapabilityBuilder()
+            .setSrv6PceCapability(new Srv6PceCapabilityBuilder()
                 .setNFlag(Boolean.FALSE)
-                .setXFlag(Boolean.FALSE)
-                .setMsd(Uint8.ZERO)
                 .build())
             .build());
     }
