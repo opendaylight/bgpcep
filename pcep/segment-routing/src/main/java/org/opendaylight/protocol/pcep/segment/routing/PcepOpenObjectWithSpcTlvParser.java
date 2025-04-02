@@ -11,9 +11,10 @@ import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsOpenObjectParser;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev200720.sr.pce.capability.tlv.SrPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Tlvs1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Tlvs1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.pce.capability.tlv.SrPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.pce.capability.tlv.Srv6PceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.TlvsBuilder;
@@ -33,9 +34,15 @@ public class PcepOpenObjectWithSpcTlvParser extends SyncOptimizationsOpenObjectP
             if (tlvs.getSrPceCapability() != null) {
                 tlvBuilder.setSrPceCapability(tlvs.getSrPceCapability());
             }
+            if (tlvs.getSrv6PceCapability() != null) {
+                tlvBuilder.setSrv6PceCapability(tlvs.getSrv6PceCapability());
+            }
         }
         if (tlv instanceof SrPceCapability) {
             tlvBuilder.setSrPceCapability((SrPceCapability) tlv);
+        }
+        if (tlv instanceof Srv6PceCapability) {
+            tlvBuilder.setSrv6PceCapability((Srv6PceCapability) tlv);
         }
         tbuilder.addAugmentation(tlvBuilder.build());
     }
@@ -50,6 +57,9 @@ public class PcepOpenObjectWithSpcTlvParser extends SyncOptimizationsOpenObjectP
             final Tlvs1 spcTlvs = tlvs.augmentation(Tlvs1.class);
             if (spcTlvs.getSrPceCapability() != null) {
                 serializeTlv(spcTlvs.getSrPceCapability(), body);
+            }
+            if (spcTlvs.getSrv6PceCapability() != null) {
+                serializeTlv(spcTlvs.getSrv6PceCapability(), body);
             }
         }
     }
