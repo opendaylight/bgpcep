@@ -14,33 +14,35 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectParser;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectSerializer;
 import org.opendaylight.protocol.pcep.spi.RROSubobjectUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.SrSubobject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Srv6Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.rro.subobject.subobject.type.Srv6RroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.reported.route.object.rro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.reported.route.object.rro.SubobjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType;
 
-public class SrRroSubobjectParser extends AbstractSrSubobjectParser implements RROSubobjectParser,
+public class Srv6RroSubobjectParser extends AbstractSrv6SubobjectParser implements RROSubobjectParser,
         RROSubobjectSerializer {
 
-    public static final int TYPE = 36;
+    public static final int TYPE = 40;
 
-    SrRroSubobjectParser() {
+    Srv6RroSubobjectParser() {
         // Hidden on purpose
     }
 
     @Override
     public void serializeSubobject(final Subobject subobject, final ByteBuf buffer) {
         final SubobjectType subobjType = subobject.getSubobjectType();
-        checkArgument(subobjType instanceof SrSubobject, "Unknown subobject instance. Passed %s. Needed SrSubobject.",
-            subobjType.getClass());
-        final SrSubobject srSubobject = (SrSubobject) subobjType;
-        final ByteBuf body = serializeSubobject(srSubobject);
+        checkArgument(subobjType instanceof Srv6Subobject,
+            "Unknown subobject instance. Passed %s. Needed Srv6Subobject.", subobjType.getClass());
+        final Srv6Subobject srv6Subobject = (Srv6Subobject) subobjType;
+        final ByteBuf body = serializeSubobject(srv6Subobject);
         RROSubobjectUtil.formatSubobject(TYPE, body, buffer);
     }
 
     @Override
     public Subobject parseSubobject(final ByteBuf buffer) throws PCEPDeserializerException {
-        return new SubobjectBuilder().setSubobjectType(new SrRroTypeBuilder(parseSrSubobject(buffer)).build()).build();
+        return new SubobjectBuilder()
+            .setSubobjectType(new Srv6RroTypeBuilder(parseSrv6Subobject(buffer)).build())
+            .build();
     }
 }
