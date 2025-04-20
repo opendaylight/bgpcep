@@ -19,7 +19,6 @@ import java.net.SocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.impl.BmpHandlerFactory;
@@ -39,7 +38,7 @@ final class BmpMockDispatcher implements AutoCloseable {
 
     private final BmpNettyGroups nettyGroups;
     private final BmpMockSessionListenerFactory slf;
-    @GuardedBy("this")
+
     private boolean close;
 
     BmpMockDispatcher(final BmpMessageRegistry registry, final BmpSessionFactory sessionFactory) {
