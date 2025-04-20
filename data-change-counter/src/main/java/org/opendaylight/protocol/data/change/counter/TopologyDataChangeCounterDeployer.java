@@ -15,7 +15,6 @@ import java.util.Map;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
@@ -37,10 +36,9 @@ public final class TopologyDataChangeCounterDeployer
         implements DataTreeChangeListener<DataChangeCounterConfig>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyDataChangeCounterDeployer.class);
 
-    private final @NonNull DataBroker dataBroker;
-    @GuardedBy("this")
     private final Map<String, TopologyDataChangeCounter> counters = new HashMap<>();
-    @GuardedBy("this")
+    private final @NonNull DataBroker dataBroker;
+
     private Registration registration;
 
     @Inject
