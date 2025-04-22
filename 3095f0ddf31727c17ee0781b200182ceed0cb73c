@@ -22,6 +22,30 @@
       },
       "revId": "3095f0ddf31727c17ee0781b200182ceed0cb73c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dc0a86a_bc34d4b8",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/PCEPOpenObjectParser.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-04-22T16:26:35Z",
+      "side": 1,
+      "message": "I forgot to remove this line which was use during debugging phase.\n\nI removed it.",
+      "parentUuid": "7e7efb32_b5dbf730",
+      "range": {
+        "startLine": 124,
+        "startChar": 8,
+        "endLine": 124,
+        "endChar": 16
+      },
+      "revId": "3095f0ddf31727c17ee0781b200182ceed0cb73c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
