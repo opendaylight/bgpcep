@@ -64,6 +64,10 @@
             <artifactId>testtool-util</artifactId>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -80,13 +84,21 @@
             <artifactId>netty-transport</artifactId>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport-classes-epoll</artifactId>
         </dependency>
         <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>binding-spec</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
@@ -99,6 +111,10 @@
         <dependency>
             <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
             <artifactId>rfc6991-ietf-inet-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 
