@@ -310,6 +310,8 @@ module odl-pcep-ietf-stateful {
                 uses pcep:vendor-information-tlvs;
 
                 uses path-binding-tlv;
+
+                uses pcep:sr-policy-lsp-tlvs;
             }
 
             leaf plsp-id {

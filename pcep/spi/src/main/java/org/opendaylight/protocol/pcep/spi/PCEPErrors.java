@@ -218,6 +218,10 @@ public enum PCEPErrors {
      * Missing SR Policy Mandatory TLV.
      */
     SR_POLICY_TLV_MISSING(6, 21),
+    /**
+     * Missing SR Policy Association.
+     */
+    SR_POLICY_ASSOCIATION_MISSING(6, 22),
 
     /**
      * Synchronized path computation request missing: Error-Type = 7.
@@ -270,6 +274,11 @@ public enum PCEPErrors {
     SID_NON_IDENTICAL_RRO_SUBOBJECTS(10, 8),
 
     // FIXME: Add missing codes from 9 to 43
+
+    /**
+     * Missing SRPOLICY-CAPABILITY.
+     */
+    SR_POLICY_CAPABILITY_MISSING(10, 44),
 
     /**
      * Unrecognized EXRS SubObject: Error-Type = 11.
