@@ -102,15 +102,19 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         buffer.skipBytes(RESERVED);
         final BitArray flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        final AssociationType type = AssociationType.forValue(readUint16(buffer).intValue());
+        int type = buffer.readUnsignedShort();
+        final AssociationType assocType = AssociationType.forValue(type);
+        if (assocType == null) {
+            throw new PCEPDeserializerException("Non standard / Not Supported Association Type: " + type);
+        }
         return new AssociationGroupBuilder()
             .setIgnore(header.getIgnore())
             .setProcessingRule(header.getProcessingRule())
             .setRemovalFlag(flags.get(R_FLAG))
-            .setAssociationType(type)
+            .setAssociationType(assocType)
             .setAssociationId(readUint16(buffer))
             .setAssociationSource(parseAssociationSource(buffer))
-            .setAssociationTlvs(parseAssociationTlvs(type, buffer))
+            .setAssociationTlvs(parseAssociationTlvs(assocType, buffer))
             .build();
     }
 

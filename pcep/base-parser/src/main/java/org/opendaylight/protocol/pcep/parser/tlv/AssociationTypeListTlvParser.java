@@ -40,7 +40,11 @@ public class AssociationTypeListTlvParser implements TlvParser, TlvSerializer {
         }
         final var assocTypeList = ImmutableSet.<AssociationType>builder();
         while (buffer.isReadable()) {
-            assocTypeList.add(AssociationType.forValue(buffer.readShort()));
+            // Check that Association Type is valid
+            final var associationType = AssociationType.forValue(buffer.readShort());
+            if (associationType != null) {
+                assocTypeList.add(associationType);
+            }
         }
         return new AssociationTypeListBuilder().setAssociationType(assocTypeList.build()).build();
     }
