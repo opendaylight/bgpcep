@@ -92,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.P2mpLeaves;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.AssociationGroupBuilder;
@@ -100,6 +101,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.DisjointnessBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.PathProtectionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.SrPolicyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.branch.node.object.BranchNodeListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.classtype.object.ClassTypeBuilder;
@@ -153,6 +155,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.reported.route.object.RroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.req.missing.tlv.ReqMissingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.rp.object.RpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.tlvs.CpathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.tlvs.PolicyIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.svec.object.SvecBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.unreach.destination.object.UnreachDestinationObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.unreach.destination.object.unreach.destination.obj.destination.Ipv4DestinationCase;
@@ -1922,5 +1926,71 @@ public class PCEPObjectParserTest {
         } catch (final IllegalArgumentException e) {
             assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
         }
+    }
+
+    @Test
+    public void testPcepSrPolicy() throws Exception {
+        final byte[] srPolicy = {
+            // Object Header
+            0x28, 0x10, 0x00, 0x54,
+            // Association Group Object
+            0x00, 0x00, 0x00, 0x00, // Reserved
+            0x00, 0x06, 0x00, 0x01, // Association-Type = 6 (SR Policy) + Association-Id = 1
+            0x0a, 0x01, 0x02, 0x03, // Association-Source IPv4 (10.1.2.3)
+            0x00, 0x1f, 0x00, 0x08, // Extended Association ID
+            0x00, 0x00, 0x00, 0x0a, // SR Policy Color
+            0x0a, 0x01, 0x02, 0x01, // SR Policy Endpoint (10.1.2.1)
+            0x00, 0x38, 0x00, 0x04, // SR Policy Name = "Test"
+            0x54, 0x65, 0x73, 0x74,
+            0x00, 0x39, 0x00, 0x1c, // SR Policy Candidate Path Identifier
+            0x0a, 0x00, 0x00, 0x00, // Origin = PCEP
+            0x00, 0x00, (byte) 0xff, (byte) 0xff, // ASN = 65535
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+            0x0a, 0x00, 0x00, 0x01, // Originator address = 10.0.0.1
+            0x00, 0x00, 0x00, 0x02, // Discriminator = 2
+            0x00, 0x3a, 0x00, 0x03, // SR Policy Candidate Path Name = "Foo"
+            0x46, 0x6f, 0x6f, 0x00,
+            0x00, 0x3b, 0x00, 0x04, // SR Policy Candidate Path Preference = 10
+            0x00, 0x00, 0x00, 0x0a
+        };
+
+        final AssociationTlvsBuilder associationTlvs = new AssociationTlvsBuilder()
+            .setExtendedAssociationId(List.of(Uint32.TEN, Uint32.valueOf(167838209)))
+            .setAssociationTypeTlvs(new SrPolicyBuilder()
+                .setPolicyId(new PolicyIdBuilder()
+                    .setColor(Uint32.TEN)
+                    .setEndpoint(new IpAddressNoZone(new Ipv4AddressNoZone("10.1.2.1")))
+                    .setName(new byte[] {0x54, 0x65, 0x73, 0x74})
+                    .build())
+                .setCpath(new CpathBuilder()
+                    .setOrigin(ProtocolOrigin.Pcep)
+                    .setOriginatorAsn(Uint32.valueOf(65535))
+                    .setOriginatorAddress(new IpAddressNoZone(new Ipv6AddressNoZone("::a00:1")))
+                    .setDiscriminator(Uint32.TWO)
+                    .setName(new byte[] {0x46, 0x6f, 0x6f})
+                    .setPreference(Uint32.TEN)
+                    .build())
+                .build()
+            );
+        final AssociationGroupBuilder builder = new AssociationGroupBuilder()
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setRemovalFlag(false)
+            .setAssociationType(AssociationType.SrPolicy)
+            .setAssociationId(Uint16.ONE)
+            .setAssociationSource(new IpAddressNoZone(new Ipv4AddressNoZone("10.1.2.3")))
+            .setAssociationTlvs(associationTlvs.build());
+
+        final PCEPAssociationIPv4ObjectParser parser = new PCEPAssociationIPv4ObjectParser();
+        final ByteBuf protectionResult = Unpooled.wrappedBuffer(srPolicy);
+
+        // Test Association Group with SrPolicy
+        assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
+                protectionResult.slice(4, protectionResult.readableBytes() - 4)));
+        final ByteBuf buf = Unpooled.buffer();
+        parser.serializeObject(builder.build(), buf);
+        assertArrayEquals(srPolicy, ByteArray.getAllBytes(buf));
     }
 }

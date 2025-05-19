@@ -94,6 +94,7 @@ import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.SrPolicyCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -146,6 +147,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.secondary.explicit.route.object.Sero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.secondary.reported.route.object.Srro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.capability.tlv.SrPolicyCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.unreach.destination.object.UnreachDestinationObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
@@ -502,6 +504,10 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final AssociationRangeTlvParser assocRangeParser = new AssociationRangeTlvParser();
         regs.add(context.registerTlvParser(AssociationRangeTlvParser.TYPE, assocRangeParser));
         regs.add(context.registerTlvSerializer(AssociationRange.class, assocRangeParser));
+
+        final SrPolicyCapabilityTlvParser srPolicyCapaParser = new SrPolicyCapabilityTlvParser();
+        regs.add(context.registerTlvParser(SrPolicyCapabilityTlvParser.TYPE, srPolicyCapaParser));
+        regs.add(context.registerTlvSerializer(SrPolicyCapability.class, srPolicyCapaParser));
     }
 
     private static void registerMonitoringExtensionParsers(final List<Registration> regs,
