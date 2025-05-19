@@ -150,6 +150,10 @@ module pcep-config {
             type boolean;
             default true;
         }
+        leaf sr-policy {
+            type boolean;
+            default true;
+        }
     }
 
     grouping pcep-config {

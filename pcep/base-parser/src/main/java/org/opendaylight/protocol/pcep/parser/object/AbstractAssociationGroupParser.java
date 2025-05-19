@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.parser.object;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint16;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint32;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint32;
 
@@ -26,12 +27,16 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
 import org.opendaylight.protocol.pcep.spi.VendorInformationUtil;
 import org.opendaylight.protocol.util.BitArray;
+import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.protocol.util.Ipv4Util;
+import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.DisjointnessFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.OfId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.AssociationGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.AssociationGroupBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.association.group.AssociationTlvs;
@@ -45,9 +50,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.PathProtectionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.Policy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.PolicyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.SrPolicy;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.type.tlvs.association.type.tlvs.SrPolicyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.disjointness.tlvs.ConfigurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.disjointness.tlvs.StatusBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.of.list.tlv.OfListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.tlvs.CpathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.tlvs.PolicyIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspFlag;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -72,6 +81,10 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
     private static final int DISJOINTNESS_STATUS_TLV = 47;
     private static final int POLICY_PARAMETERS_TLV = 48;
     private static final int BIDIRECTIONAL_LSP_TLV = 54;
+    private static final int SR_POLICY_NAME = 56;
+    private static final int SR_POLICY_CPATH_ID = 57;
+    private static final int SR_POLICY_CPATH_NAME = 58;
+    private static final int SR_POLICY_CPATH_PREF = 59;
 
     // TLVs Flags definition
     private static final int TLV_FLAGS_SIZE = 32;
@@ -92,6 +105,11 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
     // Bidirectional Flags
     private static final int REVERSE_FLAG = 31;
     private static final int CO_ROUTED_FLAG = 30;
+    // SR Policy
+    private static final int CPATH_RESERVED = 3;
+    private static final int IPV4_ENDPOINT_SIZE = 2;
+    private static final int IPV6_ENDPOINT_SIZE = 5;
+
 
     public AbstractAssociationGroupParser(final int objectType) {
         super(CLASS, objectType);
@@ -140,6 +158,7 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
             case Disjoint -> parseDisjointness(buffer);
             case Policy -> parsePolicy(buffer);
             case SingleSideLsp, DoubleSideLsp -> parseBidirectionalLSP(buffer);
+            case SrPolicy -> parseSrPolicy(buffer, tlvsBuilder.getExtendedAssociationId());
             default -> {
                 LOG.debug("Unsupported Association Group Type: {}", associationType);
                 yield null;
@@ -286,6 +305,59 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
             .build();
     }
 
+    private static SrPolicy parseSrPolicy(final ByteBuf buffer, List<Uint32> extendedId)
+            throws PCEPDeserializerException {
+
+        // First, check that Extended Association ID is present and contains Color + EndPoint
+        if (extendedId == null) {
+            throw new PCEPDeserializerException("Missing Extended Association ID TLV for SR Policy");
+        }
+        final PolicyIdBuilder policyBuilder = new PolicyIdBuilder();
+        policyBuilder.setColor(extendedId.getFirst());
+        final ByteBuf tlvBuf = Unpooled.buffer();
+        if (extendedId.size() == IPV4_ENDPOINT_SIZE) {
+            writeUint32(tlvBuf, extendedId.getLast());
+            policyBuilder.setEndpoint(new IpAddressNoZone(Ipv4Util.addressForByteBuf(tlvBuf)));
+        } else if (extendedId.size() == IPV6_ENDPOINT_SIZE) {
+            for (int i = 1; i < extendedId.size(); i++) {
+                writeUint32(tlvBuf, extendedId.get(i));
+            }
+            policyBuilder.setEndpoint(new IpAddressNoZone(Ipv6Util.addressForByteBuf(tlvBuf)));
+        } else {
+            throw new PCEPDeserializerException("Wrong Endpoint length specified. Passed: " + extendedId.size()
+                    + "; Expected: " + IPV4_ENDPOINT_SIZE + " or " + IPV6_ENDPOINT_SIZE + ".");
+        }
+
+        // Then parse SR Policy TLVs
+        final CpathBuilder cpathBuilder = new CpathBuilder();
+        while (buffer.isReadable()) {
+            final int type = buffer.readUnsignedShort();
+            final int length = buffer.readUnsignedShort();
+            if (length > buffer.readableBytes()) {
+                throw new PCEPDeserializerException("Wrong length specified. Passed: " + length + "; Expected: <= "
+                    + buffer.readableBytes() + ".");
+            }
+            switch (type) {
+                case SR_POLICY_NAME -> policyBuilder.setName(ByteArray.readBytes(buffer, length));
+                case SR_POLICY_CPATH_NAME -> cpathBuilder.setName(ByteArray.readBytes(buffer, length));
+                case SR_POLICY_CPATH_PREF -> cpathBuilder.setPreference(readUint32(buffer));
+                case SR_POLICY_CPATH_ID -> {
+                    cpathBuilder.setOrigin(ProtocolOrigin.forValue(readUint8(buffer).intValue()));
+                    buffer.skipBytes(CPATH_RESERVED);
+                    cpathBuilder.setOriginatorAsn(readUint32(buffer));
+                    cpathBuilder.setOriginatorAddress(new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer)));
+                    cpathBuilder.setDiscriminator(readUint32(buffer));
+                }
+                default -> {
+                    LOG.debug("Unsupported SR Policy Type: {}", type);
+                }
+            }
+            // Skip padding if any
+            buffer.skipBytes(TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));
+        }
+        return new SrPolicyBuilder().setPolicyId(policyBuilder.build()).setCpath(cpathBuilder.build()).build();
+    }
+
     @Override
     public void serializeObject(final Object object, final ByteBuf buffer) {
         checkArgument(object instanceof AssociationGroup,
@@ -337,6 +409,7 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
                 case Disjoint -> serializeDisjointness((Disjointness )nextTlvs, buffer);
                 case Policy -> serializePolicy((Policy )nextTlvs, buffer);
                 case SingleSideLsp, DoubleSideLsp -> serializeBidirectionalLSP((BidirectionalLsp )nextTlvs, buffer);
+                case SrPolicy -> serializeSrPolicy((SrPolicy )nextTlvs, buffer);
                 default -> {
                     LOG.debug("Unsupported Association Group Type: {}", associationType);
                 }
@@ -406,5 +479,29 @@ public abstract class AbstractAssociationGroupParser extends CommonObjectParser 
         final var tlvBuf = Unpooled.buffer();
         bs.toByteBuf(tlvBuf);
         TlvUtil.formatTlv(BIDIRECTIONAL_LSP_TLV, tlvBuf, buffer);
+    }
+
+    private static void serializeSrPolicy(final SrPolicy tlvs, final ByteBuf buffer) {
+        final ByteBuf tlvBuf = Unpooled.buffer();
+        if (tlvs.getPolicyId().getName() != null) {
+            TlvUtil.formatTlv(SR_POLICY_NAME, Unpooled.copiedBuffer(tlvs.getPolicyId().getName()), buffer);
+        }
+        if (tlvs.getCpath().getOrigin() != null) {
+            tlvBuf.clear();
+            tlvBuf.writeByte(tlvs.getCpath().getOrigin().getIntValue());
+            tlvBuf.writeZero(CPATH_RESERVED);
+            writeUint32(tlvBuf, tlvs.getCpath().getOriginatorAsn());
+            Ipv6Util.writeIpv6Address(tlvs.getCpath().getOriginatorAddress().getIpv6AddressNoZone(), tlvBuf);
+            writeUint32(tlvBuf, tlvs.getCpath().getDiscriminator());
+            TlvUtil.formatTlv(SR_POLICY_CPATH_ID, tlvBuf, buffer);
+        }
+        if (tlvs.getCpath().getName() != null) {
+            TlvUtil.formatTlv(SR_POLICY_CPATH_NAME, Unpooled.copiedBuffer(tlvs.getCpath().getName()), buffer);
+        }
+        if (tlvs.getCpath().getPreference() != null) {
+            tlvBuf.clear();
+            writeUint32(tlvBuf, tlvs.getCpath().getPreference());
+            TlvUtil.formatTlv(SR_POLICY_CPATH_PREF, tlvBuf, buffer);
+        }
     }
 }

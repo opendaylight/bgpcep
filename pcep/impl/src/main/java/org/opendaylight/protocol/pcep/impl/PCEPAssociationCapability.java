@@ -23,19 +23,19 @@ public final class PCEPAssociationCapability extends PCEPCapability {
     private final AssociationTypeList associationList;
 
     public PCEPAssociationCapability() {
-        this(true, true, true, true, true);
+        this(true, true, true, true, true, true);
     }
 
     public PCEPAssociationCapability(final boolean pathProtection, final boolean disjoint, final boolean policy,
-            final boolean singleSideLSP, final boolean doubleSideLSP) {
+            final boolean singleSideLSP, final boolean doubleSideLSP, final boolean srPolicy) {
         associationList = new AssociationTypeListBuilder()
             .setAssociationType(constructAssociationList(pathProtection, disjoint, policy,
-                    singleSideLSP, doubleSideLSP)).build();
+                    singleSideLSP, doubleSideLSP, srPolicy)).build();
     }
 
     public PCEPAssociationCapability(final AssociationCapabilities config) {
         this(config.getPathProtection(), config.getDisjointPath(), config.getPolicy(), config.getSingleSideLsp(),
-                config.getDoubleSideLsp());
+                config.getDoubleSideLsp(), config.getSrPolicy());
     }
 
     @Override
@@ -44,7 +44,8 @@ public final class PCEPAssociationCapability extends PCEPCapability {
     }
 
     private static @NonNull ImmutableSet<AssociationType> constructAssociationList(final boolean pathProtection,
-            final boolean disjoint, final boolean policy, final boolean singleSideLSP, final boolean doubleSideLSP) {
+            final boolean disjoint, final boolean policy, final boolean singleSideLSP, final boolean doubleSideLSP,
+            final boolean srPolicy) {
         final var list = ImmutableSet.<AssociationType>builder();
         if (pathProtection) {
             list.add(AssociationType.PathProtection);
@@ -60,6 +61,9 @@ public final class PCEPAssociationCapability extends PCEPCapability {
         }
         if (doubleSideLSP) {
             list.add(AssociationType.DoubleSideLsp);
+        }
+        if (srPolicy) {
+            list.add(AssociationType.SrPolicy);
         }
         return list.build();
     }
