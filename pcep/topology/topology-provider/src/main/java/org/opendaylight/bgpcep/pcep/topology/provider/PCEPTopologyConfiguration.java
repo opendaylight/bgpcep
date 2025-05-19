@@ -22,6 +22,7 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
+import org.opendaylight.protocol.pcep.impl.PCEPAssociationCapability;
 import org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability;
 import org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability;
 import org.opendaylight.protocol.pcep.segment.routing.PCEPSrv6Capability;
@@ -113,7 +114,8 @@ final class PCEPTopologyConfiguration implements Immutable {
         }
 
         final var builder = ImmutableList.<PCEPCapability>builder()
-            .add(new PCEPStatefulCapability(capabilities.nonnullStateful()));
+            .add(new PCEPStatefulCapability(capabilities.nonnullStateful()))
+            .add(new PCEPAssociationCapability(capabilities.nonnullAssociationGroup()));
         if (capabilities.nonnullP2mp().requireEnabled()) {
             builder.add(P2MPTeLspCapability.of());
         }
