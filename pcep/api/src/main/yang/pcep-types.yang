@@ -237,6 +237,7 @@ module pcep-types {
                 uses vendor-information-tlvs;
                 uses association-type-list-tlv;
                 uses association-range-tlv;
+                uses sr-policy-capability-tlv;
             }
 
             leaf version {
@@ -1203,6 +1204,125 @@ module pcep-types {
         }
     }
 
+    // SR Policy
+
+    typedef protocol-origin {
+        description "Protocol Origin for SR Policy Candidate Path";
+        reference "https://tools.ietf.org/html/rfc9256#section-2.3";
+        type enumeration {
+            enum pcep {
+                value 10;
+            }
+            enum bgp {
+                value 20;
+            }
+            enum config {
+                value 30;
+            }
+        }
+    }
+
+    typedef enlp {
+        description "Explicit Null Label Priority";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-sr-policy-safi#section-6.10";
+        type enumeration {
+            enum ipv4-only {
+                value 1;
+            }
+            enum ipv6-only {
+                value 2;
+            }
+            enum both-ipv4-ipv6 {
+                value 3;
+            }
+            enum no-enl {
+                value 4;
+            }
+        }
+    }
+
+    grouping sr-policy-capability-tlv {
+        description "SR Policy Capability TLV definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-5.1";
+        container sr-policy-capability {
+            uses tlv;
+            leaf priority {
+                type boolean;
+            }
+            leaf explicit-null {
+                type boolean;
+            }
+            leaf invalidation {
+                type boolean;
+            }
+            leaf stateless {
+                type boolean;
+            }
+        }
+    }
+
+    grouping sr-policy-lsp-tlvs {
+        description "SR Policy LSP Object TLVs Definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-5.2";
+        container sr-policy-lsp {
+            uses tlv;
+            leaf computation-priority {
+                type uint8;
+            }
+            leaf enl-policy {
+                type enlp;
+            }
+            container invalidation {
+                leaf oper-drop {
+                    type boolean;
+                }
+                leaf config-drop {
+                    type boolean;
+                }
+            }
+        }
+    }
+
+    grouping sr-policy-tlvs {
+        description "SR Policy association TLVs definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-4.5";
+        container policy-id {
+            leaf color {
+                type uint32;
+            }
+            leaf endpoint {
+                type inet:ip-address-no-zone;
+            }
+            leaf name {
+                type binary {
+                    length 1..255;
+                }
+            }
+        }
+        container cpath {
+            leaf origin {
+                type protocol-origin;
+            }
+            leaf originator-asn {
+                type uint32;
+            }
+            leaf originator-address {
+                type inet:ip-address-no-zone;
+            }
+            leaf discriminator {
+                type uint32;
+            }
+            leaf name {
+                type binary {
+                    length 1..255;
+                }
+            }
+            leaf preference {
+                type uint32;
+            }
+        }
+    }
+
     grouping association-type-tlvs {
         choice association-type-tlvs {
             case path-protection {
@@ -1216,6 +1336,9 @@ module pcep-types {
             }
             case bidirectional-lsp {
                 uses bidirectional-lsp-tlv;
+            }
+            case sr-policy {
+                uses sr-policy-tlvs;
             }
         }
     }
