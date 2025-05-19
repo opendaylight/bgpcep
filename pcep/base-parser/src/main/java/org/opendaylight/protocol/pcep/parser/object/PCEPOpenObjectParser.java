@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.sr.policy.capability.tlv.SrPolicyCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -106,6 +107,9 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         if (tlv instanceof AssociationRange) {
             tbuilder.setAssociationRange((AssociationRange ) tlv);
         }
+        if (tlv instanceof SrPolicyCapability) {
+            tbuilder.setSrPolicyCapability((SrPolicyCapability ) tlv);
+        }
     }
 
     @Override
@@ -132,6 +136,9 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
             }
             if (tlvs.getAssociationRange() != null) {
                 serializeTlv(tlvs.getAssociationRange(), body);
+            }
+            if (tlvs.getSrPolicyCapability() != null) {
+                serializeTlv(tlvs.getSrPolicyCapability(), body);
             }
             serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
