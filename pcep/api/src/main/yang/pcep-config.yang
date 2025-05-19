@@ -129,6 +129,29 @@ module pcep-config {
         }
     }
 
+    grouping association-capabilities {
+        leaf path-protection {
+            type boolean;
+            default true;
+        }
+        leaf disjoint-path {
+            type boolean;
+            default true;
+        }
+        leaf policy {
+            type boolean;
+            default true;
+        }
+        leaf single-side-lsp {
+            type boolean;
+            default true;
+        }
+        leaf double-side-lsp {
+            type boolean;
+            default true;
+        }
+    }
+
     grouping pcep-config {
         container session-config {
             description "PCEP topology config";
