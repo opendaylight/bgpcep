@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ac03661_ad209b3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-05-20T08:39:44Z",
+      "side": 1,
+      "message": "Hello Robert, Ivan,\n\nCan you review this patch? It adds support to PCEP for SR Policy.\n\nBest Regards",
+      "revId": "5f021af8abfa5013c1fdd9a4c0fff2dc4a3df7eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
