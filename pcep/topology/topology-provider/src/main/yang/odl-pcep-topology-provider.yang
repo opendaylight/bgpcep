@@ -39,19 +39,14 @@ module odl-pcep-topology-provider {
 
                 uses opisc:stateful-capabilities;
             }
+            container path-setup-type {
+                leaf enabled {
+                    type boolean;
+                    default true;
+                }
+                uses pc:path-setup-type-capabilities;
+            }
             container p2mp {
-                leaf enabled {
-                    type boolean;
-                    default true;
-                }
-            }
-            container segment-routing {
-                leaf enabled {
-                    type boolean;
-                    default true;
-                }
-            }
-            container srv6 {
                 leaf enabled {
                     type boolean;
                     default true;
