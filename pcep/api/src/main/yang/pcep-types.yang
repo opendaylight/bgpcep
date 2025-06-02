@@ -24,10 +24,10 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
-//    revision "2025-05-22" {
-//        description "Update Path Setup Type to RFC8408";
-//        reference "RFC8408";
-//    }
+    revision "2025-06-02" {
+        description "Update Path Setup Type to RFC8408";
+        reference "RFC8408";
+    }
 
     revision "2025-03-28" {
         description
