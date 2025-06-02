@@ -23,8 +23,8 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPAssociationCapability;
+import org.opendaylight.protocol.pcep.impl.PCEPPathSetupTypeCapability;
 import org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability;
-import org.opendaylight.protocol.pcep.segment.routing.PCEPSegmentRoutingCapability;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -45,7 +45,10 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 final class PCEPTopologyConfiguration implements Immutable {
     private static final long DEFAULT_UPDATE_INTERVAL = TimeUnit.SECONDS.toNanos(5);
     private static final @NonNull ImmutableList<PCEPCapability> DEFAULT_CAPABILITIES = ImmutableList.of(
-        new PCEPStatefulCapability(), P2MPTeLspCapability.of(), PCEPSegmentRoutingCapability.of());
+        new PCEPStatefulCapability(),
+        new PCEPAssociationCapability(),
+        new PCEPPathSetupTypeCapability(),
+        P2MPTeLspCapability.of());
 
     private final @NonNull InetSocketAddress address;
     private final @Nullable GraphKey graphKey;
@@ -114,12 +117,10 @@ final class PCEPTopologyConfiguration implements Immutable {
 
         final var builder = ImmutableList.<PCEPCapability>builder()
             .add(new PCEPStatefulCapability(capabilities.nonnullStateful()))
-            .add(new PCEPAssociationCapability(capabilities.nonnullAssociationGroup()));
+            .add(new PCEPAssociationCapability(capabilities.nonnullAssociationGroup()))
+            .add(new PCEPPathSetupTypeCapability(capabilities.nonnullPathSetupType()));
         if (capabilities.nonnullP2mp().requireEnabled()) {
             builder.add(P2MPTeLspCapability.of());
-        }
-        if (capabilities.nonnullSegmentRouting().requireEnabled()) {
-            builder.add(PCEPSegmentRoutingCapability.of());
         }
         return builder.build();
     }

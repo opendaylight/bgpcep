@@ -24,6 +24,11 @@ module pcep-types {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+//    revision "2025-05-22" {
+//        description "Update Path Setup Type to RFC8408";
+//        reference "RFC8408";
+//    }
+
     revision "2025-03-28" {
         description
             "Add Association Group";
@@ -173,16 +178,106 @@ module pcep-types {
         }
     }
 
+    typedef ps-type {
+        description "Path Setup Type normalized value";
+        reference "https://www.iana.org/assignments/pcep/pcep.xhtml#pcep-path-setup-types";
+        type enumeration {
+            enum rsvp-te {
+                value 0;
+            }
+            enum sr-mpls {
+                value 1;
+            }
+            enum pcecc {
+                value 2;
+            }
+            enum srv6 {
+                value 3;
+            }
+            enum native-ip {
+                value 4;
+            }
+        }
+    }
+
     grouping path-setup-type-tlv {
         description "PATH-SETUP-TYPE TLV";
-        reference "https://tools.ietf.org/html/draft-ietf-pce-lsp-setup-type-00#section-3";
+        reference "https://tools.ietf.org/html/rfc8408#section-4";
 
         container path-setup-type {
             uses tlv;
             leaf pst {
                 description "PST=0: Path is setup via RSVP-TE signaling protocol(default).";
+                type ps-type;
+                default rsvp-te;
+            }
+        }
+    }
+
+    grouping sr-pce-capability-tlv {
+        description "SR-PCE-CAPABILITY TLV";
+        reference "http://tools.ietf.org/html/rfc8664#section-4.1.2";
+
+        container sr-pce-capability {
+            uses tlv;
+            leaf n-flag {
+                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SID";
+                type boolean;
+                default false;
+            }
+            leaf x-flag {
+                description " X flag used by a PCC to indicate that it does not impose any limit to the MSD";
+                type boolean;
+                default false;
+            }
+            leaf msd {
+                description "Maximum SID Depth";
                 type uint8;
                 default 0;
+            }
+        }
+    }
+
+    grouping srv6-pce-capability-tlv {
+        description "SRv6-PCE-CAPABILITY TLV";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.1.1";
+
+        container srv6-pce-capability {
+            uses tlv;
+            leaf n-flag {
+                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SRv6-SID";
+                type boolean;
+                default false;
+            }
+            list msds {
+                leaf msd-type {
+                    description "Maximum SID Depth type as per RFC8491 and RFC9352";
+                    type uint8;
+                }
+                leaf msd-value {
+                    description "Maximum SID Depth value as per RFC8491";
+                    type uint8;
+                }
+            }
+        }
+    }
+
+    grouping path-setup-type-capability-tlv {
+        description "PATH-SETUP-TYPE CAPABILITY";
+        reference "https://tools.ietf.org/html/rfc8408#section-3";
+
+        container path-setup-type-capability {
+            uses tlv;
+            leaf pst-number {
+                type uint8;
+            }
+            leaf-list psts {
+                type ps-type;
+                ordered-by user;
+            }
+            container sub-tlvs {
+                uses sr-pce-capability-tlv;
+                uses srv6-pce-capability-tlv;
             }
         }
     }
@@ -237,6 +332,7 @@ module pcep-types {
                 uses vendor-information-tlvs;
                 uses association-type-list-tlv;
                 uses association-range-tlv;
+                uses path-setup-type-capability-tlv;
                 uses sr-policy-capability-tlv;
             }
 
