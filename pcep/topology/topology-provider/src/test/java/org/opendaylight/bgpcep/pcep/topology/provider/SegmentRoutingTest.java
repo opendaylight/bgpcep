@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.seg
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.pcrpt.pcrpt.message.reports.path.ero.subobject.subobject.type.SrEroTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpNodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.ero.Subobject;
@@ -50,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class SegmentRoutingTest extends AbstractPCEPSessionTest {
     private AbstractTopologySessionListener listener;
@@ -82,7 +82,7 @@ public class SegmentRoutingTest extends AbstractPCEPSessionTest {
             assertNotNull(paths);
             final Path path = paths.values().iterator().next();
 
-            assertEquals(1, path.augmentation(Path1.class).getPathSetupType().getPst().intValue());
+            assertEquals(PsType.SrMpls, path.augmentation(Path1.class).getPathSetupType().getPst());
             final List<Subobject> subobjects = path.getEro().nonnullSubobject();
             assertEquals(1, subobjects.size());
             assertEquals("1.1.1.1", ((IpNodeId)((SrEroType)subobjects.get(0).getSubobjectType())
@@ -146,7 +146,7 @@ public class SegmentRoutingTest extends AbstractPCEPSessionTest {
                         .setOperationId(new SrpIdNumber(Uint32.ZERO))
                         .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
                             .rev250328.srp.object.srp.TlvsBuilder()
-                            .setPathSetupType(new PathSetupTypeBuilder().setPst(Uint8.ONE).build())
+                            .setPathSetupType(new PathSetupTypeBuilder().setPst(PsType.SrMpls).build())
                             .build())
                         .build())
                     .setPath(new PathBuilder().setEro(createSrEroObject(nai)).build())

@@ -11,46 +11,27 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.HashSet;
-import java.util.Set;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.TlvParser;
 import org.opendaylight.protocol.pcep.spi.TlvSerializer;
 import org.opendaylight.protocol.pcep.spi.TlvUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.tlv.PathSetupTypeBuilder;
-import org.opendaylight.yangtools.yang.common.Uint8;
-import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
     public static final int TYPE = 28;
 
-    private static final int CONTENT_LENGTH = 4;
-    private static final int PST_LENGTH = 1;
-    private static final int OFFSET = CONTENT_LENGTH - PST_LENGTH;
-    private static final short RSVP_TE_PST = 0;
-    private static final String UNSUPPORTED_PST = "Unsupported path setup type.";
-
-    private static final Set<Uint8> PSTS = new HashSet<>();
-
-    public PathSetupTypeTlvParser() {
-        PSTS.add(Uint8.valueOf(RSVP_TE_PST));
-    }
-
-    public PathSetupTypeTlvParser(final short srTePst) {
-        this();
-        PSTS.add(Uint8.valueOf(srTePst));
-    }
+    private static final int RESERVED = 3;
 
     @Override
     public void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         checkArgument(tlv instanceof PathSetupType, "PathSetupType is mandatory.");
         final PathSetupType pstTlv = (PathSetupType) tlv;
-        checkArgument(checkPST(pstTlv.getPst()), UNSUPPORTED_PST);
-        final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
-        body.writeZero(OFFSET);
-        ByteBufUtils.writeOrZero(body, pstTlv.getPst());
+        final ByteBuf body = Unpooled.buffer();
+        body.writeZero(RESERVED);
+        body.writeByte(pstTlv.getPst().getIntValue());
         TlvUtil.formatTlv(TYPE, body, buffer);
     }
 
@@ -59,14 +40,12 @@ public class PathSetupTypeTlvParser implements TlvParser, TlvSerializer {
         if (buffer == null) {
             return null;
         }
-        final Uint8 pst = ByteBufUtils.readUint8(buffer.readerIndex(OFFSET));
-        if (!checkPST(pst)) {
-            throw new PCEPDeserializerException(UNSUPPORTED_PST);
+        buffer.skipBytes(RESERVED);
+        final int pst = buffer.readByte();
+        final var psType = PsType.forValue(pst);
+        if (psType == null) {
+            throw new PCEPDeserializerException("Unsuported Path Setup Type: " + pst);
         }
-        return new PathSetupTypeBuilder().setPst(pst).build();
-    }
-
-    private static boolean checkPST(final Uint8 pst) {
-        return pst != null && PSTS.contains(pst);
+        return new PathSetupTypeBuilder().setPst(psType).build();
     }
 }
