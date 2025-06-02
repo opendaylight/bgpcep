@@ -20,35 +20,19 @@ import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.NaiType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.Tlvs1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpNodeIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.ero.SubobjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.open.TlvsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
 public class SrObjectParserTest {
-
-    private static final byte[] OPEN_OBJECT_BYTES = {
-        0x01,0x10,0x00,0x10,
-        0x20,0x1e,0x78,0x01,
-        /* sr-capability-tlv */
-        0x00,0x1a,0x00,0x04,
-        0x00,0x00,0x03,0x01};
 
     private static final byte[] SR_ERO_OBJECT_BYTES = {
         0x07,0x10,0x00,0x10,
@@ -58,9 +42,6 @@ public class SrObjectParserTest {
         0x4A,0x7D,0x2b,0x63,
     };
 
-    private TlvRegistry tlvRegistry;
-    private VendorInformationTlvRegistry viTlvRegistry;
-
     private SimplePCEPExtensionProviderContext ctx;
     private SegmentRoutingActivator act;
 
@@ -69,40 +50,6 @@ public class SrObjectParserTest {
         ctx = new SimplePCEPExtensionProviderContext();
         act = new SegmentRoutingActivator();
         act.start(ctx);
-        tlvRegistry = ctx.getTlvHandlerRegistry();
-        viTlvRegistry = ctx.getVendorInformationTlvRegistry();
-    }
-
-    @Test
-    public void testOpenObjectWithSpcTlv() throws PCEPDeserializerException {
-        final PcepOpenObjectWithSpcTlvParser parser = new PcepOpenObjectWithSpcTlvParser(tlvRegistry,
-            viTlvRegistry);
-
-        final OpenBuilder builder = new OpenBuilder()
-                .setProcessingRule(false)
-                .setIgnore(false)
-                .setVersion(new ProtocolVersion(Uint8.ONE))
-                .setKeepalive(Uint8.valueOf(30))
-                .setDeadTimer(Uint8.valueOf(120))
-                .setSessionId(Uint8.ONE);
-
-        builder.setTlvs(new TlvsBuilder()
-                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                    .rev250328.Tlvs1Builder().build())
-                .addAugmentation(new Tlvs1Builder()
-                    .setSrPceCapability(new SrPceCapabilityBuilder().setNFlag(Boolean.TRUE).setXFlag(Boolean.TRUE)
-                        .setMsd(Uint8.ONE).build())
-                    .build())
-                .addAugmentation(new Tlvs3Builder().build()).build());
-
-        final ByteBuf result = Unpooled.wrappedBuffer(OPEN_OBJECT_BYTES);
-        assertEquals(builder.build(),
-                parser.parseObject(new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
-        final ByteBuf buffer = Unpooled.buffer();
-        parser.serializeObject(builder.build(), buffer);
-        parser.serializeTlvs(null, Unpooled.EMPTY_BUFFER);
-        parser.serializeTlvs(new TlvsBuilder().build(), Unpooled.EMPTY_BUFFER);
-        assertArrayEquals(OPEN_OBJECT_BYTES, ByteArray.getAllBytes(buffer));
     }
 
     @Test

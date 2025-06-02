@@ -59,10 +59,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>pcep-segment-routing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>pcep-topology-api</artifactId>
         </dependency>
         <dependency>
@@ -197,6 +193,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>pcep-impl</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>pcep-segment-routing</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

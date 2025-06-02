@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -62,7 +63,6 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
-import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -393,7 +393,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             return null;
         }
         final Path1 p1 = path.augmentation(Path1.class);
-        final Uint8 pst = p1.getPathSetupType() != null ? p1.getPathSetupType().getPst() : Uint8.ZERO;
+        final PsType pst = p1.getPathSetupType() != null ? p1.getPathSetupType().getPst() : PsType.RsvpTe;
         final Lsp lsp = p1.getLsp();
         final var af = lsp.getTlvs().getLspIdentifiers().getAddressFamily();
         IpAddress source = null;
@@ -402,12 +402,12 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             final var ipv4 = v4.getIpv4();
             source = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
             destination = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
-            cb.setAddressFamily(pst == Uint8.ZERO ? AddressFamily.Ipv4 : AddressFamily.SrIpv4);
+            cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv4 : AddressFamily.SrIpv4);
         } else if (af instanceof Ipv6Case v6) {
             final var ipv6 = v6.getIpv6();
             source = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
             destination = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
-            cb.setAddressFamily(pst == Uint8.ZERO ? AddressFamily.Ipv6 : AddressFamily.SrIpv6);
+            cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv6 : AddressFamily.SrIpv6);
         } else {
             return null;
         }
