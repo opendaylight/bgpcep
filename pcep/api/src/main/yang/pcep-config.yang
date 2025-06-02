@@ -156,6 +156,21 @@ module pcep-config {
         }
     }
 
+    grouping path-setup-type-capabilities {
+        leaf rsvp-te {
+            type boolean;
+            default true;
+        }
+        leaf sr-mpls {
+            type boolean;
+            default true;
+        }
+        leaf srv6 {
+            type boolean;
+            default true;
+        }
+    }
+
     grouping pcep-config {
         container session-config {
             description "PCEP topology config";

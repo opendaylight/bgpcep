@@ -92,6 +92,7 @@ import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OverloadedDurationTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.SrPolicyCapabilityTlvParser;
@@ -135,6 +136,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.overload.object.Overload;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.capability.tlv.PathSetupTypeCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.pcc.id.req.object.PccIdReq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.pce.id.object.PceId;
@@ -496,6 +498,10 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final PathSetupTypeTlvParser pstParser = new PathSetupTypeTlvParser();
         regs.add(context.registerTlvParser(PathSetupTypeTlvParser.TYPE, pstParser));
         regs.add(context.registerTlvSerializer(PathSetupType.class, pstParser));
+
+        final PathSetupTypeCapabilityTlvParser pstCapaParser = new PathSetupTypeCapabilityTlvParser();
+        regs.add(context.registerTlvParser(PathSetupTypeCapabilityTlvParser.TYPE, pstCapaParser));
+        regs.add(context.registerTlvSerializer(PathSetupTypeCapability.class, pstCapaParser));
 
         final AssociationTypeListTlvParser assocTypeParser = new AssociationTypeListTlvParser();
         regs.add(context.registerTlvParser(AssociationTypeListTlvParser.TYPE, assocTypeParser));
