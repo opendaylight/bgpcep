@@ -94,6 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.P2mpLeaves;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.ProtocolVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.RequestId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.AssociationGroupBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.association.object.association.group.AssociationTlvsBuilder;
@@ -1588,7 +1589,7 @@ public class PCEPObjectParserTest {
                 .setRequestId(new RequestId(Uint32.valueOf(0xdeadbeefL)))
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.rp
                     .object.rp.TlvsBuilder()
-                        .setPathSetupType(new PathSetupTypeBuilder().setPst(Uint8.ZERO)
+                        .setPathSetupType(new PathSetupTypeBuilder().setPst(PsType.RsvpTe)
                             .build())
                         .build());
 

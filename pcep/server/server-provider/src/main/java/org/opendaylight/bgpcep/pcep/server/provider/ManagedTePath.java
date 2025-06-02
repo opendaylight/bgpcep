@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.Constraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.endpoints.address.family.Ipv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.endpoints.address.family.Ipv6CaseBuilder;
@@ -533,10 +534,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         switch (iPath.getConstraints().getAddressFamily()) {
             case SrIpv4:
             case SrIpv6:
-                pstBuilder.setPst(Uint8.ONE);
+                pstBuilder.setPst(PsType.SrMpls);
                 break;
             default:
-                pstBuilder.setPst(Uint8.ZERO);
+                pstBuilder.setPst(PsType.RsvpTe);
                 break;
         }
 
@@ -657,10 +658,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         switch (iPath.getConstraints().getAddressFamily()) {
             case SrIpv4:
             case SrIpv6:
-                pstBuilder.setPst(Uint8.ONE);
+                pstBuilder.setPst(PsType.SrMpls);
                 break;
             default:
-                pstBuilder.setPst(Uint8.ZERO);
+                pstBuilder.setPst(PsType.RsvpTe);
                 break;
         }
 

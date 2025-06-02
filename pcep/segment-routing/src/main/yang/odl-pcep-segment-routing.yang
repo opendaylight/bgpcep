@@ -51,66 +51,6 @@ module odl-pcep-segment-routing {
         reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01";
     }
 
-    grouping sr-pce-capability-tlv {
-        description "SR-PCE-CAPABILITY TLV";
-        reference "http://tools.ietf.org/html/rfc8664#section-4.1.2";
-
-        container sr-pce-capability {
-            uses pcep:tlv;
-            leaf n-flag {
-                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SID";
-                type boolean;
-                default false;
-            }
-            leaf x-flag {
-                description " X flag used by a PCC to indicate that it does not impose any limit to the MSD";
-                type boolean;
-                default false;
-            }
-            leaf msd {
-                description "Maximum SID Depth";
-                type uint8;
-                default 0;
-            }
-        }
-    }
-
-    grouping srv6-pce-capability-tlv {
-        description "SRv6-PCE-CAPABILITY TLV";
-        reference "http://tools.ietf.org/html/rfc9603#section-4.1.1";
-
-        container srv6-pce-capability {
-            uses pcep:tlv;
-            leaf n-flag {
-                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SRv6-SID";
-                type boolean;
-                default false;
-            }
-            list msds {
-                leaf msd-type {
-                    description "Maximum SID Depth type as per RFC8491 and RFC9352";
-                    type uint8;
-                }
-                leaf msd-value {
-                    description "Maximum SID Depth value as per RFC8491";
-                    type uint8;
-                }
-            }
-        }
-    }
-
-    augment "/msg:open/msg:open-message/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/rfc4664#section-4.1";
-        uses sr-pce-capability-tlv;
-        uses srv6-pce-capability-tlv;
-    }
-
-    augment "/msg:pcerr/msg:pcerr-message/msg:error-type/msg:session-case/msg:session/msg:open/msg:tlvs" {
-        reference "http://tools.ietf.org/html/rfc8664#section-5.1";
-        uses sr-pce-capability-tlv;
-        uses srv6-pce-capability-tlv;
-    }
-
     typedef nai-type {
         reference "http://tools.ietf.org/html/rfc8664#section-4.3.1";
         type enumeration {
