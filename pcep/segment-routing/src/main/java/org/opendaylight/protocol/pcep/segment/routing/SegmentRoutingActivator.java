@@ -15,15 +15,10 @@ import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.Srv6EroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.rro.subobject.subobject.type.SrRroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.rro.subobject.subobject.type.Srv6RroType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.pce.capability.tlv.SrPceCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.open.object.Open;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -40,15 +35,6 @@ public class SegmentRoutingActivator implements PCEPExtensionProviderActivator {
     @Override
     public List<Registration> start(final PCEPExtensionProviderContext context) {
         final List<Registration> regs = new ArrayList<>();
-
-        // TLVs
-        final SrPceCapabilityTlvParser srPceCapabilityTlvParser = new SrPceCapabilityTlvParser();
-        regs.add(context.registerTlvParser(SrPceCapabilityTlvParser.TYPE, srPceCapabilityTlvParser));
-        regs.add(context.registerTlvSerializer(SrPceCapability.class, srPceCapabilityTlvParser));
-
-        final SrPathSetupTypeTlvParser srPathSetupTypeTlvParser = new SrPathSetupTypeTlvParser();
-        regs.add(context.registerTlvParser(SrPathSetupTypeTlvParser.TYPE, srPathSetupTypeTlvParser));
-        regs.add(context.registerTlvSerializer(PathSetupType.class, srPathSetupTypeTlvParser));
 
         // SR-ERO SubTLVs
         final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser();
@@ -159,13 +145,6 @@ public class SegmentRoutingActivator implements PCEPExtensionProviderActivator {
             .pcep.segment.routing.rev250402.pcreq.pcreq.message.requests.segment.computation.p2p.rro.subobject.subobject
             .type.Srv6RroType.class, srv6RroSubobjectParser));
         regs.add(context.registerRROSubobjectSerializer(Srv6RroType.class, srv6RroSubobjectParser));
-
-        /* Objects */
-        final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
-        final VendorInformationTlvRegistry viTlvRegistry = context.getVendorInformationTlvRegistry();
-        regs.add(context.registerObjectParser(new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
-        regs.add(context.registerObjectSerializer(Open.class,
-            new PcepOpenObjectWithSpcTlvParser(tlvReg, viTlvRegistry)));
 
         return regs;
     }

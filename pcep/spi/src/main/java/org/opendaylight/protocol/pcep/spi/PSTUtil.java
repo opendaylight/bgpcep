@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.path.setup.type.tlv.PathSetupType;
-import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class PSTUtil {
     private PSTUtil() {
@@ -22,8 +22,8 @@ public final class PSTUtil {
      */
     public static boolean isDefaultPST(final PathSetupType pst) {
         if (pst != null) {
-            final Uint8 value = pst.getPst();
-            if (value != null && value.toJava() != 0) {
+            final PsType value = pst.getPst();
+            if (value != null && value != PsType.RsvpTe) {
                 return false;
             }
         }
