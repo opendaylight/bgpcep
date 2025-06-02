@@ -31,6 +31,10 @@ module pcep-config {
              Introduces pcep-session-tls to hold TLS-related configuration.";
     }
 
+    revision 2025-06-02 {
+        description "Add configuration for Path Setup Type and Association Group";
+    }
+
     revision 2022-03-28 {
         description "Add ted-name key";
     }
