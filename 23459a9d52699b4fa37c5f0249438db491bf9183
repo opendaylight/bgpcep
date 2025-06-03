@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87ba0aa3_8a3d8588",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-03T08:02:58Z",
+      "side": 1,
+      "message": "Hello Robert, Ivan,\n\nThis is the last series of patch for BGPCEP. It corrects the Path Setup Type Capability bug (a.k.a. implementation of RFC8408). Can you review it ?\n\nThanks\n\nOlivier",
+      "revId": "23459a9d52699b4fa37c5f0249438db491bf9183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
