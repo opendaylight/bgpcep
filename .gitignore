@@ -37,6 +37,8 @@ maven-eclipse.xml
 .factorypath
 .fbExcludeFilterFile
 !**/route/target
+*/dependency-reduced-pom.xml
+*/*/dependency-reduced-pom.xml
 
 # Sphinx documentation
 .tox/
