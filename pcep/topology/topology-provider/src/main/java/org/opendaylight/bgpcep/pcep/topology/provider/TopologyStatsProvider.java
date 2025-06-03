@@ -102,7 +102,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
         @Override
         public void run(final Timeout timeout) {
-            if (notClosed()) {
+            if (isClosed()) {
                 LOG.debug("Task {} is closed, ignoring timeout {}", this, timeout);
                 return;
             }
