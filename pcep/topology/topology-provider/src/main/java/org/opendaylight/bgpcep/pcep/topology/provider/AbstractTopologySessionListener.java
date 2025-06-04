@@ -48,21 +48,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.OperationResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.TearDownSessionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.lsp.metadata.Metadata;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClientBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.Node1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.PccSyncState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.TearDownSessionInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.lsp.metadata.Metadata;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.PathComputationClient;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.PathComputationClientBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.CapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.ReportedLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250602.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
@@ -158,7 +158,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                     .setIpAddress(IetfInetUtil.ipAddressNoZoneFor(peerAddress));
 
                 // Let subclass fill the details
-                updateStatefulCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());
+                updateCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());
 
                 synced.set(isSynchronized());
 
@@ -197,9 +197,10 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     @Holding("this")
-    private void updateStatefulCapabilities(final PathComputationClientBuilder pccBuilder,
+    private void updateCapabilities(final PathComputationClientBuilder pccBuilder,
             final InetAddress peerAddress, final @Nullable Tlvs remoteTlvs) {
         if (remoteTlvs != null) {
+            final var capabilitiesBuilder = new CapabilitiesBuilder();
             final StatefulCapability sc = remoteTlvs.getStatefulCapability();
             if (sc != null) {
                 statefulCapability.set(true);
@@ -222,11 +223,29 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 } else {
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
-                pccBuilder.setStatefulCapability(new StatefulCapabilityBuilder(sc).build());
-                return;
+                capabilitiesBuilder.setStatefulCapability(sc);
             }
+            if (remoteTlvs.getAssociationRange() != null) {
+                capabilitiesBuilder.setAssociationRange(remoteTlvs.getAssociationRange());
+            }
+            if (remoteTlvs.getAssociationTypeList() != null) {
+                capabilitiesBuilder.setAssociationTypeList(remoteTlvs.getAssociationTypeList());
+            }
+            if (remoteTlvs.getPathSetupTypeCapability() != null) {
+                capabilitiesBuilder.setPathSetupTypeCapability(remoteTlvs.getPathSetupTypeCapability());
+            }
+            if (remoteTlvs.getSrPolicyCapability() != null) {
+                capabilitiesBuilder.setSrPolicyCapability(remoteTlvs.getSrPolicyCapability());
+            }
+            if (remoteTlvs.getAutoBandwidthCapability() != null) {
+                capabilitiesBuilder.setAutoBandwidthCapability(true);
+            }
+            if (remoteTlvs.getP2mpPceCapability() != null) {
+                capabilitiesBuilder.setP2mpCapability(true);
+            }
+            pccBuilder.setCapabilities(capabilitiesBuilder.build());
         }
-        LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
+        LOG.debug("Peer {} does not advertise any Capabilities", peerAddress);
     }
 
     synchronized void updatePccState(final PccSyncState pccSyncState) {
