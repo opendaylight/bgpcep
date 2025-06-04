@@ -35,6 +35,10 @@ module network-topology-pcep {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2025-06-02 {
+        description "Add PCEP capabilities to Path Computation Client";
+    }
+
     revision 2025-03-28 {
         description "Add Association Group Object";
     }
@@ -122,11 +126,25 @@ module network-topology-pcep {
                 type inet:ip-address-no-zone;
             }
 
-            uses pcep-types:stateful-capability-tlv;
+            container capabilities {
+                uses pcep-types:stateful-capability-tlv;
+                uses pcep-types:path-setup-type-capability-tlv;
+                uses pcep-types:association-type-list-tlv;
+                uses pcep-types:association-range-tlv;
+                uses pcep-types:sr-policy-capability-tlv;
+                leaf p2mp-capability {
+                    type boolean;
+                    default "false";
+                }
+                leaf auto-bandwidth-capability {
+                    type boolean;
+                    default "false";
+                }
+            }
 
             leaf state-sync {
                 type pcc-sync-state;
-                when "../stateful-tlv";
+                when "../capabilities/stateful-capability";
             }
 
             uses pcep-types:lsp-db-version-tlv;

@@ -1,16 +1,16 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module network-pcep-topology-stats {
+module odl-pcep-topology-sync-optimizations-config {
     yang-version 1;
-    namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep:stats";
-    prefix npts;
+    namespace "urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config";
+    prefix pnc;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix pn; revision-date 2025-06-02; }
     import odl-codegen-extensions { prefix oce; }
-    import odl-pcep-session-stats { prefix pss; revision-date 2025-09-30; }
+    import odl-pcep-sync-optimizations { prefix opso; revision-date 2020-07-20; }
 
     description
-        "This module contains the PCEP stats extensions to base topology model.
+        "This module contains the PCEP config extensions to base topology model.
          Copyright (c)2017 AT&T Services, Inc. All rights reserved.;
 
          This program and the accompanying materials are made available
@@ -27,16 +27,16 @@ module network-pcep-topology-stats {
         reference "RFC8306";
     }
 
-    revision "2017-11-13" {
+    revision "2017-10-25" {
         description
             "Initial revision.";
     }
 
-    augment "/nt:network-topology/nt:topology/nt:node" {
+    augment "/nt:network-topology/nt:topology/nt:node/pn:session-config" {
         when "../nt:topology-types/pn:topology-pcep";
-        oce:augment-identifier pcep-topology-node-stats-aug;
-        description "Augment Pcep topology node with session stats";
+        oce:augment-identifier pcep-node-sync-config;
+        description "Augment Pcep topology node with synchronization config";
 
-        uses pss:pcep-session-state-grouping;
+        uses opso:speaker-entity-id;
     }
 }

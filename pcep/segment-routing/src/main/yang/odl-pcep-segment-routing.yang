@@ -1,0 +1,436 @@
+module odl-pcep-segment-routing {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:segment:routing";
+    prefix "pcep-sr";
+
+    import pcep-types { prefix pcep; revision-date 2025-06-02; }
+    import pcep-message { prefix msg; revision-date 2018-11-09; }
+    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2025-03-28; }
+    import odl-pcep-ietf-initiated { prefix initiated; revision-date 2020-07-20; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import network-topology { prefix nt; revision-date 2013-10-21; }
+    import network-topology-pcep { prefix pn; revision-date 2025-06-02; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Milos Fabian <milfabia@cisco.com>";
+
+    description
+        "This module contains the data model of PCEP Extensions for Segment Routing,
+        as defined in RFC 8664.
+
+        Copyright (c)2015 Cisco Systems, Inc. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2025-04-02" {
+        description "Add support to SRv6 RFC 9003";
+        reference "RFC9003: https://tools.ietf.org/html/rfc9003";
+    }
+
+    revision "2020-07-20" {
+        description "Update to RFC 8664";
+        reference "RFC8664: https://tools.ietf.org/html/rfc8664";
+    }
+
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
+
+    revision 2017-10-25 {
+        description "Update network-topology-pcep revision";
+    }
+
+    revision "2015-01-12" {
+        description
+            "Upgrade from draft-sivabalan-pce-segment-routing-02.";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-segment-routing-01";
+    }
+
+    typedef nai-type {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3.1";
+        type enumeration {
+            enum ipv4-node-id {
+                value 1;
+            }
+            enum ipv6-node-id {
+                value 2;
+            }
+            enum ipv4-adjacency {
+                value 3;
+            }
+            enum ipv6-adjacency {
+                value 4;
+            }
+            enum unnumbered {
+                value 5;
+            }
+            enum ipv6-local {
+                value 6;
+            }
+        }
+    }
+
+    grouping sr-subobject {
+        description "Common grouping for both SR-ERO and SR-RRO subobjects as they share the same content representation.";
+        leaf nai-type {
+            description "Node or Adjacency Identifier Type (NT)";
+            type nai-type;
+        }
+        leaf m-flag {
+            description "If this bit is set to 1, the SID value represents an MPLS label stack entry";
+            type boolean;
+            default false;
+        }
+        leaf c-flag {
+            description "TC, S & TTL fields in the MPLS label are specified by the PCE if M & C are set to 1";
+            type boolean;
+            default false;
+        }
+        /* S-Flag is represented by the presence of the SID TLV: isSflag() is equivalent to getSid() == null */
+        leaf sid {
+            description "Segment Identifier";
+            type uint32;
+        }
+        /* F-Flag is represented by the presence of the NAI TLV: isFflag() is equivalent to getNai() == null */
+        choice nai {
+            reference "http://tools.ietf.org/html/rfc8664#section-4.3.2";
+            description "Node or Adjacency Identifier";
+            case ip-node-id {
+                when "../nai-type = 'ipv4-node-id' or ../nai-type = 'ipv6-node-id'";
+                description "IP Node ID";
+                leaf ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ip-adjacency {
+                when "../nai-type = 'ipv4-adjacency' or ../nai-type = 'ipv6-adjacency'";
+                description "IP Adjacency";
+                leaf local-ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case unnumbered-adjacency {
+                when "../nai-type = 'unnumbered'";
+                description "Unnumbered Adjacency with IPv4 NodeIDs";
+                leaf local-node-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf local-interface-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-node-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-interface-id {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+            case ipv6-local {
+                when "../nai-type = 'ipv6-local'";
+                description "IPv6 adjacency with link-local IPv6 addresses";
+                leaf local-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf local-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-id {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+        }
+    }
+
+    grouping srv6-sid-structure {
+        description "SRv6 SID structure that complete the SRv6 SID";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3.1.1";
+        leaf locator-block-length {
+            type uint8;
+        }
+        leaf locator-node-length {
+            type uint8;
+        }
+        leaf function-length {
+            type uint8;
+        }
+        leaf argument-length {
+            type uint8;
+        }
+    }
+
+    grouping srv6-subobject {
+        description "Common grouping for both SRv6-ERO and SRv6-RRO subobjects which share the same representation";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3 and section 4.4";
+        leaf srv6-nai-type {
+            description "Node or Adjacency Identifier Type (NT)";
+            type nai-type;
+        }
+        leaf v-flag {
+            description "The V flag indicates if SRv6-SID verification failed";
+            type boolean;
+            default false;
+        }
+        leaf endpoint-behavior {
+            type uint16;
+        }
+        /* S-Flag is represented by the presence of the SRv6-SID: isSflag() is equivalent to getSrv6Sid() == null */
+        leaf srv6-sid {
+            description "SRv6 Segment Identifier";
+            type inet:ipv6-address-no-zone;
+        }
+        /* T-Flag is represented by the presence of the SRv6 SID structure: isTflag() is equivalent to getSidStructure() != null */
+        container sid-structure {
+            uses srv6-sid-structure;
+        }
+        /* F-Flag is represented by the presence of the SRv6 NAI TLV: isFflag() is equivalent to getSrv6Nai() == null */
+        choice srv6-nai {
+            reference "http://tools.ietf.org/html/rfc9603#section-4.3.1";
+            description "Node or Adjacency Identifier";
+            case ipv6-node-id {
+                when "../srv6-nai-type = 'ipv6-node-id'";
+                description "IPv6 Node ID";
+                leaf ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ipv6-adjacency {
+                when "../srv6-nai-type = 'ipv6-adjacency'";
+                description "IP Adjacency";
+                leaf ipv6-local-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf ipv6-remote-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ipv6-local {
+                when "../srv6-nai-type = 'ipv6-local'";
+                description "IPv6 adjacency with link-local IPv6 addresses";
+                leaf local-ipv6 {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf local-identifier {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-ipv6 {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-identifier {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+        }
+    }
+
+    // kept both groupings in case draft changes and they won't be equal
+    grouping sr-ero-subobject {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3";
+        /* L(oose)-flag is already present within the ERO subObject */
+        uses sr-subobject;
+    }
+
+    grouping sr-rro-subobject {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.4";
+        uses sr-subobject;
+    }
+
+    // SRv6 subobject definition for ERO and RRO
+    grouping srv6-ero-subobject {
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3";
+        /* L(oose)-flag is already present within the ERO subObject */
+        uses srv6-subobject;
+    }
+
+    grouping srv6-rro-subobject {
+        reference "http://tools.ietf.org/html/rfc9603#section-4.4";
+        uses srv6-subobject;
+    }
+
+    //ERO augmentations
+    augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:success-case/msg:success/msg:paths/msg:ero/msg:subobject/msg:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    //stateful
+    augment "/initiated:pcinitiate/initiated:pcinitiate-message/initiated:requests/initiated:ero/initiated:subobject/initiated:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:path/stateful:ero/stateful:subobject/stateful:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:path/stateful:ero/stateful:subobject/stateful:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    //nt-pcep
+    augment "/pn:add-lsp/pn:input/pn:arguments/pn:ero/pn:subobject/pn:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    augment "/pn:update-lsp/pn:input/pn:arguments/pn:ero/pn:subobject/pn:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:node/pn:path-computation-client/pn:reported-lsp/pn:path/pn:ero/pn:subobject/pn:subobject-type" {
+        case sr-ero-type {
+            uses sr-ero-subobject;
+        }
+        case srv6-ero-type {
+            uses srv6-ero-subobject;
+        }
+    }
+
+    //RRO augmentations
+    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:reported-route/msg:rro/msg:subobject/msg:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/msg:pcreq/msg:pcreq-message/msg:requests/msg:segment-computation/msg:p2p/msg:rro/msg:subobject/msg:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:failure-case/msg:rro/msg:subobject/msg:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/msg:pcrep/msg:pcrep-message/msg:replies/msg:result/msg:success-case/msg:success/msg:paths/msg:rro/msg:subobject/msg:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    //stateful
+    augment "/initiated:pcinitiate/initiated:pcinitiate-message/initiated:requests/initiated:rro/initiated:subobject/initiated:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:path/stateful:rro/stateful:subobject/stateful:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+         case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/stateful:pcupd/stateful:pcupd-message/stateful:updates/stateful:path/stateful:rro/stateful:subobject/stateful:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    //nt-pcep
+    augment "/pn:add-lsp/pn:input/pn:arguments/pn:rro/pn:subobject/pn:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/pn:update-lsp/pn:input/pn:arguments/pn:rro/pn:subobject/pn:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+
+    augment "/nt:network-topology/nt:topology/nt:node/pn:path-computation-client/pn:reported-lsp/pn:path/pn:rro/pn:subobject/pn:subobject-type" {
+        case sr-rro-type {
+            uses sr-rro-subobject;
+        }
+        case srv6-rro-type {
+            uses srv6-rro-subobject;
+        }
+    }
+}
