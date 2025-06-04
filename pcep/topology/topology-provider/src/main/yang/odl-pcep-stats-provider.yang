@@ -5,7 +5,7 @@ module odl-pcep-stats-provider {
     prefix pspc;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix pn; revision-date 2025-03-28; }
+    import network-topology-pcep { prefix pn; revision-date 2025-06-02; }
     import odl-codegen-extensions { prefix oce; }
 
     description

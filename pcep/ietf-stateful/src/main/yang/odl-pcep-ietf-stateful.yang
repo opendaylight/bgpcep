@@ -5,7 +5,7 @@ module odl-pcep-ietf-stateful {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix topo; revision-date 2025-03-28; }
+    import network-topology-pcep { prefix topo; revision-date 2025-06-02; }
     import pcep-types { prefix pcep; revision-date 2025-06-02; }
     import pcep-message { prefix msg; revision-date 2018-11-09; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
@@ -466,7 +466,7 @@ module odl-pcep-ietf-stateful {
         uses pcep:path-setup-type-tlv;
     }
 
-    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:stateful-tlv" {
+    augment "/nt:network-topology/nt:topology/nt:node/topo:path-computation-client/topo:capabilities" {
         uses stateful-capability-tlv;
     }
 
