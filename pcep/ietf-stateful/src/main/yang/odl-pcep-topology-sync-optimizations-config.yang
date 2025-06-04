@@ -5,7 +5,7 @@ module odl-pcep-topology-sync-optimizations-config {
     prefix pnc;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import network-topology-pcep { prefix pn; revision-date 2025-03-28; }
+    import network-topology-pcep { prefix pn; revision-date 2025-06-02; }
     import odl-codegen-extensions { prefix oce; }
     import odl-pcep-sync-optimizations { prefix opso; revision-date 2020-07-20; }
 
