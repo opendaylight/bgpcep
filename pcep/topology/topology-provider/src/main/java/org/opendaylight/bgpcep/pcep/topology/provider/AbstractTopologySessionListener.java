@@ -41,8 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.Node1Builder;
@@ -52,6 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.lsp.metadata.Metadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClientBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.CapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspKey;
@@ -151,7 +150,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                     .setIpAddress(IetfInetUtil.ipAddressNoZoneFor(peerAddress));
 
                 // Let subclass fill the details
-                updateStatefulCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());
+                updateCapabilities(pccBuilder, peerAddress, psession.getRemoteTlvs());
 
                 synced.set(isSynchronized());
 
@@ -190,10 +189,15 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     @Holding("this")
-    private void updateStatefulCapabilities(final PathComputationClientBuilder pccBuilder,
+    private void updateCapabilities(final PathComputationClientBuilder pccBuilder,
             final InetAddress peerAddress, final @Nullable Tlvs remoteTlvs) {
         if (remoteTlvs != null) {
-            final StatefulCapability sc = remoteTlvs.getStatefulCapability();
+            final var capabilitiesBuilder = new CapabilitiesBuilder()
+                .setAutoBandwidthCapability(remoteTlvs.getAutoBandwidthCapability() != null)
+                .setP2mpCapability(remoteTlvs.getP2mpPceCapability() != null);
+            capabilitiesBuilder.fieldsFrom(remoteTlvs);
+
+            final var sc = capabilitiesBuilder.getStatefulCapability();
             if (sc != null) {
                 statefulCapability.set(true);
                 final var updateCap = sc.getLspUpdateCapability();
@@ -215,11 +219,11 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 } else {
                     pccBuilder.setStateSync(PccSyncState.InitialResync);
                 }
-                pccBuilder.setStatefulCapability(new StatefulCapabilityBuilder(sc).build());
-                return;
             }
+
+            pccBuilder.setCapabilities(capabilitiesBuilder.build());
         }
-        LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
+        LOG.debug("Peer {} does not advertise any Capabilities", peerAddress);
     }
 
     final synchronized void updatePccState() {
