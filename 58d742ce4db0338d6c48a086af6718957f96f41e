@@ -91,6 +91,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d3b0da25_e95dd448",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/AbstractAssociationGroupParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-06-12T13:30:21Z",
+      "side": 1,
+      "message": "IMO\n\n    cpathBuilder.setOrigin(origin).cpathBuilder.setOriginatorAsn(asn)\n\nlike that, fluently.\n\nFirs, prepare all that needs special logic (parsing) then use builder.",
+      "parentUuid": "48251f08_aa5679ef",
+      "range": {
+        "startLine": 345,
+        "startChar": 20,
+        "endLine": 345,
+        "endChar": 32
+      },
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "994988ec_2f5518d9",
         "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/tlv/SrPolicyCapabilityTlvParser.java",
         "patchSetId": 4
