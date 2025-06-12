@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48968c44_1305f01b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-12T13:24:45Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nNeed some advises for the first point.\n\nRegards\n\nOlivier",
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10a3a815_c5a4cae5",
@@ -26,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9f657564_c265b76c",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/AbstractAssociationGroupParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-12T13:24:45Z",
+      "side": 1,
+      "message": "Do you expect something like this?\n\n            switch (type) {\n                case SR_POLICY_NAME -\u003e policyBuilder.setName(ByteArray.readBytes(buffer, length));\n                case SR_POLICY_CPATH_NAME -\u003e cpathBuilder.setName(ByteArray.readBytes(buffer, length));\n                case SR_POLICY_CPATH_PREF -\u003e cpathBuilder.setPreference(readUint32(buffer));\n                case SR_POLICY_CPATH_ID -\u003e parseCpathID(buffer, cpathBuilder);\n                default -\u003e {\n                    LOG.debug(\"Unsupported SR Policy Type: {}\", type);\n                }\n            }\n            // Skip padding if any\n            buffer.skipBytes(TlvUtil.getPadding(TlvUtil.HEADER_SIZE + length, TlvUtil.PADDED_TO));\n        }\n        return new SrPolicyBuilder().setPolicyId(policyBuilder.build()).setCpath(cpathBuilder.build()).build();\n    }\n\n    private static void parseCpathID(final ByteBuf buffer, final CpathBuilder cpathBuilder) {\n        final var origin \u003d ProtocolOrigin.forValue(readUint8(buffer).intValue());\n        buffer.skipBytes(CPATH_RESERVED);\n        final var asn \u003d readUint32(buffer);\n        final var originAddress \u003d new IpAddressNoZone(Ipv6Util.addressForByteBuf(buffer));\n        final var descriminator \u003d readUint32(buffer);\n\n        cpathBuilder.setOrigin(origin);\n        cpathBuilder.setOriginatorAsn(asn);\n        cpathBuilder.setOriginatorAddress(originAddress);\n        cpathBuilder.setDiscriminator(descriminator);\n\n    }",
+      "parentUuid": "10a3a815_c5a4cae5",
+      "range": {
+        "startLine": 345,
+        "startChar": 20,
+        "endLine": 345,
+        "endChar": 32
+      },
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "994988ec_2f5518d9",
         "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/tlv/SrPolicyCapabilityTlvParser.java",
         "patchSetId": 4
@@ -37,6 +78,30 @@
       "writtenOn": "2025-06-11T23:36:33Z",
       "side": 1,
       "message": "this is useless",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 21
+      },
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c86edb2_c1fadcb8",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/tlv/SrPolicyCapabilityTlvParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-12T13:24:45Z",
+      "side": 1,
+      "message": "Agree. I\u0027ll remove this part.",
+      "parentUuid": "994988ec_2f5518d9",
       "range": {
         "startLine": 59,
         "startChar": 16,
