@@ -224,30 +224,32 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      */
     private static PathDescription getSrPath(final SrSubobject srObj, final AddressFamily af) {
         return switch (af) {
-            case SrIpv4 -> switch (srObj.getNaiType()) {
-                case Ipv4Adjacency -> new PathDescriptionBuilder()
-                    .setSid(srObj.getSid())
-                    .setIpv4(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv4AddressNoZone())
-                    .setRemoteIpv4(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv4AddressNoZone())
-                    .build();
-                case Ipv4NodeId -> new PathDescriptionBuilder()
-                    .setSid(srObj.getSid())
-                    .setRemoteIpv4(((IpNodeId)srObj.getNai()).getIpAddress().getIpv4AddressNoZone())
-                    .build();
-                default -> null;
-            };
-            case SrIpv6 -> switch (srObj.getNaiType()) {
-                case Ipv6Adjacency -> new PathDescriptionBuilder()
-                    .setSid(srObj.getSid())
-                    .setIpv6(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv6AddressNoZone())
-                    .setRemoteIpv6(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv6AddressNoZone())
-                    .build();
-                case Ipv6NodeId -> new PathDescriptionBuilder()
-                    .setSid(srObj.getSid())
-                    .setRemoteIpv6(((IpNodeId)srObj.getNai()).getIpAddress().getIpv6AddressNoZone())
-                    .build();
-                default -> null;
-            };
+            case SrIpv4 ->
+                switch (srObj.getNaiType()) {
+                    case Ipv4Adjacency -> new PathDescriptionBuilder()
+                        .setSid(srObj.getSid())
+                        .setIpv4(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv4AddressNoZone())
+                        .setRemoteIpv4(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv4AddressNoZone())
+                        .build();
+                    case Ipv4NodeId -> new PathDescriptionBuilder()
+                        .setSid(srObj.getSid())
+                        .setRemoteIpv4(((IpNodeId)srObj.getNai()).getIpAddress().getIpv4AddressNoZone())
+                        .build();
+                    default -> null;
+                };
+            case SrIpv6 ->
+                switch (srObj.getNaiType()) {
+                    case Ipv6Adjacency -> new PathDescriptionBuilder()
+                        .setSid(srObj.getSid())
+                        .setIpv6(((IpAdjacency)srObj.getNai()).getLocalIpAddress().getIpv6AddressNoZone())
+                        .setRemoteIpv6(((IpAdjacency)srObj.getNai()).getRemoteIpAddress().getIpv6AddressNoZone())
+                        .build();
+                    case Ipv6NodeId -> new PathDescriptionBuilder()
+                        .setSid(srObj.getSid())
+                        .setRemoteIpv6(((IpNodeId)srObj.getNai()).getIpAddress().getIpv6AddressNoZone())
+                        .build();
+                    default -> null;
+                };
             default -> null;
         };
     }
