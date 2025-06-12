@@ -113,6 +113,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23db3d38_dbe9d779",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/object/AbstractAssociationGroupParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-12T14:13:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3b0da25_e95dd448",
+      "range": {
+        "startLine": 345,
+        "startChar": 20,
+        "endLine": 345,
+        "endChar": 32
+      },
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "994988ec_2f5518d9",
@@ -174,6 +198,30 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "7c86edb2_c1fadcb8",
+      "range": {
+        "startLine": 59,
+        "startChar": 16,
+        "endLine": 59,
+        "endChar": 21
+      },
+      "revId": "58d742ce4db0338d6c48a086af6718957f96f41e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a38f44c_b5ee4096",
+        "filename": "pcep/base-parser/src/main/java/org/opendaylight/protocol/pcep/parser/tlv/SrPolicyCapabilityTlvParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-12T14:13:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95104ad4_c21ed04f",
       "range": {
         "startLine": 59,
         "startChar": 16,
