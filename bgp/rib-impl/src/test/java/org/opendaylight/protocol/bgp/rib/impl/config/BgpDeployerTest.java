@@ -116,7 +116,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         doReturn(serviceRegistration).when(singletonServiceProvider).registerClusterSingletonService(any());
         doNothing().when(serviceRegistration).close();
 
-        final Future future = mock(BGPReconnectPromise.class);
+        final Future<?> future = mock(BGPReconnectPromise.class);
         doReturn(true).when(future).cancel(true);
         doReturn(future).when(dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
         deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, singletonServiceProvider,
