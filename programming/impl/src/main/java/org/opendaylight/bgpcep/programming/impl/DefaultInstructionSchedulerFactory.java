@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.programming.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import java.util.concurrent.ExecutorService;
@@ -35,10 +34,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public final class DefaultInstructionSchedulerFactory implements InstructionSchedulerFactory, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultInstructionSchedulerFactory.class);
-    private static final ThreadFactory THREAD_FACTORY = new ThreadFactoryBuilder()
-        .setNameFormat("programming-timer-%d")
-        .setDaemon(true)
-        .build();
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual().name("odl-programming-timer-", 0).factory();
 
     private final ExecutorService exec = Executors.newSingleThreadExecutor();
     private final Timer timer = new HashedWheelTimer(THREAD_FACTORY);
