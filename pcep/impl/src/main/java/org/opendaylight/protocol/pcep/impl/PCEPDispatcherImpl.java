@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -18,12 +17,12 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.FixedRecvByteBufAllocator;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollMode;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
@@ -31,6 +30,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -77,6 +77,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPDispatcherImpl.class);
     private static final int DEFAULT_SHUTDOWN_SECONDS = 10;
 
+    private static final ThreadFactory BOSS_TF = Thread.ofPlatform().name("pcep-boss-", 0).factory();
+    private static final ThreadFactory WORKER_TF = Thread.ofPlatform().name("pcep-boss-", 0).factory();
+
     private final EventLoopGroup bossGroup;
     private final EventLoopGroup workerGroup;
     private final EventExecutor executor  = requireNonNull(GlobalEventExecutor.INSTANCE);
@@ -93,16 +96,9 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
 
     @Inject
     public PCEPDispatcherImpl(final int bossThreads, final int workerThreads, final int shutdownTimeSeconds) {
-        final var bossTf = new ThreadFactoryBuilder().setNameFormat("pcep-boss-%d").build();
-        final var workerTf = new ThreadFactoryBuilder().setNameFormat("pcep-worker-%d").build();
-
-        if (Epoll.isAvailable()) {
-            bossGroup = new EpollEventLoopGroup(bossThreads, bossTf);
-            workerGroup = new EpollEventLoopGroup(workerThreads, workerTf);
-        } else {
-            bossGroup = new NioEventLoopGroup(bossThreads, bossTf);
-            workerGroup = new NioEventLoopGroup(workerThreads, workerTf);
-        }
+        final var ihf = Epoll.isAvailable() ? EpollIoHandler.newFactory() : NioIoHandler.newFactory();
+        bossGroup = new MultiThreadIoEventLoopGroup(BOSS_TF, ihf);
+        workerGroup = new MultiThreadIoEventLoopGroup(WORKER_TF, ihf);
         this.shutdownTimeSeconds = shutdownTimeSeconds;
     }
 
@@ -139,12 +135,8 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
 
         b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
 
-        if (Epoll.isAvailable()) {
-            b.channel(EpollServerSocketChannel.class);
-            b.childOption(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
-        } else {
-            b.channel(NioServerSocketChannel.class);
-        }
+        b.channel(Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
+
         if (!tcpKeys.isEmpty()) {
             if (Epoll.isAvailable()) {
                 b.option(EpollChannelOption.TCP_MD5SIG, tcpKeys.asMap());
@@ -155,7 +147,7 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
         }
 
         // Make sure we are doing round-robin processing
-        b.childOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
+        b.childOption(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
 
         if (b.config().group() == null) {
             b.group(bossGroup, workerGroup);

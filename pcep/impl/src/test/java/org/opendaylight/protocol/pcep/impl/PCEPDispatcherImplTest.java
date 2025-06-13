@@ -26,7 +26,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.EventExecutor;
@@ -186,7 +187,7 @@ public class PCEPDispatcherImplTest {
 
         PCCMock(final PCEPSessionNegotiatorFactory negotiatorFactory,
                 final PCEPHandlerFactory factory) {
-            workerGroup = new NioEventLoopGroup();
+            workerGroup = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
             this.negotiatorFactory = requireNonNull(negotiatorFactory);
             this.factory = requireNonNull(factory);
             executor = requireNonNull(GlobalEventExecutor.INSTANCE);
