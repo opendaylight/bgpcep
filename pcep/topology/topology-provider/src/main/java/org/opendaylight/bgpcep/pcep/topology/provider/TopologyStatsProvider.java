@@ -13,7 +13,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
@@ -24,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 final class TopologyStatsProvider implements SessionStateRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(TopologyStatsProvider.class);
+    private static final ThreadFactory THREAD_FACTORY = Thread.ofVirtual().name("odl-pcep-stats-", 0).factory();
 
     private final Set<Task> tasks = ConcurrentHashMap.newKeySet();
     private final ExecutorService executor;
@@ -42,11 +43,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
     TopologyStatsProvider(final Timer timer) {
         this.timer = requireNonNull(timer);
-        executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
-            .setDaemon(true)
-            .setNameFormat("odl-pcep-stats-%d")
-            .build());
-
+        executor = Executors.newSingleThreadExecutor(THREAD_FACTORY);
         LOG.info("TopologyStatsProvider started");
     }
 
