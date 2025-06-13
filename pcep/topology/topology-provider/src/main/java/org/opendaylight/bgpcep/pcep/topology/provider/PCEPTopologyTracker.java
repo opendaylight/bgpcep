@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -61,6 +62,7 @@ import org.slf4j.LoggerFactory;
 public final class PCEPTopologyTracker
         implements PCEPTopologyProviderDependencies, DataTreeChangeListener<TopologyPcep>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyTracker.class);
+    private static final ThreadFactory TIMER_TF = Thread.ofVirtual().name("odl-pcep-topology-timer-", 0).factory();
 
     // Services we are using
     final @NonNull InstructionSchedulerFactory instructionSchedulerFactory;
@@ -71,20 +73,10 @@ public final class PCEPTopologyTracker
     private final @NonNull PCEPDispatcher pcepDispatcher;
     private final @NonNull DataBroker dataBroker;
 
-    // Timer used for RPC timeouts and session statistics scheduling
-    private final @NonNull HashedWheelTimer privateTimer = new HashedWheelTimer();
-    private final @NonNull Timer timer = new Timer() {
-        @Override
-        public Timeout newTimeout(final TimerTask task, final long delay, final TimeUnit unit) {
-            return privateTimer.newTimeout(task, delay, unit);
-        }
-
-        @Override
-        public Set<Timeout> stop() {
-            // Do not allow the timer to be shut down
-            throw new UnsupportedOperationException();
-        }
-    };
+    // Timer used for RPC timeouts and session statistics scheduling. There is a normal private view and a public view
+    // which prevents Timer.stop() abuse
+    private final @NonNull Timer privateTimer;
+    private final @NonNull Timer timer;
 
     // Statistics provider
     private final @NonNull TopologyStatsProvider statsProvider;
@@ -127,6 +119,21 @@ public final class PCEPTopologyTracker
         this.pcepDispatcher = requireNonNull(pcepDispatcher);
         this.instructionSchedulerFactory = requireNonNull(instructionSchedulerFactory);
         this.pceServerProvider = requireNonNull(pceServerProvider);
+
+        privateTimer = new HashedWheelTimer(TIMER_TF);
+        timer = new Timer() {
+            @Override
+            public Timeout newTimeout(final TimerTask task, final long delay, final TimeUnit unit) {
+                return privateTimer.newTimeout(task, delay, unit);
+            }
+
+            @Override
+            public Set<Timeout> stop() {
+                // Do not allow the timer to be shut down
+                throw new UnsupportedOperationException();
+            }
+        };
+
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
