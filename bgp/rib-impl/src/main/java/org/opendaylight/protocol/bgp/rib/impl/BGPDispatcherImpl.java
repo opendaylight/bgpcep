@@ -93,7 +93,7 @@ public final class BGPDispatcherImpl implements BGPDispatcher {
             final InetSocketAddress localAddress) {
         return nettyGroups.createBootstrap(keys)
             // Make sure we are doing round-robin processing
-            .option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR)
+            .option(ChannelOption.RECVBUF_ALLOCATOR, RECV_ALLOCATOR)
             .option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE)
             .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
             .option(ChannelOption.SO_REUSEADDR, reuseAddress)
@@ -142,7 +142,7 @@ public final class BGPDispatcherImpl implements BGPDispatcher {
             .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WATER_MARK)
             // Make sure we are doing round-robin processing
-            .option(ChannelOption.RCVBUF_ALLOCATOR, RECV_ALLOCATOR);
+            .option(ChannelOption.RECVBUF_ALLOCATOR, RECV_ALLOCATOR);
     }
 
     private static final class BGPChannel {
