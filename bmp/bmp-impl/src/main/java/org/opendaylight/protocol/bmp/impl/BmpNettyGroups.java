@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.bmp.impl;
 
-import static java.util.Objects.requireNonNull;
-
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.AbstractBootstrap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -18,12 +15,16 @@ import io.netty.channel.AbstractChannel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.IoHandlerFactory;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
+import io.netty.channel.socket.ServerSocketChannel;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
@@ -34,6 +35,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -51,35 +53,42 @@ public final class BmpNettyGroups implements AutoCloseable {
                 @NonNull BmpHandlerFactory hf, @NonNull BmpSessionListenerFactory slf);
     }
 
+
+    @NonNullByDefault
     private abstract static class AbstractImpl {
+        private static final ThreadFactory BOSS_TF = Thread.ofPlatform().name("bmp-boss-", 0).daemon(true).factory();
+        private static final ThreadFactory WORKER_TF =
+            Thread.ofPlatform().name("bmp-worker-", 0).daemon(true).factory();
+
         private final EventLoopGroup bossGroup;
         private final EventLoopGroup workerGroup;
 
-        AbstractImpl(final EventLoopGroup bossGroup, final EventLoopGroup workerGroup) {
-            this.bossGroup = requireNonNull(bossGroup);
-            this.workerGroup = requireNonNull(workerGroup);
+        AbstractImpl(final IoHandlerFactory ioHandlerFactory) {
+            bossGroup = new MultiThreadIoEventLoopGroup(BOSS_TF, ioHandlerFactory);
+            workerGroup = new MultiThreadIoEventLoopGroup(WORKER_TF, ioHandlerFactory);
         }
 
-        abstract void setupBootstrap(Bootstrap bootstrap);
+        abstract Class<? extends SocketChannel> channelClass();
 
-        abstract void setupBootstrap(ServerBootstrap serverBootstrap);
+        abstract Class<? extends ServerSocketChannel> serverChannelClass();
 
         abstract void setupKeys(AbstractBootstrap<?, ?> bootstrap, KeyMapping keys);
     }
 
+    @NonNullByDefault
     private static final class EpollImpl extends AbstractImpl {
         EpollImpl() {
-            super(new EpollEventLoopGroup(BOSS_TF), new EpollEventLoopGroup(WORKER_TF));
+            super(EpollIoHandler.newFactory());
         }
 
         @Override
-        void setupBootstrap(final Bootstrap bootstrap) {
-            bootstrap.channel(EpollSocketChannel.class);
+        Class<EpollSocketChannel> channelClass() {
+            return EpollSocketChannel.class;
         }
 
         @Override
-        void setupBootstrap(final ServerBootstrap serverBootstrap) {
-            serverBootstrap.channel(EpollServerSocketChannel.class);
+        Class<EpollServerSocketChannel> serverChannelClass() {
+            return EpollServerSocketChannel.class;
         }
 
         @Override
@@ -88,19 +97,20 @@ public final class BmpNettyGroups implements AutoCloseable {
         }
     }
 
+    @NonNullByDefault
     private static final class NioImpl extends AbstractImpl {
         NioImpl() {
-            super(new NioEventLoopGroup(BOSS_TF), new NioEventLoopGroup(WORKER_TF));
+            super(NioIoHandler.newFactory());
         }
 
         @Override
-        void setupBootstrap(final Bootstrap bootstrap) {
-            bootstrap.channel(NioSocketChannel.class);
+        Class<NioSocketChannel> channelClass() {
+            return NioSocketChannel.class;
         }
 
         @Override
-        void setupBootstrap(final ServerBootstrap serverBootstrap) {
-            serverBootstrap.channel(NioServerSocketChannel.class);
+        Class<NioServerSocketChannel> serverChannelClass() {
+            return NioServerSocketChannel.class;
         }
 
         @Override
@@ -109,14 +119,6 @@ public final class BmpNettyGroups implements AutoCloseable {
         }
     }
 
-    private static final ThreadFactory BOSS_TF = new ThreadFactoryBuilder()
-        .setNameFormat("bmp-boss-%d")
-        .setDaemon(true)
-        .build();
-    private static final ThreadFactory WORKER_TF = new ThreadFactoryBuilder()
-        .setNameFormat("bmp-worker-%d")
-        .setDaemon(true)
-        .build();
     private static final int MAX_CONNECTIONS_COUNT = 128;
     private static final long TIMEOUT = 10;
 
@@ -167,13 +169,13 @@ public final class BmpNettyGroups implements AutoCloseable {
     public ServerBootstrap createServerBootstrap(final @NonNull BmpSessionFactory sessionFactory,
             final @NonNull BmpHandlerFactory hf, final @NonNull BmpSessionListenerFactory slf,
             final @NonNull CreateChannel createChannel, final @NonNull KeyMapping keys) {
-        final var serverBootstrap = new ServerBootstrap();
-        impl.setupBootstrap(serverBootstrap);
+        final var bootstrap = new ServerBootstrap();
+        bootstrap.channel(impl.serverChannelClass());
         if (!keys.isEmpty()) {
-            impl.setupKeys(serverBootstrap, keys);
+            impl.setupKeys(bootstrap, keys);
         }
 
-        return serverBootstrap.childHandler(createChannel.create(sessionFactory, hf, slf))
+        return bootstrap.childHandler(createChannel.create(sessionFactory, hf, slf))
             .option(ChannelOption.SO_BACKLOG, MAX_CONNECTIONS_COUNT)
             .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
             .group(impl.bossGroup, impl.workerGroup);
@@ -196,7 +198,7 @@ public final class BmpNettyGroups implements AutoCloseable {
             final @Nullable SocketAddress localAddress, final int connectTimeout, final @NonNull KeyMapping keys,
             final boolean reuseAddress) {
         final var bootstrap = new Bootstrap();
-        impl.setupBootstrap(bootstrap);
+        bootstrap.channel(impl.channelClass());
         if (!keys.isEmpty()) {
             impl.setupKeys(bootstrap, keys);
         }

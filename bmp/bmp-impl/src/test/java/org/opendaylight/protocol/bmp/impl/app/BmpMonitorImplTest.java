@@ -25,11 +25,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.IoHandlerFactory;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetSocketAddress;
@@ -439,15 +440,16 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             throws InterruptedException {
         final BmpHandlerFactory hf = new BmpHandlerFactory(msgRegistry);
         final Bootstrap b = new Bootstrap();
-        final EventLoopGroup workerGroup;
+
+        final IoHandlerFactory ihf;
         if (Epoll.isAvailable()) {
             b.channel(EpollSocketChannel.class);
-            workerGroup = new EpollEventLoopGroup();
+            ihf = EpollIoHandler.newFactory();
         } else {
             b.channel(NioSocketChannel.class);
-            workerGroup = new NioEventLoopGroup();
+            ihf = NioIoHandler.newFactory();
         }
-        b.group(workerGroup);
+        b.group(new MultiThreadIoEventLoopGroup(ihf));
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
