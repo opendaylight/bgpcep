@@ -14,12 +14,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.FixedRecvByteBufAllocator;
+import io.netty.channel.MultiThreadIoEventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollMode;
+import io.netty.channel.epoll.EpollIoHandler;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.Future;
@@ -36,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
-
     private static final Logger LOG = LoggerFactory.getLogger(PCCDispatcherImpl.class);
 
     private static final int CONNECT_TIMEOUT = 2000;
@@ -45,11 +45,8 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private final EventLoopGroup workerGroup;
 
     public PCCDispatcherImpl(final @NonNull MessageRegistry registry) {
-        if (Epoll.isAvailable()) {
-            workerGroup = new EpollEventLoopGroup();
-        } else {
-            workerGroup = new NioEventLoopGroup();
-        }
+        workerGroup = new MultiThreadIoEventLoopGroup(
+            Epoll.isAvailable() ? EpollIoHandler.newFactory() : NioIoHandler.newFactory());
         factory = new PCEPHandlerFactory(registry);
     }
 
@@ -63,7 +60,7 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
         setChannelFactory(b, keys);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.SO_REUSEADDR, true);
-        b.option(ChannelOption.RCVBUF_ALLOCATOR, new io.netty.channel.FixedRecvByteBufAllocator(1));
+        b.option(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
         final long retryTimer = reconnectTime == -1 ? 0 : reconnectTime;
         final PCCReconnectPromise promise =
                 new PCCReconnectPromise(remoteAddress, (int) retryTimer, CONNECT_TIMEOUT, b);
@@ -98,7 +95,6 @@ public final class PCCDispatcherImpl implements PCCDispatcher, AutoCloseable {
     private static void setChannelFactory(final Bootstrap bootstrap, final KeyMapping keys) {
         if (Epoll.isAvailable()) {
             bootstrap.channel(EpollSocketChannel.class);
-            bootstrap.option(EpollChannelOption.EPOLL_MODE, EpollMode.LEVEL_TRIGGERED);
         } else {
             bootstrap.channel(NioSocketChannel.class);
         }
