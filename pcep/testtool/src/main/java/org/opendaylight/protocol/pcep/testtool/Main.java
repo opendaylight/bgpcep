@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
@@ -29,44 +29,52 @@ public final class Main {
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
     // FIXME: inline as a text block
-    private static final String USAGE = "DESCRIPTION:\n"
-            + "\tCreates a server with given parameters. As long as it runs, it accepts connections "
-            + "from PCCs.\n" + "USAGE:\n"
-            + "\t-a, --address\n" + "\t\tthe ip address to which is this server bound.\n"
-            + "\t\tFormat: x.x.x.x:y where y is port number.\n\n"
+    private static final String USAGE = """
+        DESCRIPTION:
+        	Creates a server with given parameters. As long as it runs, it accepts connections \
+        from PCCs.
+        USAGE:
+        	-a, --address
+        		the ip address to which is this server bound.
+        		Format: x.x.x.x:y where y is port number.
 
-            + "\t-d, --deadtimer\n" + "\t\tin seconds, value of the desired deadtimer\n"
-            + "\t\tAccording to RFC5440, recommended value for deadtimer is 4 times the value\n"
-            + "\t\tof KeepAlive timer. If it's not, a warning is printed.\n"
-            + "\t\tIf not set, it's value will be derived from KeepAlive timer value.\n\n"
+        	-d, --deadtimer
+        		in seconds, value of the desired deadtimer
+        		According to RFC5440, recommended value for deadtimer is 4 times the value
+        		of KeepAlive timer. If it's not, a warning is printed.
+        		If not set, it's value will be derived from KeepAlive timer value.
 
-            + "\t-ka, --keepalive\n" + "\t\tin seconds, value of the desired KeepAlive timer.\n"
-            + "\t\tIf not present, KeepAlive timer will be set to recommended value (30s).\n\n"
+        	-ka, --keepalive
+        		in seconds, value of the desired KeepAlive timer.
+        		If not present, KeepAlive timer will be set to recommended value (30s).
 
-            + "\t--stateful\n" + "\t\tpassive stateful\n\n"
+        	--stateful
+        		passive stateful
 
-            + "\t--active\n" + "\t\tactive stateful (implies --stateful)\n\n"
+        	--active
+        		active stateful (implies --stateful)
 
-            + "\t--instant\n"
-            + "\t\tinstantiated stateful, <seconds> cleanup timeout "
-            + "(default value, if not included = 0) (implies --stateful)\n\n"
+        	--instant
+        		instantiated stateful, <seconds> cleanup timeout \
+        (default value, if not included = 0) (implies --stateful)
 
-            + "\t-arm, --autoResponseMessages <path to file>\n"
-            + "\t\t <path to file> with groovy script which implements MessageGeneratorService.\n"
-            + "\t\t Messages are used as auto response for every message received. Purely for testing puposes! \n\n"
+        	-arm, --autoResponseMessages <path to file>
+        		 <path to file> with groovy script which implements MessageGeneratorService.
+        		 Messages are used as auto response for every message received. Purely for testing puposes!\s
 
-            + "\t-psm, --periodicallySendMessages <path to file> <period>\n"
-            + "\t\t <path to file> with groovy script which implements"
-            + " MessageGeneratorService followed by <period> in seconds.\n"
-            + "\t\t Messages which are sent periodically. Purely for testing puposes! \n\n"
+        	-psm, --periodicallySendMessages <path to file> <period>
+        		 <path to file> with groovy script which implements\
+         MessageGeneratorService followed by <period> in seconds.
+        		 Messages which are sent periodically. Purely for testing puposes!\s
 
-            + "\t-snm, --sendNowMessage <path to file>\n"
-            + "\t\t <path to file> with groovy script which implements MessageGeneratorService.\n"
-            + "\t\t Messages are sent in defined states defined by programmer. Purely for testing puposes! \n\n"
+        	-snm, --sendNowMessage <path to file>
+        		 <path to file> with groovy script which implements MessageGeneratorService.
+        		 Messages are sent in defined states defined by programmer. Purely for testing puposes!\s
 
-            + "\t--help\n" + "\t\tdisplay this help and exits\n\n"
+        	--help
+        		display this help and exits
 
-            + "With no parameters, this help is printed.";
+        With no parameters, this help is printed.""";
     private static final int KA_TO_DEADTIMER_RATIO = 4;
 
     private Main() {
@@ -123,11 +131,12 @@ public final class Main {
         final MessageRegistry handlerRegistry = ServiceLoader.load(PCEPExtensionConsumerContext.class).findFirst()
             .orElseThrow()
             .getMessageHandlerRegistry();
-        final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl();
-        dispatcher.createServer(address, KeyMapping.of(), handlerRegistry, new DefaultPCEPSessionNegotiatorFactory(
-            new TestingSessionListenerFactory(),
-            new PCEPTimerProposal(keepAliveValue, deadTimerValue),
-            stateful ? List.of(new PCEPStatefulCapability(active, instant, false, false, false, false)) : List.of(),
-            maxUnknownMessages, null)).get();
+        final var dispatcher = new PCEPDispatcherImpl();
+        dispatcher.createServer(address, TcpMd5Secrets.of(), handlerRegistry,
+            new DefaultPCEPSessionNegotiatorFactory(new TestingSessionListenerFactory(),
+                new PCEPTimerProposal(keepAliveValue, deadTimerValue),
+                stateful ? List.of(new PCEPStatefulCapability(active, instant, false, false, false, false)) : List.of(),
+                maxUnknownMessages, null))
+            .get();
     }
 }
