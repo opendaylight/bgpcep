@@ -17,14 +17,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.FixedRecvByteBufAllocator;
-import io.netty.channel.MultiThreadIoEventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollChannelOption;
-import io.netty.channel.epoll.EpollIoHandler;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.NioIoHandler;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -36,7 +29,9 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.api.UnsupportedConfigurationException;
+import org.opendaylight.netconf.transport.spi.NettyTransportSupport;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPDispatcher;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -96,15 +91,14 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
 
     @Inject
     public PCEPDispatcherImpl(final int bossThreads, final int workerThreads, final int shutdownTimeSeconds) {
-        final var ihf = Epoll.isAvailable() ? EpollIoHandler.newFactory() : NioIoHandler.newFactory();
-        bossGroup = new MultiThreadIoEventLoopGroup(BOSS_TF, ihf);
-        workerGroup = new MultiThreadIoEventLoopGroup(WORKER_TF, ihf);
+        bossGroup = NettyTransportSupport.newEventLoopGroup(bossThreads, BOSS_TF);
+        workerGroup = NettyTransportSupport.newEventLoopGroup(workerThreads, WORKER_TF);
         this.shutdownTimeSeconds = shutdownTimeSeconds;
     }
 
     @Override
     public final synchronized ChannelFuture createServer(final InetSocketAddress listenAddress,
-            final KeyMapping tcpKeys, final MessageRegistry registry,
+            final TcpMd5Secrets secrets, final MessageRegistry registry,
             final PCEPSessionNegotiatorFactory negotiatorFactory) {
         final var hf = new PCEPHandlerFactory(registry);
 
@@ -114,43 +108,37 @@ public class PCEPDispatcherImpl implements PCEPDispatcher, AutoCloseable {
             ch.pipeline().addLast(hf.getEncoders());
         };
 
-        final ServerBootstrap b = createServerBootstrap(initializer, tcpKeys);
-        final ChannelFuture f = b.bind(listenAddress);
+        final var b = createServerBootstrap(initializer, secrets);
+        final var f = b.bind(listenAddress);
         LOG.debug("Initiated server {} at {}.", f, listenAddress);
-
         return f;
     }
 
     @VisibleForTesting
     ServerBootstrap createServerBootstrap(final ChannelPipelineInitializer initializer,
-            final KeyMapping tcpKeys) {
-        final ServerBootstrap b = new ServerBootstrap();
-        b.childHandler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(final SocketChannel ch) {
-                initializer.initializeChannel(ch, new DefaultPromise<>(executor));
-            }
-        });
-        b.option(ChannelOption.SO_BACKLOG, 128);
-
-        b.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-
-        b.channel(Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class);
-
-        if (!tcpKeys.isEmpty()) {
-            if (Epoll.isAvailable()) {
-                b.option(EpollChannelOption.TCP_MD5SIG, tcpKeys.asMap());
-            } else {
-                throw new UnsupportedOperationException("Setting TCP-MD5 signatures is not supported",
-                        Epoll.unavailabilityCause().getCause());
-            }
-        }
-
-        // Make sure we are doing round-robin processing
-        b.childOption(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1));
+            final TcpMd5Secrets secrets) {
+        final var b = NettyTransportSupport.newServerBootstrap()
+            .option(ChannelOption.SO_BACKLOG, 128)
+            .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+            // Make sure we are doing round-robin processing
+            .childOption(ChannelOption.RECVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1))
+            .childHandler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(final SocketChannel ch) {
+                    initializer.initializeChannel(ch, new DefaultPromise<>(executor));
+                }
+            });
 
         if (b.config().group() == null) {
             b.group(bossGroup, workerGroup);
+        }
+
+        if (!secrets.isEmpty()) {
+            try {
+                NettyTransportSupport.setTcpMd5(b, secrets);
+            } catch (UnsupportedConfigurationException e) {
+                throw new UnsupportedOperationException(e);
+            }
         }
 
         return b;
