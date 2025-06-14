@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
@@ -80,11 +80,11 @@ final class PCCsBuilder {
 
     private void createPCC(final PCCDispatcherImpl pccDispatcher, final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
-        for (final InetSocketAddress pceAddress : remoteAddress) {
+        for (var pceAddress : remoteAddress) {
             pccDispatcher.createClient(pceAddress, reconnectTime, new CustomPCEPSessionNegotiatorFactory(
                     () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError),
                     timers, List.of(pcepCapabilities), Uint16.ZERO, null, new PCCPeerProposal(initialDBVersion)),
-                password == null ? KeyMapping.of() : KeyMapping.of(pceAddress.getAddress(), password),
+                password == null ? TcpMd5Secrets.of() : TcpMd5Secrets.of(pceAddress.getAddress(), password),
                 plocalAddress);
         }
     }

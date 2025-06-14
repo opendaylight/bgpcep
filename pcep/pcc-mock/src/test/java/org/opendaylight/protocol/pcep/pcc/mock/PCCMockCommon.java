@@ -30,6 +30,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -216,7 +217,7 @@ public abstract class PCCMockCommon {
         }, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER), getCapabilities(), Uint16.ZERO, null,
             new PCCPeerProposal(dbVersion));
 
-        return pccDispatcher.createClient(remoteAddress, -1, snf, KeyMapping.of(), localAddress);
+        return pccDispatcher.createClient(remoteAddress, -1, snf, TcpMd5Secrets.of(), localAddress);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {
