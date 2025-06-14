@@ -30,7 +30,7 @@ import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
@@ -123,7 +123,7 @@ public abstract class PCCMockCommon {
         activator07.start(extensionProvider);
         optimizationsActivator.start(extensionProvider);
 
-        final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
+        final ChannelFuture future = pceDispatcher.createServer(serverAddress2, TcpMd5Secrets.of(), messageRegistry,
             new CustomPCEPSessionNegotiatorFactory(factory, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
                 getCapabilities(), Uint16.ZERO, null, peerProposal));
         waitFutureSuccess(future);
@@ -216,7 +216,7 @@ public abstract class PCCMockCommon {
         }, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER), getCapabilities(), Uint16.ZERO, null,
             new PCCPeerProposal(dbVersion));
 
-        return pccDispatcher.createClient(remoteAddress, -1, snf, KeyMapping.of(), localAddress);
+        return pccDispatcher.createClient(remoteAddress, -1, snf, TcpMd5Secrets.of(), localAddress);
     }
 
     TestingSessionListener getListener(final TestingSessionListenerFactory factory) {

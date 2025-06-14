@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 
 /**
  * Dispatcher class for creating servers and clients.
@@ -21,11 +21,11 @@ public interface PCEPDispatcher {
      * Creates server. Each server needs three factories to pass their instances to client sessions.
      *
      * @param listenAddress Server listen address
-     * @param tcpKeys RFC2385 TCP-MD5 keys
+     * @param secrets RFC2385 TCP-MD5 keys
      * @param registry a message registry
      * @param negotiatorFactory a negotiation factory
      * @return A future completing when the PCEP server is created
      */
-    ChannelFuture createServer(InetSocketAddress listenAddress, KeyMapping tcpKeys, MessageRegistry registry,
+    ChannelFuture createServer(InetSocketAddress listenAddress, TcpMd5Secrets secrets, MessageRegistry registry,
         PCEPSessionNegotiatorFactory negotiatorFactory);
 }

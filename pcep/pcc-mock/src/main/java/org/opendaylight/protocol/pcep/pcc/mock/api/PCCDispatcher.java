@@ -10,13 +10,13 @@ package org.opendaylight.protocol.pcep.pcc.mock.api;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 
 public interface PCCDispatcher {
 
     @NonNull Future<PCEPSession> createClient(@NonNull InetSocketAddress remoteAddress, long reconnectTime,
-        @NonNull PCEPSessionNegotiatorFactory negotiatorFactory, @NonNull KeyMapping keys,
+        @NonNull PCEPSessionNegotiatorFactory negotiatorFactory, @NonNull TcpMd5Secrets secrets,
         @NonNull InetSocketAddress localAddress);
 }

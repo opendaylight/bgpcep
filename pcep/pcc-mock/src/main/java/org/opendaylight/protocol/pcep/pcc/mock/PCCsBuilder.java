@@ -12,11 +12,12 @@ import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
@@ -36,7 +37,7 @@ final class PCCsBuilder {
     private final InetSocketAddress localAddress;
     private final List<InetSocketAddress> remoteAddress;
     private final PCEPTimerProposal timers;
-    private final String password;
+    private final byte[] password;
     private final long reconnectTime;
     private final int redelegationTimeout;
     private final int stateTimeout;
@@ -54,7 +55,7 @@ final class PCCsBuilder {
         this.pccCount = pccCount;
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
-        this.password = password;
+        this.password = password == null ? null : password.getBytes(StandardCharsets.US_ASCII);
         this.reconnectTime = reconnectTime;
         this.redelegationTimeout = redelegationTimeout;
         this.stateTimeout = stateTimeout;
@@ -80,11 +81,11 @@ final class PCCsBuilder {
 
     private void createPCC(final PCCDispatcherImpl pccDispatcher, final @NonNull InetSocketAddress plocalAddress,
             final PCCTunnelManager tunnelManager, final Uint64 initialDBVersion) {
-        for (final InetSocketAddress pceAddress : remoteAddress) {
+        for (var pceAddress : remoteAddress) {
             pccDispatcher.createClient(pceAddress, reconnectTime, new CustomPCEPSessionNegotiatorFactory(
                     () -> new PCCSessionListener(remoteAddress.indexOf(pceAddress), tunnelManager, pcError),
                     timers, List.of(pcepCapabilities), Uint16.ZERO, null, new PCCPeerProposal(initialDBVersion)),
-                password == null ? KeyMapping.of() : KeyMapping.of(pceAddress.getAddress(), password),
+                password == null ? TcpMd5Secrets.of() : TcpMd5Secrets.of(pceAddress.getAddress(), password),
                 plocalAddress);
         }
     }

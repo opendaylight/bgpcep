@@ -11,9 +11,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.List;
 import org.junit.After;
@@ -21,9 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
@@ -59,19 +55,18 @@ public class PCCDispatcherImplTest {
 
     @Test(timeout = 20000)
     public void testClientReconnect() throws Exception {
-        final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
-        final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(slf,
+        final var slf = new TestingSessionListenerFactory();
+        final var nf = new DefaultPCEPSessionNegotiatorFactory(slf,
             new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
 
-        final Future<PCEPSession> futureSession = dispatcher.createClient(serverAddress, 1, nf, KeyMapping.of(),
-            clientAddress);
+        final var futureSession = dispatcher.createClient(serverAddress, 1, nf, TcpMd5Secrets.of(), clientAddress);
 
-        final ChannelFuture futureServer = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry, nf);
+        final var futureServer = pcepDispatcher.createServer(serverAddress, TcpMd5Secrets.of(), registry, nf);
         futureServer.sync();
-        final Channel channel = futureServer.channel();
+        final var channel = futureServer.channel();
         assertNotNull(futureSession.get());
         checkSessionListenerNotNull(slf, clientAddress.getHostString());
-        final TestingSessionListener sl = checkSessionListenerNotNull(slf, clientAddress.getAddress().getHostAddress());
+        final var sl = checkSessionListenerNotNull(slf, clientAddress.getAddress().getHostAddress());
         assertNotNull(sl.getSession());
         assertTrue(sl.isUp());
         channel.close().get();
@@ -79,14 +74,13 @@ public class PCCDispatcherImplTest {
 
         pcepDispatcher = new PCEPDispatcherImpl();
 
-        final TestingSessionListenerFactory slf2 = new TestingSessionListenerFactory();
-        final ChannelFuture future2 = pcepDispatcher.createServer(serverAddress, KeyMapping.of(), registry,
+        final var slf2 = new TestingSessionListenerFactory();
+        final var future2 = pcepDispatcher.createServer(serverAddress, TcpMd5Secrets.of(), registry,
             new DefaultPCEPSessionNegotiatorFactory(slf2, new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)),
                 List.of(), Uint16.ZERO, null));
         future2.sync();
-        final Channel channel2 = future2.channel();
-        final TestingSessionListener sl2 = checkSessionListenerNotNull(slf2,
-            clientAddress.getAddress().getHostAddress());
+        final var channel2 = future2.channel();
+        final var sl2 = checkSessionListenerNotNull(slf2, clientAddress.getAddress().getHostAddress());
         assertNotNull(sl2.getSession());
         assertTrue(sl2.isUp());
         channel2.close();

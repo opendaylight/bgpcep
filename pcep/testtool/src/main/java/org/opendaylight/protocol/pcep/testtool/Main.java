@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
@@ -123,11 +123,12 @@ public final class Main {
         final MessageRegistry handlerRegistry = ServiceLoader.load(PCEPExtensionConsumerContext.class).findFirst()
             .orElseThrow()
             .getMessageHandlerRegistry();
-        final PCEPDispatcherImpl dispatcher = new PCEPDispatcherImpl();
-        dispatcher.createServer(address, KeyMapping.of(), handlerRegistry, new DefaultPCEPSessionNegotiatorFactory(
-            new TestingSessionListenerFactory(),
-            new PCEPTimerProposal(keepAliveValue, deadTimerValue),
-            stateful ? List.of(new PCEPStatefulCapability(active, instant, false, false, false, false)) : List.of(),
-            maxUnknownMessages, null)).get();
+        final var dispatcher = new PCEPDispatcherImpl();
+        dispatcher.createServer(address, TcpMd5Secrets.of(), handlerRegistry,
+            new DefaultPCEPSessionNegotiatorFactory(new TestingSessionListenerFactory(),
+                new PCEPTimerProposal(keepAliveValue, deadTimerValue),
+                stateful ? List.of(new PCEPStatefulCapability(active, instant, false, false, false, false)) : List.of(),
+                maxUnknownMessages, null))
+            .get();
     }
 }

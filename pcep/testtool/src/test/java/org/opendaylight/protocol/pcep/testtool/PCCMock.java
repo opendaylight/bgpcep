@@ -13,7 +13,7 @@ import com.google.common.net.HostAndPort;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.DefaultPCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
@@ -38,7 +38,7 @@ public final class PCCMock {
 
         try (var pccDispatcher = new PCCDispatcherImpl(
                 new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry())) {
-            pccDispatcher.createClient(serverAddr, -1, snf, KeyMapping.of(), clientAddr).get();
+            pccDispatcher.createClient(serverAddr, -1, snf, TcpMd5Secrets.of(), clientAddr).get();
         }
     }
 }

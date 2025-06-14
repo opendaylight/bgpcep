@@ -16,13 +16,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -45,7 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
@@ -100,7 +100,7 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        final ChannelFuture futureChannel = dispatcher.createServer(serverAddr, KeyMapping.of(), msgReg,
+        final var futureChannel = dispatcher.createServer(serverAddr, TcpMd5Secrets.of(), msgReg,
             negotiatorFactory);
         futureChannel.sync();
 
@@ -127,11 +127,11 @@ public class PCEPDispatcherImplTest {
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        dispatcher.createServer(serverAddr, KeyMapping.of(), msgReg, negotiatorFactory).sync();
-        final Future<PCEPSession> futureClient = pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT);
+        dispatcher.createServer(serverAddr, TcpMd5Secrets.of(), msgReg, negotiatorFactory).sync();
+        final var futureClient = pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT);
         futureClient.sync();
 
-        try (PCEPSession ignored = futureClient.get()) {
+        try (var ignored = futureClient.get()) {
             final var cause = assertThrows(ExecutionException.class,
                 () -> pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT).get())
                 .getCause();
@@ -147,10 +147,10 @@ public class PCEPDispatcherImplTest {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
-        dispatcher.createServer(new InetSocketAddress("0.0.0.0", port), KeyMapping.of(), msgReg, negotiatorFactory)
+        dispatcher.createServer(new InetSocketAddress("0.0.0.0", port), TcpMd5Secrets.of(), msgReg, negotiatorFactory)
             .sync();
-        final PCEPSessionImpl session1 = (PCEPSessionImpl) pccMock.createClient(clientAddr,
-            RETRY_TIMER, CONNECT_TIMEOUT).get();
+        final var session1 = assertInstanceOf(PCEPSessionImpl.class,
+            pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT).get());
 
         assertEquals(clientAddr.getAddress(), session1.getRemoteAddress());
         assertEquals(DEAD_TIMER.toJava(), session1.getDeadTimerValue());
@@ -166,17 +166,17 @@ public class PCEPDispatcherImplTest {
     }
 
     @Test(timeout = 20000)
-    public void testCustomizeBootstrap() throws InterruptedException {
+    public void testCustomizeBootstrap() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
-        final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-        final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
-        final KeyMapping keys = KeyMapping.of(Map.of(
+        final var clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final var clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
+        final var secrets = TcpMd5Secrets.of(Map.of(
             clientAddr1.getAddress(), "CLIENT1_ADDRESS",
             clientAddr2.getAddress(), "CLIENT2_ADDRESS"));
 
-        final ChannelFuture futureChannel = disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port), keys, msgReg,
+        final var futureChannel = disp2Spy.createServer(new InetSocketAddress("0.0.0.0", port), secrets, msgReg,
             negotiatorFactory).sync();
-        verify(disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class), same(keys));
+        verify(disp2Spy).createServerBootstrap(any(PCEPDispatcherImpl.ChannelPipelineInitializer.class), same(secrets));
     }
 
     private static class PCCMock {
@@ -196,9 +196,10 @@ public class PCEPDispatcherImplTest {
         Future<PCEPSession> createClient(final InetSocketAddress address, final int retryTimer,
                 final int connectTimeout) {
             return createClient(address, retryTimer, connectTimeout, (ch, promise) -> {
-                ch.pipeline().addLast(factory.getDecoders());
-                ch.pipeline().addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise));
-                ch.pipeline().addLast(factory.getEncoders());
+                ch.pipeline()
+                    .addLast(factory.getDecoders())
+                    .addLast("negotiator", negotiatorFactory.getSessionNegotiator(ch, promise))
+                    .addLast(factory.getEncoders());
             });
         }
 

@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.concepts.KeyMapping;
+import org.opendaylight.netconf.transport.spi.TcpMd5Secrets;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
@@ -52,7 +52,7 @@ final class PCEPTopologyConfiguration implements Immutable {
 
     private final @NonNull InetSocketAddress address;
     private final @Nullable GraphKey graphKey;
-    private final @NonNull KeyMapping keys;
+    private final @NonNull TcpMd5Secrets keys;
     private final @NonNull PCEPTimerProposal timerProposal;
     private final @NonNull ImmutableList<PCEPCapability> capabilities;
     private final @NonNull Uint16 maxUnknownMessages;
@@ -60,10 +60,10 @@ final class PCEPTopologyConfiguration implements Immutable {
     private final long updateIntervalNanos;
     private final short rpcTimeout;
 
-    PCEPTopologyConfiguration(final InetSocketAddress address, final KeyMapping keys, final @Nullable GraphKey graphKey,
-            final short rpcTimeout, final long updateIntervalNanos, final PCEPTimerProposal timerProposal,
-            final @NonNull ImmutableList<PCEPCapability> capabilities, final Uint16 maxUnknownMessages,
-            final @Nullable PcepSessionTls tls) {
+    PCEPTopologyConfiguration(final InetSocketAddress address, final TcpMd5Secrets keys,
+            final @Nullable GraphKey graphKey, final short rpcTimeout, final long updateIntervalNanos,
+            final PCEPTimerProposal timerProposal, final @NonNull ImmutableList<PCEPCapability> capabilities,
+            final Uint16 maxUnknownMessages, final @Nullable PcepSessionTls tls) {
         this.address = requireNonNull(address);
         this.keys = requireNonNull(keys);
         this.graphKey = graphKey;
@@ -137,7 +137,7 @@ final class PCEPTopologyConfiguration implements Immutable {
         return address;
     }
 
-    @NonNull KeyMapping getKeys() {
+    @NonNull TcpMd5Secrets getKeys() {
         return keys;
     }
 
@@ -166,9 +166,9 @@ final class PCEPTopologyConfiguration implements Immutable {
         return tls;
     }
 
-    private static @NonNull KeyMapping constructKeys(final @Nullable Map<NodeKey, Node> nodes) {
+    private static @NonNull TcpMd5Secrets constructKeys(final @Nullable Map<NodeKey, Node> nodes) {
         if (nodes == null) {
-            return KeyMapping.of();
+            return TcpMd5Secrets.of();
         }
 
         final var passwords = new HashMap<InetAddress, String>();
@@ -190,7 +190,7 @@ final class PCEPTopologyConfiguration implements Immutable {
             }
         }
 
-        return KeyMapping.of(passwords);
+        return TcpMd5Secrets.of(passwords);
     }
 
     private static @Nullable GraphKey constructGraphKey(final @Nullable TopologyId topologyId) {
