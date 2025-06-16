@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21bc37a6_d1821a18",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-06-16T22:08:34Z",
+      "side": 1,
+      "message": "can you please keep these ordered as a proper footer:\n\nJIRA: BGPCEP-1039\nChange-Id: I53e6ebbf3eddc2a3152c74562ee3c179ef6e6339\nSigned-off-by: Olivier Dugeon \u003colivier.dugeon@orange.com\u003e\n\nI am really tired of fixing this up time and time again 😞",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 52
+      },
+      "revId": "599e01def5bd5989230a839af3bafbc8f9529105",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
