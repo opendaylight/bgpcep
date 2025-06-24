@@ -70,6 +70,30 @@
       },
       "revId": "599e01def5bd5989230a839af3bafbc8f9529105",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66cc39fe_06ff22d7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-24T15:22:11Z",
+      "side": 1,
+      "message": "Hello Robert,\n\nSorry for that. I\u0027ve not pay attention to this requirement. I think I have a too old git-review hook which put the Change-Id just after the Sign-off. And, unfortunately, when I update the patch, it revert yours. Apologize for that.\n\nI hope I correct the order of the footer in my last 3 patches. I\u0027ll pay attention for next patch to the correct order and check for an update for the git review hook.\n\nBest regards\n\nOlivier",
+      "parentUuid": "6313f321_c9de6a84",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 52
+      },
+      "revId": "599e01def5bd5989230a839af3bafbc8f9529105",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
