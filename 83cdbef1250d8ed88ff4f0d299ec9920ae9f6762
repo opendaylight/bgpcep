@@ -45,6 +45,29 @@
       },
       "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a5bfe76_51fee238",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-06-25T17:59:46Z",
+      "side": 1,
+      "message": "broken: this is moved to ../capabilites/stateful-tlv.\nthis sort of bugs drive \u0027presence\u0027 container note above.",
+      "range": {
+        "startLine": 139,
+        "startChar": 22,
+        "endLine": 139,
+        "endChar": 37
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
