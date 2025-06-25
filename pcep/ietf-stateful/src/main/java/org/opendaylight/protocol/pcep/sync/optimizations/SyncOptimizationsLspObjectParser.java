@@ -26,30 +26,28 @@ public class SyncOptimizationsLspObjectParser extends InitiatedLspObjectParser {
 
     @Override
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
-        if (tlvs != null) {
-            super.serializeTlvs(tlvs, body);
-            serializeAugmentation(tlvs.augmentation(Tlvs1.class), body);
+        if (tlvs == null) {
+            return;
         }
-    }
+        super.serializeTlvs(tlvs, body);
 
-    private void serializeAugmentation(final Tlvs1 tlv, final ByteBuf body) {
-        if (tlv != null) {
-            serializeTlv(tlv.getLspDbVersion(), body);
+        final var syncOptTlvs = tlvs.augmentation(Tlvs1.class);
+        if (syncOptTlvs != null) {
+            serializeTlv(syncOptTlvs.getLspDbVersion(), body);
         }
     }
 
     @Override
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
-        final Tlvs1Builder syncOptTlvsBuilder = new Tlvs1Builder();
-        if (tbuilder.augmentation(Tlvs1.class) != null) {
-            final Tlvs1 t = tbuilder.augmentation(Tlvs1.class);
-            if (t.getLspDbVersion() != null) {
-                syncOptTlvsBuilder.setLspDbVersion(t.getLspDbVersion());
-            }
+
+        final var syncOptTlvsBuilder = new Tlvs1Builder();
+        final var syncOptTlvs = tbuilder.augmentation(Tlvs1.class);
+        if (syncOptTlvs != null) {
+            syncOptTlvsBuilder.setLspDbVersion(syncOptTlvs.getLspDbVersion());
         }
-        if (tlv instanceof LspDbVersion) {
-            syncOptTlvsBuilder.setLspDbVersion((LspDbVersion) tlv);
+        if (tlv instanceof LspDbVersion ldv) {
+            syncOptTlvsBuilder.setLspDbVersion(ldv);
         }
         tbuilder.addAugmentation(syncOptTlvsBuilder.build());
     }
