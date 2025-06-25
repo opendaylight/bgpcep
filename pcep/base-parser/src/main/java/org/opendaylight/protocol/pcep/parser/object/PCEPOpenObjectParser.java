@@ -95,21 +95,21 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     @Override
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
-        if (tlv instanceof OfList) {
-            tbuilder.setOfList((OfList) tlv);
+        if (tlv instanceof OfList ol) {
+            tbuilder.setOfList(ol);
         }
-        if (tlv instanceof AssociationTypeList) {
-            tbuilder.setAssociationTypeList((AssociationTypeList) tlv);
+        if (tlv instanceof AssociationTypeList atl) {
+            tbuilder.setAssociationTypeList(atl);
         }
-        if (tlv instanceof AssociationRange) {
-            tbuilder.setAssociationRange((AssociationRange ) tlv);
+        if (tlv instanceof AssociationRange ar) {
+            tbuilder.setAssociationRange(ar);
         }
-        if (tlv instanceof PathSetupTypeCapability) {
-            LOG.info("Add Path Setup Type Capability TLV: {}", (PathSetupTypeCapability) tlv);
-            tbuilder.setPathSetupTypeCapability((PathSetupTypeCapability) tlv);
+        if (tlv instanceof PathSetupTypeCapability pstc) {
+            LOG.info("Add Path Setup Type Capability TLV: {}", pstc);
+            tbuilder.setPathSetupTypeCapability(pstc);
         }
-        if (tlv instanceof SrPolicyCapability) {
-            tbuilder.setSrPolicyCapability((SrPolicyCapability ) tlv);
+        if (tlv instanceof SrPolicyCapability spc) {
+            tbuilder.setSrPolicyCapability(spc);
         }
     }
 
