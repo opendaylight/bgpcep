@@ -40,9 +40,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  * Parser for {@link Lsp}.
  */
 public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
-
     private static final int CLASS = 32;
-
     private static final int TYPE = 1;
 
     /*
@@ -95,16 +93,15 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
 
     @Override
     public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
-        if (tlv instanceof LspErrorCode) {
-            builder.setLspErrorCode((LspErrorCode) tlv);
-        } else if (tlv instanceof LspIdentifiers) {
-            builder.setLspIdentifiers((LspIdentifiers) tlv);
-        } else if (tlv instanceof RsvpErrorSpec) {
-            builder.setRsvpErrorSpec((RsvpErrorSpec) tlv);
-        } else if (tlv instanceof SymbolicPathName) {
-            builder.setSymbolicPathName((SymbolicPathName) tlv);
-        } else if (tlv instanceof PathBinding) {
-            builder.setPathBinding((PathBinding) tlv);
+        switch (tlv) {
+            case LspErrorCode lec -> builder.setLspErrorCode(lec);
+            case LspIdentifiers li -> builder.setLspIdentifiers(li);
+            case RsvpErrorSpec rec -> builder.setRsvpErrorSpec(rec);
+            case SymbolicPathName spn -> builder.setSymbolicPathName(spn);
+            case PathBinding pb -> builder.setPathBinding(pb);
+            case null, default -> {
+                // No-op
+            }
         }
     }
 
