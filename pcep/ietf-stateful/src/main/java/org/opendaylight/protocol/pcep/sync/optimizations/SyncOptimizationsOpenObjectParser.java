@@ -48,14 +48,11 @@ public class SyncOptimizationsOpenObjectParser extends StatefulOpenObjectParser 
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.augmentation(Tlvs3.class) != null) {
-            final Tlvs3 syncOptTlvs = tlvs.augmentation(Tlvs3.class);
-            if (syncOptTlvs.getLspDbVersion() != null) {
-                serializeTlv(syncOptTlvs.getLspDbVersion(), body);
-            }
-            if (syncOptTlvs.getSpeakerEntityId() != null) {
-                serializeTlv(syncOptTlvs.getSpeakerEntityId(), body);
-            }
+
+        final var syncOptTlvs = tlvs.augmentation(Tlvs3.class);
+        if (syncOptTlvs != null) {
+            serializeOptionalTlv(syncOptTlvs.getLspDbVersion(), body);
+            serializeOptionalTlv(syncOptTlvs.getSpeakerEntityId(), body);
         }
     }
 }

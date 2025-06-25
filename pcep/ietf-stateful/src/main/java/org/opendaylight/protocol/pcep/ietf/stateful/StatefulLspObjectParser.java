@@ -13,6 +13,8 @@ import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -137,26 +139,17 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         return flags;
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    @NonNullByDefault
+    public void serializeTlvs(final @Nullable Tlvs tlvs, final ByteBuf body) {
         if (tlvs == null) {
             return;
         }
-        if (tlvs.getLspErrorCode() != null) {
-            serializeTlv(tlvs.getLspErrorCode(), body);
-        }
-        if (tlvs.getLspIdentifiers() != null) {
-            serializeTlv(tlvs.getLspIdentifiers(), body);
-        }
-        if (tlvs.getRsvpErrorSpec() != null) {
-            serializeTlv(tlvs.getRsvpErrorSpec(), body);
-        }
-        if (tlvs.getSymbolicPathName() != null) {
-            serializeTlv(tlvs.getSymbolicPathName(), body);
-        }
+        serializeOptionalTlv(tlvs.getLspErrorCode(), body);
+        serializeOptionalTlv(tlvs.getLspIdentifiers(), body);
+        serializeOptionalTlv(tlvs.getRsvpErrorSpec(), body);
+        serializeOptionalTlv(tlvs.getSymbolicPathName(), body);
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
-        if (tlvs.getPathBinding() != null) {
-            serializeTlv(tlvs.getPathBinding(), body);
-        }
+        serializeOptionalTlv(tlvs.getPathBinding(), body);
     }
 
     @Override
