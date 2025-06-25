@@ -12,6 +12,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -77,11 +79,10 @@ public final class PCEPNotificationObjectParser extends AbstractObjectWithTlvsPa
         ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    @NonNullByDefault
+    public void serializeTlvs(final @Nullable Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
-            if (tlvs.getOverloadDuration() != null) {
-                serializeTlv(tlvs.getOverloadDuration(), body);
-            }
+            serializeOptionalTlv(tlvs.getOverloadDuration(), body);
             serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
     }

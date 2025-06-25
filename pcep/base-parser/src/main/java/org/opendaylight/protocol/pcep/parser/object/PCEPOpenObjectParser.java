@@ -12,6 +12,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -127,24 +129,14 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    @NonNullByDefault
+    public void serializeTlvs(final @Nullable Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
-            if (tlvs.getOfList() != null) {
-                serializeTlv(tlvs.getOfList(), body);
-            }
-            if (tlvs.getAssociationTypeList() != null) {
-                serializeTlv(tlvs.getAssociationTypeList(), body);
-            }
-            if (tlvs.getAssociationRange() != null) {
-                serializeTlv(tlvs.getAssociationRange(), body);
-            }
-            if (tlvs.getPathSetupTypeCapability() != null) {
-                LOG.info("Serialize Path Setup Type Capability TLV: {}", tlvs.getPathSetupTypeCapability());
-                serializeTlv(tlvs.getPathSetupTypeCapability(), body);
-            }
-            if (tlvs.getSrPolicyCapability() != null) {
-                serializeTlv(tlvs.getSrPolicyCapability(), body);
-            }
+            serializeOptionalTlv(tlvs.getOfList(), body);
+            serializeOptionalTlv(tlvs.getAssociationTypeList(), body);
+            serializeOptionalTlv(tlvs.getAssociationRange(), body);
+            serializeOptionalTlv(tlvs.getPathSetupTypeCapability(), body);
+            serializeOptionalTlv(tlvs.getSrPolicyCapability(), body);
             serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
     }
