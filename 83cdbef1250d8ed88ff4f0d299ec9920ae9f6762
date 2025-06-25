@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ccd6ebf_64fea028",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-06-25T17:53:29Z",
+      "side": 1,
+      "message": "so this is incompatible. if we are moving \u0027container stateful-tlv\u0027 we should also make it a \u0027presence\u0027 container containing a mandatory \u0027state-sync\u0027 leaf (below).",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 34
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "505fd5eb_7e085801",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-06-25T17:53:29Z",
+      "side": 1,
+      "message": "I think we should be separating out \u0027grouping sr-pce-capability\u0027, \u0027uses tlv\u0027 and \u0027container sr-pce-capability\u0027.\n\nFor  we have \u0027capabilities/stateful-tlv\u0027.\nFor rfc8664 we have \u0027capabilities/sr-pce-capability\u0027.\n\nThese need to be consistent.",
+      "range": {
+        "startLine": 131,
+        "startChar": 26,
+        "endLine": 131,
+        "endChar": 56
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
