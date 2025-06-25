@@ -14,6 +14,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250328.Tlv;
@@ -69,11 +71,19 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
         addVendorInformationTlvs(builder, viTlvs);
     }
 
+    @NonNullByDefault
     protected final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         requireNonNull(tlv, "PCEP TLV is mandatory.");
         LOG.trace("Serializing PCEP TLV {}", tlv);
         tlvReg.serializeTlv(tlv, buffer);
         LOG.trace("Serialized PCEP TLV : {}.", ByteBufUtil.hexDump(buffer));
+    }
+
+    @NonNullByDefault
+    protected final void serializeOptionalTlv(final @Nullable Tlv tlv, final ByteBuf buffer) {
+        if (tlv != null) {
+            serializeTlv(tlv, buffer);
+        }
     }
 
     protected void addTlv(final T builder, final Tlv tlv) {
@@ -82,7 +92,9 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
 
     protected abstract void addVendorInformationTlvs(T builder, List<VendorInformationTlv> tlvs);
 
-    protected final void serializeVendorInformationTlvs(final List<VendorInformationTlv> tlvs, final ByteBuf buffer) {
+    @NonNullByDefault
+    protected final void serializeVendorInformationTlvs(final @Nullable List<VendorInformationTlv> tlvs,
+            final ByteBuf buffer) {
         if (tlvs != null) {
             for (var tlv : tlvs) {
                 LOG.trace("Serializing VENDOR-INFORMATION TLV {}", tlv);
