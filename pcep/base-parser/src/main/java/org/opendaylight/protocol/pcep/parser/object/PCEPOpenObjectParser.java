@@ -74,20 +74,16 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         final Uint8 sessionId = ByteBufUtils.readUint8(bytes);
         final TlvsBuilder tbuilder = new TlvsBuilder();
         parseTlvs(tbuilder, bytes.slice());
-        final OpenBuilder builder = new OpenBuilder()
-                .setVersion(new ProtocolVersion(Uint8.valueOf(versionValue)))
-                .setProcessingRule(header.getProcessingRule())
-                .setIgnore(header.getIgnore())
-                .setKeepalive(Uint8.valueOf(keepalive))
-                .setSessionId(sessionId)
-                .setTlvs(tbuilder.build());
-        if (keepalive == 0) {
-            builder.setDeadTimer(Uint8.ZERO);
-        } else {
-            builder.setDeadTimer(Uint8.valueOf(deadTimer));
-        }
 
-        final Open obj = builder.build();
+        final Open obj = new OpenBuilder()
+            .setVersion(new ProtocolVersion(Uint8.valueOf(versionValue)))
+            .setProcessingRule(header.getProcessingRule())
+            .setIgnore(header.getIgnore())
+            .setKeepalive(Uint8.valueOf(keepalive))
+            .setSessionId(sessionId)
+            .setTlvs(tbuilder.build())
+            .setDeadTimer(keepalive == 0 ? Uint8.ZERO : Uint8.valueOf(deadTimer))
+            .build();
         if (versionValue != PCEP_VERSION) {
             // TODO: Should we move this check into the negotiator
             LOG.debug("Unsupported PCEP version {}", versionValue);
