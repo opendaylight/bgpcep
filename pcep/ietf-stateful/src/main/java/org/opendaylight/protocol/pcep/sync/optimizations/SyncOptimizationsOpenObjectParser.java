@@ -20,30 +20,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.open.object.open.TlvsBuilder;
 
 public class SyncOptimizationsOpenObjectParser extends StatefulOpenObjectParser {
-
     public SyncOptimizationsOpenObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg);
     }
 
-
     @Override
     public void addTlv(final TlvsBuilder tbuilder, final Tlv tlv) {
         super.addTlv(tbuilder, tlv);
-        final Tlvs3Builder syncOptTlvsBuilder = new Tlvs3Builder();
-        if (tbuilder.augmentation(Tlvs3.class) != null) {
-            final Tlvs3 t = tbuilder.augmentation(Tlvs3.class);
-            if (t.getLspDbVersion() != null) {
-                syncOptTlvsBuilder.setLspDbVersion(t.getLspDbVersion());
-            }
-            if (t.getSpeakerEntityId() != null) {
-                syncOptTlvsBuilder.setSpeakerEntityId(t.getSpeakerEntityId());
-            }
+        final var syncOptTlvsBuilder = new Tlvs3Builder();
+        final var syncOptTlvs = tbuilder.augmentation(Tlvs3.class);
+        if (syncOptTlvs != null) {
+            syncOptTlvsBuilder.setLspDbVersion(syncOptTlvs.getLspDbVersion());
+            syncOptTlvsBuilder.setSpeakerEntityId(syncOptTlvs.getSpeakerEntityId());
         }
-        if (tlv instanceof LspDbVersion) {
-            syncOptTlvsBuilder.setLspDbVersion((LspDbVersion) tlv);
+        if (tlv instanceof LspDbVersion ldv) {
+            syncOptTlvsBuilder.setLspDbVersion(ldv);
         }
-        if (tlv instanceof SpeakerEntityId) {
-            syncOptTlvsBuilder.setSpeakerEntityId((SpeakerEntityId) tlv);
+        if (tlv instanceof SpeakerEntityId sei) {
+            syncOptTlvsBuilder.setSpeakerEntityId(sei);
         }
         tbuilder.addAugmentation(syncOptTlvsBuilder.build());
     }
