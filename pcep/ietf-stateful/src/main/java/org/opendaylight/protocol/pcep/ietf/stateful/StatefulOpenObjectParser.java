@@ -47,14 +47,11 @@ public class StatefulOpenObjectParser extends PCEPOpenObjectParser {
             return;
         }
         super.serializeTlvs(tlvs, body);
-        if (tlvs.getOfList() != null) {
-            serializeTlv(tlvs.getOfList(), body);
-        }
-        if (tlvs.augmentation(Tlvs1.class) != null) {
-            final Tlvs1 statefulTlvs = tlvs.augmentation(Tlvs1.class);
-            if (statefulTlvs.getStateful() != null) {
-                serializeTlv(statefulTlvs.getStateful(), body);
-            }
+
+        serializeOptionalTlv(tlvs.getOfList(), body);
+        final var statefulTlvs = tlvs.augmentation(Tlvs1.class);
+        if (statefulTlvs != null) {
+            serializeOptionalTlv(statefulTlvs.getStateful(), body);
         }
     }
 }

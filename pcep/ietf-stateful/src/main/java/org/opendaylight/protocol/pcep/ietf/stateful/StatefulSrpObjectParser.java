@@ -12,6 +12,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
@@ -94,14 +96,11 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         body.writeZero(FLAGS_SIZE / Byte.SIZE);
     }
 
-    public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
+    @NonNullByDefault
+    public void serializeTlvs(final @Nullable Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
-            if (tlvs.getSymbolicPathName() != null) {
-                serializeTlv(tlvs.getSymbolicPathName(), body);
-            }
-            if (tlvs.getPathSetupType() != null) {
-                serializeTlv(tlvs.getPathSetupType(), body);
-            }
+            serializeOptionalTlv(tlvs.getSymbolicPathName(), body);
+            serializeOptionalTlv(tlvs.getPathSetupType(), body);
         }
     }
 
