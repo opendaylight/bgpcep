@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "42021ddb_40ee02ce",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-26T17:28:50Z",
+      "side": 1,
+      "message": "OK. I understand (see my remark about your comment about the reference for state-sync).\n\nI would also mention that capabilities are more or less mandatory within PCEP. In fact, all PCEP session exchange capabilities with Open message excepted with stateless PCC. Thus, we could:\n1/ determine that it is a stateless sessions because container contains nothing\n2/ add a stateless leaf with default value set to true\n\nI prefer 2nd option which make the container never empty with default value stateless set to true. And it is simple to add a logic that set the stateless boolean to false if container contains at least one stateful capabilities.\n\nWhat do you think ?",
+      "parentUuid": "4ccd6ebf_64fea028",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 34
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "505fd5eb_7e085801",
         "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
         "patchSetId": 6
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9206eadf_2ca8e79a",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-26T17:28:50Z",
+      "side": 1,
+      "message": "Well, my first intention, was to group all PCEP capabilities in the same container to ease the processing within Path Manager. Thus, IMHO, creating a new capabilities container make sense. But, perhaps I\u0027m wrong. Don\u0027t hesitate to propose alternative.\n\nIn fact, this is also a problem inherited to the split of yang models across base, stateful and segment routing. With my proposal to regroup all yang models for PCEP protocol in same place, this issue will disappear: Indeed, stateful capabilities will be defined in the same file as other capabilities and included like others with a `uses pcep:stateful-tlv`. Thus, the empty stateful-tlv container necessary for the augmentation will be removed.\n\nSo, IMHO, this is a temporary model waiting for the new big evolution of PCEP yang models I proposed.\n\nAnyway, I\u0027ll check for model consistency and update the model accordingly.",
+      "parentUuid": "505fd5eb_7e085801",
+      "range": {
+        "startLine": 131,
+        "startChar": 26,
+        "endLine": 131,
+        "endChar": 56
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8a5bfe76_51fee238",
         "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
         "patchSetId": 6
@@ -60,6 +108,30 @@
       "writtenOn": "2025-06-25T17:59:46Z",
       "side": 1,
       "message": "broken: this is moved to ../capabilites/stateful-tlv.\nthis sort of bugs drive \u0027presence\u0027 container note above.",
+      "range": {
+        "startLine": 139,
+        "startChar": 22,
+        "endLine": 139,
+        "endChar": 37
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e30078c6_2355243d",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-26T17:28:50Z",
+      "side": 1,
+      "message": "Good catch. I don\u0027t see it. I\u0027ll correct it in next patch set.",
+      "parentUuid": "8a5bfe76_51fee238",
       "range": {
         "startLine": 139,
         "startChar": 22,
