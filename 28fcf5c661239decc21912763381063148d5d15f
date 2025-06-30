@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae4810b0_2403f8d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-06-30T16:32:42Z",
+      "side": 1,
+      "message": "Hello Robert,\n\nI updated the yang models accordingly to your review. I hope it is what your are expected. Can you review it?\n\nThanks\n\nRegards\n\nOlivier",
+      "revId": "28fcf5c661239decc21912763381063148d5d15f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
