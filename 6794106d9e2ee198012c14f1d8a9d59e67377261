@@ -16,6 +16,57 @@
       "message": "recheck",
       "revId": "6794106d9e2ee198012c14f1d8a9d59e67377261",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b909912_b56d2bc2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-07-01T12:38:49Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nCan you correct your patch in order to merge it? In particular the missing throws declaration which cause maven compilation failure.\n\nRegards\n\nOlivier",
+      "revId": "6794106d9e2ee198012c14f1d8a9d59e67377261",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7160e353_2413b0df",
+        "filename": "pcep/impl/src/test/java/org/opendaylight/protocol/pcep/impl/PCEPDispatcherImplTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-07-01T12:38:49Z",
+      "side": 1,
+      "message": "missing CharacterCodingException in throws which cause maven compilation failed. Please add this throws declaration.",
+      "revId": "6794106d9e2ee198012c14f1d8a9d59e67377261",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81874a74_34be504e",
+        "filename": "pcep/testtool/src/main/java/org/opendaylight/protocol/pcep/testtool/Main.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-07-01T12:38:49Z",
+      "side": 1,
+      "message": "Please replace tab by spaces in all help message even if it is to align text",
+      "revId": "6794106d9e2ee198012c14f1d8a9d59e67377261",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
