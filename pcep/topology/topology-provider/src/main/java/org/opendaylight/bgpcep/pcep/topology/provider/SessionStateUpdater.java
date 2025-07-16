@@ -107,19 +107,24 @@ final class SessionStateUpdater {
         // Lockless
         final var aug = new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(toPcepSessionState()).build();
 
-        // FIXME: locking of this, check with session, etc. lifecycle
-        final var tx = node.getChain().newWriteOnlyTransaction();
-        tx.put(LogicalDatastoreType.OPERATIONAL, node.getNodeId().toBuilder()
-            .augmentation(PcepTopologyNodeStatsAug.class)
-            .build(), aug);
-        return tx.commit();
+        // We want to synchronize with node to avoid race in transaction chain
+        synchronized (node) {
+            final var tx = node.getChain().newWriteOnlyTransaction();
+            tx.put(LogicalDatastoreType.OPERATIONAL, node.getNodeId().toBuilder()
+                .augmentation(PcepTopologyNodeStatsAug.class)
+                .build(), aug);
+            return tx.commit();
+        }
     }
 
     @NonNull FluentFuture<? extends @NonNull CommitInfo> removeStatistics() {
-        final var tx = node.getChain().newWriteOnlyTransaction();
-        tx.delete(LogicalDatastoreType.OPERATIONAL,
-            node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build());
-        return tx.commit();
+        // We want to synchronize with node to avoid race in transaction chain
+        synchronized (node) {
+            final var tx = node.getChain().newWriteOnlyTransaction();
+            tx.delete(LogicalDatastoreType.OPERATIONAL,
+                node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build());
+            return tx.commit();
+        }
     }
 
     @VisibleForTesting
