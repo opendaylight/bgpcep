@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.spi;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.exclude.route.object.xro.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.exclude.route.object.xro.Subobject;
 
 public interface XROSubobjectRegistry {
     /**

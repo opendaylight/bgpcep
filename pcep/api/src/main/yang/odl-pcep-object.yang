@@ -1,0 +1,1019 @@
+module odl-pcep-object {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:object";
+    prefix "pcep-object";
+
+    import odl-pcep-types { prefix pcep-types; revision-date 2025-09-30; }
+    import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import rsvp { prefix rsvp; revision-date 2015-08-20; }
+    import iana { prefix iana; revision-date 2013-08-16; }
+
+    organization "Orange";
+    contact "Olivier Dugeon <olivier.dugeon@orange.com>";
+
+    description
+        "This module contains the base data model of a PCEP message.
+        It rolls up the definitions contained in RFC5440, RFC7896, RFC5520
+        and RFC8306, RFC5886.
+
+        Copyright (c)2025 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2025-09-30" {
+        description "Split old pcep-types into odl-pcep-types, odl-pcep-object and
+                     odl-pcep-message following the redesign of pcep yang models.
+                     This is the Object part.";
+    }
+
+    revision "2025-06-02" {
+        description "Update Path Setup Type to RFC8408";
+        reference "RFC8408";
+    }
+
+    revision "2025-03-28" {
+        description
+            "Add Association Group";
+        reference "RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059";
+    }
+
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
+
+    revision "2013-10-05" {
+        description
+            "Initial revision.";
+        reference "RFC5440";
+    }
+
+    // Common Types Definition
+
+    typedef class-type {
+        type uint8 {
+            range 1..7;
+        }
+    }
+
+    // Common Objects Definition
+
+    grouping object-header {
+        description "Common Object Header";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.2";
+
+        leaf processing-rule {
+            type boolean;
+            default false;
+        }
+
+        leaf ignore {
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping object {
+        description "Core object structure with optional TLVs";
+        uses object-header;
+    }
+
+    grouping vendor-information-objects {
+        list vendor-information-object {
+            description "VENDOR-INFORMATION-OBJECT";
+            reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-2";
+            uses object;
+            uses pcep-types:vendor-information;
+        }
+    }
+
+    grouping open-object {
+        description "OPEN Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.3";
+
+        container open {
+            uses object;
+            container "tlvs" {
+                uses pcep-types:open-object-tlvs;
+            }
+
+            leaf version {
+                type pcep-types:protocol-version;
+                default 1;
+            }
+
+            leaf keepalive {
+                type uint8 {
+                    range 0..255;
+                }
+                mandatory true;
+            }
+
+            leaf dead-timer {
+                type uint8 {
+                    range 0..255;
+                }
+                mandatory true;
+            }
+
+            leaf session-id {
+                type uint8;
+            }
+        }
+    }
+
+    grouping rp-object {
+        description "RP Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.4";
+        container rp {
+            uses object;
+            container "tlvs" {
+                uses pcep-types:rp-object-tlvs;
+            }
+
+            leaf priority {
+                type uint8 {
+                    range 1..7;
+                }
+            }
+
+            leaf request-id {
+                type pcep-types:request-id;
+                mandatory true;
+            }
+
+            leaf reoptimization {
+                type boolean;
+                default false;
+            }
+
+            leaf bi-directional {
+                type boolean;
+                default false;
+            }
+
+            leaf loose {
+                type boolean;
+                default false;
+            }
+
+            leaf path-key {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5520#section-3.2.1";
+            }
+
+            leaf fragmentation {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
+            }
+
+            leaf p2mp {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
+            }
+
+            leaf ero-compression {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc8306#section-3.3.1";
+            }
+
+            leaf supply-of {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5541#section-3.3";
+            }
+
+            leaf order {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5557#section-5.3";
+            }
+
+            leaf make-before-break {
+                type boolean;
+                default false;
+                reference "https://tools.ietf.org/html/rfc5557#section-5.3";
+            }
+        }
+    }
+
+    grouping no-path-object {
+        description "NO-PATH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+
+        uses object;
+
+        leaf nature-of-issue {
+            type uint8;
+            mandatory true;
+        }
+
+        leaf unsatisfied-constraints {
+            when "nature-of-issue = 0" {
+                description
+                    "The C flag has no meaning
+                    and is ignored unless the NI
+                    field is set to 0x00.";
+            }
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping endpoints-object {
+        description "END-POINTS Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.6";
+
+        container endpoints-obj {
+            uses object;
+            uses pcep-types:endpoints;
+        }
+    }
+
+    grouping bnc {
+        uses object;
+        // No possibility of TLVs
+        list subobject {
+            leaf loose {
+                type boolean;
+                mandatory true;
+            }
+
+            uses rsvp:ip-prefix-subobject;
+            ordered-by user;
+        }
+    }
+
+    grouping branch-node-object {
+        description "Branch Node Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.11.1";
+
+        container branch-node-list {
+            uses bnc;
+        }
+    }
+
+    grouping non-branch-node-object {
+        description "Branch Node Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.11.1";
+
+        container non-branch-node-list {
+            uses bnc;
+        }
+    }
+
+    grouping bnc-object {
+        choice branch-node-type {
+            case branch-node-case {
+                uses branch-node-object;
+            }
+            case non-branch-node-case {
+                uses non-branch-node-object;
+            }
+        }
+    }
+
+    grouping unreach-destination-object {
+        description "UNREACH-DESTINATION Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.14";
+
+        container unreach-destination-obj {
+            uses object;
+
+            choice destination {
+                case ipv4-destination-case {
+                    uses pcep-types:ipv4-destinations;
+                }
+                case ipv6-destination-case {
+                    uses pcep-types:ipv6-destinations;
+                }
+            }
+        }
+    }
+
+    grouping bandwidth {
+        // No possibility to carry TLVs
+        leaf bandwidth {
+            type netc:bandwidth;
+        }
+    }
+
+    grouping bandwidth-object {
+        description "BANDWIDTH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.7";
+        container bandwidth {
+            uses object;
+            uses bandwidth;
+        }
+    }
+
+    grouping reoptimization-bandwidth-object {
+        description "BANDWIDTH Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.7";
+        container reoptimization-bandwidth {
+            uses object;
+            uses bandwidth;
+        }
+    }
+
+    grouping metric-object {
+        description "METRIC Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.8";
+        container metric {
+            uses object;
+
+            leaf metric-type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf bound {
+                type boolean;
+                default false;
+            }
+
+            leaf computed {
+                type boolean;
+                default false;
+            }
+
+            leaf value {
+                type ieee754:float32;
+            }
+        }
+    }
+
+    grouping exclude-route-object {
+        description "Exclude Route Object";
+        reference "https://tools.ietf.org/html/rfc5521#section-2.1.1";
+
+        container xro {
+            uses object;
+
+            leaf flags {
+                type bits {
+                    bit fail {
+                        position 31;
+                    }
+                }
+                mandatory true;
+            }
+
+            list subobject {
+                uses rsvp:exclude-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping explicit-route-object {
+        description "Explicit Route Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.9";
+
+        container ero {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
+
+                uses rsvp:explicit-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping secondary-explicit-route-object {
+        description "Secondary Explicit Route Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.2";
+        container sero {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
+
+                uses rsvp:secondary-explicit-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping include-route-object {
+        description "Include Route Object";
+        reference "https://tools.ietf.org/html/rfc7896#section-2.1";
+
+        container iro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                leaf loose {
+                    type boolean;
+                    mandatory true;
+                }
+
+                uses rsvp:explicit-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping reported-route-object {
+        description "Reported Route Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.10";
+
+        container rro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                uses rsvp:record-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping secondary-reported-route-object {
+        description "Reported Route Object";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.2";
+
+        container srro {
+            // No possibility of TLVs
+            uses object;
+
+            list subobject {
+                uses rsvp:secondary-record-route-subobjects;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping lspa-object {
+        description "LSPA Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.11";
+
+        container lspa {
+            uses object;
+            uses rsvp:tunnel-attributes;
+            container "tlvs" {
+                uses pcep-types:vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping svec-object {
+        description "Synchronization Vector Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.13";
+
+        container svec {
+            // No possibility of TLVs
+            uses object;
+
+            leaf link-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf node-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf srlg-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf partial-path-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf link-direction-diverse {
+                type boolean;
+                default false;
+            }
+
+            leaf-list requests-ids {
+                type pcep-types:request-id;
+            }
+        }
+    }
+
+    grouping notification-object {
+        description "NOTIFICATION Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.14";
+        container c-notification {
+            uses object;
+            container "tlvs" {
+                when "../type = 2 and ../value = 1";
+
+                uses pcep-types:overload-duration-tlv;
+                uses pcep-types:vendor-information-tlvs;
+            }
+
+            leaf type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf value {
+                type uint8;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping pcep-error-object {
+        description "PCEP-ERROR Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.15";
+        container error-object {
+            uses object;
+            container "tlvs" {
+                when "../type = 7";
+                uses pcep-types:req-missing-tlv;
+                uses pcep-types:vendor-information-tlvs;
+            }
+
+            leaf type {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf value {
+                type uint8;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping load-balancing-object {
+        description "LOAD-BALANCING Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.16";
+
+        container load-balancing {
+            // No possibility of TLVs
+            uses object;
+
+            leaf max-lsp {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf min-bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping close-object {
+        description "CLOSE Object";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.17";
+
+        container c-close {
+            uses object;
+
+            leaf reason {
+                type uint8;
+                mandatory true;
+            }
+
+            container tlvs {
+                uses pcep-types:vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping path-key-object {
+        description "PATH-KEY Object";
+        reference "https://tools.ietf.org/html/rfc5520#section-3.2.2";
+        container path-key {
+            uses object;
+
+            list path-keys {
+                min-elements 1;
+
+                leaf loose {
+                    type boolean;
+                    default false;
+                }
+
+                uses rsvp:path-key-subobject;
+                ordered-by user;
+            }
+        }
+    }
+
+    grouping of-object {
+        description "OF Object";
+        reference "https://tools.ietf.org/html/rfc5541#section-3.1";
+        container of {
+            uses object;
+
+            leaf code {
+                type pcep-types:of-id;
+                mandatory true;
+            }
+
+            container tlvs {
+                uses pcep-types:vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping monitoring-object {
+        description "The MONITORING object is used to specify the
+        set of requested PCEP state metrics.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.1";
+        container monitoring {
+            uses object;
+
+            leaf flags {
+                type bits {
+                    bit incomplete {
+                        description "Indicates that PCE cannot provide any of
+                        the set of requested performance metrics for unspecified reasons.";
+                        position 19;
+                    }
+                    bit overload {
+                        description "Indicates that the overload status is
+                        a metric of interest.";
+                        position 20;
+                    }
+                    bit processing-time {
+                        description "Indicates that the processing times is
+                        a metric of interest.";
+                        position 21;
+                    }
+                    bit general {
+                        description "Indicates that the monitoring
+                        request is a general monitoring request.";
+                        position 22;
+                    }
+                    bit liveness {
+                        description "Indicates that the state metric
+                        of interest is the PCE's liveness.";
+                        position 23;
+                    }
+                }
+            }
+
+            leaf monitoring-id {
+                description "The Monitoring-id-number combined with
+                the PCC-REQ-ID identifying the requesting PCC uniquely
+                identifies the monitoring request context.";
+                type uint32;
+                mandatory true;
+            }
+
+            container tlvs {
+                description "Optional TLV(s).";
+                uses pcep-types:vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping pcc-id-req-object {
+        description "The PCC-ID-REQ object is used to specify the IP
+        address of the requesting PCC.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.2";
+        container pcc-id-req {
+            uses object;
+            leaf ip-address {
+                type inet:ip-address-no-zone;
+            }
+        }
+    }
+
+    grouping pce-id-object {
+        description "The PCE-ID object is used to specify a PCE's IP address.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.3";
+        container pce-id {
+            uses object;
+            leaf ip-address {
+                type inet:ip-address-no-zone;
+            }
+        }
+    }
+
+    grouping proc-time-object {
+        description "The PROC-TIME object is used to report various processing time
+        related metrics.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.4";
+        container proc-time {
+            uses object;
+
+            leaf estimated {
+                description "Indicates that the reported metric value is
+                based on estimated processing time as opposed to
+                actual computations.";
+                type boolean;
+                mandatory true;
+            }
+
+            leaf current-proc-time {
+                description "Indicates, in milliseconds, the
+                processing time for the path computation of interest
+                characterized in the corresponding PCMonReq message.";
+                type uint32;
+            }
+
+            leaf min-proc-time {
+                description "The minimum processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf max-proc-time {
+                description "The maximum processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf average-proc-time {
+                description "The average processing time in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+
+            leaf variance-proc-time {
+                description "The variance of processing times in milliseconds";
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping overload-object {
+        description "The OVERLOAD object is used to report a PCE processing
+        congestion state.";
+        reference "https://tools.ietf.org/html/rfc5886#section-4.5";
+        container overload {
+            uses object;
+            leaf duration {
+                description "This field indicates the amount of time,
+                in seconds, that the responding PCE expects that it may continue to
+                be overloaded from the time that the response message was generated.";
+                type uint16;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping classtype-object {
+        description "CLASSTYPE Object";
+        reference "https://tools.ietf.org/html/rfc5455#section-3";
+
+        container class-type {
+            uses object;
+
+            leaf class-type {
+                type class-type;
+                mandatory true;
+            }
+        }
+    }
+
+    grouping gc-object {
+        description "GLOBAL CONSTRAINTS (GC) Object";
+        reference "https://tools.ietf.org/html/rfc5557#section-5.5";
+        container gc {
+            uses object;
+
+            leaf max-hop {
+                type uint8;
+                mandatory true;
+            }
+
+            leaf max-utilization {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+
+            leaf min-utilization {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+
+            leaf over-booking-factor {
+                type uint8 {
+                    range 0..100;
+                }
+                units percent;
+                mandatory true;
+            }
+
+            container tlvs {
+                uses pcep-types:vendor-information-tlvs;
+            }
+        }
+    }
+
+    grouping association-object {
+        description "Association Group Object definition.";
+        reference "https://tools.ietf.org/html/rfc8697#section-6";
+        container association-group {
+            uses object;
+            leaf association-type {
+                type pcep-types:association-type;
+            }
+            leaf association-id {
+                type uint16;
+            }
+            leaf removal-flag {
+                type boolean;
+            }
+            leaf association-source {
+                type inet:ip-address-no-zone;
+            }
+            container association-tlvs {
+                description "Base Association TLVs definition";
+                reference "https://tools.ietf.org/html/rfc8697#section-6.1";
+                leaf global-association-source {
+                    type uint32;
+                }
+                leaf-list extended-association-id {
+                    type uint32;
+                    ordered-by user;
+                }
+                uses pcep-types:association-type-tlvs;
+            }
+        }
+    }
+
+    // Object groups
+
+    grouping lsp-attributes {
+        uses lspa-object;
+
+        uses bandwidth-object;
+        uses reoptimization-bandwidth-object;
+        list metrics {
+            uses metric-object;
+        }
+
+        uses include-route-object;
+        uses reported-route-object;
+        uses exclude-route-object;
+
+        uses of-object;
+        uses classtype-object;
+    }
+
+    grouping svec {
+        uses svec-object;
+        uses of-object;
+        uses gc-object;
+        uses exclude-route-object;
+
+        list metric {
+            uses metric-object;
+        }
+
+        uses vendor-information-objects;
+    }
+
+    grouping p2p {
+        uses endpoints-object;
+
+        container reported-route {
+            uses reported-route-object;
+            uses reoptimization-bandwidth-object;
+        }
+
+        uses vendor-information-objects;
+
+        uses load-balancing-object;
+        uses lsp-attributes;
+        uses association-object;
+    }
+
+    grouping p2mp {
+        list endpoint-rro-pair {
+            uses endpoints-object;
+
+            list rros {
+                choice route-object {
+                    case reported-route-object-case {
+                        uses reported-route-object;
+                    }
+                    case secondary-reported-route-object-case {
+                        uses secondary-reported-route-object;
+                    }
+                }
+            }
+
+            uses reoptimization-bandwidth-object;
+            min-elements 1;
+        }
+
+        uses of-object;
+        uses lspa-object;
+        uses bandwidth-object;
+        list metrics {
+            uses metric-object;
+        }
+
+        uses association-object;
+
+        choice iro-bnc-choice {
+            case iro-case {
+                uses include-route-object;
+            }
+            case bnc-case {
+                uses bnc-object;
+            }
+        }
+
+        uses load-balancing-object;
+    }
+
+    grouping path-definition {
+        uses explicit-route-object;
+        uses lsp-attributes;
+    }
+
+    grouping monitoring {
+        uses monitoring-object;
+        uses pcc-id-req-object;
+    }
+
+    grouping monitoring-metrics {
+        list metric-pce {
+            uses pce-id-object;
+            uses proc-time-object;
+            uses overload-object;
+        }
+    }
+
+    grouping monitoring-response {
+        uses monitoring;
+        choice monitoring-metrics-list {
+            case specific-metrics-list {
+                list specific-metrics {
+                    uses rp-object;
+                    uses monitoring-metrics;
+                }
+            }
+
+            case general-metrics-list {
+                uses monitoring-metrics;
+            }
+        }
+    }
+
+    grouping replies {
+        uses pcep-object:rp-object;
+        uses pcep-object:vendor-information-objects;
+        uses pcep-object:monitoring;
+        uses pcep-object:monitoring-metrics;
+
+        uses pcep-object:association-object;
+
+        choice result {
+            case success-case {
+                container success {
+                    list paths {
+                        uses path-definition;
+                    }
+                    uses pcep-object:vendor-information-objects;
+                }
+            }
+            case failure-case {
+                container no-path {
+                    uses pcep-object:no-path-object;
+                    container "tlvs" {
+                        uses pcep-types:vendor-information-tlvs;
+                        container no-path-vector {
+                            uses pcep-types:no-path-vector-tlv;
+                        }
+                    }
+                }
+                uses lsp-attributes;
+            }
+        }
+    }
+}

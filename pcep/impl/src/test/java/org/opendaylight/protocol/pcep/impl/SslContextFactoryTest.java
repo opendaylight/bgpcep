@@ -12,10 +12,10 @@ import static org.junit.Assert.assertNotNull;
 import javax.net.ssl.SSLContext;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.impl.tls.SslContextFactory;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250602.PcepSessionTls;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250602.pcep.config.session.config.TlsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250602.pcep.session.tls.PathType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250602.pcep.session.tls.StoreType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.PcepSessionTls;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.config.session.config.TlsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.session.tls.PathType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.session.tls.StoreType;
 
 public class SslContextFactoryTest {
 

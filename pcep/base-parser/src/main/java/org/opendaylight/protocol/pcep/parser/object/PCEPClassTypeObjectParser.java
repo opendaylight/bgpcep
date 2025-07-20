@@ -17,10 +17,10 @@ import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.UnknownObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.ObjectHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.classtype.object.ClassType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.classtype.object.ClassTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.classtype.object.ClassType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.classtype.object.ClassTypeBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
         final ClassTypeBuilder builder = new ClassTypeBuilder()
                 .setIgnore(header.getIgnore())
                 .setProcessingRule(header.getProcessingRule())
-                .setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602
+                .setClassType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930
                         .ClassType(Uint8.valueOf(ct)));
 
         if (ct < 0 || ct > Byte.SIZE) {
@@ -82,7 +82,7 @@ public final class PCEPClassTypeObjectParser extends CommonObjectParser implemen
             object.getClass());
         final ByteBuf body = Unpooled.buffer(SIZE);
         body.writeZero(SIZE - 1);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930
             .ClassType classType = ((ClassType) object).getClassType();
         checkArgument(classType != null, "ClassType is mandatory.");
         ByteBufUtils.write(body, classType.getValue());
