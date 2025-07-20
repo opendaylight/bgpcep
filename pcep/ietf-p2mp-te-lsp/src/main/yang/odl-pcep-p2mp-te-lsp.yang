@@ -4,8 +4,8 @@ module odl-pcep-p2mp-te-lsp {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:p2mp:te:lsp";
     prefix "pcep-p2mp";
 
-    import pcep-types { prefix pcep; revision-date 2025-06-02; }
-    import pcep-message { prefix msg; revision-date 2018-11-09; }
+    import odl-pcep-types { prefix pcep; revision-date 2025-09-30; }
+    import odl-pcep-message { prefix msg; revision-date 2025-09-30; }
     import odl-codegen-extensions { prefix oce; }
 
     description
