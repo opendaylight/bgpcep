@@ -3,8 +3,8 @@ module odl-pcep-ietf-initiated {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:ietf:initiated";
     prefix "initiated";
 
-    import pcep-types { prefix pcep; revision-date 2025-06-02; }
-    import pcep-message { prefix msg; revision-date 2018-11-09; }
+    import odl-pcep-object { prefix pcep; revision-date 2025-09-30; }
+    import odl-pcep-message { prefix msg; revision-date 2025-09-30; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2025-03-28; }
     import odl-pcep-ietf-stateful { prefix stateful; revision-date 2025-03-28; }
@@ -46,13 +46,13 @@ module odl-pcep-ietf-initiated {
     }
 
     grouping pcinitiate-message {
-        uses pcep:message;
+        uses msg:message;
 
         container pcinitiate-message {
             description "LSP Initiate Message";
             reference "http://tools.ietf.org/html/rfc8281#section-5.1";
 
-            uses pcep:message-header;
+            uses msg:message-header;
 
             list requests {
                 uses stateful:srp-object;

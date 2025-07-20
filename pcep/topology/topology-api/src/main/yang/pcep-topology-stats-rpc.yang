@@ -5,7 +5,7 @@ module pcep-topology-stats-rpc {
     prefix ptsr;
 
     import network-topology { prefix nt; revision-date 2013-10-21; }
-    import pcep-session-stats { prefix pss; revision-date 2017-11-13; }
+    import odl-pcep-session-stats { prefix pss; revision-date 2025-09-30; }
 
     description
         "This module contains rpc for fetching PCEP session statistics.
