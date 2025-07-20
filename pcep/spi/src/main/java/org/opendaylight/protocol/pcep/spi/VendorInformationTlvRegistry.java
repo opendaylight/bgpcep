@@ -11,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.vendor.information.tlvs.VendorInformationTlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 
 public interface VendorInformationTlvRegistry {
     Optional<VendorInformationTlv> parseVendorInformationTlv(EnterpriseNumber enterpriseNumber, ByteBuf buffer)

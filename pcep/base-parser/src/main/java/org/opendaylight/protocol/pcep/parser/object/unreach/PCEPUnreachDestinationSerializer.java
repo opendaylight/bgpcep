@@ -11,11 +11,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.spi.ObjectSerializer;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.unreach.destination.object.UnreachDestinationObj;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.unreach.destination.object.unreach.destination.obj.Destination;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.unreach.destination.object.unreach.destination.obj.destination.Ipv4DestinationCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.unreach.destination.object.unreach.destination.obj.destination.Ipv6DestinationCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.UnreachDestinationObj;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.unreach.destination.obj.Destination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.unreach.destination.obj.destination.Ipv4DestinationCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.unreach.destination.obj.destination.Ipv6DestinationCase;
 
 public final class PCEPUnreachDestinationSerializer implements ObjectSerializer {
     @Override
