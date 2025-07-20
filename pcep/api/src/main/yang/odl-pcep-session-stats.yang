@@ -1,5 +1,5 @@
 // vi: set smarttab et sw=4 tabstop=4:
-module pcep-session-stats {
+module odl-pcep-session-stats {
     yang-version 1;
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:stats";
     prefix "pcep-stats";
@@ -18,6 +18,11 @@ module pcep-session-stats {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision 2025-09-30 {
+        description "Rename model to odl-pcep-session-stats.yang following
+                     the major redesign of pcep yang models.";
+    }
 
     revision "2017-11-13" {
         description

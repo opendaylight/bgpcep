@@ -1,0 +1,701 @@
+module odl-pcep-types {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:pcep:types";
+    prefix "pcep-types";
+
+    import ieee754 { prefix ieee754; revision-date 2013-08-19; }
+    import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
+    import network-concepts { prefix netc; revision-date 2013-11-25; }
+    import rsvp { prefix rsvp; revision-date 2015-08-20; }
+    import iana { prefix iana; revision-date 2013-08-16; }
+
+    organization "Cisco Systems, Inc.";
+    contact "Robert Varga <rovarga@cisco.com>";
+
+    description
+        "This module contains the base data model of PCEP TLVs defined in:
+￼           - RFC5440: Stateless
+￼           - RFC5520: Path Key Confidentiality
+￼           - RFC5886: Monitoring tools
+￼           - RFC7896: Include Route Object
+￼           - RFC8408: Path Setup Type
+￼           - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
+￼           - RFC9604: Path Binding
+
+        Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
+        Copyright (c)2025 Orange. All rights reserved.
+
+        This program and the accompanying materials are made available
+        under the terms of the Eclipse Public License v1.0 which
+        accompanies this distribution, and is available at
+        http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2025-09-30" {
+        description "Split old pcep-types into odl-pcep-types, odl-pcep-object and
+                     odl-pcep-message following the redesign of pcep yang models.
+                     This is the Types part.";
+    }
+
+    revision "2025-06-02" {
+        description "Update Path Setup Type to RFC8408";
+        reference "RFC8408";
+    }
+
+    revision "2025-03-28" {
+        description
+            "Add Association Group";
+        reference "RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059";
+    }
+
+    revision "2018-11-09" {
+        description
+            "P2MP extension.";
+        reference "RFC8306";
+    }
+
+    revision "2013-10-05" {
+        description
+            "Initial revision.";
+        reference "RFC5440";
+    }
+
+    // NOTE: this model uses counts bits in fields from left to right,
+    //       just as IANA does for PCEP protocol.
+
+    // Common Types Definition
+
+    typedef protocol-version {
+        type uint8 {
+            range 1..7;
+        }
+    }
+
+    typedef request-id {
+        type uint32 {
+            range 1..max;
+        }
+    }
+
+    typedef of-id {
+        type uint16;
+    }
+
+    typedef class-type {
+        type uint8 {
+            range 1..7;
+        }
+    }
+
+    // Base PCEP TLVs Definition
+
+    grouping tlv {
+        description "Marker grouping for TLV groupings.";
+    }
+
+    grouping no-path-vector-tlv {
+        description "NO-PATH-VECTOR TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+
+        uses tlv;
+        leaf flags {
+            type bits {
+                bit no-disjoint-compute {
+                    position 10;
+                }
+                bit no-disjoint-path {
+                    position 11;
+                }
+                bit p2mp-unreachable {
+                    position 24;
+                }
+                bit no-gco-solution {
+                    position 25;
+                }
+                bit no-gco-migration {
+                    position 26;
+                }
+                bit path-key {
+                    reference "https://tools.ietf.org/html/rfc5520#section-7.4";
+                    position 27;
+                }
+                bit chain-unavailable {
+                    position 28;
+                }
+                bit unknown-source {
+                    position 29;
+                }
+                bit unknown-destination {
+                    position 30;
+                }
+                bit pce-unavailable {
+                    position 31;
+                }
+            }
+            mandatory true;
+        }
+    }
+
+    grouping overload-duration-tlv {
+        description "OVERLOAD-DURATION TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.14";
+        container overload-duration {
+            uses tlv;
+            leaf duration {
+                type uint32;
+                units seconds;
+            }
+        }
+    }
+
+    grouping req-missing-tlv {
+        description "REQ-MISSING TLV";
+        reference "https://tools.ietf.org/html/rfc5440#section-7.5";
+        container req-missing {
+            uses tlv;
+            leaf request-id {
+                type request-id;
+            }
+        }
+    }
+
+    grouping of-list-tlv {
+        description "OF-List TLV";
+        reference "https://tools.ietf.org/html/rfc5541#section-2.1";
+        container of-list {
+            uses tlv;
+            leaf-list codes {
+                type of-id;
+            }
+        }
+    }
+
+    grouping order-tlv {
+        description "Order TLV";
+        reference "https://tools.ietf.org/html/rfc5557#section-5.4";
+        container order {
+            uses tlv;
+            leaf delete {
+                type uint32;
+                mandatory true;
+            }
+
+            leaf setup {
+                type uint32;
+                mandatory true;
+            }
+        }
+    }
+
+    // Path Setup Type TLVs Definition
+
+    typedef ps-type {
+        description "Path Setup Type normalized value";
+        reference "https://www.iana.org/assignments/pcep/pcep.xhtml#pcep-path-setup-types";
+        type enumeration {
+            enum rsvp-te {
+                value 0;
+            }
+            enum sr-mpls {
+                value 1;
+            }
+            enum pcecc {
+                value 2;
+            }
+            enum srv6 {
+                value 3;
+            }
+            enum native-ip {
+                value 4;
+            }
+        }
+    }
+
+    grouping path-setup-type-tlv {
+        description "PATH-SETUP-TYPE TLV";
+        reference "https://tools.ietf.org/html/rfc8408#section-4";
+
+        container path-setup-type {
+            uses tlv;
+            leaf pst {
+                description "PST=0: Path is setup via RSVP-TE signaling protocol(default).";
+                type ps-type;
+                default rsvp-te;
+            }
+        }
+    }
+
+    // PCEP Capability TLVs
+
+    grouping sr-pce-capability-tlv {
+        description "SR-PCE-CAPABILITY TLV";
+        reference "http://tools.ietf.org/html/rfc8664#section-4.1.2";
+
+        container sr-pce-capability {
+            uses tlv;
+            leaf n-flag {
+                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SID";
+                type boolean;
+                default false;
+            }
+            leaf x-flag {
+                description " X flag used by a PCC to indicate that it does not impose any limit to the MSD";
+                type boolean;
+                default false;
+            }
+            leaf msd {
+                description "Maximum SID Depth";
+                type uint8;
+                default 0;
+            }
+        }
+    }
+
+    grouping srv6-pce-capability-tlv {
+        description "SRv6-PCE-CAPABILITY TLV";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.1.1";
+
+        container srv6-pce-capability {
+            uses tlv;
+            leaf n-flag {
+                description "N flag used by a PCC to indicate that it is capable of resolving a NAI to a SRv6-SID";
+                type boolean;
+                default false;
+            }
+            list msds {
+                leaf msd-type {
+                    description "Maximum SID Depth type as per RFC8491 and RFC9352";
+                    type uint8;
+                }
+                leaf msd-value {
+                    description "Maximum SID Depth value as per RFC8491";
+                    type uint8;
+                }
+            }
+        }
+    }
+
+    grouping path-setup-type-capability-tlv {
+        description "PATH-SETUP-TYPE CAPABILITY";
+        reference "https://tools.ietf.org/html/rfc8408#section-3";
+
+        container path-setup-type-capability {
+            uses tlv;
+            leaf-list psts {
+                type ps-type;
+                ordered-by user;
+            }
+            uses sr-pce-capability-tlv;
+            uses srv6-pce-capability-tlv;
+        }
+    }
+
+    // Vendor Information TLVs
+
+    grouping vendor-information {
+        description "VENDOR-INFORMATION format";
+        reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-4";
+
+        leaf enterprise-number {
+            type iana:enterprise-number;
+        }
+
+        choice enterprise-specific-information {
+        }
+    }
+
+    grouping vendor-information-tlvs {
+        list vendor-information-tlv {
+            description "VENDOR-INFORMATION-TLV";
+            reference "http://tools.ietf.org/html/draft-ietf-pce-rfc7150bis-00#section-3";
+            uses tlv;
+            uses vendor-information;
+        }
+    }
+
+    // Multicast TLVs
+
+    typedef p2mp-leaves {
+        reference "https://tools.ietf.org/html/rfc8306#section-3.3.2";
+        description "Types of leaves in a P2MP request.";
+        type enumeration {
+            enum new-leaves-to-add {
+                value 1;
+            }
+            enum old-leaves-to-remove {
+                value 2;
+            }
+            enum old-leaves-path-modified-reoptimized {
+                value 3;
+            }
+            enum old-leaves-path-unchanged {
+                value 4;
+            }
+        }
+    }
+
+    grouping p2mp-leaves-leaf {
+        leaf p2mp-leaves {
+            type p2mp-leaves;
+            mandatory true;
+        }
+    }
+
+    // Endpoint TLVs
+
+    grouping endpoints-ipv4-source {
+        leaf source-ipv4-address {
+            type inet:ipv4-address-no-zone;
+            mandatory true;
+        }
+    }
+
+    grouping endpoints-ipv6-source {
+        leaf source-ipv6-address {
+            type inet:ipv6-address-no-zone;
+            mandatory true;
+        }
+    }
+
+    grouping ipv6-destinations {
+        leaf-list destination-ipv6-address {
+            type inet:ipv6-address-no-zone;
+            min-elements 1;
+        }
+    }
+
+    grouping ipv4-destinations {
+        leaf-list destination-ipv4-address {
+            type inet:ipv4-address-no-zone;
+            min-elements 1;
+        }
+    }
+
+    grouping endpoints {
+        choice address-family {
+            mandatory true;
+
+            case ipv4-case {
+                container ipv4 {
+                    uses endpoints-ipv4-source;
+                    leaf destination-ipv4-address {
+                        type inet:ipv4-address-no-zone;
+                        mandatory true;
+                    }
+                }
+            }
+            case ipv6-case {
+                container ipv6 {
+                    uses endpoints-ipv6-source;
+                    leaf destination-ipv6-address {
+                        type inet:ipv6-address-no-zone;
+                        mandatory true;
+                    }
+                }
+            }
+            case p2mp-ipv4-case {
+                container p2mp-ipv4 {
+                    uses p2mp-leaves-leaf;
+                    uses endpoints-ipv4-source;
+                    uses ipv4-destinations;
+                }
+            }
+            case p2mp-ipv6-case {
+                container p2mp-ipv6 {
+                    uses p2mp-leaves-leaf;
+                    uses endpoints-ipv6-source;
+                    uses ipv6-destinations;
+                }
+            }
+        }
+    }
+
+    // Association TLVs
+
+    typedef association-type {
+        description "Association Type definition";
+        reference "https://www.iana.org/assignments/pcep/pcep.xhtml#association-type-field";
+        type enumeration {
+            enum path-protection {
+                value 1;
+            }
+            enum disjoint {
+                value 2;
+            }
+            enum policy {
+                value 3;
+            }
+            enum single-side-lsp {
+                value 4;
+            }
+            enum double-side-lsp {
+                value 5;
+            }
+            enum sr-policy {
+                value 6;
+            }
+            enum virtual-network-lsp {
+                value 7;
+            }
+        }
+    }
+
+    grouping association-type-list-tlv {
+        description "List of Association Type supported by the PCEP Speaker";
+        reference "https://tools.ietf.org/html/rfc8697#section-4.1";
+        container association-type-list {
+            uses tlv;
+            leaf-list association-type {
+                type association-type;
+            }
+        }
+    }
+
+    grouping association-range-tlv {
+        description "Operator configured Association Range TLV";
+        reference "https://tools.ietf.org/html/rfc8697#section-5";
+        container association-range {
+            uses tlv;
+            list association-ranges {
+                leaf association-type {
+                    type association-type;
+                }
+                leaf association-id-start {
+                    type uint16;
+                }
+                leaf range {
+                    type uint16;
+                }
+            }
+        }
+    }
+
+    grouping path-protection-tlv {
+        description "Path protection TLV definition";
+        reference "https://tools.ietf.org/html/rfc8745#section-3.2";
+        uses tlv;
+        leaf protecting {
+            type boolean;
+        }
+        leaf secondary {
+            type boolean;
+        }
+        leaf protection-type {
+            type rsvp:lsp-flag;
+        }
+    }
+
+    grouping disjointness-flags {
+        description "Disjoint path association TLVs (flags) definition";
+        reference "https://tools.ietf.org/html/rfc8800#section-5.2";
+        leaf link-diverse {
+            type boolean;
+        }
+        leaf node-diverse {
+            type boolean;
+        }
+        leaf srlg-diverse {
+            type boolean;
+        }
+        leaf shortest-path {
+            type boolean;
+        }
+        leaf strict-disjointness {
+            type boolean;
+        }
+    }
+
+    grouping disjointness-tlvs {
+        description "Disjoint path association TLVs (flags) definition";
+        reference "https://tools.ietf.org/html/rfc8800#section-5.2";
+        container configuration {
+            uses tlv;
+            uses disjointness-flags;
+        }
+        container status {
+            uses tlv;
+            uses disjointness-flags;
+        }
+        container vendor-information {
+            uses tlv;
+            uses vendor-information;
+        }
+        uses of-list-tlv;
+    }
+
+    grouping policy-association-tlv {
+        description "Policy parameter TLVs definition";
+        reference "https://tools.ietf.org/html/rfc9005#section-5.1";
+        uses tlv;
+        leaf policy-parameters {
+            type binary;
+        }
+    }
+
+    grouping bidirectional-lsp-tlv {
+        description "Bidirectional LSP TLVs definition";
+        reference "https://tools.ietf.org/html/rfc9059#section-4.2";
+        uses tlv;
+        leaf reverse-lsp {
+            type boolean;
+        }
+        leaf co-routed-path {
+            type boolean;
+        }
+    }
+
+    // SR Policy TLVs
+
+    typedef protocol-origin {
+        description "Protocol Origin for SR Policy Candidate Path";
+        reference "https://tools.ietf.org/html/rfc9256#section-2.3";
+        type enumeration {
+            enum pcep {
+                value 10;
+            }
+            enum bgp {
+                value 20;
+            }
+            enum config {
+                value 30;
+            }
+        }
+    }
+
+    typedef enlp {
+        description "Explicit Null Label Priority";
+        reference "https://tools.ietf.org/html/draft-ietf-idr-sr-policy-safi#section-6.10";
+        type enumeration {
+            enum ipv4-only {
+                value 1;
+            }
+            enum ipv6-only {
+                value 2;
+            }
+            enum both-ipv4-ipv6 {
+                value 3;
+            }
+            enum no-enl {
+                value 4;
+            }
+        }
+    }
+
+    grouping sr-policy-capability-tlv {
+        description "SR Policy Capability TLV definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-5.1";
+        container sr-policy-capability {
+            uses tlv;
+            leaf priority {
+                type boolean;
+            }
+            leaf explicit-null {
+                type boolean;
+            }
+            leaf invalidation {
+                type boolean;
+            }
+            leaf stateless {
+                type boolean;
+            }
+        }
+    }
+
+    grouping sr-policy-lsp-tlvs {
+        description "SR Policy LSP Object TLVs Definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-5.2";
+        container sr-policy-lsp {
+            uses tlv;
+            leaf computation-priority {
+                type uint8;
+            }
+            leaf enl-policy {
+                type enlp;
+            }
+            container invalidation {
+                leaf oper-drop {
+                    type boolean;
+                }
+                leaf config-drop {
+                    type boolean;
+                }
+            }
+        }
+    }
+
+    grouping sr-policy-tlvs {
+        description "SR Policy association TLVs definition";
+        reference "https://tools.ietf.org/html/draft-ietf-pce-segment-routing-policy-cp#section-4.5";
+        container policy-id {
+            leaf color {
+                type uint32;
+            }
+            leaf endpoint {
+                type inet:ip-address-no-zone;
+            }
+            leaf name {
+                type binary {
+                    length 1..255;
+                }
+            }
+        }
+        container cpath {
+            leaf origin {
+                type protocol-origin;
+            }
+            leaf originator-asn {
+                type uint32;
+            }
+            leaf originator-address {
+                type inet:ip-address-no-zone;
+            }
+            leaf discriminator {
+                type uint32;
+            }
+            leaf name {
+                type binary {
+                    length 1..255;
+                }
+            }
+            leaf preference {
+                type uint32;
+            }
+        }
+    }
+
+    // TLVs group to be used by PCEP Object
+
+    grouping association-type-tlvs {
+        choice association-type-tlvs {
+            case path-protection {
+                uses path-protection-tlv;
+            }
+            case disjointness {
+                uses disjointness-tlvs;
+            }
+            case policy {
+                uses policy-association-tlv;
+            }
+            case bidirectional-lsp {
+                uses bidirectional-lsp-tlv;
+            }
+            case sr-policy {
+                uses sr-policy-tlvs;
+            }
+        }
+    }
+
+    grouping open-object-tlvs {
+        uses of-list-tlv;
+        uses vendor-information-tlvs;
+        uses association-type-list-tlv;
+        uses association-range-tlv;
+        uses path-setup-type-capability-tlv;
+        uses sr-policy-capability-tlv;
+    }
+
+    grouping rp-object-tlvs {
+        uses order-tlv;
+        uses vendor-information-tlvs;
+        uses path-setup-type-tlv;
+    }
+}

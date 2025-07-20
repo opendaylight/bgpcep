@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 /**
  * Parser for {@link
- *     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602
+ *     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
  *     .association.object.AssociationGroup
  * } with IPv6 address.
  * @see <a href="https://tools.ietf.org/html/rfc8697#section-6.1">Association Object Definition</a>
