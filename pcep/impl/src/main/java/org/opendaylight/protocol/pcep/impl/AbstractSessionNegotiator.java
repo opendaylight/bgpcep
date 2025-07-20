@@ -17,7 +17,7 @@ import io.netty.util.concurrent.Promise;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.SessionNegotiator;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
