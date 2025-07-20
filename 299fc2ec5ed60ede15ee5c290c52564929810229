@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0807af94_ce113cf7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-07-20T14:59:16Z",
+      "side": 1,
+      "message": "s/chan/chain/",
+      "revId": "299fc2ec5ed60ede15ee5c290c52564929810229",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b9bd7ac_00f7d9df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-07-20T14:59:16Z",
+      "side": 1,
+      "message": "LGTM expect the typo in the comit message.",
+      "revId": "299fc2ec5ed60ede15ee5c290c52564929810229",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
