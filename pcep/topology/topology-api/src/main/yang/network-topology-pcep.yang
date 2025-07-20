@@ -7,9 +7,9 @@ module network-topology-pcep {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
-    import pcep-types { prefix pcep; revision-date 2025-06-02; }
+    import odl-pcep-object { prefix pcep; revision-date 2025-09-30; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
-    import pcep-config { prefix pdc; }
+    import odl-pcep-config { prefix pdc; revision-date 2025-09-30; }
 
     organization "Cisco Systems, Inc.";
     contact "Robert Varga <rovarga@cisco.com>";
@@ -237,9 +237,9 @@ module network-topology-pcep {
 
         container arguments {
 
-            uses pcep:endpoints-object;
-
             uses pcep:path-definition;
+
+            uses pcep:endpoints-object;
 
             uses pcep:association-object;
 

@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250602.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 
 /**
  * Listener that receives session informations from the session.
