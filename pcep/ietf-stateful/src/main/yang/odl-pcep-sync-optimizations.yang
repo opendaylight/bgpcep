@@ -3,8 +3,8 @@ module odl-pcep-sync-optimizations {
     namespace "urn:opendaylight:params:xml:ns:yang:controller:pcep:sync:optimizations";
     prefix "sync-optimizations";
 
-    import pcep-types { prefix pcep; revision-date 2025-06-02; }
-    import pcep-message { prefix msg; revision-date 2018-11-09; }
+    import odl-pcep-types { prefix pcep; revision-date 2025-09-30; }
+    import odl-pcep-message { prefix msg; revision-date 2025-09-30; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2025-03-28; }
     import odl-pcep-ietf-stateful { prefix stateful; revision-date 2025-03-28; }
