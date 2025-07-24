@@ -1,0 +1,10 @@
+Code-Review+2: Olivier Dugeon <olivier.dugeon@orange.com>
+Code-Review+1: Matej Sramcik <matej.sramcik@pantheon.tech>
+Verified+1: jenkins-releng ODL
+Code-Review+1: Yaroslav Lastivka <yaroslav.lastivka@pantheon.tech>
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Submitted-by: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-at: Thu, 24 Jul 2025 14:01:49 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/117093
+Project: bgpcep
+Branch: refs/heads/master
