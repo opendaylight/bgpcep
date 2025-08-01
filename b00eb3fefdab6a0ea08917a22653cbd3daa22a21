@@ -24,6 +24,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a28393c_92beb80e",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1042Test.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9074
+      },
+      "writtenOn": "2025-08-01T08:32:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88259323_efe1484d",
+      "range": {
+        "startLine": 47,
+        "startChar": 62,
+        "endLine": 47,
+        "endChar": 66
+      },
+      "revId": "b00eb3fefdab6a0ea08917a22653cbd3daa22a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad5187a6_9a6dd91b",
@@ -37,6 +61,30 @@
       "writtenOn": "2025-07-31T09:10:19Z",
       "side": 1,
       "message": "assertEquals(Optional.empty(), ...",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 18
+      },
+      "revId": "b00eb3fefdab6a0ea08917a22653cbd3daa22a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45c95c3e_03d746c5",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1042Test.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 9074
+      },
+      "writtenOn": "2025-08-01T08:32:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad5187a6_9a6dd91b",
       "range": {
         "startLine": 63,
         "startChar": 8,
