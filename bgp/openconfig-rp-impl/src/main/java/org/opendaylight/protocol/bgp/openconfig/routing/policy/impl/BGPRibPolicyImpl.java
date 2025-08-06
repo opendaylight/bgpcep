@@ -13,11 +13,11 @@ import static org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.regist
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
@@ -85,11 +85,12 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     }
 
     private List<Statement> loadStatements(final String key) throws ExecutionException, InterruptedException {
-        final ReadTransaction tr = databroker.newReadOnlyTransaction();
-        final Optional<Statements> result =
-                tr.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.child(PolicyDefinitions.class)
-                        .child(PolicyDefinition.class, new PolicyDefinitionKey(key)).child(Statements.class)).get();
-        return result.map(Statements::getStatement).orElse(List.of());
+        final ListenableFuture<Optional<Statements>> future;
+        try (var tx = databroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.child(PolicyDefinitions.class)
+                .child(PolicyDefinition.class, new PolicyDefinitionKey(key)).child(Statements.class));
+        }
+        return future.get().map(Statements::getStatement).orElse(List.of());
     }
 
     @Override
