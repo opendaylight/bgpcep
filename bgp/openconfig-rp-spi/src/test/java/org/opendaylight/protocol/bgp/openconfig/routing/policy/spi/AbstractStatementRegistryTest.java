@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPolicyLoaderTest {
     public static final long LOCAL_AS = 8;
@@ -36,11 +36,12 @@ public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPoli
 
         try (var tx = getDataBroker().newReadOnlyTransaction()) {
             future = tx.read(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build()
-                .child(PolicyDefinitions.class)
-                    .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName)));
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(PolicyDefinitions.class)
+                    .child(PolicyDefinition.class, new PolicyDefinitionKey(policyName))
+                    .build());
         }
 
-        return future.get().orElseThrow().getStatements().getStatement();
+        return future.get().orElseThrow().nonnullStatements().getStatement();
     }
 }

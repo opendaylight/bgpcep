@@ -23,8 +23,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
+import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTunnelTopologyProvider.class);
 
     private final NodeChangedListener ncl;
-    private final InstanceIdentifier<Node> src;
+    private final DataObjectReference<Node> src;
     private final DefaultTopologyReference ref;
     private final DataBroker dataBroker;
     private final TopologyId tunneltopologyId;
@@ -50,7 +50,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
         this.dataBroker = dataBroker;
         this.tunneltopologyId = tunneltopologyId;
         ncl = new NodeChangedListener(dataBroker, pcepTopologyId, tunnelTopology);
-        src = pcepTopology.toLegacy().child(Node.class);
+        src = pcepTopology.toBuilder().toReferenceBuilder().child(Node.class).build();
         ref = new DefaultTopologyReference(tunnelTopology);
     }
 

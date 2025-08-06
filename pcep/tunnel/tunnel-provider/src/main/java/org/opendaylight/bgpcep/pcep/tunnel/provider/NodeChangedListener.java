@@ -133,9 +133,11 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         return new LinkId(identifier.firstKeyOf(Node.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
     }
 
-    public static InstanceIdentifier<Link> linkIdentifier(final InstanceIdentifier<Topology> topology,
+    public static DataObjectIdentifier<Link> linkIdentifier(final DataObjectIdentifier<Topology> topology,
             final NodeId node, final String name) {
-        return topology.child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name)));
+        return topology.toBuilder()
+            .child(Link.class, new LinkKey(new LinkId(node.getValue() + "/lsp/" + name)))
+            .build();
     }
 
     private WithKey<Link, LinkKey> linkForLsp(final LinkId linkId) {
@@ -187,8 +189,8 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
                 if (tpa != null) {
                     final TerminationPointType tpt = tpa.getIgpTerminationPointAttributes()
                             .getTerminationPointType();
-                    if (tpt instanceof Ip) {
-                        for (final IpAddress address : ((Ip) tpt).getIpAddress()) {
+                    if (tpt instanceof Ip ip) {
+                        for (final IpAddress address : ip.requireIpAddress()) {
                             if (addr.equals(address)) {
                                 handleSni(sni, n, inControl, trans);
                                 return target.toBuilder()

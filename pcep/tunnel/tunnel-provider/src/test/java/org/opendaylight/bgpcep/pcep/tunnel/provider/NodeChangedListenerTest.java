@@ -59,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
@@ -77,7 +76,8 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
     private static final String LSP2_NAME = "lsp2";
     private static final Uint32 LSP2_ID = Uint32.TWO;
 
-    private static final InstanceIdentifier<Topology> PCEP_TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
+    private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> PCEP_TOPO_IID =
+        DataObjectIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(PCEP_TOPOLOGY_ID))
             .build();
     private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TUNNEL_TOPO_IID =
@@ -99,7 +99,7 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
         final NodeChangedListener nodeListener = new NodeChangedListener(getDataBroker(), PCEP_TOPOLOGY_ID,
             TUNNEL_TOPO_IID);
         listenerRegistration = getDataBroker().registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
-            PCEP_TOPO_IID.child(Node.class), nodeListener);
+            PCEP_TOPO_IID.toBuilder().toReferenceBuilder().child(Node.class).build(), nodeListener);
     }
 
     @Test
@@ -229,15 +229,15 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
                 .build());
         nodeBuilder.addAugmentation(node1Builder.build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.put(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder().child(Node.class,
-                new NodeKey(nodeId)).build(), nodeBuilder.build());
+        wTx.put(LogicalDatastoreType.OPERATIONAL,
+            PCEP_TOPO_IID.toBuilder().child(Node.class, new NodeKey(nodeId)).build(), nodeBuilder.build());
         wTx.commit().get();
     }
 
     private void removeNode(final NodeId nodeId) throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
-        wTx.delete(LogicalDatastoreType.OPERATIONAL, PCEP_TOPO_IID.builder()
-                .child(Node.class, new NodeKey(nodeId)).build());
+        wTx.delete(LogicalDatastoreType.OPERATIONAL,
+            PCEP_TOPO_IID.toBuilder().child(Node.class, new NodeKey(nodeId)).build());
         wTx.commit().get();
     }
 }

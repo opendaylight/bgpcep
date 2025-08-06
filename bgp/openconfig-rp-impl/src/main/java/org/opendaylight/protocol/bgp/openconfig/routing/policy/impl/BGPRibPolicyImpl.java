@@ -38,11 +38,11 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
-    private static final InstanceIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
-        InstanceIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
+    private static final DataObjectIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
+        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
     private static final List<String> DEFAULT_IMPORT_POLICY = List.of("default-odl-import-policy");
     private static final List<String> DEFAULT_EXPORT_POLICY = List.of("default-odl-export-policy");
     private final DefaultPolicyType defaultExportPolicy;
@@ -87,8 +87,11 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     private List<Statement> loadStatements(final String key) throws ExecutionException, InterruptedException {
         final ListenableFuture<Optional<Statements>> future;
         try (var tx = databroker.newReadOnlyTransaction()) {
-            future = tx.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.child(PolicyDefinitions.class)
-                .child(PolicyDefinition.class, new PolicyDefinitionKey(key)).child(Statements.class));
+            future = tx.read(LogicalDatastoreType.CONFIGURATION, ROUTING_POLICY_IID.toBuilder()
+                .child(PolicyDefinitions.class)
+                .child(PolicyDefinition.class, new PolicyDefinitionKey(key))
+                .child(Statements.class)
+                .build());
         }
         return future.get().map(Statements::getStatement).orElse(List.of());
     }

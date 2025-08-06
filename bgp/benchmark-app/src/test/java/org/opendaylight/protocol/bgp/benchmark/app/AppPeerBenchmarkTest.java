@@ -53,7 +53,7 @@ public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
     public void testRpcs() throws Exception {
         try (var appPeerBenchmark = new AppPeerBenchmark(getDataBroker(), rpcRegistry, PEER_RIB_ID)) {
             appPeerBenchmark.start();
-            final var routesIID = appPeerBenchmark.getIpv4RoutesIID().toIdentifier();
+            final var routesIID = appPeerBenchmark.getIpv4RoutesIID();
 
             final var addRpcResult = appPeerBenchmark.addPrefix(new AddPrefixInputBuilder()
                 .setBatchsize(Uint32.ONE)

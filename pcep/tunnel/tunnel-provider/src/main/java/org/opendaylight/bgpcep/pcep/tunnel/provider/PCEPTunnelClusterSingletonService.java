@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
@@ -103,10 +102,9 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
     public synchronized void instantiateServiceInstance() {
         LOG.info("Instantiate PCEP Tunnel Topology Provider Singleton Service {}", getIdentifier().value());
 
-        reg = tp.register(InstanceIdentifier.builder(NetworkTopology.class)
+        reg = tp.register(DataObjectIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(tunnelTopologyId))
-            .build()
-            .toIdentifier());
+            .build());
         ttp.init();
     }
 

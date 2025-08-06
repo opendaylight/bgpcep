@@ -66,10 +66,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.DeletePrefixOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.Result;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.app.peer.benchmark.rev200120.output.ResultBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -95,8 +94,8 @@ public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoClosea
 
     private final TransactionChain txChain;
     private final Registration rpcRegistration;
-    private final InstanceIdentifier<ApplicationRib> appIID;
-    private final InstanceIdentifier<Ipv4Routes> routesIId;
+    private final DataObjectIdentifier<ApplicationRib> appIID;
+    private final DataObjectIdentifier<Ipv4Routes> routesIId;
     private final String appRibId;
 
     public AppPeerBenchmark(final DataBroker bindingDataBroker, final RpcProviderService rpcProviderRegistry,
@@ -105,11 +104,12 @@ public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoClosea
         txChain = bindingDataBroker.createMergingTransactionChain();
         txChain.addCallback(this);
 
-        appIID = InstanceIdentifier.builder(ApplicationRib.class,
+        appIID = DataObjectIdentifier.builder(ApplicationRib.class,
             new ApplicationRibKey(new ApplicationRibId(appRibId))).build();
-        routesIId = appIID
+        routesIId = appIID.toBuilder()
             .child(Tables.class, new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE))
-            .child(Ipv4RoutesCase.class, Ipv4Routes.class);
+            .child(Ipv4RoutesCase.class, Ipv4Routes.class)
+            .build();
         rpcRegistration = rpcProviderRegistry.registerRpcImplementations(
             (AddPrefix) this::addPrefix,
             (DeletePrefix) this::deletePrefix);
@@ -182,7 +182,7 @@ public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoClosea
     }
 
     @VisibleForTesting
-    InstanceIdentifier<Ipv4Routes> getIpv4RoutesIID() {
+    DataObjectIdentifier<Ipv4Routes> getIpv4RoutesIID() {
         return routesIId;
     }
 
@@ -212,8 +212,7 @@ public final class AppPeerBenchmark implements FutureCallback<Empty>, AutoClosea
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int i = 1; i <= countLong; i++) {
             final Ipv4RouteKey routeKey = new Ipv4RouteKey(NON_PATH_ID, createKey(address));
-            final KeyedInstanceIdentifier<Ipv4Route, Ipv4RouteKey> routeIId =
-                routesIId.child(Ipv4Route.class, routeKey);
+            final var routeIId = routesIId.toBuilder().child(Ipv4Route.class, routeKey).build();
             if (attributes != null) {
                 wt.put(LogicalDatastoreType.CONFIGURATION, routeIId, new Ipv4RouteBuilder()
                     .setRouteKey(routeKey.getRouteKey())

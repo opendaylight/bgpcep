@@ -92,8 +92,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.TerminationPoint1Builder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.IgpTerminationPointAttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.IpBuilder;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -101,10 +101,10 @@ import org.osgi.framework.BundleContext;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
 public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
-
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
-    private static final InstanceIdentifier<Topology> TOPO_IID = InstanceIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, new TopologyKey(TOPOLOGY_ID)).build();
+    private static final DataObjectIdentifier<Topology> TOPO_IID = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(TOPOLOGY_ID))
+            .build();
 
     private static final String NODE1_IPV4 = "127.0.0.1";
     private static final NodeId NODE1_ID = new NodeId("pcc://" + NODE1_IPV4);
@@ -316,7 +316,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private void createLink() throws InterruptedException, ExecutionException {
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL,
-            TOPO_IID.child(Link.class, new LinkKey(LINK1_ID)),
+            TOPO_IID.toBuilder().child(Link.class, new LinkKey(LINK1_ID)).build(),
             new LinkBuilder()
                 .setSource(new org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021
                     .link.attributes.SourceBuilder().setSourceNode(NODE1_ID).setSourceTp(TP1_ID).build())

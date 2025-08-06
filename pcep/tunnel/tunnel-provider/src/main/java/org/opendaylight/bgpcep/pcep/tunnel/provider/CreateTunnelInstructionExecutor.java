@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.bgpcep.pcep.topology.spi.AbstractInstructionExecutor;
 import org.opendaylight.bgpcep.programming.topology.TopologyProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
+import org.opendaylight.mdsal.binding.api.ReadOperations;
 import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.programming.rev181109.PcepCreateP2pTunnelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.programming.rev130930.TpReference;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Link;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
@@ -56,7 +55,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.TerminationPointType;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.igp.termination.point.attributes.igp.termination.point.attributes.termination.point.type.Ip;
 import org.opendaylight.yangtools.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
 final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor {
@@ -72,10 +71,9 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         addLsp = rpcService.getRpc(AddLsp.class);
     }
 
-    private static void checkLinkIsnotExistent(final InstanceIdentifier<Topology> tii,
-            final AddLspInputBuilder addLspInput, final ReadTransaction rt) {
-        final InstanceIdentifier<Link> lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(),
-                addLspInput.getName());
+    private static void checkLinkIsnotExistent(final DataObjectIdentifier<Topology> tii,
+            final AddLspInputBuilder addLspInput, final ReadOperations rt) {
+        final var lii = NodeChangedListener.linkIdentifier(tii, addLspInput.getNode(), addLspInput.getName());
         try {
             Preconditions.checkState(!rt.exists(LogicalDatastoreType.OPERATIONAL, lii).get());
         } catch (final InterruptedException | ExecutionException e) {
@@ -149,15 +147,14 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
 
     @Override
     protected ListenableFuture<OperationResult> invokeOperation() {
-        try (ReadTransaction transaction = dataProvider.newReadOnlyTransaction()) {
-            AddLspInput addLspInput = createAddLspInput(transaction);
-
-            return Futures.transform(addLsp.invoke(addLspInput), RpcResult::getResult, MoreExecutors.directExecutor());
+        try (var transaction = dataProvider.newReadOnlyTransaction()) {
+            return Futures.transform(addLsp.invoke(createAddLspInput(transaction)), RpcResult::getResult,
+                MoreExecutors.directExecutor());
         }
     }
 
-    private AddLspInput createAddLspInput(final ReadTransaction transaction) {
-        final InstanceIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(p2pTunnelInput).toLegacy();
+    private AddLspInput createAddLspInput(final ReadOperations transaction) {
+        final DataObjectIdentifier<Topology> tii = TopologyProgrammingUtil.topologyForInput(p2pTunnelInput);
         final TpReader dr = new TpReader(transaction, tii, p2pTunnelInput.getDestination());
         final TerminationPoint dp = requireNonNull(dr.getTp());
 
@@ -187,28 +184,28 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         args.setEro(TunelProgrammingUtil.buildEro(p2pTunnelInput.getExplicitHops()));
         args.setLspa(new LspaBuilder(p2pTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = p2pTunnelInput.augmentation(PcepCreateP2pTunnelInput1.class)
-                .getAdministrativeStatus();
+        final var adminStatus = p2pTunnelInput.augmentation(PcepCreateP2pTunnelInput1.class).getAdministrativeStatus();
         if (adminStatus != null) {
-            args.addAugmentation(new Arguments2Builder().setLsp(new LspBuilder()
-                    .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
+            args.addAugmentation(new Arguments2Builder()
+                .setLsp(new LspBuilder().setAdministrative(adminStatus == AdministrativeStatus.Active).build())
+                .build());
         }
         return args.build();
     }
 
     private static final class TpReader {
-        private final ReadTransaction rt;
-        private final InstanceIdentifier<Node> nii;
-        private final InstanceIdentifier<TerminationPoint> tii;
+        private final ReadOperations rt;
+        private final DataObjectIdentifier<Node> nii;
+        private final DataObjectIdentifier<TerminationPoint> tii;
 
-        TpReader(final ReadTransaction rt, final InstanceIdentifier<Topology> topo, final TpReference ref) {
+        TpReader(final ReadOperations rt, final DataObjectIdentifier<Topology> topo, final TpReference ref) {
             this.rt = requireNonNull(rt);
 
-            nii = topo.child(Node.class, new NodeKey(ref.getNode()));
-            tii = nii.child(TerminationPoint.class, new TerminationPointKey(ref.getTp()));
+            nii = topo.toBuilder().child(Node.class, new NodeKey(ref.getNode())).build();
+            tii = nii.toBuilder().child(TerminationPoint.class, new TerminationPointKey(ref.getTp())).build();
         }
 
-        private DataObject read(final InstanceIdentifier<?> id) {
+        private <T extends DataObject> T read(final DataObjectIdentifier<T> id) {
             try {
                 return rt.read(LogicalDatastoreType.OPERATIONAL, id).get().orElseThrow();
             } catch (final InterruptedException | ExecutionException e) {
@@ -217,11 +214,11 @@ final class CreateTunnelInstructionExecutor extends AbstractInstructionExecutor 
         }
 
         Node getNode() {
-            return (Node) read(nii);
+            return read(nii);
         }
 
         TerminationPoint getTp() {
-            return (TerminationPoint) read(tii);
+            return read(tii);
         }
     }
 }
