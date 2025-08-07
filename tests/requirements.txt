@@ -1,0 +1,6 @@
+allure-pytest==2.14.3
+ipaddr==2.2.0
+paramiko==4.0.0
+pytest==8.4.0
+pytest-ordering==0.6
+requests==2.32.4
