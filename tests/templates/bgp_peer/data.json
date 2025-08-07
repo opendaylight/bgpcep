@@ -1,0 +1,35 @@
+{
+    "bgp-openconfig-extensions:neighbor": [
+        {
+            "neighbor-address": "$IP",
+            "timers": {
+                "config": {
+                    "hold-time": $HOLDTIME,
+                    "connect-retry": 10
+                }
+            },
+            "afi-safis": {
+                "afi-safi": [
+                    {
+                        "afi-safi-name": "openconfig-bgp-types:IPV4-UNICAST"
+                    },
+                    {
+                        "afi-safi-name": "openconfig-bgp-types:L3VPN-IPV4-UNICAST"
+                    },
+                    {
+                        "afi-safi-name": "openconfig-bgp-types:L2VPN-EVPN"
+                    }
+                ]
+            },
+            "transport": {
+                "config": {
+                    "remote-port": $PEER_PORT,
+                    "passive-mode": $PASSIVE_MODE
+                }
+            },
+            "config": {
+                "peer-type": "INTERNAL"
+            }
+        }
+    ]
+}
