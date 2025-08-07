@@ -1,0 +1,4 @@
+<data-change-counter-config xmlns="urn:opendaylight:params:xml:ns:yang:bgpcep:data-change-counter-config">
+    <counter-id>data-change-counter</counter-id>
+    <topology-name>$TOPOLOGY_NAME</topology-name>
+</data-change-counter-config>
