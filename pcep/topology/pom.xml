@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>pcep-topology-parent</artifactId>
-    <version>0.21.12</version>
+    <version>0.21.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>PCEP Topology related components</description>
     <name>${project.artifactId}</name>

@@ -18,7 +18,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>config-loader-parent</artifactId>
-    <version>0.21.12</version>
+    <version>0.21.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>BGPCEP-Configuration files related components</description>
     <name>${project.artifactId}</name>

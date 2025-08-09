@@ -15,7 +15,7 @@
 
   <groupId>org.opendaylight.bgpcep</groupId>
   <artifactId>bgpcep-karaf</artifactId>
-  <version>0.21.12</version>
+  <version>0.21.13-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <dependencyManagement>
