@@ -37,12 +37,12 @@ from lib import utils
 
 
 PREFIXES_COUNT = 600_000
-BGP_PEERS_COUNT = 2
+BGP_PEERS_COUNT = 20
 FIRST_PEER_IP = "127.0.0.1"
 KARAF_BGPCEP_LOG_LEVEL = "INFO"
 KARAF_LOG_LEVEL = os.environ["KARAF_LOG_LEVEL"]
 TEST_DURATION_MULTIPLIER = int(os.environ["TEST_DURATION_MULTIPLIER"])
-BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (PREFIXES_COUNT * 3.0 / 10000 + 20)
+BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (PREFIXES_COUNT * 4.0 / 10000 + 80)
 BGP_EMPTYING_TIMEOUT = BGP_FILLING_TIMEOUT * 3 / 4
 
 log = logging.getLogger(__name__)
@@ -101,7 +101,7 @@ class TestManyPeerPrefixCount:
         """Wait until example-ipv4-topology becomes stable. This is done by
         checking stability of prefix count."""
         ip_topology.wait_for_ipv4_topology_prefixes_to_become_stable(
-            excluded_value=0, timeout=BGP_FILLING_TIMEOUT
+            excluded_value=0, wait_period=20, timeout=BGP_FILLING_TIMEOUT
         )
 
     @pytest.mark.skip_if_fails(
