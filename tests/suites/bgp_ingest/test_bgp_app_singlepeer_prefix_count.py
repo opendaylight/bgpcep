@@ -94,15 +94,16 @@ class TestBgpAppPeerPrefixCount:
 
         with allure_step_with_separate_logging("step_connect_bgp_peers"):
             """Start BGP peer tool"""
-            TestBgpAppPeerPrefixCount.bgp_speaker_process = bgp.start_bgp_speaker(
+            self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=0,
                 my_ip=TOOLS_IP,
                 my_port=BGP_TOOL_PORT,
                 peer_ip=ODL_IP,
                 peer_port=ODL_BGP_PORT,
                 listen=False,
-                log_level="info"
+                log_level=BGP_TOOL_LOG_LEVEL
             )
+            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process)
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_prefill_routes"
@@ -147,9 +148,7 @@ class TestBgpAppPeerPrefixCount:
                 log_level="info",
                 timeout=BGP_FILLING_TIMEOUT,
             )
-            infra.shell(
-                "mv bgp_app_peer.log results/bgp_app_peer_singles.log", check_rc=True
-            )
+            infra.backup_file(src_file_name="bgp_app_peer.log", target_file_name="bgp_app_peer_singles.log")
 
         with allure_step_with_separate_logging("step_wait_for_ip_topology_is_filled"):
             """Wait until example-ipv4-topology reaches the target prfix count."""
@@ -186,11 +185,9 @@ class TestBgpAppPeerPrefixCount:
                 peer_ip=ODL_IP,
                 peer_port=ODL_BGP_PORT,
                 listen=False, 
-                log_level="info"
+                log_level=BGP_TOOL_LOG_LEVEL
             )
-            assert infra.is_process_still_running(
-                TestBgpAppPeerPrefixCount.bgp_speaker_process
-            ), "Bgp speaker process is not running"
+            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process)
 
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_reintroduced_routes"
@@ -213,9 +210,7 @@ class TestBgpAppPeerPrefixCount:
             bgp.start_bgp_app_peer(
                 command="delete-all", log_level="info", timeout=BGP_EMPTYING_TIMEOUT
             )
-            infra.shell(
-                "mv bgp_app_peer.log results/bgp_app_peer_delete_all.log", check_rc=True
-            )
+            infra.backup_file(src_file_name="bgp_app_peer.log", target_file_name="bgp_app_peer_delete_all.log")
 
         with allure_step_with_separate_logging(
             "step_wait_for_stable_topology_after_deletion"

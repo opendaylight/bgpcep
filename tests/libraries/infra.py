@@ -7,7 +7,6 @@
 #
 
 from contextlib import contextmanager
-import datetime
 import paramiko
 import signal
 import subprocess
