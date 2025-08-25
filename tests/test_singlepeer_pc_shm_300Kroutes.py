@@ -12,7 +12,6 @@
 # of the the example-ipv4-topology on all nodes. RIB is not examined.
 # test_singlepeer_pc_300kroutes: pc - prefix counting
 
-import allure
 import logging
 import os
 import pytest

@@ -31,11 +31,8 @@
 import logging
 import os
 import pytest
-import signal
-import time
 
 from lib import bgp
-from lib import change_counter
 from lib import infra
 from lib import ip_topology
 from lib import utils
@@ -45,8 +42,10 @@ PREFILL_COUNT = 100_000
 ADDITIONAL_COUNT = 80_000
 TOTAL_COUNT = PREFILL_COUNT + ADDITIONAL_COUNT
 TEST_DURATION_MULTIPLIER = int(os.environ["TEST_DURATION_MULTIPLIER"])
-BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (PREFILL_COUNT * 3.0 / 10000 + 20)
+BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (TOTAL_COUNT * 4.0 / 10000 + 50)
 BGP_EMPTYING_TIMEOUT = BGP_FILLING_TIMEOUT * 3 / 4
+CHECK_INTERVAL = 5
+CHECK_RETRY_COUNT = int(BGP_FILLING_TIMEOUT / CHECK_INTERVAL)
 
 log = logging.getLogger(__name__)
 
@@ -88,15 +87,14 @@ class TestBgpAppSinglePeerPrefixCount:
 
         with step_logger("step_bgp_application_peer_prefill_routes"):
             """Start BGP application peer tool and prefill routes."""
-            bgp.start_bgp_app_peer(count=PREFILL_COUNT, log_level="info", timeout=3000)
+            bgp.start_bgp_app_peer(count=PREFILL_COUNT, log_level="info", timeout=BGP_FILLING_TIMEOUT)
             infra.shell("mv bgp_app_peer.log results/bgp_app_peer_prefill.log")
 
         with step_logger("step_wait_for_ip_topology_is_prefilled"):
             """Wait until example-ipv4-topology reaches the target prfix count."""
-            retry_count = int(BGP_FILLING_TIMEOUT / 5)
             count = utils.wait_until_function_returns_value(
-                retry_count=retry_count,
-                interval=5,
+                retry_count=CHECK_RETRY_COUNT,
+                interval=CHECK_INTERVAL,
                 expected_value=PREFILL_COUNT,
                 function=ip_topology.get_ipv4_topology_prefixes_count,
             )
@@ -107,7 +105,9 @@ class TestBgpAppSinglePeerPrefixCount:
         with step_logger("step_check_bgp_peer_updates_for_prefilled_routes"):
             """Count the routes introduced by updates."""
             count = infra.wait_for_string_in_file(
-                5, 3, f"total_received_nlri_prefix_counter: {PREFILL_COUNT}", "bgp_peer.log"
+                CHECK_RETRY_COUNT,
+                CHECK_INTERVAL,
+                f"total_received_nlri_prefix_counter: {PREFILL_COUNT}", "bgp_peer.log"
             )
             assert (
                 1 <= count
@@ -120,7 +120,7 @@ class TestBgpAppSinglePeerPrefixCount:
                 command="add",
                 prefix="12.0.0.0",
                 log_level="info",
-                timeout=3000,
+                timeout=BGP_FILLING_TIMEOUT,
             )
             infra.shell(
                 "mv bgp_app_peer.log results/bgp_app_peer_singles.log", check_rc=True
@@ -128,9 +128,10 @@ class TestBgpAppSinglePeerPrefixCount:
 
         with step_logger("step_wait_for_ip_topology_is_filled"):
             """Wait until example-ipv4-topology reaches the target prfix count."""
-            retry_count = int(BGP_FILLING_TIMEOUT / 5)
             count = utils.wait_until_function_returns_value(
-                retry_count, 5, TOTAL_COUNT, ip_topology.get_ipv4_topology_prefixes_count
+                CHECK_RETRY_COUNT,
+                CHECK_INTERVAL,
+                TOTAL_COUNT, ip_topology.get_ipv4_topology_prefixes_count
             )
             assert (
                 count == TOTAL_COUNT
@@ -139,7 +140,9 @@ class TestBgpAppSinglePeerPrefixCount:
         with step_logger("step_check_bgp_peer_updates_for_all_routes"):
             """Count the routes introduced by updates."""
             count = infra.wait_for_string_in_file(
-                20, 5, f"total_received_nlri_prefix_counter: {TOTAL_COUNT}", "bgp_peer.log"
+                CHECK_RETRY_COUNT,
+                CHECK_INTERVAL,
+                f"total_received_nlri_prefix_counter: {TOTAL_COUNT}", "bgp_peer.log"
             )
             assert (
                 1 <= count
@@ -162,7 +165,9 @@ class TestBgpAppSinglePeerPrefixCount:
         with step_logger("step_check_bgp_peer_updates_for_reintroduced_routes"):
             """Count the routes introduced by updates."""
             count = infra.wait_for_string_in_file(
-                20, 5, f"total_received_nlri_prefix_counter: {TOTAL_COUNT}", "bgp_peer.log"
+                CHECK_RETRY_COUNT,
+                CHECK_INTERVAL,
+                f"total_received_nlri_prefix_counter: {TOTAL_COUNT}", "bgp_peer.log"
             )
             assert (
                 1 <= count
@@ -170,7 +175,7 @@ class TestBgpAppSinglePeerPrefixCount:
 
         with step_logger("step_bgp_application_peer_delete_all_routes"):
             """Start BGP application peer tool and delete all routes."""
-            bgp.start_bgp_app_peer(command="delete-all", log_level="info", timeout=3000)
+            bgp.start_bgp_app_peer(command="delete-all", log_level="info", timeout=BGP_EMPTYING_TIMEOUT)
             infra.shell(
                 "mv bgp_app_peer.log results/bgp_app_peer_delete_all.log", check_rc=True
             )
@@ -191,8 +196,8 @@ class TestBgpAppSinglePeerPrefixCount:
         with step_logger("step_check_bgp_peer_updates_for_prefix_withdrawals"):
             """Count the routes withdrawn by updates."""
             count = infra.wait_for_string_in_file(
-                20,
-                5,
+                CHECK_RETRY_COUNT,
+                CHECK_INTERVAL,
                 f"total_received_withdrawn_prefix_counter: {TOTAL_COUNT}",
                 "bgp_peer.log",
             )

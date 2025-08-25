@@ -8,7 +8,6 @@
 
 import allure
 from contextlib import contextmanager
-import functools
 import io
 import os
 import logging
@@ -58,65 +57,9 @@ def step_logger():
 
     return _log_step
 
-def log_step_decorator(func):
-    """
-    A decorator that wraps a function in an Allure step, captures its logs,
-    and attaches them to the report.
-    """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        # The step title can be the function's name or its docstring
-        step_title = func.__doc__ or func.__name__
-
-        log_capture_string = io.StringIO()
-        handler = logging.StreamHandler(log_capture_string)
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-
-        root_logger = logging.getLogger()
-        root_logger.addHandler(handler)
-
-        try:
-            with allure.step(step_title):
-                result = func(*args, **kwargs)
-                return result
-        finally:
-            root_logger.removeHandler(handler)
-            log_contents = log_capture_string.getvalue()
-            if log_contents:
-                allure.attach(
-                    log_contents,
-                    name=f"Logs for '{step_title}'",
-                    attachment_type=allure.attachment_type.TEXT
-                )
-    return wrapper
-
-def pytest_sessionstart(session):
-    """
-    Called at the start of the test session to initialize a dictionary
-    that will store the outcome of each test.
-    """
-    session.results = dict()
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """
-    Hook to capture the result of each test case. This runs after a test has finished.
-    """
-    # Execute all other hooks to obtain the report object
-    outcome = yield
-    report = outcome.get_result()
-
-    if report.when == 'call':
-        if item.session.results is not None:
-            # Store the outcome ('passed', 'failed', etc.) using the test's unique ID
-            item.session.results[item.nodeid] = report.outcome
-
 def pytest_runtest_setup(item):
-    """
-    Hook to skip tests based on the custom 'skip_if_fails' marker.
-    This version supports single or multiple dependencies.
-    """
+    """Hook to skip tests based on the custom 'skip_if_fails' marker.
+    This version supports single or multiple dependencies."""
     marker = item.get_closest_marker("skip_if_fails")
     if not marker:
         return
@@ -148,17 +91,20 @@ def preconditions():
 
 @pytest.fixture(scope="class")
 def log_test_suite_start_end_to_karaf(preconditions, request):
+    """Fixture to log in karaf test suite start and end markers"""
     infra.log_message_to_karaf(f"Starting suite {request.cls.__name__}")
     yield
     infra.log_message_to_karaf(f"End of suite {request.cls.__name__}")
 
 @pytest.fixture(scope="function")
 def log_test_case_start_end_to_karaf(preconditions, request):
+    """Fixture to log in karaf test case start and end markers"""
     infra.log_message_to_karaf(f"Starting test {request.cls.__name__}.{request.node.name}")
     yield
     infra.log_message_to_karaf(f"End of test {request.cls.__name__}.{request.node.name}")
 
 @pytest.fixture(scope="class")
 def teardown_kill_all_running_play_script_processes():
+    """Fixture to stop play.py script at the end of test class execution"""
     yield
     infra.shell("kill $(pgrep -f play.py | grep -v ^$$\$) || echo 'No running instance of play.py script.'")

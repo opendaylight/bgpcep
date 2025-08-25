@@ -28,8 +28,6 @@
 import logging
 import os
 import pytest
-import signal
-import time
 
 from lib import bgp
 from lib import change_counter

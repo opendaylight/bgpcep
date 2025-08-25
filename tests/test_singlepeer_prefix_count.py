@@ -21,7 +21,6 @@
 import logging
 import os
 import pytest
-import signal
 
 from lib import bgp
 from lib import infra
