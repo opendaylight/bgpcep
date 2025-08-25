@@ -7,7 +7,6 @@
 #
 
 from contextlib import contextmanager
-import datetime
 import paramiko
 import signal
 import subprocess
@@ -166,7 +165,9 @@ def start_odl_with_features(features: tuple[str], timeout: int = 60):
 def open_ssh_connection(
     hostname: str, port: int, username: str, password: str
 ) -> paramiko.SSHClient:
-    """Creates ssh connection to remote host. It also automatically closes this connection using context manager.
+    """Creates ssh connection to remote host
+
+    It also automatically closes this connection using context manager.
 
     Args:
         hostname (str): Target server hostname or ip address.
@@ -192,7 +193,9 @@ def open_ssh_connection(
 
 
 def execute_karaf_command(command: str) -> tuple[str, str]:
-    """Executed specific command using ODL karaf CLI console. It usses ssh connection to connect to karaf CLI.
+    """Executed specific command using ODL karaf CLI console
+
+    It usses ssh connection to connect to karaf CLI.
 
     Args:
         command (str): Command to be executed.
@@ -214,7 +217,9 @@ def execute_karaf_command(command: str) -> tuple[str, str]:
 
 
 def log_message_to_karaf(message: str):
-    """Log specific mesage to ODL karaf. It usses ssh connection to connect to karaf CLI.
+    """Log specific mesage to ODL karaf
+
+    It usses ssh connection to connect to karaf CLI.
 
     Args:
         message (str): Message to be logged.
