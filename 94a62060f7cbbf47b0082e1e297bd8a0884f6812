@@ -33,6 +33,24 @@
       "message": "I was not sure if I should also add here profile for running pytests using mvn command (as originally requested for yangtools)",
       "revId": "94a62060f7cbbf47b0082e1e297bd8a0884f6812",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0676a1d2_7a28f154",
+        "filename": "pom.xml",
+        "patchSetId": 17
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-08-26T10:10:45Z",
+      "side": 1,
+      "message": "yes, please",
+      "parentUuid": "bd385994_2f204e2f",
+      "revId": "94a62060f7cbbf47b0082e1e297bd8a0884f6812",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
