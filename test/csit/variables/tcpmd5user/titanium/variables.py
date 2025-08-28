@@ -86,6 +86,7 @@ def get_variables(mininet_ip):
            "ignore": false,
            "odl-pcep-ietf-initiated:create": false,
            "operational": "up",
+           "pce-allocation": false,
            "plsp-id": 1,
            "processing-rule": false,
            "remove": false,
