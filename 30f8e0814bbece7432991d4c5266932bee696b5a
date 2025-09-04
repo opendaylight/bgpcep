@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60c37516_b630d67e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-09-04T10:47:23Z",
+      "side": 1,
+      "message": "Hi Robert, Ivan,\n\nHere it is the patch for the pcep yang models re-design. I started with the base and then I will added stateful, segment-routing, p2mp ...\n\nCan you review this one before I progress with the other models ?\n\nThanks\n\nOlivier",
+      "revId": "30f8e0814bbece7432991d4c5266932bee696b5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
