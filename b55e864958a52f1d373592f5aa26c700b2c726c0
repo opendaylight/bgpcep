@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9db1bdc0_a0d3cc9e",
+        "filename": "tests/tox.ini",
+        "patchSetId": 18
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9389
+      },
+      "writtenOn": "2025-09-08T09:28:11Z",
+      "side": 1,
+      "message": "please make this to be \"allure-results\" (i believe it should be set like this by default). This will simplify your life later when you\u0027ll be generating reports on CI out of it.\n\nand gitignore \"allure-results\" and \"allure-report\" folders",
+      "range": {
+        "startLine": 22,
+        "startChar": 23,
+        "endLine": 22,
+        "endChar": 36
+      },
+      "revId": "b55e864958a52f1d373592f5aa26c700b2c726c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
