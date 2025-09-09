@@ -25,6 +25,7 @@ import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OverloadedDurationTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.P2MPTeLspCapabilityParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
@@ -47,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.order.tlv.OrderBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDurationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.p2mp.pce.capability.tlv.P2mpPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.p2mp.pce.capability.tlv.P2mpPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.capability.tlv.PathSetupTypeCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.capability.tlv.PathSetupTypeCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupType;
@@ -76,6 +79,9 @@ public class PCEPTlvParserTest {
         0x00, 0x05, 0x00, 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x00, 0x00, 0x00, 0x01
     };
     private static final byte[] OF_LIST_BYTES = { 0x00, 0x04, 0x00, 0x04, 0x12, 0x34, 0x56, 0x78 };
+
+    private static final byte[] P2MP_BYTES = {0x0, 0x06, 0x0, 0x2, 0x0, 0x0, 0x0, 0x0};
+
     private static final byte[] VENDOR_INFO_BYTES = {
         0x00, 0x07, 0x00, 0x08,
         /* Enterprise number */
@@ -160,6 +166,17 @@ public class PCEPTlvParserTest {
         parser.serializeTlv(tlv, buff);
         assertArrayEquals(OF_LIST_BYTES, ByteArray.getAllBytes(buff));
         assertNull(parser.parseTlv(null));
+    }
+
+    @Test
+    public void testP2mpCapabilityParser() throws PCEPDeserializerException {
+        final P2MPTeLspCapabilityParser parser = new P2MPTeLspCapabilityParser();
+        final P2mpPceCapability P2mpCapability = new P2mpPceCapabilityBuilder().build();
+
+        assertEquals(P2mpCapability, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(P2MP_BYTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(P2mpCapability, buff);
+        assertArrayEquals(P2MP_BYTES, ByteArray.getAllBytes(buff));
     }
 
     @Test

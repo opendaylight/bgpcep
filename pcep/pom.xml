@@ -34,7 +34,6 @@
         <module>spi</module>
         <module>base-parser</module>
         <module>ietf-stateful</module>
-        <module>ietf-p2mp-te-lsp</module>
         <module>testtool</module>
         <module>server</module>
         <module>topology</module>

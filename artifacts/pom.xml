@@ -415,11 +415,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-ietf-p2mp-te-lsp</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-pcc-mock</artifactId>
                 <version>${project.version}</version>
             </dependency>
