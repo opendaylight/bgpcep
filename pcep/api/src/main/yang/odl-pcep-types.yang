@@ -18,6 +18,7 @@ module odl-pcep-types {
             - RFC5520: Path Key Confidentiality
             - RFC5886: Monitoring tools
             - RFC7896: Include Route Object
+            - RFC8306: P2MP
             - RFC8408: Path Setup Type
             - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
             - RFC9604: Path Binding
@@ -166,6 +167,16 @@ module odl-pcep-types {
             leaf-list codes {
                 type of-id;
             }
+        }
+    }
+
+    grouping p2mp-pce-capability-tlv {
+        description "P2MP-PCE-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
+
+        container p2mp-pce-capability {
+            uses tlv;
+            presence "Capability indicates that the sender can perform P2MP path computations";
         }
     }
 
@@ -686,6 +697,7 @@ module odl-pcep-types {
 
     grouping open-object-tlvs {
         uses of-list-tlv;
+        uses p2mp-pce-capability-tlv;
         uses vendor-information-tlvs;
         uses association-type-list-tlv;
         uses association-range-tlv;
