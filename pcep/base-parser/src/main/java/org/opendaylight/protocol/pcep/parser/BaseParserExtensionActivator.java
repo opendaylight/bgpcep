@@ -92,6 +92,7 @@ import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OverloadedDurationTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.P2MPTeLspCapabilityParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
@@ -149,6 +150,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDuration;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.p2mp.pce.capability.tlv.P2mpPceCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.capability.tlv.PathSetupTypeCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.req.missing.tlv.ReqMissing;
@@ -490,6 +492,10 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final OFListTlvParser ofListParser = new OFListTlvParser();
         regs.add(context.registerTlvParser(OFListTlvParser.TYPE, ofListParser));
         regs.add(context.registerTlvSerializer(OfList.class, ofListParser));
+
+        final P2MPTeLspCapabilityParser p2mpCapabilityParser = new P2MPTeLspCapabilityParser();
+        regs.add(context.registerTlvParser(P2MPTeLspCapabilityParser.TYPE, p2mpCapabilityParser));
+        regs.add(context.registerTlvSerializer(P2mpPceCapability.class, p2mpCapabilityParser));
 
         final OrderTlvParser orderParser = new OrderTlvParser();
         regs.add(context.registerTlvParser(OrderTlvParser.TYPE, orderParser));
