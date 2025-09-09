@@ -408,11 +408,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-ietf-p2mp-te-lsp</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-pcc-mock</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -909,13 +904,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>odl-bgpcep-pcep-stateful</artifactId>
-                <version>${project.version}</version>
-                <classifier>features</classifier>
-                <type>xml</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-pcep-p2mp-te-lsp</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
