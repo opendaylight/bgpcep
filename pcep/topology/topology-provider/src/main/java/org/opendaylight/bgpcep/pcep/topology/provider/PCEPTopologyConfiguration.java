@@ -24,7 +24,7 @@ import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPAssociationCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPPathSetupTypeCapability;
-import org.opendaylight.protocol.pcep.p2mp.te.lsp.P2MPTeLspCapability;
+import org.opendaylight.protocol.pcep.parser.tlv.P2MPTeLspCapability;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;

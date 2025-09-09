@@ -163,6 +163,16 @@ module odl-pcep-types {
         }
     }
 
+    grouping p2mp-pce-capability-tlv {
+        description "P2MP-PCE-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
+
+        container p2mp-pce-capability {
+            uses tlv;
+            presence "Capability indicates that the sender can perform P2MP path computations";
+        }
+    }
+
     grouping order-tlv {
         description "Order TLV";
         reference "https://tools.ietf.org/html/rfc5557#section-5.4";
@@ -680,6 +690,7 @@ module odl-pcep-types {
 
     grouping open-object-tlvs {
         uses of-list-tlv;
+        uses p2mp-pce-capability-tlv;
         uses vendor-information-tlvs;
         uses association-type-list-tlv;
         uses association-range-tlv;
