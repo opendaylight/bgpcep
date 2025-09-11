@@ -51,18 +51,18 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
                     + bytes.readableBytes() + ".");
             }
             final var tlvBytes = bytes.readSlice(length);
-            LOG.trace("Parsing PCEP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
+            LOG.info("Parsing PCEP TLV {}/{}: {}", type, length, ByteBufUtil.hexDump(tlvBytes));
 
             if (VendorInformationUtil.isVendorInformationTlv(type)) {
                 final var enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(tlvBytes));
                 viTlvReg.parseVendorInformationTlv(enterpriseNumber, tlvBytes).ifPresent(viTlv -> {
-                    LOG.trace("Parsed VENDOR-INFORMATION TLV {}.", viTlv);
+                    LOG.info("Parsed VENDOR-INFORMATION TLV {}.", viTlv);
                     viTlvs.add(viTlv);
                 });
             } else {
                 final Tlv tlv = tlvReg.parseTlv(type, tlvBytes);
                 if (tlv != null) {
-                    LOG.trace("Parsed PCEP TLV {}.", tlv);
+                    LOG.info("Parsed PCEP TLV {}.", tlv);
                     addTlv(builder, tlv);
                 }
             }
@@ -74,9 +74,9 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
     @NonNullByDefault
     protected final void serializeTlv(final Tlv tlv, final ByteBuf buffer) {
         requireNonNull(tlv, "PCEP TLV is mandatory.");
-        LOG.trace("Serializing PCEP TLV {}", tlv);
+        LOG.info("Serializing PCEP TLV {}", tlv);
         tlvReg.serializeTlv(tlv, buffer);
-        LOG.trace("Serialized PCEP TLV : {}.", ByteBufUtil.hexDump(buffer));
+        LOG.info("Serialized PCEP TLV : {}.", ByteBufUtil.hexDump(buffer));
     }
 
     @NonNullByDefault

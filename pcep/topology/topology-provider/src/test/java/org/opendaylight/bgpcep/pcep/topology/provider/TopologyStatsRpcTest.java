@@ -24,14 +24,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesRpcAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessagesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
@@ -134,13 +126,6 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
                 .setSentErrorMsgCount(Uint32.valueOf(2))
                 .build();
 
-        final StatefulMessagesStatsAug statefulMsg = new StatefulMessagesStatsAugBuilder()
-                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
-                .setSentUpdMsgCount(Uint32.ONE)
-                .setReceivedRptMsgCount(Uint32.TWO)
-                .setSentInitMsgCount(Uint32.valueOf(3))
-                .build();
-
         final Messages messages = new MessagesBuilder()
                 .setLastSentMsgTimestamp(Uint32.valueOf(1553183734L))
                 .setUnknownMsgReceived(Uint16.ONE)
@@ -148,14 +133,16 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
                 .setReceivedMsgCount(Uint32.valueOf(4))
                 .setReplyTime(replyTime)
                 .setErrorMessages(errorMsg)
-                .addAugmentation(statefulMsg).build();
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
+                .setSentUpdMsgCount(Uint32.ONE)
+                .setReceivedRptMsgCount(Uint32.TWO)
+                .setSentInitMsgCount(Uint32.valueOf(3))
+                .build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
-                .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
-                    .setStateful(true)
-                    .setInstantiation(true)
-                    .setActive(true)
-                    .build())
+                .setStateful(true)
+                .setInstantiation(true)
+                .setActive(true)
                 .build();
 
         final LocalPref localPref = new LocalPrefBuilder()
@@ -163,9 +150,7 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
                 .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress("127.0.0.1")
                 .setSessionId(Uint16.ZERO)
-                .addAugmentation(new PcepEntityIdStatsAugBuilder()
-                    .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
-                    .build())
+                .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
                 .build();
 
         return new PcepSessionStateBuilder().setSynchronized(true).setSessionDuration("0:00:05:18")
@@ -184,13 +169,6 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
         final ErrorMessages errorMsg = new ErrorMessagesBuilder()
                 .setReceivedErrorMsgCount(Uint32.ONE).setSentErrorMsgCount(Uint32.TWO).build();
 
-        final StatefulMessagesRpcAug statefulMsg = new StatefulMessagesRpcAugBuilder()
-                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
-                .setSentUpdMsgCount(Uint32.ONE)
-                .setReceivedRptMsgCount(Uint32.TWO)
-                .setSentInitMsgCount(Uint32.valueOf(3))
-                .build();
-
         final Messages messages = new MessagesBuilder()
                 .setLastSentMsgTimestamp(Uint32.valueOf(1553183734L))
                 .setUnknownMsgReceived(Uint16.ONE)
@@ -198,11 +176,16 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
                 .setReceivedMsgCount(Uint32.valueOf(4))
                 .setReplyTime(replyTime)
                 .setErrorMessages(errorMsg)
-                .addAugmentation(statefulMsg).build();
+                .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1553183614L))
+                .setSentUpdMsgCount(Uint32.ONE)
+                .setReceivedRptMsgCount(Uint32.TWO)
+                .setSentInitMsgCount(Uint32.valueOf(3))
+                .build();
 
         final PeerCapabilities capabilities = new PeerCapabilitiesBuilder()
-                .addAugmentation(new StatefulCapabilitiesRpcAugBuilder()
-                        .setStateful(true).setInstantiation(true).setActive(true).build())
+                .setStateful(true)
+                .setInstantiation(true)
+                .setActive(true)
                 .build();
 
         final LocalPref localPref = new LocalPrefBuilder()
@@ -210,9 +193,7 @@ public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
                 .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress("127.0.0.1")
                 .setSessionId(Uint16.ZERO)
-                .addAugmentation(new PcepEntityIdRpcAugBuilder()
-                    .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
-                    .build())
+                .setSpeakerEntityIdValue(new byte[] {0x01, 0x02, 0x03, 0x04})
                 .build();
 
         return new PcepSessionStateBuilder().setSynchronized(true).setSessionDuration("0:00:05:18")

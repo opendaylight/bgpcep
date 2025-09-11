@@ -12,9 +12,8 @@ import static java.util.Objects.requireNonNull;
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class PCCPeerProposal implements PCEPPeerProposal {
@@ -31,8 +30,6 @@ public final class PCCPeerProposal implements PCEPPeerProposal {
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         requireNonNull(address);
-        openBuilder.addAugmentation(new Tlvs3Builder()
-            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(this.dbVersion).build())
-            .build());
+        openBuilder.setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(this.dbVersion).build()).build();
     }
 }

@@ -7,7 +7,8 @@ module network-topology-pcep {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import odl-network-topology { prefix ont; revision-date 2014-01-13; }
-    import odl-pcep-object { prefix pcep; revision-date 2025-09-30; }
+    import odl-pcep-types { prefix pcep-types; revision-date 2025-09-30; }
+    import odl-pcep-object { prefix pcep-object; revision-date 2025-09-30; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
     import odl-pcep-config { prefix pdc; revision-date 2025-09-30; }
 
@@ -121,14 +122,14 @@ module network-topology-pcep {
                 type inet:ip-address-no-zone;
             }
 
-            container stateful-tlv {
-
-            }
+            uses pcep-types:stateful-capability-tlv;
 
             leaf state-sync {
                 type pcc-sync-state;
                 when "../stateful-tlv";
             }
+
+            uses pcep-types:lsp-db-version-tlv;
 
             list reported-lsp {
                 leaf name {
@@ -143,9 +144,11 @@ module network-topology-pcep {
                     }
                     key lsp-id;
 
-                    uses pcep:path-definition;
+                    uses pcep-object:path-definition;
+                    uses pcep-object:lsp-object;
+                    uses pcep-types:path-setup-type-tlv;
                 }
-                uses pcep:association-object;
+                uses pcep-object:association-object;
                 uses lsp-metadata;
             }
         }
@@ -218,7 +221,7 @@ module network-topology-pcep {
 
         list error {
             when "../failure = failed";
-            uses pcep:pcep-error-object;
+            uses pcep-object:pcep-error-object;
         }
     }
 
@@ -237,11 +240,15 @@ module network-topology-pcep {
 
         container arguments {
 
-            uses pcep:path-definition;
+            uses pcep-object:path-definition;
 
-            uses pcep:endpoints-object;
+            uses pcep-object:endpoints-object;
 
-            uses pcep:association-object;
+            uses pcep-object:association-object;
+
+            uses pcep-object:lsp-object;
+
+            uses pcep-types:path-setup-type-tlv;
 
             uses lsp-metadata;
         }
@@ -276,9 +283,13 @@ module network-topology-pcep {
 
         container arguments {
 
-            uses pcep:path-definition;
+            uses pcep-object:path-definition;
 
-            uses pcep:association-object;
+            uses pcep-object:association-object;
+
+            uses pcep-object:lsp-object;
+
+            uses pcep-types:path-setup-type-tlv;
 
             uses lsp-metadata;
         }
@@ -298,7 +309,9 @@ module network-topology-pcep {
         uses lsp-id;
 
         container arguments {
-
+             leaf operational {
+                 type pcep-types:operational-status;
+             }
         }
     }
 
