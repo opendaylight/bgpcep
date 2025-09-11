@@ -11,13 +11,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public class SyncOptimizationTest {
@@ -70,18 +67,12 @@ public class SyncOptimizationTest {
     private static Tlvs createTlvs(final Long lspDbVersion, final boolean includeDbVresion,
             final boolean includeDeltaSync) {
         return new TlvsBuilder()
-            .addAugmentation(new Tlvs1Builder()
-                .setStateful(new StatefulBuilder()
-                    .addAugmentation(new Stateful1Builder()
-                        .setIncludeDbVersion(includeDbVresion)
-                        .setDeltaLspSyncCapability(includeDeltaSync)
-                        .build())
-                    .build())
+            .setStatefulCapability(new StatefulCapabilityBuilder()
+                .setIncludeDbVersion(includeDbVresion)
+                .setDeltaLspSyncCapability(includeDeltaSync)
                 .build())
-            .addAugmentation(new Tlvs3Builder()
-                .setLspDbVersion(new LspDbVersionBuilder()
-                    .setLspDbVersionValue(lspDbVersion != null ? Uint64.valueOf(lspDbVersion) : null)
-                    .build())
+            .setLspDbVersion(new LspDbVersionBuilder()
+                .setLspDbVersionValue(lspDbVersion != null ? Uint64.valueOf(lspDbVersion) : null)
                 .build())
             .build();
     }

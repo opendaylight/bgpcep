@@ -51,7 +51,7 @@ public abstract class AbstractObjectWithTlvsParser<T> extends CommonObjectParser
                     + bytes.readableBytes() + ".");
             }
             final var tlvBytes = bytes.readSlice(length);
-            LOG.trace("Parsing PCEP TLV : {}", ByteBufUtil.hexDump(tlvBytes));
+            LOG.trace("Parsing PCEP TLV {}/{}: {}", type, length, ByteBufUtil.hexDump(tlvBytes));
 
             if (VendorInformationUtil.isVendorInformationTlv(type)) {
                 final var enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(tlvBytes));

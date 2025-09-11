@@ -21,17 +21,12 @@ import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPPeerProposal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.PathComputationClient1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.node.config.SessionConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfig;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -73,18 +68,17 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
     }
 
     @VisibleForTesting
-    static final class SpeakerIdListener extends AbstractListener<PcepNodeSyncConfig, byte[]> {
+    static final class SpeakerIdListener extends AbstractListener<SessionConfig, byte[]> {
         SpeakerIdListener(final DataBroker dataBroker, final WithKey<Topology, TopologyKey> topologyId) {
             super(dataBroker, LogicalDatastoreType.CONFIGURATION, topologyId.toBuilder().toReferenceBuilder()
                 .child(Node.class)
                 .augmentation(Node1.class)
                 .child(SessionConfig.class)
-                .augmentation(PcepNodeSyncConfig.class)
                 .build());
         }
 
         @Override
-        public void onDataTreeChanged(final List<DataTreeModification<PcepNodeSyncConfig>> changes) {
+        public void onDataTreeChanged(final List<DataTreeModification<SessionConfig>> changes) {
             for (var change : changes) {
                 final var config = change.getRootNode().dataAfter();
                 if (config != null) {
@@ -103,7 +97,6 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
                 .child(Node.class)
                 .augmentation(Node1.class)
                 .child(PathComputationClient.class)
-                .augmentation(PathComputationClient1.class)
                 .child(LspDbVersion.class)
                 .build());
         }
@@ -127,12 +120,8 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
     @Override
     public void setPeerSpecificProposal(final InetSocketAddress address, final TlvsBuilder openBuilder) {
         // Check if we are dealing with synchronization optimization
-        final var statefulTlv = openBuilder.augmentation(Tlvs1.class);
+        final var statefulTlv = openBuilder.getStatefulCapability();
         if (statefulTlv == null) {
-            return;
-        }
-        final var stateful = statefulTlv.getStateful();
-        if (stateful == null || stateful.augmentation(Stateful1.class) == null) {
             return;
         }
 
@@ -144,14 +133,8 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
             return;
         }
 
-        final Tlvs3Builder syncBuilder = new Tlvs3Builder();
-        if (dbVersion != null) {
-            syncBuilder.setLspDbVersion(dbVersion);
-        }
-        if (speakerId != null) {
-            syncBuilder.setSpeakerEntityId(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(speakerId).build());
-        }
-        openBuilder.addAugmentation(syncBuilder.build()).build();
+        openBuilder.setLspDbVersion(dbVersion);
+        openBuilder.setSpeakerEntityId(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(speakerId).build());
     }
 
     @Override
