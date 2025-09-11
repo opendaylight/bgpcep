@@ -38,12 +38,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Arguments2Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Arguments3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.endpoints.object.EndpointsObjBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.metric.object.MetricBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathComputationClient1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathStatus;
@@ -543,17 +542,17 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         /* Create LSP */
         final LspBuilder lspBuilder = new LspBuilder()
+            .setLspFlags(new LspFlagsBuilder()
                 .setAdministrative(true)
-                .setDelegate(true);
+                .setDelegate(true)
+                .build());
 
         /* Build Arguments. */
         final ArgumentsBuilder args = new ArgumentsBuilder()
                 .setEndpointsObj(epb.build())
                 .setEro(MessagesUtil.getEro(cfgLsp.getComputedPath().getPathDescription()))
-                .addAugmentation(new Arguments2Builder()
-                        .setLsp(lspBuilder.build())
-                        .setPathSetupType(pstBuilder.build())
-                        .build());
+                .setLsp(lspBuilder.build())
+                .setPathSetupType(pstBuilder.build());
 
         /* with Bandwidth and Metric if defined */
         if (iPath.getConstraints().getBandwidth() != null) {
@@ -667,18 +666,18 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
         /* Create LSP */
         final LspBuilder lspBuilder = new LspBuilder()
+            .setLspFlags(new LspFlagsBuilder()
                 .setAdministrative(true)
-                .setDelegate(true);
+                .setDelegate(true)
+                .build());
 
         /* Build Arguments */
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328
             .update.lsp.args.ArgumentsBuilder args;
         args = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328
             .update.lsp.args.ArgumentsBuilder()
-                .addAugmentation(new Arguments3Builder()
-                    .setLsp(lspBuilder.build())
-                    .setPathSetupType(pstBuilder.build())
-                    .build())
+                .setLsp(lspBuilder.build())
+                .setPathSetupType(pstBuilder.build())
                 .setEro(MessagesUtil.getEro(cfgLsp.getComputedPath().getPathDescription()));
 
         /*  with Bandwidth and Metric if defined */

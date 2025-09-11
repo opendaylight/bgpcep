@@ -3,6 +3,7 @@ module topology-tunnel-pcep-programming {
         namespace "urn:opendaylight:params:xml:ns:yang:topology:tunnel:pcep:programming";
         prefix "ttpp";
 
+    import odl-pcep-types { prefix pcep-types; revision-date 2025-09-30; }
     import topology-tunnel-programming { prefix ttp; revision-date 2013-09-30; }
     import topology-tunnel-p2p { prefix p2p; revision-date 2013-08-19; }
     import topology-tunnel-pcep { prefix ptp; revision-date 2018-11-09; }
@@ -33,12 +34,14 @@ module topology-tunnel-pcep-programming {
             reference "";
     }
 
+
     rpc pcep-create-p2p-tunnel {
         input {
             uses ttp:create-p2p-tunnel-input;
 
             uses p2p:tunnel-p2p-path-cfg-attributes;
             uses ptp:tunnel-pcep-link-cfg-attributes;
+            uses pcep-types:cfg-attributes;
         }
         output {
             uses ttp:create-p2p-tunnel-output;
@@ -60,6 +63,7 @@ module topology-tunnel-pcep-programming {
 
             uses p2p:tunnel-p2p-path-cfg-attributes;
             uses ptp:tunnel-pcep-link-cfg-attributes;
+            uses pcep-types:cfg-attributes;
         }
 
         output {

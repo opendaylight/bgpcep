@@ -18,51 +18,45 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.ietf.initiated.InitiatedSrpObjectParser;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.ietf.stateful.StatefulLspObjectParser;
+import org.opendaylight.protocol.pcep.ietf.stateful.StatefulSrpObjectParser;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
+import org.opendaylight.protocol.pcep.parser.object.PCEPOpenObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
-import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsLspObjectParser;
-import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsOpenObjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Srp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.error.code.tlv.LspErrorCodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.LspIdentifiers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.LspIdentifiersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4CaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.rsvp.error.spec.tlv.RsvpErrorSpec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp._case.RsvpErrorBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.srp.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.Stateful;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.symbolic.path.name.tlv.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.srp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.ProtocolVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PsType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.error.code.tlv.LspErrorCodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.RsvpErrorSpec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.RsvpErrorSpecBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.rsvp.error.spec.error.type.RsvpCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.rsvp.error.spec.error.type.rsvp._case.RsvpErrorBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.TunnelId;
@@ -86,10 +80,10 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testOpenObjectWithTLV() throws PCEPDeserializerException, IOException {
+        new StatefulActivator().start(ctx);
         new SyncOptimizationsActivator().start(ctx);
 
-        final SyncOptimizationsOpenObjectParser parser = new SyncOptimizationsOpenObjectParser(
-            ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
+        final PCEPOpenObjectParser parser = new PCEPOpenObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(
             Files.readAllBytes(Path.of("src/test/resources/PCEPOpenObject1.bin")));
 
@@ -102,21 +96,19 @@ public class PCEPObjectParserTest {
                 .setDeadTimer(Uint8.valueOf(120))
                 .setSessionId(Uint8.ONE);
 
-        final Stateful tlv1 = new StatefulBuilder().setLspUpdateCapability(Boolean.TRUE)
-            .addAugmentation(new Stateful1Builder().build()).build();
-
-        final Tlvs1Builder statBuilder = new Tlvs1Builder();
-        statBuilder.setStateful(tlv1);
-
-        final Tlvs3Builder syncOptBuilder = new Tlvs3Builder()
-            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(DB_VERSION).build())
-            .setSpeakerEntityId(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build());
-
         builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930
             .open.object.open.TlvsBuilder()
-            .addAugmentation(statBuilder.build())
-            .addAugmentation(syncOptBuilder.build())
-            .build());
+                .setStatefulCapability(new StatefulCapabilityBuilder()
+                    .setLspUpdateCapability(Boolean.TRUE)
+                    .setIncludeDbVersion(Boolean.FALSE)
+                    .setInitiation(Boolean.FALSE)
+                    .setTriggeredResync(Boolean.FALSE)
+                    .setDeltaLspSyncCapability(Boolean.FALSE)
+                    .setTriggeredInitialSync(Boolean.FALSE)
+                    .build())
+                .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(DB_VERSION).build())
+                .setSpeakerEntityId(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build())
+                .build());
 
         assertEquals(builder.build(), parser.parseObject(
             new ObjectHeaderImpl(false, false), result.slice(4, result.readableBytes() - 4)));
@@ -130,33 +122,36 @@ public class PCEPObjectParserTest {
         new StatefulActivator().start(ctx);
         new SyncOptimizationsActivator().start(ctx);
 
-        final SyncOptimizationsLspObjectParser parser = new SyncOptimizationsLspObjectParser(
-            ctx.getTlvHandlerRegistry(), ctx.getVendorInformationTlvRegistry());
+        final StatefulLspObjectParser parser = new StatefulLspObjectParser(tlvRegistry, viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(
             Files.readAllBytes(Path.of("src/test/resources/PCEPLspObject1WithTLV.bin")));
 
         final LspBuilder builder = new LspBuilder()
             .setProcessingRule(true)
             .setIgnore(true)
-            .setPceAllocation(false)
-            .setAdministrative(true)
-            .setDelegate(false)
-            .setRemove(true)
-            .setSync(false)
-            .addAugmentation(new Lsp1Builder().setCreate(false).build())
-            .setOperational(OperationalStatus.GoingDown)
+            .setLspFlags(new LspFlagsBuilder()
+                .setPceAllocation(false)
+                .setCreate(false)
+                .setAdministrative(true)
+                .setDelegate(false)
+                .setRemove(true)
+                .setSync(false)
+                .setOperational(OperationalStatus.GoingDown)
+                .build())
             .setPlspId(new PlspId(Uint32.valueOf(0x12345)));
 
         final LspErrorCode tlv1 = new LspErrorCodeBuilder().setErrorCode(Uint32.valueOf(627610883)).build();
         final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
                 .SymbolicPathName("Med".getBytes())).build();
         final LspDbVersion lspDbVersion = new LspDbVersionBuilder().setLspDbVersionValue(DB_VERSION).build();
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev250328.lsp.object.lsp.TlvsBuilder().setLspErrorCode(tlv1).setSymbolicPathName(tlv2)
-            .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                .pcep.sync.optimizations.rev200720.Tlvs1Builder().setLspDbVersion(lspDbVersion).build())
-            .build());
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object
+            .rev250930.lsp.object.lsp.TlvsBuilder()
+                .setLspErrorCode(tlv1)
+                .setSymbolicPathName(tlv2)
+                .setLspDbVersion(lspDbVersion)
+                .build())
+            .build();
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -176,17 +171,20 @@ public class PCEPObjectParserTest {
         final LspBuilder builder = new LspBuilder()
                 .setProcessingRule(true)
                 .setIgnore(true)
-                .setPceAllocation(false)
-                .setAdministrative(true)
-                .setDelegate(false)
-                .setRemove(true)
-                .setSync(false)
-                .setOperational(OperationalStatus.GoingDown)
+                .setLspFlags(new LspFlagsBuilder()
+                    .setPceAllocation(false)
+                    .setCreate(false)
+                    .setAdministrative(true)
+                    .setDelegate(false)
+                    .setRemove(true)
+                    .setSync(false)
+                    .setOperational(OperationalStatus.GoingDown)
+                    .build())
                 .setPlspId(new PlspId(Uint32.valueOf(0x12345)));
 
         final LspErrorCode tlv1 = new LspErrorCodeBuilder().setErrorCode(Uint32.valueOf(627610883)).build();
         final SymbolicPathName tlv2 = new SymbolicPathNameBuilder().setPathName(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
                     .SymbolicPathName("Med".getBytes())).build();
         final LspIdentifiers tlv3 = new LspIdentifiersBuilder()
                 .setAddressFamily(new Ipv4CaseBuilder()
@@ -213,8 +211,8 @@ public class PCEPObjectParserTest {
                         .build())
                     .build())
                 .build();
-        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev250328.lsp.object.lsp.TlvsBuilder().setLspErrorCode(tlv1).setSymbolicPathName(tlv2)
+        builder.setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object
+            .rev250930.lsp.object.lsp.TlvsBuilder().setLspErrorCode(tlv1).setSymbolicPathName(tlv2)
             .setLspIdentifiers(tlv3).setRsvpErrorSpec(tlv4).build());
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(true, true),
             result.slice(4, result.readableBytes() - 4)));
@@ -225,7 +223,7 @@ public class PCEPObjectParserTest {
 
     @Test
     public void testSrpObject() throws PCEPDeserializerException {
-        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(tlvRegistry,
+        final StatefulSrpObjectParser parser = new StatefulSrpObjectParser(tlvRegistry,
             viTlvRegistry);
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] {
             (byte) 0x21, (byte) 0x10, (byte) 0x00, (byte) 0x0c, 0, 0, 0, (byte) 0x01, 0, 0, 0, (byte) 0x01
@@ -235,7 +233,7 @@ public class PCEPObjectParserTest {
                 .setProcessingRule(false)
                 .setIgnore(false)
                 .setOperationId(new SrpIdNumber(Uint32.ONE))
-                .addAugmentation(new Srp1Builder().setRemove(true).build())
+                .setRemove(true)
                 .setTlvs(new TlvsBuilder().build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
@@ -251,15 +249,15 @@ public class PCEPObjectParserTest {
             0x0, 0x01,
             /* pst-tlv */
             0x0, 0x1C, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0 };
-        final InitiatedSrpObjectParser parser = new InitiatedSrpObjectParser(tlvRegistry,
-            viTlvRegistry);
+        final StatefulSrpObjectParser parser = new StatefulSrpObjectParser(tlvRegistry,
+                viTlvRegistry);
         final SrpBuilder builder = new SrpBuilder()
                 .setProcessingRule(false)
                 .setIgnore(false)
                 .setOperationId(new SrpIdNumber(Uint32.ONE))
-                .addAugmentation(new Srp1Builder().setRemove(true).build())
-                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-                    .rev250328.srp.object.srp.TlvsBuilder()
+                .setRemove(true)
+                .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object
+                    .rev250930.srp.object.srp.TlvsBuilder()
                     .setPathSetupType(new PathSetupTypeBuilder().setPst(PsType.RsvpTe).build()).build());
 
         final ByteBuf result = Unpooled.wrappedBuffer(srpObjectWithPstTlvBytes);

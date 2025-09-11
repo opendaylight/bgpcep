@@ -17,9 +17,6 @@ import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.Error;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.Preferences;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessages;
@@ -90,10 +87,9 @@ public final class PcepStateUtils {
         addHeader(table, "Local preferences");
         final LocalPref localPref = pcepSessionState.getLocalPref();
         showPreferences(table, localPref);
-        final PcepEntityIdStatsAug entAug = localPref.augmentation(PcepEntityIdStatsAug.class);
-        if (entAug != null) {
+        if (localPref.getSpeakerEntityIdValue() != null) {
             table.addRow().addContent("Speaker Entity Identifier",
-                    Arrays.toString(entAug.getSpeakerEntityIdValue()));
+                    Arrays.toString(localPref.getSpeakerEntityIdValue()));
         }
 
         addHeader(table, "Peer preferences");
@@ -128,12 +124,15 @@ public final class PcepStateUtils {
         if (capa == null) {
             return;
         }
-        final StatefulCapabilitiesStatsAug stateFulCapa = capa.augmentation(StatefulCapabilitiesStatsAug.class);
-        if (stateFulCapa != null) {
+        if (capa.getStateful() != null) {
             addHeader(table, "Stateful Capabilities");
-            table.addRow().addContent("Stateful", stateFulCapa.getStateful());
-            table.addRow().addContent("Active", stateFulCapa.getActive());
-            table.addRow().addContent("Instantiation", stateFulCapa.getInstantiation());
+            table.addRow().addContent("Stateful", capa.getStateful());
+            if (capa.getActive() != null) {
+                table.addRow().addContent("Active", capa.getActive());
+            }
+            if (capa.getInstantiation() != null) {
+                table.addRow().addContent("Instantiation", capa.getInstantiation());
+            }
         }
 
     }
@@ -148,16 +147,12 @@ public final class PcepStateUtils {
         table.addRow().addContent("Sent Msg Count", messages.getSentMsgCount());
         table.addRow().addContent("Unknown Msg Received", messages.getUnknownMsgReceived());
 
-        final StatefulMessagesStatsAug statefulMessages = messages.augmentation(StatefulMessagesStatsAug.class);
-        if (statefulMessages == null) {
-            return;
-        }
         addHeader(table, " Stateful Messages");
-        table.addRow().addContent("Last Received RptMsg Timestamp", statefulMessages
+        table.addRow().addContent("Last Received RptMsg Timestamp", messages
                 .getLastReceivedRptMsgTimestamp());
-        table.addRow().addContent("Received RptMsg", statefulMessages.getReceivedRptMsgCount());
-        table.addRow().addContent("Sent Init Msg", statefulMessages.getSentInitMsgCount());
-        table.addRow().addContent("Sent Upd Msg", statefulMessages.getSentUpdMsgCount());
+        table.addRow().addContent("Received RptMsg", messages.getReceivedRptMsgCount());
+        table.addRow().addContent("Sent Init Msg", messages.getSentInitMsgCount());
+        table.addRow().addContent("Sent Upd Msg", messages.getSentUpdMsgCount());
     }
 
     private static void showReplyMessages(final ShellTable table, final ReplyTime reply) {

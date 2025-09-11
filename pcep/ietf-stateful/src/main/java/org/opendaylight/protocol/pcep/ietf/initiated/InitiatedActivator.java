@@ -13,12 +13,7 @@ import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.spi.TlvRegistry;
-import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.Stateful;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcinitiate;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Component;
 
@@ -33,22 +28,11 @@ public final class InitiatedActivator implements PCEPExtensionProviderActivator 
 
     @Override
     public List<Registration> start(final PCEPExtensionProviderContext context) {
-        final TlvRegistry tlvReg = context.getTlvHandlerRegistry();
-        final VendorInformationTlvRegistry viTlvReg = context.getVendorInformationTlvRegistry();
 
         return List.of(
             context.registerMessageParser(InitiatedPCInitiateMessageParser.TYPE,
                 new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())),
             context.registerMessageSerializer(Pcinitiate.class,
-                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())),
-
-            context.registerObjectParser(new InitiatedLspObjectParser(tlvReg, viTlvReg)),
-            context.registerObjectSerializer(Lsp.class, new InitiatedLspObjectParser(tlvReg, viTlvReg)),
-            context.registerObjectParser(new InitiatedSrpObjectParser(tlvReg, viTlvReg)),
-            context.registerObjectSerializer(Srp.class, new InitiatedSrpObjectParser(tlvReg, viTlvReg)),
-
-            context.registerTlvParser(InitiatedStatefulCapabilityTlvParser.TYPE,
-                new InitiatedStatefulCapabilityTlvParser()),
-            context.registerTlvSerializer(Stateful.class, new InitiatedStatefulCapabilityTlvParser()));
+                new InitiatedPCInitiateMessageParser(context.getObjectHandlerRegistry())));
     }
 }

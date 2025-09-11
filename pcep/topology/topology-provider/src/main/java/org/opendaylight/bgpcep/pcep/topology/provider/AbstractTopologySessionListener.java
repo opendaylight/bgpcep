@@ -40,18 +40,15 @@ import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.LspObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Path1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.StatefulTlv1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.Stateful;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1Builder;
@@ -64,7 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.StatefulTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -204,38 +200,30 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private void updateStatefulCapabilities(final PathComputationClientBuilder pccBuilder,
             final InetAddress peerAddress, final @Nullable Tlvs remoteTlvs) {
         if (remoteTlvs != null) {
-            final Tlvs1 statefulTlvs = remoteTlvs.augmentation(Tlvs1.class);
-            if (statefulTlvs != null) {
-                final Stateful stateful = statefulTlvs.getStateful();
-                if (stateful != null) {
-                    statefulCapability.set(true);
-                    final var updateCap = stateful.getLspUpdateCapability();
-                    if (updateCap != null) {
-                        lspUpdateCapability.set(updateCap);
-                    }
-                    final Stateful1 stateful1 = stateful.augmentation(Stateful1.class);
-                    if (stateful1 != null) {
-                        final var initiation = stateful1.getInitiation();
-                        if (initiation != null) {
-                            initiationCapability.set(initiation);
-                        }
-                    }
-
-                    pccBuilder.setReportedLsp(Map.of());
-                    if (isSynchronized()) {
-                        pccBuilder.setStateSync(PccSyncState.Synchronized);
-                    } else if (isTriggeredInitialSynchro()) {
-                        pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
-                    } else if (isIncrementalSynchro()) {
-                        pccBuilder.setStateSync(PccSyncState.IncrementalSync);
-                    } else {
-                        pccBuilder.setStateSync(PccSyncState.InitialResync);
-                    }
-                    pccBuilder.setStatefulTlv(new StatefulTlvBuilder()
-                        .addAugmentation(new StatefulTlv1Builder(statefulTlvs).build())
-                        .build());
-                    return;
+            final StatefulCapability sc = remoteTlvs.getStatefulCapability();
+            if (sc != null) {
+                statefulCapability.set(true);
+                final var updateCap = sc.getLspUpdateCapability();
+                if (updateCap != null) {
+                    lspUpdateCapability.set(updateCap);
                 }
+                final var initiation = sc.getInitiation();
+                if (initiation != null) {
+                    initiationCapability.set(initiation);
+                }
+
+                pccBuilder.setReportedLsp(Map.of());
+                if (isSynchronized()) {
+                    pccBuilder.setStateSync(PccSyncState.Synchronized);
+                } else if (isTriggeredInitialSynchro()) {
+                    pccBuilder.setStateSync(PccSyncState.TriggeredInitialSync);
+                } else if (isIncrementalSynchro()) {
+                    pccBuilder.setStateSync(PccSyncState.IncrementalSync);
+                } else {
+                    pccBuilder.setStateSync(PccSyncState.InitialResync);
+                }
+                pccBuilder.setStatefulCapability(new StatefulCapabilityBuilder(sc).build());
+                return;
             }
         }
         LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
@@ -674,9 +662,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
             .map(pathList -> pathList.values().iterator().next())
-            .map(path -> path.augmentation(Path1.class)).filter(Objects::nonNull)
             .map(LspObject::getLsp).filter(Objects::nonNull)
-            .filter(Lsp::getDelegate)
+            .map(Lsp::getLspFlags).filter(Objects::nonNull)
+            .filter(delegated -> Boolean.TRUE.equals(delegated.getDelegate()))
             .count());
     }
 
