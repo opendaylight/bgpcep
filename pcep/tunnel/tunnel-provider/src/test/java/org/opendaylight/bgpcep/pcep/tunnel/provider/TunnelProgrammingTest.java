@@ -41,11 +41,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.topology.rev140113.NetworkTopologyRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PcepCreateP2pTunnelInput1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PcepUpdateTunnelInput1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.AdministrativeStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.ClassType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.endpoints.address.family.ipv4._case.Ipv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.InstructionStatus;
@@ -249,9 +247,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
             .setBandwidth(bwd)
             .setClassType(classType)
             .setSymbolicPathName(tunnelName)
-            .addAugmentation(new PcepCreateP2pTunnelInput1Builder()
-                .setAdministrativeStatus(AdministrativeStatus.Active)
-                .build())
+            .setAdministrativeStatus(AdministrativeStatus.Active)
             .build());
         //check add-lsp input
         assertNotNull(addLspInput);
@@ -276,11 +272,9 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
                 createExplicitHop(IPV4_PREFIX1, Uint32.ONE),
                 createExplicitHop(IPV4_PREFIX2, Uint32.TWO)))
             .setLinkId(LINK1_ID)
-            .addAugmentation(new PcepUpdateTunnelInput1Builder()
-                .setAdministrativeStatus(AdministrativeStatus.Active)
-                .build())
+            .setAdministrativeStatus(AdministrativeStatus.Active)
             .build());
-        //check update-lsp input
+        // check update-lsp input
         assertNotNull(updateLspInput);
         assertEquals(LINK1_ID.getValue(), updateLspInput.getName());
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.update.lsp

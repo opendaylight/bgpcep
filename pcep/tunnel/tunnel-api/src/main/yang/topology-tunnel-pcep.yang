@@ -100,11 +100,15 @@ module topology-tunnel-pcep {
         when "../../tunnel-types/pcep-tunnel";
         uses tunnel-pcep-link-cfg-attributes;
         uses tunnel-pcep-link-oper-attributes;
+        uses pcep-types:cfg-attributes;
+        uses pcep-types:oper-attributes;
     }
 
     augment "/nt:network-topology/nt:topology/tt:paths" {
         when "../../tunnel-types/pcep-tunnel";
         uses tunnel-pcep-path-attributes;
+        uses pcep-types:cfg-attributes;
+        uses pcep-types:oper-attributes;
     }
 
     augment "/nt:network-topology/nt:topology/tt:paths/p2p:explicit-hops" {
