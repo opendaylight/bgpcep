@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d0ab4c7_a0d13844",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9389
+      },
+      "writtenOn": "2025-09-11T08:11:27Z",
+      "side": 1,
+      "message": "lgtm, the only thing about I\u0027m not sure is adding logs attaches to each step, I\u0027d made a separate method for it and use in places where it\u0027s needed. but it\u0027s ok for now, if it will be looking weird - we can change it later",
+      "revId": "00d08d7fd2fbc65f228da6ea35efd4c9d0babba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47cc639b_fbebdcdc",
+        "filename": "tests/test_singlepeer_pc_shm_300Kroutes.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9389
+      },
+      "writtenOn": "2025-09-11T08:11:27Z",
+      "side": 1,
+      "message": "this seems to be extra import",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 13
+      },
+      "revId": "00d08d7fd2fbc65f228da6ea35efd4c9d0babba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
