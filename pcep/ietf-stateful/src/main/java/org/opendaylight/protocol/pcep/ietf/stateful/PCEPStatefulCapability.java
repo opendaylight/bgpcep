@@ -11,11 +11,9 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import org.opendaylight.protocol.pcep.PCEPCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.config.rev230115.StatefulCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.StatefulCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 
 public final class PCEPStatefulCapability extends PCEPCapability {
     private final boolean active;
@@ -46,17 +44,13 @@ public final class PCEPStatefulCapability extends PCEPCapability {
 
     @Override
     public void setCapabilityProposal(final InetSocketAddress address, final TlvsBuilder builder) {
-        builder.addAugmentation(new Tlvs1Builder()
-            .setStateful(new StatefulBuilder().setLspUpdateCapability(active)
-                .addAugmentation(new Stateful1Builder().setInitiation(initiated).build())
-                .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                    .pcep.sync.optimizations.rev200720.Stateful1Builder()
-                        .setTriggeredInitialSync(triggeredSync)
-                        .setTriggeredResync(triggeredResync)
-                        .setDeltaLspSyncCapability(deltaLspSync)
-                        .setIncludeDbVersion(includeDbVersion)
-                        .build())
-                .build())
+        builder.setStatefulCapability(new StatefulCapabilityBuilder()
+                .setLspUpdateCapability(active)
+                .setInitiation(initiated)
+                .setDeltaLspSyncCapability(deltaLspSync)
+                .setIncludeDbVersion(includeDbVersion)
+                .setTriggeredInitialSync(triggeredSync)
+                .setTriggeredResync(triggeredResync)
             .build());
     }
 

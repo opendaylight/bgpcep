@@ -20,6 +20,9 @@ module odl-pcep-object {
             - RFC5886: Monitoring tools
             - RFC7896: Include Route Object
             - RFC8306: P2MP
+            - RFC8231: Stateful
+            - RFC8281: Initiated
+            - RFC8232: Optimizations of LSP State Synchronization
             - RFC8408: Path Setup Type
             - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
             - RFC9604: Path Binding
@@ -91,6 +94,8 @@ module odl-pcep-object {
             uses pcep-types:vendor-information;
         }
     }
+
+    // Stateless Objects Definition
 
     grouping open-object {
         description "OPEN Object";
@@ -633,6 +638,8 @@ module odl-pcep-object {
         }
     }
 
+    // Monitoring Objects
+
     grouping monitoring-object {
         description "The MONITORING object is used to specify the
         set of requested PCEP state metrics.";
@@ -685,6 +692,8 @@ module odl-pcep-object {
         }
     }
 
+    // PCC & PCE IDs
+
     grouping pcc-id-req-object {
         description "The PCC-ID-REQ object is used to specify the IP
         address of the requesting PCC.";
@@ -707,6 +716,8 @@ module odl-pcep-object {
             }
         }
     }
+
+    // Timer Objects
 
     grouping proc-time-object {
         description "The PROC-TIME object is used to report various processing time
@@ -772,6 +783,8 @@ module odl-pcep-object {
         }
     }
 
+    // Class Type Object
+
     grouping classtype-object {
         description "CLASSTYPE Object";
         reference "https://tools.ietf.org/html/rfc5455#section-3";
@@ -785,6 +798,8 @@ module odl-pcep-object {
             }
         }
     }
+
+    // Global Concurrent Optimization Object
 
     grouping gc-object {
         description "GLOBAL CONSTRAINTS (GC) Object";
@@ -826,6 +841,115 @@ module odl-pcep-object {
             }
         }
     }
+
+    // Stateful Objects
+
+    grouping lsp-flags {
+        description "LSP Flags definitions";
+        reference "https://datatracker.ietf.org/doc/html/rfc8231#section-7.3";
+        leaf delegate {
+            type boolean;
+            default false;
+        }
+
+        leaf sync {
+            type boolean;
+            default false;
+        }
+
+        leaf remove {
+            type boolean;
+            default false;
+        }
+
+        leaf administrative {
+            type boolean;
+            default false;
+        }
+
+        leaf operational {
+            type pcep-types:operational-status;
+            default down;
+        }
+
+        leaf create {
+            reference "http://tools.ietf.org/html/rfc8281#section-5.3.1";
+            type boolean;
+            default false;
+        }
+
+        leaf pce-allocation {
+            reference "http://tools.ietf.org/html/rfc9604#section-8";
+            type boolean;
+            default false;
+        }
+    }
+
+    grouping lsp-object {
+        description "LSP Object";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3";
+
+        container lsp {
+            uses object;
+            container "tlvs" {
+                uses pcep-types:lsp-error-code-tlv;
+
+                uses pcep-types:lsp-identifiers-tlv;
+
+                uses pcep-types:rsvp-error-spec-tlv;
+
+                uses pcep-types:symbolic-path-name-tlv;
+
+                uses pcep-types:vendor-information-tlvs;
+
+                uses pcep-types:lsp-db-version-tlv;
+
+                uses pcep-types:path-binding-tlv;
+
+                uses pcep-types:sr-policy-lsp-tlvs;
+            }
+
+            leaf plsp-id {
+                type pcep-types:plsp-id;
+                mandatory true;
+            }
+
+            container lsp-flags {
+                uses lsp-flags;
+            }
+        }
+    }
+
+    grouping srp-object {
+        description "SRP Object";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.2";
+
+        container srp {
+            uses object;
+
+            leaf remove {
+                reference "http://tools.ietf.org/html/rfc8281#section-5.2";
+                type boolean;
+                mandatory true;
+                default false;
+            }
+
+            leaf operation-id {
+                type pcep-types:srp-id-number;
+                mandatory true;
+            }
+
+            container "tlvs" {
+                uses pcep-types:symbolic-path-name-tlv;
+
+                uses pcep-types:vendor-information-tlvs;
+
+                uses pcep-types:path-setup-type-tlv;
+            }
+        }
+    }
+
+    // Association Objects
 
     grouping association-object {
         description "Association Group Object definition.";
@@ -893,6 +1017,7 @@ module odl-pcep-object {
 
     grouping p2p {
         uses endpoints-object;
+        uses lsp-object;
 
         container reported-route {
             uses reported-route-object;
@@ -925,6 +1050,7 @@ module odl-pcep-object {
             min-elements 1;
         }
 
+        uses lsp-object;
         uses of-object;
         uses lspa-object;
         uses bandwidth-object;
@@ -981,12 +1107,12 @@ module odl-pcep-object {
     }
 
     grouping replies {
-        uses pcep-object:rp-object;
-        uses pcep-object:vendor-information-objects;
-        uses pcep-object:monitoring;
-        uses pcep-object:monitoring-metrics;
-
-        uses pcep-object:association-object;
+        uses rp-object;
+        uses lsp-object;
+        uses vendor-information-objects;
+        uses monitoring;
+        uses monitoring-metrics;
+        uses association-object;
 
         choice result {
             case success-case {
@@ -994,7 +1120,7 @@ module odl-pcep-object {
                     list paths {
                         uses path-definition;
                     }
-                    uses pcep-object:vendor-information-objects;
+                    uses vendor-information-objects;
                 }
             }
             case failure-case {
