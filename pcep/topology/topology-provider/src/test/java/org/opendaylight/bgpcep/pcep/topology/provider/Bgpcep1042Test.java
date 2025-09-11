@@ -13,8 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessagesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.error.messages.LastReceivedErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.error.messages.LastSentErrorBuilder;
@@ -98,28 +96,23 @@ public class Bgpcep1042Test extends AbstractPCEPSessionTest {
             .setSentErrorMsgCount(Uint32.ZERO)
             .build();
 
-        final var statefulMsg = new StatefulMessagesStatsAugBuilder()
-            .setLastReceivedRptMsgTimestamp(Uint32.ZERO)
-            .setSentUpdMsgCount(Uint32.ZERO)
-            .setReceivedRptMsgCount(Uint32.ZERO)
-            .setSentInitMsgCount(Uint32.ZERO)
-            .build();
-
         final var messages = new MessagesBuilder()
             .setLastSentMsgTimestamp(Uint32.ZERO)
             .setUnknownMsgReceived(Uint16.ZERO)
             .setSentMsgCount(Uint32.ZERO)
             .setReceivedMsgCount(Uint32.ZERO)
+            .setLastReceivedRptMsgTimestamp(Uint32.ZERO)
+            .setSentUpdMsgCount(Uint32.ZERO)
+            .setReceivedRptMsgCount(Uint32.ZERO)
+            .setSentInitMsgCount(Uint32.ZERO)
             .setReplyTime(replyTime)
             .setErrorMessages(errorMsg)
-            .addAugmentation(statefulMsg).build();
+            .build();
 
         final var capabilities = new PeerCapabilitiesBuilder()
-            .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
-                .setStateful(false)
-                .setInstantiation(false)
-                .setActive(false)
-                .build())
+            .setStateful(false)
+            .setInstantiation(false)
+            .setActive(false)
             .build();
 
         final var localPref = new LocalPrefBuilder()

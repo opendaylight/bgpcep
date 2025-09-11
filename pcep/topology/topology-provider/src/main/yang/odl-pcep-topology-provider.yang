@@ -4,7 +4,6 @@ module odl-pcep-topology-provider {
 
     import network-topology { prefix nt; }
     import network-topology-pcep { prefix pn; }
-    import odl-pcep-ietf-stateful-config { prefix opisc; }
     import odl-pcep-config { prefix pc; }
 
     description
@@ -37,7 +36,7 @@ module odl-pcep-topology-provider {
                     default true;
                 }
 
-                uses opisc:stateful-capabilities;
+                uses pc:stateful-capabilities;
             }
             container path-setup-type {
                 leaf enabled {

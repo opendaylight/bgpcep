@@ -13,9 +13,18 @@ module odl-pcep-types {
     contact "Olivier Dugeon <olivier.dugeon@orange.com>";
 
     description
-        "This module contains the base data model of a PCEP message.
-        It rolls up the definitions contained in RFC5440, RFC7896, RFC5520
-        and RFC8306, RFC5886.
+        "This module contains the base data model of PCEP TLVs defined in:
+            - RFC5440: Stateless
+            - RFC5520: Path Key Confidentiality
+            - RFC5886: Monitoring tools
+            - RFC7896: Include Route Object
+            - RFC8306: P2MP
+            - RFC8231: Stateful
+            - RFC8281: Initiated
+            - RFC8232: Optimizations of LSP State Synchronization
+            - RFC8408: Path Setup Type
+            - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
+            - RFC9604: Path Binding
 
         Copyright (c)2025 Orange. All rights reserved.
 
@@ -163,16 +172,6 @@ module odl-pcep-types {
         }
     }
 
-    grouping p2mp-pce-capability-tlv {
-        description "P2MP-PCE-CAPABILITY TLV";
-        reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
-
-        container p2mp-pce-capability {
-            uses tlv;
-            presence "Capability indicates that the sender can perform P2MP path computations";
-        }
-    }
-
     grouping order-tlv {
         description "Order TLV";
         reference "https://tools.ietf.org/html/rfc5557#section-5.4";
@@ -228,7 +227,325 @@ module odl-pcep-types {
         }
     }
 
+    // Stateful
+
+    typedef operational-status {
+        type enumeration {
+            enum down {
+                value 0;
+            }
+            enum up {
+                value 1;
+            }
+            enum active {
+                value 2;
+            }
+            enum going-down {
+                value 3;
+            }
+            enum going-up {
+                value 4;
+            }
+        }
+    }
+
+    typedef plsp-id {
+        type uint32 {
+            range 0..1048576;
+        }
+    }
+
+    typedef srp-id-number {
+        type uint32 {
+            range 0..4294967294;
+        }
+    }
+
+    typedef symbolic-path-name {
+        type binary {
+            length 1..65535;
+        }
+    }
+
+    grouping lsp-identifiers-tlv {
+        description "LSP Identifiers TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.1";
+        container lsp-identifiers {
+            uses tlv;
+            leaf lsp-id {
+                type rsvp:lsp-id;
+            }
+
+            leaf tunnel-id {
+                type rsvp:tunnel-id;
+            }
+
+            choice address-family {
+                case ipv4-case {
+                    container ipv4 {
+                        leaf ipv4-tunnel-sender-address {
+                            type inet:ipv4-address-no-zone;
+                            mandatory true;
+                        }
+                        leaf ipv4-extended-tunnel-id {
+                            type rsvp:ipv4-extended-tunnel-id;
+                            mandatory true;
+                        }
+                        leaf ipv4-tunnel-endpoint-address {
+                            type inet:ipv4-address-no-zone;
+                            mandatory true;
+                        }
+                    }
+                }
+                case ipv6-case {
+                    container ipv6 {
+                        leaf ipv6-tunnel-sender-address {
+                            type inet:ipv6-address-no-zone;
+                            mandatory true;
+                        }
+                        leaf ipv6-extended-tunnel-id {
+                            type rsvp:ipv6-extended-tunnel-id;
+                            mandatory true;
+                        }
+                        leaf ipv6-tunnel-endpoint-address {
+                            type inet:ipv6-address-no-zone;
+                            mandatory true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    grouping lsp-error-code-tlv {
+        description "LSP Error Code TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.3";
+        container lsp-error-code {
+            uses tlv;
+            leaf error-code {
+                type uint32;
+            }
+        }
+    }
+
+    grouping rsvp-error-spec-tlv {
+        description "RSVP Error Spec TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.4";
+        container rsvp-error-spec {
+            uses tlv;
+            choice error-type {
+                case rsvp-case {
+                    container rsvp-error {
+                        uses rsvp:error-spec;
+                    }
+                }
+                case user-case {
+                    container user-error {
+                        uses rsvp:user-error-spec;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping symbolic-path-name-tlv {
+        description "Symbolic Path Name TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3.2";
+        container symbolic-path-name {
+            uses tlv;
+            leaf path-name {
+                type symbolic-path-name;
+            }
+        }
+    }
+
+    typedef administrative-status {
+        reference "https://tools.ietf.org/html/rfc8231#section-7.3";
+        type enumeration {
+            enum active;
+            enum inactive;
+        }
+    }
+
+    grouping cfg-attributes {
+        leaf administrative-status {
+            type administrative-status;
+        }
+    }
+
+    grouping oper-attributes {
+        leaf operational-status {
+            type operational-status;
+            config false;
+        }
+    }
+
+    // Sync Optimization
+
+    grouping lsp-db-version-tlv {
+        container lsp-db-version {
+            uses tlv;
+            leaf lsp-db-version-value {
+                type uint64;
+            }
+        }
+    }
+
+    grouping speaker-entity-id {
+        leaf speaker-entity-id-value {
+            type binary;
+        }
+    }
+
+    grouping speaker-entity-id-tlv {
+        container speaker-entity-id {
+            uses tlv;
+            uses speaker-entity-id;
+        }
+    }
+
+    // Path Binding
+
+    typedef binding-type {
+        description "Path Binding Type definition";
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
+        type enumeration {
+            enum mpls-label {
+                value 0;
+            }
+            enum mpls-label-entry {
+                value 1;
+            }
+            enum srv6 {
+                value 2;
+            }
+            enum srv6-behavior {
+                value 3;
+            }
+        }
+    }
+
+    grouping binding-flags {
+        description "Path Binding Flags definition";
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
+        leaf removal {
+            type boolean;
+        }
+        leaf specified {
+            type boolean;
+        }
+    }
+
+    grouping path-binding-tlv {
+        reference "https://tools.ietf.org/html/rfc9604#section-4";
+        container path-binding {
+            uses tlv;
+            container flags {
+                uses binding-flags;
+            }
+            leaf binding-type {
+                type binding-type;
+            }
+            choice binding-value {
+                case mpls-label {
+                    leaf mpls-label {
+                        type netc:mpls-label;
+                    }
+                }
+                case mpls-label-entry {
+                    leaf label {
+                        type netc:mpls-label;
+                    }
+                    leaf traffic-class {
+                        type uint8 {
+                            range 0..7;
+                        }
+                    }
+                    leaf bottom-of-stack {
+                        type boolean;
+                    }
+                    leaf time-to-live {
+                        type uint8;
+                    }
+                }
+                case srv6 {
+                    leaf srv6-address {
+                        type inet:ipv6-address-no-zone;
+                    }
+                }
+                case srv6-behavior {
+                    leaf srv6-sid {
+                        type inet:ipv6-address-no-zone;
+                    }
+                    leaf endpoint-behavior {
+                        type uint16;
+                    }
+                    leaf locator-block-length {
+                        type uint8;
+                    }
+                    leaf locator-node-length {
+                        type uint8;
+                    }
+                    leaf function-length {
+                        type uint8;
+                    }
+                    leaf argument-length {
+                        type uint8;
+                    }
+                }
+            }
+        }
+    }
+
     // PCEP Capability TLVs
+
+    grouping p2mp-pce-capability-tlv {
+        description "P2MP-PCE-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/rfc8306#section-3.1.2";
+
+        container p2mp-pce-capability {
+            uses tlv;
+            presence "Capability indicates that the sender can perform P2MP path computations";
+        }
+    }
+
+    grouping stateful-capability-tlv {
+        description "Stateful PCE Capability TLV";
+        reference "https://tools.ietf.org/html/rfc8231#section-7.1.1";
+
+        container stateful-capability {
+            uses tlv;
+            leaf lsp-update-capability {
+                type boolean;
+                default false;
+            }
+            leaf initiation {
+                reference "https://tools.ietf.org/html/rfc8281#section-4.1";
+                type boolean;
+                default false;
+            }
+            leaf triggered-initial-sync {
+                reference "http://tools.ietf.org/html/rfc8232#section-7";
+                type boolean;
+                default false;
+            }
+            leaf delta-lsp-sync-capability {
+                reference "http://tools.ietf.org/html/rfc8232#section-7";
+                type boolean;
+                default false;
+            }
+            leaf triggered-resync {
+                reference "http://tools.ietf.org/html/rfc8232#section-7";
+                type boolean;
+                default false;
+            }
+            leaf include-db-version {
+                reference "http://tools.ietf.org/html/rfc8232#section-7";
+                type boolean;
+                default false;
+            }
+        }
+    }
 
     grouping sr-pce-capability-tlv {
         description "SR-PCE-CAPABILITY TLV";
@@ -692,9 +1009,12 @@ module odl-pcep-types {
         uses of-list-tlv;
         uses p2mp-pce-capability-tlv;
         uses vendor-information-tlvs;
-        uses association-type-list-tlv;
-        uses association-range-tlv;
+        uses stateful-capability-tlv;
+        uses lsp-db-version-tlv;
+        uses speaker-entity-id-tlv;
         uses path-setup-type-capability-tlv;
+        uses association-range-tlv;
+        uses association-type-list-tlv;
         uses sr-policy-capability-tlv;
     }
 

@@ -10,9 +10,11 @@ module odl-pcep-message {
     contact "Olivier Dugeon <olivier.dugeon@orange.com>";
 
     description
-        "This module contains the base data model of a PCEP message.
-        It rolls up the definitions contained in RFC5440, RFC5520
-        and RFC6006, RFC5886.
+        "This module contains the base data model of PCEP Messages defined in:
+            - RFC5440: Stateless
+            - RFC8231: Stateful
+            - RFC8253: TLS
+            - RFC8281: Initiated
 
         Copyright (c)2025 Orange. All rights reserved.
 
@@ -38,7 +40,7 @@ module odl-pcep-message {
             "Initial revision.";
     }
 
-    // Messages
+    // Common Message Definitions
 
     grouping message {
         description "Marker grouping for message groupings.";
@@ -77,6 +79,90 @@ module odl-pcep-message {
             uses message-header;
         }
     }
+
+    grouping pcntf-message {
+        uses message;
+
+        container pcntf-message {
+            description "Notification Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.6";
+
+            uses message-header;
+
+            list notifications {
+                list rps {
+                    uses pcep-object:rp-object;
+                }
+
+                list notifications {
+                    uses pcep-object:notification-object;
+                }
+            }
+        }
+    }
+
+    grouping pcerr-message {
+        uses message;
+
+        container pcerr-message {
+            description "Error Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.7";
+
+            uses message-header;
+
+            list errors {
+                uses pcep-object:pcep-error-object;
+            }
+
+            choice error-type {
+                case request-case {
+                    container request {
+                        list rps {
+                            uses pcep-object:rp-object;
+                        }
+                    }
+                }
+                case stateful-case {
+                    container stateful {
+                        list srps {
+                            uses pcep-object:srp-object;
+                        }
+                    }
+                }
+                case session-case {
+                    container session {
+                        uses pcep-object:open-object;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping close-message {
+        uses message;
+
+        container c-close-message {
+            description "Close Message";
+            reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+
+            uses message-header;
+
+            uses pcep-object:close-object;
+        }
+    }
+
+    grouping start-tls-message {
+        uses message;
+
+        container start-tls-message {
+            description "StartTLS Message";
+            reference "https://tools.ietf.org/html/rfc8253#section-3.3";
+
+            uses message-header;
+        }
+    }
+
+    // Stateless Messages
 
     grouping pcreq-message {
         uses message;
@@ -154,81 +240,80 @@ module odl-pcep-message {
         }
     }
 
-    grouping pcntf-message {
+    // Stateful Messages
+
+    grouping pcupd-message {
         uses message;
 
-        container pcntf-message {
-            description "Notification Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.6";
+        container pcupd-message {
+            description "State Update Request Message";
+            reference "https://tools.ietf.org/html/rfc8231#section-6.2";
 
             uses message-header;
 
-            list notifications {
-                list rps {
-                    uses pcep-object:rp-object;
-                }
+            list updates {
+                uses pcep-object:srp-object;
 
-                list notifications {
-                    uses pcep-object:notification-object;
-                }
-            }
-        }
-    }
+                uses pcep-object:lsp-object;
 
-    grouping pcerr-message {
-        uses message;
+                uses pcep-object:association-object;
 
-        container pcerr-message {
-            description "Error Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.7";
-
-            uses message-header;
-
-            list errors {
-                uses pcep-object:pcep-error-object;
-            }
-
-            choice error-type {
-                case request-case {
-                    container request {
-                        list rps {
-                            uses pcep-object:rp-object;
-                        }
-                    }
-                }
-
-                case session-case {
-                    container session {
-                        uses pcep-object:open-object;
-                    }
+                container path {
+                    uses pcep-object:path-definition;
                 }
             }
         }
     }
 
-    grouping close-message {
+    grouping pcrpt-message {
         uses message;
 
-        container c-close-message {
-            description "Close Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+        container pcrpt-message {
+            description "State Report Message";
+            reference "https://tools.ietf.org/html/rfc8231#section-6.1";
 
             uses message-header;
 
-            uses pcep-object:close-object;
+            list reports {
+                uses pcep-object:srp-object;
+
+                uses pcep-object:lsp-object;
+
+                uses pcep-object:association-object;
+
+                container path {
+                    uses pcep-object:path-definition;
+                }
+            }
         }
     }
 
-    grouping start-tls-message {
+    grouping pcinitiate-message {
         uses message;
 
-        container start-tls-message {
-            description "StartTLS Message";
-            reference "https://tools.ietf.org/html/draft-ietf-pce-pceps-02#section-3.3";
+        container pcinitiate-message {
+            description "LSP Initiate Message";
+            reference "http://tools.ietf.org/html/rfc8281#section-5.1";
 
             uses message-header;
+
+            list requests {
+                uses pcep-object:srp-object;
+
+                uses pcep-object:lsp-object;
+
+                uses pcep-object:endpoints-object;
+
+                uses pcep-object:explicit-route-object;
+
+                uses pcep-object:association-object;
+
+                uses pcep-object:lsp-attributes;
+            }
         }
     }
+
+    // Notifications
 
     notification open {
         uses open-message;
@@ -268,6 +353,18 @@ module odl-pcep-message {
 
     notification pcmonrep {
         uses pcmonrep-message;
+    }
+
+    notification pcupd {
+        uses pcupd-message;
+    }
+
+    notification pcrpt {
+        uses pcrpt-message;
+    }
+
+    notification pcinitiate {
+        uses pcinitiate-message;
     }
 }
 

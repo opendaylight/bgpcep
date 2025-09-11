@@ -4,6 +4,8 @@ module odl-pcep-session-stats {
     namespace "urn:opendaylight:params:xml:ns:yang:pcep:stats";
     prefix "pcep-stats";
 
+    import odl-pcep-types { prefix pcep-types; revision-date 2025-09-30; }
+
     organization "Orange";
     contact "Olivier Dugeon <olivier.dugeon@orange.com>";
 
@@ -122,6 +124,57 @@ module odl-pcep-session-stats {
         }
     }
 
+    // Stateful
+
+    grouping stateful-preferences {
+        leaf instantiation {
+            description "Represents peer's instantiation capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf stateful {
+            description "Represents peer's stateful/stateless capability.";
+            type boolean;
+            default "false";
+        }
+
+        leaf active {
+            description "Represents peer's LSP update capability.";
+            type boolean;
+            default "false";
+        }
+    }
+
+    grouping stateful-messages-grouping {
+        description "The statistics of sent/received PCEP stateful messages.";
+        leaf last-received-rpt-msg-timestamp {
+            description "The timestamp of last received PCRpt message.";
+            type uint32;
+            default 0;
+        }
+
+        leaf received-rpt-msg-count {
+            description "The number of received PcRpt messages.";
+            type uint32;
+            default 0;
+        }
+
+        leaf sent-upd-msg-count {
+            description "The number of sent PCUpd messages.";
+            type uint32;
+            default 0;
+        }
+
+        leaf sent-init-msg-count {
+            description "The number of sent PCInitiate messages.";
+            type uint32;
+            default 0;
+        }
+    }
+
+    // Session State
+
     grouping pcep-session-state {
         description "PCEP session statistics.";
 
@@ -138,6 +191,7 @@ module odl-pcep-session-stats {
 
         container peer-capabilities {
             description "Remote peer's (PCC) advertised capabilities.";
+            uses stateful-preferences;
         }
 
         container messages {
@@ -170,11 +224,14 @@ module odl-pcep-session-stats {
             }
 
             uses error-messages-grouping;
+
+            uses stateful-messages-grouping;
         }
 
         container local-pref {
             description "The local (PCE) preferences.";
             uses preferences;
+            uses pcep-types:speaker-entity-id;
         }
 
         container peer-pref {

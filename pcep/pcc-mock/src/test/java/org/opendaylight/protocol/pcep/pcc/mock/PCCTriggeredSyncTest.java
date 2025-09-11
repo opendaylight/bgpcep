@@ -16,15 +16,16 @@ import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PcupdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcupd.message.PcupdMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcupd.message.pcupd.message.UpdatesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcupd.message.pcupd.message.updates.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.SrpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.PcupdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcupd.message.PcupdMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcupd.message.pcupd.message.UpdatesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcupd.message.pcupd.message.updates.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
@@ -46,14 +47,15 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
 
     private static Message createTriggerMsg() {
         final UpdatesBuilder rb = new UpdatesBuilder()
-                // create PCUpd with mandatory objects and LSP object set to 1
-                .setSrp(new SrpBuilder()
-                    .setIgnore(false)
-                    .setProcessingRule(false)
-                    .setOperationId(new SrpIdNumber(Uint32.ONE))
-                    .build())
-                .setLsp(new LspBuilder().setPlspId(new PlspId(Uint32.ZERO)).setSync(Boolean.TRUE).build())
-                .setPath(new PathBuilder().build());
+            // create PCUpd with mandatory objects and LSP object set to 1
+            .setSrp(new SrpBuilder()
+                .setIgnore(false)
+                .setProcessingRule(false)
+                .setOperationId(new SrpIdNumber(Uint32.ONE))
+                .build())
+            .setLsp(new LspBuilder().setPlspId(new PlspId(Uint32.ZERO))
+                .setLspFlags(new LspFlagsBuilder().setSync(Boolean.TRUE).build()).build())
+            .setPath(new PathBuilder().build());
         final PcupdMessageBuilder ub = new PcupdMessageBuilder();
         ub.setUpdates(List.of(rb.build()));
         return new PcupdBuilder().setPcupdMessage(ub.build()).build();

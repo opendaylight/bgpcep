@@ -19,16 +19,17 @@ import org.opendaylight.protocol.pcep.spi.AbstractObjectWithTlvsParser;
 import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.SrpBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.srp.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.srp.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.symbolic.path.name.tlv.SymbolicPathName;
+import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.srp.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.srp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
@@ -40,10 +41,11 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
     private static final int TYPE = 1;
 
     protected static final int FLAGS_SIZE = 32;
+    private static final int REMOVE_FLAG = 31;
     protected static final int SRP_ID_SIZE = 4;
     protected static final int MIN_SIZE = FLAGS_SIZE / Byte.SIZE + SRP_ID_SIZE;
 
-    protected StatefulSrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
+    public StatefulSrpObjectParser(final TlvRegistry tlvReg, final VendorInformationTlvRegistry viTlvReg) {
         super(tlvReg, viTlvReg, CLASS, TYPE);
     }
 
@@ -64,8 +66,9 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         return builder.setTlvs(tlvsBuilder.build()).build();
     }
 
-    protected void parseFlags(final SrpBuilder builder, final ByteBuf bytes) {
-        bytes.skipBytes(FLAGS_SIZE / Byte.SIZE);
+    private void parseFlags(final SrpBuilder builder, final ByteBuf bytes) {
+        final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
+        builder.setRemove(flags.get(REMOVE_FLAG));
     }
 
     @Override
@@ -92,8 +95,10 @@ public class StatefulSrpObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
-    protected void serializeFlags(final Srp srp, final ByteBuf body) {
-        body.writeZero(FLAGS_SIZE / Byte.SIZE);
+    private void serializeFlags(final Srp srp, final ByteBuf body) {
+        final BitArray flags = new BitArray(FLAGS_SIZE);
+        flags.set(REMOVE_FLAG, srp.getRemove());
+        flags.toByteBuf(body);
     }
 
     @NonNullByDefault
