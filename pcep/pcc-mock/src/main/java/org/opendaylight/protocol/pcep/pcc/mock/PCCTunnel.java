@@ -10,7 +10,7 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import io.netty.util.Timeout;
 import org.opendaylight.protocol.pcep.pcc.mock.api.LspType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcrpt.message.pcrpt.message.reports.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrpt.message.pcrpt.message.reports.Path;
 
 final class PCCTunnel {
 

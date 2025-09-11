@@ -20,16 +20,11 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPSessionState;
 import org.opendaylight.protocol.util.StatisticsUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Pcinitiate;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcinitiate;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.Messages;
@@ -39,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.grouping.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.grouping.PcepSessionStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.reply.time.grouping.ReplyTimeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAugBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -83,18 +79,14 @@ final class SessionStateUpdater {
 
         final SpeakerEntityId entityId = extractEntityId(session.getLocalOpen());
         localPref = entityId == null ? session.getLocalPref() : new LocalPrefBuilder(session.getLocalPref())
-            .addAugmentation(new PcepEntityIdStatsAugBuilder(entityId).build())
-            .build();
+            .setSpeakerEntityIdValue(entityId.getSpeakerEntityIdValue()).build();
         peerPref = session.getPeerPref();
     }
 
     private static @Nullable SpeakerEntityId extractEntityId(final @NonNull Open localOpen) {
         final Tlvs tlvs = localOpen.getTlvs();
         if (tlvs != null) {
-            final Tlvs3 aug = tlvs.augmentation(Tlvs3.class);
-            if (aug != null) {
-                return aug.getSpeakerEntityId();
-            }
+            return tlvs.getSpeakerEntityId();
         }
         return null;
     }
@@ -142,11 +134,9 @@ final class SessionStateUpdater {
                 .setSynchronized(topologySessionStats.isSessionSynchronized())
                 .setDelegatedLspsCount(getDelegatedLspsCount())
                 .setPeerCapabilities(new PeerCapabilitiesBuilder()
-                    .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
-                        .setActive(topologySessionStats.isLspUpdateCapability())
-                        .setInstantiation(topologySessionStats.isInitiationCapability())
-                        .setStateful(topologySessionStats.isStatefulCapability())
-                        .build())
+                    .setActive(topologySessionStats.isLspUpdateCapability())
+                    .setInstantiation(topologySessionStats.isInitiationCapability())
+                    .setStateful(topologySessionStats.isStatefulCapability())
                     .build())
                 .setMessages(new MessagesBuilder(sessionMessages)
                     .setReplyTime(new ReplyTimeBuilder()
@@ -154,12 +144,10 @@ final class SessionStateUpdater {
                         .setMaxTime(Uint32.saturatedOf(maxReplyMillis))
                         .setMinTime(Uint32.saturatedOf(minReplyMillis))
                         .build())
-                    .addAugmentation(new StatefulMessagesStatsAugBuilder()
-                        .setLastReceivedRptMsgTimestamp(Uint32.saturatedOf(receivedRptMessageTime))
-                        .setReceivedRptMsgCount(Uint32.saturatedOf(receivedRptMessageCount))
-                        .setSentInitMsgCount(Uint32.saturatedOf(sentInitMessageCount))
-                        .setSentUpdMsgCount(Uint32.saturatedOf(sentUpdMessageCount))
-                        .build())
+                    .setLastReceivedRptMsgTimestamp(Uint32.saturatedOf(receivedRptMessageTime))
+                    .setReceivedRptMsgCount(Uint32.saturatedOf(receivedRptMessageCount))
+                    .setSentInitMsgCount(Uint32.saturatedOf(sentInitMessageCount))
+                    .setSentUpdMsgCount(Uint32.saturatedOf(sentUpdMessageCount))
                     .build())
                 .build();
         }

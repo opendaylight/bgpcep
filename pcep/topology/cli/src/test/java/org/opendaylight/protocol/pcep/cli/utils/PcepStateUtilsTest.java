@@ -18,9 +18,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAugBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessagesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPrefBuilder;
@@ -90,7 +87,7 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
                 .setDeadtimer(Uint8.valueOf(120))
                 .setIpAddress(IP_ADDRESS)
                 .setSessionId(Uint16.ZERO)
-                .addAugmentation(new PcepEntityIdStatsAugBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build())
+                .setSpeakerEntityIdValue(SPEAKER_ID)
                 .build();
 
         return new PcepSessionStateBuilder()
@@ -100,11 +97,9 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
                 .setLocalPref(pref)
                 .setPeerPref(new PeerPrefBuilder(pref).build())
                 .setPeerCapabilities(new PeerCapabilitiesBuilder()
-                    .addAugmentation(new StatefulCapabilitiesStatsAugBuilder()
-                        .setStateful(Boolean.TRUE)
-                        .setInstantiation(Boolean.TRUE)
-                        .setActive(Boolean.TRUE)
-                        .build())
+                    .setStateful(Boolean.TRUE)
+                    .setInstantiation(Boolean.TRUE)
+                    .setActive(Boolean.TRUE)
                     .build())
                 .setMessages(new MessagesBuilder()
                     .setLastSentMsgTimestamp(Uint32.valueOf(1512043828L))
@@ -120,12 +115,10 @@ public class PcepStateUtilsTest extends AbstractConcurrentDataBrokerTest {
                         .setReceivedErrorMsgCount(Uint32.ONE)
                         .setSentErrorMsgCount(Uint32.TWO)
                         .build())
-                    .addAugmentation(new StatefulMessagesStatsAugBuilder()
-                        .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1512043769L))
-                        .setSentUpdMsgCount(Uint32.ONE)
-                        .setReceivedRptMsgCount(Uint32.TWO)
-                        .setSentInitMsgCount(Uint32.valueOf(3))
-                        .build())
+                    .setLastReceivedRptMsgTimestamp(Uint32.valueOf(1512043769L))
+                    .setSentUpdMsgCount(Uint32.ONE)
+                    .setReceivedRptMsgCount(Uint32.TWO)
+                    .setSentInitMsgCount(Uint32.valueOf(3))
                     .build())
                 .build();
     }

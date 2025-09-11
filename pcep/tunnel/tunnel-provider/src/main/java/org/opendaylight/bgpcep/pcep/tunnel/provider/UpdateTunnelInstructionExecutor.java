@@ -19,13 +19,12 @@ import org.opendaylight.bgpcep.programming.tunnel.TunnelProgrammingUtil;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Arguments3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PcepUpdateTunnelInput1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.bandwidth.object.BandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.classtype.object.ClassTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.LspaBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.AdministrativeStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.OperationResult;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspInput;
@@ -85,10 +84,9 @@ final class UpdateTunnelInstructionExecutor extends AbstractInstructionExecutor 
                 .setEro(TunelProgrammingUtil.buildEro(updateTunnelInput.getExplicitHops()))
                 .setLspa(new LspaBuilder(updateTunnelInput).build());
 
-        final AdministrativeStatus adminStatus = updateTunnelInput.augmentation(PcepUpdateTunnelInput1.class)
-                .getAdministrativeStatus();
+        final AdministrativeStatus adminStatus = updateTunnelInput.getAdministrativeStatus();
         if (adminStatus != null) {
-            args.addAugmentation(new Arguments3Builder().setLsp(new LspBuilder()
+            args.setLsp(new LspBuilder().setLspFlags(new LspFlagsBuilder()
                     .setAdministrative(adminStatus == AdministrativeStatus.Active).build()).build());
         }
         return ab.setArguments(args.build()).build();
