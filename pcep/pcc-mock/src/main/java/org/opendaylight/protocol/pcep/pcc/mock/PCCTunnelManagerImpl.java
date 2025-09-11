@@ -35,23 +35,22 @@ import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Srp1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Srp1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.pcinitiate.message.pcinitiate.message.Requests;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Pcrpt;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SrpIdNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.lsp.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcrpt.message.pcrpt.message.reports.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcrpt.message.pcrpt.message.reports.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcupd.message.pcupd.message.Updates;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.Srp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcinitiate.message.pcinitiate.message.Requests;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrpt.message.pcrpt.message.reports.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrpt.message.pcrpt.message.reports.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcupd.message.pcupd.message.Updates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.Subobject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlags;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.Srp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.SrpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
@@ -114,9 +113,10 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             if (hasDelegation(tunnel, session)) {
                 //send report D=0
                 final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.empty());
-                final Pcrpt pcrtp = createPcRtpMessage(new LspBuilder(update.getLsp()).setSync(true)
-                        .setOperational(OperationalStatus.Up).setDelegate(false)
-                        .setTlvs(tlvs).build(), Optional.of(createSrp(srpId)), tunnel.getLspState());
+                final LspFlags lf = new LspFlagsBuilder(update.getLsp().getLspFlags()).setSync(true)
+                    .setOperational(OperationalStatus.Up).setDelegate(false).build();
+                final Pcrpt pcrtp = createPcRtpMessage(new LspBuilder(update.getLsp()).setLspFlags(lf)
+                    .setTlvs(tlvs).build(), Optional.of(createSrp(srpId)), tunnel.getLspState());
                 session.sendReport(pcrtp);
                 //start state timer
                 startStateTimeout(tunnel, plspId);
@@ -148,9 +148,10 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                 setDelegation(plspId, session);
                 //send report
                 final Tlvs tlvs = buildTlvs(tunnel, plspId.getValue(), Optional.empty());
+                final LspFlags lf = new LspFlagsBuilder(request.getLsp().getLspFlags()).setSync(true)
+                    .setOperational(OperationalStatus.Up).setDelegate(true).build();
                 session.sendReport(createPcRtpMessage(
-                    new LspBuilder(request.getLsp()).setSync(true).setOperational(OperationalStatus.Up)
-                            .setDelegate(true).setTlvs(tlvs).build(),
+                    new LspBuilder(request.getLsp()).setLspFlags(lf).setTlvs(tlvs).build(),
                     Optional.of(createSrp(srpId)), tunnel.getLspState()));
             } else {
                 session.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.LSP_NOT_PCE_INITIATED, srpId));
@@ -195,10 +196,10 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
         final PlspId plspId = new PlspId(Uint32.valueOf(plspIDsCounter.incrementAndGet()));
         final PCCTunnel tunnel = new PCCTunnel(request.getLsp().getTlvs().getSymbolicPathName()
                 .getPathName().getValue(), session.getId(), LspType.PCE_LSP, reqToRptPath(request));
+        final LspFlags lf = new LspFlagsBuilder(request.getLsp().getLspFlags()).setCreate(true).build();
         sendToAll(tunnel, plspId, request.getEro().getSubobject(),
                 createSrp(request.getSrp().getOperationId().getValue()), tunnel.getLspState(),
-                new LspBuilder(request.getLsp())
-                        .addAugmentation(new Lsp1Builder().setCreate(true).build()).build());
+                new LspBuilder(request.getLsp()).setLspFlags(lf).build());
         tunnels.put(plspId, tunnel);
     }
 
@@ -211,8 +212,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
                 if (hasDelegation(tunnel, session)) {
                     tunnels.remove(plspId);
                     sendToAll(tunnel, plspId, tunnel.getLspState().getEro().getSubobject(),
-                        new SrpBuilder(request.getSrp())
-                                .addAugmentation(new Srp1Builder().setRemove(true).build()).build(),
+                        new SrpBuilder(request.getSrp()).setRemove(true).build(),
                         reqToRptPath(request), request.getLsp());
                 } else {
                     session.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.UPDATE_REQ_FOR_NON_LSP, srpId));
@@ -233,7 +233,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             timerHandler.ifPresent(TimerHandler::createDisconnectTask);
         } else if (isReSyncTriggered(lsp)) {
             handledDbTriggeredResync(update, session);
-        } else if (Boolean.TRUE.equals(lsp.getDelegate())) {
+        } else if (Boolean.TRUE.equals(lsp.getLspFlags().getDelegate())) {
             //regular LSP update
             reportToAll(update, session);
         } else {
@@ -244,11 +244,12 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
 
     @Override
     public void onMessagePcInitiate(final Requests request, final PCCSession session) {
-        final Srp1 aug = request.getSrp().augmentation(Srp1.class);
-        if (aug != null && aug.getRemove()) {
+        final Srp srp = request.getSrp();
+        if (srp != null && srp.getRemove()) {
             //remove LSP
             removeTunnel(request, session);
-        } else if (Boolean.TRUE.equals(request.getLsp().getDelegate()) && request.getEndpointsObj() == null) {
+        } else if (Boolean.TRUE.equals(request.getLsp().getLspFlags().getDelegate())
+                && request.getEndpointsObj() == null) {
             //take LSP delegation
             takeDelegation(request, session);
         } else {
@@ -279,11 +280,11 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     }
 
     private boolean isReSyncTriggered(final Lsp lsp) {
-        return syncOptimization.isTriggeredReSyncEnabled() && lsp.getSync();
+        return syncOptimization.isTriggeredReSyncEnabled() && lsp.getLspFlags().getSync();
     }
 
     private boolean isInitialSyncTriggered(final Lsp lsp) {
-        return lsp.getPlspId().getValue().toJava() == 0 && lsp.getSync()
+        return lsp.getPlspId().getValue().toJava() == 0 && lsp.getLspFlags().getSync()
                 && syncOptimization.isTriggeredInitSyncEnabled();
     }
 
@@ -389,11 +390,14 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
             final Pcrpt pcRpt = createPcRtpMessage(
                 new LspBuilder(lsp)
                     .setPlspId(plspId)
-                    .setOperational(OperationalStatus.Up)
-                    .setDelegate(isDelegated)
-                    .setSync(true)
-                    .addAugmentation(new Lsp1Builder().setCreate(tunnel.getType() == LspType.PCE_LSP).build())
-                    .setTlvs(tlvs).build(),
+                    .setLspFlags(new LspFlagsBuilder(lsp.getLspFlags())
+                        .setOperational(OperationalStatus.Up)
+                        .setDelegate(isDelegated)
+                        .setSync(true)
+                        .setCreate(tunnel.getType() == LspType.PCE_LSP)
+                        .build())
+                    .setTlvs(tlvs)
+                    .build(),
                 Optional.ofNullable(srp), path);
             session.sendReport(pcRpt);
         }

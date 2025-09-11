@@ -19,22 +19,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Pcrpt;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.SymbolicPathName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.LspIdentifiersBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.symbolic.path.name.tlv.SymbolicPathNameBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SymbolicPathName;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiersBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -113,43 +111,42 @@ public class IncrementalSynchronizationProcedureTest extends AbstractPCEPSession
 
     private Open getOpen(final LspDbVersion dbVersion) {
         return new OpenBuilder(super.getLocalPref())
-                .setTlvs(new TlvsBuilder()
-                    .addAugmentation(new Tlvs1Builder()
-                        .setStateful(new StatefulBuilder()
-                            .addAugmentation(new Stateful1Builder().setInitiation(Boolean.TRUE).build())
-                            .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                                .controller.pcep.sync.optimizations.rev200720.Stateful1Builder()
-                                .setIncludeDbVersion(Boolean.TRUE).setDeltaLspSyncCapability(Boolean.TRUE)
-                                .build())
-                            .build())
-                        .build())
-                    .addAugmentation(new Tlvs3Builder().setLspDbVersion(dbVersion).build())
+            .setTlvs(new TlvsBuilder()
+                .setStatefulCapability(new StatefulCapabilityBuilder()
+                    .setInitiation(Boolean.TRUE)
+                    .setIncludeDbVersion(Boolean.TRUE).setDeltaLspSyncCapability(Boolean.TRUE)
                     .build())
-                .build();
+                .setLspDbVersion(dbVersion)
+                .build())
+            .build();
     }
 
     private static Pcrpt getPcrpt(final Uint32 val, final String pathname) {
-        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder().setPlspId(new PlspId(val)).setTlvs(
-            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp
-                    .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
-                    .setLspId(new LspId(val)).build())
-                .setSymbolicPathName(new SymbolicPathNameBuilder().setPathName(new SymbolicPathName(
-                    pathname.getBytes())).build()).addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight
-                        .params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs1Builder()
-                        .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.valueOf(val)).build())
-                        .build()).build()).setPlspId(new PlspId(val)
-        ).setSync(true).setRemove(false).setOperational(OperationalStatus.Active).build(), Optional.empty(),
+        return MsgBuilderUtil.createPcRtpMessage(new LspBuilder()
+            .setPlspId(new PlspId(val))
+            .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp
+                .object.lsp.TlvsBuilder().setLspIdentifiers(new LspIdentifiersBuilder()
+                        .setLspId(new LspId(val)).build())
+                    .setSymbolicPathName(new SymbolicPathNameBuilder()
+                        .setPathName(new SymbolicPathName(pathname.getBytes())).build())
+                    .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.valueOf(val)).build())
+                    .build())
+            .setLspFlags(new LspFlagsBuilder()
+                .setSync(true)
+                .setRemove(false)
+                .setOperational(OperationalStatus.Active)
+                .build())
+            .build(), Optional.empty(),
             createPath(Collections.emptyList()));
     }
 
     private static Pcrpt getSyncPcrt() {
         return MsgBuilderUtil.createPcRtpMessage(createLsp(Uint32.ZERO, false, Optional.of(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328
-                        .lsp.object.lsp.TlvsBuilder().addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight
-                            .params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs1Builder()
-                            .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.valueOf(3L)).build())
-                            .build()).build()),
-                true, false), Optional.empty(),
-                createPath(Collections.emptyList()));
+            new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp
+                .TlvsBuilder()
+                    .setLspDbVersion(new LspDbVersionBuilder().setLspDbVersionValue(Uint64.valueOf(3L)).build())
+                    .build()),
+            true, false), Optional.empty(),
+            createPath(Collections.emptyList()));
     }
 }

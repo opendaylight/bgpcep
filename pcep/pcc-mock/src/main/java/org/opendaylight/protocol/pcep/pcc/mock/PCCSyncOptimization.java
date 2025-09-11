@@ -12,11 +12,9 @@ import static java.util.Objects.requireNonNull;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 final class PCCSyncOptimization {
@@ -81,11 +79,7 @@ final class PCCSyncOptimization {
 
     private static LspDbVersion getLspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs3 tlvs3 = openTlvs.augmentation(Tlvs3.class);
-            if (tlvs3 != null && tlvs3.getLspDbVersion() != null
-                && tlvs3.getLspDbVersion().getLspDbVersionValue() != null) {
-                return tlvs3.getLspDbVersion();
-            }
+            return openTlvs.getLspDbVersion();
         }
         return null;
     }
@@ -97,34 +91,31 @@ final class PCCSyncOptimization {
         return false;
     }
 
-    private static Stateful1 getStateful1(final Tlvs openTlvs) {
+    private static StatefulCapability getStatefulCapability(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final Tlvs1 tlvs1 = openTlvs.augmentation(Tlvs1.class);
-            if (tlvs1 != null && tlvs1.getStateful() != null) {
-                return tlvs1.getStateful().augmentation(Stateful1.class);
-            }
+            return openTlvs.getStatefulCapability();
         }
         return null;
     }
 
     private static boolean isSyncAvoidance(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getIncludeDbVersion());
+        final StatefulCapability sc = getStatefulCapability(openTlvs);
+        return sc != null && Boolean.TRUE.equals(sc.getIncludeDbVersion());
     }
 
     private static boolean isDeltaSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getDeltaLspSyncCapability());
+        final StatefulCapability sc = getStatefulCapability(openTlvs);
+        return sc != null && Boolean.TRUE.equals(sc.getDeltaLspSyncCapability());
     }
 
     private static boolean isTriggeredInitialSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredInitialSync());
+        final StatefulCapability sc = getStatefulCapability(openTlvs);
+        return sc != null && Boolean.TRUE.equals(sc.getTriggeredInitialSync());
     }
 
     private static boolean isTriggeredReSync(final Tlvs openTlvs) {
-        final Stateful1 stateful1 = getStateful1(openTlvs);
-        return stateful1 != null && Boolean.TRUE.equals(stateful1.getTriggeredResync());
+        final StatefulCapability sc = getStatefulCapability(openTlvs);
+        return sc != null && Boolean.TRUE.equals(sc.getTriggeredResync());
     }
 
     public Optional<Uint64> incrementLspDBVersion() {
