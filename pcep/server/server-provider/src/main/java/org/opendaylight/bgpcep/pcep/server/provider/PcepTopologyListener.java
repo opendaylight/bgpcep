@@ -28,13 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescriptionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Lsp1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Path1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.reported.route.object.Rro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.SrSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpAdjacency;
@@ -47,7 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OperationalStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PsType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
@@ -392,9 +390,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         if (path.augmentations() == null) {
             return null;
         }
-        final Path1 p1 = path.augmentation(Path1.class);
-        final PsType pst = p1.getPathSetupType() != null ? p1.getPathSetupType().getPst() : PsType.RsvpTe;
-        final Lsp lsp = p1.getLsp();
+        final PsType pst = path.getPathSetupType() != null ? path.getPathSetupType().getPst() : PsType.RsvpTe;
+        final Lsp lsp = path.getLsp();
         final var af = lsp.getTlvs().getLspIdentifiers().getAddressFamily();
         IpAddress source = null;
         IpAddress destination = null;
@@ -448,7 +445,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                 new ComputedPathBuilder()
                     .setPathDescription(pathDesc)
                     .setComputationStatus(
-                        lsp.getOperational() == OperationalStatus.Down
+                        lsp.getLspFlags().getOperational() == OperationalStatus.Down
                             ? ComputationStatus.Failed
                             : ComputationStatus.Completed)
                     .build())
@@ -464,12 +461,12 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      */
     private static PathType getPathType(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        final Path1 p1 = Iterables.getLast(rl.getPath().values()).augmentation(Path1.class);
-        if (!p1.getLsp().getDelegate()) {
+        final Path p1 = Iterables.getLast(rl.getPath().values());
+        if (!p1.getLsp().getLspFlags().getDelegate()) {
             return PathType.Pcc;
         }
-        final Lsp1 lspCreateFlag = p1.getLsp().augmentation(Lsp1.class);
-        if (lspCreateFlag == null || !lspCreateFlag.getCreate()) {
+        final Lsp lspCreateFlag = p1.getLsp();
+        if (lspCreateFlag == null || !lspCreateFlag.getLspFlags().getCreate()) {
             return PathType.Delegated;
         }
         return PathType.Initiated;

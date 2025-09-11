@@ -6,6 +6,7 @@ module odl-pcep-config {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import rfc2385 { prefix rfc2385; revision-date 2016-03-24; }
+    import odl-pcep-types { prefix pcep-types; revision-date 2025-09-30; }
 
     organization "AT&T Services, Inc.";
     contact "Claudio D. Gasparini <claudio.gasparini@pantheon.sk>";
@@ -180,6 +181,38 @@ module odl-pcep-config {
         }
     }
 
+    grouping stateful-capabilities {
+        leaf initiated {
+            type boolean;
+            default true;
+        }
+
+        leaf active {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-initial-sync {
+            type boolean;
+            default true;
+        }
+
+        leaf delta-lsp-sync-capability {
+            type boolean;
+            default true;
+        }
+
+        leaf triggered-resync {
+            type boolean;
+            default true;
+        }
+
+        leaf include-db-version {
+            type boolean;
+            default true;
+        }
+    }
+
     grouping pcep-config {
         container session-config {
             description "PCEP topology config";
@@ -218,6 +251,7 @@ module odl-pcep-config {
                 type rfc2385:rfc2385-key;
                 description "RFC2385 shared secret";
             }
+            uses pcep-types:speaker-entity-id;
         }
     }
 }

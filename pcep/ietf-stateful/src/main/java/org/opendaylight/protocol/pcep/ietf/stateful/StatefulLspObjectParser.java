@@ -21,20 +21,22 @@ import org.opendaylight.protocol.pcep.spi.ObjectUtil;
 import org.opendaylight.protocol.pcep.spi.TlvRegistry;
 import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.protocol.util.BitArray;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.OperationalStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.PlspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.error.code.tlv.LspErrorCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.LspIdentifiers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.LspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.lsp.Tlvs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.lsp.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.path.binding.tlv.PathBinding;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.rsvp.error.spec.tlv.RsvpErrorSpec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.LspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.LspFlagsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.lsp.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OperationalStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.binding.tlv.PathBinding;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.RsvpErrorSpec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -53,6 +55,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
     protected static final int REMOVE = 9;
     protected static final int ADMINISTRATIVE = 8;
     protected static final int OPERATIONAL = 5;
+    protected static final int CREATE = 4;
     protected static final int PCE_ALLOCATION = 0;
 
     protected static final int FOUR_BITS_SHIFT = 4;
@@ -79,18 +82,21 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         return builder.build();
     }
 
-    protected void parseFlags(final LspBuilder builder, final ByteBuf bytes) {
+    private void parseFlags(final LspBuilder builder, final ByteBuf bytes) {
         final BitArray flags = BitArray.valueOf(bytes, FLAGS_SIZE);
-        builder.setPceAllocation(flags.get(PCE_ALLOCATION));
-        builder.setDelegate(flags.get(DELEGATE));
-        builder.setSync(flags.get(SYNC));
-        builder.setRemove(flags.get(REMOVE));
-        builder.setAdministrative(flags.get(ADMINISTRATIVE));
         short oper = 0;
         oper |= flags.get(OPERATIONAL + 2) ? 1 : 0;
         oper |= (flags.get(OPERATIONAL + 1) ? 1 : 0) << 1;
         oper |= (flags.get(OPERATIONAL) ? 1 : 0) << 2;
-        builder.setOperational(OperationalStatus.forValue(oper));
+        builder.setLspFlags(new LspFlagsBuilder()
+            .setDelegate(flags.get(DELEGATE))
+            .setSync(flags.get(SYNC))
+            .setRemove(flags.get(REMOVE))
+            .setAdministrative(flags.get(ADMINISTRATIVE))
+            .setOperational(OperationalStatus.forValue(oper))
+            .setCreate(flags.get(CREATE))
+            .setPceAllocation(flags.get(PCE_ALLOCATION))
+            .build());
     }
 
     @Override
@@ -100,6 +106,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
             case LspIdentifiers li -> builder.setLspIdentifiers(li);
             case RsvpErrorSpec rec -> builder.setRsvpErrorSpec(rec);
             case SymbolicPathName spn -> builder.setSymbolicPathName(spn);
+            case LspDbVersion ldv -> builder.setLspDbVersion(ldv);
             case PathBinding pb -> builder.setPathBinding(pb);
             case null, default -> {
                 // No-op
@@ -118,8 +125,8 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         body.writeMedium(plspId.getValue().intValue() << FOUR_BITS_SHIFT);
         final BitArray flags = serializeFlags(specObj);
         byte op = 0;
-        if (specObj.getOperational() != null) {
-            op = UnsignedBytes.checkedCast(specObj.getOperational().getIntValue());
+        if (specObj.getLspFlags().getOperational() != null) {
+            op = UnsignedBytes.checkedCast(specObj.getLspFlags().getOperational().getIntValue());
             op = (byte) (op << FOUR_BITS_SHIFT);
         }
         final byte[] res = flags.array();
@@ -129,13 +136,17 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         ObjectUtil.formatSubobject(TYPE, CLASS, object.getProcessingRule(), object.getIgnore(), body, buffer);
     }
 
-    protected BitArray serializeFlags(final Lsp specObj) {
+    private BitArray serializeFlags(final Lsp specObj) {
         final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(PCE_ALLOCATION, specObj.getPceAllocation());
-        flags.set(DELEGATE, specObj.getDelegate());
-        flags.set(REMOVE, specObj.getRemove());
-        flags.set(SYNC, specObj.getSync());
-        flags.set(ADMINISTRATIVE, specObj.getAdministrative());
+        final var lf = specObj.getLspFlags();
+        if (lf != null) {
+            flags.set(DELEGATE, lf.getDelegate());
+            flags.set(REMOVE, lf.getRemove());
+            flags.set(SYNC, lf.getSync());
+            flags.set(ADMINISTRATIVE, lf.getAdministrative());
+            flags.set(CREATE, lf.getCreate());
+            flags.set(PCE_ALLOCATION, lf.getPceAllocation());
+        }
         return flags;
     }
 
@@ -148,6 +159,7 @@ public class StatefulLspObjectParser extends AbstractObjectWithTlvsParser<TlvsBu
         serializeOptionalTlv(tlvs.getLspIdentifiers(), body);
         serializeOptionalTlv(tlvs.getRsvpErrorSpec(), body);
         serializeOptionalTlv(tlvs.getSymbolicPathName(), body);
+        serializeOptionalTlv(tlvs.getLspDbVersion(), body);
         serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         serializeOptionalTlv(tlvs.getPathBinding(), body);
     }

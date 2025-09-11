@@ -9,11 +9,9 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
 
 record SyncOptimization(
         boolean dbVersionMatch,
@@ -42,43 +40,34 @@ record SyncOptimization(
 
     private static @Nullable LspDbVersion lspDbVersion(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final var tlvs3 = openTlvs.augmentation(Tlvs3.class);
-            if (tlvs3 != null) {
-                final var dbVersion = tlvs3.getLspDbVersion();
-                if (dbVersion != null && dbVersion.getLspDbVersionValue() != null) {
-                    return dbVersion;
-                }
+            final var dbVersion = openTlvs.getLspDbVersion();
+            if (dbVersion != null && dbVersion.getLspDbVersionValue() != null) {
+                return dbVersion;
             }
         }
         return null;
     }
 
-    private static @Nullable Stateful1 stateful(final Tlvs openTlvs) {
+    private static @Nullable StatefulCapability stateful(final Tlvs openTlvs) {
         if (openTlvs != null) {
-            final var tlvs1 = openTlvs.augmentation(Tlvs1.class);
-            if (tlvs1 != null) {
-                final var stateful = tlvs1.getStateful();
-                if (stateful != null) {
-                    return stateful.augmentation(Stateful1.class);
-                }
-            }
+            return openTlvs.getStatefulCapability();
         }
         return null;
     }
 
-    private static boolean syncAvoidance(final Stateful1 stateful) {
+    private static boolean syncAvoidance(final StatefulCapability stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getIncludeDbVersion());
     }
 
-    private static boolean deltaSync(final Stateful1 stateful) {
+    private static boolean deltaSync(final StatefulCapability stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getDeltaLspSyncCapability());
     }
 
-    private static boolean triggeredInitialSync(final Stateful1 stateful) {
+    private static boolean triggeredInitialSync(final StatefulCapability stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredInitialSync());
     }
 
-    private static boolean triggeredReSync(final Stateful1 stateful) {
+    private static boolean triggeredReSync(final StatefulCapability stateful) {
         return stateful != null && Boolean.TRUE.equals(stateful.getTriggeredResync());
     }
 }

@@ -3,9 +3,9 @@ module odl-pcep-auto-bandwidth {
     prefix "auto-bw";
 
     import odl-pcep-object { prefix pcep; revision-date 2025-09-30; }
+    import odl-pcep-message { prefix msg; revision-date 2025-09-30; }
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import network-topology-pcep { prefix topo; revision-date 2025-03-28; }
-    import odl-pcep-ietf-stateful { prefix stateful; revision-date 2025-03-28; }
     import network-concepts { prefix netc; revision-date 2013-11-25; }
 
     organization "Cisco Systems, Inc.";
@@ -53,7 +53,7 @@ module odl-pcep-auto-bandwidth {
         }
     }
 
-    augment "/stateful:pcrpt/stateful:pcrpt-message/stateful:reports/stateful:path/stateful:bandwidth" {
+    augment "/msg:pcrpt/msg:pcrpt-message/msg:reports/msg:path/msg:bandwidth" {
         uses bw-samples;
     }
 

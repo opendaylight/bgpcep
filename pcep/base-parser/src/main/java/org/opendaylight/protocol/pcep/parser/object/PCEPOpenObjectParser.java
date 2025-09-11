@@ -32,9 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.AssociationRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.type.list.tlv.AssociationTypeList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.capability.tlv.PathSetupTypeCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.sr.policy.capability.tlv.SrPolicyCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -100,6 +103,15 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         if (tlv instanceof OfList ol) {
             tbuilder.setOfList(ol);
         }
+        if (tlv instanceof StatefulCapability st) {
+            tbuilder.setStatefulCapability(st);
+        }
+        if (tlv instanceof LspDbVersion ldb) {
+            tbuilder.setLspDbVersion(ldb);
+        }
+        if (tlv instanceof SpeakerEntityId sei) {
+            tbuilder.setSpeakerEntityId(sei);
+        }
         if (tlv instanceof AssociationTypeList atl) {
             tbuilder.setAssociationTypeList(atl);
         }
@@ -133,6 +145,9 @@ public class PCEPOpenObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
     public void serializeTlvs(final @Nullable Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
             serializeOptionalTlv(tlvs.getOfList(), body);
+            serializeOptionalTlv(tlvs.getStatefulCapability(), body);
+            serializeOptionalTlv(tlvs.getLspDbVersion(), body);
+            serializeOptionalTlv(tlvs.getSpeakerEntityId(), body);
             serializeOptionalTlv(tlvs.getAssociationTypeList(), body);
             serializeOptionalTlv(tlvs.getAssociationRange(), body);
             serializeOptionalTlv(tlvs.getPathSetupTypeCapability(), body);
