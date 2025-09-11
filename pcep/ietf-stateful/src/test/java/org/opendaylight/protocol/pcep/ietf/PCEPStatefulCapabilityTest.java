@@ -13,10 +13,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 
 public class PCEPStatefulCapabilityTest {
     @Test
@@ -31,17 +29,13 @@ public class PCEPStatefulCapabilityTest {
         final TlvsBuilder builder = new TlvsBuilder();
         sspf.setCapabilityProposal(null, builder);
         assertEquals(new TlvsBuilder()
-            .addAugmentation(new Tlvs1Builder()
-                .setStateful(new StatefulBuilder().setLspUpdateCapability(true)
-                    .addAugmentation(new Stateful1Builder().setInitiation(true).build())
-                    .addAugmentation(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller
-                        .pcep.sync.optimizations.rev200720.Stateful1Builder()
-                            .setTriggeredInitialSync(true)
-                            .setTriggeredResync(false)
-                            .setDeltaLspSyncCapability(true)
-                            .setIncludeDbVersion(true)
-                            .build())
-                    .build())
+            .setStatefulCapability(new StatefulCapabilityBuilder()
+                .setLspUpdateCapability(true)
+                .setInitiation(true)
+                .setTriggeredInitialSync(true)
+                .setTriggeredResync(false)
+                .setDeltaLspSyncCapability(true)
+                .setIncludeDbVersion(true)
                 .build())
             .build(), builder.build());
     }

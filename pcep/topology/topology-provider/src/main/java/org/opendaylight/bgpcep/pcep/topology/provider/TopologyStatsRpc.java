@@ -23,20 +23,7 @@ import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.PcepEntityIdStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulCapabilitiesStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesRpcAugBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stateful.stats.rev181109.StatefulMessagesStatsAug;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPrefBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.Messages;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.MessagesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.grouping.PcepSessionState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.grouping.PcepSessionStateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStats;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.topology.stats.rpc.rev190321.GetStatsOutput;
@@ -158,7 +145,7 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
                                 return new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep
                                     .topology.stats.rpc.rev190321.get.stats.output.topology.NodeBuilder()
                                     .setNodeId(iNodeId)
-                                    .setPcepSessionState(transformStatefulAugmentation(state))
+                                    .setPcepSessionState(state)
                                     .build();
                             })
                             .collect(BindingMap.toOrderedMap()))
@@ -166,65 +153,6 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
                 })
                 .collect(BindingMap.toOrderedMap()))
             .build()));
-    }
-
-    /*
-     * Replace stateful topology augmentations with ones for rpc in PCEP session
-     * stats data
-     */
-    private static PcepSessionState transformStatefulAugmentation(final PcepSessionState pcepSessionState) {
-        if (pcepSessionState == null) {
-            return null;
-        }
-
-        final PcepSessionStateBuilder sb = new PcepSessionStateBuilder(pcepSessionState);
-
-        final Messages topoMessage = pcepSessionState.getMessages();
-        if (topoMessage != null) {
-            final StatefulMessagesStatsAug messageStatsAug = topoMessage.augmentation(StatefulMessagesStatsAug.class);
-            if (messageStatsAug != null) {
-                sb.setMessages(new MessagesBuilder(topoMessage)
-                    .removeAugmentation(StatefulMessagesStatsAug.class)
-                        .addAugmentation(new StatefulMessagesRpcAugBuilder()
-                            .setLastReceivedRptMsgTimestamp(messageStatsAug.getLastReceivedRptMsgTimestamp())
-                            .setReceivedRptMsgCount(messageStatsAug.getReceivedRptMsgCount())
-                            .setSentInitMsgCount(messageStatsAug.getSentInitMsgCount())
-                            .setSentUpdMsgCount(messageStatsAug.getSentUpdMsgCount())
-                            .build())
-                        .build());
-            }
-        }
-
-        final PeerCapabilities topoPeerCapability = pcepSessionState.getPeerCapabilities();
-        if (topoPeerCapability != null) {
-            final StatefulCapabilitiesStatsAug capabilityStatsAug =
-                    topoPeerCapability.augmentation(StatefulCapabilitiesStatsAug.class);
-            if (capabilityStatsAug != null) {
-                sb.setPeerCapabilities(new PeerCapabilitiesBuilder(topoPeerCapability)
-                        .removeAugmentation(StatefulCapabilitiesStatsAug.class)
-                        .addAugmentation(new StatefulCapabilitiesRpcAugBuilder()
-                            .setActive(capabilityStatsAug.getActive())
-                            .setInstantiation(capabilityStatsAug.getInstantiation())
-                            .setStateful(capabilityStatsAug.getStateful())
-                            .build())
-                        .build());
-            }
-        }
-
-        final LocalPref topoLocalPref = pcepSessionState.getLocalPref();
-        if (topoLocalPref != null) {
-            final PcepEntityIdStatsAug entityStatsAug = topoLocalPref.augmentation(PcepEntityIdStatsAug.class);
-            if (entityStatsAug != null) {
-                sb.setLocalPref(new LocalPrefBuilder(topoLocalPref)
-                    .removeAugmentation(PcepEntityIdStatsAug.class)
-                    .addAugmentation(new PcepEntityIdRpcAugBuilder()
-                            .setSpeakerEntityIdValue(entityStatsAug.getSpeakerEntityIdValue())
-                            .build())
-                    .build());
-            }
-        }
-
-        return sb.build();
     }
 
     private List<TopologyId> getAvailableTopologyIds() {
