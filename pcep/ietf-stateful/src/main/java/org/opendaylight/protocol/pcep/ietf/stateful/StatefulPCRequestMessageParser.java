@@ -15,9 +15,6 @@ import java.util.Queue;
 import org.opendaylight.protocol.pcep.parser.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.P2p1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.P2p1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcreq.message.pcreq.message.requests.SegmentComputation;
@@ -32,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.load.balancing.object.LoadBalancing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.of.object.Of;
@@ -65,10 +63,7 @@ public class StatefulPCRequestMessageParser extends PCEPRequestMessageParser {
             }
         }
         serializeObject(p2p.getLoadBalancing(), buffer);
-        if (p2p.augmentation(P2p1.class) != null) {
-            final P2p1 aug = p2p.augmentation(P2p1.class);
-            serializeObject(aug.getLsp(), buffer);
-        }
+        serializeObject(p2p.getLsp(), buffer);
         serializeObject(p2p.getLspa(), buffer);
         serializeObject(p2p.getBandwidth(), buffer);
         for (final Metrics m : p2p.nonnullMetrics()) {
@@ -153,7 +148,7 @@ public class StatefulPCRequestMessageParser extends PCEPRequestMessageParser {
                 // fallthrough
             case LOAD_BIN:
                 if (obj instanceof Lsp) {
-                    builder.addAugmentation(new P2p1Builder().setLsp((Lsp) obj).build());
+                    builder.setLsp((Lsp) obj);
                     return P2PState.LSP_IN;
                 }
                 // fallthrough

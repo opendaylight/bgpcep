@@ -32,16 +32,12 @@ import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersion;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.lsp.db.version.tlv.LspDbVersionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.stateful.capability.tlv.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.node.config.SessionConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.sync.optimizations.config.rev181109.PcepNodeSyncConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -77,9 +73,7 @@ public class PCEPStatefulPeerProposalTest {
 
     @Before
     public void setUp() {
-        tlvsBuilder = new TlvsBuilder().addAugmentation(new Tlvs1Builder()
-            .setStateful(new StatefulBuilder().addAugmentation(new Stateful1Builder().build()).build())
-            .build());
+        tlvsBuilder = new TlvsBuilder().setStatefulCapability(new StatefulCapabilityBuilder().build());
         doReturn(listenerReg).when(dataBroker).registerTreeChangeListener(any(), any(), captor.capture());
         doNothing().when(listenerReg).close();
     }
@@ -109,7 +103,12 @@ public class PCEPStatefulPeerProposalTest {
 
             // Mock lspdb
         });
-        assertEquals(new Tlvs3Builder().setLspDbVersion(LSP_DB_VERSION).build(), tlvsBuilder.augmentation(Tlvs3.class));
+        final var expected = new TlvsBuilder()
+            .setLspDbVersion(LSP_DB_VERSION)
+            .setStatefulCapability(new StatefulCapabilityBuilder().build())
+            .setSpeakerEntityId(new SpeakerEntityIdBuilder().build())
+            .build();
+        assertEquals(expected, tlvsBuilder.build());
     }
 
     @Test
@@ -130,7 +129,7 @@ public class PCEPStatefulPeerProposalTest {
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
             final var speakerRoot = mock(DataObjectModification.class);
-            doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
+            doReturn(new SessionConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
                 .dataAfter();
             final var speakerMod = mock(DataTreeModification.class);
             doReturn(modPath).when(speakerMod).path();
@@ -144,17 +143,16 @@ public class PCEPStatefulPeerProposalTest {
                 }
             }
         });
-        final Tlvs3 aug = tlvsBuilder.augmentation(Tlvs3.class);
-        assertNotNull(aug);
-        assertEquals(LSP_DB_VERSION, aug.getLspDbVersion());
+        assertNotNull(tlvsBuilder.getLspDbVersion());
+        assertEquals(LSP_DB_VERSION, tlvsBuilder.getLspDbVersion());
         assertEquals(new SpeakerEntityIdBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build(),
-            aug.getSpeakerEntityId());
+                tlvsBuilder.getSpeakerEntityId());
     }
 
     @Test
     public void testSetPeerProposalAbsent() throws Exception {
         updateBuilder();
-        assertNull(tlvsBuilder.augmentation(Tlvs3.class));
+        assertNull(tlvsBuilder.getLspDbVersion());
     }
 
     private void updateBuilder() {

@@ -28,13 +28,12 @@ import org.opendaylight.mdsal.binding.api.ReadWriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.AdministrativeStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Path1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.AdministrativeStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv4Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv6._case.Ipv6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
@@ -238,7 +237,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             final ReportedLsp value) throws ExecutionException, InterruptedException {
         final var ni = identifier.toLegacy().firstIdentifierOf(Node.class).toIdentifier();
 
-        final Path1 rl = value.nonnullPath().values().iterator().next().augmentation(Path1.class);
+        final Path rl = value.nonnullPath().values().iterator().next();
 
         final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
@@ -267,16 +266,13 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         if (path0.getClassType() != null) {
             lab.setClassType(path0.getClassType().getClassType());
         }
-        lab.setSymbolicPathName(value.getName());
-
+        lab.setSymbolicPathName(value.getName())
+            .setOperationalStatus(rl.getLsp().getLspFlags().getOperational())
+            .setAdministrativeStatus(rl.getLsp().getLspFlags().getAdministrative()
+                    ? AdministrativeStatus.Active
+                    : AdministrativeStatus.Inactive);
         final var dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
-        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getDelegate());
-
-        final var slab = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev250328.Link1Builder()
-            .setOperationalStatus(rl.getLsp().getOperational())
-            .setAdministrativeStatus(
-                rl.getLsp().getAdministrative() ? AdministrativeStatus.Active : AdministrativeStatus.Inactive);
+        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getLspFlags().getDelegate());
 
         final var linkId = linkIdForLsp(identifier, value);
         final var lb = new LinkBuilder()
@@ -289,8 +285,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
                 .setDestNode(dst.firstKeyOf(Node.class).getNodeId())
                 .setDestTp(dst.firstKeyOf(TerminationPoint.class).getTpId())
                 .build())
-            .addAugmentation(lab.build())
-            .addAugmentation(slab.build());
+            .addAugmentation(lab.build());
 
         trans.put(LogicalDatastoreType.OPERATIONAL, linkForLsp(linkId), lb.build());
     }

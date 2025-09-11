@@ -48,13 +48,10 @@ import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Tlvs3;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.initiated.rev200720.Stateful1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Pcrpt;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.Tlvs1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.lsp.object.Lsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful.rev250328.pcrpt.message.pcrpt.message.Reports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrpt.message.pcrpt.message.Reports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -144,10 +141,8 @@ public abstract class PCCMockCommon {
         final PCEPSession session = pceSessionListener.getSession();
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
-                .augmentation(Stateful1.class).getInitiation());
-        assertNull(session.getLocalTlvs().augmentation(Tlvs3.class)
-                .getLspDbVersion().getLspDbVersionValue());
+        assertTrue(session.getRemoteTlvs().getStatefulCapability().getInitiation());
+        assertNull(session.getLocalTlvs().getLspDbVersion().getLspDbVersionValue());
     }
 
     static void checkResyncSession(final Optional<Integer> startAtNumberLsp, final int expectedNumberOfLsp,
@@ -169,11 +164,8 @@ public abstract class PCCMockCommon {
 
         checkSession(session, DEAD_TIMER, KEEP_ALIVE);
 
-        assertTrue(session.getRemoteTlvs().augmentation(Tlvs1.class).getStateful()
-                .augmentation(Stateful1.class).getInitiation());
-        final Uint64 pceDBVersion = session.getLocalTlvs().augmentation(Tlvs3.class)
-                .getLspDbVersion().getLspDbVersionValue();
-        assertEquals(startingDBVersion, pceDBVersion);
+        assertTrue(session.getRemoteTlvs().getStatefulCapability().getInitiation());
+        assertEquals(startingDBVersion, session.getLocalTlvs().getLspDbVersion().getLspDbVersionValue());
     }
 
     static void checkSession(final PCEPSession session, final Uint8 expectedDeadTimer,
@@ -181,9 +173,7 @@ public abstract class PCCMockCommon {
         assertNotNull(session);
         assertEquals(expectedDeadTimer, session.getPeerPref().getDeadtimer());
         assertEquals(expectedKeepAlive, session.getPeerPref().getKeepalive());
-        final Stateful1 stateful = session.getRemoteTlvs().augmentation(Tlvs1.class)
-                .getStateful().augmentation(Stateful1.class);
-        assertTrue(stateful.getInitiation());
+        assertTrue(session.getRemoteTlvs().getStatefulCapability().getInitiation());
     }
 
     protected static void checkSequequenceDBVersionSync(final TestingSessionListener pceSessionListener,
@@ -193,15 +183,11 @@ public abstract class PCCMockCommon {
             for (final Reports report : pcrt) {
                 final Lsp lsp = report.getLsp();
                 if (lsp.getPlspId().getValue().toJava() == 0) {
-                    assertEquals(false, lsp.getSync());
+                    assertEquals(false, lsp.getLspFlags().getSync());
                 } else {
-                    assertEquals(true, lsp.getSync());
+                    assertEquals(true, lsp.getLspFlags().getSync());
                 }
-                final Uint64 actuaLspDBVersion = lsp.getTlvs()
-                        .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep
-                            .sync.optimizations.rev200720.Tlvs1.class)
-                        .getLspDbVersion().getLspDbVersionValue();
-                assertEquals(expectedDbVersion, actuaLspDBVersion);
+                assertEquals(expectedDbVersion, lsp.getTlvs().getLspDbVersion().getLspDbVersionValue());
             }
         }
     }
