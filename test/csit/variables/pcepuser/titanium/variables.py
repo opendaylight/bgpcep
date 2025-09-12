@@ -1,7 +1,7 @@
 """Variables file for pcepuser suite.
 
 Expected JSON templates are fairly long,
-therefore there are moved out of testcase file.
+therefore they are moved out of the testcase file.
 Also, it is needed to generate base64 encoded tunnel name
 from Mininet IP (which is not known beforehand),
 so it is easier to employ Python here,
@@ -26,10 +26,10 @@ def get_variables(mininet_ip):
     """Return dict of variables for the given IP address of Mininet VM."""
     variables = {}
     # 'V' style of explanation.
-    # Comments a nalyze from high level, to low level, then code builds from low level back to high level.
+    # Comments analyze from high level, to low level, then code builds from low level back to high level.
     # ### Pcep-topology JSON responses.
     # Some testcases see only the tunnel created by pcc-mock start: "delegated tunnel" (ID 1).
-    # Other testcases see also tunnel created on ODL demand: "instatntiated tunnel" (ID 2).
+    # Other testcases see also tunnel created on ODL demand: "instantiated tunnel" (ID 2).
     # Both tunnels can have two states. "Default" upon creation with single hop "1.1.1.1",
     # and "updated" after update-lsp, which prepends another hop "2.2.2.2".
     # Variable naming always specifies delegated state first, and ends with _json to distinguish from operation data.
@@ -50,7 +50,7 @@ def get_variables(mininet_ip):
 }"""
     # Ok, other _json strings will have more regular structure and some variable data,
     # so we will be using templates heavily.
-    # First off, there is segment describing PCC which conatins IP address but is otherwise constant.
+    # First off, there is a segment describing PCC which contains IP address but is otherwise constant.
     # So the top-level template will look like this:
     json_templ = Template(
         """{
@@ -73,10 +73,10 @@ def get_variables(mininet_ip):
     # will have to use safe_substitute().
     # As you see, $LSPS is in json_templ without preceding newline.
     # As a rule, a segment will always start with endline and end without endline,
-    # so that we can add comma where needed.
-    # Discussion amout delegated and instantiated implies that $LSPS is either a single delegated LSP
+    # so that we can add commas where needed.
+    # Discussion about delegated and instantiated implies that $LSPS is either a single delegated LSP
     # or a pair of delegated and instantiated (separated by comma) LSPS, in appropriate state.
-    # Of course, one LSP always follow a structure, for which here is the template:
+    # Of course, one LSP always follows a structure, for which here is the template:
     lsp_templ = Template(
         """
    {
@@ -123,7 +123,7 @@ def get_variables(mininet_ip):
     # Pcc-mock uses a fixed naming scheme for delegated tunnels, so one more template can be written,
     # but it is so simple we can write just the one-line code instead:
     delegated_name = "pcc_" + mininet_ip + "_tunnel_1"  # 1 == ID
-    # For the instantiated tunnel, user is free to specify anything, even charachers such as \u0000 work.
+    # For the instantiated tunnel, user is free to specify anything, even characters such as \u0000 work.
     # But as we need to plug the name to XML, let us try something more friendly:
     instantiated_name = "Instantiated tunnel"
     # What is CODE? The NAME in base64 encoding (without endline):
