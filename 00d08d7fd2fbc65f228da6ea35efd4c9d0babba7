@@ -35,6 +35,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee8270eb_45a65c95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2025-09-17T10:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e320a867_4012e359",
+      "revId": "00d08d7fd2fbc65f228da6ea35efd4c9d0babba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "47cc639b_fbebdcdc",
@@ -48,6 +66,30 @@
       "writtenOn": "2025-09-11T08:11:27Z",
       "side": 1,
       "message": "this seems to be extra import",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 13
+      },
+      "revId": "00d08d7fd2fbc65f228da6ea35efd4c9d0babba7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74cc54a4_67bbf557",
+        "filename": "tests/test_singlepeer_pc_shm_300Kroutes.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2025-09-17T10:38:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47cc639b_fbebdcdc",
       "range": {
         "startLine": 15,
         "startChar": 0,
