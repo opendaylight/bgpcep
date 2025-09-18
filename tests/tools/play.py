@@ -2515,7 +2515,12 @@ def threaded_job(arguments):
 
         if not utils_left:
             break
-        prefix_current += amount_per_util * 16
+        # This prefix gap between threads should be calculated based on
+        # prefill count, addition count and withdrawal count.
+        count_to_be_added_in_iterations = amount_per_util - args.prefill
+        number_of_iterations = int((count_to_be_added_in_iterations - 1) / (args.insert - args.withdraw)) + 1  # round up
+        #prefix_current += amount_per_util * 16
+        prefix_current += ((number_of_iterations * args.insert) + args.prefill) * 16
         myip_current += 1
 
     try:
