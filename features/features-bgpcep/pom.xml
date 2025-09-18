@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
         <artifactId>feature-repo-parent</artifactId>
-        <version>0.22.12</version>
+        <version>0.22.13-SNAPSHOT</version>
         <relativePath>../../feature-repo-parent</relativePath>
     </parent>
 
