@@ -110,7 +110,7 @@ class TestBgpAppPeerPrefixCount:
                 log_level=BGP_TOOL_LOG_LEVEL,
                 log_file=BGP_PEER_LOG_FILE,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process)
+            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_prefill_routes"
@@ -212,7 +212,7 @@ class TestBgpAppPeerPrefixCount:
                 log_level=BGP_TOOL_LOG_LEVEL,
                 log_file=BGP_PEER_LOG_FILE,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process)
+            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_reintroduced_routes"
