@@ -25,129 +25,23 @@
 # https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Peer
 # http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering
 
-import logging
-import os
 import pytest
 
-from lib import bgp
-from lib import infra
-from lib import ip_topology
-from lib import utils
+from test_suites.base_test_manypeers_prefix_count import BaseTestManyPeerPrefixCount
 
 
 PREFIXES_COUNT = 600_000
 BGP_PEERS_COUNT = 20
-FIRST_PEER_IP = "127.0.0.1"
-KARAF_BGPCEP_LOG_LEVEL = "INFO"
-KARAF_LOG_LEVEL = os.environ["KARAF_LOG_LEVEL"]
-TEST_DURATION_MULTIPLIER = int(os.environ["TEST_DURATION_MULTIPLIER"])
-BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (PREFIXES_COUNT * 4.0 / 10000 + 80)
-BGP_EMPTYING_TIMEOUT = BGP_FILLING_TIMEOUT * 3 / 4
-
-log = logging.getLogger(__name__)
+INSERT = None
+WITHDRAW = None
+PREFILL = None
 
 
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.parametrize("bgp_peers_count, prefixes_count, insert, withdraw, prefill", [(BGP_PEERS_COUNT ,PREFIXES_COUNT, INSERT, WITHDRAW, PREFILL)])
 @pytest.mark.run(order=5)
-class TestManyPeerPrefixCount:
-    bgp_speaker_process = None
-
-    def test_many_peers_prefix_count(self, allure_step_with_separate_logging):
-
-        with allure_step_with_separate_logging(
-            "step_check_for_empty_topology_before_talking"
-        ):
-            """Wait for example-ipv4-topology to come up and empty. Give large
-            timeout for case when BGP boots slower than restconf."""
-            topology_count = utils.wait_until_function_returns_value(
-                120, 1, 0, ip_topology.get_ipv4_topology_prefixes_count
-            )
-            assert (
-                topology_count == 0
-            ), f"Ipv4 topology is not empty as expected, there are {topology_count} prefixes present."
-
-        with allure_step_with_separate_logging(
-            "step_reconfigure_odl_to_accept_connections"
-        ):
-            """Configure BGP peers with initiate-connection set to false."""
-            bgp.set_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP,
-                count=BGP_PEERS_COUNT,
-                passive_mode=True,
-            )
-
-        with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
-            """We may want to set more verbose logging here after configuration is
-            done."""
-            infra.execute_karaf_command(
-                f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
-            )
-            infra.execute_karaf_command(
-                f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.protocol"
-            )
-
-        with allure_step_with_separate_logging("step_start_talking_bgp_managers"):
-            """Start Python manager to connect speakers to ODL."""
-            TestManyPeerPrefixCount.bgp_speaker_process = bgp.start_bgp_speaker(
-                ammount=PREFIXES_COUNT, multiplicity=BGP_PEERS_COUNT, listen=False
-            )
-            assert infra.is_process_still_running(
-                TestManyPeerPrefixCount.bgp_speaker_process
-            ), "Bgp speaker process is not running"
-
-        with allure_step_with_separate_logging(
-            "step_wait_for_stable_talking_ip_topology"
-        ):
-            """Wait until example-ipv4-topology becomes stable. This is done by
-            checking stability of prefix count."""
-            ip_topology.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=0, wait_period=20, timeout=BGP_FILLING_TIMEOUT
-            )
-
-        with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
-            """Count the routes in example-ipv4-topology and fail if the count is
-            not correct."""
-            topology_count = ip_topology.get_ipv4_topology_prefixes_count()
-            assert (
-                topology_count == PREFIXES_COUNT
-            ), f"Ipv4 topology does not contain all {PREFIXES_COUNT} expected advertised prefixes, but only {topology_count}"
-
-        with allure_step_with_separate_logging("step_kill_talking_bgp_speakers"):
-            """Abort the Python speakers. Also, attempt to stop failing fast."""
-            bgp.stop_bgp_speaker(self.bgp_speaker_process)
-
-        with allure_step_with_separate_logging(
-            "step_wait_for_stable_ip_topology_after_talking"
-        ):
-            """Wait until example-ipv4-topology becomes stable again."""
-            ip_topology.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=PREFIXES_COUNT, timeout=BGP_EMPTYING_TIMEOUT
-            )
-
-        with allure_step_with_separate_logging(
-            "step_check_for_empty_ip_topology_after_talking"
-        ):
-            """Example-ipv4-topology should be empty now."""
-            topology_count = ip_topology.get_ipv4_topology_prefixes_count()
-            assert (
-                topology_count == 0
-            ), f"Ipv4 topology is not empty as expected, there are {topology_count} prefixes present."
-
-        with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
-            """Set logging on bgpcep and protocol to the global value."""
-            infra.execute_karaf_command(
-                f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
-            )
-            infra.execute_karaf_command(
-                f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
-            )
-
-        with allure_step_with_separate_logging("step_delete_bgp_peers_configurations"):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
-            bgp.delete_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP, count=BGP_PEERS_COUNT
-            )
+class TestManyPeersPrefixCount(BaseTestManyPeerPrefixCount):
+    pass
