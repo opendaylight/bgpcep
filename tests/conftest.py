@@ -100,7 +100,7 @@ def preconditions():
     """
     infra.shell("rm -rf tmp && mkdir tmp")
     infra.shell("ls results || mkdir results")
-    infra.start_odl_with_features(ODL_FEATRUES, timeout=80)
+    infra.start_odl_with_features(ODL_FEATRUES, timeout=180)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
     yield
     infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
