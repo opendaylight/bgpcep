@@ -15,8 +15,7 @@
 # Data change counter is a lightweight way to detect
 # "work is being done". change_counter.py provide a nice function
 # to wait for stability, but it needs initial value, that is why
-# "TestSinglePeerChangeCount.last_change_count_single =
-# change_counter.get_change_count()"
+# "TestSinglePeerChangeCount.last_change_count_single = change_counter.get_change_count()"
 # appears just before work-inducing action. The time for
 # test_wait_for_stable_* cases to finish is the main performance
 # metric.After waiting for stability is done, full check on
@@ -25,13 +24,13 @@
 # https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Peer
 # http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering
 
-
 import pytest
 
-from suites.base_test_singlepeer_change_count import BaseTestSinglePeerChangeCount
+from suites.base_test_manypeers_change_count import BaseTestManyPeerChangeCount
 
 
-COUNT_CHANGE_COUNT_SINGLE = 250_000
+COUNT_CHANGE_COUNT_MANY = 250_000
+BGP_PEERS_COUNT = 20
 INSERT = 10
 WITHDRAW = 9
 PREFILL = 10
@@ -42,9 +41,9 @@ PREFILL = 10
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.parametrize(
-    "count_change_count_single, insert, withdraw, prefill",
-    [(COUNT_CHANGE_COUNT_SINGLE, INSERT, WITHDRAW, PREFILL)],
+    "bgp_peers_count, count_change_count_many, insert, withdraw, prefill",
+    [(BGP_PEERS_COUNT, COUNT_CHANGE_COUNT_MANY, INSERT, WITHDRAW, PREFILL)],
 )
-@pytest.mark.run(order=3)
-class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
+@pytest.mark.run(order=11)
+class TestManyPeersChangeCountMixed(BaseTestManyPeerChangeCount):
     pass
