@@ -69,7 +69,7 @@ def check_ipv4_topology_prefixes_count(
         None
     """
     actual_count = get_ipv4_topology_prefixes_count(topology=topology)
-    assert actual_count == expected_count
+    assert actual_count == expected_count, f"Expected count of prefixes: {expected_count} does not match actuall count: {actual_count}"
 
 
 def check_ipv4_topology_is_empty(topology: str = "example-ipv4-topology"):
