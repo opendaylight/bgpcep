@@ -99,7 +99,8 @@ class BgpRpcClient(object):
 
     def sum_hex_message(self, hex_string):
         """Verifies two hex messages are equal even in case, their arguments are misplaced.
-        Converts hex message arguments to integers and sums them up and returns the sum."""
+        Converts hex message arguments to integers and sums them up and returns the sum.
+        """
         return sum(
             [int(x, 16) for x in re.compile(r"[a-f\d]{2}").findall(hex_string[32:])]
         )
