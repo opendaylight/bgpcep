@@ -5,30 +5,25 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# This suite uses play.py as single iBGP peer.
-# The suite only looks at example-ipv4-topology, so RIB is not examined.
-#
-# This suite requires odl-bgpcep-data-change-counter to be installed so
-# make sure it is added to "install-features" of any jobs that are going
-# to invoke it.
-#
-# The suite consists of two halves, differing on which side initiates BGP
-# connection. Data change counter is a lightweight way to detect
-# "work is being done". Utils library provide a nice function to wait for
-# stability, but it needs initial value, that is why last_change_count_single
-# appears just before work-inducing action.
-# The time for wait_for_*to_become_stable cases to finish is the main
-# performance metric.After waiting for stability is done, full check on
+# BGP performance of ingesting from 1 iBGP peer, data change counter
+# is used. This suite uses play.py as single iBGP peer. The suite
+# only looks at example-ipv4-topology, so RIB is not examined.
+# This suite requires odl-bgpcep-data-change-counter to be installed
+# so make sure it is added to "install-features" of any jobs
+# that are going to invoke it.The suite consists of two halves,
+# differing on which side initiates BGP connection.
+# Data change counter is a lightweight way to detect
+# "work is being done". change_counter.py provide a nice function
+# to wait for stability, but it needs initial value, that is why
+# "TestSinglePeerChangeCount.last_change_count_single =
+# change_counter.get_change_count()"
+# appears just before work-inducing action. The time for
+# test_wait_for_stable_* cases to finish is the main performance
+# metric.After waiting for stability is done, full check on
 # number of prefixes present is performed.
-#
 # Brief description how to configure BGP peer can be found here:
 # https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Peer
 # http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering
-#
-# TODO: Currently, if a bug causes zero increase of data changes,
-# affected test cases will wait for max time. Reconsider.
-# if zero increase is allowed as stable, higher number of repetitions
-# should be required.
 
 
 import pytest
@@ -36,10 +31,10 @@ import pytest
 from suites.base_test_singlepeer_change_count import BaseTestSinglePeerChangeCount
 
 
-COUNT_CHANGE_COUNT_SINGLE = 600_000
-INSERT = 1
-PREFILL = 0
-WITHDRAW = 0
+COUNT_CHANGE_COUNT_SINGLE = 250_000
+INSERT = 10
+WITHDRAW = 9
+PREFILL = 10
 
 
 @pytest.mark.usefixtures("preconditions")
@@ -53,3 +48,4 @@ WITHDRAW = 0
 @pytest.mark.run(order=3)
 class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
     pass
+
