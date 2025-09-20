@@ -236,7 +236,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
 
     private void create(final ReadWriteTransaction trans, final DataObjectIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ExecutionException, InterruptedException {
-        final var ni = identifier.toLegacy().firstIdentifierOf(Node.class).toIdentifier();
+        final var ni = identifier.trimTo(Node.class);
 
         final Path1 rl = value.nonnullPath().values().iterator().next().augmentation(Path1.class);
 
