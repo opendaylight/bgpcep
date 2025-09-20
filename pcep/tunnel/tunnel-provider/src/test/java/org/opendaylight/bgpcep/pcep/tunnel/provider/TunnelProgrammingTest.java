@@ -240,7 +240,7 @@ public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
         final Bandwidth bwd = new Bandwidth(new byte[] { 0x00, 0x00, 0x00, (byte) 0xff });
         final ClassType classType = new ClassType(Uint8.ONE);
         final String tunnelName = "create-tunnel";
-        final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID.toIdentifier());
+        final NetworkTopologyRef topologyRef = new NetworkTopologyRef(TOPO_IID);
         // create tunnel
         tunnelProgramming.pcepCreateP2pTunnel(new PcepCreateP2pTunnelInputBuilder()
             .setDestination(new DestinationBuilder().setNode(NODE2_ID).setTp(TP2_ID).build())
