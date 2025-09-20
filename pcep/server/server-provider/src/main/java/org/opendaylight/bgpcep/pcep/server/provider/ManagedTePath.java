@@ -598,7 +598,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setNode(teNode.getId())
                 .setName(cfgLsp.getName())
                 .setArguments(args.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
                 .build();
     }
 
@@ -724,7 +724,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 .setNode(teNode.getId())
                 .setName(cfgLsp.getName())
                 .setArguments(args.build())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
                 .build();
     }
 
@@ -793,7 +793,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         final RemoveLspInput rli = new RemoveLspInputBuilder()
                 .setNode(id)
                 .setName(cfgLsp.getName())
-                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology.toIdentifier()))
+                .setNetworkTopologyRef(new NetworkTopologyRef(pcepTopology))
                 .build();
         final var enforce = removeLsp.invoke(rli);
         LOG.info("Call Remove LSP to {} with {}", removeLsp, enforce);
