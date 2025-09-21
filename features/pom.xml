@@ -17,7 +17,7 @@
 
     <groupId>org.opendaylight.bgpcep</groupId>
     <artifactId>bgpcep-features-parent</artifactId>
-    <version>0.23.1</version>
+    <version>0.23.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
