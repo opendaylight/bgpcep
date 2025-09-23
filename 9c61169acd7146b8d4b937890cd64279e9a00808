@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d2ed5d5_dfb7f52f",
+        "filename": "pom.xml",
+        "patchSetId": 22
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "Any reason to not use version 3.5.1 specified in odlparent pluginManagement?",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c04db0ed_8ebd8380",
+        "filename": "tests/data/templates/bgp_peer/location.uri",
+        "patchSetId": 22
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "Add newline at the end of the file.",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba4d79e9_fdf3ec8d",
+        "filename": "tests/data/templates/bgp_peer_group_member/location.uri",
+        "patchSetId": 22
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "Add newline at the end of the file.",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a9f69b3_9eb50c48",
+        "filename": "tests/test_manypeers_change_count.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "configurations",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bf6cc9d_db7a4d9c",
+        "filename": "tests/test_manypeers_prefix_count.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "configurations",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b52df505_c26afba2",
+        "filename": "tests/test_singlepeer_pc_shm_300Kroutes.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2025-09-23T08:51:25Z",
+      "side": 1,
+      "message": "configurations",
+      "revId": "9c61169acd7146b8d4b937890cd64279e9a00808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
