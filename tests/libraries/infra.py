@@ -13,6 +13,7 @@ import subprocess
 import logging
 
 from libraries import utils
+from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
 
 log = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ def shell(
     command: str | list | tuple,
     joiner="; ",
     cwd: str | None = None,
+    use_shell=True,
     run_in_background: bool = False,
     timeout: int = None,
     check_rc=False,
@@ -51,14 +53,22 @@ def shell(
     try:
         log.info(exec_command)
         if run_in_background:
-            process = subprocess.Popen(
-                f"exec {exec_command}", shell=True, text=True, cwd=cwd
-            )
+            if use_shell:
+                process = subprocess.Popen(
+                    f"exec {exec_command}",
+                    shell=True,
+                    text=True,
+                    cwd=cwd,
+                )
+            else:
+                process = subprocess.Popen(
+                    exec_command.split(" "), shell=False, text=True, cwd=cwd
+                )
             return process
         else:
             result = subprocess.run(
                 exec_command,
-                shell=True,
+                shell=shell,
                 check=True,
                 capture_output=True,
                 text=True,
@@ -79,6 +89,40 @@ def shell(
     except FileNotFoundError:
         log.error(f"ERROR command not found: {exec_command}")
         return None, None
+
+
+def ssh_run_command(command, host, username, password, port=22, timeout=900):
+    log.info(command)
+    with open_ssh_connection(host, port, username, password) as ssh_connection:
+        stdin, stdout, stderr = ssh_connection.exec_command(
+            command, get_pty=True, timeout=timeout
+        )
+        stdout = stdout.read().decode()
+        stderr = stderr.read().decode()
+
+    log.info(f"{stdout=}")
+    if stderr:
+        log.warn(f"{stderr=}")
+
+    return stdout, stderr
+
+
+def ssh_start_command(command, host, username, password, port=22):
+    session_handler = RemoteSSHSessionHandler(host, username, password, 22)
+    session_handler.start_command(command)
+
+    return session_handler
+
+
+def ssh_stop_command(session_handler):
+    session_handler.stop_command()
+
+
+def ssh_put_file(local_file_path, remot_file_path, host, username, password, port=22):
+    with open_ssh_connection(host, port, username, password) as ssh_connection:
+        sftp_client = ssh_connection.open_sftp()
+        sftp_client.put(local_file_path, remot_file_path)
+        sftp_client.close()
 
 
 def retry_shell_command(retry_count: int, interval: int, *args, **kwargs):
@@ -254,7 +298,7 @@ def stop_process(process: subprocess.Popen, gracefully: bool = True):
         None
     """
     log.info(f"Stopping process with PID {process.pid}")
-    signal_to_be_sent = signal.SIGINT if gracefully else signal.SIGKILL
+    signal_to_be_sent = signal.SIGTERM if gracefully else signal.SIGKILL
     log.info(f"Sending signal {signal_to_be_sent} to process with PID {process.pid}")
     process.send_signal(signal_to_be_sent)
     # check if it is still running
