@@ -1,4 +1,5 @@
 allure-pytest==2.14.3
+Counter==1.0.0
 ipaddr==2.2.0
 jmespath==1.0.1
 paramiko==4.0.0
