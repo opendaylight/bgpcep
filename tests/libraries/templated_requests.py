@@ -208,6 +208,8 @@ def get_templated_request(
                 lineterm="",
             )
         )
+        if len(visual_diff) > 500:
+            visual_diff = visual_diff[:500] + " ... (truncated long output)"
         assert (
             normalized_response == normalized_expected_response
         ), f"Received response does not match expected response: \n{visual_diff}"
