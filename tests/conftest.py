@@ -28,6 +28,7 @@ ODL_FEATRUES = [
     "odl-bgpcep-data-change-counter",
     "odl-bgpcep-bgp",
     "odl-bgpcep-bgp-config-example",
+    "odl-bgpcep-pcep",
 ]
 
 log = logging.getLogger(__name__)
