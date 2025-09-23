@@ -166,6 +166,7 @@
                                 </goals>
                                 <configuration>
                                     <directory>${project.basedir}/tests/opendaylight</directory>
+                                    <directory>${project.basedir}/tests/build_tools</directory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -187,6 +188,25 @@
                                         <directory>${project.basedir}/distribution-karaf/target/assembly/</directory>
                                         </resource>
                                     </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                        <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-pcep-pcc-mock-test-tool</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <copy file="${project.basedir}/pcep/pcc-mock/target/pcep-pcc-mock-${project.version}-executable.jar"
+                                        tofile="${project.basedir}/tests/build_tools/pcep-pcc-mock.jar" />
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
