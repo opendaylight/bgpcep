@@ -112,6 +112,9 @@ def wait_until_function_returns_value_with_custom_value_validator(
                 f"{function.__name__}({args} {kwargs or ''}) failed with: {e} " \
                 f"({retry_num}/{retry_count})"
             )
+            log.debug(
+                f"failed with: {e}"
+            )
         time.sleep(interval)
 
     raise AssertionError(

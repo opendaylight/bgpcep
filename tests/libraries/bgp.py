@@ -298,7 +298,7 @@ def start_bgp_speaker(
         subprocess.Popen: BGP speaker process handler.
     """
     command_parts = [
-        f"python tools/play.py --amount {ammount}\
+        f"python tools/fastbgp/play.py --amount {ammount}\
             --myip={my_ip} \
             --myport={my_port} \
             --peerip={peer_ip} \
@@ -379,7 +379,7 @@ def stop_bgp_speaker(process: subprocess.Popen):
     infra.stop_process(process, gracefully=True)
     # dump BGP speaker logs
     rc, stdout = infra.shell("cat tmp/play.py.out")
-    log.debug(stdout)
+    log.debug(f"Bgp speaker output: {stdout=}")
 
 
 def verify_bgp_speaker_connected(
