@@ -119,9 +119,11 @@ payload_list_data = [
     '[network-topology:topology-id=\\"pcep-topology\\"]",',
     '       "arguments":{',
     '           "lsp":{',
-    '           "delegate":',
+    '               "lsp-flags":{'
+    '                   "delegate":',
     "",
-    '           ,"administrative":true',
+    '                   ,"administrative":true',
+    "           }"
     "},",
     '"ero":{',
     '   "subobject":[',
