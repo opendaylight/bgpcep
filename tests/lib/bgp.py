@@ -355,7 +355,7 @@ def stop_bgp_speaker(process: subprocess.Popen):
     infra.stop_process(process, gracefully=True)
     # dump BGP speaker logs
     rc, stdout = infra.shell("cat tmp/play.py.out")
-    log.debug(stdout)
+    log.debug(f"Bgp speaker output: {stdout=}")
 
 
 def verify_bgp_speaker_connected(

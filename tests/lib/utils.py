@@ -105,7 +105,10 @@ def wait_until_function_returns_value_with_custom_value_validator(
                 return result
         except Exception as e:
             log.info(
-                f"{function.__name__}({args} {kwargs or ''}) failed with: {e} ({retry_num}/{retry_count})"
+                f"{function.__name__}({args} {kwargs or ''}) failed ({retry_num}/{retry_count})"
+            )
+            log.debug(
+                f"failed with: {e}"
             )
         time.sleep(interval)
     else:

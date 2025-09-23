@@ -53,7 +53,7 @@ def shell(
         log.info(exec_command)
         if run_in_background:
             process = subprocess.Popen(
-                f"exec {exec_command}", shell=True, text=True, cwd=cwd
+                exec_command.split(" "), shell=False, text=True, cwd=cwd
             )
             return process
         else:
