@@ -29,7 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.LspDbVersionListener;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.SpeakerIdListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectWritten;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.pcep.sync.optimizations.rev200720.Stateful1Builder;
@@ -95,7 +95,7 @@ public class PCEPStatefulPeerProposalTest {
                 .child(Node.class, new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())))
                 .build();
 
-            final var dbverRoot = mock(DataObjectModification.class);
+            final var dbverRoot = mock(DataObjectWritten.class);
             doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
             doReturn(modPath).when(dbverMod).path();
@@ -123,13 +123,13 @@ public class PCEPStatefulPeerProposalTest {
                 .child(Node.class, new NodeKey(ServerSessionManager.createNodeId(ADDRESS.getAddress())))
                 .build();
 
-            final var dbverRoot = mock(DataObjectModification.class);
+            final var dbverRoot = mock(DataObjectWritten.class);
             doReturn(LSP_DB_VERSION).when(dbverRoot).dataAfter();
             final var dbverMod = mock(DataTreeModification.class);
             doReturn(modPath).when(dbverMod).path();
             doReturn(dbverRoot).when(dbverMod).getRootNode();
 
-            final var speakerRoot = mock(DataObjectModification.class);
+            final var speakerRoot = mock(DataObjectWritten.class);
             doReturn(new PcepNodeSyncConfigBuilder().setSpeakerEntityIdValue(SPEAKER_ID).build()).when(speakerRoot)
                 .dataAfter();
             final var speakerMod = mock(DataTreeModification.class);
