@@ -58,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Decimal64;
@@ -167,7 +166,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             }
 
             /* Then, look to reported LSP modification */
-            final List<DataObjectModification<? extends DataObject>> lspMod = node.modifiedChildren()
+            final List<DataObjectModification<?>> lspMod = node.modifiedChildren()
                     .stream().filter(mod -> mod.dataType().equals(ReportedLsp.class))
                     .collect(Collectors.toList());
             if (!lspMod.isEmpty()) {
