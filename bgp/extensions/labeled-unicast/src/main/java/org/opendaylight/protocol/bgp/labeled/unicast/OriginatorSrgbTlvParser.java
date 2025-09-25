@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.labeled.unicast;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.readUint24;
-import static org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils.writeUint24;
+import static org.opendaylight.ietf.rfc8294.netty.RFC8294ByteBufUtils.readUint24;
+import static org.opendaylight.ietf.rfc8294.netty.RFC8294ByteBufUtils.writeUint24;
 
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;

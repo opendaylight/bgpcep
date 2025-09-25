@@ -15,7 +15,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils;
+import org.opendaylight.ietf.rfc8294.netty.RFC8294ByteBufUtils;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.ProtocolId;

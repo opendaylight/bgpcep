@@ -25,14 +25,14 @@
             <artifactId>graph-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-rfc6991</artifactId>
+            <groupId>org.opendaylight.ietf</groupId>
+            <artifactId>odl-ietf-model-rfc6991</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal.model</groupId>
-            <artifactId>odl-mdsal-model-rfc8294</artifactId>
+            <groupId>org.opendaylight.ietf</groupId>
+            <artifactId>odl-ietf-model-rfc8294</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
