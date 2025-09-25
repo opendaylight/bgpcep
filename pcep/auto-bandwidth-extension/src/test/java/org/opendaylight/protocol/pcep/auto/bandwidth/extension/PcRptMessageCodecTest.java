@@ -22,7 +22,6 @@ import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -60,7 +59,6 @@ public class PcRptMessageCodecTest {
     @Before
     public void setUp() {
         new BaseParserExtensionActivator().start(ctx);
-        new StatefulActivator().start(ctx);
         new org.opendaylight.protocol.pcep.auto.bandwidth.extension.AutoBandwidthActivator().start(ctx);
     }
 
