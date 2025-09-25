@@ -8,7 +8,7 @@
   -->
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="odl-bgpcep-data-change-counter-${project.version}">
     <feature name="odl-bgpcep-data-change-counter" version="${project.version}">
-        <feature version="[14,15)">odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</feature>
-        <feature version="[11,12)">odl-mdsal-broker</feature>
+        <feature version="[15,16)">odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</feature>
+        <feature version="[12,13)">odl-mdsal-broker</feature>
     </feature>
 </features>
