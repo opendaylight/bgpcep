@@ -12,7 +12,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ext
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.extractUint24LD;
 
 import io.netty.buffer.ByteBuf;
-import org.opendaylight.mdsal.rfc8294.netty.RFC8294ByteBufUtils;
+import org.opendaylight.ietf.rfc8294.netty.RFC8294ByteBufUtils;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.IetfYangUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EsiType;
