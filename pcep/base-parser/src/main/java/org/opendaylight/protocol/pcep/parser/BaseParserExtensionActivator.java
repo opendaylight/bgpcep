@@ -14,14 +14,17 @@ import javax.inject.Singleton;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.pcep.parser.message.PCEPCloseMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPInitiateMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPKeepAliveMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPMonitoringReplyMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPMonitoringRequestMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPNotificationMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPOpenMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPReplyMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPReportMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPRequestMessageParser;
 import org.opendaylight.protocol.pcep.parser.message.PCEPStartTLSMessageParser;
+import org.opendaylight.protocol.pcep.parser.message.PCEPUpdateMessageParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv4ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPAssociationIPv6ObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPBandwidthObjectParser;
@@ -34,6 +37,7 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParse
 import org.opendaylight.protocol.pcep.parser.object.PCEPGlobalConstraintsObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPIncludeRouteObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPLoadBalancingObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPLspObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPLspaObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPMetricObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPMonitoringObjectParser;
@@ -52,6 +56,7 @@ import org.opendaylight.protocol.pcep.parser.object.PCEPReportedRouteObjectParse
 import org.opendaylight.protocol.pcep.parser.object.PCEPRequestParameterObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryExplicitRouteObjecParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSecondaryRecordRouteObjectParser;
+import org.opendaylight.protocol.pcep.parser.object.PCEPSrpObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.PCEPSvecObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.bnc.BranchNodeListObjectParser;
 import org.opendaylight.protocol.pcep.parser.object.bnc.NonBranchNodeListObjectParser;
@@ -88,15 +93,24 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationTypeListTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv4TlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv6TlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.LspDbVersionTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.LspSymbolicNameTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.LspUpdateErrorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OverloadedDurationTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.P2MPTeLspCapabilityParser;
+import org.opendaylight.protocol.pcep.parser.tlv.PathBindingTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.RSVPErrorSpecTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.SpeakerEntityIdTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.SrPolicyCapabilityTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.StatefulCapabilityTlvParser;
 import org.opendaylight.protocol.pcep.spi.EROSubobjectRegistry;
 import org.opendaylight.protocol.pcep.spi.LabelRegistry;
 import org.opendaylight.protocol.pcep.spi.ObjectRegistry;
@@ -108,11 +122,14 @@ import org.opendaylight.protocol.pcep.spi.VendorInformationTlvRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Close;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Keepalive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcerr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcinitiate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcmonrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcmonreq;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcntf;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcreq;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrpt;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcupd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Starttls;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.association.object.AssociationGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.bandwidth.object.Bandwidth;
@@ -125,6 +142,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.gc.object.Gc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.load.balancing.object.LoadBalancing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.monitoring.object.Monitoring;
@@ -143,18 +161,27 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.explicit.route.object.Sero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.reported.route.object.Srro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.UnreachDestinationObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.AssociationRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.type.list.tlv.AssociationTypeList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.error.code.tlv.LspErrorCode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.p2mp.pce.capability.tlv.P2mpPceCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.binding.tlv.PathBinding;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.capability.tlv.PathSetupTypeCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.req.missing.tlv.ReqMissing;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.rsvp.error.spec.tlv.RsvpErrorSpec;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.speaker.entity.id.tlv.SpeakerEntityId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.sr.policy.capability.tlv.SrPolicyCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.AsNumberCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.LabelCase;
@@ -231,6 +258,18 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final PCEPStartTLSMessageParser startTLSParser = new PCEPStartTLSMessageParser(objReg);
         regs.add(context.registerMessageParser(PCEPStartTLSMessageParser.TYPE, startTLSParser));
         regs.add(context.registerMessageSerializer(Starttls.class, startTLSParser));
+
+        final PCEPReportMessageParser reportParser = new PCEPReportMessageParser(objReg);
+        regs.add(context.registerMessageParser(PCEPReportMessageParser.TYPE, reportParser));
+        regs.add(context.registerMessageSerializer(Pcrpt.class, reportParser));
+
+        final PCEPUpdateMessageParser updateParser = new PCEPUpdateMessageParser(objReg);
+        regs.add(context.registerMessageParser(PCEPUpdateMessageParser.TYPE, updateParser));
+        regs.add(context.registerMessageSerializer(Pcupd.class, updateParser));
+
+        final PCEPInitiateMessageParser initiateParser = new PCEPInitiateMessageParser(objReg);
+        regs.add(context.registerMessageParser(PCEPInitiateMessageParser.TYPE, initiateParser));
+        regs.add(context.registerMessageSerializer(Pcinitiate.class, initiateParser));
 
         return regs;
     }
@@ -340,6 +379,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final PCEPAssociationIPv6ObjectParser associationIpv6Parser = new PCEPAssociationIPv6ObjectParser();
         regs.add(context.registerObjectParser(associationIpv6Parser));
         regs.add(context.registerObjectSerializer(AssociationGroup.class, associationIpv6Parser));
+
+        final PCEPLspObjectParser lspParser = new PCEPLspObjectParser(tlvReg, viTlvReg);
+        regs.add(context.registerObjectParser(lspParser));
+        regs.add(context.registerObjectSerializer(Lsp.class, lspParser));
+
+        final PCEPSrpObjectParser srpParser = new PCEPSrpObjectParser(tlvReg, viTlvReg);
+        regs.add(context.registerObjectParser(srpParser));
+        regs.add(context.registerObjectSerializer(Srp.class, srpParser));
 
         registerExtensionsObjectParsers(regs, context, tlvReg, viTlvReg, eroSubReg, rroSubReg);
     }
@@ -520,6 +567,42 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final SrPolicyCapabilityTlvParser srPolicyCapaParser = new SrPolicyCapabilityTlvParser();
         regs.add(context.registerTlvParser(SrPolicyCapabilityTlvParser.TYPE, srPolicyCapaParser));
         regs.add(context.registerTlvSerializer(SrPolicyCapability.class, srPolicyCapaParser));
+
+        final LSPIdentifierIpv4TlvParser lspIdIpv4Parser = new LSPIdentifierIpv4TlvParser();
+        regs.add(context.registerTlvParser(LSPIdentifierIpv4TlvParser.TYPE, lspIdIpv4Parser));
+        regs.add(context.registerTlvSerializer(LspIdentifiers.class, lspIdIpv4Parser));
+
+        final LSPIdentifierIpv6TlvParser lspIdIpv6Parser = new LSPIdentifierIpv6TlvParser();
+        regs.add(context.registerTlvParser(LSPIdentifierIpv6TlvParser.TYPE, lspIdIpv6Parser));
+
+        final LspUpdateErrorTlvParser lspUpdateErrorParser = new LspUpdateErrorTlvParser();
+        regs.add(context.registerTlvParser(LspUpdateErrorTlvParser.TYPE, lspUpdateErrorParser));
+        regs.add(context.registerTlvSerializer(LspErrorCode.class, lspUpdateErrorParser));
+
+        final RSVPErrorSpecTlvParser rsvpErrorSpecParser = new RSVPErrorSpecTlvParser();
+        regs.add(context.registerTlvParser(RSVPErrorSpecTlvParser.TYPE, rsvpErrorSpecParser));
+        regs.add(context.registerTlvSerializer(RsvpErrorSpec.class, rsvpErrorSpecParser));
+
+        final StatefulCapabilityTlvParser statefulCapabilityParser = new StatefulCapabilityTlvParser();
+        regs.add(context.registerTlvParser(StatefulCapabilityTlvParser.TYPE, statefulCapabilityParser));
+        regs.add(context.registerTlvSerializer(StatefulCapability.class, statefulCapabilityParser));
+
+        final LspSymbolicNameTlvParser lspSymbolicNameParser = new LspSymbolicNameTlvParser();
+        regs.add(context.registerTlvParser(LspSymbolicNameTlvParser.TYPE, lspSymbolicNameParser));
+        regs.add(context.registerTlvSerializer(SymbolicPathName.class, lspSymbolicNameParser));
+
+        final PathBindingTlvParser pathBindingParser = new PathBindingTlvParser();
+        regs.add(context.registerTlvParser(PathBindingTlvParser.TYPE, pathBindingParser));
+        regs.add(context.registerTlvSerializer(PathBinding.class, pathBindingParser));
+
+        final LspDbVersionTlvParser lspDbVersionTlvParser = new LspDbVersionTlvParser();
+        regs.add(context.registerTlvParser(LspDbVersionTlvParser.TYPE, lspDbVersionTlvParser));
+        regs.add(context.registerTlvSerializer(LspDbVersion.class, lspDbVersionTlvParser));
+
+        final SpeakerEntityIdTlvParser speakerEntityIdTlvParser = new SpeakerEntityIdTlvParser();
+        regs.add(context.registerTlvParser(SpeakerEntityIdTlvParser.TYPE, speakerEntityIdTlvParser));
+        regs.add(context.registerTlvSerializer(SpeakerEntityId.class, speakerEntityIdTlvParser));
+
     }
 
     private static void registerMonitoringExtensionParsers(final List<Registration> regs,
