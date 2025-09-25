@@ -11,6 +11,6 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.2.0 http://karaf.apache.org/xmlns/features/v1.2.0">
     <feature name="odl-bgpcep-bgp-cli" version="${project.version}">
-        <feature version="[14,15)">odl-mdsal-binding-api</feature>
+        <feature version="[15,16)">odl-mdsal-binding-api</feature>
     </feature>
 </features>
