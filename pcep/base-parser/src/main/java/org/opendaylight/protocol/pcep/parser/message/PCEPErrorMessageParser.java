@@ -31,14 +31,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.RequestCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.SessionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.SessionCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.StatefulCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.StatefulCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.request.Rps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.session._case.SessionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.stateful._case.StatefulBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.stateful._case.stateful.Srps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.stateful._case.stateful.SrpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.rp.object.Rp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.Srp;
 
 /**
  * Parser for {@link PcerrMessage}.
@@ -82,6 +88,11 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                 serializeObject(r.getRp(), buffer);
             }
         }
+        if (err.getErrorType() instanceof StatefulCase stateful) {
+            for (final Srps s : stateful.getStateful().nonnullSrps()) {
+                serializeObject(s.getSrp(), buffer);
+            }
+        }
     }
 
     @Override
@@ -89,11 +100,16 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             throws PCEPDeserializerException {
         checkArgument(objects != null, "Passed list can't be null.");
 
-        final List<Rps> requestParameters = new ArrayList<>();
-        final List<Errors> errorObjects = new ArrayList<>();
+        final Object first = objects.poll();
+        if (first == null) {
+            throw new PCEPDeserializerException("Error message is empty.");
+        }
+
+        final var requestParameters = new ArrayList<Rps>();
+        final var srps = new ArrayList<Srps>();
+        final var errorObjects = new ArrayList<Errors>();
 
         final State initialState;
-        final Object first = objects.poll();
         if (first instanceof ErrorObject) {
             errorObjects.add(new ErrorsBuilder().setErrorObject((ErrorObject) first).build());
             initialState = State.ERROR_IN;
@@ -104,8 +120,9 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             }
             requestParameters.add(new RpsBuilder().setRp(rp).build());
             initialState = State.RP_IN;
-        } else if (first == null) {
-            throw new PCEPDeserializerException("Error message is empty.");
+        } else if (first instanceof Srp) {
+            srps.add(new SrpsBuilder().setSrp((Srp) first).build());
+            initialState = State.SRP_IN;
         } else {
             throw new PCEPDeserializerException("At least one PCEPErrorObject is mandatory.");
         }
@@ -119,7 +136,7 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
                         .build();
             }
 
-            state = insertObject(state, errorObjects, obj, requestParameters, msgBuilder);
+            state = insertObject(state, obj, errorObjects, requestParameters, srps, msgBuilder);
             if (state == State.END) {
                 break;
             }
@@ -137,37 +154,48 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
             msgBuilder.setErrorType(new RequestCaseBuilder()
                     .setRequest(new RequestBuilder().setRps(requestParameters).build()).build());
         }
+        if (!srps.isEmpty()) {
+            msgBuilder.setErrorType(new StatefulCaseBuilder()
+                    .setStateful(new StatefulBuilder().setSrps(srps).build()).build());
+        }
+
         return new PcerrBuilder().setPcerrMessage(msgBuilder.setErrors(errorObjects).build()).build();
     }
 
-    private static State insertObject(final State state, final List<Errors> errorObjects, final Object obj,
-            final List<Rps> requestParameters, final PcerrMessageBuilder msgBuilder) {
+    private static State insertObject(final State state, final Object obj, final List<Errors> errorObjects,
+            final List<Rps> requestParameters, final List<Srps> srps, final PcerrMessageBuilder builder) {
         switch (state) {
-            case RP_IN:
-                if (obj instanceof Rp o) {
-                    requestParameters.add(new RpsBuilder().setRp(o).build());
-                    return State.RP_IN;
-                }
-                // fallthrough
             case ERROR_IN:
                 if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR_IN;
                 }
-                // fallthrough
+                // fall through
+            case RP_IN:
+                if (obj instanceof Rp o) {
+                    requestParameters.add(new RpsBuilder().setRp(o).build());
+                    return State.RP_IN;
+                }
+                // fall through
+            case SRP_IN:
+                if (obj instanceof Srp o) {
+                    srps.add(new SrpsBuilder().setSrp(o).build());
+                    return State.SRP_IN;
+                }
+                // fall through
             case OPEN:
                 if (obj instanceof Open) {
-                    msgBuilder.setErrorType(
+                    builder.setErrorType(
                         new SessionCaseBuilder().setSession(new SessionBuilder().setOpen((Open) obj).build()).build());
                     return State.OPEN_IN;
                 }
-                // fallthrough
+                // fall through
             case ERROR:
                 if (obj instanceof ErrorObject o) {
                     errorObjects.add(new ErrorsBuilder().setErrorObject(o).build());
                     return State.ERROR;
                 }
-                // fallthrough
+                // fall through
             case OPEN_IN:
             case END:
                 return State.END;
@@ -177,6 +205,6 @@ public class PCEPErrorMessageParser extends AbstractMessageParser {
     }
 
     private enum State {
-        INIT, ERROR_IN, RP_IN, OPEN, ERROR, OPEN_IN, END
+        INIT, ERROR_IN, RP_IN, SRP_IN, OPEN, ERROR, OPEN_IN, END
     }
 }
