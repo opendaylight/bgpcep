@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.Metrics;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.MetricsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.Lspa;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.metric.object.Metric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.monitoring.metrics.MetricPce;
@@ -82,6 +83,7 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
     protected void serializeReply(final Replies reply, final ByteBuf buffer) {
         serializeObject(reply.getRp(), buffer);
+        serializeObject(reply.getLsp(), buffer);
         serializeMonitoring(reply, buffer);
         serializeVendorInformationObjects(reply.getVendorInformationObject(), buffer);
         if (reply.getResult() == null) {
@@ -174,6 +176,11 @@ public class PCEPReplyMessageParser extends AbstractMessageParser {
 
         final RepliesBuilder repliesBuilder = new RepliesBuilder().setRp((Rp) obj);
         obj = objects.peek();
+        if (obj instanceof Lsp) {
+            repliesBuilder.setLsp((Lsp) obj);
+            objects.remove();
+            obj = objects.peek();
+        }
         if (obj instanceof Monitoring) {
             repliesBuilder.setMonitoring((Monitoring) obj);
             objects.remove();

@@ -15,7 +15,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
+import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
