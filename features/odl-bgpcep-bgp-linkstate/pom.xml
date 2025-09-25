@@ -38,8 +38,8 @@
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>odl-mdsal-rfc8294-netty</artifactId>
+            <groupId>org.opendaylight.ietf</groupId>
+            <artifactId>odl-ietf-rfc8294-netty</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
