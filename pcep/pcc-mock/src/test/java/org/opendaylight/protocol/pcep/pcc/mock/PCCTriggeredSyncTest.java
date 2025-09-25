@@ -14,7 +14,7 @@ import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
-import org.opendaylight.protocol.pcep.ietf.stateful.PCEPStatefulCapability;
+import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.PcupdBuilder;
