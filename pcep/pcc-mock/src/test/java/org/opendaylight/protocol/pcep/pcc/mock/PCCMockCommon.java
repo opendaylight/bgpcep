@@ -37,7 +37,6 @@ import org.opendaylight.protocol.pcep.PCEPPeerProposal;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionNegotiatorFactory;
 import org.opendaylight.protocol.pcep.PCEPTimerProposal;
-import org.opendaylight.protocol.pcep.ietf.stateful.StatefulActivator;
 import org.opendaylight.protocol.pcep.impl.PCEPDispatcherImpl;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCDispatcherImpl;
@@ -46,7 +45,6 @@ import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCSessionListener;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderActivator;
 import org.opendaylight.protocol.pcep.spi.PCEPExtensionProviderContext;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
-import org.opendaylight.protocol.pcep.sync.optimizations.SyncOptimizationsActivator;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrpt;
@@ -115,10 +113,6 @@ public abstract class PCCMockCommon {
 
     Channel createServer(final TestingSessionListenerFactory factory, final InetSocketAddress
             serverAddress2, final PCEPPeerProposal peerProposal) {
-        final StatefulActivator activator07 = new StatefulActivator();
-        final SyncOptimizationsActivator optimizationsActivator = new SyncOptimizationsActivator();
-        activator07.start(extensionProvider);
-        optimizationsActivator.start(extensionProvider);
 
         final ChannelFuture future = pceDispatcher.createServer(serverAddress2, KeyMapping.of(), messageRegistry,
             new CustomPCEPSessionNegotiatorFactory(factory, new PCEPTimerProposal(KEEP_ALIVE, DEAD_TIMER),
