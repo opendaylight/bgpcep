@@ -163,11 +163,11 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
         for (var dataTreeModification : changes) {
             final var rootIdentifier = dataTreeModification.path();
             final var rootNode = dataTreeModification.getRootNode();
-            final List<DataObjectModification<? extends DataObject>> deletedConfig = rootNode.modifiedChildren()
+            final List<DataObjectModification<?>> deletedConfig = rootNode.modifiedChildren()
                 .stream()
                 .filter(mod -> mod.modificationType() == DataObjectModification.ModificationType.DELETE)
                 .collect(Collectors.toList());
-            final List<DataObjectModification<? extends DataObject>> changedConfig = rootNode.modifiedChildren()
+            final List<DataObjectModification<?>> changedConfig = rootNode.modifiedChildren()
                 .stream()
                 .filter(mod -> mod.modificationType() != DataObjectModification.ModificationType.DELETE)
                 .collect(Collectors.toList());

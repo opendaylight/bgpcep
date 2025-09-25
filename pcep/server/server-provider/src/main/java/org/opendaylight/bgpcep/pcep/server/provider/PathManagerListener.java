@@ -67,8 +67,7 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
      * @param nodeId    Node Identifier to which the modified children belongs to.
      * @param lspMod    List of Configured LSP modifications.
      */
-    private void handleLspChange(final NodeId nodeId,
-            final List<? extends DataObjectModification<? extends DataObject>> lspMod) {
+    private void handleLspChange(final NodeId nodeId, final List<? extends DataObjectModification<?>> lspMod) {
         for (DataObjectModification<? extends DataObject> lsp : lspMod) {
             ConfiguredLsp cfgLsp;
             switch (lsp.modificationType()) {
@@ -97,8 +96,7 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
      * @param nodeId    Node Identifier to which the modified children belongs to.
      * @param pccMod    List of PCEP Node Configuration modifications.
      */
-    private void handlePccChange(final NodeId nodeId,
-            final List<? extends DataObjectModification<? extends DataObject>> pccMod) {
+    private void handlePccChange(final NodeId nodeId, final List<? extends DataObjectModification<?>> pccMod) {
         for (var node : pccMod) {
             /* First, process PCC modification */
             switch (node.modificationType()) {

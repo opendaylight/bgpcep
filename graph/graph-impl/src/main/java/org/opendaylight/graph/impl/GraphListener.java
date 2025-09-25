@@ -88,7 +88,7 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
      * @param children List of children (Vertex, Edge or Prefix)
      */
     private static void parseSubTree(final ConnectedGraph cgraph,
-            final Collection<? extends DataObjectModification<? extends DataObject>> children) {
+            final Collection<? extends DataObjectModification<?>> children) {
         for (var child : children) {
             final DataObject value;
             switch (child.modificationType()) {
