@@ -74,7 +74,6 @@
         <module>odl-bgpcep-pcep-config-example</module>
         <module>odl-bgpcep-pcep-impl</module>
         <module>odl-bgpcep-pcep</module>
-        <module>odl-bgpcep-pcep-segment-routing</module>
         <module>odl-bgpcep-pcep-server</module>
         <module>odl-bgpcep-pcep-server-provider</module>
         <module>odl-bgpcep-pcep-topology</module>
