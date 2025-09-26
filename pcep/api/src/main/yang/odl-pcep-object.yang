@@ -356,6 +356,8 @@ module odl-pcep-object {
         }
     }
 
+    // Route Objects
+
     grouping exclude-route-object {
         description "Exclude Route Object";
         reference "https://tools.ietf.org/html/rfc5521#section-2.1.1";
@@ -393,7 +395,16 @@ module odl-pcep-object {
                     mandatory true;
                 }
 
-                uses rsvp:explicit-route-subobjects;
+                uses rsvp:explicit-route-subobjects {
+                    augment "subobject-type" {
+                        case sr-ero-type {
+                            uses sr-ero-subobject;
+                        }
+                        case srv6-ero-type {
+                            uses srv6-ero-subobject;
+                        }
+                    }
+                }
                 ordered-by user;
             }
         }
@@ -412,7 +423,16 @@ module odl-pcep-object {
                     mandatory true;
                 }
 
-                uses rsvp:secondary-explicit-route-subobjects;
+                uses rsvp:secondary-explicit-route-subobjects {
+                    augment "subobject-type" {
+                        case sr-ero-type {
+                            uses sr-ero-subobject;
+                        }
+                        case srv6-ero-type {
+                            uses srv6-ero-subobject;
+                        }
+                    }
+                }
                 ordered-by user;
             }
         }
@@ -447,7 +467,16 @@ module odl-pcep-object {
             uses object;
 
             list subobject {
-                uses rsvp:record-route-subobjects;
+                uses rsvp:record-route-subobjects {
+                    augment "subobject-type" {
+                        case sr-rro-type {
+                            uses sr-rro-subobject;
+                        }
+                        case srv6-rro-type {
+                            uses srv6-rro-subobject;
+                        }
+                    }
+                }
                 ordered-by user;
             }
         }
@@ -462,7 +491,16 @@ module odl-pcep-object {
             uses object;
 
             list subobject {
-                uses rsvp:secondary-record-route-subobjects;
+                uses rsvp:secondary-record-route-subobjects {
+                    augment "subobject-type" {
+                        case sr-rro-type {
+                            uses sr-rro-subobject;
+                        }
+                        case srv6-rro-type {
+                            uses srv6-rro-subobject;
+                        }
+                    }
+                }
                 ordered-by user;
             }
         }
@@ -984,6 +1022,208 @@ module odl-pcep-object {
                 uses pcep-types:association-type-tlvs;
             }
         }
+    }
+
+    // Segment Routing Objects
+
+    grouping sr-subobject {
+        description "Common grouping for both SR-ERO and SR-RRO subobjects as they share the same content representation.";
+        leaf nai-type {
+            description "Node or Adjacency Identifier Type (NT)";
+            type pcep-types:nai-type;
+        }
+        leaf m-flag {
+            description "If this bit is set to 1, the SID value represents an MPLS label stack entry";
+            type boolean;
+            default false;
+        }
+        leaf c-flag {
+            description "TC, S & TTL fields in the MPLS label are specified by the PCE if M & C are set to 1";
+            type boolean;
+            default false;
+        }
+        /* S-Flag is represented by the presence of the SID TLV: isSflag() is equivalent to getSid() == null */
+        leaf sid {
+            description "Segment Identifier";
+            type uint32;
+        }
+        /* F-Flag is represented by the presence of the NAI TLV: isFflag() is equivalent to getNai() == null */
+        choice nai {
+            reference "http://tools.ietf.org/html/rfc8664#section-4.3.2";
+            description "Node or Adjacency Identifier";
+            case ip-node-id {
+                when "../nai-type = 'ipv4-node-id' or ../nai-type = 'ipv6-node-id'";
+                description "IP Node ID";
+                leaf ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ip-adjacency {
+                when "../nai-type = 'ipv4-adjacency' or ../nai-type = 'ipv6-adjacency'";
+                description "IP Adjacency";
+                leaf local-ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-ip-address {
+                    type inet:ip-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case unnumbered-adjacency {
+                when "../nai-type = 'unnumbered'";
+                description "Unnumbered Adjacency with IPv4 NodeIDs";
+                leaf local-node-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf local-interface-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-node-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-interface-id {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+            case ipv6-local {
+                when "../nai-type = 'ipv6-local'";
+                description "IPv6 adjacency with link-local IPv6 addresses";
+                leaf local-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf local-id {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-id {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+        }
+    }
+
+    grouping srv6-sid-structure {
+        description "SRv6 SID structure that complete the SRv6 SID";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3.1.1";
+        leaf locator-block-length {
+            type uint8;
+        }
+        leaf locator-node-length {
+            type uint8;
+        }
+        leaf function-length {
+            type uint8;
+        }
+        leaf argument-length {
+            type uint8;
+        }
+    }
+
+    grouping srv6-subobject {
+        description "Common grouping for both SRv6-ERO and SRv6-RRO subobjects which share the same representation";
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3 and section 4.4";
+        leaf srv6-nai-type {
+            description "Node or Adjacency Identifier Type (NT)";
+            type pcep-types:nai-type;
+        }
+        leaf v-flag {
+            description "The V flag indicates if SRv6-SID verification failed";
+            type boolean;
+            default false;
+        }
+        leaf endpoint-behavior {
+            type uint16;
+        }
+        /* S-Flag is represented by the presence of the SRv6-SID: isSflag() is equivalent to getSrv6Sid() == null */
+        leaf srv6-sid {
+            description "SRv6 Segment Identifier";
+            type inet:ipv6-address-no-zone;
+        }
+        /* T-Flag is represented by the presence of the SRv6 SID structure: isTflag() is equivalent to getSidStructure() != null */
+        container sid-structure {
+            uses srv6-sid-structure;
+        }
+        /* F-Flag is represented by the presence of the SRv6 NAI TLV: isFflag() is equivalent to getSrv6Nai() == null */
+        choice srv6-nai {
+            reference "http://tools.ietf.org/html/rfc9603#section-4.3.1";
+            description "Node or Adjacency Identifier";
+            case ipv6-node-id {
+                when "../srv6-nai-type = 'ipv6-node-id'";
+                description "IPv6 Node ID";
+                leaf ipv6-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ipv6-adjacency {
+                when "../srv6-nai-type = 'ipv6-adjacency'";
+                description "IP Adjacency";
+                leaf ipv6-local-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf ipv6-remote-address {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+            }
+            case ipv6-local {
+                when "../srv6-nai-type = 'ipv6-local'";
+                description "IPv6 adjacency with link-local IPv6 addresses";
+                leaf local-ipv6 {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf local-identifier {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf remote-ipv6 {
+                    type inet:ipv6-address-no-zone;
+                    mandatory true;
+                }
+                leaf remote-identifier {
+                    type uint32;
+                    mandatory true;
+                }
+            }
+        }
+    }
+
+    // kept both groupings in case draft changes and they won't be equal
+    grouping sr-ero-subobject {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3";
+        /* L(oose)-flag is already present within the ERO subObject */
+        uses sr-subobject;
+    }
+
+    grouping sr-rro-subobject {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.4";
+        uses sr-subobject;
+    }
+
+    // SRv6 subobject definition for ERO and RRO
+    grouping srv6-ero-subobject {
+        reference "http://tools.ietf.org/html/rfc9603#section-4.3";
+        /* L(oose)-flag is already present within the ERO subObject */
+        uses srv6-subobject;
+    }
+
+    grouping srv6-rro-subobject {
+        reference "http://tools.ietf.org/html/rfc9603#section-4.4";
+        uses srv6-subobject;
     }
 
     // Object groups

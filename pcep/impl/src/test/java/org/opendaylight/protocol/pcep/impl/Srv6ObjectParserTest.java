@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.segment.routing;
+package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -17,6 +17,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
@@ -25,9 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.EroBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.SubobjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.NaiType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.Srv6EroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.srv6.subobject.SidStructureBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.subobject.subobject.type.Srv6EroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srv6.subobject.SidStructureBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NaiType;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -47,12 +48,12 @@ public class Srv6ObjectParserTest {
     };
 
     private SimplePCEPExtensionProviderContext ctx;
-    private SegmentRoutingActivator act;
+    private BaseParserExtensionActivator act;
 
     @Before
     public void setUp() {
         ctx = new SimplePCEPExtensionProviderContext();
-        act = new SegmentRoutingActivator();
+        act = new BaseParserExtensionActivator();
         act.start(ctx);
     }
 

@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.pcep.segment.routing;
+package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -15,17 +15,17 @@ import io.netty.buffer.Unpooled;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
-import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
+import org.opendaylight.protocol.pcep.parser.subobject.SrEroSubobjectParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.SubobjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.NaiType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.add.lsp.input.arguments.ero.subobject.subobject.type.SrEroTypeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpAdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.IpNodeIdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.segment.routing.rev250402.sr.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.subobject.subobject.type.SrEroTypeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.sr.subobject.nai.IpAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.sr.subobject.nai.IpNodeIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.sr.subobject.nai.UnnumberedAdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NaiType;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SrEroSubobjectParserTest {
@@ -95,15 +95,10 @@ public class SrEroSubobjectParserTest {
         0x4A,0x7D,0x2b,0x63,
     };
 
-    private SimplePCEPExtensionProviderContext ctx;
-    private SegmentRoutingActivator act;
     private SrEroSubobjectParser parser;
 
     @Before
     public void setUp() {
-        ctx = new SimplePCEPExtensionProviderContext();
-        act = new SegmentRoutingActivator();
-        act.start(ctx);
         parser = new SrEroSubobjectParser();
     }
 
