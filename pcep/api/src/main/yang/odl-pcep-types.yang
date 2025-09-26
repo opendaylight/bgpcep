@@ -404,6 +404,32 @@ module odl-pcep-types {
         }
     }
 
+    // Segment Routing
+
+    typedef nai-type {
+        reference "http://tools.ietf.org/html/rfc8664#section-4.3.1";
+        type enumeration {
+            enum ipv4-node-id {
+                value 1;
+            }
+            enum ipv6-node-id {
+                value 2;
+            }
+            enum ipv4-adjacency {
+                value 3;
+            }
+            enum ipv6-adjacency {
+                value 4;
+            }
+            enum unnumbered {
+                value 5;
+            }
+            enum ipv6-local {
+                value 6;
+            }
+        }
+    }
+
     // Path Binding
 
     typedef binding-type {
