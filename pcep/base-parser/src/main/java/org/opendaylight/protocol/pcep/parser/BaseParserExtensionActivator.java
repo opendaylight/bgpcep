@@ -82,6 +82,10 @@ import org.opendaylight.protocol.pcep.parser.subobject.RROLabelSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.RROPathKey128SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.RROPathKey32SubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.RROUnnumberedInterfaceSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.SrEroSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.SrRroSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.Srv6EroSubobjectParser;
+import org.opendaylight.protocol.pcep.parser.subobject.Srv6RroSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.Type1LabelParser;
 import org.opendaylight.protocol.pcep.parser.subobject.WavebandSwitchingLabelParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROAsNumberSubobjectParser;
@@ -139,6 +143,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.endpoints.object.EndpointsObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.exclude.route.object.Xro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.Ero;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.subobject.subobject.type.SrEroType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.subobject.subobject.type.Srv6EroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.gc.object.Gc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.load.balancing.object.LoadBalancing;
@@ -161,6 +167,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.explicit.route.object.Sero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.reported.route.object.Srro;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.reported.route.object.srro.subobject.subobject.type.SrRroType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.secondary.reported.route.object.srro.subobject.subobject.type.Srv6RroType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.srp.object.Srp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.svec.object.Svec;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.UnreachDestinationObj;
@@ -453,6 +461,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         final EROLabelSubobjectParser labelParser = new EROLabelSubobjectParser(labelReg);
         regs.add(context.registerEROSubobjectParser(EROLabelSubobjectParser.TYPE, labelParser));
         regs.add(context.registerEROSubobjectSerializer(LabelCase.class, labelParser));
+
+        final SrEroSubobjectParser srEroSubobjectParser = new SrEroSubobjectParser();
+        regs.add(context.registerEROSubobjectParser(SrEroSubobjectParser.TYPE, srEroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(SrEroType.class, srEroSubobjectParser));
+
+        final Srv6EroSubobjectParser srv6EroSubobjectParser = new Srv6EroSubobjectParser();
+        regs.add(context.registerEROSubobjectParser(Srv6EroSubobjectParser.TYPE, srv6EroSubobjectParser));
+        regs.add(context.registerEROSubobjectSerializer(Srv6EroType.class, srv6EroSubobjectParser));
     }
 
     private static void registerRROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context,
@@ -480,6 +496,14 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         regs.add(context.registerRROSubobjectParser(RROLabelSubobjectParser.TYPE, labelParser));
         regs.add(context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
             .rsvp.rev150820._record.route.subobjects.subobject.type.LabelCase.class, labelParser));
+
+        final SrRroSubobjectParser srRroSubobjectParser = new SrRroSubobjectParser();
+        regs.add(context.registerRROSubobjectParser(SrRroSubobjectParser.TYPE, srRroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(SrRroType.class, srRroSubobjectParser));
+
+        final Srv6RroSubobjectParser srv6RroSubobjectParser = new Srv6RroSubobjectParser();
+        regs.add(context.registerRROSubobjectParser(Srv6RroSubobjectParser.TYPE, srv6RroSubobjectParser));
+        regs.add(context.registerRROSubobjectSerializer(Srv6RroType.class, srv6RroSubobjectParser));
     }
 
     private static void registerXROParsers(final List<Registration> regs, final PCEPExtensionProviderContext context) {
