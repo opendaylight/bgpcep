@@ -73,12 +73,7 @@ from lib import pcep
 from lib import utils
 
 
-LSPS = 655
-PCCS = 1
-TOTAL_LSPS = LSPS * PCCS
-PCEP_READY_VERIFY_TIMEOUT = 300
 UPDATER_REFRESH = 0.1
-UPDATER_TIMEOUT = 300
 LOG_NAME = "throughpcep.log"
 ENABLE_TCP_TW_REUSE = True
 RESTCONF_REUSE = True
@@ -93,12 +88,7 @@ TOOLS_PASSWD = os.environ["TOOLS_PASSWORD"]
 log = logging.getLogger(__name__)
 
 
-@pytest.mark.usefixtures("preconditions")
-@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
-@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
-@pytest.mark.run(order=12)
-class TestCases:
+class BaseTestCases:
     pcc_mock_process = None
     iteration = 1
 
@@ -412,7 +402,7 @@ class TestCases:
                     password=TOOLS_PASSWD,
                 )
                 self.ssh_handler = infra.ssh_start_command(
-                    f"java -jar /tmp/pcep-pcc-mock.jar --local-address {TOOLS_IP} " \
+                    f"java -jar /tmp/pcep-pcc-mock.jar --local-address {TOOLS_IP} "
                     f"--remote-address {ODL_IP} --pcc {PCCS} --lsp {LSPS}",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
@@ -440,21 +430,21 @@ class TestCases:
                     password=TOOLS_PASSWD,
                 )
                 stdout, stderr = infra.ssh_run_command(
-                    f"taskset 0x00000001 python3 /tmp/updater.py  " \
-                    f"--odladdress '{ODL_IP}' --pccaddress '{TOOLS_IP}' " \
-                    f"--user 'admin' --password 'admin' --hop '11.11.11.11/32' " \
-                    f"--pccs '{PCCS}' --lsps '{LSPS}' --workers '1' --pccip 'None' " \
-                    f"--refresh '{UPDATER_REFRESH}' --reuse 'False' --delegate 'True' " \
+                    f"taskset 0x00000001 python3 /tmp/updater.py  "
+                    f"--odladdress '{ODL_IP}' --pccaddress '{TOOLS_IP}' "
+                    f"--user 'admin' --password 'admin' --hop '11.11.11.11/32' "
+                    f"--pccs '{PCCS}' --lsps '{LSPS}' --workers '1' --pccip 'None' "
+                    f"--refresh '{UPDATER_REFRESH}' --reuse 'False' --delegate 'True' "
                     f"--timeout '900' 2>&1",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
                 expected_log_message = f"Counter({{'pass': {TOTAL_LSPS}}})"
-                assert (
-                    expected_log_message in stdout
-                ), f"Expected message {expected_log_message=} was not found in " \
-                   f"{stdout=}"
+                assert expected_log_message in stdout, (
+                    f"Expected message {expected_log_message=} was not found in "
+                    f"{stdout=}"
+                )
                 utils.wait_until_function_returns_value(
                     120,
                     1,
@@ -525,7 +515,7 @@ class TestCases:
                 hop = self.get_next_hop()
                 # Check if pcep-pcc-mock.jar file is running
                 rc, output = infra.shell(
-                    "ps -fu $WHOAMI | grep 'pcep-pcc-mock.jar' | grep -v 'grep' | " \
+                    "ps -fu $WHOAMI | grep 'pcep-pcc-mock.jar' | grep -v 'grep' | "
                     "awk '{print $2}'"
                 )
                 if output:
@@ -575,10 +565,16 @@ class TestCases:
                 """If requested, restore the old tcp_tw_reuse value.
                 In case of failure only log the erorr message."""
                 try:
-                    rc, output = infra.shell(f"sudo -n bash -c 'echo {self.original_tcp_tw_reuse_value} > " \
-                                             f"/proc/sys/net/ipv4/tcp_tw_reuse'")
-                    assert rc == 0, f"Failed to reset tcp_tw_resue, return code" \
-                                    f"is not zero, but: {rc}"
+                    rc, output = infra.shell(
+                        f"sudo -n bash -c 'echo {self.original_tcp_tw_reuse_value} > "
+                        f"/proc/sys/net/ipv4/tcp_tw_reuse'"
+                    )
+                    assert rc == 0, (
+                        f"Failed to reset tcp_tw_resue, return code"
+                        f"is not zero, but: {rc}"
+                    )
                 except Exception as e:
-                    log.warn(f"Failed step_restore_tcp_tw_reuse " \
-                            f"with the following error message: {e}")
+                    log.warn(
+                        f"Failed step_restore_tcp_tw_reuse "
+                        f"with the following error message: {e}"
+                    )
