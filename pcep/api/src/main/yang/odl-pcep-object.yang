@@ -21,10 +21,11 @@ module odl-pcep-object {
             - RFC7896: Include Route Object
             - RFC8306: P2MP
             - RFC8231: Stateful
-            - RFC8281: Initiated
             - RFC8232: Optimizations of LSP State Synchronization
+            - RFC8281: Initiated
             - RFC8408: Path Setup Type
             - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
+            - RFC8733: Auto-Bandwidth Adjustment with Stateful PCE
             - RFC9604: Path Binding
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
@@ -301,6 +302,8 @@ module odl-pcep-object {
         }
     }
 
+    // Bandwidth
+
     grouping bandwidth {
         // No possibility to carry TLVs
         leaf bandwidth {
@@ -323,6 +326,24 @@ module odl-pcep-object {
         container reoptimization-bandwidth {
             uses object;
             uses bandwidth;
+        }
+    }
+
+    // Auto-Bandwidth
+
+    grouping bw-samples {
+        leaf-list bw-sample {
+            type netc:bandwidth;
+            ordered-by user;
+        }
+    }
+
+    grouping bandwidth-usage-object {
+        description "Bandwidth-Usage Report Object";
+        reference "https://tools.ietf.org/html/draft-dhody-pce-stateful-pce-auto-bandwidth-06#section-8.4";
+        container bandwidth-usage {
+            uses object;
+            uses bw-samples;
         }
     }
 
@@ -511,6 +532,7 @@ module odl-pcep-object {
             uses object;
             uses rsvp:tunnel-attributes;
             container "tlvs" {
+                uses pcep-types:auto-bandwidth-attributes-tlv;
                 uses pcep-types:vendor-information-tlvs;
             }
         }
