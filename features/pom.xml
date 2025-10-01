@@ -68,7 +68,6 @@
         <module>odl-bgpcep-graph-api</module>
         <module>odl-bgpcep-graph</module>
         <module>odl-bgpcep-pcep-api</module>
-        <module>odl-bgpcep-pcep-auto-bandwidth</module>
         <module>odl-bgpcep-pcep-base-parser</module>
         <module>odl-bgpcep-pcep-cli</module>
         <module>odl-bgpcep-pcep-config-example</module>

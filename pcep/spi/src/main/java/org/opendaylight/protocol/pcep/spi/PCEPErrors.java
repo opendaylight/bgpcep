@@ -406,7 +406,12 @@ public enum PCEPErrors {
      */
     LSP_NOT_PCE_INITIATED(19, 9),
 
-    // FIXME: Add missing codes 10 to 32
+    /**
+     * Auto-Bandwidth capability was not advertised.
+     */
+    AUTO_BANDWIDTH_CAPABILITY_NOT_ADVERTISED(19, 14),
+
+    // FIXME: Add missing codes 10-13, 15-32
 
     // LSP State Synchronization Error: Error-Type = 20.
 
