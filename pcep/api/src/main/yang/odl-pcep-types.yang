@@ -20,10 +20,11 @@ module odl-pcep-types {
             - RFC7896: Include Route Object
             - RFC8306: P2MP
             - RFC8231: Stateful
-            - RFC8281: Initiated
             - RFC8232: Optimizations of LSP State Synchronization
+            - RFC8281: Initiated
             - RFC8408: Path Setup Type
             - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
+            - RFC8733: Auto-Bandwidth Adjustment with Stateful PCE
             - RFC9604: Path Binding
 
         Copyright (c)2025 Orange. All rights reserved.
@@ -636,6 +637,15 @@ module odl-pcep-types {
         }
     }
 
+    grouping auto-bandwidth-capability-tlv {
+        description "AUTO-BANDWIDTH-CAPABILITY TLV";
+        reference "https://tools.ietf.org/html/rfc8733-section-5.1.1";
+        container auto-bandwidth-capability {
+            uses tlv;
+            presence "Capability indicates that the sender can perform Auto-Bandwidth adjustment";
+        }
+    }
+
     // Vendor Information TLVs
 
     grouping vendor-information {
@@ -753,6 +763,225 @@ module odl-pcep-types {
                     uses ipv6-destinations;
                 }
             }
+        }
+    }
+
+    // Auto-Bandwidth TLVs
+
+    grouping sample-interval-tlv {
+        description "Auto-Bandwidht Sample Interval value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.1";
+        container sample-interval {
+            uses tlv;
+            leaf interval {
+                type uint32 {
+                    range 1..604800;
+                }
+                default 300;
+            }
+        }
+    }
+
+    grouping adjustment-interval-tlv {
+        description "Adjustment Interval value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.2.1";
+        container adjustment-interval {
+            uses tlv;
+            leaf adjustment {
+                type uint32 {
+                    range 1..604800;
+                }
+                default 86400;
+            }
+        }
+    }
+
+    grouping down-adjustment-interval-tlv {
+        description "Down Adjustment Interval value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.2.2";
+        container down-adjustment-interval {
+            uses tlv;
+            leaf down-adjustment {
+                type uint32 {
+                    range 1..604800;
+                }
+                default 86400;
+            }
+        }
+    }
+            
+    grouping adjustment-threshold-tlv {
+        description "Adjustment Threshold value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.3.1";
+        container adjustment-threshold {
+            uses tlv;
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping adjustment-threshold-percentage-tlv {
+        description "Adjustment Threshold Percentage value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.3.2";
+        container adjustment-threshold-percentage {
+            uses tlv;
+            leaf percentage {
+                type uint8 {
+                    range 1..100;
+                }
+                default 5;
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+                default 0;
+            }
+        }
+    }
+
+    grouping down-adjustment-threshold-tlv {
+        description "Down Adjustment Threshold value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.3.3";
+        container down-adjustment-threshold {
+            uses tlv;
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping down-adjustment-threshold-percentage-tlv {
+        description "Down Adjustment Threshold Percentage value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.3.4";
+        container down-adjustment-threshold-percentage {
+            uses tlv;
+            leaf percentage {
+                type uint8 {
+                    range 1..100;
+                }
+                default 5;
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+                default 0;
+            }
+        }
+    }
+
+    grouping minimum-bandwitdh-tlv {
+        description "Minimum Bandwidth value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.4.1";
+        container minimum-bandwidth {
+            uses tlv;
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping maximum-bandwitdh-tlv {
+        description "Maximum Bandwidth value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.4.2";
+        container maximum-bandwidth {
+            uses tlv;
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping overflow-threshold-tlv {
+        description "Overflow Threshold value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.5.1";
+        container overflow-threshold {
+            uses tlv;
+            leaf count {
+                type uint8 {
+                    range 1..32;
+                }
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping overflow-threshold-percentage-tlv {
+        description "Overflow Threshold Percentage TLV";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.5.2";
+        container overflow-threshold-percentage {
+            uses tlv;
+            leaf percentage {
+                type uint8 {
+                    range 1..100;
+                }
+            }
+            leaf count {
+                type uint8 {
+                    range 1..32;
+                }
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping underflow-threshold-tlv {
+        description "Underflow Threshold value";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.5.3";
+        container underflow-threshold {
+            uses tlv;
+            leaf count {
+                type uint8 {
+                    range 1..32;
+                }
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping underflow-threshold-percentage-tlv {
+        description "Underflow Threshold Percentage TLV";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2.5.4";
+        container underflow-threshold-percentage {
+            uses tlv;
+            leaf percentage {
+                type uint8 {
+                    range 1..100;
+                }
+            }
+            leaf count {
+                type uint8 {
+                    range 1..32;
+                }
+            }
+            leaf bandwidth {
+                type netc:bandwidth;
+            }
+        }
+    }
+
+    grouping auto-bandwidth-attributes-tlv {
+        description "Auto-Bandwidth TLVs";
+        reference "https://tools.ietf.org/doc/html/rfc8733#section-5.2";
+        container auto-bandwidth-attributes {
+            uses tlv;
+            uses sample-interval-tlv;
+            uses adjustment-interval-tlv;
+            uses down-adjustment-interval-tlv;
+            uses adjustment-threshold-tlv;
+            uses adjustment-threshold-percentage-tlv;
+            uses down-adjustment-threshold-tlv;
+            uses down-adjustment-threshold-percentage-tlv;
+            uses minimum-bandwitdh-tlv;
+            uses maximum-bandwitdh-tlv;
+            uses overflow-threshold-tlv;
+            uses overflow-threshold-percentage-tlv;
+            uses underflow-threshold-tlv;
+            uses underflow-threshold-percentage-tlv;
         }
     }
 
@@ -1038,6 +1267,7 @@ module odl-pcep-types {
         uses stateful-capability-tlv;
         uses lsp-db-version-tlv;
         uses speaker-entity-id-tlv;
+        uses auto-bandwidth-capability-tlv;
         uses path-setup-type-capability-tlv;
         uses association-range-tlv;
         uses association-type-list-tlv;

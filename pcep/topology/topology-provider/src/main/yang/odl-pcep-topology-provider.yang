@@ -51,6 +51,12 @@ module odl-pcep-topology-provider {
                     default true;
                 }
             }
+            container auto-bandwidth {
+                leaf enabled {
+                    type boolean;
+                    default false;
+                }
+            }
         }
     }
 }
