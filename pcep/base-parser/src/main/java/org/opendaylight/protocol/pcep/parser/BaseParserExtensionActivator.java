@@ -97,6 +97,8 @@ import org.opendaylight.protocol.pcep.parser.subobject.XROSrlgSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROUnnumberedInterfaceSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationTypeListTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AutoBandwidthAttributesTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AutoBandwidthCapabilityParser;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv6TlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.LspDbVersionTlvParser;
@@ -173,6 +175,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.unreach.destination.object.UnreachDestinationObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.AssociationRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.type.list.tlv.AssociationTypeList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.attributes.tlv.AutoBandwidthAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.capability.tlv.AutoBandwidthCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.error.code.tlv.LspErrorCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.LspIdentifiers;
@@ -621,6 +625,13 @@ public final class BaseParserExtensionActivator implements PCEPExtensionProvider
         regs.add(context.registerTlvParser(SpeakerEntityIdTlvParser.TYPE, speakerEntityIdTlvParser));
         regs.add(context.registerTlvSerializer(SpeakerEntityId.class, speakerEntityIdTlvParser));
 
+        final AutoBandwidthCapabilityParser autoBandwidthCapabilityParser = new AutoBandwidthCapabilityParser();
+        regs.add(context.registerTlvParser(AutoBandwidthCapabilityParser.TYPE, autoBandwidthCapabilityParser));
+        regs.add(context.registerTlvSerializer(AutoBandwidthCapability.class, autoBandwidthCapabilityParser));
+
+        final AutoBandwidthAttributesTlvParser autoBandwidthTlvParser = new AutoBandwidthAttributesTlvParser();
+        regs.add(context.registerTlvParser(AutoBandwidthAttributesTlvParser.TYPE, autoBandwidthTlvParser));
+        regs.add(context.registerTlvSerializer(AutoBandwidthAttributes.class, autoBandwidthTlvParser));
     }
 
     private static void registerMonitoringExtensionParsers(final List<Registration> regs,

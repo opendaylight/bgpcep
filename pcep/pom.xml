@@ -37,7 +37,6 @@
         <module>server</module>
         <module>topology</module>
         <module>pcc-mock</module>
-        <module>auto-bandwidth-extension</module>
         <module>config-example</module>
         <module>tunnel</module>
     </modules>

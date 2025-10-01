@@ -24,6 +24,7 @@ import org.opendaylight.protocol.pcep.PCEPTimerProposal;
 import org.opendaylight.protocol.pcep.impl.PCEPAssociationCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPPathSetupTypeCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
+import org.opendaylight.protocol.pcep.parser.tlv.AutoBandwidthCapability;
 import org.opendaylight.protocol.pcep.parser.tlv.P2MPTeLspCapability;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -121,6 +122,9 @@ final class PCEPTopologyConfiguration implements Immutable {
             .add(new PCEPPathSetupTypeCapability(capabilities.nonnullPathSetupType()));
         if (capabilities.nonnullP2mp().requireEnabled()) {
             builder.add(P2MPTeLspCapability.of());
+        }
+        if (capabilities.nonnullAutoBandwidth().requireEnabled()) {
+            builder.add(AutoBandwidthCapability.of());
         }
         return builder.build();
     }
