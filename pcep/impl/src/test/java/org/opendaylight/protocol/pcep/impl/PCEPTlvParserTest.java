@@ -21,6 +21,8 @@ import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationTypeListTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AutoBandwidthAttributesTlvParser;
+import org.opendaylight.protocol.pcep.parser.tlv.AutoBandwidthCapabilityParser;
 import org.opendaylight.protocol.pcep.parser.tlv.NoPathVectorTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OFListTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.OrderTlvParser;
@@ -31,21 +33,36 @@ import org.opendaylight.protocol.pcep.parser.tlv.PathSetupTypeTlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.ReqMissingTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.replies.result.failure._case.no.path.tlvs.NoPathVectorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.AssociationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NoPathVectorTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.OfId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.RequestId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.adjustment.interval.tlv.AdjustmentIntervalBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.adjustment.threshold.percentage.tlv.AdjustmentThresholdPercentageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.adjustment.threshold.tlv.AdjustmentThresholdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.AssociationRange;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.AssociationRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.range.tlv.association.range.AssociationRangesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.type.list.tlv.AssociationTypeList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.association.type.list.tlv.AssociationTypeListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.attributes.tlv.AutoBandwidthAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.attributes.tlv.AutoBandwidthAttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.capability.tlv.AutoBandwidthCapability;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.capability.tlv.AutoBandwidthCapabilityBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.down.adjustment.interval.tlv.DownAdjustmentIntervalBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.down.adjustment.threshold.percentage.tlv.DownAdjustmentThresholdPercentageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.down.adjustment.threshold.tlv.DownAdjustmentThresholdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.maximum.bandwitdh.tlv.MaximumBandwidthBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.minimum.bandwitdh.tlv.MinimumBandwidthBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.of.list.tlv.OfList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.of.list.tlv.OfListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.order.tlv.Order;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.order.tlv.OrderBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overflow.threshold.percentage.tlv.OverflowThresholdPercentageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overflow.threshold.tlv.OverflowThresholdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDuration;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.overload.duration.tlv.OverloadDurationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.p2mp.pce.capability.tlv.P2mpPceCapability;
@@ -56,9 +73,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.req.missing.tlv.ReqMissing;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.req.missing.tlv.ReqMissingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.sample.interval.tlv.SampleIntervalBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.sr.pce.capability.tlv.SrPceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.srv6.pce.capability.tlv.Srv6PceCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.srv6.pce.capability.tlv.srv6.pce.capability.MsdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.underflow.threshold.percentage.tlv.UnderflowThresholdPercentageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.underflow.threshold.tlv.UnderflowThresholdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlvBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
@@ -102,6 +122,24 @@ public class PCEPTlvParserTest {
         0x00, 0x22, 0x00, 0x1c, 0x00, 0x00, 0x00, 0x03, 0x00, 0x01, 0x03, 0x00,
         0x00, 0x1a, 0x00, 0x04, 0x00, 0x00, 0x01, 0x0a,
         0x00, 0x1b, 0x00, 0x06, 0x00, 0x00, 0x00, 0x02, 0x01, 0x0a, 0x00, 0x00
+    };
+
+    private static final byte[] AB_CAPA_BYTES = {0x0, 0x24, 0x0, 0x4, 0x0, 0x0, 0x0, 0x0};
+
+    private static final byte[] AUTO_BANDWIDTH_ATTRIBUTES = { 0x00, 0x25, 0x00, (byte )0x80,
+        0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01,
+        0x00, 0x02, 0x00, 0x04, 0x00, 0x00, 0x00, 0x0a,
+        0x00, 0x03, 0x00, 0x04, 0x00, 0x00, 0x00, 0x02,
+        0x00, 0x04, 0x00, 0x04, 0x47, 0x74, 0x24, 0x00,
+        0x00, 0x05, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0a, 0x47, 0x74, 0x24, 0x00,
+        0x00, 0x06, 0x00, 0x04, 0x00, 0x01, 0x02, 0x03,
+        0x00, 0x07, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0a, 0x04, 0x05, 0x06, 0x07,
+        0x00, 0x08, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x09, 0x00, 0x04, 0x47, 0x74, 0x24, 0x00,
+        0x00, 0x0a, 0x00, 0x08, 0x00, 0x00, 0x00, 0x02, 0x01, 0x02, 0x03, 0x04,
+        0x00, 0x0b, 0x00, 0x08, 0x14, 0x00, 0x00, 0x01, 0x05, 0x06, 0x07, 0x08,
+        0x00, 0x0c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x02, 0x0f, 0x0e, 0x0d, 0x0c,
+        0x00, 0x0d, 0x00, 0x08, 0x14, 0x00, 0x00, 0x01, 0x0b, 0x0a, 0x09, 0x08
     };
 
     @Test
@@ -236,7 +274,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAssociationTypeListTlvParser()  throws PCEPDeserializerException {
+    public void testAssociationTypeListTlvParser() throws PCEPDeserializerException {
         final AssociationTypeListTlvParser parser = new AssociationTypeListTlvParser();
         final AssociationTypeList assocTypeList = new AssociationTypeListBuilder()
             .setAssociationType(Set.of(AssociationType.Disjoint)).build();
@@ -248,7 +286,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAssociationRangeTlvParser()  throws PCEPDeserializerException {
+    public void testAssociationRangeTlvParser() throws PCEPDeserializerException {
         final AssociationRangeTlvParser parser = new AssociationRangeTlvParser();
         final AssociationRange assocRangeList = new AssociationRangeBuilder()
             .setAssociationRanges(List.of(new AssociationRangesBuilder()
@@ -262,5 +300,68 @@ public class PCEPTlvParserTest {
         final ByteBuf buff = Unpooled.buffer();
         parser.serializeTlv(assocRangeList, buff);
         assertArrayEquals(ASSOCIATION_RANGE_BYTES, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testAutoBandwidthCapabilityParser() throws PCEPDeserializerException {
+        final AutoBandwidthCapabilityParser parser = new AutoBandwidthCapabilityParser();
+        final AutoBandwidthCapability abaCapability = new AutoBandwidthCapabilityBuilder().build();
+
+        assertEquals(abaCapability, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(AB_CAPA_BYTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(abaCapability, buff);
+        assertArrayEquals(AB_CAPA_BYTES, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testAutoBandwidthAttributes() throws PCEPDeserializerException {
+        final AutoBandwidthAttributesTlvParser parser = new AutoBandwidthAttributesTlvParser();
+        final AutoBandwidthAttributes aba = new AutoBandwidthAttributesBuilder()
+            .setSampleInterval(new SampleIntervalBuilder().setInterval(Uint32.ONE).build())
+            .setAdjustmentInterval(new AdjustmentIntervalBuilder().setAdjustment(Uint32.TEN).build())
+            .setDownAdjustmentInterval(new DownAdjustmentIntervalBuilder().setDownAdjustment(Uint32.TWO).build())
+            .setAdjustmentThreshold(new AdjustmentThresholdBuilder()
+                .setBandwidth(new Bandwidth(new byte[] { 0x47, 0x74, 0x24, 0x00 }))
+                .build())
+            .setAdjustmentThresholdPercentage(new AdjustmentThresholdPercentageBuilder()
+                .setPercentage(Uint8.TEN)
+                .setBandwidth(new Bandwidth(new byte[] { 0x47, 0x74, 0x24, 0x00 }))
+                .build())
+            .setDownAdjustmentThreshold(new DownAdjustmentThresholdBuilder()
+                .setBandwidth(new Bandwidth(new byte[] { 0x00, 0x01, 0x02, 0x03 }))
+                .build())
+            .setDownAdjustmentThresholdPercentage(new DownAdjustmentThresholdPercentageBuilder()
+                .setPercentage(Uint8.TEN)
+                .setBandwidth(new Bandwidth(new byte[] { 0x04, 0x05, 0x06, 0x07 }))
+                .build())
+            .setMinimumBandwidth(new MinimumBandwidthBuilder()
+                .setBandwidth(new Bandwidth(new byte[] { 0x00, 0x00, 0x00, 0x00 }))
+                .build())
+            .setMaximumBandwidth(new MaximumBandwidthBuilder()
+                .setBandwidth(new Bandwidth(new byte[] { 0x47, 0x74, 0x24, 0x00 }))
+                .build())
+            .setOverflowThreshold(new OverflowThresholdBuilder()
+                .setCount(Uint8.TWO)
+                .setBandwidth(new Bandwidth(new byte[] { 0x01, 0x02, 0x03, 0x04 }))
+                .build())
+            .setOverflowThresholdPercentage(new OverflowThresholdPercentageBuilder()
+                .setCount(Uint8.ONE)
+                .setPercentage(Uint8.TEN)
+                .setBandwidth(new Bandwidth(new byte[] { 0x05, 0x06, 0x07, 0x08 }))
+                .build())
+            .setUnderflowThreshold(new UnderflowThresholdBuilder()
+                .setCount(Uint8.TWO)
+                .setBandwidth(new Bandwidth(new byte[] { 0x0f, 0x0e, 0x0d, 0x0c }))
+                .build())
+            .setUnderflowThresholdPercentage(new UnderflowThresholdPercentageBuilder()
+                .setCount(Uint8.ONE)
+                .setPercentage(Uint8.TEN)
+                .setBandwidth(new Bandwidth(new byte[] { 0x0b, 0x0a, 0x09, 0x08 }))
+                .build())
+            .build();
+        assertEquals(aba, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(AUTO_BANDWIDTH_ATTRIBUTES, 4))));
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeTlv(aba, buff);
+        assertArrayEquals(AUTO_BANDWIDTH_ATTRIBUTES, ByteArray.getAllBytes(buff));
     }
 }

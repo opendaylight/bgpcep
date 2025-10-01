@@ -24,6 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.LspaBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.lspa.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lspa.object.lspa.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.auto.bandwidth.attributes.tlv.AutoBandwidthAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.tlvs.VendorInformationTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.AttributeFilter;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
@@ -56,8 +58,8 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
                 .setIgnore(header.getIgnore())
                 .setProcessingRule(header.getProcessingRule())
                 .setExcludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
-                .setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
                 .setIncludeAny(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
+                .setIncludeAll(new AttributeFilter(ByteBufUtils.readUint32(bytes)))
                 .setSetupPriority(ByteBufUtils.readUint8(bytes))
                 .setHoldPriority(ByteBufUtils.readUint8(bytes));
 
@@ -67,6 +69,16 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
         bytes.skipBytes(RESERVED);
         parseTlvs(tbuilder, bytes.slice());
         return builder.setTlvs(tbuilder.build()).build();
+    }
+
+    @Override
+    public void addTlv(final TlvsBuilder builder, final Tlv tlv) {
+        switch (tlv) {
+            case AutoBandwidthAttributes aba -> builder.setAutoBandwidthAttributes(aba);
+            case null, default -> {
+                // No-op
+            }
+        }
     }
 
     @Override
@@ -90,6 +102,7 @@ public class PCEPLspaObjectParser extends AbstractObjectWithTlvsParser<TlvsBuild
 
     public void serializeTlvs(final Tlvs tlvs, final ByteBuf body) {
         if (tlvs != null) {
+            serializeOptionalTlv(tlvs.getAutoBandwidthAttributes(), body);
             serializeVendorInformationTlvs(tlvs.getVendorInformationTlv(), body);
         }
     }
