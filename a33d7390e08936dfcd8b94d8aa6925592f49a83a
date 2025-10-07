@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f46b401_7f92d644",
+        "filename": "pcep/impl/src/test/resources/PCErr.1.bin",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T11:15:13Z",
+      "side": 1,
+      "message": "hmm.. where are these coming from?",
+      "revId": "a33d7390e08936dfcd8b94d8aa6925592f49a83a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
