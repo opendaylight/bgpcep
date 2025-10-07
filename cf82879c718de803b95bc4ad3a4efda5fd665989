@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e86e4f59_efd979da",
+        "filename": "pcep/api/src/main/yang/odl-pcep-object.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T13:47:55Z",
+      "side": 1,
+      "message": "I just copy paste this part. But, agree, I\u0027ll remove it.",
+      "parentUuid": "657120f8_356af495",
+      "range": {
+        "startLine": 105,
+        "startChar": 20,
+        "endLine": 105,
+        "endChar": 33
+      },
+      "revId": "cf82879c718de803b95bc4ad3a4efda5fd665989",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "129ff1d0_5c0fc78d",
         "filename": "pcep/api/src/main/yang/odl-pcep-object.yang",
         "patchSetId": 8
@@ -37,6 +61,30 @@
       "writtenOn": "2025-10-07T10:20:03Z",
       "side": 1,
       "message": "nor this",
+      "range": {
+        "startLine": 112,
+        "startChar": 20,
+        "endLine": 112,
+        "endChar": 33
+      },
+      "revId": "cf82879c718de803b95bc4ad3a4efda5fd665989",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0651d04_67dc6797",
+        "filename": "pcep/api/src/main/yang/odl-pcep-object.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T13:47:55Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "129ff1d0_5c0fc78d",
       "range": {
         "startLine": 112,
         "startChar": 20,

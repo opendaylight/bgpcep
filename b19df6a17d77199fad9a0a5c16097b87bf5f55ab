@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b2982b2_b9c9265e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T13:47:55Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nI corrected the Copyright \u0026 co on the header of yang models (patchset 9) and I also removed the \"range 0...255\" (I think it was introduced before you add the uint8 type) for the keepalive and dead-timer (patchset 10).",
+      "revId": "b19df6a17d77199fad9a0a5c16097b87bf5f55ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
