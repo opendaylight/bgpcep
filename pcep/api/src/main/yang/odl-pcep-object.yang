@@ -85,6 +85,7 @@ module odl-pcep-object {
         }
     }
 
+    // FIXME: just the innards of 'open'
     grouping open-object {
         description "OPEN Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.3";
