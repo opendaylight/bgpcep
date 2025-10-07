@@ -42,234 +42,181 @@ module odl-pcep-message {
 
     // Messages
 
-    grouping message {
-        description "Marker grouping for message groupings.";
-    }
-
-    grouping message-header {
-        description "Common Header";
-        reference "https://tools.ietf.org/html/rfc5440#section-6.1";
-
+    notification message {
         leaf version {
+            reference "https://tools.ietf.org/html/rfc5440#section-6.1";
             type pcep-types:protocol-version;
             default 1;
         }
-    }
 
-    grouping open-message {
-        uses message;
+        choice message-type {
+            mandatory true;
 
-        container open-message {
-            description "Open Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.2";
+            case open-type {
+                description "Open Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.2";
 
-            uses message-header;
+                container open-message {
+                    presence "indicates this is an OPEN message";
 
-            uses pcep-object:open-object;
-        }
-    }
-
-    grouping keepalive-message {
-        uses message;
-
-        container keepalive-message {
-            description "Keepalive Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.3";
-
-            uses message-header;
-        }
-    }
-
-    grouping pcreq-message {
-        uses message;
-
-        container pcreq-message {
-            description "Path Computation Request Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.4";
-
-            uses message-header;
-
-            list requests {
-                uses pcep-object:rp-object;
-
-                container path-key-expansion {
-                    when "rp/path-key = true";
-                    uses pcep-object:path-key-object;
-                }
-
-                container segment-computation {
-                    when "rp/path-key = false";
-
-                    container p2p {
-                        when "../rp/p2mp = false";
-                        uses pcep-object:p2p;
-                    }
-
-                    container p2mp {
-                        reference "https://tools.ietf.org/html/rfc8306#section-3.4";
-                        when "../rp/p2mp = true";
-
-                        uses pcep-object:p2mp;
-                    }
-                }
-
-                uses pcep-object:vendor-information-objects;
-            }
-
-            list svec {
-                uses pcep-object:svec;
-            }
-
-            container monitoring-request {
-                uses pcep-object:monitoring;
-
-                list pce-id-list {
-                    uses pcep-object:pce-id-object;
-                }
-            }
-        }
-    }
-
-    grouping pcmonrep-message {
-        description "The PCMonRep message is used to provide PCE
-        state metrics back to the requester for out-of-band monitoring requests.";
-        reference "https://tools.ietf.org/html/rfc5886#section-9.2";
-
-        uses message;
-        container pcmonrep-message {
-            uses pcep-object:monitoring-response;
-        }
-    }
-
-    grouping pcrep-message {
-        uses message;
-
-        container pcrep-message {
-            description "Path Computation Reply Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.5";
-
-            uses message-header;
-
-            list replies {
-                uses pcep-object:replies;
-            }
-        }
-    }
-
-    grouping pcntf-message {
-        uses message;
-
-        container pcntf-message {
-            description "Notification Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.6";
-
-            uses message-header;
-
-            list notifications {
-                list rps {
-                    uses pcep-object:rp-object;
-                }
-
-                list notifications {
-                    uses pcep-object:notification-object;
-                }
-            }
-        }
-    }
-
-    grouping pcerr-message {
-        uses message;
-
-        container pcerr-message {
-            description "Error Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.7";
-
-            uses message-header;
-
-            list errors {
-                uses pcep-object:pcep-error-object;
-            }
-
-            choice error-type {
-                case request-case {
-                    container request {
-                        list rps {
-                            uses pcep-object:rp-object;
-                        }
-                    }
-                }
-
-                case session-case {
-                    container session {
+                    container open {
                         uses pcep-object:open-object;
                     }
                 }
             }
+
+            case keepalive-type {
+                description "Keepalive Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.3";
+
+                container keepalive-message {
+                    presence "indicates this is an KEEPALIVE message";
+                }
+            }
+
+            case pcreq-type {
+                description "Path Computation Request Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.4";
+
+                container pcreq-message {
+                    presence "indicates this is a REQUEST message";
+
+                    container pcreq {
+                        list requests {
+                            uses pcep-object:request;
+                        }
+                        list svec {
+                            uses pcep-object:svec;
+                        }
+                        container monitoring-request {
+                            description "In Band Monitoring Request";
+                            reference "https://tools.ietf.org/html/rfc5886#section-3.1";
+                            uses pcep-object:monitoring;
+                            list pce-id-list {
+                                uses pcep-object:pce-id-object;
+                            }
+                        }
+                    }
+                }
+            }
+
+            case pcrep-type {
+                description "Path Computation Reply Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.5";
+
+                container pcrep-message {
+                    presence "indicates this is a REPLY message";
+
+                    container pcrep {
+                        list replies {
+                            uses pcep-object:replies;
+                        }
+                    }
+                }
+            }
+
+            case pcntf-type {
+                description "Notification Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.6";
+
+                container pcntf-message {
+                    presence "indicates this is a NOTIFICATION message";
+
+                    container pcntf {
+                        list notifications {
+                            list rps {
+                                uses pcep-object:rp-object;
+                            }
+
+                            list notifications {
+                                uses pcep-object:notification-object;
+                            }
+                        }
+                    }
+                }
+            }
+
+            case pcerr-type {
+                description "Error Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.7";
+
+                container pcerr-message {
+                    presence "indicates this is an ERROR message";
+
+                    container pcerr {
+                        list errors {
+                            uses pcep-object:pcep-error-object;
+                        }
+
+                        choice error-type {
+                            case request-case {
+                                container request {
+                                    list rps {
+                                        uses pcep-object:rp-object;
+                                    }
+                                }
+                            }
+
+                            case session-case {
+                                container session {
+                                    uses pcep-object:open-object;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            case close-type {
+                description "Close Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+
+                container close-message {
+                    presence "indicates this is a CLOSE message";
+
+                    container close {
+                        uses pcep-object:close-object;
+                    }
+                }
+            }
+
+            case pcmonreq-type {
+                description "The PCMonReq message is used to gather various PCE
+                state metrics along a path computation chain.";
+                reference "https://tools.ietf.org/html/rfc5886#section-3.1";
+
+                container pcmonreq-message {
+                    presence "indicates this is a MONITORING REQUEST message";
+
+                    container pcmonreq {
+                        uses pcep-object:monitoring-request;
+                    }
+                }
+            }
+
+            case pcmonrep-type {
+                description "The PCMonRep message is used to provide PCE
+                state metrics back to the requester for out-of-band monitoring requests.";
+                reference "https://tools.ietf.org/html/rfc5886#section-3.2";
+
+                container pcmonrep-message {
+                    presence "indicates this is a MONITORING REPLY message";
+
+                    container pcmonrep {
+                        uses pcep-object:monitoring-response;
+                    }
+                }
+            }
+
+            case start-tls-type {
+                description "Close Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.8";
+
+                container start-tls-message {
+                    presence "indicates this is a START-TLS message";
+                }
+            }
         }
-    }
-
-    grouping close-message {
-        uses message;
-
-        container c-close-message {
-            description "Close Message";
-            reference "https://tools.ietf.org/html/rfc5440#section-6.8";
-
-            uses message-header;
-
-            uses pcep-object:close-object;
-        }
-    }
-
-    grouping start-tls-message {
-        uses message;
-
-        container start-tls-message {
-            description "StartTLS Message";
-            reference "https://tools.ietf.org/html/draft-ietf-pce-pceps-02#section-3.3";
-
-            uses message-header;
-        }
-    }
-
-    notification open {
-        uses open-message;
-    }
-
-    notification keepalive {
-        uses keepalive-message;
-    }
-
-    notification pcreq {
-        uses pcreq-message;
-    }
-
-    notification pcrep {
-        uses pcrep-message;
-    }
-
-    notification pcntf {
-        uses pcntf-message;
-    }
-
-    notification pcerr {
-        uses pcerr-message;
-    }
-
-    notification close {
-        uses close-message;
-    }
-
-    notification starttls {
-        uses start-tls-message;
-    }
-
-    notification pcmonreq {
-        uses pcreq-message;
-    }
-
-    notification pcmonrep {
-        uses pcmonrep-message;
     }
 }
 
