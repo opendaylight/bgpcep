@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29a63b79_6f153c6d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T15:17:15Z",
+      "side": 1,
+      "message": "I propose something in patch set 4. Let me know if it corresponds to what you have in mind.\n\nNote that \"mandatory true\" statement for container is not valid i.e. I got an error during compilation.",
+      "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c15fb92b_6eb26f0f",
+        "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T15:17:15Z",
+      "side": 1,
+      "message": "I\u0027m a bit confuse. We have exactly the same declaration for the TLV \n\"\n    // TLVs\n    grouping tlv {\n        description \"Marker grouping for TLV groupings.\";\n    }\n\"\nThis allows to mark all TLVs declaration inherit to the TLV interface to ease parser / serializer. I understand that we need the same for the message.\n\nIf I understand right, your \"message-type\" proposal within notification will no more need this declaration. Can you confirm?",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 5
+      },
+      "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37208c3b_41e21bd2",
+        "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-07T15:17:15Z",
+      "side": 1,
+      "message": "Here, I\u0027m completely lost. In your proposal below, the notification message is using the message-header grouping. We can\u0027t remove it. Or, we must insert the leaf version within the notification message. Can you clarify which option I should implement?",
+      "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
