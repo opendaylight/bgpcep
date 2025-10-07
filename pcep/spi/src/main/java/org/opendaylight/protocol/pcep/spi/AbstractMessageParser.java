@@ -22,12 +22,13 @@ import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.PcerrBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.PcerrMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.ErrorsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.RequestCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.MessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.PcerrMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcerr.message.PcerrBodyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcerr.message.pcerr.body.ErrorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcerr.message.pcerr.body.error.type.RequestCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcerr.message.pcerr.body.error.type.request._case.RequestBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcerr.message.pcerr.body.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObjectBuilder;
@@ -106,19 +107,21 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     }
 
     public static Message createErrorMsg(final PCEPErrors err, final Optional<Rp> optRp) {
-        final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
+        final var bodyBuilder = new PcerrBodyBuilder();
         optRp.ifPresent(rp -> {
-            msgBuilder.setErrorType(new RequestCaseBuilder()
+            bodyBuilder.setErrorType(new RequestCaseBuilder()
                 .setRequest(new RequestBuilder().setRps(List.of(new RpsBuilder().setRp(rp).build())).build())
                 .build());
         });
-        return new PcerrBuilder()
-            .setPcerrMessage(msgBuilder.setErrors(List.of(new ErrorsBuilder()
-                .setErrorObject(new ErrorObjectBuilder()
-                    .setType(err.getErrorType())
-                    .setValue(err.getErrorValue())
+        return new MessageBuilder()
+            .setMessageType(new PcerrMessageBuilder()
+                .setPcerrBody(bodyBuilder.setErrors(List.of(new ErrorsBuilder()
+                    .setErrorObject(new ErrorObjectBuilder()
+                        .setType(err.getErrorType())
+                        .setValue(err.getErrorValue())
+                        .build())
+                    .build()))
                     .build())
-                .build()))
                 .build())
             .build();
     }

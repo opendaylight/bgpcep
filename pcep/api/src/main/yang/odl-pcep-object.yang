@@ -95,30 +95,29 @@ module odl-pcep-object {
         description "OPEN Object";
         reference "https://tools.ietf.org/html/rfc5440#section-7.3";
 
-        container open {
-            uses object;
-            container "tlvs" {
-                uses pcep-types:open-object-tlvs;
-            }
+        uses object;
+        container "tlvs" {
+            uses pcep-types:open-object-tlvs;
+        }
 
-            leaf version {
-                type pcep-types:protocol-version;
-                default 1;
-            }
+        leaf version {
+            type pcep-types:protocol-version;
+            default 1;
+        }
 
-            leaf keepalive {
-                type uint8;
-                mandatory true;
-            }
+        leaf keepalive {
+            type uint8;
+            mandatory true;
+        }
 
-            leaf dead-timer {
-                type uint8;
-                mandatory true;
-            }
+        leaf dead-timer {
+            type uint8;
+            mandatory true;
+        }
 
-            leaf session-id {
-                type uint8;
-            }
+        leaf session-id {
+            type uint8;
+            mandatory true;
         }
     }
 
