@@ -11,7 +11,7 @@ import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.Tlvs;
 
 /**
  * PCEP Session represents the finite state machine in PCEP, including timers and its purpose is to create a PCEP

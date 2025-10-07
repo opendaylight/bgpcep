@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.Open;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.OpenObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.Messages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerPref;
@@ -40,9 +40,9 @@ public interface PCEPSessionState {
     PeerPref getPeerPref();
 
     /**
-     * The local (PCE) Open Message.
+     * The local (PCE) Open Message's Open Object.
      *
      * @return Open
      */
-    Open getLocalOpen();
+    OpenObject getLocalOpen();
 }

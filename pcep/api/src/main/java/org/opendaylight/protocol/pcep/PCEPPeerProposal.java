@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep;
 
 import java.net.InetSocketAddress;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.TlvsBuilder;
 
 /**
  * Proposal from peer for establishment of PCEP session.
