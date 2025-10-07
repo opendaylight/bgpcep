@@ -40,10 +40,12 @@ module odl-pcep-message {
 
     // Messages
 
+    // FIXME: remove this grouping: it is replaced by the interface generated for '/message/type' schema node
     grouping message {
         description "Marker grouping for message groupings.";
     }
 
+    // FIXME: remove this grouping: is is inlined into 'message' notification
     grouping message-header {
         description "Common Header";
         reference "https://tools.ietf.org/html/rfc5440#section-6.1";
@@ -54,9 +56,11 @@ module odl-pcep-message {
         }
     }
 
+    // FIXME: replaced by 'open-type'
     grouping open-message {
         uses message;
 
+        // FIXME: replaced by '
         container open-message {
             description "Open Message";
             reference "https://tools.ietf.org/html/rfc5440#section-6.2";
@@ -227,6 +231,120 @@ module odl-pcep-message {
             reference "https://tools.ietf.org/html/draft-ietf-pce-pceps-02#section-3.3";
 
             uses message-header;
+        }
+    }
+
+    notification message {
+        uses message-header;
+
+        // Message type dispatch using careful naming and mechanics:
+        // - message-type choice is mandatory and therefore there has to be exactly one satisfied case
+        // - each case is explicitly spelled out as 'foo-type'
+        // - each case has exactly one child, which is a 'foo-message' presence container
+        //
+        // We can therefore use 'MessageType' interface as the common super-interface for all message-specific cases,
+        // named 'FooType', each of which contains a single 'FooMessage' container -- which we acquire through
+        // 'requireFooMessage()'.
+        //
+        // We could dispense with the 'case foo-type' declaration without changing YANG semantics, this would result
+        // in two distinct 'FooMessage' interfaces being generated, leading to potential confusion.
+        //
+        // The use of a presence container is critical for two reasons:
+        //   1. it allows for messages which do not currently have a body, like KEEPALIVE
+        //   2. it is a YANG mandatory enforcement point, e.g. 'mandatory true', 'min-elements 1' in its descendants
+        //      are enforced IFF we are dealing with this precise case
+        //
+        // Since choice/case statements are not data tree nodes, they do not manifest in XML/JSON encoding, so
+        // we end up with, for example, these JSON/XML snippets:
+        //
+        //   "odl-pcep-message:message": {
+        //     "open-message": {
+        //       "open": {
+        //         ...
+        //       }
+        //     }
+        //   }
+        //
+        //   <message xmlns="urn:opendaylight:params:xml:ns:yang:pcep:message">
+        //     <keepalive-message/>
+        //   </message>
+        //
+        //
+        // We also retain extensibility as we can perform external augmentation, for example:
+        //
+        //   module foo {
+        //     namespace foo;
+        //     prefix foo;
+        //
+        //     import odl-pcep-message { prefix opm; }
+        //
+        //     augment /opm:message/opm:message-type {
+        //       case foo-type {
+        //         container foo-message {
+        //           presence "indicates this is a FOO message";
+        //
+        //           ...
+        //         }
+        //       }
+        //     }
+        //
+        // which would get encoded as
+        //
+        //   "odl-pcep-message:message": {
+        //     "foo:foo-message": {
+        //       ...
+        //     }
+        //   }
+        //
+        //
+        // Finally, this allows us to make support modular based on supported YANG features, for example:
+        //
+        //   feature stateful-supported;
+        //
+        //   case pcrpt-type {
+        //     if-feature stateful-supported;
+        //     container pcrpt-message {
+        //       presence "indicates this is a PCRpt message";
+        //       ...
+        //     }
+        //   }
+        //   case pcupd-type {
+        //     if-feature stateful-supported;
+        //     container pcupd-message {
+        //       presence "indicates this is a PCUpd message";
+        //       ...
+        //     }
+        //   }
+        //
+
+        choice message-type {
+            mandatory true;
+
+            case open-type {
+                description "Open Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.2";
+
+                container open-message {
+                    presence "indicates this is an OPEN message";
+
+                    container open {
+                        mandatory true;
+                        uses pcep-object:open-object;
+                    }
+                }
+            }
+
+            case keepalive-type {
+                description "Keepalive Message";
+                reference "https://tools.ietf.org/html/rfc5440#section-6.3";
+
+                container keepalive-message {
+                    presence "indicates this is an OPEN message";
+                }
+            }
+
+            // FIXME: more types
+
         }
     }
 
