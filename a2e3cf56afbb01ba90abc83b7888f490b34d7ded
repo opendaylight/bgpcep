@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a976b2a5_3c1a4c68",
+        "filename": "pcep/api/src/main/yang/odl-pcep-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T09:01:26Z",
+      "side": 1,
+      "message": "I have split this bit out to https://git.opendaylight.org/gerrit/c/bgpcep/+/118479 for backporting",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 25
+      },
+      "revId": "a2e3cf56afbb01ba90abc83b7888f490b34d7ded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4371633_bfbba75f",
+        "filename": "pcep/api/src/main/yang/odl-pcep-messages.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-07T09:01:26Z",
+      "side": 1,
+      "message": "mismatched file name: we really want odl-pcep-message.yang",
+      "range": {
+        "startLine": 1,
+        "startChar": 7,
+        "endLine": 1,
+        "endChar": 23
+      },
+      "revId": "a2e3cf56afbb01ba90abc83b7888f490b34d7ded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
