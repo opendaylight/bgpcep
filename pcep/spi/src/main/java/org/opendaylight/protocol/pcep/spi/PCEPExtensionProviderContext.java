@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.spi;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.MessageType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.EnterpriseSpecificInformation;
@@ -28,7 +28,7 @@ public interface PCEPExtensionProviderContext extends PCEPExtensionConsumerConte
 
     Registration registerMessageParser(int messageType, MessageParser parser);
 
-    Registration registerMessageSerializer(Class<? extends Message> msgClass, MessageSerializer serializer);
+    Registration registerMessageSerializer(Class<? extends MessageType> msgClass, MessageSerializer serializer);
 
     Registration registerObjectParser(ObjectParser parser);
 

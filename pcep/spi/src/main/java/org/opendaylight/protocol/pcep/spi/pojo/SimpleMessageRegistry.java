@@ -18,6 +18,7 @@ import org.opendaylight.protocol.pcep.spi.MessageParser;
 import org.opendaylight.protocol.pcep.spi.MessageSerializer;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.MessageType;
 import org.opendaylight.yangtools.binding.DataContainer;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -31,19 +32,19 @@ public final class SimpleMessageRegistry implements MessageRegistry {
 
     public Registration registerMessageParser(final int messageType, final MessageParser parser) {
         checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        return this.handlers.registerParser(messageType, parser);
+        return handlers.registerParser(messageType, parser);
     }
 
-    public Registration registerMessageSerializer(final Class<? extends Message> msgClass,
+    public Registration registerMessageSerializer(final Class<? extends MessageType> msgClass,
             final MessageSerializer serializer) {
-        return this.handlers.registerSerializer(msgClass, serializer);
+        return handlers.registerSerializer(msgClass, serializer);
     }
 
     @Override
     public Message parseMessage(final int messageType, final ByteBuf buffer, final List<Message> errors)
             throws PCEPDeserializerException {
         checkArgument(messageType >= 0 && messageType <= Values.UNSIGNED_BYTE_MAX_VALUE);
-        final MessageParser parser = this.handlers.getParser(messageType);
+        final MessageParser parser = handlers.getParser(messageType);
         if (parser == null) {
             LOG.warn("PCEP parser for message type {} is not registered.", messageType);
             return null;
@@ -53,7 +54,7 @@ public final class SimpleMessageRegistry implements MessageRegistry {
 
     @Override
     public void serializeMessage(final Message message, final ByteBuf buffer) {
-        final MessageSerializer serializer = this.handlers.getSerializer(message.implementedInterface());
+        final MessageSerializer serializer = handlers.getSerializer(message.implementedInterface());
         if (serializer == null) {
             LOG.warn("PCEP serializer for message type {} is not registered.", message.implementedInterface());
             return;

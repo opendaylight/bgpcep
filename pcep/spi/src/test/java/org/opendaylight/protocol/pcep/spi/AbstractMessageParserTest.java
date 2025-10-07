@@ -28,11 +28,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcerr;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrep;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.PcrepBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrep.message.PcrepMessageBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcrep.message.pcrep.message.RepliesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.MessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.PcerrMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.PcrepMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.PcrepMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcrep.message.PcrepBodyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.pcrep.message.pcrep.body.RepliesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObjectBuilder;
@@ -57,11 +58,13 @@ class AbstractMessageParserTest {
         protected Message validate(final Queue<Object> objects, final List<Message> errors) {
             return switch (objects.element()) {
                 case VendorInformationObject obj ->
-                    new PcrepBuilder()
-                        .setPcrepMessage(new PcrepMessageBuilder()
-                            .setReplies(List.of(new RepliesBuilder()
-                                .setVendorInformationObject(addVendorInformationObjects(objects))
-                                .build()))
+                    new MessageBuilder()
+                        .setMessageType(new PcrepMessageBuilder()
+                            .setPcrepBody(new PcrepBodyBuilder()
+                                .setReplies(List.of(new RepliesBuilder()
+                                    .setVendorInformationObject(addVendorInformationObjects(objects))
+                                    .build()))
+                                .build())
                             .build())
                         .build();
                 case ErrorObject obj ->
@@ -99,8 +102,8 @@ class AbstractMessageParserTest {
 
         final var parsed = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }),
             List.of());
-        final var msg = assertInstanceOf(Pcerr.class, parsed);
-        assertEquals(object, msg.getPcerrMessage().nonnullErrors().getFirst().getErrorObject());
+        final var msg = assertInstanceOf(PcerrMessage.class, parsed.getMessageType());
+        assertEquals(object, msg.getPcerrBody().nonnullErrors().getFirst().getErrorObject());
     }
 
     @Test
@@ -119,9 +122,9 @@ class AbstractMessageParserTest {
 
         final var parsed = parser.parseMessage(
             Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), List.of());
-        final var msg = assertInstanceOf(Pcrep.class, parsed);
+        final var msg = assertInstanceOf(PcrepMessage.class, parsed);
 
         assertEquals(viObject,
-            msg.getPcrepMessage().nonnullReplies().getFirst().nonnullVendorInformationObject().getFirst());
+            msg.getPcrepBody().nonnullReplies().getFirst().nonnullVendorInformationObject().getFirst());
     }
 }

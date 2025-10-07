@@ -24,14 +24,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Keepalive;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.MessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.KeepaliveMessage;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.KeepaliveMessageBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.keepalive.message.KeepaliveBodyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.message.message.type.open.message.open.body.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.exclude.route.object.xro.Subobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.exclude.route.object.xro.SubobjectBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.vendor.information.objects.VendorInformationObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.Tlv;
@@ -145,7 +147,7 @@ class RegistryTest {
         regs.add(ctx.registerObjectSerializer(Rp.class, objectSerializer));
 
         regs.add(ctx.registerMessageParser(6, msgParser));
-        regs.add(ctx.registerMessageSerializer(Keepalive.class, msgSerializer));
+        regs.add(ctx.registerMessageSerializer(KeepaliveMessage.class, msgSerializer));
 
         regs.add(ctx.registerLabelParser(7, labelParser));
         regs.add(ctx.registerLabelSerializer(Type1LabelCase.class, labelSerializer));
@@ -185,7 +187,9 @@ class RegistryTest {
         ctx.getObjectHandlerRegistry().serializeObject(new OpenBuilder().build(), buffer);
 
         ctx.getMessageHandlerRegistry().parseMessage(6, buffer, List.of());
-        ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
+        ctx.getMessageHandlerRegistry().serializeMessage(new MessageBuilder()
+            .setMessageType(new KeepaliveMessageBuilder().setKeepaliveBody(new KeepaliveBodyBuilder().build()).build())
+            .build(), buffer);
 
         ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(
             new EnterpriseNumber(Uint32.TEN), new ObjectHeaderImpl(true, false), buffer);
