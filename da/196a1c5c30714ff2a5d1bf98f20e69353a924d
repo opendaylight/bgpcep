@@ -1,0 +1,8 @@
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Code-Review+2: Olivier Dugeon <olivier.dugeon@orange.com>
+Verified+1: jenkins-releng ODL
+Submitted-by: Olivier Dugeon <olivier.dugeon@orange.com>
+Submitted-at: Tue, 07 Oct 2025 10:17:12 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/118479
+Project: bgpcep
+Branch: refs/heads/master
