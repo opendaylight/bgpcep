@@ -7,22 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_OBJECT_CLASS;
 import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_OBJECT_TYPE;
 import static org.opendaylight.protocol.pcep.spi.VendorInformationUtil.VENDOR_INFORMATION_TLV_TYPE;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 
-public class UtilsTest {
-
+class UtilsTest {
     @Test
-    public void testLabelUtil() {
+    void testLabelUtil() {
         final byte[] expected = { (byte) 0x81, 0x04, 0x01, 0x02, 0x03, 0x04 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
@@ -36,7 +35,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testMessageUtil() {
+    void testMessageUtil() {
         final byte[] expected = { (byte) 0x20, 0x08, 0, 0x0a, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4, 5, 6 });
@@ -45,7 +44,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testObjectUtil() {
+    void testObjectUtil() {
         final byte[] expected = { 0x08, 0x13, 0, 0x06, 0x01, 0x02 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
@@ -54,7 +53,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testObjectUtilFalse() {
+    void testObjectUtilFalse() {
         final byte[] expected = { 0x08, 0x10, 0, 0x06, 0x01, 0x02 };
         final ByteBuf out = Unpooled.buffer();
         ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2 });
@@ -67,7 +66,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testXROSubobjectUtil() {
+    void testXROSubobjectUtil() {
         byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
@@ -88,7 +87,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testTlvUtil() {
+    void testTlvUtil() {
         byte[] expected = { 0, 4, 0, 4, 1, 2, 3, 4 };
         final ByteBuf out = Unpooled.buffer();
         ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
@@ -103,7 +102,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testRROSubobjectUtil() {
+    void testRROSubobjectUtil() {
         final byte[] expected = { 4, 6, 1, 2, 3, 4 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 1, 2, 3, 4 });
@@ -112,7 +111,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testEROSubobjectUtil() {
+    void testEROSubobjectUtil() {
         byte[] expected = { (byte) 0x82, 6, 0, 1, 2, 3 };
         final ByteBuf out = Unpooled.buffer();
         final ByteBuf body = Unpooled.copiedBuffer(new byte[] { 0, 1, 2, 3 });
@@ -128,7 +127,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testVendorInformationUtil() {
+    void testVendorInformationUtil() {
         assertTrue(VendorInformationUtil.isVendorInformationTlv(VENDOR_INFORMATION_TLV_TYPE));
         assertFalse(VendorInformationUtil.isVendorInformationTlv(VENDOR_INFORMATION_OBJECT_CLASS));
 
