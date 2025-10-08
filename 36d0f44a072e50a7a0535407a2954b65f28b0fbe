@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "461b02ac_26db776e",
+        "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-08T20:17:34Z",
+      "side": 1,
+      "message": "So I have not completely fleshed the proposal out. let me revert back to patchset 3 and complete it.\n\nFrom codegen/modeling perspective both \u0027grouping\u0027 and \u0027choice\u0027 end up generating an interface, which is propagated to those who do \u0027uses grouping\u0027 and \u0027are a case in the choice\u0027, respectively.\n\nWe need to start with messages, as those have a well-known anchor (\u0027notification message\u0027 and are not used anywhere else. That should provide a guide to what the object/tlv story will look like.\n\nThe thing is: we could say that a message is comprised of some fixed things and a list of objects and objects are comprised of some common things and a list of tlvs -- that is the on-wire format. But that would kind of defeat us wanting to have actual shapes of particular messages so users can say \u0027this is an Open message, so give me its OPEN object\u0027.",
+      "parentUuid": "c15fb92b_6eb26f0f",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 5
+      },
+      "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "37208c3b_41e21bd2",
         "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
         "patchSetId": 3
@@ -54,6 +78,24 @@
       "writtenOn": "2025-10-07T15:17:15Z",
       "side": 1,
       "message": "Here, I\u0027m completely lost. In your proposal below, the notification message is using the message-header grouping. We can\u0027t remove it. Or, we must insert the leaf version within the notification message. Can you clarify which option I should implement?",
+      "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85271e0a_0aaa53ed",
+        "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-08T20:17:34Z",
+      "side": 1,
+      "message": "it\u0027s supposed to be moved -- let me complete the conversion of the current state and hopefully things will get a tad clearer.",
+      "parentUuid": "37208c3b_41e21bd2",
       "revId": "36d0f44a072e50a7a0535407a2954b65f28b0fbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
