@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "924a5b48_6173ded8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-08T19:48:52Z",
+      "side": 1,
+      "message": "so here I would really like to retain the ability to have modular parser, i.e. configure it without P2MP -- for testing and integration purposes.\n\nlet me see how that would look like, at least by dropping FIXMEs...",
+      "revId": "bba5a9bb1cdfffb2335dfc84034cf79900dc7d62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
