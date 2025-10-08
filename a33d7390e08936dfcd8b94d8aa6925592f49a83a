@@ -16,6 +16,24 @@
       "message": "hmm.. where are these coming from?",
       "revId": "a33d7390e08936dfcd8b94d8aa6925592f49a83a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "594e1389_9c904ce4",
+        "filename": "pcep/impl/src/test/resources/PCErr.1.bin",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-08T21:56:06Z",
+      "side": 1,
+      "message": "Come from the old stateful directory.\n\nI copy/paste some binary files from the ietf-stateful/src/test/resources with java tests in impl/src/test directory when backpport all java codes and tests from ietf-stateful to base-parser and impl. I just need to rename the some files to avoid conflict with files with the same name.",
+      "parentUuid": "6f46b401_7f92d644",
+      "revId": "a33d7390e08936dfcd8b94d8aa6925592f49a83a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
