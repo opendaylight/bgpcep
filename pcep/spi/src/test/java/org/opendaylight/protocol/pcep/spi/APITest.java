@@ -7,32 +7,35 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.close.object.CCloseBuilder;
 
-public class APITest {
-
+class APITest {
     @Test
-    public void testDeserializerException() {
-        final PCEPDeserializerException e = new PCEPDeserializerException("Some error message.");
-        assertEquals("Some error message.", e.getMessage());
-
-        final PCEPDeserializerException e1 = new PCEPDeserializerException("Some error message.",
-            new IllegalArgumentException());
-        assertEquals("Some error message.", e1.getMessage());
-        assertTrue(e1.getCause() instanceof IllegalArgumentException);
+    void testDeserializerException() {
+        final var ex = new PCEPDeserializerException("Some error message.");
+        assertEquals("Some error message.", ex.getMessage());
     }
 
     @Test
-    public void testObjectHeader() {
-        ObjectHeaderImpl header = new ObjectHeaderImpl(null, true);
+    void testDeserializerExceptionWithCause() {
+        final var cause = new IllegalArgumentException();
+        final var ex = new PCEPDeserializerException("Some error message.", cause);
+        assertEquals("Some error message.", ex.getMessage());
+        assertSame(cause, ex.getCause());
+    }
+
+    @Test
+    void testObjectHeader() {
+        final var header = new ObjectHeaderImpl(null, true);
         assertEquals("ObjectHeader [objClass=, processed=null, ignored=true]", header.toString());
         assertTrue(header.getIgnore());
         assertNull(header.getProcessingRule());
@@ -42,17 +45,17 @@ public class APITest {
     }
 
     @Test
-    public void testUnknownObject() {
-        UnknownObject un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
+    void testUnknownObject() {
+        final var un = new UnknownObject(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS);
         assertFalse(un.getIgnore());
         assertFalse(un.getProcessingRule());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS, un.getError());
         assertEquals(PCEPErrors.CT_AND_SETUP_PRIORITY_DO_NOT_FORM_TE_CLASS.getErrorType(),
-            un.getErrors().get(0).getErrorObject().getType());
+            un.getErrors().getFirst().getErrorObject().getType());
 
-        final Object o = new CCloseBuilder().build();
-        UnknownObject unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
+        final var o = new CCloseBuilder().build();
+        final var unknown = new UnknownObject(PCEPErrors.LSP_RSVP_ERROR, o);
         assertEquals(Object.class, unknown.implementedInterface());
-        assertEquals(o, unknown.getInvalidObject());
+        assertSame(o, unknown.getInvalidObject());
     }
 }
