@@ -386,13 +386,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-spi</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>pcep-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
