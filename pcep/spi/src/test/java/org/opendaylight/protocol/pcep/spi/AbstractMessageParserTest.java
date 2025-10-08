@@ -7,7 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.spi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -17,17 +18,14 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcerr;
@@ -43,86 +41,87 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AbstractMessageParserTest {
-
-    private static final EnterpriseNumber EN = new EnterpriseNumber(Uint32.ZERO);
-
-    private Object object;
-
-    private VendorInformationObject viObject;
-
-    @Mock
-    private ObjectRegistry registry;
-
-    private class Abs extends AbstractMessageParser {
-
-        protected Abs(final ObjectRegistry registry) {
+@ExtendWith(MockitoExtension.class)
+class AbstractMessageParserTest {
+    private static final class Abs extends AbstractMessageParser {
+        Abs(final ObjectRegistry registry) {
             super(registry);
         }
 
         @Override
         public void serializeMessage(final Message message, final ByteBuf buffer) {
+            // No-op
         }
 
         @Override
         protected Message validate(final Queue<Object> objects, final List<Message> errors) {
-            final Object obj = objects.element();
-            if (obj instanceof VendorInformationObject) {
-                final RepliesBuilder repsBuilder = new RepliesBuilder();
-                repsBuilder.setVendorInformationObject(addVendorInformationObjects(objects));
-                return new PcrepBuilder().setPcrepMessage(
-                    new PcrepMessageBuilder().setReplies(Arrays.asList(repsBuilder.build())).build())
+            return switch (objects.element()) {
+                case VendorInformationObject obj ->
+                    new PcrepBuilder()
+                        .setPcrepMessage(new PcrepMessageBuilder()
+                            .setReplies(List.of(new RepliesBuilder()
+                                .setVendorInformationObject(addVendorInformationObjects(objects))
+                                .build()))
+                            .build())
                         .build();
-            } else if (obj instanceof ErrorObject) {
-                final Uint8 errorType = ((ErrorObject) obj).getType();
-                final Uint8 errorValue = ((ErrorObject) obj).getValue();
-                return createErrorMsg(PCEPErrors.forValue(errorType, errorValue), Optional.empty());
-            }
-            return null;
+                case ErrorObject obj ->
+                    createErrorMsg(PCEPErrors.forValue(obj.getType(), obj.getValue()), Optional.empty());
+                default -> null;
+            };
         }
     }
 
-    @Before
-    public void setUp() throws PCEPDeserializerException {
-        this.object = new ErrorObjectBuilder().setType(Uint8.ONE).setValue(Uint8.ONE).build();
-        this.viObject = new VendorInformationObjectBuilder().setEnterpriseNumber(EN).build();
-        doNothing().when(this.registry).serializeVendorInformationObject(any(VendorInformationObject.class),
-            any(ByteBuf.class));
-        doReturn(Optional.of(this.viObject)).when(this.registry).parseVendorInformationObject(eq(EN),
-            eq(new ObjectHeaderImpl(true, true)), any(ByteBuf.class));
-        doNothing().when(this.registry).serializeObject(any(Object.class), any(ByteBuf.class));
-        doReturn(this.object).when(this.registry).parseObject(13, 1, new ObjectHeaderImpl(true, true),
+    private static final EnterpriseNumber EN = new EnterpriseNumber(Uint32.ZERO);
+
+    @Mock
+    private ObjectRegistry registry;
+
+    private Object object;
+    private VendorInformationObject viObject;
+
+    @BeforeEach
+    void beforeEach() throws Exception {
+        object = new ErrorObjectBuilder().setType(Uint8.ONE).setValue(Uint8.ONE).build();
+        viObject = new VendorInformationObjectBuilder().setEnterpriseNumber(EN).build();
+    }
+
+    @Test
+    void testParseObjects() throws Exception {
+        doNothing().when(registry).serializeObject(any(Object.class), any(ByteBuf.class));
+        doReturn(object).when(registry).parseObject(13, 1, new ObjectHeaderImpl(true, true),
             Unpooled.wrappedBuffer(new byte[] { 0, 0, 1, 1 }));
+
+        final Abs a = new Abs(registry);
+        final ByteBuf buffer = Unpooled.buffer();
+        a.serializeObject(object, buffer);
+
+        verify(registry, only()).serializeObject(any(Object.class), any(ByteBuf.class));
+
+        final var parsed = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }),
+            List.of());
+        final var msg = assertInstanceOf(Pcerr.class, parsed);
+        assertEquals(object, msg.getPcerrMessage().nonnullErrors().getFirst().getErrorObject());
     }
 
     @Test
-    public void testParseObjects() throws PCEPDeserializerException {
-        final Abs a = new Abs(this.registry);
-        final ByteBuf buffer = Unpooled.buffer();
-        a.serializeObject(this.object, buffer);
+    void testParseVendorInformationObject() throws Exception {
+        doNothing().when(registry).serializeVendorInformationObject(any(VendorInformationObject.class),
+            any(ByteBuf.class));
+        doReturn(Optional.of(viObject)).when(registry).parseVendorInformationObject(eq(EN),
+            eq(new ObjectHeaderImpl(true, true)), any(ByteBuf.class));
 
-        verify(this.registry, only()).serializeObject(any(Object.class), any(ByteBuf.class));
-
-        final Message b = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }),
-            Collections.emptyList());
-
-        assertEquals(this.object, ((Pcerr) b).getPcerrMessage().getErrors().get(0).getErrorObject());
-    }
-
-    @Test
-    public void testParseVendorInformationObject() throws PCEPDeserializerException {
-        final Abs parser = new Abs(this.registry);
+        final Abs parser = new Abs(registry);
         final ByteBuf buffer = Unpooled.buffer();
 
-        parser.serializeVendorInformationObjects(List.of(this.viObject), buffer);
-        verify(this.registry, only()).serializeVendorInformationObject(any(VendorInformationObject.class),
+        parser.serializeVendorInformationObjects(List.of(viObject), buffer);
+        verify(registry, only()).serializeVendorInformationObject(any(VendorInformationObject.class),
             any(ByteBuf.class));
 
-        final Message msg = parser.parseMessage(
-            Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), Collections.emptyList());
+        final var parsed = parser.parseMessage(
+            Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), List.of());
+        final var msg = assertInstanceOf(Pcrep.class, parsed);
 
-        assertEquals(this.viObject, ((Pcrep)msg).getPcrepMessage().getReplies().get(0).getVendorInformationObject()
-            .get(0));
+        assertEquals(viObject,
+            msg.getPcrepMessage().nonnullReplies().getFirst().nonnullVendorInformationObject().getFirst());
     }
 }
