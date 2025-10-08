@@ -63,7 +63,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
      */
     protected void serializeObject(final @Nullable Object object, final ByteBuf buffer) {
         if (object != null) {
-            this.registry.serializeObject(object, buffer);
+            registry.serializeObject(object, buffer);
         }
     }
 
@@ -91,11 +91,11 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final ObjectHeader header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
-                final EnterpriseNumber enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(bytesToPass));
-                this.registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass).ifPresent(objs::add);
+                final var enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(bytesToPass));
+                registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass).ifPresent(objs::add);
             } else {
                 // parseObject is required to return null for P=0 errored objects
-                final Object o = this.registry.parseObject(objClass, objType, header, bytesToPass);
+                final Object o = registry.parseObject(objClass, objType, header, bytesToPass);
                 if (o != null) {
                     objs.add(o);
                 }
@@ -130,7 +130,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     public final Message parseMessage(final ByteBuf buffer, final List<Message> errors)
             throws PCEPDeserializerException {
         // Parse objects first
-        final Queue<Object> objs = parseObjects(requireNonNull(buffer, "Buffer may not be null"));
+        final var objs = parseObjects(requireNonNull(buffer, "Buffer may not be null"));
 
         // Run validation
         return validate(objs, errors);
@@ -139,16 +139,16 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     protected final void serializeVendorInformationObjects(final List<VendorInformationObject> viObjects,
             final ByteBuf buffer) {
         if (viObjects != null) {
-            for (final VendorInformationObject viObject : viObjects) {
-                this.registry.serializeVendorInformationObject(viObject, buffer);
+            for (var viObject : viObjects) {
+                registry.serializeVendorInformationObject(viObject, buffer);
             }
         }
     }
 
     protected static List<VendorInformationObject> addVendorInformationObjects(final Queue<Object> objects) {
-        final List<VendorInformationObject> vendorInfo = new ArrayList<>();
-        for (Object obj = objects.peek(); obj instanceof VendorInformationObject; obj = objects.peek()) {
-            vendorInfo.add((VendorInformationObject) obj);
+        final var vendorInfo = new ArrayList<VendorInformationObject>();
+        while (objects.peek() instanceof VendorInformationObject viObject) {
+            vendorInfo.add(viObject);
             objects.remove();
         }
         return vendorInfo;
