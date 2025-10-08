@@ -22,6 +22,30 @@
       },
       "revId": "33b2c6db943c5fa71490ee57520cb02e8a37ad7e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe231b37_550a12c1",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPCapability.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-08T07:36:35Z",
+      "side": 1,
+      "message": "Agree.\n\nFor the moment I\u0027m using pcep-type:xxx, pcep-object:xxx and pcep-msg:xxx for import. But, yes, opm:message, opo:object and opt:types seems more appropriate. Regarding object grouping, there are already present at the end of odl-pcep-object.yang model.\n\nIn addition, at the beginning, I\u0027m using the odl-pcep-tlvs.yang but, finally revert to odl-pcep-types.yang to reduce the amount of modification in java import. But, agree that odl-pcep-tlvs is a better name.\n\nRegarding tlv prototype, in a second step, I think we need to improve the code on various angle:\n1/ In many place, the length is not verified regarding the type. Thus, it could lead into parsing error, eventually crash. A good way to check code robustness is to perform fuzzing (We do that on FRR for ISISD process). I start looking to some tools for java and I think that Jazzer could do the job.\n2/ When a parser crashes and cause an exception, ODL closes the PCEP session. This is not good because PCC will then re-open a new PCEP session and send same message that cause the crash resulting in an infinite loop. Thus, it will be better to ignore the faulty or unknown TLV/Object ... raising a Warning/Error message in log and when appropriate regarding RFC, send a PCEP error message.\n3/ Object Parser Abstract class allow to automatically add TLVs parser. But, in some recent RFCs there is subTLVs (i.e. association group, auto-bandwidth ...) which could not be handle like that. Thus, we need to add some recursive method to ease TLVs and subTLVs parsing (whatever the level of Russian dole)",
+      "parentUuid": "62c2406e_005d8263",
+      "range": {
+        "startLine": 14,
+        "startChar": 111,
+        "endLine": 14,
+        "endChar": 122
+      },
+      "revId": "33b2c6db943c5fa71490ee57520cb02e8a37ad7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
