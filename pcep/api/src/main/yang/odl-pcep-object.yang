@@ -15,13 +15,13 @@ module odl-pcep-object {
 
     description
         "This module contains the base data model of PCEP Objects defined in:
-￼           - RFC5440: Stateless
-￼           - RFC5520: Path Key Confidentiality
-￼           - RFC5886: Monitoring tools
-￼           - RFC7896: Include Route Object
-￼           - RFC8408: Path Setup Type
-￼           - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
-￼           - RFC9604: Path Binding
+            - RFC5440: Stateless
+            - RFC5520: Path Key Confidentiality
+            - RFC5886: Monitoring tools
+            - RFC7896: Include Route Object
+            - RFC8408: Path Setup Type
+            - RFC8697, RFC8745, RFC8800, RFC9005 and RFC9059: Association Group
+            - RFC9604: Path Binding
 
         Copyright (c)2013 Cisco Systems, Inc. All rights reserved.
         Copyright (c)2025 Orange. All rights reserved.
