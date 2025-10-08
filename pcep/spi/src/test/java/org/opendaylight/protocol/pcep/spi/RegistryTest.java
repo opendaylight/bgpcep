@@ -16,14 +16,12 @@ import static org.mockito.Mockito.doReturn;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.opendaylight.protocol.pcep.PCEPDeserializerException;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.pcep.spi.pojo.SimplePCEPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Keepalive;
@@ -52,9 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class RegistryTest {
-
+@ExtendWith(MockitoExtension.class)
+class RegistryTest {
     @Mock
     XROSubobjectParser xroParser;
     @Mock
@@ -100,104 +97,102 @@ public class RegistryTest {
     @Mock
     VendorInformationTlv viTlv;
 
-    public final List<Registration> regs = new ArrayList<>();
+    private final List<Registration> regs = new ArrayList<>();
+    private final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
 
-    final PCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
+    @BeforeEach
+    void beforeEach() throws Exception {
+        doReturn(null).when(xroParser).parseSubobject(any(ByteBuf.class), anyBoolean());
+        doNothing().when(xroSerializer).serializeSubobject(any(Subobject.class), any(ByteBuf.class));
 
-    @SuppressWarnings("unchecked")
-    @Before
-    public void setUp() throws PCEPDeserializerException {
-        doReturn(null).when(this.xroParser).parseSubobject(any(ByteBuf.class), anyBoolean());
-        doNothing().when(this.xroSerializer).serializeSubobject(any(Subobject.class), any(ByteBuf.class));
+        doReturn(viTlv).when(tlvParser).parseTlv(any(ByteBuf.class));
+        doNothing().when(tlvSerializer).serializeTlv(any(Tlv.class), any(ByteBuf.class));
 
-        doReturn(this.viTlv).when(this.tlvParser).parseTlv(any(ByteBuf.class));
-        doNothing().when(this.tlvSerializer).serializeTlv(any(Tlv.class), any(ByteBuf.class));
-
-        doReturn(5).when(this.objectParser).getObjectClass();
-        doReturn(1).when(this.objectParser).getObjectType();
-        doReturn(new OpenBuilder().build()).when(this.objectParser).parseObject(any(ObjectHeader.class),
+        doReturn(5).when(objectParser).getObjectClass();
+        doReturn(1).when(objectParser).getObjectType();
+        doReturn(new OpenBuilder().build()).when(objectParser).parseObject(any(ObjectHeader.class),
             any(ByteBuf.class));
-        doNothing().when(this.objectSerializer).serializeObject(any(Object.class), any(ByteBuf.class));
+        doNothing().when(objectSerializer).serializeObject(any(Object.class), any(ByteBuf.class));
 
-        doReturn(null).when(this.msgParser).parseMessage(any(ByteBuf.class), anyList());
-        doNothing().when(this.msgSerializer).serializeMessage(any(Message.class), any(ByteBuf.class));
+        doReturn(null).when(msgParser).parseMessage(any(ByteBuf.class), anyList());
+        doNothing().when(msgSerializer).serializeMessage(any(Message.class), any(ByteBuf.class));
 
-        doNothing().when(this.labelSerializer).serializeLabel(anyBoolean(), anyBoolean(), any(LabelType.class),
+        doNothing().when(labelSerializer).serializeLabel(anyBoolean(), anyBoolean(), any(LabelType.class),
             any(ByteBuf.class));
 
-        doReturn(this.es).when(this.esi).getEnterpriseSpecificInformation();
+        doReturn(es).when(esi).getEnterpriseSpecificInformation();
 
-        doReturn(this.es).when(this.viTlv).getEnterpriseSpecificInformation();
+        doReturn(es).when(viTlv).getEnterpriseSpecificInformation();
 
-        doReturn(EnterpriseSpecificInformation.class).when(this.es).implementedInterface();
+        doReturn(EnterpriseSpecificInformation.class).when(es).implementedInterface();
     }
 
     @Test
-    public void testRegistry() throws PCEPDeserializerException {
-        this.regs.add(this.ctx.registerXROSubobjectParser(2, this.xroParser));
-        this.regs.add(this.ctx.registerXROSubobjectSerializer(AsNumberCase.class, this.xroSerializer));
+    void testRegistry() throws Exception {
+        regs.add(ctx.registerXROSubobjectParser(2, xroParser));
+        regs.add(ctx.registerXROSubobjectSerializer(AsNumberCase.class, xroSerializer));
 
-        this.regs.add(this.ctx.registerRROSubobjectParser(3, this.rroParser));
-        this.regs.add(this.ctx.registerRROSubobjectSerializer(LabelCase.class, this.rroSerializer));
+        regs.add(ctx.registerRROSubobjectParser(3, rroParser));
+        regs.add(ctx.registerRROSubobjectSerializer(LabelCase.class, rroSerializer));
 
-        this.regs.add(this.ctx.registerEROSubobjectParser(4, this.eroParser));
-        this.regs.add(this.ctx.registerEROSubobjectSerializer(IpPrefixCase.class, this.eroSerializer));
+        regs.add(ctx.registerEROSubobjectParser(4, eroParser));
+        regs.add(ctx.registerEROSubobjectSerializer(IpPrefixCase.class, eroSerializer));
 
-        this.regs.add(this.ctx.registerTlvParser(1, this.tlvParser));
-        this.regs.add(this.ctx.registerTlvSerializer(OfList.class, this.tlvSerializer));
+        regs.add(ctx.registerTlvParser(1, tlvParser));
+        regs.add(ctx.registerTlvSerializer(OfList.class, tlvSerializer));
 
-        this.regs.add(this.ctx.registerObjectParser(this.objectParser));
-        this.regs.add(this.ctx.registerObjectSerializer(Rp.class, this.objectSerializer));
+        regs.add(ctx.registerObjectParser(objectParser));
+        regs.add(ctx.registerObjectSerializer(Rp.class, objectSerializer));
 
-        this.regs.add(this.ctx.registerMessageParser(6, this.msgParser));
-        this.regs.add(this.ctx.registerMessageSerializer(Keepalive.class, this.msgSerializer));
+        regs.add(ctx.registerMessageParser(6, msgParser));
+        regs.add(ctx.registerMessageSerializer(Keepalive.class, msgSerializer));
 
-        this.regs.add(this.ctx.registerLabelParser(7, this.labelParser));
-        this.regs.add(this.ctx.registerLabelSerializer(Type1LabelCase.class, this.labelSerializer));
+        regs.add(ctx.registerLabelParser(7, labelParser));
+        regs.add(ctx.registerLabelSerializer(Type1LabelCase.class, labelSerializer));
 
-        this.regs.add(this.ctx.registerVendorInformationObjectParser(new EnterpriseNumber(Uint32.TEN),
-            this.objectParser));
-        this.regs.add(this.ctx.registerVendorInformationObjectSerializer(EnterpriseSpecificInformation.class,
-            this.objectSerializer));
+        regs.add(ctx.registerVendorInformationObjectParser(new EnterpriseNumber(Uint32.TEN),
+            objectParser));
+        regs.add(ctx.registerVendorInformationObjectSerializer(EnterpriseSpecificInformation.class,
+            objectSerializer));
 
-        this.regs.add(this.ctx.registerVendorInformationTlvParser(new EnterpriseNumber(Uint32.valueOf(12)),
-            this.tlvParser));
-        this.regs.add(this.ctx.registerVendorInformationTlvSerializer(EnterpriseSpecificInformation.class,
-            this.tlvSerializer));
+        regs.add(ctx.registerVendorInformationTlvParser(new EnterpriseNumber(Uint32.valueOf(12)),
+            tlvParser));
+        regs.add(ctx.registerVendorInformationTlvSerializer(EnterpriseSpecificInformation.class,
+            tlvSerializer));
 
-        final ByteBuf buffer = Unpooled.buffer();
-        this.ctx.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false);
-        this.ctx.getXROSubobjectHandlerRegistry().serializeSubobject(new SubobjectBuilder()
+        final var buffer = Unpooled.buffer();
+        ctx.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false);
+        ctx.getXROSubobjectHandlerRegistry().serializeSubobject(new SubobjectBuilder()
             .setSubobjectType(new AsNumberCaseBuilder().build()).build(), buffer);
 
-        this.ctx.getEROSubobjectHandlerRegistry().parseSubobject(3, buffer, true);
-        this.ctx.getEROSubobjectHandlerRegistry().serializeSubobject(new org.opendaylight.yang.gen.v1.urn.opendaylight
+        ctx.getEROSubobjectHandlerRegistry().parseSubobject(3, buffer, true);
+        ctx.getEROSubobjectHandlerRegistry().serializeSubobject(new org.opendaylight.yang.gen.v1.urn.opendaylight
             .params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.ero.SubobjectBuilder()
             .setSubobjectType(new AsNumberCaseBuilder().build()).build(), buffer);
 
-        this.ctx.getRROSubobjectHandlerRegistry().parseSubobject(4, buffer);
-        this.ctx.getRROSubobjectHandlerRegistry().serializeSubobject(new org.opendaylight.yang.gen.v1.urn.opendaylight
+        ctx.getRROSubobjectHandlerRegistry().parseSubobject(4, buffer);
+        ctx.getRROSubobjectHandlerRegistry().serializeSubobject(new org.opendaylight.yang.gen.v1.urn.opendaylight
             .params.xml.ns.yang.pcep.object.rev250930.reported.route.object.rro.SubobjectBuilder()
             .setSubobjectType(new IpPrefixCaseBuilder().build()).build(), buffer);
 
-        this.ctx.getLabelHandlerRegistry().parseLabel(1, buffer);
-        this.ctx.getLabelHandlerRegistry().serializeLabel(true, false, new Type1LabelCaseBuilder().build(), buffer);
+        ctx.getLabelHandlerRegistry().parseLabel(1, buffer);
+        ctx.getLabelHandlerRegistry().serializeLabel(true, false, new Type1LabelCaseBuilder().build(), buffer);
 
-        this.ctx.getTlvHandlerRegistry().parseTlv(2, buffer);
-        this.ctx.getTlvHandlerRegistry().serializeTlv(new OfListBuilder().build(), buffer);
+        ctx.getTlvHandlerRegistry().parseTlv(2, buffer);
+        ctx.getTlvHandlerRegistry().serializeTlv(new OfListBuilder().build(), buffer);
 
-        this.ctx.getObjectHandlerRegistry().parseObject(4, 1, new ObjectHeaderImpl(true, false), buffer);
-        this.ctx.getObjectHandlerRegistry().serializeObject(new OpenBuilder().build(), buffer);
+        ctx.getObjectHandlerRegistry().parseObject(4, 1, new ObjectHeaderImpl(true, false), buffer);
+        ctx.getObjectHandlerRegistry().serializeObject(new OpenBuilder().build(), buffer);
 
-        this.ctx.getMessageHandlerRegistry().parseMessage(6, buffer, Collections.emptyList());
-        this.ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
+        ctx.getMessageHandlerRegistry().parseMessage(6, buffer, List.of());
+        ctx.getMessageHandlerRegistry().serializeMessage(new KeepaliveBuilder().build(), buffer);
 
-        this.ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(
+        ctx.getVendorInformationObjectRegistry().parseVendorInformationObject(
             new EnterpriseNumber(Uint32.TEN), new ObjectHeaderImpl(true, false), buffer);
-        this.ctx.getVendorInformationObjectRegistry().serializeVendorInformationObject(this.esi, buffer);
+        ctx.getVendorInformationObjectRegistry().serializeVendorInformationObject(esi, buffer);
 
-        this.ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(
+        ctx.getVendorInformationTlvRegistry().parseVendorInformationTlv(
             new EnterpriseNumber(Uint32.valueOf(12)), buffer);
-        this.ctx.getVendorInformationTlvRegistry().serializeVendorInformationTlv(this.viTlv, buffer);
+        ctx.getVendorInformationTlvRegistry().serializeVendorInformationTlv(viTlv, buffer);
     }
 }
