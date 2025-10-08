@@ -46,6 +46,30 @@
       },
       "revId": "33b2c6db943c5fa71490ee57520cb02e8a37ad7e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13e11302_5b2efd00",
+        "filename": "pcep/api/src/main/java/org/opendaylight/protocol/pcep/PCEPCapability.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2025-10-08T19:37:09Z",
+      "side": 1,
+      "message": "1/ fuzzing will definitely help and perhaps it is time to formalize parser handling -- for example ByteBuf.readByte() indicates underflow via an unchecked exception and I am not sure if we bracket those properly\n\n2/ yes, and that relates to 1/, but also we might need to look for something similar to BGP\u0027s treat-as-withdraw handling. note though, in some contexts it is explicitly bad to ignore a message -- like PCRpt, as that leads to state desync 😞\n\n3/ argh, yeah, that is one way of wrecking the parser structure\n\nlet\u0027s follow up on these separately",
+      "parentUuid": "fe231b37_550a12c1",
+      "range": {
+        "startLine": 14,
+        "startChar": 111,
+        "endLine": 14,
+        "endChar": 122
+      },
+      "revId": "33b2c6db943c5fa71490ee57520cb02e8a37ad7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ],
   "submitRequirementResults": [
