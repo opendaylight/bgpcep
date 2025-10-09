@@ -19,6 +19,7 @@ import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.edge.EdgeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.Prefix;
@@ -30,10 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.get.constrained.path.input.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescriptionBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -469,48 +472,82 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         return vertex != null ? vertex.getVertex().key() : null;
     }
 
+    /* Merge two constrained paths: paths are merged and additive metrics summed. */
     private static ConstrainedPath mergePath(final ConstrainedPath cp1, final ConstrainedPath cp2) {
+
+        if (cp1 == null) {
+            return cp2;
+        }
+
         final var mergePathDesc = new ArrayList<>(cp1.getPathDescription());
         mergePathDesc.addAll(cp2.getPathDescription());
 
         final var cp1status = cp1.getStatus();
         final var cp2status = cp2.getStatus();
-        return new ConstrainedPathBuilder(cp1)
+        final var cp = new ConstrainedPathBuilder()
             .setPathDescription(mergePathDesc)
-            .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status)
-            .build();
+            .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status);
+        if (cp1.getMetric() != null && cp2.getMetric() != null) {
+            cp.setMetric(Uint32.valueOf(cp1.getMetric().intValue() + cp2.getMetric().intValue()));
+        }
+        if (cp1.getTeMetric() != null && cp2.getTeMetric() != null) {
+            cp.setTeMetric(Uint32.valueOf(cp1.getTeMetric().intValue() + cp2.getTeMetric().intValue()));
+        }
+        if (cp1.getDelay() != null && cp2.getDelay() != null) {
+            cp.setDelay(
+                new Delay(Uint32.valueOf(cp1.getDelay().getValue().intValue() + cp2.getDelay().getValue().intValue())))
+                    .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status);
+        }
+        return cp.build();
+    }
+
+    /*
+     * Adjust Metric, TE Metric and Delay (if set) constraints to remaining portion
+     * i.e. substract what have been already consumed by the previous part of the Computed Path.
+     */
+    private static PathConstraints adjustConstraints(final ConstrainedPath cp, final PathConstraints cts) {
+        final ConstraintsBuilder ctsBuilder = new ConstraintsBuilder(cts);
+        if (cts.getMetric() != null && cp.getMetric() != null) {
+            ctsBuilder.setMetric(Uint32.valueOf(cts.getMetric().intValue() - cp.getMetric().intValue()));
+        }
+        if (cts.getTeMetric() != null && cp.getTeMetric() != null) {
+            ctsBuilder.setTeMetric(Uint32.valueOf(cts.getTeMetric().intValue() - cp.getTeMetric().intValue()));
+        }
+        if (cts.getDelay() != null && cp.getDelay() != null) {
+            ctsBuilder.setDelay(new Delay(
+                Uint32.valueOf(cts.getDelay().getValue().intValue() - cp.getDelay().getValue().intValue())));
+        }
+        return ctsBuilder.build();
     }
 
     @Override
     public ConstrainedPath computeP2pPath(final VertexKey source, final VertexKey destination,
             final PathConstraints cts) {
+
+        /* Get Path Constraints */
         constraints = cts;
 
+        /* Return simple path computation if there is no Include Route defined */
         final var includeRoute = constraints.getIncludeRoute();
         if (includeRoute == null || includeRoute.isEmpty()) {
             return computeSimplePath(source, destination);
         }
 
+        /*
+         * Start by computing Path from source to the first Include Route address,
+         * then, loop on include route address list and finish by computing path
+         * between last include route address to the destination.
+         */
         final var it = includeRoute.iterator();
-        /* Start by computing Path from source to the first Include Route address */
-        VertexKey key = getVertexKey(it.next(), constraints.getAddressFamily());
-        ConstrainedPath ctsPath = computeSimplePath(source, key);
-        if (ctsPath.getStatus() != ComputationStatus.Completed) {
-            return ctsPath;
-        }
-
-        /* Then, loop other subsequent Include Route address */
-        while (it.hasNext()) {
-            VertexKey next = getVertexKey(it.next(), constraints.getAddressFamily());
-            ctsPath = mergePath(ctsPath, computeSimplePath(key, next));
-            if (ctsPath.getStatus() != ComputationStatus.Completed) {
-                return ctsPath;
-            }
-            key = next;
-        }
-
-        /* Finish path up to the destination */
-        return mergePath(ctsPath, computeSimplePath(key, destination));
+        var skey = source;
+        ConstrainedPath ctsPath = null;
+        do {
+            var dkey = getVertexKey(it.next(), constraints.getAddressFamily());
+            ctsPath = mergePath(ctsPath, computeSimplePath(skey, dkey));
+            constraints = adjustConstraints(ctsPath, cts);
+            skey = dkey;
+        } while (it.hasNext());
+        return mergePath(ctsPath, computeSimplePath(skey, destination));
     }
 
     protected abstract ConstrainedPath computeSimplePath(VertexKey source, VertexKey destination);
