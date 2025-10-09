@@ -16,6 +16,23 @@
       "message": "Hi,\n\nSimple correction of path path computation algorithm when Include Route is specified.\n\nCan you check and review it?\n\nThanks\n\nOlivier",
       "revId": "8d9b196ea9a03749a3d45130371a30286fcea91a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e25810c_4b7ef3a9",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-10-09T16:05:42Z",
+      "side": 1,
+      "message": "are you sure it.hasNext() is true?",
+      "revId": "8d9b196ea9a03749a3d45130371a30286fcea91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
