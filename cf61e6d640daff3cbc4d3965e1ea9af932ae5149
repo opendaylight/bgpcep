@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d28d6cf_54fc9192",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-09T09:20:56Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nThere is some inconsistency about object grouping/container. For Open message, you remove the container definition in odl-pcep-object.yang within the grouping open-object to add it with the open message case. However, all others objects and messages keep the old way with a container definition for the object grouping and a simple \"uses\" in message. I think we should use the same design for all objects and messages.",
+      "revId": "cf61e6d640daff3cbc4d3965e1ea9af932ae5149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db413631_1d875c85",
+        "filename": "pcep/api/src/main/yang/odl-pcep-message.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-09T09:20:56Z",
+      "side": 1,
+      "message": "Why do you add a container here? For other message body there is no body e.g. see the close-body",
+      "revId": "cf61e6d640daff3cbc4d3965e1ea9af932ae5149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f7a300d_9f2b54cf",
+        "filename": "pcep/api/src/main/yang/odl-pcep-object.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-09T09:20:56Z",
+      "side": 1,
+      "message": "Hum, this is not coherent with all other object which use a container. It is also not coherent when using the various object within the various message (see comment on odl-pcep-message.yang file).",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 0
+      },
+      "revId": "cf61e6d640daff3cbc4d3965e1ea9af932ae5149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
