@@ -33,6 +33,24 @@
       "message": "are you sure it.hasNext() is true?",
       "revId": "8d9b196ea9a03749a3d45130371a30286fcea91a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8088103f_b54bf4fb",
+        "filename": "algo/algo-impl/src/main/java/org/opendaylight/algo/impl/AbstractPathComputation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-10-09T16:37:19Z",
+      "side": 1,
+      "message": "In line 532 we test if constraints.getIncludeRoute() is not null and not empty. Thus, there is at least one element in the includeRoute list. So, it.next() return non null value line 545.\n\nNow two cases:\n - there is only one element in the list and it.next() consume it, thus it.hasNext() return false. This is normal as we should stop here.\n - there is more that one element in the list and it.hasNext() will return true until we consume the last element with it.next()",
+      "parentUuid": "5e25810c_4b7ef3a9",
+      "revId": "8d9b196ea9a03749a3d45130371a30286fcea91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
