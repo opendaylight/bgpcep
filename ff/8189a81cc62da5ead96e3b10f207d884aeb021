@@ -1,0 +1,8 @@
+Verified+1: ODL Required.GHA <releng+odl.required.gha@linuxfoundation.org>
+Code-Review+2: Robert Varga <nite@hq.sk>
+Verified+1: Robert Varga <nite@hq.sk>
+Submitted-by: Robert Varga <nite@hq.sk>
+Submitted-at: Mon, 13 Oct 2025 15:50:39 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/c/bgpcep/+/118521
+Project: bgpcep
+Branch: refs/heads/master
