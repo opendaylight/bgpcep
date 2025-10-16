@@ -132,9 +132,7 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
         for (var change : changes) {
             final var root = change.getRootNode();
 
-            final String nodeAddr = root.modificationType() == DataObjectModification.ModificationType.DELETE
-                    ? root.dataBefore().getNodeId().getValue()
-                    : root.dataAfter().getNodeId().getValue();
+            final String nodeAddr = root.coerceKeyStep(Node.class).key().getNodeId().getValue();
             NodeId nodeId;
             if (nodeAddr.startsWith("pcc://")) {
                 nodeId = new NodeId(nodeAddr);
