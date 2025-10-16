@@ -164,12 +164,12 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     @After
     public void tearDown() throws Exception {
         linkstateTopoBuilder.close();
-        checkNotPresentOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier());
+        checkNotPresentOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier());
     }
 
     @Test
     public void testLinkstateTopologyBuilderTopologyTypes() throws InterruptedException, ExecutionException {
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             return topology;
         });
@@ -180,7 +180,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // create node
         updateLinkstateRoute(linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.IsisLevel2, "node1", NODE_1_AS, ROUTER_1_ID));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullNode().size());
             final Node node1 = topology.nonnullNode().values().iterator().next();
             assertEquals(NODE_1_ISIS_ID, node1.getNodeId().getValue());
@@ -205,7 +205,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // create link
         updateLinkstateRoute(linkstateLinkRouteIID,
                 createLinkstateLinkRoute(ProtocolId.IsisLevel2, NODE_1_AS, NODE_2_AS, "link1"));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullLink().size());
             final Link link1 = topology.nonnullLink().values().iterator().next();
             assertEquals(2, topology.nonnullNode().size());
@@ -242,7 +242,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // update node
         updateLinkstateRoute(linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.IsisLevel2, "updated-node", NODE_1_AS, ROUTER_2_ID));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.getNode().size());
             final IgpNodeAttributes igpNode2 = topology.getNode().values().iterator().next().augmentation(Node1.class)
                     .getIgpNodeAttributes();
@@ -253,7 +253,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
         // remove
         removeLinkstateRoute(linkstateNodeRouteIID);
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             assertNull(topology.getNode());
             assertNull(topology.getLink());
@@ -266,7 +266,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // create node
         updateLinkstateRoute(linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.Ospf, "node1", NODE_1_AS, ROUTER_1_ID));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullNode().size());
             final Node node1 = topology.nonnullNode().values().iterator().next();
             assertEquals(NODE_1_OSPF_ID, node1.getNodeId().getValue());
@@ -286,7 +286,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // update node with prefix
         updateLinkstateRoute(linkstatePrefixRouteIID,
                 createLinkstatePrefixRoute(ProtocolId.Ospf, NODE_1_AS, NODE_1_PREFIX, 500L, ROUTER_1_ID));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             final Node node1 = topology.nonnullNode().values().iterator().next();
             final IgpNodeAttributes igpNode1 = node1.augmentation(Node1.class).getIgpNodeAttributes();
             assertEquals(1, igpNode1.nonnullPrefix().size());
@@ -306,7 +306,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         // create link
         updateLinkstateRoute(linkstateLinkRouteIID,
                 createLinkstateLinkRoute(ProtocolId.Ospf, NODE_1_AS, NODE_2_AS, "link1"));
-        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullLink().size());
             final Link link1 = topology.nonnullLink().values().iterator().next();
             assertEquals(2, topology.getNode().size());
@@ -446,7 +446,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private LinkstateRoute createLinkstateNodeRoute(final ProtocolId protocolId, final String nodeName,
             final AsNumber asNumber, final String ipv4RouterId) {
-        final List<Srgb> srgbs = new ArrayList<Srgb>();
+        final List<Srgb> srgbs = new ArrayList<>();
         srgbs.add(new SrgbBuilder()
                 .setRangeSize(new Uint24(Uint32.valueOf(SRGB_RANGE)))
                 .setSidLabelIndex(new LabelCaseBuilder().setLabel(new MplsLabel(Uint32.valueOf(SRGB_START))).build())

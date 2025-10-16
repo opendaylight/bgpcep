@@ -71,7 +71,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // create route
         updateIpv6Route(createIpv6Route(NEXT_HOP));
 
-        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             final TopologyTypes1 topologyType = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyType);
             assertNotNull(topologyType.getBgpIpv6ReachabilityTopology());
@@ -86,7 +86,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // update route
         updateIpv6Route(createIpv6Route(NEW_NEXT_HOP));
 
-        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullNode().size());
             final Node nodeUpdated = topology.nonnullNode().values().iterator().next();
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
@@ -99,13 +99,13 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, ipv6RouteIID);
         wTx.commit();
-        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier(), topology -> {
             assertNull(topology.getNode());
             return topology;
         });
 
         ipv6TopoBuilder.close();
-        checkNotPresentOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier().toIdentifier());
+        checkNotPresentOperational(getDataBroker(), ipv6TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv6Route(final Ipv6Route data) {

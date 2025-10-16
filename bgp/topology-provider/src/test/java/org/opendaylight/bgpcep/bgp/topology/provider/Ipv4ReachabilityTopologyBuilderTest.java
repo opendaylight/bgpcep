@@ -74,7 +74,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
 
-        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             final TopologyTypes1 topologyTypes = topology.getTopologyTypes().augmentation(TopologyTypes1.class);
             assertNotNull(topologyTypes);
             assertNotNull(topologyTypes.getBgpIpv4ReachabilityTopology());
@@ -88,7 +88,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
         // update route
         updateIpv4Route(createIpv4Route(NEW_NEXT_HOP));
-        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(1, topology.nonnullNode().size());
             final Node nodeUpdated = topology.nonnullNode().values().iterator().next();
             assertEquals(NEW_NEXT_HOP, nodeUpdated.getNodeId().getValue());
@@ -101,13 +101,13 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.delete(LogicalDatastoreType.OPERATIONAL, ipv4RouteIID);
         wTx.commit();
-        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier(), topology -> {
+        readDataOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier(), topology -> {
             assertNull(topology.getNode());
             return topology;
         });
 
         ipv4TopoBuilder.close();
-        checkNotPresentOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier().toIdentifier());
+        checkNotPresentOperational(getDataBroker(), ipv4TopoBuilder.getInstanceIdentifier());
     }
 
     private void updateIpv4Route(final Ipv4Route data) {
