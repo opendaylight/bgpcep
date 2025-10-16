@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -79,15 +81,9 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
     public void onDataTreeChanged(final List<DataTreeModification<PcepSessionState>> changes) {
         changes.forEach(change -> {
             final var iid = change.path();
-            final var mod = change.getRootNode();
-            switch (mod.modificationType()) {
-                case SUBTREE_MODIFIED, WRITE:
-                    sessionStateMap.put(iid, mod.dataAfter());
-                    break;
-                case DELETE:
-                    sessionStateMap.remove(iid);
-                    break;
-                default:
+            switch (change.getRootNode()) {
+                case WithDataAfter<PcepSessionState> present -> sessionStateMap.put(iid, present.dataAfter());
+                case DataObjectDeleted<?> deleted -> sessionStateMap.remove(iid);
             }
         });
     }
