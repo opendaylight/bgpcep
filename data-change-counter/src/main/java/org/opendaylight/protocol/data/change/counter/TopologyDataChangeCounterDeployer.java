@@ -69,7 +69,7 @@ public final class TopologyDataChangeCounterDeployer
             final var rootNode = change.getRootNode();
             switch (rootNode.modificationType()) {
                 case DELETE:
-                    deleteCounterChange(rootNode.dataBefore().getCounterId());
+                    deleteCounterChange(rootNode.coerceKeyStep(DataChangeCounterConfig.class).key().getCounterId());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
