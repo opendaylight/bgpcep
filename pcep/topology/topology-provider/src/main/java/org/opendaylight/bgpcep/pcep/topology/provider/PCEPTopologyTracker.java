@@ -28,6 +28,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModified;
+import org.opendaylight.mdsal.binding.api.DataObjectWritten;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -215,19 +218,17 @@ public final class PCEPTopologyTracker
         }
 
         for (var change : changes) {
-            final var root = change.getRootNode();
-            switch (root.modificationType()) {
-                case WRITE:
+            switch (change.getRootNode()) {
+                case DataObjectWritten<?> written -> {
                     // We only care if the topology has been newly introduced, not when its details have changed
-                    if (root.dataBefore() == null) {
+                    if (written.dataBefore() == null) {
                         createInstance(change.path().getFirstKeyOf(Topology.class));
                     }
-                    break;
-                case DELETE:
-                    destroyInstance(change.path().getFirstKeyOf(Topology.class));
-                    break;
-                default:
+                }
+                case DataObjectModified<?> modified -> {
                     // No-op
+                }
+                case DataObjectDeleted<?> written -> destroyInstance(change.path().getFirstKeyOf(Topology.class));
             }
         }
     }
