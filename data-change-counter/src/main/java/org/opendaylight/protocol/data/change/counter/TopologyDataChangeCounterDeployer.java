@@ -17,6 +17,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -66,19 +68,13 @@ public final class TopologyDataChangeCounterDeployer
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeModification<DataChangeCounterConfig>> changes) {
         for (var change : changes) {
-            final var rootNode = change.getRootNode();
-            switch (rootNode.modificationType()) {
-                case DELETE:
-                    deleteCounterChange(rootNode.coerceKeyStep(DataChangeCounterConfig.class).key().getCounterId());
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    final var counterConfig = rootNode.dataAfter();
+            switch (change.getRootNode()) {
+                case DataObjectDeleted<DataChangeCounterConfig> deleted ->
+                    deleteCounterChange(deleted.coerceKeyStep(DataChangeCounterConfig.class).key().getCounterId());
+                case WithDataAfter<DataChangeCounterConfig> present -> {
+                    final var counterConfig = present.dataAfter();
                     handleCounterChange(counterConfig.getCounterId(), counterConfig.getTopologyName());
-                    break;
-                default:
-                    LOG.error("Unhandled modification Type: {}", rootNode.modificationType());
-                    break;
+                }
             }
         }
     }
