@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "11ecae10_fa3a18e8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7446
+      },
+      "writtenOn": "2025-10-17T11:37:39Z",
+      "side": 1,
+      "message": "moved",
+      "range": {
+        "startLine": 11,
+        "startChar": 57,
+        "endLine": 11,
+        "endChar": 61
+      },
+      "revId": "bba5a9bb1cdfffb2335dfc84034cf79900dc7d62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "924a5b48_6173ded8",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
