@@ -123,11 +123,10 @@ public class PathComputationImpl implements PathComputation {
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
         /* Check if we got a valid Path and return appropriate message */
-        if (cpath.getStatus() == ComputationStatus.Completed) {
-            return MessagesUtil.createPcRepMessage(req.getRp(), req.getSegmentComputation().getP2p(), cpath);
-        } else {
+        if (cpath.getStatus() != ComputationStatus.Completed) {
             return MessagesUtil.createNoPathMessage(req.getRp(), MessagesUtil.NO_PATH);
         }
+        return MessagesUtil.createPcRepMessage(req.getRp(), req.getSegmentComputation().getP2p(), cpath);
     }
 
     public ComputedPath computeTePath(final IntendedPath intend) {
@@ -163,19 +162,19 @@ public class PathComputationImpl implements PathComputation {
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
         /* Check if we got a valid Path and return appropriate Path Description */
-        if (cpath.getStatus() == ComputationStatus.Completed) {
-            cpb.setPathDescription(cpath.getPathDescription()).setComputationStatus(ComputationStatus.Completed);
-            if (intend.getConstraints().getDelay() != null) {
-                cpb.setComputedMetric(cpath.getDelay().getValue());
-            } else if (intend.getConstraints().getTeMetric() != null) {
-                cpb.setComputedMetric(cpath.getTeMetric());
-            } else {
-                cpb.setComputedMetric(cpath.getMetric());
-            }
-            return cpb.build();
-        } else {
+        if (cpath.getStatus() != ComputationStatus.Completed) {
             return cpb.setComputationStatus(ComputationStatus.NoPath).build();
         }
+
+        cpb.setPathDescription(cpath.getPathDescription());
+        if (intend.getConstraints().getDelay() != null) {
+            cpb.setComputedMetric(cpath.getDelay().getValue());
+        } else if (intend.getConstraints().getTeMetric() != null) {
+            cpb.setComputedMetric(cpath.getTeMetric());
+        } else {
+            cpb.setComputedMetric(cpath.getMetric());
+        }
+        return cpb.setComputationStatus(ComputationStatus.Completed).build();
     }
 
     @Override
@@ -216,11 +215,10 @@ public class PathComputationImpl implements PathComputation {
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
         /* Check if we got a valid Path and return appropriate ERO */
-        if (cpath.getStatus() == ComputationStatus.Completed) {
-            return MessagesUtil.getEro(cpath.getPathDescription());
-        } else {
+        if (cpath.getStatus() != ComputationStatus.Completed) {
             return null;
         }
+        return MessagesUtil.getEro(cpath.getPathDescription());
     }
 
     private VertexKey getSourceVertexKey(final EndpointsObj endPoints) {
