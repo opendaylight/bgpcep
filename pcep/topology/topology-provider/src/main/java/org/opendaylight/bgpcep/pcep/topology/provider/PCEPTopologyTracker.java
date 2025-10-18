@@ -7,7 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgpcep.pcep.topology.provider.TopologyUtils.friendlyId;
 
@@ -221,11 +220,11 @@ public final class PCEPTopologyTracker
                 case WRITE:
                     // We only care if the topology has been newly introduced, not when its details have changed
                     if (root.dataBefore() == null) {
-                        createInstance(extractTopologyKey(change));
+                        createInstance(change.path().getFirstKeyOf(Topology.class));
                     }
                     break;
                 case DELETE:
-                    destroyInstance(extractTopologyKey(change));
+                    destroyInstance(change.path().getFirstKeyOf(Topology.class));
                     break;
                 default:
                     // No-op
@@ -260,10 +259,5 @@ public final class PCEPTopologyTracker
         if (instances.remove(topology, instance)) {
             LOG.info("Destroyed topology instance of {}", friendlyId(topology));
         }
-    }
-
-    private static @NonNull TopologyKey extractTopologyKey(final DataTreeModification<?> change) {
-        final var path = change.path();
-        return verifyNotNull(path.firstKeyOf(Topology.class), "No topology key in %s", path);
     }
 }

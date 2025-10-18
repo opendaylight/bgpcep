@@ -233,15 +233,15 @@ final class TopologyStatsRpc implements DataTreeChangeListener<PcepSessionState>
 
     private List<TopologyId> getAvailableTopologyIds() {
         return sessionStateMap.keySet().stream()
-            .map(iid -> iid.firstKeyOf(Topology.class).getTopologyId())
+            .map(iid -> iid.getFirstKeyOf(Topology.class).getTopologyId())
             .distinct()
             .collect(Collectors.toList());
     }
 
     private List<NodeId> getAvailableNodeIds(final TopologyId topologyId) {
         return sessionStateMap.keySet().stream()
-            .filter(iid -> iid.firstKeyOf(Topology.class).getTopologyId().equals(topologyId))
-            .map(iid -> iid.firstKeyOf(Node.class).getNodeId())
+            .filter(iid -> iid.getFirstKeyOf(Topology.class).getTopologyId().equals(topologyId))
+            .map(iid -> iid.getFirstKeyOf(Node.class).getNodeId())
             .collect(Collectors.toList());
     }
 }
