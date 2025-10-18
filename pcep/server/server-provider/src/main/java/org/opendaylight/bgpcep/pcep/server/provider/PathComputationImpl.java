@@ -224,37 +224,29 @@ public class PathComputationImpl implements PathComputation {
     }
 
     private VertexKey getSourceVertexKey(final EndpointsObj endPoints) {
-        IpAddress address = null;
+        return switch (endPoints.getAddressFamily()) {
+            case Ipv4Case ipv4 -> getSourceVertexKey(new IpAddress(ipv4.getIpv4().getSourceIpv4Address()));
+            case Ipv6Case ipv6 -> getSourceVertexKey(new IpAddress(ipv6.getIpv6().getSourceIpv6Address()));
+            case null, default ->  null;
+        };
+    }
 
-        if (endPoints.getAddressFamily() instanceof Ipv4Case) {
-            address = new IpAddress(((Ipv4Case) endPoints.getAddressFamily()).getIpv4().getSourceIpv4Address());
-        }
-        if (endPoints.getAddressFamily() instanceof Ipv6Case) {
-            address = new IpAddress(((Ipv6Case) endPoints.getAddressFamily()).getIpv6().getSourceIpv6Address());
-        }
-        if (address == null) {
-            return null;
-        }
-
-        ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
+    private VertexKey getSourceVertexKey(final IpAddress address) {
+        final var vertex = tedGraph.getConnectedVertex(address);
         LOG.debug("Compute path from Source {}", vertex != null ? vertex : "Unknown");
         return vertex != null ? vertex.getVertex().key() : null;
     }
 
     private VertexKey getDestinationVertexKey(final EndpointsObj endPoints) {
-        IpAddress address = null;
+        return switch (endPoints.getAddressFamily()) {
+            case Ipv4Case ipv4 -> getDestinationVertexKey(new IpAddress(ipv4.getIpv4().getDestinationIpv4Address()));
+            case Ipv6Case ipv6 -> getDestinationVertexKey(new IpAddress(ipv6.getIpv6().getDestinationIpv6Address()));
+            case null, default -> null;
+        };
+    }
 
-        if (endPoints.getAddressFamily() instanceof Ipv4Case ipv4) {
-            address = new IpAddress(ipv4.getIpv4().getDestinationIpv4Address());
-        }
-        if (endPoints.getAddressFamily() instanceof Ipv6Case ipv6) {
-            address = new IpAddress(ipv6.getIpv6().getDestinationIpv6Address());
-        }
-        if (address == null) {
-            return null;
-        }
-
-        ConnectedVertex vertex = tedGraph.getConnectedVertex(address);
+    private VertexKey getDestinationVertexKey(final IpAddress address) {
+        final var vertex = tedGraph.getConnectedVertex(address);
         LOG.debug("Compute path to Destination {}", vertex != null ? vertex : "Unknown");
         return vertex != null ? vertex.getVertex().key() : null;
     }
