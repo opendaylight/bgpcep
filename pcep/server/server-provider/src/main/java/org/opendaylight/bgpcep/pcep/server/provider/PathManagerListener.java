@@ -9,10 +9,12 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -22,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-public final class PathManagerListener implements DataTreeChangeListener<Node>, AutoCloseable {
+public final class PathManagerListener implements DataTreeChangeListener<PcepNodeConfig>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PathManagerListener.class);
 
     private final PathManagerProvider pathManager;
@@ -45,7 +46,8 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
             final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
         listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
-            topology.toBuilder().toReferenceBuilder().child(Node.class).build(), this);
+            topology.toBuilder().toReferenceBuilder().child(Node.class).augmentation(PcepNodeConfig.class).build(),
+            this);
         LOG.info("Registered listener for Managed TE Path on Topology {}", topology.key().getTopologyId().getValue());
     }
 
@@ -61,91 +63,51 @@ public final class PathManagerListener implements DataTreeChangeListener<Node>, 
         }
     }
 
-    /**
-     * Handle Configured LSP modifications.
-     *
-     * @param nodeId    Node Identifier to which the modified children belongs to.
-     * @param lspMod    List of Configured LSP modifications.
-     */
-    private void handleLspChange(final NodeId nodeId, final List<? extends DataObjectModification<?>> lspMod) {
-        for (DataObjectModification<? extends DataObject> lsp : lspMod) {
-            ConfiguredLsp cfgLsp;
-            switch (lsp.modificationType()) {
-                case DELETE:
-                    cfgLsp = (ConfiguredLsp) lsp.dataBefore();
-                    LOG.debug("Delete Managed TE Path: {}", cfgLsp.getName());
-                    pathManager.deleteManagedTePath(nodeId, cfgLsp.key());
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    cfgLsp = (ConfiguredLsp) lsp.dataAfter();
-                    LOG.debug("Update Managed TE Path {}", cfgLsp);
-                    pathManager.createManagedTePath(nodeId, cfgLsp);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    @Override
+    public void onDataTreeChanged(final List<DataTreeModification<PcepNodeConfig>> changes) {
+        for (var change : changes) {
+            final var nodeAddr = change.path().getFirstKeyOf(Node.class).getNodeId().getValue();
+            final var nodeId = new NodeId(nodeAddr.startsWith("pcc://") ? nodeAddr : "pcc://" + nodeAddr);
 
-    /**
-     * Parse Sub Tree modification. Given list has been filtered to get only Path Computation Client1 modifications.
-     * This function first create, update or delete Managed TE Node that corresponds to the given NodeId. Then, it
-     * filter the children to retain only the Configured LSP modifications.
-     *
-     * @param nodeId    Node Identifier to which the modified children belongs to.
-     * @param pccMod    List of PCEP Node Configuration modifications.
-     */
-    private void handlePccChange(final NodeId nodeId, final List<? extends DataObjectModification<?>> pccMod) {
-        for (var node : pccMod) {
-            /* First, process PCC modification */
-            switch (node.modificationType()) {
-                case DELETE:
+            switch (change.getRootNode()) {
+                case DataObjectDeleted<?> deleted -> {
                     LOG.debug("Delete Managed TE Node: {}", nodeId);
                     pathManager.deleteManagedTeNode(nodeId);
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
+                }
+                case WithDataAfter<PcepNodeConfig> present -> {
                     /* First look if the Managed TE Node belongs to this PCC was not already created */
-                    final var pccNode = (PcepNodeConfig) node.dataAfter();
+                    final var pccNode = present.dataAfter();
                     if (!pathManager.checkManagedTeNode(nodeId)) {
                         LOG.info("Create new Managed Node {}", nodeId);
                         pathManager.createManagedTeNode(nodeId, pccNode);
                     } else {
                         /* Then, look to Configured LSP modification */
-                        final var lspMod = node.modifiedChildren()
-                                .stream().filter(mod -> mod.dataType().equals(ConfiguredLsp.class))
-                                .collect(Collectors.toList());
-                        if (!lspMod.isEmpty()) {
-                            handleLspChange(nodeId, lspMod);
-                        }
+                        handleLspChange(nodeId, present.getModifiedChildren(ConfiguredLsp.class));
                     }
-                    break;
-                default:
-                    break;
+                }
             }
         }
     }
 
-    @Override
-    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
+    /**
+     * Handle Configured LSP modifications.
+     *
+     * @param nodeId    Node Identifier to which the modified children belongs to.
+     * @param changes    List of Configured LSP modifications.
+     */
+    private void handleLspChange(final NodeId nodeId, final Collection<DataObjectModification<ConfiguredLsp>> changes) {
         for (var change : changes) {
-            final var root = change.getRootNode();
-
-            final String nodeAddr = root.coerceKeyStep(Node.class).key().getNodeId().getValue();
-            NodeId nodeId;
-            if (nodeAddr.startsWith("pcc://")) {
-                nodeId = new NodeId(nodeAddr);
-            } else {
-                nodeId = new NodeId("pcc://" + nodeAddr);
-            }
-
-            /* Look only to PcepNodeConfig.class modification */
-            final var pccMod = root.modifiedChildren().stream()
-                    .filter(mod -> mod.dataType().equals(PcepNodeConfig.class))
-                    .collect(Collectors.toList());
-            if (!pccMod.isEmpty()) {
-                handlePccChange(nodeId, pccMod);
+            switch (change) {
+                case DataObjectDeleted<ConfiguredLsp> deleted -> {
+                    final var key = deleted.coerceKeyStep(ConfiguredLsp.class).key();
+                    LOG.debug("Delete Managed TE Path: {}", key.getName());
+                    pathManager.deleteManagedTePath(nodeId, key);
+                }
+                case WithDataAfter<ConfiguredLsp> present -> {
+                    final var cfgLsp = present.dataAfter();
+                    LOG.debug("Update Managed TE Path {}", cfgLsp);
+                    pathManager.createManagedTePath(nodeId, cfgLsp);
+                }
             }
         }
     }
