@@ -284,11 +284,12 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     private static List<PathDescription> getPathDescription(final Ero ero, final AddressFamily af) {
         final var pathDesc = new ArrayList<PathDescription>();
         for (var element : ero.nonnullSubobject()) {
-            final var sbt = element.getSubobjectType();
-            if (sbt instanceof SrSubobject sr) {
-                pathDesc.add(getSrPath(sr, af));
-            } else if (sbt instanceof IpPrefixCase ip) {
-                pathDesc.add(getIpPath(ip.getIpPrefix(), af));
+            switch (element.getSubobjectType()) {
+                case SrSubobject sr -> pathDesc.add(getSrPath(sr, af));
+                case IpPrefixCase ip -> pathDesc.add(getIpPath(ip.getIpPrefix(), af));
+                case null, default -> {
+                    // no-op
+                }
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
@@ -305,13 +306,13 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     private static List<PathDescription> getPathDescription(final Rro rro, final AddressFamily af) {
         final var pathDesc = new ArrayList<PathDescription>();
         for (var element : rro.nonnullSubobject()) {
-            final var sbt = element.getSubobjectType();
-            if (sbt instanceof SrSubobject sr) {
-                pathDesc.add(getSrPath(sr, af));
-            } else if (sbt
-                    instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
-                        .route.subobjects.subobject.type.IpPrefixCase ip) {
-                pathDesc.add(getIpPath(ip.getIpPrefix(), af));
+            switch (element.getSubobjectType()) {
+                case SrSubobject sr -> pathDesc.add(getSrPath(sr, af));
+                case org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
+                    .subobjects.subobject.type.IpPrefixCase ip -> pathDesc.add(getIpPath(ip.getIpPrefix(), af));
+                case null, default -> {
+                    // no-op
+                }
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
@@ -370,20 +371,25 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         final PsType pst = p1.getPathSetupType() != null ? p1.getPathSetupType().getPst() : PsType.RsvpTe;
         final Lsp lsp = p1.getLsp();
         final var af = lsp.getTlvs().getLspIdentifiers().getAddressFamily();
-        IpAddress source = null;
-        IpAddress destination = null;
-        if (af instanceof Ipv4Case v4) {
-            final var ipv4 = v4.getIpv4();
-            source = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
-            destination = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
-            cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv4 : AddressFamily.SrIpv4);
-        } else if (af instanceof Ipv6Case v6) {
-            final var ipv6 = v6.getIpv6();
-            source = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
-            destination = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
-            cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv6 : AddressFamily.SrIpv6);
-        } else {
-            return null;
+        final IpAddress source;
+        final IpAddress destination;
+
+        switch (af) {
+            case Ipv4Case v4 -> {
+                final var ipv4 = v4.getIpv4();
+                source = new IpAddress(ipv4.getIpv4TunnelSenderAddress());
+                destination = new IpAddress(ipv4.getIpv4TunnelEndpointAddress());
+                cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv4 : AddressFamily.SrIpv4);
+            }
+            case Ipv6Case v6 -> {
+                final var ipv6 = v6.getIpv6();
+                source = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
+                destination = new IpAddress(ipv6.getIpv6TunnelSenderAddress());
+                cb.setAddressFamily(pst == PsType.RsvpTe ? AddressFamily.Ipv6 : AddressFamily.SrIpv6);
+            }
+            case null, default -> {
+                return null;
+            }
         }
 
         /* Build Intended Path */
