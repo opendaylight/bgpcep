@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.asla.tlv.AslaSubtlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.bgp.rib.rib.loc.rib.tables.routes.LinkstateRoutesCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.ObjectType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.PerformanceMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.SrAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.StandardMetric;
@@ -142,7 +141,6 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     private static final TopologyTypes LINKSTATE_TOPOLOGY_TYPE = new TopologyTypesBuilder().addAugmentation(
             new TopologyTypes1Builder().setBgpLinkstateTopology(new BgpLinkstateTopologyBuilder().build()).build())
             .build();
-    private static final String UNHANDLED_OBJECT_CLASS = "Unhandled object class {}";
     private static final int MAX_PRIORITY = 8;
 
     private final ConnectedGraph cgraph;
@@ -192,17 +190,12 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     @Override
     protected void createObject(final ReadWriteTransaction trans, final DataObjectIdentifier<LinkstateRoute> id,
             final LinkstateRoute value) {
-        final ObjectType t = value.getObjectType();
-        checkArgument(t != null, "Route %s value %s has null object type", id, value);
-
-        if (t instanceof LinkCase) {
-            createEdge(value, (LinkCase) t, value.getAttributes());
-        } else if (t instanceof NodeCase) {
-            createVertex(value, (NodeCase) t, value.getAttributes());
-        } else if (t instanceof PrefixCase) {
-            createPrefix(value, (PrefixCase) t, value.getAttributes());
-        } else {
-            LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
+        final var type = value.getObjectType();
+        switch (type) {
+            case LinkCase link -> createEdge(value, link, value.getAttributes());
+            case NodeCase node -> createVertex(value, node, value.getAttributes());
+            case PrefixCase prefix -> createPrefix(value, prefix, value.getAttributes());
+            default -> LOG.debug("Unhandled created object class {}", type.implementedInterface());
         }
     }
 
@@ -955,15 +948,12 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             return;
         }
 
-        final ObjectType t = value.getObjectType();
-        if (t instanceof LinkCase) {
-            removeEdge((LinkCase) t);
-        } else if (t instanceof NodeCase) {
-            removeVertex((NodeCase) t);
-        } else if (t instanceof PrefixCase) {
-            removePrefix((PrefixCase) t);
-        } else {
-            LOG.debug(UNHANDLED_OBJECT_CLASS, t.implementedInterface());
+        final var type = value.getObjectType();
+        switch (type) {
+            case LinkCase link -> removeEdge(link);
+            case NodeCase node -> removeVertex(node);
+            case PrefixCase prefix -> removePrefix(prefix);
+            default -> LOG.debug("Unhandled remove object class {}", type.implementedInterface());
         }
     }
 
