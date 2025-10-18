@@ -19,9 +19,8 @@ import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
@@ -48,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PsType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
@@ -254,45 +254,20 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
     }
 
     /**
-     * Translate ERO RSVP-TE SubObject i.e. IpPrefixCase into Path Description.
+     * Translate ERO RSVP-TE SubObject i.e. IpPrefixSubobject into Path Description.
      *
-     * @param srObj Segment Routing SubObject.
-     * @param af    Address Family, SR-IPv4 or SR-IPv6.
+     * @param ipPrefix the subobject
+     * @param af Address Family, SR-IPv4 or SR-IPv6
      *
-     * @return      Path Description of the corresponding ERO SubObject.
+     * @return Path Description of the corresponding ERO SubObject.
      */
-    private static PathDescription getIpPath(final IpPrefixCase ipc, final AddressFamily af) {
+    private static PathDescription getIpPath(final IpPrefixSubobject ipPrefix, final AddressFamily af) {
         return switch (af) {
             case Ipv4 -> new PathDescriptionBuilder()
-                .setRemoteIpv4(
-                    new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                .setRemoteIpv4(IetfInetUtil.ipv4AddressFrom(ipPrefix.getIpPrefix().getIpv4Prefix()))
                 .build();
             case Ipv6 -> new PathDescriptionBuilder()
-                .setRemoteIpv6(
-                    new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
-                .build();
-            default -> null;
-        };
-    }
-
-    /**
-     * Translate RRO RSVP-TE SubObject i.e. IpPrefixCase into Path Description.
-     *
-     * @param srObj Segment Routing SubObject.
-     * @param af    Address Family, SR-IPv4 or SR-IPv6.
-     *
-     * @return      Path Description of the corresponding RRO SubObject.
-     */
-    private static PathDescription getIpPath(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820._record.route.subobjects.subobject.type.IpPrefixCase ipc, final AddressFamily af) {
-        return switch (af) {
-            case Ipv4 -> new PathDescriptionBuilder()
-                .setRemoteIpv4(
-                    new Ipv4Address(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
-                .build();
-            case Ipv6 -> new PathDescriptionBuilder()
-                .setRemoteIpv6(
-                    new Ipv6Address(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                .setRemoteIpv6(IetfInetUtil.ipv6AddressFrom(ipPrefix.getIpPrefix().getIpv6Prefix()))
                 .build();
             default -> null;
         };
@@ -313,7 +288,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             if (sbt instanceof SrSubobject sr) {
                 pathDesc.add(getSrPath(sr, af));
             } else if (sbt instanceof IpPrefixCase ip) {
-                pathDesc.add(getIpPath(ip, af));
+                pathDesc.add(getIpPath(ip.getIpPrefix(), af));
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
@@ -336,7 +311,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             } else if (sbt
                     instanceof org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record
                         .route.subobjects.subobject.type.IpPrefixCase ip) {
-                pathDesc.add(getIpPath(ip, af));
+                pathDesc.add(getIpPath(ip.getIpPrefix(), af));
             }
         }
         return pathDesc.isEmpty() ? null : pathDesc;
