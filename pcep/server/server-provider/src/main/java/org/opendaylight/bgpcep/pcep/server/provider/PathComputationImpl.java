@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import org.opendaylight.algo.PathComputationAlgorithm;
 import org.opendaylight.algo.PathComputationProvider;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
 import org.opendaylight.graph.ConnectedGraph;
@@ -27,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AlgorithmType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.get.constrained.path.input.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRoute;
@@ -102,7 +100,7 @@ public class PathComputationImpl implements PathComputation {
         PathConstraints cts = getConstraints(input, !PSTUtil.isDefaultPST(req.getRp().getTlvs().getPathSetupType()));
 
         /* Determine Path Computation Algorithm according to Input choice */
-        AlgorithmType algoType;
+        final AlgorithmType algoType;
         if (cts.getDelay() != null) {
             algoType = AlgorithmType.Samcra;
         } else if (cts.getTeMetric() != null) {
@@ -110,7 +108,7 @@ public class PathComputationImpl implements PathComputation {
         } else {
             algoType = AlgorithmType.Spf;
         }
-        PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
+        final var algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
             return MessagesUtil.createErrorMsg(PCEPErrors.RESOURCE_LIMIT_EXCEEDED, Uint32.ZERO);
         }
@@ -118,7 +116,7 @@ public class PathComputationImpl implements PathComputation {
         /* Request Path Computation for given source, destination and constraints */
         LOG.debug("Call Path Computation {} algorithm for path from {} to {} with contraints {}",
                 algoType, source, destination, cts);
-        final ConstrainedPath cpath = algo.computeP2pPath(source, destination, cts);
+        final var cpath = algo.computeP2pPath(source, destination, cts);
 
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
@@ -142,22 +140,22 @@ public class PathComputationImpl implements PathComputation {
         }
 
         /* Determine Path Computation Algorithm according to parameters */
-        AlgorithmType algoType;
-        if (intend.getConstraints().getDelay() != null) {
+        final AlgorithmType algoType;
+        final var constraints = intend.getConstraints();
+        if (constraints.getDelay() != null) {
             algoType = AlgorithmType.Samcra;
-        } else if (intend.getConstraints().getTeMetric() != null) {
+        } else if (constraints.getTeMetric() != null) {
             algoType = AlgorithmType.Cspf;
         } else {
             algoType = AlgorithmType.Spf;
         }
-        PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
+        final var algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
             return cpb.setComputationStatus(ComputationStatus.Failed).build();
         }
 
         /* Request Path Computation for given source, destination and constraints */
-        final ConstrainedPath cpath = algo.computeP2pPath(source.getVertex().key(), destination.getVertex().key(),
-                intend.getConstraints());
+        final var cpath = algo.computeP2pPath(source.getVertex().key(), destination.getVertex().key(), constraints);
 
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
@@ -166,15 +164,14 @@ public class PathComputationImpl implements PathComputation {
             return cpb.setComputationStatus(ComputationStatus.NoPath).build();
         }
 
-        cpb.setPathDescription(cpath.getPathDescription());
-        if (intend.getConstraints().getDelay() != null) {
-            cpb.setComputedMetric(cpath.getDelay().getValue());
-        } else if (intend.getConstraints().getTeMetric() != null) {
-            cpb.setComputedMetric(cpath.getTeMetric());
-        } else {
-            cpb.setComputedMetric(cpath.getMetric());
-        }
-        return cpb.setComputationStatus(ComputationStatus.Completed).build();
+        return cpb
+            .setComputationStatus(ComputationStatus.Completed)
+            .setComputedMetric(switch (algoType) {
+                case Cspf -> cpath.getTeMetric();
+                case Samcra -> cpath.getDelay().getValue();
+                case Spf -> cpath.getMetric();
+            })
+            .build();
     }
 
     @Override
@@ -193,7 +190,7 @@ public class PathComputationImpl implements PathComputation {
         PathConstraints cts = getConstraints(endpoints, bandwidth, classType, metrics, xro, iro, segmentRouting);
 
         /* Determine Path Computation Algorithm according to parameters */
-        AlgorithmType algoType;
+        final AlgorithmType algoType;
         if (cts.getDelay() != null) {
             algoType = AlgorithmType.Samcra;
         } else if (cts.getTeMetric() != null) {
@@ -201,7 +198,7 @@ public class PathComputationImpl implements PathComputation {
         } else {
             algoType = AlgorithmType.Spf;
         }
-        PathComputationAlgorithm algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
+        final var algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
             return null;
         }
@@ -210,7 +207,7 @@ public class PathComputationImpl implements PathComputation {
          * Request Path Computation for given source, destination and
          * constraints
          */
-        final ConstrainedPath cpath = algo.computeP2pPath(source, destination, cts);
+        final var cpath = algo.computeP2pPath(source, destination, cts);
 
         LOG.info("Computed path: {}", cpath.getPathDescription());
 
