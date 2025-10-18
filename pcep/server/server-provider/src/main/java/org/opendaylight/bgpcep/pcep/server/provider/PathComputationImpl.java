@@ -19,9 +19,8 @@ import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.protocol.pcep.spi.PSTUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
@@ -277,14 +276,12 @@ public class PathComputationImpl implements PathComputation {
                 switch (af) {
                     case Ipv4, SrIpv4 -> {
                         erl.add(new ExcludeRouteBuilder()
-                            .setIpv4(new Ipv4Address(
-                                ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                            .setIpv4(IetfInetUtil.ipv4AddressFrom(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix()))
                             .build());
                     }
                     case Ipv6, SrIpv6 -> {
                         erl.add(new ExcludeRouteBuilder()
-                            .setIpv6(new Ipv6Address(
-                                ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                            .setIpv6(IetfInetUtil.ipv6AddressFrom(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix()))
                             .build());
                     }
                     default -> {
@@ -313,14 +310,12 @@ public class PathComputationImpl implements PathComputation {
                 switch (af) {
                     case Ipv4, SrIpv4 -> {
                         irl.add(new IncludeRouteBuilder()
-                            .setIpv4(new Ipv4Address(
-                                ipc.getIpPrefix().getIpPrefix().getIpv4Prefix().getValue().split("/")[0]))
+                            .setIpv4(IetfInetUtil.ipv4AddressFrom(ipc.getIpPrefix().getIpPrefix().getIpv4Prefix()))
                             .build());
                     }
                     case Ipv6, SrIpv6 -> {
                         irl.add(new IncludeRouteBuilder()
-                            .setIpv6(new Ipv6Address(
-                                ipc.getIpPrefix().getIpPrefix().getIpv6Prefix().getValue().split("/")[0]))
+                            .setIpv6(IetfInetUtil.ipv6AddressFrom(ipc.getIpPrefix().getIpPrefix().getIpv6Prefix()))
                             .build());
                     }
                     default -> {
