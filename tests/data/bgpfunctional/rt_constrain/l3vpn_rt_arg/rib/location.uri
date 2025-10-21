@@ -1,0 +1,1 @@
+rests/data/bgp-rib:bgp-rib/rib=$BGP_RIB/$PATH/tables=bgp-types%3Aipv4-address-family,bgp-types%3Ampls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes

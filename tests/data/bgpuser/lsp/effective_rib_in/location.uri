@@ -1,0 +1,1 @@
+rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp%3A%2F%2F$IP/effective-rib-in/tables=bgp-linkstate%3Alinkstate-address-family,bgp-linkstate%3Alinkstate-subsequent-address-family/bgp-linkstate:linkstate-routes?content=nonconfig
