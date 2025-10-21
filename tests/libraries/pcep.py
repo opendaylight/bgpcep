@@ -19,9 +19,12 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from variables.pcepuser.titanium import variables as pcep_variables
 
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
+TOOLS_IP = variables.TOOLS_IP
+VARIABLES = pcep_variables.get_variables(TOOLS_IP)
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +65,13 @@ def get_pcep_topology() -> json:
     return resp
 
 
+def get_path_computation_client():
+    uri = f"rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc:%2F%2F{TOOLS_IP}/network-topology-pcep:path-computation-client?content=nonconfig"
+    response = templated_requests.get_from_uri(uri)
+
+    return response
+
+
 def get_pcep_topology_hop_count(hop):
     """Returns number of hop value occurences in pcep topology.
 
@@ -77,6 +87,68 @@ def get_pcep_topology_hop_count(hop):
     gc.collect()
 
     return topology_count
+
+
+def configure_speaker_entitiy_identifier():
+    """Setup spekare entity identifier.
+
+    Args:
+        None
+
+    Returns:
+        int: Number of hop values found in pcep topology.
+    """
+    mapping = {"IP": ODL_IP}
+    resposne = templated_requests.put_templated_request(
+        "variables/pcepuser/titanium/node_speaker_entity_identifier",
+        mapping,
+        json=False,
+    )
+
+    return resposne
+
+
+def add_lsp(xml_data):
+    # mapping = {"IP": pcc_ip, "NAME": lsp_name}
+    # resposne = templated_requests.post_templated_request(
+    #    "data/templates/pcep_add_lsp", mapping, json=False
+    # )
+    #
+    # return resposne
+
+    response = operate_xml_lsp_return_json("network-topology-pcep:add-lsp", xml_data)
+    return response
+
+
+def update_lsp(xml_data):
+    # mapping = {"IP": pcc_ip, "NAME": lsp_name}
+    # resposne = templated_requests.post_templated_request(
+    #    "data/templates/pcep_update_lsp", mapping, json=False
+    # )
+    #
+    # return resposne
+    response = operate_xml_lsp_return_json("network-topology-pcep:update-lsp", xml_data)
+    return response
+
+
+def remove_lsp(xml_data):
+    # mapping = {"IP": pcc_ip, "NAME": lsp_name}
+    # resposne = templated_requests.post_templated_request(
+    #    "data/templates/pcep_remove_lsp", mapping, json=False, accept="*/*"
+    # )
+    #
+    # return resposne
+    response = operate_xml_lsp_return_json("network-topology-pcep:remove-lsp", xml_data)
+    return response
+
+
+def operate_xml_lsp_return_json(uri_part, xml_data):
+    uri_path = f"/rests/operations/{uri_part}"
+    response = templated_requests.post_to_uri(
+        uri_path, None, xml_data, expected_code=templated_requests.ALLOWED_STATUS_CODES
+    )
+
+    return response
 
 
 def start_pcc_mock(
@@ -136,19 +208,20 @@ def start_pcc_mock(
     return process
 
 
-def stop_pcc_mock_process(process: subprocess.Popen):
+def stop_pcc_mock_process(process: subprocess.Popen, timeout=3):
     """Stop pcep pcc mock process by sending SIGINT signal.
 
     Args:
-        process (subprocess.Popen): BGP speaker process handler.
+        process (subprocess.Popen): Pcc mock process handler.
 
     Returns:
         None
     """
-    log.info(f"Killing bgp speaker process with PID {process.pid}")
     output = process.stdout
     log.debug(f"Pcc mock process output: {output=}")
-    infra.stop_process(process, gracefully=True)
+    # pid = infra.get_children_processes_pids(process, "java")[0]
+    log.info(f"Killing pcc mock process with PID {process.pid}")
+    infra.stop_process_by_pid(process.pid, gracefully=True)
 
 
 def start_pcc_mock_with_flapping(
