@@ -6,26 +6,32 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
 
-import difflib
 import logging
 import os
 import requests
 import string
+from typing import List
 
 from lib import norm_json
+from lib import utils
 
 ODL_IP = os.environ["ODL_IP"]
 RESTCONF_PORT = os.environ["RESTCONF_PORT"]
 
+ALLOWED_STATUS_CODES = {200, 201, 204}
+ALLOWED_DELETE_STATUS_CODES = {200, 201, 204, 404, 409}
+DELETED_STATUS_CODES = {404, 409}
+
 log = logging.getLogger(__name__)
 
 
-def get_request(url: str, expected_code: int | None = None) -> requests.Response:
-    """Sends HTTP GET request to ODL.
+def get_request(url: str, headers: dict | None = None, expected_code: int | List[int] | None = None) -> requests.Response:
+    """??? headers Sends HTTP GET request to ODL.
 
     Args:
         url (str): URL address.
-        expected_code (int | None): Expected resposne code returned by ODL.
+        expected_code (int | List[int] | None): Expected resposne code(s) returned by ODL.
+            It could be either single numeric value or list of numbers.
             If not provided requests standard logic for evaluating
             failure response code is used.
 
@@ -33,11 +39,16 @@ def get_request(url: str, expected_code: int | None = None) -> requests.Response
         requests.Response: Response returned by ODL for GET call.
     """
     log.info(f"Sending GET request to {url}")
-    response = requests.get(url, auth=requests.auth.HTTPBasicAuth("admin", "admin"))
+    if not headers:
+        headers = {}
+    response = requests.get(url, headers=headers, auth=requests.auth.HTTPBasicAuth("admin", "admin"))
 
     try:
         if expected_code is not None:
-            if expected_code != response.status_code:
+            if isinstance(expected_code, int):
+                # convert single value to tuple of integers
+                expected_code = (expected_code,)
+            if response.status_code not in expected_code:
                 raise AssertionError(
                     f"Unexpected resonse code {response.status_code}, expected " \
                     f"{expected_code}."
@@ -58,13 +69,14 @@ def get_request(url: str, expected_code: int | None = None) -> requests.Response
 
 
 def put_request(
-    url: str, headers: dict, data: dict | str, expected_code: int | None = None
+    url: str, headers: dict, data: dict | str, expected_code: int | List[int] | None = None
 ) -> requests.Response:
-    """Sends HTTP PUT request to ODL using provided data.
+    """??? headers Sends HTTP PUT request to ODL using provided data.
 
     Args:
         url (str): URL address.
-        expected_code (int | None): Expected resposne code returned by ODL.
+        expected_code (int | List[int] | None): Expected resposne code(s) returned by ODL.
+            It could be either single numeric value or list of numbers.
             If not provided requests standard logic for evaluating
             failure response code is used.
         data (dict | str): payload to be sent within the PUT request to ODL
@@ -82,7 +94,10 @@ def put_request(
 
     try:
         if expected_code is not None:
-            if expected_code != response.status_code:
+            if isinstance(expected_code, int):
+                # convert single value to tuple of integers
+                expected_code = (expected_code,)
+            if response.status_code not in expected_code:
                 raise AssertionError(
                     f"Unexpected resonse code {response.status_code}, expected " \
                     f"{expected_code}."
@@ -101,13 +116,51 @@ def put_request(
 
     return response
 
+def post_request(
+    url: str, headers: dict, data: dict | str, expected_code: int | List[int] | None = None
+) -> requests.Response:
+    """???
+    """
+    log.info(f"Sending to {url} this data: {data}")
+    response = requests.post(
+        url=url,
+        data=data,
+        headers=headers,
+        auth=requests.auth.HTTPBasicAuth("admin", "admin"),
+    )
 
-def delete_request(url: str, expected_code: int | None = None) -> requests.Response:
+    try:
+        if expected_code is not None:
+            if isinstance(expected_code, int):
+                # convert single value to tuple of integers
+                expected_code = (expected_code,)
+            if response.status_code not in expected_code:
+                raise AssertionError(
+                    f"Unexpected resonse code {response.status_code}, expected " \
+                    f"{expected_code}."
+                )
+        else:
+            response.raise_for_status()
+    except (requests.HTTPError, AssertionError) as e:
+        log.error(f"Response: {response.text}")
+        log.error(f"Response code: {response.status_code}")
+        log.error(f"Response headers: {response.headers}")
+        raise AssertionError("Unexpected failure in POST response.") from e
+    else:
+        log.debug(f"Response: {response.text}")
+        log.info(f"Response code: {response.status_code}")
+        log.debug(f"Response headers: {response.headers}")
+
+    return response
+
+
+def delete_request(url: str, expected_code: int | List[int] | None = None) -> requests.Response:
     """Sends HTTP DELETE request to ODL.
 
     Args:
         url (str): URL address.
-        expected_code (int | None): Expected resposne code returned by ODL.
+        expected_code (int | List[int] | None): Expected resposne code(s) returned by ODL.
+            It could be either single numeric value or list of numbers.
             If not provided requests standard logic for evaluating
             failure response code is used.
 
@@ -121,7 +174,10 @@ def delete_request(url: str, expected_code: int | None = None) -> requests.Respo
 
     try:
         if expected_code is not None:
-            if expected_code != response.status_code:
+            if isinstance(expected_code, int):
+                # convert single value to tuple of integers
+                expected_code = (expected_code,)
+            if response.status_code not in expected_code:
                 raise AssertionError(
                     f"Unexpected resonse code {response.status_code}, expected " \
                     f"{expected_code}."
@@ -193,20 +249,11 @@ def get_templated_request(
         expected_response = resolve_templated_text(
             temlate_dir + "/data." + file_name_suffix, mapping
         )
-        normalized_expected_response = norm_json.normalize_json_text(expected_response)
-        normalized_response = norm_json.normalize_json_text(response.text)
-        visual_diff = "\n".join(
-            difflib.unified_diff(
-                normalized_response.splitlines(),
-                normalized_expected_response.splitlines(),
-                fromfile="received response",
-                tofile="expected response",
-                lineterm="",
-            )
-        )
-        assert (
-            normalized_response == normalized_expected_response
-        ), f"Received response does not match expected response: \n{visual_diff}"
+        volatiles_list = resolve_volatiles_path(temlate_dir)
+        try:
+            utils.verify_jsons_matach(response.text, expected_response, "received response", "expected response", volatiles_list)
+        except AssertionError as e:
+            raise AssertionError("Received response does not match expected response:") from e
 
     return response
 
@@ -246,6 +293,30 @@ def put_templated_request(
 
     return response
 
+def post_templated_request(
+    temlate_dir: str, mapping: dict, json=True, expected_code: int | None = None, accept=None
+) -> requests.Response:
+    """???
+    """
+    if json:
+        data_file_name = "post_data.json"
+        headers = {"Content-Type": "application/yang-data+json"}
+    else:
+        data_file_name = "post_data.xml"
+        headers = {"Accept": "application/xml", "Content-Type": "application/xml"}
+    if accept:
+        headers["Accept"] = accept
+    url = resolve_templated_text(temlate_dir + "/location.uri", mapping)
+    data = resolve_templated_text(temlate_dir + "/" + data_file_name, mapping)
+    response = post_request(
+        f"http://{ODL_IP}:{RESTCONF_PORT}/{url}",
+        headers,
+        data,
+        expected_code=expected_code,
+    )
+
+    return response
+
 
 def delete_templated_request(
     temlate_dir: str, mapping: dict, expected_code: int | None = None
@@ -269,3 +340,14 @@ def delete_templated_request(
     )
 
     return response
+
+def resolve_volatiles_path(template_dir):
+    volatiles_file_path = f"{template_dir}/volatiles.list"
+    if os.path.isfile(volatiles_file_path):
+        with open(volatiles_file_path) as template_file:
+            volatiles = template_file.read()
+        volatiles_list = volatiles.split("\n")
+    else:
+        volatiles_list = ()
+
+    return volatiles_list
