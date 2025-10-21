@@ -605,7 +605,7 @@ class BaseTestCases:
                         timeout=updater_timeout,
                     )
                     pcep.check_updater_response(stdout, self.total_lsps, True)
-            infra.stop_process(pcc_mock_script_process)
+            infra.stop_process_by_pid(pcc_mock_script_process)
             pcep.kill_all_pcc_mock_simulators(gracefully=False)
             self.check_stability()
 

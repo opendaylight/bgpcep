@@ -13,7 +13,7 @@ import io
 import logging
 import os
 import pytest
-from typing import ContextManager, Generator, Iterator
+from typing import ContextManager, Generator, Iterator, Callable, List, Optional, Set
 
 
 from lib import infra
@@ -29,10 +29,27 @@ ODL_FEATRUES = [
     "odl-bgpcep-bgp",
     "odl-bgpcep-bgp-config-example",
     "odl-bgpcep-pcep",
+    "odl-bgpcep-bmp",
+    "odl-bgpcep-bmp-config-example"
 ]
 
 log = logging.getLogger(__name__)
 
+
+def pytest_addoption(parser):
+    """Adds custom command-line options to pytest."""
+    parser.addoption(
+        "--step-include",
+        action="store",
+        default=None,
+        help="Comma-separated list of step tags to run"
+    )
+    parser.addoption(
+        "--step-exclude",
+        action="store",
+        default=None,
+        help="Comma-separated list of step tags to skip"
+    )
 
 @pytest.fixture
 def allure_step_with_separate_logging(
@@ -71,8 +88,10 @@ def allure_step_with_separate_logging(
 
         try:
             with allure.step(title) as allure_step:
+                infra.log_message_to_karaf(f"Starting step: {title}")
                 yield allure_step
         finally:
+            infra.log_message_to_karaf(f"End of step: {title}")
             root_logger.removeHandler(handler)
             log_contents = log_capture_string.getvalue()
             if log_contents:
@@ -84,6 +103,32 @@ def allure_step_with_separate_logging(
 
     return _log_step
 
+
+@pytest.fixture
+def step_tag_checker(request: pytest.FixtureRequest) -> Callable[[Optional[List[str]]], bool]:
+    """
+    Returns a function that checks if a step should run based on tags.
+    Reads --step-include and --step-exclude command-line options.
+    
+    Logic mimics Robot Framework:
+    1. If --step-include is used, the step *must* match one tag.
+    2. If --step-exclude is used, the step *must not* match any tag.
+    """
+    include_str = request.config.getoption("--step-include")
+    exclude_str = request.config.getoption("--step-exclude")
+    
+    include_tags = set(include_str.split(',')) if include_str else set()
+    exclude_tags = set(exclude_str.split(',')) if exclude_str else set()
+
+    def _should_run_step(tags: Optional[str | List[str]]) -> bool:
+        step_tags = {tags} if tags else set()
+        if not exclude_tags.isdisjoint(step_tags):
+            return False
+        if include_tags and include_tags.isdisjoint(step_tags):
+            return False
+        return True
+
+    return _should_run_step
 
 @pytest.fixture(scope="session")
 def preconditions():
@@ -102,7 +147,7 @@ def preconditions():
     infra.start_odl_with_features(ODL_FEATRUES, timeout=180)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
     yield
-    infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
+    #infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
 
 
 @pytest.fixture(scope="class")
