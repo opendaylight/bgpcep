@@ -8,12 +8,12 @@
 
 import datetime
 import gc
-import json
+import logging
 import re
 import time
-import logging
 
 from libraries import templated_requests
+from libraries import utils
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -23,14 +23,14 @@ PC_NW_TOPOLOGY = f"{variables.REST_API}/network-topology:network-topology/topolo
 log = logging.getLogger(__name__)
 
 
-def get_ipv4_topology(topology: str = "example-ipv4-topology") -> json:
+def get_ipv4_topology(topology: str = "example-ipv4-topology") -> dict:
     """Returns example ipv4 topology from ODL using RESTCONF
 
     Args:
-        topology (str): name of the IPv4 topology to be checked.
+        topology (str): Name of the IPv4 topology to be checked.
 
     Returns:
-        json: IPv4 topology
+        dict: IPv4 topology
     """
     topology = templated_requests.get_from_uri(
         uri=f"{PC_NW_TOPOLOGY}={topology}?content=nonconfig",
@@ -40,11 +40,11 @@ def get_ipv4_topology(topology: str = "example-ipv4-topology") -> json:
     return topology.json()
 
 
-def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology"):
+def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology") -> int:
     """Returns number of prefixes stored in ipv4 topology
 
     Args:
-        topology (str): name of the IPv4 topology to be checked.
+        topology (str): Name of the IPv4 topology to be checked.
 
     Returns:
         int: Number of prefixes stored in example ipv4 topology.
@@ -57,26 +57,59 @@ def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology"):
     return topology_count
 
 
+def check_example_ipv4_topology_contains(string_to_check: str):
+    """Check the example-ipv4-topology content for string.
+
+    Args:
+        string_to_check (str): Searched string in topology.
+
+    Returns:
+        None
+    """
+    topology = get_ipv4_topology()
+    assert string_to_check in str(
+        topology
+    ), f"example-ipv4-topology does not contain expected '{string_to_check}' substring."
+
+
+def check_example_ipv4_topology_does_not_contain(string_to_check: str):
+    """Check the example-ipv4-topology does not contain the string.
+
+    Args:
+        string_to_check (str): Searched string in topology.
+
+    Returns:
+        None
+    """
+    topology = get_ipv4_topology()
+    assert string_to_check not in str(
+        topology
+    ), f"example-ipv4-topology does contain not expected '{string_to_check}' substring."
+
+
 def check_ipv4_topology_prefixes_count(
     expected_count: int, topology: str = "example-ipv4-topology"
 ):
     """Check that the count of prefixes matches the expected count
 
     Args:
-        topology (str): name of the IPv4 topology to be checked.
+        expected_count (int): Expected number or prefix occurences.
+        topology (str): Name of the IPv4 topology to be checked.
 
     Returns:
         None
     """
     actual_count = get_ipv4_topology_prefixes_count(topology=topology)
-    assert actual_count == expected_count, f"Expected count of prefixes: {expected_count} does not match actuall count: {actual_count}"
+    assert (
+        actual_count == expected_count
+    ), f"Expected count of prefixes: {expected_count} does not match actuall count: {actual_count}"
 
 
 def check_ipv4_topology_is_empty(topology: str = "example-ipv4-topology"):
     """Verifies if the ipv4 topology does not containe any prefix
 
     Args:
-        topology (str): name of the IPv4 topology to be checked.
+        topology (str): Name of the IPv4 topology to be checked.
 
     Returns:
         None
@@ -134,3 +167,30 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             raise AssertionError(
                 f"Expected Ipv4 topology to be stable after {timeout} seconds"
             )
+
+
+def verify_ip_topology_is_empty():
+    """Verify that IPv4 topology is empty.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    templated_requests.get_templated_request(
+        "variables/bgpuser/empty_topology", None, verify=True
+    )
+
+
+def wait_until_ip_topology_is_empty(retry_count: int = 20, interval: int = 1):
+    """Repeatedly checks the IPv4 topology until it is empty.
+
+    Args:
+        retry_count (int): Maximum number of retries.
+        interval (int): Interval in seconds between each retry.
+
+    Returns:
+        None
+    """
+    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)

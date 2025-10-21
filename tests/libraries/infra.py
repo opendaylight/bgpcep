@@ -6,11 +6,17 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
 
-from contextlib import contextmanager
-import paramiko
+import logging
 import signal
 import subprocess
-import logging
+import threading
+import urllib
+from contextlib import contextmanager
+from queue import Queue
+from typing import List
+
+import paramiko
+import psutil
 
 from libraries import utils
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
@@ -58,6 +64,10 @@ def shell(
                     f"exec {exec_command}",
                     shell=True,
                     text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    stdin=subprocess.DEVNULL,
+                    bufsize=1,
                     cwd=cwd,
                 )
             else:
@@ -89,6 +99,52 @@ def shell(
     except FileNotFoundError:
         log.error(f"ERROR command not found: {exec_command}")
         return None, None
+
+
+def read_until(process: subprocess.Popen, expected_text: str, timeout: int = 10) -> str:
+    """Reads process stdout until expected string is found.
+
+    This exepcted text must be within one line, it can not spread across
+    mutliple lines. Command needs to finish within specific time otherwise
+    it would time out.
+
+    Args:
+        process (str): Process which stdout should be observerd.
+        expected_text (str): Pattern to be read until.
+        timeout (int): Timeout in seconds.
+
+    Returns:
+        str: Process stdout until expected string occurence.
+    """
+    found_event = threading.Event()
+    output_lines = []
+
+    def threaded_read(stream, expected_text, queue):
+        while True:
+            line = stream.readline()
+            output_lines.append(line)
+            # whole_text += line
+            if line and expected_text in line:
+                found_event.set()
+                return
+
+    queue = Queue()
+    thread = threading.Thread(
+        target=threaded_read, args=(process.stdout, expected_text, queue), daemon=True
+    )
+    thread.start()
+    text_wasfound = found_event.wait(timeout=timeout)
+
+    whole_text = "\n".join(output_lines)
+
+    if not text_wasfound:
+        raise AssertionError(
+            f"Unable to find expected text:' {expected_text}' withing {timeout} seconds. Captured output: '{whole_text}'"
+        )
+
+    log.warn(whole_text)
+
+    return whole_text
 
 
 def ssh_run_command(
@@ -128,6 +184,29 @@ def ssh_run_command(
         log.warn(f"{stderr=}")
 
     return stdout, stderr
+
+
+def get_children_processes_pids(
+    process: subprocess.Popen, command: str = ""
+) -> List[int]:
+    """Returns pids of a child processes which are running certain command.
+
+    Args:
+        process (str): Parent process handler.
+        command (str): Command which child process is running.
+
+    Returns:
+        List[int]: List of matching children processes pids.
+    """
+    process = psutil.Process(process.pid)
+    children = process.children(recursive=True)
+    log.warn(process)
+    log.warn([child.name() for child in children])
+    matching_pids = [
+        child.pid for child in children if child.name().startswith(command)
+    ]
+
+    return matching_pids
 
 
 def ssh_start_command(
@@ -237,6 +316,56 @@ def wait_for_string_in_file(
     return int(output.strip())
 
 
+def get_string_occurence_count_in_file(string: str, file_name: str) -> int:
+    """Counts number of occurences of specific string in a text file.
+
+    Args:
+        string (str): Pattern to be matched.
+        file_name (str): Name of the text file to be searched.
+
+    Returns:
+        int: Number of occurences.
+    """
+    rc, output = shell(f"grep -c '{string}' '{file_name}'")
+
+    return int(output)
+
+
+def verify_string_occurence_count_in_file(string: str, file_name: str, count: int):
+    """Verifies number of occurences of specific string in a text file.
+
+    Args:
+        string (str): Pattern to be matched.
+        file_name (str): Name of the text file to be searched.
+        count (int): Expected number of string occurences.
+
+    Returns:
+        None
+    """
+    found_occurences = get_string_occurence_count_in_file(string, file_name)
+    assert (
+        found_occurences == count
+    ), f"Did not find {count} times str: {string} in {file_name}"
+
+
+def count_port_occurences(port: int, state: str, name: str):
+    """Counts number of occurences of specific port types.
+
+    Args:
+        port (str): Port number.
+        state (str): Port state.
+        name (str): Name of the program using the port.
+
+    Returns:
+        int: Number of port occurences.
+    """
+    rc, stdout = shell(
+        f'ss -punta 2> /dev/null | grep -E "{state} .+:{port} .+{name}" | wc -l'
+    )
+    assert rc == 0, f"Failed to check number of occurences for {port=} {state=} {name=}"
+    return int(stdout)
+
+
 def start_odl_with_features(features: tuple[str], timeout: int = 60):
     """Starts ODL with installed provided features.
 
@@ -317,13 +446,16 @@ def execute_karaf_command(command: str) -> tuple[str, str]:
     """
     log.info(f"Executing command '{command}' on karaf console.")
     with open_ssh_connection("127.0.0.1", 8101, "karaf", "karaf") as karaf_connection:
-        stdin, stdout, stderr = karaf_connection.exec_command(command)
-        stdout = stdout.read().decode()
-        stderr = stderr.read().decode()
+        stdin, stdout_channel, stderr_channel = karaf_connection.exec_command(command)
+        stdin.close()
+
+        stdout = stdout_channel.read().decode()
+        stderr = stderr_channel.read().decode()
+        exit_status = stdout_channel.channel.recv_exit_status()
 
     log.info(f"{stdout=}")
-    if stderr:
-        log.warn(f"Karaf command {command} failed with {stderr=}")
+    if exit_status != 0 or stderr:
+        log.warn(f"Karaf command {command} failed with {exit_status=} {stderr=}")
 
     return stdout, stderr
 
@@ -342,7 +474,7 @@ def log_message_to_karaf(message: str):
     execute_karaf_command(f"log:log 'ROBOT MESSAGE: {message}'")
 
 
-def is_process_still_running(process: subprocess.Popen):
+def is_process_still_running(pid: int):
     """Check if provided process did not finish yet.
 
     Args:
@@ -351,10 +483,30 @@ def is_process_still_running(process: subprocess.Popen):
     Returns:
         None
     """
-    return process.poll() is None
+    try:
+        process = psutil.Process(pid)
+    except psutil.NoSuchProcess:
+        return False
+    return process.is_running() and process.status() != psutil.STATUS_ZOMBIE
 
 
-def stop_process(process: subprocess.Popen, gracefully: bool = True):
+def stop_process(process: subprocess.Popen, gracefully=True):
+    """Stop process by sending proper signal, but print stdout first.
+
+    Args:
+        process (subprocess.Popen): Process handler.
+        gracefully (bool): Determines which signal should be sent for
+            stopping process.
+
+    Returns:
+        None
+    """
+    output = process.stdout
+    log.debug(f"Process output: {output=}")
+    stop_process_by_pid(process.pid, gracefully=gracefully)
+
+
+def stop_process_by_pid(pid: int, gracefully: bool = True, timeout: int | None = 5):
     """Stops process by sending signal a veirfies it is not running.
 
     Args:
@@ -365,19 +517,52 @@ def stop_process(process: subprocess.Popen, gracefully: bool = True):
     Returns:
         None
     """
-    log.info(f"Stopping process with PID {process.pid}")
+    log.info(f"Stopping process with PID {pid}")
     signal_to_be_sent = signal.SIGTERM if gracefully else signal.SIGKILL
-    log.info(f"Sending signal {signal_to_be_sent} to process with PID {process.pid}")
+    log.info(f"Sending signal {signal_to_be_sent} to process with PID {pid}")
+    process = psutil.Process(pid)
     process.send_signal(signal_to_be_sent)
-    # check if it is still running
-    try:
-        utils.wait_until_function_returns_value(
-            5, 1, False, is_process_still_running, process
-        )
-    except AssertionError as e:
-        raise AssertionError(
-            f"Was not able to stop process with PID {process.pid}, it is still running."
-        ) from e
+
+    if timeout is not None:
+        # check if it is still running
+        try:
+            utils.wait_until_function_returns_value(
+                5, 1, False, is_process_still_running, process.pid
+            )
+        except AssertionError as e:
+            raise AssertionError(
+                f"Was not able to stop process with PID {process.pid}, it is still running."
+            ) from e
+
+
+def download_file(url: str):
+    """Download file from specified url.
+
+    Stores downloaded file under tmp folder.
+
+    Args:
+        url (str): File URL location.
+
+    Returns:
+        None.
+    """
+    file_name = url.split("/")[-1]
+    urllib.request.urlretrieve(url, f"tmp/{file_name}")
+
+
+def get_file_content(path: str):
+    """Returns text file content.
+
+    Args:
+        path (str): Text file path.
+
+    Returns:
+        str: Text file content.
+    """
+    with open(path, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    return content
 
 
 def backup_file(
@@ -410,3 +595,14 @@ def backup_file(
     if target_file_name is None:
         target_file_name = src_file_name
     shell(f"cp {src_dir}/{src_file_name} {dst_dir}/{target_file_name}")
+
+
+def search_and_kill_process(filter):
+    """Search for processes, Log the list of them, kill them."""
+    rc, processes = shell(f"ps -elf | egrep python | egrep {filter} | egrep -v grep")
+    log.info(f"{processes=}")
+    if not processes:
+        return
+    rc, commands = shell(f"echo '{processes}' | awk '{{print \"kill -{signal}\",$4}}'")
+    rc, stdout = shell(f" echo 'set -exu; {commands}' | sudo sh")
+    log.info(stdout)

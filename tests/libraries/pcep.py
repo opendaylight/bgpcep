@@ -8,20 +8,23 @@
 
 
 import gc
-import json
 import logging
-import os
 import re
 import subprocess
+
+import requests
 
 from libraries import AuthStandalone
 from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from variables.pcepuser.titanium import variables as pcep_variables
 
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
+TOOLS_IP = variables.TOOLS_IP
+VARIABLES = pcep_variables.get_variables(TOOLS_IP)
 
 log = logging.getLogger(__name__)
 
@@ -40,14 +43,14 @@ def check_empty_pcep_topology():
     )
 
 
-def get_pcep_topology() -> json:
+def get_pcep_topology() -> requests.Response:
     """Returns pcep topology from ODL using RESTCONF.
 
     Args:
         None
 
     Returns:
-        json: Pcep topology
+        requests.Response:: Pcep topology
     """
     rest_session = AuthStandalone.Init_Session(ODL_IP, "admin", "admin")
     # Not Logging content, as it may be huge.
@@ -62,7 +65,22 @@ def get_pcep_topology() -> json:
     return resp
 
 
-def get_pcep_topology_hop_count(hop):
+def get_path_computation_client() -> requests.Response:
+    """Returns PCCs path computation client.
+
+    Args:
+        None
+
+    Returns:
+        requests.Response:: Path computation client.
+    """
+    uri = f"rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc:%2F%2F{TOOLS_IP}/network-topology-pcep:path-computation-client?content=nonconfig"
+    response = templated_requests.get_from_uri(uri)
+
+    return response
+
+
+def get_pcep_topology_hop_count(hop) -> int:
     """Returns number of hop value occurences in pcep topology.
 
     Args:
@@ -77,6 +95,82 @@ def get_pcep_topology_hop_count(hop):
     gc.collect()
 
     return topology_count
+
+
+def configure_speaker_entitiy_identifier() -> requests.Response:
+    """Setup spekare entity identifier.
+
+    Args:
+        None
+
+    Returns:
+        requests.Response: PUT request response.
+    """
+    mapping = {"IP": ODL_IP}
+    resposne = templated_requests.put_templated_request(
+        "variables/pcepuser/titanium/node_speaker_entity_identifier",
+        mapping,
+        json=False,
+    )
+
+    return resposne
+
+
+def add_lsp(xml_data: str) -> requests.Response:
+    """Invoke add-lsp operation on ODL.
+
+    Args:
+        xml_data (str): Lsp data payload.
+
+    Returns:
+        requests.Response: POST request response.
+    """
+    response = operate_xml_lsp_return_json("network-topology-pcep:add-lsp", xml_data)
+    return response
+
+
+def update_lsp(xml_data: str) -> requests.Response:
+    """Invoke update-lsp operation on ODL.
+
+    Args:
+        xml_data (str): Lsp data payload.
+
+    Returns:
+        requests.Response: POST request response.
+    """
+    response = operate_xml_lsp_return_json("network-topology-pcep:update-lsp", xml_data)
+    return response
+
+
+def remove_lsp(xml_data: str) -> requests.Response:
+    """Invoke remove-lsp operation on ODL.
+
+    Args:
+        xml_data (str): Lsp data payload.
+
+    Returns:
+        requests.Response: POST request response.
+    """
+    response = operate_xml_lsp_return_json("network-topology-pcep:remove-lsp", xml_data)
+    return response
+
+
+def operate_xml_lsp_return_json(uri_part: str, xml_data: str) -> requests.Response:
+    """Invoke specific lsp operation on ODL.
+
+    Args:
+        uri_part (str): Full operation name.
+        xml_data (str): Lsp data payload.
+
+    Returns:
+        requests.Response: POST request response.
+    """
+    uri_path = f"/rests/operations/{uri_part}"
+    response = templated_requests.post_to_uri(
+        uri_path, None, xml_data, expected_code=templated_requests.ALLOWED_STATUS_CODES
+    )
+
+    return response
 
 
 def start_pcc_mock(
@@ -136,19 +230,20 @@ def start_pcc_mock(
     return process
 
 
-def stop_pcc_mock_process(process: subprocess.Popen):
+def stop_pcc_mock_process(process: subprocess.Popen, timeout: int = 5):
     """Stop pcep pcc mock process by sending SIGINT signal.
 
     Args:
-        process (subprocess.Popen): BGP speaker process handler.
+        process (subprocess.Popen): Pcc mock process handler.
+        timeout (int): Timeout in seconds.
 
     Returns:
         None
     """
-    log.info(f"Killing bgp speaker process with PID {process.pid}")
     output = process.stdout
     log.debug(f"Pcc mock process output: {output=}")
-    infra.stop_process(process, gracefully=True)
+    log.info(f"Killing pcc mock process with PID {process.pid}")
+    infra.stop_process_by_pid(process.pid, gracefully=True, timeout=timeout)
 
 
 def start_pcc_mock_with_flapping(
@@ -170,7 +265,7 @@ def start_pcc_mock_with_flapping(
         pcc (int): Number of simulated pcc devices
         lsp (int): Number of reported LSPs by each device
         log_file_name (str): Name of the file where to store tool output.
-        interval (bool): Time interval in seconds between starting and stopping
+        interval (int): Time interval in seconds between starting and stopping
             test tool
 
     Returns:
@@ -239,9 +334,7 @@ def run_updater(
         workers (int): Number of worker threads used for updating LSPs.
         refresh (float): Refresh value
         reuse (bool): Create only single session to send all update requests,
-            otherwise create seperate connections
-        listen (bool): If BGP peering should be initiated by ODL or not.
-            (Listen means bgp peer is in passive mode)
+            otherwise create seperate connections.
         delegate (bool): Updated delegate value.
         pccip (str): Ip address of pcep pcc mock simulator
         tunnel_no (int): Number of tunnel which should be updated
@@ -283,7 +376,8 @@ def run_updater(
 
 
 def check_updater_response(stdout: str, lsps: int, parallel: bool):
-    """Verifies if all updates were executed successfully by observig log output.
+    """Verifies if all updates were executed successfully by observig the log
+    output.
 
     Args:
         stdout (str): Updater log entries.
