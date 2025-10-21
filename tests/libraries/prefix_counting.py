@@ -14,6 +14,7 @@ import time
 import logging
 
 from libraries import templated_requests
+from libraries import utils
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -57,6 +58,22 @@ def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology"):
     return topology_count
 
 
+def check_example_ipv4_topology_contains(string_to_check: str):
+    """Check the example-ipv4-topology content for string."""
+    topology = get_ipv4_topology()
+    assert string_to_check in str(
+        topology
+    ), f"example-ipv4-topology does not contain expected '{string_to_check}' substring."
+
+
+def check_example_ipv4_topology_does_not_contain(string_to_check: str):
+    """Check the example-ipv4-topology does not contain the string."""
+    topology = get_ipv4_topology()
+    assert string_to_check not in str(
+        topology
+    ), f"example-ipv4-topology does contain not expected '{string_to_check}' substring."
+
+
 def check_ipv4_topology_prefixes_count(
     expected_count: int, topology: str = "example-ipv4-topology"
 ):
@@ -69,7 +86,9 @@ def check_ipv4_topology_prefixes_count(
         None
     """
     actual_count = get_ipv4_topology_prefixes_count(topology=topology)
-    assert actual_count == expected_count, f"Expected count of prefixes: {expected_count} does not match actuall count: {actual_count}"
+    assert (
+        actual_count == expected_count
+    ), f"Expected count of prefixes: {expected_count} does not match actuall count: {actual_count}"
 
 
 def check_ipv4_topology_is_empty(topology: str = "example-ipv4-topology"):
@@ -134,3 +153,13 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             raise AssertionError(
                 f"Expected Ipv4 topology to be stable after {timeout} seconds"
             )
+
+
+def verify_ip_topology_is_empty():
+    templated_requests.get_templated_request(
+        "variables/bgpuser/empty_topology", None, verify=True
+    )
+
+
+def wait_until_ip_topology_is_empty(retry_count=20, interval=1):
+    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)
