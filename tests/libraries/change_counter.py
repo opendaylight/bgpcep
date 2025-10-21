@@ -7,9 +7,10 @@
 #
 
 import datetime
-import requests
-import time
 import logging
+import time
+
+import requests
 
 from libraries import templated_requests
 from libraries.variables import variables
