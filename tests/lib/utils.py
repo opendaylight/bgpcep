@@ -7,12 +7,32 @@
 #
 
 from collections.abc import Callable
+import difflib
 import time
 from typing import Any
 import logging
 
+from lib import norm_json
+
 log = logging.getLogger(__name__)
 
+
+def verify_jsons_matach(json1: str, json2: str, json1_data_label: str = "json1",  json2_data_label: str = "json2", volatiles_list=()):
+    normalized_json1 = norm_json.normalize_json_text(json1, keys_with_volatiles=volatiles_list)
+    normalized_json2 = norm_json.normalize_json_text(json2, keys_with_volatiles=volatiles_list)
+
+    if normalized_json1 != normalized_json2:
+        visual_diff = "\n".join(
+            difflib.unified_diff(
+                normalized_json1.splitlines(),
+                normalized_json2.splitlines(),
+                fromfile=json1_data_label,
+                tofile=json2_data_label,
+                lineterm="",
+            )
+        )
+        raise AssertionError(f": \n{visual_diff}")
+    
 
 def wait_until_function_pass(
     retry_count: int, interval: int, function: Callable, *args, **kwargs
@@ -97,24 +117,157 @@ def wait_until_function_returns_value_with_custom_value_validator(
     for retry_num in range(retry_count):
         try:
             result = function(*args, **kwargs)
-            if not return_value_validator(result):
-                log.info(
+            if return_value_validator(result):
+                return result
+            else:
+                raise AssertionError(
                     f"{function.__name__}({args} {kwargs or ''}) did not return " \
                     f"expected value, but: {result}"
                 )
-            else:
-                return result
         except Exception as e:
+            last_exception = e
             log.info(
                 f"{function.__name__}({args} {kwargs or ''}) failed with: {e} " \
                 f"({retry_num}/{retry_count})"
             )
-            log.debug(
-                f"failed with: {e}"
-            )
         time.sleep(interval)
+
+    raise AssertionError(
+        f"Failed to execute {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) " \
+        f"after {retry_count} attempts."
+    ) from last_exception
+    
+def verify_function_never_passes_within_timeout(
+    retry_count: int, interval: int, function: Callable, *args, **kwargs
+) -> Any:
+    """????
+    """
+    try:
+        wait_until_function_pass(
+        retry_count, interval, function, *args, **kwargs
+    )
+    except AssertionError:
+        return
+    except Exception as e:
+        raise e
     else:
-        raise AssertionError(
-            f"Failed to execute {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) " \
-            f"after {retry_count} attempts."
+        raise AssertionError("Function did pass within timeout")
+
+def verify_function_never_returns_value(
+    retry_count: int,
+    interval: int,
+    expected_value: Any,
+    function: Callable,
+    *args,
+    **kwargs,
+) -> Any:
+    """???
+    """
+    validator = lambda value: value == expected_value
+    try:
+        wait_until_function_returns_value_with_custom_value_validator(
+            retry_count, interval, validator, function, *args, **kwargs
         )
+    except AssertionError:
+        return
+    except Exception as e:
+        raise e
+    else:
+        raise AssertionError("Function did return expected value within timeout")
+    
+def verify_function_passes_for_some_time(
+    retry_count: int, interval: int, function: Callable, *args, **kwargs
+) -> Any:
+    """Retry provided funtion repeatedly if it never raises exception
+
+    In order to pass provided function should not raise any exception.
+
+    Args:
+        retry_count (int): Maximum nuber of function calls retries.
+        interval (int): Number of seconds to wait until next try.
+        funtion (Callable): Function to be called, until it does not raise
+            exception.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        Any: Return value returend by last successful function call.
+    """
+    validator = lambda value: True
+    return verify_function_returns_value_which_passes_custom_value_validator_for_some_time(
+        retry_count, interval, validator, function, *args, **kwargs
+    )
+
+def verify_function_returns_concrete_value_for_some_time(
+    retry_count: int,
+    interval: int,
+    expected_value: Any,
+    function: Callable,
+    *args,
+    **kwargs,
+) -> Any:
+    """Retry provided funtion repeatedly if it always return concrete value
+
+    In order to pass provided function should not raise any exception.
+
+    Args:
+        retry_count (int): Total nuber of function calls retries.
+        interval (int): Number of seconds to wait until next try.
+        expected_value (Any): Value which is expected to be returned
+            by the function call.
+        funtion (Callable): Function to be called.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        Any: Return value returend by last successful function call.
+    """
+    validator = lambda value: value == expected_value
+    return verify_function_returns_value_which_passes_custom_value_validator_for_some_time(
+        retry_count, interval, validator, function, *args, **kwargs
+    )
+
+def verify_function_returns_value_which_passes_custom_value_validator_for_some_time(
+    retry_count: int, interval: int, return_value_validator: Callable, function: Callable, *args, **kwargs
+) -> Any:
+    """Retry provided function if it always passes value validator
+
+    In order to pass provided function should not raise any exception.
+
+    Args:
+        retry_count (int): Total nuber of function calls.
+        interval (int): Number of seconds to wait until next call.
+        return_value_validator (Callable): Validator for evaluating
+            returned value, if it is expected or not.
+        funtion (Callable): Function to be called.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        Any: Return value returend by last successful function call.
+    """
+    for retry_num in range(retry_count):
+        try:
+            result = function(*args, **kwargs)
+            passed_value_validator = return_value_validator(result)
+        except Exception as e:
+            raise AssertionError(
+                    f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) " \
+                    f"failed with the following error {e}"
+                )
+        if not passed_value_validator:
+            raise AssertionError(
+                f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) " \
+                f"did not return expected value."
+            )
+        log.info(f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) returned expected value ({retry_num}/{retry_count})")
+        time.sleep(interval)
+
+    return result
+        
+def run_function_ignore_errors(function: Callable, *args, **kwargs):
+    try:
+        function(*args, **kwargs)
+    except Exception as e:
+        log.warning(f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) " \
+                f"with ignore errors failed on: \n{e}", exc_info=True)
