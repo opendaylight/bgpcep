@@ -15,6 +15,7 @@ import time
 import logging
 
 from lib import templated_requests
+from lib import utils
 
 ODL_IP = os.environ["ODL_IP"]
 RESTCONF_PORT = os.environ["RESTCONF_PORT"]
@@ -104,3 +105,9 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             raise AssertionError(
                 f"Expected Ipv4 topology to be stable after {timeout} seconds"
             )
+        
+def verify_ip_topology_is_empty():
+    templated_requests.get_templated_request("data/bgpuser/empty_topology", None, verify=True)
+
+def wait_until_ip_topology_is_empty(retry_count=20, interval=1):
+    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)
