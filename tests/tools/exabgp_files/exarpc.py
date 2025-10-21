@@ -10,7 +10,7 @@ import select
 import sys
 import threading
 from exabgp.bgp.message import Message
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCServer
 
 
 class ExaStorage(dict):
