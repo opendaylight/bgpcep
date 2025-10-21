@@ -11,6 +11,7 @@ import requests
 import subprocess
 import logging
 
+from libraries.BgpRpcClient import BgpRpcClient
 from libraries import infra
 from libraries import templated_requests
 from libraries import utils
@@ -19,6 +20,7 @@ from libraries.variables import variables
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 TOOLS_IP = variables.TOOLS_IP
+BGP_RPC_CLIENT = BgpRpcClient(TOOLS_IP)
 
 log = logging.getLogger(__name__)
 
@@ -285,16 +287,31 @@ def start_bgp_speaker(
     withdraw: int | None = None,
     prefill: int | None = None,
     update: int | None = None,
+    updates: str | None = None,
+    firstprefix: str | None = None,
+    prefixlen: int | None = None,
     multiplicity: int | None = None,
     my_ip: str = "127.0.0.1",
     my_port: int = 17900,
     peer_ip: str = "127.0.0.1",
     peer_port: int = 1790,
+    port: int | None = None,
+    as_number: int | None = None,
     listen: bool | None = None,
+    bgpls: bool | None = None,
+    skipAttr: bool | None = None,
+    usepeerip: bool | None = None,
+    allf: bool | None = None,
+    evpn: bool | None = None,
+    mvpn: bool | None = None,
+    l3vpn_mcast: bool | None = None, 
+    rt_constrain: bool | None = None,
+    wfr: int | None = None,
+    cluster: str | None = None,
     log_level: str | None = None,
-    log_file: str = "play.py.out",
+    log_file: str = "play.py.out"
 ) -> subprocess.Popen:
-    """Starts play.py script as BGP speaker.
+    """???Starts play.py script as BGP speaker.
 
     This script is used for simulating BGP neighbour. It allows to send
     and receive ipv4 prefixes to/from ODL.
@@ -318,6 +335,8 @@ def start_bgp_speaker(
         peer_port (int): Port number of BGP peer.
         listen (bool): If BGP peering should be initiated by ODL or not.
             (Listen means bgp peer is in passive mode)
+        bgpls (bool): If set use LS-NLRI.
+        skipAttr (bool): Skip well known attributes for update message
         log_level (str): Level of logs used by bgp app peer tool.
         log_file (str): Log file name.
 
@@ -340,10 +359,40 @@ def start_bgp_speaker(
         command_parts.append(f"--prefill={prefill}")
     if update is not None:
         command_parts.append(f"--update={update}")
+    if updates is not None:
+        command_parts.append(f"--updates={updates}")
+    if firstprefix is not None:
+        command_parts.append(f"--firstprefix={firstprefix}")
+    if prefixlen is not None:
+        command_parts.append(f"--prefixlen={prefixlen}")
     if multiplicity is not None:
         command_parts.append(f"--multiplicity={multiplicity}")
     if listen:
         command_parts.append("--listen")
+    if port:
+        command_parts.append(f"--port={port}")
+    if as_number:
+        command_parts.append(f"--asnumber={as_number}")
+    if bgpls is not None:
+        command_parts.append(f"--bgpls {bgpls}")
+    if skipAttr:
+        command_parts.append("--skipattr")
+    if usepeerip:
+        command_parts.append("--usepeerip")
+    if allf:
+        command_parts.append("--allf")
+    if evpn:
+        command_parts.append("--evpn")
+    if mvpn:
+        command_parts.append("--mvpn")
+    if l3vpn_mcast:
+        command_parts.append("--l3vpn_mcast")
+    if rt_constrain:
+        command_parts.append("--rt_constrain")
+    if cluster is not None:
+        command_parts.append(f"--cluster {cluster}")
+    if wfr is not None:
+        command_parts.append(f"--wfr {wfr}")
     if log_level:
         command_parts.append(f"--{log_level}")
 
@@ -367,9 +416,11 @@ def start_bgp_speaker_and_verify_connected(
         subprocess.Popen: BGP speaker process handler.
     """
     bgp_speaker_process = start_bgp_speaker(*args, **kwargs)
-    utils.wait_until_function_pass(
-        3, 3, verify_bgp_speaker_connected, speaker_ip=speaker_ip, connected=True
-    )
+    try:
+        utils.wait_until_function_pass(7, 2, verify_bgp_speaker_connected, speaker_ip=speaker_ip, connected=True)
+    except Exception as e:
+        stop_bgp_speaker(bgp_speaker_process, gracefully=False)
+        raise e
     return bgp_speaker_process
 
 
@@ -397,8 +448,8 @@ def start_bgp_speaker_with_verify_and_retry(
     return bgp_speaker_process
 
 
-def stop_bgp_speaker(process: subprocess.Popen):
-    """Stop BGP speaker process by sending SIGINT signal.
+def stop_bgp_speaker(process: subprocess.Popen, gracefully=True):
+    """??? New param gracefully Stop BGP speaker process by sending SIGINT signal.
 
     Args:
         process (subprocess.Popen): BGP speaker process handler.
@@ -407,10 +458,21 @@ def stop_bgp_speaker(process: subprocess.Popen):
         None
     """
     log.info(f"Killing bgp speaker process with PID {process.pid}")
-    infra.stop_process(process, gracefully=True)
+    infra.stop_process_by_pid(process.pid, gracefully=gracefully)
     # dump BGP speaker logs
     rc, stdout = infra.shell("cat tmp/play.py.out")
     log.debug(f"Bgp speaker output: {stdout=}")
+
+def kill_all_bgp_speakers():
+    """??? New param gracefully Stop BGP speaker process by sending SIGINT signal.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    infra.shell("ps axf | grep exabgp | grep -v grep | awk '{print \"kill -9 \" $1}' | sh")
 
 
 def verify_bgp_speaker_connected(
@@ -441,10 +503,14 @@ def start_bgp_app_peer(
     prefix: str = "8.0.0.0",
     prefix_len: int = 28,
     uri: str = "data/bgp-rib:application-rib=10.0.0.10/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family",
+    rib_ip: str = "10.0.0.10",
     log_level: str = "info",
     log_file: str = "bgp_app_peer.log",
     timeout: int = 1200,
 ) -> tuple[int, str]:
+    """??? NOt necessary always to have these parames and if not provided skip them 
+    and not provide to the scrpt count, prefix: str = "8.0.0.0",
+    prefix_len: int = 28,"""
     """Starts bgp_app_peer.py for manipulating BGP neighbour rib table.
 
     This script is used for injecting and removing ipv4 prefixes
@@ -484,3 +550,199 @@ def start_bgp_app_peer(
     )
 
     return rc, output
+
+
+def start_exabgp(
+    cfg_file: str,
+    log_file: str | None = None
+) -> subprocess.Popen:
+    """Starts exabgp peer simulator.
+
+    This python package is used for simulating BGP neighbour.
+
+    Args:
+        cfg_file (str): Exabgp configuration file path.
+
+    Returns:
+        subprocess.Popen: Exabgp process handler.
+    """
+    command = f"env exabgp.tcp.port=1790 exabgp --debug {cfg_file}"
+
+    if log_file:
+        command += f" > tmp/{log_file}"
+    
+    process = infra.shell(command, run_in_background=True)
+
+    return process
+
+def verify_exabgp_connection(exabgp_ip: str, expect_connected: bool = True):
+    """Checks peer presence in operational datastore.
+    Args:
+        exabgp_ip (str): Exabgp ip address.
+        expect_connected(bool): Flag indicating of it is expected that the BGP
+            session between exbgp and ODL was successfully created.
+
+    Returns:
+        bool: Flag indicating if exabgp was successfully connected to ODL.
+    """
+    expected_code = 200 if expect_connected else 404
+    uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp%3A%2F%2F{exabgp_ip}?content=nonconfig"
+    url = f"http://{ODL_IP}:{RESTCONF_PORT}/{uri}"
+    templated_requests.get_request(url, expected_code=expected_code)
+
+
+def start_exabgp_and_verify_connected(cfg_file: str, exabgp_ip: str, log_file=None, expect_connected=True) -> subprocess.Popen:
+    """Starts exabgp and verifies if was successfully conncted.
+
+    Args:
+        cfg_file (str): Exabgp configuration file path.
+        exabgp_ip (str): Exabgp ip address.
+        expect_connected(bool): Flag indicating of it is expected that the BGP
+            session between exbgp and ODL was successfully created.
+
+    Returns:
+        subprocess.Popen: Exabgp process handler.
+    """
+    exabgp_process = start_exabgp(cfg_file, log_file=log_file)
+    if expect_connected:
+        utils.wait_until_function_pass(3, 3, verify_exabgp_connection, exabgp_ip=exabgp_ip, expect_connected=True)
+    else:
+        utils.verify_function_never_passes_within_timeout(7,2 , verify_exabgp_connection, exabgp_ip=exabgp_ip, expect_connected=True)
+    return exabgp_process
+
+def stop_exabgp(process: subprocess.Popen):
+    """Stop exabgp process by sending SIGINT signal.
+
+    Args:
+        process (subprocess.Popen): Exabgp process handler.
+
+    Returns:
+        None
+    """
+    stdout = process.stdout
+    log.debug(f"Exabgp stdout:\n{stdout}")
+    log.info(f"Killing exabgp process with PID {process.pid}")
+    infra.stop_process_by_pid(process.pid, gracefully=True)
+
+def start_gobgp(
+    gobgp_path: str,
+    cfg_file: str
+) -> subprocess.Popen:
+    """???
+    """
+    command = f"{gobgp_path} -l debug -f {cfg_file} > tmp/gobgp.log"
+    
+    process = infra.shell(command, run_in_background=True)
+
+    return process
+
+def verify_gobgp_connection(gobgp_ip: str, expect_connected: bool = True):
+    """???Checks peer presence in operational datastore.
+    Args:
+        exabgp_ip (str): Exabgp ip address.
+        expect_connected(bool): Flag indicating of it is expected that the BGP
+            session between exbgp and ODL was successfully created.
+
+    Returns:
+        bool: Flag indicating if exabgp was successfully connected to ODL.
+    """
+    expected_code = ALLOWED_STATUS_CODE if expect_connected else DENIED_STATUS_CODE
+    uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp%3A%2F%2F{gobgp_ip}?content=nonconfig"
+    url = f"http://{ODL_IP}:{RESTCONF_PORT}/{uri}"
+    templated_requests.get_request(url, expected_code=expected_code)
+
+def start_gobgp_and_verify_connected(gobgp_path: str, cfg_file: str, gobgp_ip: str, retries_count: int = 3) -> subprocess.Popen:
+    """???Starts exabgp and verifies if was successfully conncted.
+
+    Args:
+        cfg_file (str): Exabgp configuration file path.
+        exabgp_ip (str): Exabgp ip address.
+        expect_connected(bool): Flag indicating of it is expected that the BGP
+            session between exbgp and ODL was successfully created.
+
+    Returns:
+        subprocess.Popen: Exabgp process handler.
+    """
+    gobgp_process = start_gobgp(gobgp_path, cfg_file)
+    utils.wait_until_function_pass(5, 5, verify_exabgp_connection, exabgp_ip=gobgp_ip, expect_connected=True)
+
+    return gobgp_process
+
+def stop_gobgp(process: subprocess.Popen):
+    """???Stop exabgp process by sending SIGINT signal.
+
+    Args:
+        process (subprocess.Popen): Exabgp process handler.
+
+    Returns:
+        None
+    """
+    stdout = process.stdout
+    log.debug(f"Gobgp stdout:\n{stdout}")
+    log.info(f"Killing gobgp process with PID {process.pid}")
+    infra.stop_process_by_pid(process.pid, gracefully=True)
+
+def play_to_odl_non_removal_template(to_test, dir):
+    announce_hex = infra.get_file_content(f"{dir}/{to_test}/announce_{to_test}.hex")
+    bgp_rpc_client = BgpRpcClient(TOOLS_IP)
+    bgp_rpc_client.play_clean()
+    bgp_rpc_client.play_send(announce_hex)
+    mapping = {"PATH": "loc-rib", "BGP_RIB": "example-bgp-rib"}
+    utils.wait_until_function_pass(3, 2, templated_requests.get_templated_request, f"{dir}/{to_test}/rib", mapping, verify=True)
+
+def odl_to_play_template(to_test, dir, remove=True):
+    announce_hex = infra.get_file_content(f"{dir}/{to_test}/announce_{to_test}.hex")
+    announce_hex = announce_hex.strip()
+    withdraw_hex = infra.get_file_content(f"{dir}/{to_test}/withdraw_{to_test}.hex")
+    withdraw_hex = withdraw_hex.strip()
+    try:
+        if remove:
+            BGP_RPC_CLIENT.play_clean()
+        mapping = {"IP": ODL_IP, "BGP_RIB": "example-bgp-rib"}
+        templated_requests.post_templated_request(f"{dir}/{to_test}/app", mapping, json=False)
+        update_messag = utils.wait_until_function_pass(3, 2, get_update_message)
+        verify_two_hex_messages_are_equal(update_messag, announce_hex)
+        BGP_RPC_CLIENT.play_clean()
+        remove_configured_routes(to_test, dir)
+        update_messag = utils.wait_until_function_pass(3, 2, get_update_message)
+        verify_two_hex_messages_are_equal(update_messag, withdraw_hex)
+    finally:
+        utils.run_function_ignore_errors(remove_configured_routes, to_test, dir)
+
+def play_to_odl_template(to_test, dir, ipv="ipv4"):
+    adj_rib_in = {"PATH": f"peer=bgp:%2F%2F{TOOLS_IP}/adj-rib-in", "BGP_RIB": "example-bgp-rib"}
+    effective_rib_in = {"PATH": f"peer=bgp:%2F%2F{TOOLS_IP}/effective-rib-in", "BGP_RIB": "example-bgp-rib"}
+    loc_rib = {"PATH": f"loc-rib", "BGP_RIB": "example-bgp-rib"}
+    announce_hex = infra.get_file_content(f"{dir}/{to_test}/announce_{to_test}.hex")
+    withdraw_hex = infra.get_file_content(f"{dir}/{to_test}/withdraw_{to_test}.hex")
+    try:
+        BGP_RPC_CLIENT.play_clean()
+        BGP_RPC_CLIENT.play_send(announce_hex)
+        utils.wait_until_function_pass(3, 2, templated_requests.get_templated_request, f"{dir}/{to_test}/rib", mapping=adj_rib_in, verify=True)
+        utils.wait_until_function_pass(3, 2, templated_requests.get_templated_request, f"{dir}/{to_test}/rib", mapping=effective_rib_in, verify=True)
+        utils.wait_until_function_pass(3, 2, templated_requests.get_templated_request, f"{dir}/{to_test}/rib", mapping=loc_rib, verify=True)
+        BGP_RPC_CLIENT.play_send(withdraw_hex)
+        utils.wait_until_function_pass(3, 2, templated_requests.get_templated_request, f"{dir}/empty_routes/{ipv}", mapping=loc_rib, verify=True)
+    finally:
+        BGP_RPC_CLIENT.play_send(withdraw_hex)
+
+def get_update_message():
+    """Returns hex update message."""
+    update_message = BGP_RPC_CLIENT.play_get()
+    assert update_message, "Expected update message to be returned"
+    return update_message
+
+def remove_configured_routes(to_test: str, dir: str):
+    """Removes the route if present."""
+    mapping = {"IP": ODL_IP, "BGP_RIB": "example-bgp-rib"}
+    templated_requests.delete_templated_request(f"{dir}/{to_test}/app", mapping)
+
+def verify_two_hex_messages_are_equal(hex1: str, hex2: str):
+    """Verifies two hex messages are equal even in case, their arguments are misplaced.
+    Compares length of the hex messages and sums hex messages arguments as integers and compares results."""
+    assert len(hex1) == len(hex2), f"Hex values are different, they do not have the same lenght: {hex1=} {hex2=} {len(hex1)} != {len(hex2)}"
+    bgp_rpc_client = BgpRpcClient(TOOLS_IP)
+    hex1_sum = bgp_rpc_client.sum_hex_message(hex1)
+    hex2_sum = bgp_rpc_client.sum_hex_message(hex2)
+    assert hex1_sum == hex2_sum, f"Hex values are different, their sum values are different: {hex1=} {hex2=} {hex1_sum} != {hex2_sum}"
+
