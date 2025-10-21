@@ -101,7 +101,7 @@ class BaseTestSinglePeerChangeCount:
                 log_level="info",
             )
             assert infra.is_process_still_running(
-                self.bgp_speaker_process
+                self.bgp_speaker_process.pid
             ), "Bgp speaker process is not running"
 
         with allure_step_with_separate_logging(
@@ -173,7 +173,7 @@ class BaseTestSinglePeerChangeCount:
                 log_level="info",
             )
             assert infra.is_process_still_running(
-                self.bgp_speaker_process
+                self.bgp_speaker_process.pid
             ), "Bgp speaker process is not running"
 
         with allure_step_with_separate_logging(

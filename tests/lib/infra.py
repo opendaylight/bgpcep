@@ -8,8 +8,13 @@
 
 from contextlib import contextmanager
 import paramiko
+import psutil
+from queue import Queue
+import select
 import signal
 import subprocess
+import threading
+import urllib
 import logging
 
 from lib.RemoteSSHSessionHandler import RemoteSSHSessionHandler
@@ -58,6 +63,10 @@ def shell(
                     f"exec {exec_command}",
                     shell=True,
                     text=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    stdin=subprocess.DEVNULL,
+                    bufsize=1,
                     cwd=cwd,
                 )
             else:
@@ -89,6 +98,35 @@ def shell(
     except FileNotFoundError:
         log.error(f"ERROR command not found: {exec_command}")
         return None, None
+    
+def read_until(process: subprocess.Popen, expected_text: str, timeout: int = 10):
+    "This exepcted text must be within one line, it can not spread across mutliple lines"
+    found_event = threading.Event()
+    output_lines = []
+
+    def threaded_read(stream, expected_text, queue):
+        while True:
+            line = stream.readline()
+            output_lines.append(line)
+            #whole_text += line
+            if line and expected_text in line:
+                found_event.set()
+                return
+            
+    queue = Queue()
+    thread = threading.Thread(target=threaded_read, args=(process.stdout, expected_text, queue), daemon=True)
+    thread.start()
+    text_wasfound = found_event.wait(timeout=timeout)
+
+    whole_text = "\n".join(output_lines)
+
+    if not text_wasfound:
+        raise AssertionError(f"Unable to find expected text:' {expected_text}' withing {timeout} seconds. Captured output: '{whole_text}'")
+
+    log.warn(whole_text)
+
+    return whole_text
+
 
 
 def ssh_run_command(command, host, username, password, port=22, timeout=900):
@@ -105,6 +143,15 @@ def ssh_run_command(command, host, username, password, port=22, timeout=900):
         log.warn(f"{stderr=}")
 
     return stdout, stderr
+
+def get_children_processes_pids(process: subprocess.Popen, command: str = ""):
+    process = psutil.Process(process.pid)
+    children = process.children(recursive=True)
+    log.warn(process)
+    log.warn([child.name() for child in children])
+    matching_pids = [child.pid for child in children if child.name().startswith(command)]
+
+    return matching_pids
 
 
 def ssh_start_command(command, host, username, password, port=22):
@@ -167,6 +214,16 @@ def wait_for_string_in_file(
         retry_count, interval, validator, shell, f"grep -c '{string}' '{file_name}'"
     )
     return int(output.strip())
+
+def get_string_occurence_count_in_file(string: str, file_name: str):
+    rc, output = shell( f"grep -c '{string}' '{file_name}'")
+
+    return int(output)
+
+def verify_string_occurence_count_in_file(string: str, file_name: str, count: int):
+   found_occurences = get_string_occurence_count_in_file(string, file_name)
+   assert found_occurences == count, f"Did not find {count} times str: {string} in {file_name}"
+
 
 
 def start_odl_with_features(features: tuple[str], timeout: int = 60):
@@ -274,7 +331,7 @@ def log_message_to_karaf(message: str):
     execute_karaf_command(f"log:log 'ROBOT MESSAGE: {message}'")
 
 
-def is_process_still_running(process: subprocess.Popen):
+def is_process_still_running(pid: int):
     """Check if provided process did not finish yet.
 
     Args:
@@ -283,10 +340,26 @@ def is_process_still_running(process: subprocess.Popen):
     Returns:
         None
     """
-    return process.poll() is None
+    process = psutil.Process(pid)
+    return process.is_running() and process.status() != psutil.STATUS_ZOMBIE
+
+def stop_process(process: subprocess.Popen, gracefully=True):
+    """Stop process by sending proper signal, but print stdout first.
+
+    Args:
+        process (subprocess.Popen): Process handler.
+        gracefully (bool): Determines which signal should be sent for
+            stopping process.
+
+    Returns:
+        None
+    """
+    output = process.stdout
+    log.debug(f"Process output: {output=}")
+    stop_process_by_pid(process.pid, gracefully=gracefully)
 
 
-def stop_process(process: subprocess.Popen, gracefully: bool = True):
+def stop_process_by_pid(pid: int, gracefully: bool = True, timeout: int | None = 5):
     """Stops process by sending signal a veirfies it is not running.
 
     Args:
@@ -297,16 +370,29 @@ def stop_process(process: subprocess.Popen, gracefully: bool = True):
     Returns:
         None
     """
-    log.info(f"Stopping process with PID {process.pid}")
+    log.info(f"Stopping process with PID {pid}")
     signal_to_be_sent = signal.SIGTERM if gracefully else signal.SIGKILL
-    log.info(f"Sending signal {signal_to_be_sent} to process with PID {process.pid}")
+    log.info(f"Sending signal {signal_to_be_sent} to process with PID {pid}")
+    process = psutil.Process(pid)
     process.send_signal(signal_to_be_sent)
-    # check if it is still running
-    try:
-        utils.wait_until_function_returns_value(
-            5, 1, False, is_process_still_running, process
-        )
-    except AssertionError as e:
-        raise AssertionError(
-            f"Was not able to stop process with PID {process.pid}, it is still running."
-        ) from e
+
+    if timeout is not None:
+        # check if it is still running
+        try:
+            utils.wait_until_function_returns_value(
+                5, 1, False, is_process_still_running, process.pid
+            )
+        except AssertionError as e:
+            raise AssertionError(
+                f"Was not able to stop process with PID {process.pid}, it is still running."
+            ) from e
+        
+def download_file(url: str):
+    file_name = url.split("/")[-1]
+    urllib.request.urlretrieve(url, f"tmp/{file_name}")
+
+def get_file_content(path: str):
+    with open(path, "r", encoding="utf-8") as file:
+        content = file.read()
+    
+    return content

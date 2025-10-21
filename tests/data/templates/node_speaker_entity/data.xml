@@ -1,0 +1,8 @@
+<node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+    <node-id>$IP</node-id>
+    <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+        <speaker-entity-id-value xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep:sync:optimizations:config">
+            AQIDBA==
+        </speaker-entity-id-value>
+    </session-config>
+</node>
