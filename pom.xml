@@ -209,6 +209,19 @@
                                     </target>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>copy-bgp-bmp-mock-test-tool</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <copy file="${project.basedir}/bmp/bmp-mock/target/bgp-bmp-mock-${project.version}-executable.jar"
+                                        tofile="${project.basedir}/tests/build_tools/bgp-bmp-mock.jar" />
+                                    </target>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
