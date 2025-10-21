@@ -16,24 +16,24 @@
                                 "received-error-msg-count": 0,
                                 "sent-error-msg-count": 0
                             },
+                            "last-received-rpt-msg-timestamp": "*",
                             "last-sent-msg-timestamp": 0,
-                            "odl-pcep-stateful-stats:last-received-rpt-msg-timestamp": "*",
-                            "odl-pcep-stateful-stats:received-rpt-msg-count": 2,
-                            "odl-pcep-stateful-stats:sent-init-msg-count": 0,
-                            "odl-pcep-stateful-stats:sent-upd-msg-count": 0,
                             "received-msg-count": 2,
+                            "received-rpt-msg-count": 2,
                             "reply-time": {
                                 "average-time": 0,
                                 "max-time": 0,
                                 "min-time": 0
                             },
+                            "sent-init-msg-count": 0,
                             "sent-msg-count": 0,
+                            "sent-upd-msg-count": 0,
                             "unknown-msg-received": 0
                         },
                         "peer-capabilities": {
-                            "odl-pcep-stateful-stats:active": true,
-                            "odl-pcep-stateful-stats:instantiation": true,
-                            "odl-pcep-stateful-stats:stateful": true
+                            "active": true,
+                            "instantiation": true,
+                            "stateful": true
                         },
                         "peer-pref": {
                             "deadtimer": 120,
@@ -63,18 +63,19 @@
                                                 }
                                             ]
                                         },
-                                        "lsp-id": 1,
-                                        "odl-pcep-ietf-stateful:lsp": {
-                                            "administrative": true,
-                                            "delegate": true,
+                                        "lsp": {
                                             "ignore": false,
-                                            "odl-pcep-ietf-initiated:create": false,
-                                            "operational": "up",
-                                            "pce-allocation": false,
+                                            "lsp-flags": {
+                                                "administrative": true,
+                                                "create": false,
+                                                "delegate": true,
+                                                "operational": "up",
+                                                "pce-allocation": false,
+                                                "remove": false,
+                                                "sync": true
+                                               },
                                             "plsp-id": 1,
                                             "processing-rule": false,
-                                            "remove": false,
-                                            "sync": true,
                                             "tlvs": {
                                                 "lsp-identifiers": {
                                                     "ipv4": {
@@ -89,18 +90,21 @@
                                                     "path-name": "$CODE"
                                                 }
                                             }
-                                        }
+                                        },
+                                        "lsp-id": 1
                                     }
                                 ]
                             }
                         ],
                         "state-sync": "synchronized",
-                        "stateful-tlv": {
-                            "odl-pcep-ietf-stateful:stateful": {
-                                "lsp-update-capability": true,
-                                "odl-pcep-ietf-initiated:initiation": true
-                            }
-                        }
+                        "stateful-capability": {
+                            "delta-lsp-sync-capability": false,
+                            "include-db-version": false,
+                            "initiation": true,
+                            "lsp-update-capability": true,
+                            "triggered-initial-sync": false,
+                            "triggered-resync": false
+                           }
                     },
                     "node-id": "pcc://$IP"
                 }
