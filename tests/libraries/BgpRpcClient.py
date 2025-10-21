@@ -2,8 +2,8 @@
 The purpose of this library is communicate with tools which run xmlrpc server.
 At the moment it is going to be the with the exarpc.py (used with exabgp) and
 with play.py for bgp functional testing.
-exa_ methods apply to tests/tools/exabgp_files/exarpc.py
-play_ methods apply to tests/tool/fastbgp/play.py  (only with --evpn used)
+exa_ methods apply to test/tools/exabgp_files/exarpc.py
+play_ methods apply to test/tool/fastbgp/play.py  (only with --evpn used)
 """
 
 import re
@@ -15,7 +15,9 @@ class BgpRpcClient(object):
 
     def __init__(self, peer_addr, port=8000):
         """Setup destination point of the rpc server"""
-        self.proxy = xmlrpc.client.ServerProxy("http://{}:{}".format(peer_addr, port))
+        self.proxy = xmlrpc.client.ServerProxy(
+            "http://{}:{}".format(peer_addr, port), allow_none=True
+        )
 
     def exa_announce(self, full_exabgp_cmd):
         """The full command to be passed to exabgp."""
@@ -85,15 +87,15 @@ class BgpRpcClient(object):
             return msg
         return msg if "neighbor" not in msg else msg["neighbor"]["message"]
 
-    def play_send(self, hexstring):
+    def play_send(self, hexstring, peer_id=0):
         """Sends given hex data, already encoded bgp update message is expected."""
         return self.proxy.send(hexstring.rstrip())
 
-    def play_get(self, what="update"):
+    def play_get(self, what="update", peer_id=0):
         """Gets the last received (update) mesage as hex string."""
         return self.proxy.get(what)
 
-    def play_clean(self, what="update"):
+    def play_clean(self, what="update", peer_id=None):
         """Cleans the message (update) on the server."""
         return self.proxy.clean(what)
 
