@@ -29,6 +29,8 @@ ODL_FEATRUES = [
     "odl-bgpcep-bgp",
     "odl-bgpcep-bgp-config-example",
     "odl-bgpcep-pcep",
+    "odl-bgpcep-bmp",
+    "odl-bgpcep-bmp-config-example"
 ]
 
 log = logging.getLogger(__name__)
@@ -102,7 +104,7 @@ def preconditions():
     infra.start_odl_with_features(ODL_FEATRUES, timeout=180)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
     yield
-    infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
+    #infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
 
 
 @pytest.fixture(scope="class")
