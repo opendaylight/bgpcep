@@ -15,6 +15,7 @@ import time
 import logging
 
 from lib import templated_requests
+from lib import utils
 
 ODL_IP = os.environ["ODL_IP"]
 RESTCONF_PORT = os.environ["RESTCONF_PORT"]
@@ -55,6 +56,15 @@ def get_ipv4_topology_prefixes_count():
 
     return topology_count
 
+def check_example_ipv4_topology_contains(string_to_check: str):
+    """Check the example-ipv4-topology content for string."""
+    topology = get_ipv4_topology()
+    assert string_to_check in str(topology), f"example-ipv4-topology does not contain expected '{string_to_check}' substring."
+
+def check_example_ipv4_topology_does_not_contain(string_to_check: str):
+    """Check the example-ipv4-topology does not contain the string."""
+    topology = get_ipv4_topology()
+    assert string_to_check not in str(topology), f"example-ipv4-topology does contain not expected '{string_to_check}' substring."
 
 def wait_for_ipv4_topology_prefixes_to_become_stable(
     excluded_value: int,
@@ -104,3 +114,9 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             raise AssertionError(
                 f"Expected Ipv4 topology to be stable after {timeout} seconds"
             )
+        
+def verify_ip_topology_is_empty():
+    templated_requests.get_templated_request("data/bgpuser/empty_topology", None, verify=True)
+
+def wait_until_ip_topology_is_empty(retry_count=20, interval=1):
+    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)

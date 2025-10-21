@@ -92,7 +92,7 @@ class TestBgpAppPeerPrefixCount:
                 ammount=0, listen=False, log_level="info"
             )
             assert infra.is_process_still_running(
-                TestBgpAppPeerPrefixCount.bgp_speaker_process
+                TestBgpAppPeerPrefixCount.bgp_speaker_process.pid
             ), "Bgp speaker process is not running"
 
         with allure_step_with_separate_logging(
@@ -186,7 +186,7 @@ class TestBgpAppPeerPrefixCount:
                 ammount=0, listen=False, log_level="info"
             )
             assert infra.is_process_still_running(
-                TestBgpAppPeerPrefixCount.bgp_speaker_process
+                TestBgpAppPeerPrefixCount.bgp_speaker_process.pid
             ), "Bgp speaker process is not running"
 
         with allure_step_with_separate_logging(

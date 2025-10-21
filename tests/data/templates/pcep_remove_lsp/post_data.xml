@@ -1,0 +1,5 @@
+<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+    <node>pcc://$IP</node>
+    <name>$NAME</name>
+    <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+</input>
