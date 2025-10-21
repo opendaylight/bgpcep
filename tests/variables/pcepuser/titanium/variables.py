@@ -59,11 +59,13 @@ def get_variables(mininet_ip):
   "reported-lsp": [$LSPS
   ],
   "state-sync": "synchronized",
-  "stateful-tlv": {
-   "odl-pcep-ietf-stateful:stateful": {
-    "lsp-update-capability": true,
-    "odl-pcep-ietf-initiated:initiation": true
-   }
+  "stateful-capability": {
+   "delta-lsp-sync-capability": false,
+   "include-db-version": false,
+   "initiation": true,
+   "lsp-update-capability": true,
+   "triggered-initial-sync": false,
+   "triggered-resync": false
   }
  }
 }"""
@@ -89,18 +91,19 @@ def get_variables(mininet_ip):
        "subobject": [$HOPS
        ]
       },
-      "lsp-id": $ID,
-      "odl-pcep-ietf-stateful:lsp": {
-       "administrative": true,
-       "delegate": true,
+      "lsp": {
        "ignore": false,
-       "odl-pcep-ietf-initiated:create": $CREATED,
-       "operational": "up",
-       "pce-allocation": false,
+       "lsp-flags": {
+        "administrative": true,
+        "delegate": true,
+        "create": $CREATED,
+        "operational": "up",
+        "pce-allocation": false,
+        "remove": false,
+        "sync": true
+       },
        "plsp-id": $ID,
        "processing-rule": false,
-       "remove": false,
-       "sync": true,
        "tlvs": {
         "lsp-identifiers": {
          "ipv4": {
@@ -115,7 +118,8 @@ def get_variables(mininet_ip):
          "path-name": "$CODE"
         }
        }
-      }
+      },
+      "lsp-id": $ID
      }
     ]
    }"""
@@ -197,9 +201,11 @@ def get_variables(mininet_ip):
         '/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]'
         "</network-topology-ref>\n"
         " <arguments>\n"
-        '  <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">\n'
+        '  <lsp>\n'
+        '  <lsp-flags>\n'
         "   <delegate>true</delegate>\n"
         "   <administrative>true</administrative>\n"
+        '  </lsp-flags>\n'
         "  </lsp>\n"
         "  <endpoints-obj>\n"
         "   <ipv4>\n"
@@ -224,9 +230,11 @@ def get_variables(mininet_ip):
         '/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]'
         "</network-topology-ref>\n"
         " <arguments>\n"
-        '  <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">\n'
+        '  <lsp>\n'
+        '  <lsp-flags>\n'
         "   <delegate>true</delegate>\n"
         "   <administrative>true</administrative>\n"
+        '  </lsp-flags>\n'
         "  </lsp>\n"
         "  <ero>\n"
         "   <subobject>\n"
