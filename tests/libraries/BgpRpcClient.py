@@ -2,8 +2,8 @@
 The purpose of this library is communicate with tools which run xmlrpc server.
 At the moment it is going to be the with the exarpc.py (used with exabgp) and
 with play.py for bgp functional testing.
-exa_ methods apply to tests/tools/exabgp_files/exarpc.py
-play_ methods apply to tests/tool/fastbgp/play.py  (only with --evpn used)
+exa_ methods apply to test/tools/exabgp_files/exarpc.py
+play_ methods apply to test/tool/fastbgp/play.py  (only with --evpn used)
 """
 
 import re
@@ -99,8 +99,7 @@ class BgpRpcClient(object):
 
     def sum_hex_message(self, hex_string):
         """Verifies two hex messages are equal even in case, their arguments are misplaced.
-        Converts hex message arguments to integers and sums them up and returns the sum.
-        """
+        Converts hex message arguments to integers and sums them up and returns the sum."""
         return sum(
             [int(x, 16) for x in re.compile(r"[a-f\d]{2}").findall(hex_string[32:])]
         )
