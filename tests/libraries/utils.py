@@ -6,14 +6,86 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
 
-from collections.abc import Callable
-import time
-from typing import Any
+import difflib
 import logging
+import time
+from collections.abc import Callable
+from typing import Any, List, Tuple
 
 from libraries import infra
+from libraries import norm_json
 
 log = logging.getLogger(__name__)
+
+
+def verify_jsons_matach(
+    json1: str,
+    json2: str,
+    json1_data_label: str = "json1",
+    json2_data_label: str = "json2",
+    volatiles_list: List[str] | Tuple[str] = (),
+):
+    """Verify if provided jsons are the same after normalization.
+
+    Args:
+        json1 (str): First json value.
+        json2 (str): Second json value.
+        json1_data_label (str): Descrption of the first json value used as
+            label.
+        json2_data_label (str): Descrption of the second json value used as
+            label.
+        volatiles_list (List[str] | Tuple[str]): List of volatiles values,
+            which should be ingored in comparison.
+
+    Returns:
+        None
+    """
+    normalized_json1 = norm_json.normalize_json_text(
+        json1, keys_with_volatiles=volatiles_list
+    )
+    normalized_json2 = norm_json.normalize_json_text(
+        json2, keys_with_volatiles=volatiles_list
+    )
+    log.debug(f"{normalized_json1=}")
+    log.debug(f"{normalized_json2=}")
+
+    if normalized_json1 != normalized_json2:
+        visual_diff = "\n".join(
+            difflib.unified_diff(
+                normalized_json1.splitlines(),
+                normalized_json2.splitlines(),
+                fromfile=json1_data_label,
+                tofile=json2_data_label,
+                lineterm="",
+                n=2000,
+            )
+        )
+        if len(visual_diff) > 2000:
+            visual_diff = visual_diff[:2000] + " ... (truncated long output)"
+        raise AssertionError(f": \n{visual_diff}")
+
+
+def verify_multiline_text_match(expected_text: str, real_text: str):
+    """Verify if multiline real text match expected text.
+
+    Args:
+        expected_text (str): Expected text.
+        real_text (str): Real text to be verified.
+
+    Returns:
+        None
+    """
+    if expected_text != real_text:
+        visual_diff = "\n".join(
+            difflib.unified_diff(
+                expected_text.splitlines(),
+                real_text.splitlines(),
+                fromfile="expected_text",
+                tofile="real_text",
+                lineterm="",
+            )
+        )
+        raise AssertionError(f"Expected and real text does not match:\n{visual_diff}")
 
 
 def wait_until_function_pass(
@@ -121,6 +193,32 @@ def wait_until_function_returns_value_with_custom_value_validator(
     ) from last_exception
 
 
+def verify_function_never_passes_within_timeout(
+    retry_count: int, interval: int, function: Callable, *args, **kwargs
+):
+    """Verify that function call always raises excpetion within specific time
+    interval.
+
+    Args:
+        retry_count (str): Total repetition count.
+        interval (str): Interval in seconds between each verification.
+        function (Callable): Function to be called.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        None
+    """
+    try:
+        wait_until_function_pass(retry_count, interval, function, *args, **kwargs)
+    except AssertionError:
+        return
+    except Exception as e:
+        raise e
+    else:
+        raise AssertionError("Function did pass within timeout")
+
+
 def verify_process_did_not_stop_immediately(
     pid: int, retry_count: int = 10, interval: int = 1
 ):
@@ -130,7 +228,7 @@ def verify_process_did_not_stop_immediately(
 
      Args:
         pid (int): Process id.
-        retry_count (int): Number of repeated verif
+        retry_count (int): Number of function call retries.
         interval (int): Interval in seconds between each verification.
 
     Returns:
@@ -138,6 +236,32 @@ def verify_process_did_not_stop_immediately(
     """
     verify_function_returns_concrete_value_for_some_time(
         retry_count, interval, True, infra.is_process_still_running, pid
+    )
+
+
+def verify_function_does_not_fail_within_timeout(
+    retry_count: int, interval: int, function: Callable, *args, **kwargs
+) -> Any:
+    """Retry provided funtion repeatedly if it never raises exception
+
+    In order to pass provided function should not raise any exception.
+
+    Args:
+        retry_count (int): Maximum nuber of function calls retries.
+        interval (int): Number of seconds to wait until next try.
+        funtion (Callable): Function to be called, until it does not raise
+            exception.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        Any: Return value returend by last successful function call.
+    """
+    validator = lambda value: True
+    return (
+        verify_function_returns_value_which_passes_custom_value_validator_for_some_time(
+            retry_count, interval, validator, function, *args, **kwargs
+        )
     )
 
 
@@ -190,7 +314,7 @@ def verify_function_returns_value_which_passes_custom_value_validator_for_some_t
         interval (int): Number of seconds to wait until next call.
         return_value_validator (Callable): Validator for evaluating
             returned value, if it is expected or not.
-        funtion (Callable): Function to be called.
+        function (Callable): Function to be called.
         *args: Function positional arguments.
         **kwargs: Function keyword arguments.
 
@@ -217,3 +341,26 @@ def verify_function_returns_value_which_passes_custom_value_validator_for_some_t
         time.sleep(interval)
 
     return result
+
+
+def run_function_ignore_errors(function: Callable, *args, **kwargs):
+    """Inovke function with provided arguments and ignore possible exceptions.
+
+    Args:
+        retry_count (str): Total repetition count.
+        interval (str): Interval in seconds between each verification.
+        function (Callable): Function to be called.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        None
+    """
+    try:
+        function(*args, **kwargs)
+    except Exception as e:
+        log.warning(
+            f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+            f"with ignore errors failed on: \n{e}",
+            exc_info=True,
+        )

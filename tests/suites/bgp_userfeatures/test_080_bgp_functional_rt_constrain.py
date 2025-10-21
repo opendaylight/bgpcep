@@ -1,0 +1,131 @@
+#
+# Copyright (c) 2025 PANTHEON.tech, s.r.o. and others.  All rights reserved.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License v1.0 which accompanies this distribution,
+# and is available at http://www.eclipse.org/legal/epl-v10.html
+#
+# Test suite performs basic BGP functional test cases for BGP application
+# peer operations and checks for IP4 topology updates and updates towards
+# BGP peer as follows:
+#
+# Functional test suite for bgp - route-target-constrain safi
+#
+# This suite tests advertising rt-constrain routes to odl. For advertising
+# from peer, play.py is used, sending hex messages to odl. For advertising
+# to app-peer, we are sending post requests with routes in xml.
+
+import logging
+import pytest
+
+from libraries import bgp
+from libraries import infra
+from libraries import templated_requests
+from libraries import utils
+from libraries.variables import variables
+
+
+ODL_IP = variables.ODL_IP
+RESTCONF_PORT = variables.RESTCONF_PORT
+TOOLS_IP = variables.TOOLS_IP
+BGP_TOOL_PORT = variables.BGP_TOOL_PORT
+BGP_RPC_CLIENT = bgp.BgpRpcClient(TOOLS_IP)
+HOLDTIME = 180
+RT_CONSTRAIN_DIR = "variables/bgpfunctional/rt_constrain"
+RIB_NAME = "example-bgp-rib"
+RT_CONSTRAIN_APP_PEER_MAPPING = {"IP": ODL_IP, "BGP_RIB": RIB_NAME}
+RT_CONSTRAIN_ODL_CONFIG_MAPPING = {
+    "IP": TOOLS_IP,
+    "HOLDTIME": HOLDTIME,
+    "PEER_PORT": BGP_TOOL_PORT,
+    "INITIATE": "false",
+    "BGP_RIB": RIB_NAME,
+    "PASSIVE_MODE": "true",
+}
+
+log = logging.getLogger(__name__)
+
+
+@pytest.mark.usefixtures("preconditions")
+@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
+@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
+@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.run(order=41)
+class TestBgpfunctionalRtConstrain:
+
+    def test_bgp_functional_rt_constrain(self, allure_step_with_separate_logging):
+        with allure_step_with_separate_logging("step_configure_app_peer"):
+            """Configures bgp application peer."""
+        templated_requests.put_templated_request(
+            f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING, json=False
+        )
+
+        with allure_step_with_separate_logging(
+            "step_reconfigure_odl_to_accept_connection"
+        ):
+            """Configure BGP peer module with initiate-connection set to false."""
+            templated_requests.put_templated_request(
+                f"{RT_CONSTRAIN_DIR}/bgp_peer",
+                RT_CONSTRAIN_ODL_CONFIG_MAPPING,
+                json=False,
+            )
+
+        with allure_step_with_separate_logging("step_start_bgp_peer"):
+            """Start Python speaker to connect to ODL. We need to wait until
+            odl really starts to accept incomming bgp connection.
+            The failure happens if the incomming connection comes
+            too quickly after configuring the peer in the previous
+            test case."""
+            self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
+                retries=3,
+                ammount=0,
+                my_ip=TOOLS_IP,
+                peer_ip=ODL_IP,
+                log_level="debug",
+                rt_constrain=True,
+                wfr=1,
+            )
+            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+
+        with allure_step_with_separate_logging("step_odl_to_play_rt_constrain_default"):
+            bgp.odl_to_play_template("rt_constrain_default", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_default"):
+            bgp.play_to_odl_template("rt_constrain_default", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_odl_to_play_rt_constrain_type_0"):
+            bgp.odl_to_play_template("rt_constrain_type_0", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_0"):
+            bgp.play_to_odl_template("rt_constrain_type_0", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_odl_to_play_rt_constrain_type_1"):
+            bgp.odl_to_play_template("rt_constrain_type_1", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_1"):
+            bgp.play_to_odl_template("rt_constrain_type_1", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_odl_to_play_rt_constrain_type_2"):
+            bgp.odl_to_play_template("rt_constrain_type_2", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_2"):
+            bgp.play_to_odl_template("rt_constrain_type_2", RT_CONSTRAIN_DIR)
+
+        with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
+            """Abort the Python speaker."""
+            bgp.stop_bgp_speaker(self.bgp_speaker_process)
+            infra.backup_file(
+                src_file_name="play.py.out", target_file_name="rt_constrain_play.log"
+            )
+
+        with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
+            """Revert the BGP configuration to the original state: without any configured peers."""
+            templated_requests.delete_templated_request(
+                f"{RT_CONSTRAIN_DIR}/bgp_peer", RT_CONSTRAIN_ODL_CONFIG_MAPPING
+            )
+
+        with allure_step_with_separate_logging("step_deconfigure_app_peer"):
+            """Revert the BGP configuration to the original state: without application peer"""
+            templated_requests.delete_templated_request(
+                f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING
+            )
