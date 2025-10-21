@@ -1,0 +1,9 @@
+{
+    "bmp-monitor:bmp-monitor": {
+        "monitor": [
+            {
+                "monitor-id": "example-bmp-monitor"
+            }
+        ]
+    }
+}
