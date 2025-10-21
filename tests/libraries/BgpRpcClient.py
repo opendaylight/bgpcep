@@ -2,8 +2,8 @@
 The purpose of this library is communicate with tools which run xmlrpc server.
 At the moment it is going to be the with the exarpc.py (used with exabgp) and
 with play.py for bgp functional testing.
-exa_ methods apply to tests/tools/exabgp_files/exarpc.py
-play_ methods apply to tests/tool/fastbgp/play.py  (only with --evpn used)
+exa_ methods apply to test/tools/exabgp_files/exarpc.py
+play_ methods apply to test/tool/fastbgp/play.py  (only with --evpn used)
 """
 
 import re
