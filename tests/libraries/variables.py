@@ -16,7 +16,7 @@ class Variables(BaseSettings):
     def REST_API(self) -> str:
         return f"{self.RESTCONF_ROOT}/data"
 
-    TOOLS_IP: str = "127.0.0.2"
+    TOOLS_IP: str = "127.0.1.0"
     TOOLS_USER: str = "admin"
     TOOLS_PASSWORD: str = "admin"
     KARAF_LOG_LEVEL: str = "INFO"
