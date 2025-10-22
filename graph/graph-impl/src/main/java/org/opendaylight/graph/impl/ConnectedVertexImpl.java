@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
@@ -44,6 +46,10 @@ public class ConnectedVertexImpl implements ConnectedVertex {
     /* Connected Vertex Identifier */
     private final @NonNull Long cvid;
 
+    /* Path Diversity: True if Vertex is used by the primary path, false otherwise */
+    @GuardedBy("this")
+    private final AtomicBoolean diversity = new AtomicBoolean(false);
+
     /* List of Connected Edge Trigger */
     private final ConcurrentMap<String, ConnectedVertexTrigger> triggers = new ConcurrentHashMap<>();
 
@@ -72,6 +78,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Set associated Vertex to this Connected Vertex.
      *
      * @param vertex Vertex
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl setVertex(final Vertex vertex) {
         this.vertex = vertex;
@@ -82,6 +89,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Add Connected Edge as input edge.
      *
      * @param edge Connected Edge
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl addInput(final ConnectedEdgeImpl edge) {
         if (!input.contains(edge)) {
@@ -94,6 +102,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Add Connected Edge as output edge.
      *
      * @param edge Connected Edge
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl addOutput(final ConnectedEdgeImpl edge) {
         if (!output.contains(edge)) {
@@ -106,6 +115,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Remove input Connected Edge.
      *
      * @param edge Connected Edge
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl removeInput(final ConnectedEdgeImpl edge) {
         input.remove(edge);
@@ -116,6 +126,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Remove output Connected Edge.
      *
      * @param edge Connected Edge
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl removeOutput(final ConnectedEdgeImpl edge) {
         output.remove(edge);
@@ -138,6 +149,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Add Prefix to this Connected Vertex.
      *
      * @param prefix Prefix
+     * @return This Connected Vertex
      */
     public ConnectedVertexImpl addPrefix(final Prefix prefix) {
         if (!prefixes.contains(prefix)) {
@@ -211,6 +223,16 @@ public class ConnectedVertexImpl implements ConnectedVertex {
 
     public List<ConnectedVertexTrigger> getTriggers() {
         return new ArrayList<>(triggers.values());
+    }
+
+    @Override
+    public boolean isDivert() {
+        return diversity.get();
+    }
+
+    @Override
+    public void setDiversity(boolean used) {
+        diversity.set(used);
     }
 
     /**
