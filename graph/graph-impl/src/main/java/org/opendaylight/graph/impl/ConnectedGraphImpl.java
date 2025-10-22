@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
 import org.opendaylight.graph.ConnectedGraph;
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.edge.EdgeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.Graph;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.EdgeKey;
@@ -188,9 +190,8 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         if (prefix != null && prefixes.containsKey(prefix)) {
             long key = prefixes.get(prefix).getVertexId().longValue();
             return vertices.get(key);
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
@@ -232,6 +233,57 @@ public class ConnectedGraphImpl implements ConnectedGraph {
     public ConnectedEdge getConnectedEdge(final Ipv6Address address) {
         return address == null ? null : getConnectedEdge(
             ByteBuffer.wrap(IetfInetUtil.ipv6AddressBytes(address), Long.BYTES, Long.BYTES).getLong());
+    }
+
+    /**
+     * Search existing reverse Connected Edge from the given Connected Edge.
+     *
+     * @param attrs  Edge attributes
+     * @return reverse Connected Edge or null if not found
+     */
+    private @Nullable ConnectedEdgeImpl getReverseConnectedEdge(final @NonNull EdgeAttributes attrs) {
+        /* Try to find remote Edge from various remote identifier i.e. IP address (V4 or V6) or linkId */
+        var remoteAddress = attrs.getRemoteAddress();
+        if (remoteAddress != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteAddress);
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (var cedge : edges.values()) {
+                final var edge = cedge.getEdge();
+                if (edge != null && remoteAddress.equals(edge.nonnullEdgeAttributes().getLocalAddress())) {
+                    return cedge;
+                }
+            }
+        }
+        var remoteAddress6 = attrs.getRemoteAddress6();
+        if (remoteAddress6 != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteAddress6);
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (var cedge : edges.values()) {
+                final var edge = cedge.getEdge();
+                if (edge != null && remoteAddress6.equals(edge.nonnullEdgeAttributes().getLocalAddress6())) {
+                    return cedge;
+                }
+            }
+        }
+        var remoteId = attrs.getRemoteIdentifier();
+        if (remoteId != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteId.longValue());
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (var cedge : edges.values()) {
+                final var edge = cedge.getEdge();
+                if (edge != null && remoteId.equals(edge.nonnullEdgeAttributes().getLocalIdentifier())) {
+                    return cedge;
+                }
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -313,6 +365,11 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         }
         connectedGraphServer.addEdge(graph, edge, old);
         cedge.setEdge(edge);
+        ConnectedEdgeImpl rcedge = getReverseConnectedEdge(edge.nonnullEdgeAttributes());
+        if (rcedge != null) {
+            cedge.setReverse(rcedge);
+            rcedge.setReverse(cedge);
+        }
         callEdgeTrigger(cedge, old);
         return cedge;
     }

@@ -114,4 +114,18 @@ public interface ConnectedVertex {
      * @return          True if un-registration is done, false otherwise
      */
     boolean unRegisterTrigger(ConnectedVertexTrigger trigger, String key);
+
+    /**
+     * Get status of Vertex when computing Path Diversity.
+     *
+     * @return  True if Vertex is already used by the Primary path, false otherwise.
+     */
+    boolean isDivert();
+
+    /**
+     * Set status of Vertex when computing Path Diversity.
+     *
+     * @param used  True to indicate that the Vertex is used by the Primary Path. False to mark it unused.
+     */
+    void setDiversity(boolean used);
 }
