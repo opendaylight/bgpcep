@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
@@ -32,6 +34,9 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     private ConnectedVertexImpl source;
     private ConnectedVertexImpl destination;
 
+    /* Reference to the reverse Edge within the Connected Graph */
+    private ConnectedEdgeImpl reverse;
+
     /* Reference to the Edge within the Graph associated to the Connected Graph */
     private Edge edge;
 
@@ -43,6 +48,10 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     private Long globalResvBandwidth = 0L;
     private final Long[] cosResvBandwidth = {0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
 
+    /* Path Diversity: True if Edge is used by the primary path, false otherwise */
+    @GuardedBy("this")
+    private AtomicBoolean diversity = new AtomicBoolean(false);
+
     /* List of Connected Edge Trigger */
     private final ConcurrentMap<String, ConnectedEdgeTrigger> triggers = new ConcurrentHashMap<>();
 
@@ -50,12 +59,18 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
         checkArgument(key != 0, "Edge Key must not be equal to 0");
         ceid = key;
         edge = null;
+        source = null;
+        destination = null;
+        reverse = null;
     }
 
     public ConnectedEdgeImpl(final @NonNull Edge edge) {
         checkArgument(edge.getEdgeId().longValue() != 0, "Edge Key must not be equal to 0");
         this.edge = edge;
         ceid = edge.getEdgeId().longValue();
+        source = null;
+        destination = null;
+        reverse = null;
     }
 
     /**
@@ -83,6 +98,16 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
      */
     public ConnectedEdgeImpl setDestination(final ConnectedVertexImpl vertex) {
         destination = vertex;
+        return this;
+    }
+
+    /**
+     * Set reverse Connected Edge.
+     *
+     * @param edge Connected Edge
+     */
+    public ConnectedEdgeImpl setReverse(final ConnectedEdgeImpl reverseEdge) {
+        reverse = reverseEdge;
         return this;
     }
 
@@ -140,6 +165,11 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
     }
 
     @Override
+    public ConnectedEdge getReverse() {
+        return reverse;
+    }
+
+    @Override
     public Edge getEdge() {
         return edge;
     }
@@ -194,6 +224,17 @@ public class ConnectedEdgeImpl implements ConnectedEdge {
 
     public List<ConnectedEdgeTrigger> getTriggers() {
         return new ArrayList<>(triggers.values());
+    }
+
+
+    @Override
+    public boolean isDivert() {
+        return diversity.get();
+    }
+
+    @Override
+    public void setDiversity(boolean used) {
+        diversity.set(used);
     }
 
     /**

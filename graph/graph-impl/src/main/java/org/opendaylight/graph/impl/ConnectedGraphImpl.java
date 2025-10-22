@@ -234,6 +234,64 @@ public class ConnectedGraphImpl implements ConnectedGraph {
             ByteBuffer.wrap(IetfInetUtil.ipv6AddressBytes(address), Long.BYTES, Long.BYTES).getLong());
     }
 
+    /**
+     * Search existing reverse Connected Edge from the given Connected Edge.
+     *
+     * @param edge  Edge
+     *
+     * @return reverse Connected Edge or null if not found
+     */
+    private ConnectedEdgeImpl getReverseConnectedEdge(final Edge edge) {
+        checkArgument(edge != null && edge.getEdgeAttributes() != null,
+            "Provided Edge and Attributes must not be null");
+
+        /* Try to find remote Edge from various remote identifier i.e. IP address (V4 or V6) or linkId */
+        Ipv4Address remoteAddress = edge.getEdgeAttributes().getRemoteAddress();
+        if (remoteAddress != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteAddress);
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (ConnectedEdge cedge : edges.values()) {
+                if (cedge.getEdge() != null && cedge.getEdge().getEdgeAttributes() != null) {
+                    if (remoteAddress.equals(cedge.getEdge().getEdgeAttributes().getLocalAddress())) {
+                        return (ConnectedEdgeImpl) cedge;
+                    }
+                }
+            }
+        }
+        Ipv6Address remoteAddress6 = edge.getEdgeAttributes().getRemoteAddress6();
+        if (remoteAddress6 != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteAddress6);
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (ConnectedEdge cedge : edges.values()) {
+                if (cedge.getEdge() != null && cedge.getEdge().getEdgeAttributes() != null) {
+                    if (remoteAddress6.equals(cedge.getEdge().getEdgeAttributes().getLocalAddress6())) {
+                        return (ConnectedEdgeImpl) cedge;
+                    }
+                }
+            }
+        }
+        Uint32 remoteId = edge.getEdgeAttributes().getRemoteIdentifier();
+        if (remoteId != null) {
+            final var rEdge = (ConnectedEdgeImpl) getConnectedEdge(remoteId.longValue());
+            if (rEdge != null) {
+                return rEdge;
+            }
+            for (ConnectedEdge cedge : edges.values()) {
+                if (cedge.getEdge() != null && cedge.getEdge().getEdgeAttributes() != null) {
+                    if (remoteId.equals(cedge.getEdge().getEdgeAttributes().getLocalIdentifier())) {
+                        return (ConnectedEdgeImpl) cedge;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public int getEdgesSize() {
         return edges.size();
@@ -313,6 +371,11 @@ public class ConnectedGraphImpl implements ConnectedGraph {
         }
         connectedGraphServer.addEdge(graph, edge, old);
         cedge.setEdge(edge);
+        ConnectedEdgeImpl rcedge = getReverseConnectedEdge(edge);
+        if (rcedge != null) {
+            cedge.setReverse(rcedge);
+            rcedge.setReverse(cedge);
+        }
         callEdgeTrigger(cedge, old);
         return cedge;
     }

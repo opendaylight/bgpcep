@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
@@ -43,6 +45,10 @@ public class ConnectedVertexImpl implements ConnectedVertex {
 
     /* Connected Vertex Identifier */
     private final @NonNull Long cvid;
+
+    /* Path Diversity: True if Vertex is used by the primary path, false otherwise */
+    @GuardedBy("this")
+    private final AtomicBoolean diversity = new AtomicBoolean(false);
 
     /* List of Connected Edge Trigger */
     private final ConcurrentMap<String, ConnectedVertexTrigger> triggers = new ConcurrentHashMap<>();
@@ -211,6 +217,16 @@ public class ConnectedVertexImpl implements ConnectedVertex {
 
     public List<ConnectedVertexTrigger> getTriggers() {
         return new ArrayList<>(triggers.values());
+    }
+
+    @Override
+    public boolean isDivert() {
+        return diversity.get();
+    }
+
+    @Override
+    public void setDiversity(boolean used) {
+        diversity.set(used);
     }
 
     /**
