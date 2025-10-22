@@ -58,6 +58,13 @@ public interface ConnectedEdge {
     @Nullable ConnectedVertex getDestination();
 
     /**
+     * Returns the reverse Connected Edge from the Connected Graph associated to this Connected Edge.
+     *
+     * @return Reverse Connected Edge
+     */
+    @Nullable ConnectedEdge getReverse();
+
+    /**
      * Returns the total amount of Bandwidth consumes by all Constrained Paths that belong to the Edge associated
      * to this Connected Edge for all Class of Service.
      *
@@ -112,4 +119,18 @@ public interface ConnectedEdge {
      * @return          True if un-registration is done, false otherwise
      */
     boolean unRegisterTrigger(ConnectedEdgeTrigger trigger, String key);
+
+    /**
+     * Get status of Edge when computing Path Diversity.
+     *
+     * @return  True if Edge is already used by the Primary path, false otherwise.
+     */
+    boolean isDivert();
+
+    /**
+     * Set status of Edge when computing Path Diversity.
+     *
+     * @param used  True to indicate that the Edge is used by the Primary Path. False to mark it unused.
+     */
+    void setDiversity(boolean used);
 }
