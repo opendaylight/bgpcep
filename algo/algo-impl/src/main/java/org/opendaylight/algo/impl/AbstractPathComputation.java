@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.algo.PathComputationAlgorithm;
+import org.opendaylight.algo.impl.CspfPath.CspfPathStatus;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
@@ -26,16 +27,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.te.metric.UnreservedBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.get.constrained.path.input.ConstraintsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescriptionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.Constraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.ExcludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.IncludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.descriptions.PathDescription;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.descriptions.PathDescriptionBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     protected CspfPath pathDestination = null;
 
     /* Constraints that the path must respect */
-    protected PathConstraints constraints = null;
+    protected Constraints constraints = null;
+
+    /* Computation Status */
+    protected ComputationStatus status = ComputationStatus.Idle;
 
     /* Priority Queue and HashMap to manage path computation */
     protected final PriorityQueue<CspfPath> priorityQueue = new PriorityQueue<>();
@@ -62,23 +66,20 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
 
     /**
      * Initialize the various parameters for Path Computation, in particular the
-     * Source and Destination CspfPath.
+     * Source and Destination of CspfPath.
      *
-     * @param src
-     *            Source Vertex Identifier in the Connected Graph
-     * @param dst
-     *            Destination Vertex Identifier in the Connected Graph
+     * @param src Source Vertex Identifier in the Connected Graph
+     * @param dst Destination Vertex Identifier in the Connected Graph
      *
-     * @return Constrained Path Builder with status set to 'OnGoing' if
-     *         initialization success, 'Failed' otherwise
+     * @return CspfPath with status set to 'InProgress' if initialization success, 'Failed' otherwise
      */
-    protected ConstrainedPathBuilder initializePathComputation(final VertexKey src, final VertexKey dst) {
-        ConstrainedPathBuilder cpathBuilder = new ConstrainedPathBuilder().setStatus(ComputationStatus.InProgress);
+    protected void initializePathComputation(final VertexKey src, final VertexKey dst) {
 
         /* Check that source and destination vertexKey are not identical */
         if (src.equals(dst)) {
             LOG.warn("Source and Destination are equal: Abort!");
-            return cpathBuilder.setStatus(ComputationStatus.EqualEndpoints);
+            status = ComputationStatus.EqualEndpoints;
+            return;
         }
 
         /*
@@ -88,11 +89,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         ConnectedVertex vertex = graph.getConnectedVertex(src.getVertexId().longValue());
         if (vertex == null) {
             LOG.warn("Found no source for Vertex Key {}", src);
-            return cpathBuilder.setStatus(ComputationStatus.NoSource);
+            status = ComputationStatus.NoSource;
+            return;
         }
         LOG.debug("Create Path Source with Vertex {}", vertex);
-        pathSource = new CspfPath(vertex).setCost(0).setDelay(0);
-        cpathBuilder.setSource(vertex.getVertex().getVertexId());
+        pathSource = new CspfPath(vertex).setStatus(CspfPathStatus.InProgress).setCost(0).setDelay(0);
 
         /*
          * Get the Connected Vertex from the Graph to initialize the destination
@@ -101,11 +102,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         vertex = graph.getConnectedVertex(dst.getVertexId().longValue());
         if (vertex == null) {
             LOG.warn("Found no destination for Vertex Key {}", src);
-            return cpathBuilder.setStatus(ComputationStatus.NoDestination);
+            status = ComputationStatus.NoDestination;
+            return;
         }
         LOG.debug("Create Path Destination with Vertex {}", vertex);
-        pathDestination = new CspfPath(vertex);
-        cpathBuilder.setDestination(vertex.getVertex().getVertexId());
+        pathDestination = new CspfPath(vertex).setStatus(CspfPathStatus.NoPath);
 
         /* Initialize the Priority Queue, HashMap */
         priorityQueue.clear();
@@ -113,8 +114,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         processedPath.clear();
         processedPath.put(pathSource.getVertexKey(), pathSource);
         processedPath.put(pathDestination.getVertexKey(), pathDestination);
-
-        return cpathBuilder;
+        status = ComputationStatus.InProgress;
     }
 
     private boolean verifyAddressFamily(final ConnectedEdge edge, final EdgeAttributes attributes) {
@@ -472,57 +472,65 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         return vertex != null ? vertex.getVertex().key() : null;
     }
 
-    /* Merge two constrained paths: paths are merged and additive metrics summed. */
-    private static ConstrainedPath mergePath(final ConstrainedPath cp1, final ConstrainedPath cp2) {
+    protected ConstrainedPath toConstrainedPath(final CspfPath path) {
+        final var cbuilder = new ConstrainedPathBuilder()
+            .setSource(pathSource.getVertex().getVertex().getVertexId())
+            .setDestination(pathDestination.getVertex().getVertex().getVertexId())
+            .setConstraints(constraints);
 
-        if (cp1 == null) {
+        if (path == null) {
+            return cbuilder.setStatus(ComputationStatus.NoPath).build();
+        }
+        if (status != ComputationStatus.Completed) {
+            return cbuilder.setStatus(status).build();
+        }
+        return cbuilder
+            .setStatus(ComputationStatus.Completed)
+            .setPathDescription(getPathDescription(path.getPath()))
+            .setComputedMetric(constraints.getMetric() != null ? Uint32.valueOf(path.getCost()) : null)
+            .setComputedTeMetric(constraints.getTeMetric() != null ? Uint32.valueOf(path.getCost()) : null)
+            .setComputedDelay(constraints.getDelay() != null ? new Delay(Uint32.valueOf(path.getDelay())) : null)
+            .build();
+    }
+
+    /* Merge two constrained paths: paths are merged and additive metrics summed. */
+    private static CspfPath mergePath(final CspfPath cp1, final CspfPath cp2) {
+
+        if ((cp1 == null) || (cp2 == null)) {
             return cp2;
         }
 
-        final var mergePathDesc = new ArrayList<>(cp1.getPathDescription());
-        mergePathDesc.addAll(cp2.getPathDescription());
+        /* Add CP1 path to CP2 */
+        cp2.addPath(cp1.getPath());
 
-        final var cp1status = cp1.getStatus();
-        final var cp2status = cp2.getStatus();
-        final var cp = new ConstrainedPathBuilder()
-            .setPathDescription(mergePathDesc)
-            .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status);
-        if (cp1.getMetric() != null && cp2.getMetric() != null) {
-            cp.setMetric(Uint32.valueOf(cp1.getMetric().intValue() + cp2.getMetric().intValue()));
-        }
-        if (cp1.getTeMetric() != null && cp2.getTeMetric() != null) {
-            cp.setTeMetric(Uint32.valueOf(cp1.getTeMetric().intValue() + cp2.getTeMetric().intValue()));
-        }
-        if (cp1.getDelay() != null && cp2.getDelay() != null) {
-            cp.setDelay(
-                new Delay(Uint32.valueOf(cp1.getDelay().getValue().intValue() + cp2.getDelay().getValue().intValue())))
-                    .setStatus(cp1status.equals(cp2status) ? cp1status : cp2status);
-        }
-        return cp.build();
+        /* Adjust Metrics */
+        cp2.setCost(cp1.getCost() + cp2.getCost());
+        cp2.setDelay(cp1.getDelay() + cp2.getDelay());
+
+        return cp2;
     }
 
     /*
      * Adjust Metric, TE Metric and Delay (if set) constraints to remaining portion
      * i.e. substract what have been already consumed by the previous part of the Computed Path.
      */
-    private static PathConstraints adjustConstraints(final ConstrainedPath cp, final PathConstraints cts) {
+    private static Constraints adjustConstraints(final CspfPath cp, final Constraints cts) {
         final ConstraintsBuilder ctsBuilder = new ConstraintsBuilder(cts);
-        if (cts.getMetric() != null && cp.getMetric() != null) {
-            ctsBuilder.setMetric(Uint32.valueOf(cts.getMetric().intValue() - cp.getMetric().intValue()));
+        if (cts.getMetric() != null) {
+            ctsBuilder.setMetric(Uint32.valueOf(cts.getMetric().intValue() - cp.getCost()));
         }
-        if (cts.getTeMetric() != null && cp.getTeMetric() != null) {
-            ctsBuilder.setTeMetric(Uint32.valueOf(cts.getTeMetric().intValue() - cp.getTeMetric().intValue()));
+        if (cts.getTeMetric() != null) {
+            ctsBuilder.setTeMetric(Uint32.valueOf(cts.getTeMetric().intValue() - cp.getCost()));
         }
-        if (cts.getDelay() != null && cp.getDelay() != null) {
-            ctsBuilder.setDelay(new Delay(
-                Uint32.valueOf(cts.getDelay().getValue().intValue() - cp.getDelay().getValue().intValue())));
+        if (cts.getDelay() != null) {
+            ctsBuilder.setDelay(new Delay(Uint32.valueOf(cts.getDelay().getValue().intValue() - cp.getDelay())));
         }
         return ctsBuilder.build();
     }
 
     @Override
     public ConstrainedPath computeP2pPath(final VertexKey source, final VertexKey destination,
-            final PathConstraints cts) {
+            final Constraints cts) {
 
         /* Get Path Constraints */
         constraints = cts;
@@ -530,7 +538,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /* Return simple path computation if there is no Include Route defined */
         final var includeRoute = constraints.getIncludeRoute();
         if (includeRoute == null || includeRoute.isEmpty()) {
-            return computeSimplePath(source, destination);
+            return toConstrainedPath(computeSimplePath(source, destination));
         }
 
         /*
@@ -540,15 +548,20 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
          */
         final var it = includeRoute.iterator();
         var skey = source;
-        ConstrainedPath ctsPath = null;
+        CspfPath segmentPath = null;
         do {
             var dkey = getVertexKey(it.next(), constraints.getAddressFamily());
-            ctsPath = mergePath(ctsPath, computeSimplePath(skey, dkey));
-            constraints = adjustConstraints(ctsPath, cts);
+            segmentPath = mergePath(segmentPath, computeSimplePath(skey, dkey));
+            if (status == ComputationStatus.NoPath || segmentPath == null) {
+                LOG.warn("No path found for segment {} to {}", skey, dkey);
+                return toConstrainedPath(segmentPath);
+            }
+            constraints = adjustConstraints(segmentPath, cts);
             skey = dkey;
         } while (it.hasNext());
-        return mergePath(ctsPath, computeSimplePath(skey, destination));
+        segmentPath = mergePath(segmentPath, computeSimplePath(skey, destination));
+        return toConstrainedPath(segmentPath);
     }
 
-    protected abstract ConstrainedPath computeSimplePath(VertexKey source, VertexKey destination);
+    protected abstract CspfPath computeSimplePath(VertexKey source, VertexKey destination);
 }
