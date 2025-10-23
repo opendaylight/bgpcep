@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ieee754.rev130819.Float32;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.descriptions.PathDescription;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.descriptions.PathDescription;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcerr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.PcerrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcrep;
@@ -173,36 +173,38 @@ public final class MessagesUtil {
 
         /* Fulfill Computed Metrics if available */
         final ArrayList<Metrics> metrics = new ArrayList<>();
-        if (cpath.getMetric() != null) {
+        if (cpath.getConstraints().getMetric() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
-                    .setMetricType(Uint8.valueOf(IGP_METRIC)).setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(cpath.getMetric().floatValue()).array()));
+                .setMetricType(Uint8.valueOf(IGP_METRIC)).setValue(new Float32(
+                    ByteBuffer.allocate(4).putFloat(cpath.getConstraints().getMetric().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
-        if (cpath.getTeMetric() != null) {
+        if (cpath.getConstraints().getTeMetric() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
-                    .setMetricType(Uint8.valueOf(TE_METRIC)).setValue(new Float32(
-                            ByteBuffer.allocate(4).putFloat(cpath.getTeMetric().floatValue()).array()));
+                .setMetricType(Uint8.valueOf(TE_METRIC)).setValue(new Float32(
+                    ByteBuffer.allocate(4).putFloat(cpath.getConstraints().getTeMetric().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
-        if (cpath.getDelay() != null) {
+        if (cpath.getConstraints().getDelay() != null) {
             final MetricBuilder metricBuilder = new MetricBuilder().setComputed(true)
-                    .setMetricType(Uint8.valueOf(PATH_DELAY)).setValue(new Float32(ByteBuffer.allocate(4)
-                            .putFloat(cpath.getDelay().getValue().floatValue()).array()));
+                .setMetricType(Uint8.valueOf(PATH_DELAY)).setValue(new Float32(ByteBuffer.allocate(4)
+                    .putFloat(cpath.getConstraints().getDelay().getValue().floatValue()).array()));
             metrics.add(new MetricsBuilder().setMetric(metricBuilder.build()).build());
         }
         if (!metrics.isEmpty()) {
             pathBuilder.setMetrics(metrics);
         }
         /* Fulfill Bandwidth and ClassType if set */
-        if (cpath.getBandwidth() != null) {
+        if (cpath.getConstraints().getBandwidth() != null) {
             final BandwidthBuilder bwBuilder = new BandwidthBuilder();
             bwBuilder.setBandwidth(new Bandwidth(new Float32(ByteBuffer.allocate(4)
-                    .putFloat(cpath.getBandwidth().getValue().floatValue()).array())));
+                .putFloat(cpath.getConstraints().getBandwidth().getValue().floatValue()).array())));
             pathBuilder.setBandwidth(bwBuilder.build());
         }
-        if (cpath.getClassType() != null && !cpath.getClassType().equals(Uint8.ZERO)) {
-            pathBuilder.setClassType(new ClassTypeBuilder().setClassType(new ClassType(cpath.getClassType())).build());
+        if (cpath.getConstraints().getClassType() != null
+                && !cpath.getConstraints().getClassType().equals(Uint8.ZERO)) {
+            pathBuilder.setClassType(new ClassTypeBuilder()
+                .setClassType(new ClassType(cpath.getConstraints().getClassType())).build());
         }
         return pathBuilder;
     }

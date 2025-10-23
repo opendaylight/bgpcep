@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
 
 /**
  * This Class implements the Constrained Shortest Path First (CSPF) Path stored in the Priority Queue used by various
@@ -45,12 +46,20 @@ public class CspfPath implements Comparable<CspfPath> {
     /* Penultimate Connected Vertex in the current Path */
     private Long predecessor;
 
-    public static final byte UNKNOWN   = 0x00;
-    public static final byte ACTIVE    = 0x01;
-    public static final byte SELECTED  = 0x02;
-    public static final byte DOMINATED = 0x03;
-    public static final byte PROCESSED = 0x04;
-    private byte pathStatus;
+    protected enum CspfPathStatus {
+        NoOp,
+        InProgress,
+        Selected,
+        Processed,
+        Dominated,
+        Active,
+        Completed,
+        NoPath,
+        Failed
+    }
+    /* Status of the Path */
+    private CspfPathStatus status;
+
     /* Key used by the Priority Queue to sort the paths */
     private Integer key = Integer.MAX_VALUE;
 
@@ -89,6 +98,11 @@ public class CspfPath implements Comparable<CspfPath> {
         return this;
     }
 
+    public CspfPath addPath(final List<ConnectedEdge> list) {
+        this.currentPath.addAll(list);
+        return this;
+    }
+
     public CspfPath replacePath(final List<ConnectedEdge> list) {
         if (list != null && list.size() != 0) {
             this.currentPath.clear();
@@ -105,13 +119,13 @@ public class CspfPath implements Comparable<CspfPath> {
         return this.currentPath.size();
     }
 
-    public CspfPath setPathStatus(final byte status) {
-        this.pathStatus = status;
+    public CspfPath setStatus(final CspfPathStatus status) {
+        this.status = status;
         return this;
     }
 
-    public byte getPathStatus() {
-        return this.pathStatus;
+    public CspfPathStatus getStatus() {
+        return this.status;
     }
 
     public CspfPath setPredecessor(final Long vertexId) {
@@ -186,6 +200,9 @@ public class CspfPath implements Comparable<CspfPath> {
                 sb.append(edge.getEdge().getEdgeAttributes().getRemoteAddress()).append(", ");
             }
         }
+        sb.append("cost=").append(cost);
+        sb.append(", delay=").append(delay);
+        sb.append(", status=").append(status);
         return sb.append('}').toString();
     }
 }

@@ -10,14 +10,13 @@ package org.opendaylight.algo.impl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.opendaylight.algo.impl.CspfPath.CspfPathStatus;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,15 +121,15 @@ public class Samcra extends AbstractPathComputation {
      */
 
     @Override
-    protected ConstrainedPath computeSimplePath(final VertexKey src, final VertexKey dst) {
+    protected CspfPath computeSimplePath(final VertexKey src, final VertexKey dst) {
         LOG.info("Start SAMCRA Path Computation from {} to {} with constraints {}", src, dst, constraints);
 
         /* Initialize SAMCRA variables */
-        ConstrainedPathBuilder cpathBuilder = initializePathComputation(src, dst);
-        if (cpathBuilder.getStatus() != ComputationStatus.InProgress) {
-            return cpathBuilder.build();
+        initializePathComputation(src, dst);
+        if (status != ComputationStatus.InProgress) {
+            LOG.warn("Initial configurations are not met. Abort!");
+            return null;
         }
-        cpathBuilder.setBandwidth(constraints.getBandwidth()).setClassType(constraints.getClassType());
 
         samcraPaths.clear();
         samcraPaths.put(pathSource.getVertexKey(), new SamcraPath(pathSource.getVertex()));
@@ -141,6 +140,7 @@ public class Samcra extends AbstractPathComputation {
          * with the minimal length (other path are stored in the SamcraPath object).
          * The top of the queue, i.e. the element with the minimal key( path weight), is processed at each loop
          */
+        SamcraPath finalPath = null;
         while (priorityQueue.size() != 0) {
             CspfPath currentPath = priorityQueue.poll();
             LOG.debug(" - Process path up to Vertex {} from Priority Queue", currentPath.getVertex());
@@ -174,12 +174,8 @@ public class Samcra extends AbstractPathComputation {
 
                 /* Check if we found a valid and better path */
                 if (pathLength > 0F && pathLength <= currentPathLength) {
-                    final SamcraPath finalPath = samcraPaths.get(pathDestination.getVertexKey());
-                    cpathBuilder.setPathDescription(getPathDescription(finalPath.getCurrentPath().getPath()))
-                            .setTeMetric(Uint32.valueOf(finalPath.getCurrentPath().getCost()))
-                            .setDelay(new Delay(Uint32.valueOf(finalPath.getCurrentPath().getDelay())))
-                            .setStatus(ComputationStatus.Active);
-                    LOG.debug(" - Path to destination found and registered {}", cpathBuilder.getPathDescription());
+                    finalPath = samcraPaths.get(pathDestination.getVertexKey());
+                    LOG.debug(" - Path to destination found and registered {}", finalPath.getCurrentPath().getPath());
                     currentPathLength = pathLength;
                 }
             }
@@ -205,10 +201,10 @@ public class Samcra extends AbstractPathComputation {
                  * If it is the case the shortest length is used to re-inject the connected vertex in the Priority Queue
                  */
                 for (CspfPath testedPath : currentSamcraPath.getPathList()) {
-                    LOG.debug(" - Testing path {} with status {} ", testedPath, testedPath.getPathStatus());
-                    if (testedPath.getPathStatus() == CspfPath.SELECTED) {
-                        testedPath.setPathStatus(CspfPath.PROCESSED);
-                    } else if (testedPath.getPathStatus() == CspfPath.ACTIVE
+                    LOG.debug(" - Testing path {} with status {} ", testedPath, testedPath.getStatus());
+                    if (testedPath.getStatus() == CspfPathStatus.Selected) {
+                        testedPath.setStatus(CspfPathStatus.Processed);
+                    } else if (testedPath.getStatus() == CspfPathStatus.Active
                             && testedPath.getPathLength() < previousLength) {
                         selectedPath = testedPath;
                         previousLength = testedPath.getPathLength();
@@ -218,7 +214,7 @@ public class Samcra extends AbstractPathComputation {
                  * and added to the priority queue
                  */
                 if (selectedPath != null) {
-                    selectedPath.setPathStatus(CspfPath.SELECTED);
+                    selectedPath.setStatus(CspfPathStatus.Selected);
                     currentSamcraPath.setCurrentPath(selectedPath);
                     priorityQueue.add(selectedPath);
                     LOG.debug(" - Add path {} to Priority Queue. New path count {} ",
@@ -229,16 +225,19 @@ public class Samcra extends AbstractPathComputation {
             }
         }
         /* The priority queue is empty => all the possible (vertex, path) elements have been explored
-         * The "ConstrainedPathBuilder" object contains the optimal path if it exists
-         * Otherwise an empty path with status failed is returned
+         * The SamcraPath "finalPath" object contains the optimal path if it exists
          */
-        return cpathBuilder
-            .setStatus(
-                cpathBuilder.getStatus() == ComputationStatus.InProgress
-                        || cpathBuilder.getPathDescription().size() == 0
-                   ? ComputationStatus.NoPath
-                   : ComputationStatus.Completed)
-            .build();
+        if (finalPath == null || finalPath.getCurrentPath() == null
+                || finalPath.getCurrentPath().getStatus() == CspfPathStatus.InProgress
+                || finalPath.getCurrentPath().getPathCount() == 0) {
+            status = ComputationStatus.NoPath;
+            LOG.debug("No valid path found from {} to {} with constraints {}", src, dst, constraints);
+            return null;
+        }
+
+        status = ComputationStatus.Completed;
+        LOG.debug("SAMCRA Computation ended. Found path {}", finalPath.getCurrentPath());
+        return finalPath.getCurrentPath();
     }
 
     /* Connected Edge to remote connected vertex processing (on contrast to CSPF algorithm, the already processed
@@ -327,14 +326,14 @@ public class Samcra extends AbstractPathComputation {
             if (!newPath.equals(pathDestination)) {
                 priorityQueue.add(newPath);
             }
-            newPath.setPathStatus(CspfPath.SELECTED);
+            newPath.setStatus(CspfPathStatus.Selected);
             samcraPath.setCurrentPath(newPath);
         } else if (newPath.getPathLength() < currentSamcraPath.getPathLength()) {
             LOG.debug("     - Update current path up to {} with new path {}", currentSamcraPath.getVertex(), newPath);
             samcraPath.getPathList()
                 .stream()
-                .filter(path -> path.getPathStatus() == CspfPath.SELECTED)
-                .forEach(path -> path.setPathStatus(CspfPath.ACTIVE));
+                .filter(path -> path.getStatus() == CspfPathStatus.Selected)
+                .forEach(path -> path.setStatus(CspfPathStatus.Active));
 
             /* It is not possible to directly update the CspfPath in the Priority Queue. Indeed, if we
              * modify the path weight, the Priority Queue must be re-ordered. So, we need fist to remove
@@ -345,7 +344,7 @@ public class Samcra extends AbstractPathComputation {
                 priorityQueue.removeIf(path -> path.getVertexKey().equals(newPath.getVertexKey()));
                 priorityQueue.add(newPath);
             }
-            newPath.setPathStatus(CspfPath.SELECTED);
+            newPath.setStatus(CspfPathStatus.Selected);
             samcraPath.setCurrentPath(newPath);
         }
 
@@ -386,7 +385,7 @@ public class Samcra extends AbstractPathComputation {
             boolean testedPathDelayDominated = false;
 
             LOG.debug("       - Check if path {} is dominated or dominates", testedPath);
-            if (testedPath.getPathStatus() != CspfPath.DOMINATED) {
+            if (testedPath.getStatus() != CspfPathStatus.Dominated) {
                 if (teMetric != null) {
                     if (teCost >= testedPath.getCost()) {
                         pathCostDominated = true;
@@ -412,7 +411,7 @@ public class Samcra extends AbstractPathComputation {
                         || teMetric == null && delay != null && testedPathDelayDominated) {
                     /* Old Path is dominated by the new path. Mark it as Dominated and decrement
                      * the number of valid Paths */
-                    testedPath.setPathStatus(CspfPath.DOMINATED);
+                    testedPath.setStatus(CspfPathStatus.Dominated);
                     samcraPath.decrementPathCount();
                     LOG.debug("       - New path dominates existing path with teCost {} and/or delayCost {}",
                             testedPath.getCost(), testedPath.getDelay());
@@ -449,7 +448,7 @@ public class Samcra extends AbstractPathComputation {
                 .setCost(teCost)
                 .setDelay(delayCost)
                 .setKey((int) (100 * pathLength))
-                .setPathStatus(CspfPath.ACTIVE)
+                .setStatus(CspfPathStatus.Active)
                 .setPathLength(pathLength)
                 .setPredecessor(cspfPath.getVertexKey())
                 .replacePath(cspfPath.getPath())
