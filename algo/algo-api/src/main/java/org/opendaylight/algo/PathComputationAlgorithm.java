@@ -10,8 +10,8 @@ package org.opendaylight.algo;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ConstrainedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.Constraints;
 
 /**
  * This class provides entry for various Path Computation Algorithms.
@@ -31,5 +31,5 @@ public interface PathComputationAlgorithm {
      * @return A Path that meet constraints or empty path otherwise. ConstrainedPath.Status indicates the result of
      *         the path computation (Completed or Failed)
      */
-    @NonNull ConstrainedPath computeP2pPath(VertexKey source, VertexKey destination, PathConstraints constraints);
+    @NonNull ConstrainedPath computeP2pPath(VertexKey source, VertexKey destination, Constraints constraints);
 }

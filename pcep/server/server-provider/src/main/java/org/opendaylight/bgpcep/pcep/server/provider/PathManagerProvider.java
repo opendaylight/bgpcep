@@ -27,17 +27,17 @@ import org.opendaylight.mdsal.binding.api.RpcService;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Edge;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Vertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PathType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.PcepNodeConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.ConfiguredLspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.intended.path.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.PathStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.PathType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.PcepNodeConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.ConfiguredLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.ConfiguredLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.ConfiguredLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.IntendedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.IntendedPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.AddLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.RemoveLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLsp;
@@ -171,7 +171,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
                         .setPathStatus(PathStatus.Configured)
                         .setComputedPath(
                             pci == null
-                                ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                                ? new ComputedPathBuilder().setStatus(ComputationStatus.Failed).build()
                                 : pci.computeTePath(lsp.getIntendedPath()))
                         .build(),
                     pcepTopology)
@@ -235,7 +235,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
                 /* Complete it with the new Computed Route */
                 .setComputedPath(
                     pci == null
-                        ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                        ? new ComputedPathBuilder().setStatus(ComputationStatus.Failed).build()
                         : pci.computeTePath(tePath.getIntendedPath()))
                 .build());
 
@@ -272,7 +272,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
                 .setComputedPath(
                     /* Compute new Route */
                     pci == null
-                        ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                        ? new ComputedPathBuilder().setStatus(ComputationStatus.Failed).build()
                         : pci.computeTePath(mngPath.getLsp().getIntendedPath()))
                 .build());
 
@@ -446,7 +446,7 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
                         .setComputedPath(
                             /* Complete the TE Path with Computed Route */
                             pci == null
-                                ? new ComputedPathBuilder().setComputationStatus(ComputationStatus.Failed).build()
+                                ? new ComputedPathBuilder().setStatus(ComputationStatus.Failed).build()
                                 : pci.computeTePath(rptPath.getIntendedPath()))
                         .build());
                 /* and update Path on PCC if it is synchronized */
@@ -669,14 +669,14 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
             for (ManagedTePath mngPath : teNode.getTePaths().values()) {
                 switch (mngPath.getLsp().getPathStatus()) {
                     case Updated:
-                        if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
+                        if (mngPath.getLsp().getComputedPath().getStatus() != ComputationStatus.Completed) {
                             updateComputedPath(mngPath, false);
                         } else {
                             mngPath.updatePath(updateLsp);
                         }
                         break;
                     case Configured:
-                        if (mngPath.getLsp().getComputedPath().getComputationStatus() != ComputationStatus.Completed) {
+                        if (mngPath.getLsp().getComputedPath().getStatus() != ComputationStatus.Completed) {
                             updateComputedPath(mngPath, true);
                         } else {
                             mngPath.addPath(addLsp);
