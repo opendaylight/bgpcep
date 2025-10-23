@@ -23,15 +23,15 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.DecimalBandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.AlgorithmType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.ComputationStatus;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.PathConstraints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.get.constrained.path.input.ConstraintsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.ExcludeRouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev220324.path.constraints.IncludeRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.AlgorithmType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.Constraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.ConstraintsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.ExcludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.ExcludeRouteBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.IncludeRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.IncludeRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcreq.message.pcreq.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcreq.message.pcreq.message.requests.segment.computation.P2p;
@@ -42,9 +42,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.explicit.route.object.Ero;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.include.route.object.Iro;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.attributes.Metrics;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev220321.pcc.configured.lsp.configured.lsp.IntendedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.ComputedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.ComputedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.server.rev251022.pcc.configured.lsp.configured.lsp.IntendedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.endpoints.address.family.Ipv4Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.endpoints.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
@@ -97,7 +97,7 @@ public class PathComputationImpl implements PathComputation {
         }
 
         /* Create new Constraints Object from the request */
-        PathConstraints cts = getConstraints(input, !PSTUtil.isDefaultPST(req.getRp().getTlvs().getPathSetupType()));
+        Constraints cts = getConstraints(input, !PSTUtil.isDefaultPST(req.getRp().getTlvs().getPathSetupType()));
 
         /* Determine Path Computation Algorithm according to Input choice */
         final AlgorithmType algoType;
@@ -133,10 +133,10 @@ public class PathComputationImpl implements PathComputation {
         ConnectedVertex destination = tedGraph.getConnectedVertex(intend.getDestination());
 
         if (source == null) {
-            return cpb.setComputationStatus(ComputationStatus.NoSource).build();
+            return cpb.setStatus(ComputationStatus.NoSource).build();
         }
         if (destination == null) {
-            return cpb.setComputationStatus(ComputationStatus.NoDestination).build();
+            return cpb.setStatus(ComputationStatus.NoDestination).build();
         }
 
         /* Determine Path Computation Algorithm according to parameters */
@@ -151,7 +151,7 @@ public class PathComputationImpl implements PathComputation {
         }
         final var algo = algoProvider.getPathComputationAlgorithm(tedGraph, algoType);
         if (algo == null) {
-            return cpb.setComputationStatus(ComputationStatus.Failed).build();
+            return cpb.setStatus(ComputationStatus.Failed).build();
         }
 
         /* Request Path Computation for given source, destination and constraints */
@@ -161,16 +161,16 @@ public class PathComputationImpl implements PathComputation {
 
         /* Check if we got a valid Path and return appropriate Path Description */
         if (cpath.getStatus() != ComputationStatus.Completed) {
-            return cpb.setComputationStatus(ComputationStatus.NoPath).build();
+            return cpb.setStatus(ComputationStatus.NoPath).build();
         }
 
         return cpb
-            .setComputationStatus(ComputationStatus.Completed)
+            .setStatus(ComputationStatus.Completed)
             .setPathDescription(cpath.getPathDescription())
             .setComputedMetric(switch (algoType) {
-                case Cspf -> cpath.getTeMetric();
-                case Samcra -> cpath.getDelay().getValue();
-                case Spf -> cpath.getMetric();
+                case Cspf -> cpath.getComputedTeMetric();
+                case Samcra -> cpath.getComputedDelay().getValue();
+                case Spf -> cpath.getComputedMetric();
             })
             .build();
     }
@@ -188,7 +188,7 @@ public class PathComputationImpl implements PathComputation {
             return null;
         }
         /* Create new Constraints Object from the request */
-        PathConstraints cts = getConstraints(endpoints, bandwidth, classType, metrics, xro, iro, segmentRouting);
+        Constraints cts = getConstraints(endpoints, bandwidth, classType, metrics, xro, iro, segmentRouting);
 
         /* Determine Path Computation Algorithm according to parameters */
         final AlgorithmType algoType;
@@ -315,12 +315,12 @@ public class PathComputationImpl implements PathComputation {
         return irl;
     }
 
-    private static PathConstraints getConstraints(final P2p parameters, final boolean segmentRouting) {
+    private static Constraints getConstraints(final P2p parameters, final boolean segmentRouting) {
         return getConstraints(parameters.getEndpointsObj(), parameters.getBandwidth(), parameters.getClassType(),
                 parameters.getMetrics(), parameters.getXro(), parameters.getIro(), segmentRouting);
     }
 
-    private static PathConstraints getConstraints(final EndpointsObj endpoints, final Bandwidth bandwidth,
+    private static Constraints getConstraints(final EndpointsObj endpoints, final Bandwidth bandwidth,
             final ClassType classType, final List<Metrics> metrics, final Xro xro, final Iro iro,
             final boolean segmentRouting) {
         ConstraintsBuilder ctsBuilder = new ConstraintsBuilder();

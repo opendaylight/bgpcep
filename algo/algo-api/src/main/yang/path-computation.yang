@@ -20,6 +20,11 @@ module path-computation {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision "2025-10-22" {
+        description "Add Path Diversity algorithms";
+        reference "";
+    }
+
     revision "2022-03-24" {
         description
              "add Exclude Route and Include Route to constraints";
@@ -39,29 +44,23 @@ module path-computation {
     }
 
     typedef computation-status {
-        description
-            "Status of the Path Computation Algorithm regarding current
-             computed path";
+        description "Status of the Path Computation Algorithm regarding current computed path";
         type enumeration {
             enum idle {
-                description "Path Computeation Algorithm has not yet started";
+                description "Path Computation Algorithm has not yet started";
                 value 0;
             }
             enum in-progress {
-                description
-                    "Path Computation has started but no path has been found";
+                description "Path Computation has started but no path has been found for the moment";
                 value 1;
             }
             enum active {
-                description
-                    "A valid path has been found,
-                     but it is perhaps not the best one";
+                description "A valid path has been found, but it is perhaps not the best one";
                 value 2;
             }
             enum completed {
                 description
-                    "Path Computation Algorithm has completed
-                     and a valid computed path found";
+                    "Path Computation Algorithm has completed and a valid computed path found";
                 value 3;
             }
             enum failed {
@@ -70,25 +69,24 @@ module path-computation {
             }
             enum no-path {
                 description
-                    "Path Computation Algorithm has not been found a valid path
-                     that meets the given constraints";
+                    "Path Computation Algorithm has not been found a valid path that meets the given constraints";
                 value 5;
             }
             enum no-source {
-                description
-                    "The given source of the path has not been found
-                    in the network topology";
+                description "The given source of the path has not been found in the network topology";
                 value 6;
             }
             enum no-destination {
-                description
-                    "The given destination of the path has not been found
-                    in the network topology";
+                description "The given destination of the path has not been found in the network topology";
                 value 7;
             }
             enum equal-endpoints {
                 description "The given source and destination are equals";
                 value 8;
+            }
+            enum wrong-diversity-type {
+                description "No or wrong diversity type has been specified for the divert path computation";
+                value 9;
             }
         }
     }
@@ -128,66 +126,122 @@ module path-computation {
         default "ipv4";
     }
 
+    typedef diversity-type {
+        description "Type of path diversity";
+        type enumeration {
+            enum none {
+                value 0;
+            }
+            enum link {
+                value 1;
+            }
+            enum node {
+                value 2;
+            }
+            enum srlg {
+                value 3;
+            }
+            enum site {
+                value 4;
+            }
+        }
+    }
+
+    grouping diversity {
+        description "Path Diversity Description";
+        container path-diversity {
+            leaf type {
+                type diversity-type;
+            }
+            leaf source {
+                type uint64;
+            }
+            leaf destination {
+                type uint64;
+            }
+            container backup-path {
+                uses path-descriptions;
+            }
+        }
+    }
+
     grouping path-constraints {
         description "Set of Constraints for Path Computation";
-        leaf metric {
-            description "Maximum end to end IGP metric";
+        container constraints {
+            leaf metric {
+                description "Maximum end to end IGP metric";
+                type uint32;
+            }
+            leaf te-metric {
+                description "Maximum end to end Traffic Engineering metric";
+                type uint32;
+            }
+            leaf delay {
+                description "Maximum end to end delay";
+                type gr:delay;
+            }
+            leaf jitter {
+                description "Maximum delay variation for selected edges";
+                type gr:delay;
+            }
+            leaf loss {
+                description "Maximum loss for selected edges";
+                type gr:loss;
+            }
+            leaf admin-group {
+                description "Admin group to select edges";
+                type uint32;
+            }
+            leaf address-family {
+                type address-family;
+            }
+            leaf class-type {
+                description "Class Type for bandwidth constraints";
+                type uint8 {
+                    range "0..7";
+                }
+            }
+            leaf bandwidth {
+                description "Requested bandwidth for the computed path";
+                type gr:decimal-bandwidth;
+            }
+            list include-route {
+                description "Speficy routes which must be included in the computed path, i.e. IRO";
+                leaf ipv4 {
+                    when "../../address-family = 0 or ../../address-family = 2";
+                    type inet:ipv4-address;
+                }
+                leaf ipv6 {
+                    when "../../address-family = 1 or ../../address-family = 3";
+                    type inet:ipv6-address;
+                }
+                ordered-by user;
+            }
+            list exclude-route {
+                description "Speficy routes which must be excluded in the computed path, i.e. XRO";
+                leaf ipv4 {
+                    when "../../address-family = 0 or ../../address-family = 2";
+                    type inet:ipv4-address;
+                }
+                leaf ipv6 {
+                    when "../../address-family = 1 or ../../address-family = 3";
+                    type inet:ipv6-address;
+                }
+                ordered-by user;
+            }
+            uses diversity;
+        }
+    }
+
+    grouping computed-metrics {
+        leaf computed-metric {
             type uint32;
         }
-        leaf te-metric {
-            description "Maximum end to end Traffic Engineering metric";
+        leaf computed-te-metric {
             type uint32;
         }
-        leaf delay {
-            description "Maximum end to end delay";
+        leaf computed-delay {
             type gr:delay;
-        }
-        leaf jitter {
-            description "Maximum delay variation for selected edges";
-            type gr:delay;
-        }
-        leaf loss {
-            description "Maximum loss for selected edges";
-            type gr:loss;
-        }
-        leaf admin-group {
-            description "Admin group to select edges";
-            type uint32;
-        }
-        leaf address-family {
-            type address-family;
-        }
-        leaf class-type {
-            description "Class Type for bandwidth constraints";
-            type uint8 {
-                range "0..7";
-            }
-        }
-        leaf bandwidth {
-            description "Requested bandwidth for the computed path";
-            type gr:decimal-bandwidth;
-        }
-        list include-route {
-            description "Speficy routes which must be included in the computed path, i.e. IRO";
-            leaf ipv4 {
-                when "../../address-family = 0 or ../../address-family = 2";
-                type inet:ipv4-address;
-            }
-            leaf ipv6 {
-                when "../../address-family = 1 or ../../address-family = 3";
-                type inet:ipv6-address;
-            }
-        }
-        list exclude-route {
-            description "Speficy routes which must be excluded in the computed path, i.e. XRO";
-            leaf ipv4 {
-                when "../../address-family = 0 or ../../address-family = 2";
-                type inet:ipv4-address;
-            }
-            leaf ipv6 {
-                when "../../address-family = 1 or ../../address-family = 3";
-                type inet:ipv6-address;
-            }
         }
     }
 
@@ -218,21 +272,32 @@ module path-computation {
                 when "path-constraints/address-family = 2 or path-constraints/address-family = 3";
                 type uint32;
             }
+            ordered-by user;
         }
     }
 
-    container constrained-path {
+    grouping computed-path {
         description "Computed Path as result of Path Computation Algorithms";
-        uses path-constraints;
         leaf source {
             type uint64;
         }
         leaf destination {
             type uint64;
         }
-        uses path-descriptions;
         leaf status {
             type computation-status;
+        }
+        uses path-descriptions;
+        uses computed-metrics;
+    }
+
+    container constrained-path {
+        description "Description of Computed Paths";
+        uses path-constraints;
+        uses computed-path;
+        container divert-path {
+            when "../path-constraints/path-diversity";
+            uses computed-path;
         }
     }
 
@@ -248,26 +313,16 @@ module path-computation {
             leaf destination {
                 type uint64;
             }
-            container constraints {
-                uses path-constraints;
-            }
+            uses path-constraints;
             leaf algorithm {
                 type algorithm-type;
             }
         }
         output {
-            uses path-descriptions;
-            leaf status {
-                type computation-status;
-            }
-            leaf computed-metric {
-                type uint32;
-            }
-            leaf computed-te-metric {
-                type uint32;
-            }
-            leaf computed-delay {
-                type gr:delay;
+            uses computed-path;
+            container divert-path {
+                when "../path-constraints/path-diversity";
+                uses computed-path;
             }
         }
     }
