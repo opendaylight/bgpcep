@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<route-target-constrain-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp:route:target:constrain">
+    <route-key>flow1</route-key>
+    <path-id>0</path-id>
+    <origin-as>64511</origin-as>
+    <as-4-route-target-extended-community>
+        <as-4-specific-common>
+            <as-number>65000</as-number>
+            <local-administrator>123</local-administrator>
+        </as-4-specific-common>
+    </as-4-route-target-extended-community>
+    <attributes>
+        <ipv4-next-hop>
+            <global>199.20.166.41</global>
+        </ipv4-next-hop>
+        <as-path/>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+    </attributes>
+</route-target-constrain-route>

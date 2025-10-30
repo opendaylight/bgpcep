@@ -1,0 +1,27 @@
+<protocol xmlns="http://openconfig.net/yang/network-instance">
+    <name>example-bgp-rib</name>
+    <identifier xmlns:x="http://openconfig.net/yang/policy-types">x:BGP</identifier>
+    <bgp xmlns="urn:opendaylight:params:xml:ns:yang:bgp:openconfig-extensions">
+        <global>
+            <config>
+                <router-id>192.0.2.2</router-id>
+                <as>64496</as>
+            </config>
+            <apply-policy>
+                <config>
+                    <default-export-policy>REJECT-ROUTE</default-export-policy>
+                    <default-import-policy>REJECT-ROUTE</default-import-policy>
+                    <import-policy>default-odl-import-policy</import-policy>
+                    <export-policy>default-odl-export-policy</export-policy>
+                </config>
+            </apply-policy>
+            <afi-safis>
+                <afi-safi>
+                    <afi-safi-name xmlns:x="http://openconfig.net/yang/bgp-types">x:IPV4-UNICAST</afi-safi-name>
+                    <receive>true</receive>
+                    <send-max>$MULTIPATH</send-max>
+                </afi-safi>
+            </afi-safis>
+        </global>
+    </bgp>
+</protocol>

@@ -1,0 +1,108 @@
+{
+  "bgp-inet:ipv4-routes": {
+    "ipv4-route": [
+      {
+        "path-id": 0,
+        "prefix": "8.$PEER_NUMBER.0.0/28",
+        "route-key": "8.$PEER_NUMBER.0.0/28",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "originator-id": {
+            "originator": "192.0.2.2"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {
+            "segments": [
+              {
+                "as-sequence": [
+                  64496
+                ]
+              }
+            ]
+          },
+          "cluster-id": {
+            "cluster": [
+              "$CLUSTER_ID",
+              "$DEFAULT_ID"
+            ]
+          },
+          "ipv4-next-hop": {
+            "global": "192.0.2.1"
+          }
+        }
+      },
+      {
+        "path-id": 0,
+        "prefix": "8.$PEER_NUMBER.0.16/28",
+        "route-key": "8.$PEER_NUMBER.0.16/28",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "originator-id": {
+            "originator": "192.0.2.2"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {
+            "segments": [
+              {
+                "as-sequence": [
+                  64496
+                ]
+              }
+            ]
+          },
+          "cluster-id": {
+            "cluster": [
+              "$CLUSTER_ID",
+              "$DEFAULT_ID"
+            ]
+          },
+          "ipv4-next-hop": {
+            "global": "192.0.2.1"
+          }
+        }
+      },
+      {
+        "path-id": 0,
+        "prefix": "8.$PEER_NUMBER.0.32/28",
+        "route-key": "8.$PEER_NUMBER.0.32/28",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "originator-id": {
+            "originator": "192.0.2.2"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {
+            "segments": [
+              {
+                "as-sequence": [
+                  64496
+                ]
+              }
+            ]
+          },
+          "cluster-id": {
+            "cluster": [
+              "$CLUSTER_ID",
+              "$DEFAULT_ID"
+            ]
+          },
+          "ipv4-next-hop": {
+            "global": "192.0.2.1"
+          }
+        }
+      }
+    ]
+  }
+}

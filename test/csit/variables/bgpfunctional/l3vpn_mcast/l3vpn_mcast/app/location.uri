@@ -1,0 +1,1 @@
+/rests/data/bgp-rib:application-rib=$IP/tables=bgp-types%3Aipv4-address-family,bgp-l3vpn-mcast%3Amcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes-ipv4

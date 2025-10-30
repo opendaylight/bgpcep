@@ -1,0 +1,28 @@
+{
+  "bgp-mvpn-ipv4:mvpn-routes-ipv4": {
+    "mvpn-route": [
+      {
+        "path-id": 0,
+        "route-key": "AgwAAQECAwQBAgAA+/A=",
+        "attributes": {
+          "ipv4-next-hop": {
+            "global": "127.1.1.1"
+          },
+          "multi-exit-disc": {
+            "med": 0
+          },
+          "origin": {
+            "value": "egp"
+          },
+          "local-pref": {
+            "pref": 100
+          }
+        },
+        "inter-as-i-pmsi-a-d": {
+          "route-distinguisher": "1.2.3.4:258",
+          "source-as": 64496
+        }
+      }
+    ]
+  }
+}

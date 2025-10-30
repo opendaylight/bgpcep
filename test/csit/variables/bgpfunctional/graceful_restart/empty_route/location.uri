@@ -1,0 +1,1 @@
+rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family/

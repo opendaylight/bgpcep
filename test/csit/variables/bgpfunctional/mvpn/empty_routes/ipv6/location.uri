@@ -1,0 +1,1 @@
+rests/data/bgp-rib:bgp-rib/rib=$BGP_RIB/$PATH/tables=bgp-types%3Aipv6-address-family,bgp-mvpn%3Amcast-vpn-subsequent-address-family

@@ -1,0 +1,1 @@
+rests/data/bgp-rib:application-rib=$IP/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family/bgp-inet:ipv4-routes

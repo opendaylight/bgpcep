@@ -1,0 +1,6 @@
+<node xmlns="urn:TBD:params:xml:ns:yang:network-topology">
+    <node-id>$IP</node-id>
+    <session-config xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+        <password>$PASSWD</password>
+    </session-config>
+</node>

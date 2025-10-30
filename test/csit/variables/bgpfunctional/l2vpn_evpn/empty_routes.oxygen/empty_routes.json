@@ -1,0 +1,9 @@
+{
+  "tables": [
+    {
+      "afi": "odl-bgp-evpn:l2vpn-address-family",
+      "safi": "odl-bgp-evpn:evpn-subsequent-address-family",
+        "odl-bgp-evpn:evpn-routes": {}
+    }
+  ]
+}

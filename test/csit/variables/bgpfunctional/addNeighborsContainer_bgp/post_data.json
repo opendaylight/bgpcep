@@ -1,0 +1,10 @@
+{
+	"neighborsContainer": {
+	    "neighbors":[
+	      {
+	         "address":"$neighborAddr",
+	         "remote-as":$remoteas
+	      }
+	   ]
+	}
+}

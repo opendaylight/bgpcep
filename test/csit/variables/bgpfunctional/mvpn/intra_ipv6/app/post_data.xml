@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<mvpn-route xmlns="urn:opendaylight:params:xml:ns:yang:bgp:mvpn:ipv6">
+    <route-key>flow1</route-key>
+    <path-id>0</path-id>
+    <intra-as-i-pmsi-a-d>
+        <route-distinguisher>172.16.0.44:101</route-distinguisher>
+        <orig-route-ip>192.168.100.1</orig-route-ip>
+    </intra-as-i-pmsi-a-d>
+    <attributes>
+        <ipv6-next-hop>
+            <global>2001:db8:1::6</global>
+        </ipv6-next-hop>
+        <as-path/>
+        <origin>
+            <value>igp</value>
+        </origin>
+        <local-pref>
+            <pref>100</pref>
+        </local-pref>
+    </attributes>
+</mvpn-route>

@@ -1,0 +1,75 @@
+{
+    "bgp-inet:ipv4-routes": {
+        "ipv4-route": [
+            {
+                "path-id": 0,
+                "route-key": "8.1.0.0/28",
+                "prefix": "8.1.0.0/28",
+                "attributes": {
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "ipv4-next-hop": {
+                        "global": "1.1.1.1"
+                    },
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    64496,
+                                    65000
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "path-id": 0,
+                "route-key": "8.1.0.16/28",
+                "prefix": "8.1.0.16/28",
+                "attributes": {
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "ipv4-next-hop": {
+                        "global": "1.1.1.1"
+                    },
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    64496,
+                                    65000
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "path-id": 0,
+                "route-key": "8.2.0.0/28",
+                "prefix": "8.2.0.0/28",
+                "attributes": {
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "ipv4-next-hop": {
+                        "global": "1.1.1.1"
+                    },
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    64496,
+                                    65001
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    }
+}

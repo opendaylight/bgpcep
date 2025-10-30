@@ -1,0 +1,11 @@
+{
+  "tables": [
+    {
+      "afi": "bgp-types:ipv4-address-family",
+      "safi": "bgp-types:unicast-subsequent-address-family",
+      "attributes": {
+        "uptodate": "*"
+      }
+    }
+  ]
+}

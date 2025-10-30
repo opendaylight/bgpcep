@@ -1,0 +1,20 @@
+{
+    "bgp-openconfig-extensions:state": {
+        "messages": {
+            "received": {
+                "NOTIFICATION": "$NOT_COUNT",
+                "UPDATE": "$RECV_COUNT"
+            },
+            "sent": {
+                "NOTIFICATION": "0",
+                "UPDATE": "$SEND_COUNT"
+            }
+        },
+        "session-state": "ESTABLISHED",
+        "supported-capabilities": [
+            "openconfig-bgp-types:ASN32",
+            "openconfig-bgp-types:MPBGP",
+            "openconfig-bgp-types:ROUTE-REFRESH"
+        ]
+    }
+}
