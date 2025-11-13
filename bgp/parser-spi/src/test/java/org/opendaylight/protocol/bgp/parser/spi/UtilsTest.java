@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.primitives.UnsignedBytes;
@@ -123,9 +124,11 @@ public class UtilsTest {
         assertEquals(Optional.empty(), MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg));
     }
 
-    @Test(expected = ParameterLengthOverflowException.class)
-    public void testFormatParameterOverflow() throws ParameterLengthOverflowException {
-        ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(256), Unpooled.buffer());
+    @Test
+    public void testFormatParameterOverflow() {
+        final var ex = assertThrows(ParameterLengthOverflowException.class,
+            () -> ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(256), Unpooled.buffer()));
+        assertEquals("Cannot encode 256-byte value", ex.getMessage());
     }
 
     @Test
