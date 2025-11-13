@@ -45,7 +45,7 @@ public class Type1LabelParser implements LabelParser, LabelSerializer {
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
             final ByteBuf buffer) {
         checkArgument(subobject instanceof Type1LabelCase,
-            "Unknown Label Subobject instance. Passed {}. Needed Type1LabelCase.", subobject.getClass());
+            "Unknown Label Subobject instance. Passed %s. Needed Type1LabelCase.", subobject.getClass());
         final ByteBuf body = Unpooled.buffer(LABEL_LENGTH);
         final Type1Label type1Label = ((Type1LabelCase) subobject).getType1Label();
         checkArgument(type1Label != null, "Type1Label is mandatory.");
