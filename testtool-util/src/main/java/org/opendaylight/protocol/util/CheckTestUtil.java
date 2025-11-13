@@ -34,6 +34,7 @@ public final class CheckTestUtil {
         // Hidden on purpose
     }
 
+    @SuppressWarnings("CheckReturnValue")
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {
         final var latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
