@@ -7,58 +7,63 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.endpoints.object.EndpointsObj;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.endpoints.address.family.Ipv4Case;
 
-public class PCCEndPointIpv4ObjectParserTest {
-
+class PCCEndPointIpv4ObjectParserTest {
     private static final String IP1 = "1.2.3.4";
     private static final String IP2 = "1.2.3.5";
 
-    @Test(expected = PCEPDeserializerException.class)
-    public void testParseEmptyObject() throws PCEPDeserializerException {
-        final ObjectHeader header = new ObjectHeaderImpl(false, false);
-        final ByteBuf bytes = Unpooled.buffer();
+    @Test
+    void testParseEmptyObject() {
+        final var header = new ObjectHeaderImpl(false, false);
+        final var bytes = Unpooled.buffer();
         bytes.writeByte(4);
-        new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
+        final var ex = assertThrows(PCEPDeserializerException.class,
+            () -> new PCCEndPointIpv4ObjectParser().parseObject(header, bytes));
+        assertEquals("Wrong length of array of bytes.", ex.getMessage());
     }
 
     @Test
-    public void testParseObject() throws PCEPDeserializerException {
-        final ObjectHeader header = new ObjectHeaderImpl(false, false);
-        final ByteBuf bytes = Unpooled.buffer();
+    void testParseObject() throws Exception {
+        final var header = new ObjectHeaderImpl(false, false);
+        final var bytes = Unpooled.buffer();
         bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4AddressNoZone(IP1)));
         bytes.writeBytes(Ipv4Util.bytesForAddress(new Ipv4AddressNoZone(IP2)));
-        final EndpointsObj output = (EndpointsObj) new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
+        final var output = assertInstanceOf(EndpointsObj.class,
+            new PCCEndPointIpv4ObjectParser().parseObject(header, bytes));
 
-        assertEquals(IP1, ((Ipv4Case) output.getAddressFamily()).getIpv4().getSourceIpv4Address().getValue());
-        assertEquals(IP2, ((Ipv4Case) output.getAddressFamily()).getIpv4().getDestinationIpv4Address().getValue());
+        final var ipv4 = assertInstanceOf(Ipv4Case.class, output.getAddressFamily()).getIpv4();
+        assertEquals(IP1, ipv4.getSourceIpv4Address().getValue());
+        assertEquals(IP2, ipv4.getDestinationIpv4Address().getValue());
         assertFalse(output.getIgnore());
         assertFalse(output.getProcessingRule());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNullBytes() throws PCEPDeserializerException {
-        final ObjectHeader header = new ObjectHeaderImpl(false, false);
-        final ByteBuf bytes = null;
-        new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
+    @Test
+    void testNullBytes() {
+        final var header = new ObjectHeaderImpl(false, false);
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> new PCCEndPointIpv4ObjectParser().parseObject(header, null));
+        assertEquals("Array of bytes is mandatory. Can't be null or empty.", ex.getMessage());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyBytes() throws PCEPDeserializerException {
-        final ObjectHeader header = new ObjectHeaderImpl(false, false);
-        final ByteBuf bytes = Unpooled.buffer();
-        new PCCEndPointIpv4ObjectParser().parseObject(header, bytes);
+    @Test
+    void testEmptyBytes() {
+        final var header = new ObjectHeaderImpl(false, false);
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> new PCCEndPointIpv4ObjectParser().parseObject(header, Unpooled.EMPTY_BUFFER));
+        assertEquals("Array of bytes is mandatory. Can't be null or empty.", ex.getMessage());
     }
 }
