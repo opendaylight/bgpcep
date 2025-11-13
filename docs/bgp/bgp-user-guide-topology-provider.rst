@@ -49,7 +49,7 @@ Following example shows how to create a new instance of IPv4 BGP topology export
 
       @line 6: A name of the local BGP speaker instance.
 
-   .. tab:: JSON`
+   .. tab:: JSON
 
       **Content-Type:** ``application/json``
 
