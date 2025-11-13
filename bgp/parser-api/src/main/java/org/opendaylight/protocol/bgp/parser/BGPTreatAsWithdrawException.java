@@ -28,7 +28,7 @@ public final class BGPTreatAsWithdrawException extends AbstractBGPException {
         super(String.format(format, args), error, data, null);
     }
 
-    public BGPTreatAsWithdrawException(final @NonNull BGPError error, @Nullable final Exception cause,
+    public BGPTreatAsWithdrawException(final @NonNull BGPError error, final @Nullable Exception cause,
             final @NonNull String format, final Object... args) {
         super(String.format(format, args), error, null, cause);
     }

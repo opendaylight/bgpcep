@@ -46,8 +46,9 @@ public final class DefaultBGPExtensionConsumerContext implements BGPExtensionCon
 
     @Inject
     @Activate
-    public DefaultBGPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-            List<BGPExtensionProviderActivator> extensionActivators) {
+    public DefaultBGPExtensionConsumerContext(
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<BGPExtensionProviderActivator> extensionActivators) {
         extensionActivators.forEach(activator -> activator.start(delegate));
     }
 

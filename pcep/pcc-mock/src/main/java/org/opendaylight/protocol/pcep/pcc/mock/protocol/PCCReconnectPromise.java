@@ -33,8 +33,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     private final int connectTimeout;
     private final Bootstrap bootstrap;
 
-    @GuardedBy("this")
-    private Future<?> pending;
+    private @GuardedBy("this") Future<?> pending;
 
     PCCReconnectPromise(final InetSocketAddress address, final int retryTimer,
                         final int connectTimeout, final Bootstrap bootstrap) {
@@ -82,9 +81,7 @@ final class PCCReconnectPromise extends DefaultPromise<PCEPSession> {
     }
 
     private final class BootstrapConnectListener implements ChannelFutureListener {
-
-        @GuardedBy("this")
-        private final Object lock;
+        private final @GuardedBy("this") Object lock;
 
         BootstrapConnectListener(final Object lock) {
             this.lock = lock;
