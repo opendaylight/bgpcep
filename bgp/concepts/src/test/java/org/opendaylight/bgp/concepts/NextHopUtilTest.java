@@ -7,10 +7,11 @@
  */
 package org.opendaylight.bgp.concepts;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -39,72 +40,56 @@ public class NextHopUtilTest {
 
     @Test
     public void testSerializeNextHop() {
-        CNextHop hop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
-                .setGlobal(IPV4).build()).build();
         final ByteBuf buffer = Unpooled.buffer();
-        NextHopUtil.serializeNextHop(hop, buffer);
+        NextHopUtil.serializeNextHop(new Ipv4NextHopCaseBuilder()
+            .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(IPV4).build())
+            .build(), buffer);
         assertArrayEquals(IPV4B, ByteArray.readAllBytes(buffer));
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6).build()).build();
         buffer.clear();
-        NextHopUtil.serializeNextHop(hop, buffer);
+        NextHopUtil.serializeNextHop(new Ipv6NextHopCaseBuilder()
+            .setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6).build())
+            .build(), buffer);
         assertArrayEquals(IPV6B, ByteArray.readAllBytes(buffer));
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6)
-                .setLinkLocal(IPV6L).build()).build();
         buffer.clear();
-        NextHopUtil.serializeNextHop(hop, buffer);
+        NextHopUtil.serializeNextHop(new Ipv6NextHopCaseBuilder()
+            .setIpv6NextHop(new Ipv6NextHopBuilder().setGlobal(IPV6).setLinkLocal(IPV6L).build())
+            .build(), buffer);
         assertArrayEquals(IPV6LB, ByteArray.readAllBytes(buffer));
 
         buffer.clear();
+        final var hop = new Ipv6NextHopCaseBuilder()
+            .setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(IPV6L).build())
+            .build();
 
-        hop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(new Ipv6NextHopBuilder().setLinkLocal(IPV6L).build()).build();
-        buffer.clear();
-        try {
-            NextHopUtil.serializeNextHop(hop, buffer);
-            fail("Exception should happen");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Ipv6 Next Hop is missing Global address.", e.getMessage());
-        }
+        final var ex = assertThrows(IllegalArgumentException.class, () -> NextHopUtil.serializeNextHop(hop, buffer));
+        assertEquals("Ipv6 Next Hop is missing Global address.", ex.getMessage());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testSerializeNextHopException() {
-        NextHopUtil.serializeNextHop(() -> null, null);
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> NextHopUtil.serializeNextHop(() -> null, null));
+        assertThat(ex.getMessage()).startsWith("""
+            Cannot serialize NEXT_HOP. Class not supported: org.opendaylight.bgp.concepts.NextHopUtilTest""");
     }
 
     @Test
     public void testParseNextHop() {
-        CNextHop hop = null;
-        try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV4B));
-        } catch (final IllegalArgumentException e) {
-            fail("This exception should not happen");
-        }
+        CNextHop hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV4B));
         assertEquals(IPV4, ((Ipv4NextHopCase) hop).getIpv4NextHop().getGlobal());
 
-        try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6B));
-        } catch (final IllegalArgumentException e) {
-            fail("This exception should not happen");
-        }
+        hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6B));
         assertEquals(IPV6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
         assertNull(((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
 
-        try {
-            hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6LB));
-        } catch (final IllegalArgumentException e) {
-            fail("This exception should not happen");
-        }
+        hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV6LB));
         assertEquals(IPV6, ((Ipv6NextHopCase) hop).getIpv6NextHop().getGlobal());
         assertEquals(IPV6L, ((Ipv6NextHopCase) hop).getIpv6NextHop().getLinkLocal());
 
-        final byte[] wrong = new byte[]{(byte) 0x20, (byte) 0x01, (byte) 0x0d};
-        try {
-            NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(wrong));
-            fail("Exception should happen");
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Cannot parse NEXT_HOP attribute. Wrong bytes length: 3", e.getMessage());
-        }
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(new byte[] { 0x20, 0x01, 0x0d })));
+        assertEquals("Cannot parse NEXT_HOP attribute. Wrong bytes length: 3", ex.getMessage());
     }
 }
