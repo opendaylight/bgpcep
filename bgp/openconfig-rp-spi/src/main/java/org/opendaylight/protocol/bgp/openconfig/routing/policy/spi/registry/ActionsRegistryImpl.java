@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
-import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
@@ -48,13 +47,12 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class ActionsRegistryImpl {
-    @GuardedBy("this")
-    private final Map<Class<? extends Augmentation<Actions>>, ActionsAugPolicy> actionsRegistry = new HashMap<>();
-    @GuardedBy("this")
-    private final Map<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions = new HashMap<>();
-    @GuardedBy("this")
-    private final Map<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry
-            = new HashMap<>();
+    private final @GuardedBy("this") HashMap<Class<? extends Augmentation<Actions>>, ActionsAugPolicy> actionsRegistry =
+        new HashMap<>();
+    private final @GuardedBy("this") HashMap<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions =
+        new HashMap<>();
+    private final @GuardedBy("this")
+        HashMap<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry = new HashMap<>();
 
     AbstractRegistration registerActionPolicy(
             final Class<? extends Augmentation<Actions>> actionPolicyClass,

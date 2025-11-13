@@ -24,8 +24,8 @@ final class PeerGroupStateCliUtils {
         // Hidden on purpose
     }
 
-    static void displayPeerOperationalState(@NonNull final Collection<PeerGroup> peerGroupList,
-            @NonNull final PrintStream stream) {
+    static void displayPeerOperationalState(final @NonNull Collection<PeerGroup> peerGroupList,
+            final @NonNull PrintStream stream) {
         final ShellTable table = new ShellTable();
         table.column("Attribute").alignLeft();
         table.column("Value").alignLeft();

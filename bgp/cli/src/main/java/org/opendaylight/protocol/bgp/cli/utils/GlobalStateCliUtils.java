@@ -24,8 +24,8 @@ final class GlobalStateCliUtils {
         // Hidden on purpose
     }
 
-    static void displayRibOperationalState(@NonNull final String ribId, @NonNull final Global global,
-            @NonNull final PrintStream stream) {
+    static void displayRibOperationalState(final @NonNull String ribId, final @NonNull Global global,
+            final @NonNull PrintStream stream) {
         final State globalState = global.getState();
 
         final ShellTable table = new ShellTable();

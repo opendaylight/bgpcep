@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
-import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
@@ -27,12 +26,12 @@ import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 final class ConditionsRegistryImpl {
-    @GuardedBy("this")
-    private final Map<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry
-            = new HashMap<>();
+    private final @GuardedBy("this")
+        HashMap<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry = new HashMap<>();
     private final BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
 
     ConditionsRegistryImpl() {
+        // nothing else
     }
 
     AbstractRegistration registerConditionPolicy(final Class<? extends Augmentation<Conditions>> conditionPolicyClass,

@@ -16,8 +16,7 @@ import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractBGPStatementProviderActivator implements StatementProviderActivator, AutoCloseable {
-    @GuardedBy("this")
-    private List<? extends Registration> registrations;
+    private @GuardedBy("this") List<? extends Registration> registrations;
 
     @Holding("this")
     protected abstract List<? extends Registration> startImpl(StatementRegistryProvider context);
@@ -26,14 +25,14 @@ public abstract class AbstractBGPStatementProviderActivator implements Statement
     public final synchronized void start(final StatementRegistryProvider context) {
         checkState(this.registrations == null);
 
-        this.registrations = requireNonNull(startImpl(context));
+        registrations = requireNonNull(startImpl(context));
     }
 
     @Override
     public final synchronized void stop() {
-        if (this.registrations != null) {
-            this.registrations.forEach(Registration::close);
-            this.registrations = null;
+        if (registrations != null) {
+            registrations.forEach(Registration::close);
+            registrations = null;
         }
     }
 

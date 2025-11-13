@@ -24,12 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class TestingSessionListener implements PCEPSessionListener, ListenerCheck {
-
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
-    private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
-    @GuardedBy("this")
-    private final List<Message> messages = new ArrayList<>();
+    private final CountDownLatch sessionLatch = new CountDownLatch(1);
+    private final @GuardedBy("this") ArrayList<Message> messages = new ArrayList<>();
 
     private boolean up = false;
     private PCEPSession session = null;

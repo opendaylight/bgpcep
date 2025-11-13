@@ -57,8 +57,8 @@ public final class PcepStateUtils {
      * @param topologyId mandatory, Topology where Node pertains
      * @param nodeId     mandatory, State per given Node Id will be printed
      */
-    public static void displayNodeState(@NonNull final DataBroker dataBroker,
-            @NonNull final PrintStream stream, @NonNull final String topologyId, @NonNull final String nodeId) {
+    public static void displayNodeState(final @NonNull DataBroker dataBroker,
+            final @NonNull PrintStream stream, final @NonNull String topologyId, final @NonNull String nodeId) {
         final Node node = readNodeFromDataStore(dataBroker, topologyId, nodeId);
         if (node == null) {
             stream.println(String.format("Node [%s] not found", nodeId));
