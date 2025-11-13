@@ -16,12 +16,10 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PeerRecord {
-    @GuardedBy("this")
     // FIXME: why do we need to lock this?
-    private final Cache<Short, Short> pastIds;
+    private final @GuardedBy("this") Cache<Short, Short> pastIds;
 
-    @GuardedBy("this")
-    private Uint8 lastId;
+    private @GuardedBy("this") Uint8 lastId;
 
     PeerRecord(final long idLifetimeSeconds, final Uint8 lastId) {
         // Note that the cache is limited to 255 entries -- which means we will always have

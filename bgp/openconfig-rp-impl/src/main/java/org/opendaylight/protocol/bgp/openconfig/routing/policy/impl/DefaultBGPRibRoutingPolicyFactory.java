@@ -38,8 +38,8 @@ public final class DefaultBGPRibRoutingPolicyFactory implements BGPRibRoutingPol
 
     @Inject
     @Activate
-    public DefaultBGPRibRoutingPolicyFactory(final @Reference DataBroker databroker,
-            final @Reference StatementRegistryConsumer statementRegistryConsumer) {
+    public DefaultBGPRibRoutingPolicyFactory(@Reference final DataBroker databroker,
+            @Reference final StatementRegistryConsumer statementRegistryConsumer) {
         this.databroker = requireNonNull(databroker);
         this.statementRegistryConsumer = requireNonNull(statementRegistryConsumer);
     }

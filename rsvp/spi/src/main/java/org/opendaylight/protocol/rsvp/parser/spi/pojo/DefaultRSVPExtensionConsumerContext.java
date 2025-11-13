@@ -43,8 +43,9 @@ public final class DefaultRSVPExtensionConsumerContext implements RSVPExtensionC
 
     @Inject
     @Activate
-    public DefaultRSVPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-            List<RSVPExtensionProviderActivator> extensionActivators) {
+    public DefaultRSVPExtensionConsumerContext(
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<RSVPExtensionProviderActivator> extensionActivators) {
         extensionActivators.forEach(activator -> activator.start(delegate));
     }
 

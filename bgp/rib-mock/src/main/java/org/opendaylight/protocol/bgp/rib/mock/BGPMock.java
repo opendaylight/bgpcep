@@ -34,13 +34,10 @@ public final class BGPMock implements Closeable {
 
     static final Notify CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
-    @GuardedBy("this")
-    private final List<byte[]> allPreviousByteMessages;
+    private final @GuardedBy("this") List<EventBusRegistration> openRegistrations = new ArrayList<>();
+    private final @GuardedBy("this") List<byte[]> allPreviousByteMessages;
     private final List<Notification<?>> allPreviousBGPMessages;
     private final EventBus eventBus;
-
-    @GuardedBy("this")
-    private final List<EventBusRegistration> openRegistrations = new ArrayList<>();
 
     public BGPMock(final EventBus eventBus, final MessageRegistry registry, final List<byte[]> bgpMessages) {
         allPreviousByteMessages = new ArrayList<>(bgpMessages);

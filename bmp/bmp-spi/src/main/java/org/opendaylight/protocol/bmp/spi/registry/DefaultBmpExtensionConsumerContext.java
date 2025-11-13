@@ -32,8 +32,9 @@ public final class DefaultBmpExtensionConsumerContext implements BmpExtensionCon
 
     @Inject
     @Activate
-    public DefaultBmpExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-            List<BmpExtensionProviderActivator> extensionActivators) {
+    public DefaultBmpExtensionConsumerContext(
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<BmpExtensionProviderActivator> extensionActivators) {
         extensionActivators.forEach(activator -> activator.start(delegate));
     }
 

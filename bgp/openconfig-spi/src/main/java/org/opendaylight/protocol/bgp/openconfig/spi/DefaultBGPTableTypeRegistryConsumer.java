@@ -48,8 +48,9 @@ public final class DefaultBGPTableTypeRegistryConsumer extends AbstractBGPTableT
     }
 
     @Activate
-    public DefaultBGPTableTypeRegistryConsumer(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-            List<BGPTableTypeRegistryProviderActivator> activators) {
+    public DefaultBGPTableTypeRegistryConsumer(
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<BGPTableTypeRegistryProviderActivator> activators) {
         this((Iterable<BGPTableTypeRegistryProviderActivator>) activators);
     }
 

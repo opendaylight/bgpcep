@@ -56,9 +56,9 @@ public final class BGPOperationalStateUtils {
      * @param group      if provided, Operational State per given Neighbor Group will be printed
      * @param neighbor   if provided, Operational State per given Neighbor will be printed
      */
-    public static void displayBgpOperationalState(@NonNull final DataBroker dataBroker,
-            @NonNull final PrintStream stream, @NonNull final String ribId, @Nullable final String group,
-            @Nullable final String neighbor) {
+    public static void displayBgpOperationalState(final @NonNull DataBroker dataBroker,
+            final @NonNull PrintStream stream, final @NonNull String ribId, final @Nullable String group,
+            final @Nullable String neighbor) {
         final Bgp globalBgp = readGlobalFromDataStore(dataBroker, ribId);
         if (globalBgp == null) {
             stream.println(String.format("RIB not found for [%s]", ribId));
