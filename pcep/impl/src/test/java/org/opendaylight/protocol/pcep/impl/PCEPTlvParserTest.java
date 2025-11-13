@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -191,10 +192,12 @@ public class PCEPTlvParserTest {
         assertArrayEquals(PST_TLV_BYTES, ByteArray.getAllBytes(buff));
     }
 
-    @Test(expected = PCEPDeserializerException.class)
-    public void testUnsupportedPSTParser() throws PCEPDeserializerException {
-        final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
-        parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES_UNSUPPORTED, 4)));
+    @Test
+    public void testUnsupportedPSTParser() {
+        final var parser = new PathSetupTypeTlvParser();
+        final var ex = assertThrows(PCEPDeserializerException.class,
+            () -> parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES_UNSUPPORTED, 4))));
+        assertEquals("Unsuported Path Setup Type: 8", ex.getMessage());
     }
 
     @Test
