@@ -41,6 +41,7 @@ public final class CheckUtil {
     }
 
     @VisibleForTesting
+    @SuppressWarnings("CheckReturnValue")
     static <T extends Future<?>> void waitFutureSuccess(final T future, final long timeout, final TimeUnit unit) {
         final CountDownLatch latch = new CountDownLatch(1);
         future.addListener(future1 -> latch.countDown());
