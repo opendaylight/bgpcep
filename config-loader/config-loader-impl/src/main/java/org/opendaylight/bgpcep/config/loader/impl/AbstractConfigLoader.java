@@ -14,7 +14,6 @@ import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
@@ -77,11 +76,9 @@ abstract class AbstractConfigLoader implements ConfigLoader {
     private static final String READ = "rw";
     private static final long TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
-    @GuardedBy("this")
-    private final Map<ProcessorRegistration, ProcessorContext> configServices = new HashMap<>();
+    private final @GuardedBy("this") HashMap<ProcessorRegistration, ProcessorContext> configServices = new HashMap<>();
 
-    @GuardedBy("this")
-    private EffectiveModelContext currentContext;
+    private @GuardedBy("this") EffectiveModelContext currentContext;
 
     @Override
     public final synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {

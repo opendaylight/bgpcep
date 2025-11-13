@@ -57,8 +57,9 @@ public final class DefaultPCEPExtensionConsumerContext implements PCEPExtensionC
     }
 
     @Activate
-    public DefaultPCEPExtensionConsumerContext(final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-            List<PCEPExtensionProviderActivator> extensionActivators) {
+    public DefaultPCEPExtensionConsumerContext(
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<PCEPExtensionProviderActivator> extensionActivators) {
         extensionActivators.forEach(activator -> activator.start(delegate));
     }
 

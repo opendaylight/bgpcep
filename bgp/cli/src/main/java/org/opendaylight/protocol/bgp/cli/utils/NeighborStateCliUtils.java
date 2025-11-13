@@ -36,8 +36,8 @@ final class NeighborStateCliUtils {
         // Hidden on purpose
     }
 
-    static void displayNeighborOperationalState(@NonNull final String neighborId,
-            @NonNull final Neighbor neighbor, @NonNull final PrintStream stream) {
+    static void displayNeighborOperationalState(final @NonNull String neighborId,
+            final @NonNull Neighbor neighbor, final @NonNull PrintStream stream) {
         final State neighborState = neighbor.getState();
         if (neighborState == null) {
             stream.println(String.format("No BgpSessionState found for [%s]", neighborId));

@@ -22,9 +22,9 @@ public final class OSGiRIBExtensionConsumerContext extends ForwardingRIBExtensio
     private SimpleRIBExtensionProviderContext delegate;
 
     @Activate
-    public OSGiRIBExtensionConsumerContext(final @Reference BindingNormalizedNodeSerializer mappingCodec,
-            final @Reference(policyOption = ReferencePolicyOption.GREEDY)
-                List<RIBExtensionProviderActivator> extensionActivators) {
+    public OSGiRIBExtensionConsumerContext(@Reference final BindingNormalizedNodeSerializer mappingCodec,
+            @Reference(policyOption = ReferencePolicyOption.GREEDY)
+            final List<RIBExtensionProviderActivator> extensionActivators) {
         delegate = new SimpleRIBExtensionProviderContext();
         extensionActivators.forEach(activator -> activator.startRIBExtensionProvider(delegate, mappingCodec));
     }

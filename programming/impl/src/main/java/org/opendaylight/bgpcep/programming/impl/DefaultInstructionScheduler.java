@@ -151,8 +151,8 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     private final ServiceGroupIdentifier sgi;
     private final Registration csspReg;
     private final RpcProviderService rpcProviderRegistry;
-    @GuardedBy("this")
-    private Registration reg;
+
+    private @GuardedBy("this") Registration reg;
 
     DefaultInstructionScheduler(final DataBroker dataProvider, final NotificationPublishService notifs,
             final Executor executor, final RpcProviderService rpcProviderRegistry,

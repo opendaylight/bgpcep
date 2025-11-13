@@ -15,7 +15,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -85,14 +84,12 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
     private final WithKey<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final DataBroker dataBroker;
-    @GuardedBy("this")
-    private final Map<String, DataObjectIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
-    @GuardedBy("this")
-    private TransactionChain transactionChain;
-    @GuardedBy("this")
-    private final ScheduledFuture<?> scheduleTask;
+    private final @GuardedBy("this") HashMap<String, DataObjectIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
+    private final @GuardedBy("this") ScheduledFuture<?> scheduleTask;
     private final ScheduledExecutorService scheduler;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+
+    private @GuardedBy("this") TransactionChain transactionChain;
 
     @Activate
     public StateProviderImpl(@Reference final @NonNull DataBroker dataBroker,
