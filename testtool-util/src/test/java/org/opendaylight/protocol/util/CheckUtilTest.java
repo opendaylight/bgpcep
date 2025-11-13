@@ -80,11 +80,13 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
             () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
+    @Test
     public void testReadDataConfigurationNull() {
         assertThrows(AssertionError.class,
             () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
+    @Test
     public void testReadDataOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
 
@@ -94,6 +96,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
         }, TIMEOUT));
     }
 
+    @Test
     public void testReadDataConfigurationFail() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
 
