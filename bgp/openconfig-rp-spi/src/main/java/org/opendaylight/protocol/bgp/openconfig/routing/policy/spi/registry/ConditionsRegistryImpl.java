@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import com.google.common.base.Preconditions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashMap;
 import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -27,7 +26,6 @@ import org.opendaylight.yangtools.binding.Augmentation;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
-@SuppressFBWarnings("NM_CONFUSING")
 final class ConditionsRegistryImpl {
     @GuardedBy("this")
     private final Map<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry
