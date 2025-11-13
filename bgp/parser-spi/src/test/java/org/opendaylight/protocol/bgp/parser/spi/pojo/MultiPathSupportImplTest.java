@@ -7,12 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import java.util.ArrayList;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
@@ -22,38 +23,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
-public class MultiPathSupportImplTest {
-
-    @Test(expected = NullPointerException.class)
-    public void testcreateParserMultiPathSupportNull() {
-        MultiPathSupportImpl.createParserMultiPathSupport(null);
+class MultiPathSupportImplTest {
+    @Test
+    void testcreateParserMultiPathSupportNull() {
+        assertThrows(NullPointerException.class, () -> MultiPathSupportImpl.createParserMultiPathSupport(null));
     }
 
     @Test
-    public void testIsTableTypeSupported() {
-        final List<AddressFamilies> supportedTables = new ArrayList<>();
-        final BgpTableType ipv4Unicast = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
-            UnicastSubsequentAddressFamily.VALUE);
-        final BgpTableType ipv4L3vpn = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
+    void testIsTableTypeSupported() {
+        final var ipv4Unicast = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+        final var ipv4L3vpn = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             MplsLabeledVpnSubsequentAddressFamily.VALUE);
-        final BgpTableType ipv6Unicast = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
-            UnicastSubsequentAddressFamily.VALUE);
-        final BgpTableType ipv6L3vpn = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
+        final var ipv6Unicast = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+        final var ipv6L3vpn = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
             MplsLabeledVpnSubsequentAddressFamily.VALUE);
-        supportedTables.add(createAddPathCapability(ipv4Unicast, SendReceive.Send));
-        supportedTables.add(createAddPathCapability(ipv4L3vpn, SendReceive.Receive));
-        supportedTables.add(createAddPathCapability(ipv6Unicast, SendReceive.Both));
-        final MultiPathSupport multiPathSupport = MultiPathSupportImpl.createParserMultiPathSupport(supportedTables);
+        final var multiPathSupport = MultiPathSupportImpl.createParserMultiPathSupport(List.of(
+            createAddPathCapability(ipv4Unicast, SendReceive.Send),
+            createAddPathCapability(ipv4L3vpn, SendReceive.Receive),
+            createAddPathCapability(ipv6Unicast, SendReceive.Both)));
 
-        Assert.assertTrue(multiPathSupport.isTableTypeSupported(ipv4Unicast));
-        Assert.assertTrue(multiPathSupport.isTableTypeSupported(ipv6Unicast));
-        Assert.assertFalse(multiPathSupport.isTableTypeSupported(ipv4L3vpn));
-        Assert.assertFalse(multiPathSupport.isTableTypeSupported(ipv6L3vpn));
+        assertTrue(multiPathSupport.isTableTypeSupported(ipv4Unicast));
+        assertTrue(multiPathSupport.isTableTypeSupported(ipv6Unicast));
+        assertFalse(multiPathSupport.isTableTypeSupported(ipv4L3vpn));
+        assertFalse(multiPathSupport.isTableTypeSupported(ipv6L3vpn));
     }
 
     private static AddressFamilies createAddPathCapability(final BgpTableType afisafi, final SendReceive mode) {
-        return new AddressFamiliesBuilder().setAfi(afisafi.getAfi()).setSafi(afisafi.getSafi()).setSendReceive(mode)
-                .build();
+        return new AddressFamiliesBuilder()
+            .setAfi(afisafi.getAfi())
+            .setSafi(afisafi.getSafi())
+            .setSendReceive(mode)
+            .build();
     }
-
 }
