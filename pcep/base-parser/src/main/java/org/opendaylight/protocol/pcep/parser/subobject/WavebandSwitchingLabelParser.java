@@ -53,7 +53,7 @@ public class WavebandSwitchingLabelParser implements LabelParser, LabelSerialize
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
             final ByteBuf buffer) {
         checkArgument(subobject instanceof WavebandSwitchingLabelCase,
-            "Unknown Label Subobject instance. Passed {}. Needed WavebandSwitchingLabelCase.", subobject.getClass());
+            "Unknown Label Subobject instance. Passed %s. Needed WavebandSwitchingLabelCase.", subobject.getClass());
         final WavebandSwitchingLabel obj = ((WavebandSwitchingLabelCase) subobject).getWavebandSwitchingLabel();
         final ByteBuf body = Unpooled.buffer(CONTENT_LENGTH);
         ByteBufUtils.writeMandatory(body, obj.getWavebandId(), "WavebandId");
