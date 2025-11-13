@@ -24,7 +24,6 @@ import io.netty.util.Timer;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -56,10 +55,10 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 public final class PCCTunnelManagerImpl implements PCCTunnelManager {
-
     private static final Optional<Srp> NO_SRP = Optional.empty();
-    @GuardedBy("this")
-    private final Map<Integer, PCCSession> sessions = new HashMap<>();
+
+    private final @GuardedBy("this") HashMap<Integer, PCCSession> sessions = new HashMap<>();
+    private final @GuardedBy("this") HashMap<PlspId, PCCTunnel> tunnels = new HashMap<>();
     private final AtomicLong plspIDsCounter;
     private final String address;
     private final Timer timer;
@@ -67,8 +66,7 @@ public final class PCCTunnelManagerImpl implements PCCTunnelManager {
     private final int stateTimeout;
     private final int lspsCount;
     private final Optional<TimerHandler> timerHandler;
-    @GuardedBy("this")
-    private final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
+
     private PCCSyncOptimization syncOptimization;
 
     public PCCTunnelManagerImpl(final int lspsCount, final InetAddress address, final int redelegationTimeout,

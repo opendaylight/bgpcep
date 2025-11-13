@@ -9,16 +9,13 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.List;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 
 class TestingSessionListenerFactory implements PCEPSessionListenerFactory {
-
-    @GuardedBy("this")
-    private final List<TestingSessionListener> sessionListeners = new ArrayList<>();
+    private final @GuardedBy("this") ArrayList<TestingSessionListener> sessionListeners = new ArrayList<>();
 
     @Override
     public PCEPSessionListener getSessionListener() {
