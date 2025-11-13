@@ -43,7 +43,7 @@ public class GeneralizedLabelParser implements LabelParser, LabelSerializer {
     public void serializeLabel(final boolean unidirectional, final boolean global, final LabelType subobject,
             final ByteBuf buffer) {
         checkArgument(subobject instanceof GeneralizedLabelCase,
-                "Unknown Label Subobject instance. Passed {}. Needed GeneralizedLabelCase.", subobject.getClass());
+                "Unknown Label Subobject instance. Passed %s. Needed GeneralizedLabelCase.", subobject.getClass());
         final GeneralizedLabel gl = ((GeneralizedLabelCase) subobject).getGeneralizedLabel();
         Preconditions.checkArgument(gl != null, "GeneralizedLabel is mandatory.");
         final ByteBuf body = Unpooled.wrappedBuffer(gl.getGeneralizedLabel());
