@@ -12,7 +12,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,6 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PCEPPeerRegistry {
-
     /**
      * The maximum lifetime for which we should hold on to a session ID before assuming it is okay to reuse it.
      */
@@ -40,12 +38,10 @@ final class PCEPPeerRegistry {
     private static final long PEER_CACHE_SIZE = 1024;
 
     // FIXME: why do we hold a lock?!
-    @GuardedBy("this")
-    private final Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder()
+    private final @GuardedBy("this") Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder()
             .expireAfterAccess(PEER_CACHE_SECONDS, TimeUnit.SECONDS).maximumSize(PEER_CACHE_SIZE).build();
 
-    @GuardedBy("this")
-    private final Map<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
+    private final @GuardedBy("this") HashMap<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
 
     protected interface SessionReference extends AutoCloseable {
         Uint8 getSessionId();

@@ -34,9 +34,7 @@ public final class MultiRegistry<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MultiRegistry.class);
 
     private final ConcurrentMap<K, V> current = new ConcurrentHashMap<>();
-
-    @GuardedBy("this")
-    private final ListMultimap<K, V> candidates = ArrayListMultimap.create();
+    private final @GuardedBy("this") ListMultimap<K, V> candidates = ArrayListMultimap.create();
 
     @Holding("this")
     private void updateCurrent(final K key) {
