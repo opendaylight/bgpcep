@@ -29,12 +29,13 @@ import org.slf4j.LoggerFactory;
 // This class is thread-safe
 public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPProtocolSessionPromise.class);
-    private InetSocketAddress address;
+
     private final int retryTimer;
     private final int connectTimeout;
     private final Bootstrap bootstrap;
-    @GuardedBy("this")
-    private Future<?> pending;
+
+    private @GuardedBy("this") Future<?> pending;
+    private InetSocketAddress address;
 
     PCEPProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address,
             final int retryTimer, final int connectTimeout, final Bootstrap bootstrap) {

@@ -92,11 +92,9 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
-    @GuardedBy("this")
-    private final AtomicBoolean closed = new AtomicBoolean(false);
+    private final @GuardedBy("this") AtomicBoolean closed = new AtomicBoolean(false);
 
     private final Channel channel;
-
 
     private final PCEPSessionState sessionState;
 

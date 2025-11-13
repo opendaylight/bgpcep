@@ -260,7 +260,7 @@ public final class MessagesUtil {
         return new PcrepBuilder().setPcrepMessage(msgBuilder.build()).build();
     }
 
-    public static Pcerr createErrorMsg(@NonNull final PCEPErrors pcepErrors, final Uint32 reqID) {
+    public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final Uint32 reqID) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(msgBuilder
                 .setErrorType(
