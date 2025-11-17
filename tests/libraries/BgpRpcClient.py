@@ -15,7 +15,7 @@ class BgpRpcClient(object):
 
     def __init__(self, peer_addr, port=8000):
         """Setup destination point of the rpc server"""
-        self.proxy = xmlrpc.client.ServerProxy("http://{}:{}".format(peer_addr, port))
+        self.proxy = xmlrpc.client.ServerProxy("http://{}:{}".format(peer_addr, port), allow_none=True)
 
     def exa_announce(self, full_exabgp_cmd):
         """The full command to be passed to exabgp."""
@@ -85,17 +85,17 @@ class BgpRpcClient(object):
             return msg
         return msg if "neighbor" not in msg else msg["neighbor"]["message"]
 
-    def play_send(self, hexstring):
+    def play_send(self, hexstring, peer_id = 0):
         """Sends given hex data, already encoded bgp update message is expected."""
-        return self.proxy.send(hexstring.rstrip())
+        return self.proxy.send(hexstring.rstrip(), peer_id)
 
-    def play_get(self, what="update"):
+    def play_get(self, what="update", peer_id = 0):
         """Gets the last received (update) mesage as hex string."""
-        return self.proxy.get(what)
+        return self.proxy.get(what, peer_id)
 
-    def play_clean(self, what="update"):
+    def play_clean(self, what="update", peer_id = None):
         """Cleans the message (update) on the server."""
-        return self.proxy.clean(what)
+        return self.proxy.clean(what, peer_id)
 
     def sum_hex_message(self, hex_string):
         """Verifies two hex messages are equal even in case, their arguments are misplaced.

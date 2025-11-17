@@ -2442,25 +2442,26 @@ def job(arguments, inqueue, storage):
 class Rpcs:
     """Handler for SimpleXMLRPCServer"""
 
-    def __init__(self, sendqueue, storage):
+    def __init__(self, sendqueues, storages):
         """Init method
 
         Arguments:
-            :sendqueue: queue for data to be sent towards odl
-            :storage: thread safe dict
+            :sendqueue: queues for data to be sent towards odl
+            :storage: thread safe dicts
         """
-        self.queue = sendqueue
-        self.storage = storage
+        self.queues = sendqueues
+        self.storages = storages
 
-    def send(self, text):
+    def send(self, text, peer_id = 0):
         """Data to be sent
 
         Arguments:
             :text: hes string of the data to be sent
+            :peer_id: peer order number
         """
-        self.queue.put(text)
+        self.queues[peer_id].put(text)
 
-    def get(self, text=""):
+    def get(self, text="", peer_id = 0):
         """Reads data form the storage
 
         - returns stored data or an empty string, at the moment only
@@ -2468,21 +2469,32 @@ class Rpcs:
 
         Arguments:
             :text: a key to the storage to get the data
+            :peer_id: peer order number
         Returns:
             :data: stored data
         """
-        with self.storage as stor:
+        with self.storages[peer_id] as stor:
             return stor.get(text, "")
 
-    def clean(self, text=""):
+    def clean(self, text="", peer_id = None):
         """Cleans data form the storage
 
         Arguments:
             :text: a key to the storage to clean the data
+            :peer_id: peer order number
         """
-        with self.storage as stor:
-            if text in stor:
-                del stor[text]
+        # Clear specific peer
+        if peer_id is not None:
+            with self.storage[peer_id] as stor:
+                if text in stor:
+                    del stor[text]
+        # Peer not specified, clear all peers
+        else:
+            for storage in self.storages:
+                with storage as stor:
+                    if text in stor:
+                        del stor[text]
+
 
 
 def threaded_job(arguments):
@@ -2499,8 +2511,8 @@ def threaded_job(arguments):
     myip_current = arguments.myip
     port = arguments.port
     thread_args = []
-    rpcqueue = queue.Queue()
-    storage = SafeDict()
+    rpcqueues = []
+    peers_storages = []
 
     while 1:
         amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
@@ -2528,6 +2540,10 @@ def threaded_job(arguments):
     try:
         # Create threads
         for t in thread_args:
+            storage = SafeDict()
+            peers_storages.append(storage)
+            rpcqueue = queue.Queue()
+            rpcqueues.append(rpcqueue)
             threading.Thread(
                 target=job, args=(t, rpcqueue, storage), daemon=True
             ).start()
@@ -2540,7 +2556,7 @@ def threaded_job(arguments):
     else:
         ip = arguments.myip
     rpcserver = SimpleXMLRPCServer((ip.compressed, port), allow_none=True)
-    rpcserver.register_instance(Rpcs(rpcqueue, storage))
+    rpcserver.register_instance(Rpcs(rpcqueues, peers_storages))
     rpcserver.serve_forever()
 
 
