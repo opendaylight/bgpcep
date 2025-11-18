@@ -16,6 +16,24 @@
       "message": "I just cannot agree with the complete integration of parsers.\nWe suddenly cannot build a parser which does not understand stateful, which makes it problematic to simulate interop.\n\nThat change is not even mentioned in the commit message, so this patch claims to do one thing, but actually does 2 unrelated things on top of that.",
       "revId": "32b3885092da84796dbcb7e6403ede6ce83c3336",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c36ce063_2c5b9bbb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-11-18T17:24:59Z",
+      "side": 1,
+      "message": "Hum... I didn\u0027t really understand your comment. I split the migration of stateful and initiated RFC in 2 steps:\n- First, migrate yang models to api bundle (this is the previous patch you already merged)\n- Second, migrate the parser for new Stateful and Initiated TLVs, Objects and Messages to base-parser bundle.\n\nWhat are you expected from me? Update the commit message? split this patch in 2 parts: one for Stateful and then another one for Initiated while the previous migrate both yang models?\n\nThanks for your help and advices\n\nOlivier",
+      "parentUuid": "dd6e5891_56c8aa30",
+      "revId": "32b3885092da84796dbcb7e6403ede6ce83c3336",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
