@@ -31,6 +31,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPath;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.DiversityType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.constrained.path.DivertPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.Constraints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.ConstraintsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.constraints.ExcludeRoute;
@@ -65,11 +67,10 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     }
 
     /**
-     * Initialize the various parameters for Path Computation, in particular the
-     * Source and Destination of CspfPath.
+     * Initialize the various parameters for Path Computation, in particular the Source and Destination CspfPath.
      *
-     * @param src Source Vertex Identifier in the Connected Graph
-     * @param dst Destination Vertex Identifier in the Connected Graph
+     * @param src   Source Vertex Identifier in the Connected Graph
+     * @param dst   Destination Vertex Identifier in the Connected Graph
      *
      * @return Computation Status
      */
@@ -93,7 +94,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return status;
         }
         LOG.debug("Create Path Source with Vertex {}", vertex);
-        pathSource = new CspfPath(vertex).setStatus(CspfPathStatus.InProgress).setCost(0).setDelay(0);
+        pathSource = new CspfPath(vertex, vertex).setStatus(CspfPathStatus.InProgress).setCost(0).setDelay(0);
 
         /*
          * Get the Connected Vertex from the Graph to initialize the destination
@@ -106,7 +107,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return status;
         }
         LOG.debug("Create Path Destination with Vertex {}", vertex);
-        pathDestination = new CspfPath(vertex).setStatus(CspfPathStatus.NoPath);
+        pathDestination = new CspfPath(pathSource.getSource(), vertex).setStatus(CspfPathStatus.NoPath);
 
         /* Initialize the Priority Queue, HashMap */
         priorityQueue.clear();
@@ -273,6 +274,33 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     }
 
     /**
+     * Verify if Edge share SRLG with current path during Path Diversity computation.
+     *
+     * @param path  Current CSPF Path
+     * @param edge  Connected Edge to be verified
+     *
+     * @return  True if Edge share SRLG with current path, False otherwise
+     */
+    protected boolean verifySrlgs(final ConnectedEdge edge, final CspfPath path) {
+        /* Collect all SRLGS from all Connected Edges of the CSPF Path */
+        final var srlgs = new ArrayList<Uint32>();
+        for (ConnectedEdge e : path.getPath()) {
+            if (e.getEdge().getEdgeAttributes().getSrlgs() != null) {
+                srlgs.addAll(e.getEdge().getEdgeAttributes().getSrlgs());
+            }
+        }
+
+        /* Check if Edge share SRLG with the CSPF Path */
+        for (Uint32 srlg : edge.getEdge().getEdgeAttributes().getSrlgs()) {
+            if (srlgs.contains(srlg)) {
+                LOG.debug("Edge {} share SRLG {} with current path", edge.getEdge().getName(), srlg);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Check if Edge need to be prune regarding all constraints including address family.
      *
      * @param edge Connected Edge to be verified
@@ -307,6 +335,52 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return true;
         }
 
+        /* Check that Edge belongs to admin group */
+        final var adminGroup = constraints.getAdminGroup();
+        if (adminGroup != null && !adminGroup.equals(attributes.getTeMetric().getAdminGroup())) {
+            LOG.debug("Not in the requested admin-group");
+            return true;
+        }
+
+        /* Check that Edge is not part of Exclude Route */
+        if (verifyExcludeRoute(edge, attributes)) {
+            return true;
+        }
+
+        /* Check for Diversity constraint */
+        if (constraints.getPathDiversity() != null) {
+            switch (constraints.getPathDiversity().getType()) {
+                case Link:
+                    if (edge.isDivert()) {
+                        LOG.debug("Edge {} is marked for Diversity", edge.getEdge().getName());
+                        return true;
+                    }
+                    break;
+                case Srlg:
+                    if (edge.isDivert() || verifySrlgs(edge, path)) {
+                        LOG.debug("Edge {} is marked for diversity or share SRLG with current path",
+                            edge.getEdge().getName());
+                        return true;
+                    }
+                    break;
+                case Node:
+                    if (edge.getDestination().isDivert()) {
+                        LOG.debug("Node {} is marked for Diversity", edge.getDestination().getVertex().getName());
+                        return true;
+                    }
+                    break;
+                case NodeSrlg:
+                    if (edge.getDestination().isDivert() || verifySrlgs(edge, path)) {
+                        LOG.debug("Node {} is marked for Diversity or Edge share SRLG with current path",
+                            edge.getDestination().getVertex().getName());
+                        return true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
         /* Check only IGP Metric, if specified, for simple SPF algorithm */
         if (this instanceof ShortestPathFirst) {
             final var metricConstraint = constraints.getMetric();
@@ -336,21 +410,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
             return true;
         }
 
-        /* Check that Edge belongs to admin group */
-        final var adminGroup = constraints.getAdminGroup();
-        if (adminGroup != null && !adminGroup.equals(attributes.getTeMetric().getAdminGroup())) {
-            LOG.debug("Not in the requested admin-group");
-            return true;
-        }
-
-        /* Check that Edge is not part of Exclude Route */
-        if (verifyExcludeRoute(edge, attributes)) {
-            return true;
-        }
-
-        /*
-         * OK. All is fine. We can consider this Edge valid, so not to be prune
-         */
+        /* OK. All is fine. We can consider this Edge valid, so not to be prune */
         LOG.trace("Edge {} is valid for Constrained Path Computation", edge);
         return false;
     }
@@ -483,15 +543,62 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         if (path == null) {
             return cbuilder.setStatus(ComputationStatus.NoPath).build();
         }
+
         if (status != ComputationStatus.Completed) {
             return cbuilder.setStatus(status).build();
         }
+
         return cbuilder
             .setStatus(ComputationStatus.Completed)
             .setPathDescription(getPathDescription(path.getPath()))
             .setComputedMetric(constraints.getMetric() != null ? Uint32.valueOf(path.getCost()) : null)
             .setComputedTeMetric(constraints.getTeMetric() != null ? Uint32.valueOf(path.getCost()) : null)
             .setComputedDelay(constraints.getDelay() != null ? new Delay(Uint32.valueOf(path.getDelay())) : null)
+            .build();
+    }
+
+    protected ConstrainedPath toConstrainedPath(final CspfPath primary, final CspfPath secondary) {
+        final var cbuilder = new ConstrainedPathBuilder().setConstraints(constraints);
+
+        if (primary == null) {
+            return cbuilder
+                .setSource(pathSource.getVertex().getVertex().getVertexId())
+                .setDestination(pathDestination.getVertex().getVertex().getVertexId())
+                .setStatus(ComputationStatus.NoPath).build();
+        }
+        cbuilder.setSource(primary.getSource().getVertex().getVertexId())
+            .setDestination(primary.getVertex().getVertex().getVertexId());
+
+        if (secondary == null || status != ComputationStatus.Completed) {
+            return cbuilder.setStatus(ComputationStatus.Completed)
+                .setPathDescription(getPathDescription(primary.getPath()))
+                .setComputedMetric(constraints.getMetric() != null ? Uint32.valueOf(primary.getCost()) : null)
+                .setComputedTeMetric(constraints.getTeMetric() != null ? Uint32.valueOf(primary.getCost()) : null)
+                .setComputedDelay(constraints.getDelay() != null ? new Delay(Uint32.valueOf(primary.getDelay())) : null)
+                .setDivertPath(new DivertPathBuilder()
+                    .setStatus(ComputationStatus.NoPath)
+                    .setSource(constraints.getPathDiversity().getSource())
+                    .setDestination(constraints.getPathDiversity().getDestination())
+                    .build())
+                .build();
+        }
+
+        return cbuilder
+            .setStatus(ComputationStatus.Completed)
+            .setPathDescription(getPathDescription(primary.getPath()))
+            .setComputedMetric(constraints.getMetric() != null ? Uint32.valueOf(primary.getCost()) : null)
+            .setComputedTeMetric(constraints.getTeMetric() != null ? Uint32.valueOf(primary.getCost()) : null)
+            .setComputedDelay(constraints.getDelay() != null ? new Delay(Uint32.valueOf(primary.getDelay())) : null)
+            .setDivertPath(new DivertPathBuilder()
+                .setStatus(ComputationStatus.Completed)
+                .setSource(secondary.getSource().getVertex().getVertexId())
+                .setDestination(secondary.getVertex().getVertex().getVertexId())
+                .setPathDescription(getPathDescription(secondary.getPath()))
+                .setComputedMetric(constraints.getMetric() != null ? Uint32.valueOf(secondary.getCost()) : null)
+                .setComputedTeMetric(constraints.getTeMetric() != null ? Uint32.valueOf(secondary.getCost()) : null)
+                .setComputedDelay(constraints.getDelay() != null
+                    ? new Delay(Uint32.valueOf(secondary.getDelay())) : null)
+                .build())
             .build();
     }
 
@@ -537,6 +644,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         /* Get Path Constraints */
         constraints = cts;
 
+        /* Return Path Diversity computation if diversity is requested */
+        if (constraints.getPathDiversity() != null) {
+            return computeDivertPaths(source, destination, cts);
+        }
+
         /* Return simple path computation if there is no Include Route defined */
         final var includeRoute = constraints.getIncludeRoute();
         if (includeRoute == null || includeRoute.isEmpty()) {
@@ -563,6 +675,227 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         } while (it.hasNext());
         segmentPath = mergePath(segmentPath, computeSimplePath(skey, destination));
         return toConstrainedPath(segmentPath);
+    }
+
+    /* Utility functions for Path Diversity computation */
+    protected void setEdgesDiversity(final List<ConnectedEdge> edges) {
+        if (constraints.getPathDiversity() == null || constraints.getPathDiversity().getType() != DiversityType.Link) {
+            return;
+        }
+
+        for (var edge: edges) {
+            LOG.debug("Set Diversity to Edge {}", edge.getEdge().getName());
+            edge.setDiversity(true);
+        }
+    }
+
+    protected void resetEdgesDiversity(final List<ConnectedEdge> edges) {
+        for (var edge: edges) {
+            LOG.debug("Reset Diversity to Edge {}", edge.getEdge().getName());
+            edge.setDiversity(false);
+        }
+    }
+
+    protected void setVerticesDiversity(final List<ConnectedEdge> edges) {
+        if (constraints.getPathDiversity() == null || constraints.getPathDiversity().getType() != DiversityType.Node) {
+            return;
+        }
+
+        for (var edge: edges) {
+            LOG.debug("Set Diversity to Node {}", edge.getDestination().getVertex().getName());
+            if (edge.getDestination().getVertex().getVertexId().longValue() != pathDestination.getVertexKey()) {
+                edge.getDestination().setDiversity(true);
+            }
+        }
+    }
+
+    protected void resetVerticesDiversity(final List<ConnectedEdge> edges) {
+        for (var edge: edges) {
+            LOG.debug("Reset Diversity to Node {}", edge.getDestination().getVertex().getName());
+            edge.getDestination().setDiversity(false);
+        }
+    }
+
+    protected int getComputedMetric(final List<ConnectedEdge> path) {
+        if (constraints.getMetric() == null) {
+            return 0;
+        }
+        int totalMetric = 0;
+        for (var edge : path) {
+            final var metric = edge.getEdge().getEdgeAttributes().getMetric();
+            if (metric != null) {
+                totalMetric += metric.intValue();
+            }
+        }
+        return totalMetric;
+    }
+
+    protected int getComputedTeMetric(final List<ConnectedEdge> path) {
+        if (constraints.getTeMetric() == null) {
+            return 0;
+        }
+        int totalTeMetric = 0;
+        for (var edge : path) {
+            final var teMetric = edge.getEdge().getEdgeAttributes().getTeMetric().getMetric();
+            if (teMetric != null) {
+                totalTeMetric += teMetric.intValue();
+            }
+        }
+        return totalTeMetric;
+    }
+
+    protected int getComputedDelay(final List<ConnectedEdge> path) {
+        if (constraints.getDelay() == null) {
+            return 0;
+        }
+        int totalDelay = 0;
+        for (var edge : path) {
+            final var delay = edge.getEdge().getEdgeAttributes().getExtendedMetric().getDelay();
+            if (delay != null) {
+                totalDelay += delay.getValue().intValue();
+            }
+        }
+        return totalDelay;
+    }
+
+    protected ConstrainedPath combineDivertPaths(final CspfPath pcp, final CspfPath scp) {
+        if (pcp == null || scp == null) {
+            LOG.warn("One of the paths is null! Abort combining divert paths.");
+            return toConstrainedPath(pcp, scp);
+        }
+
+        final var cp1 = new CspfPath(pcp.getSource(), pcp.getVertex());
+        final var cp2 = new CspfPath(scp.getSource(), scp.getVertex());
+        final var p1 = new ArrayList<>(pcp.getPath());
+        final var p2 = new ArrayList<>(scp.getPath());
+
+        cp1.addConnectedEdge(p1.removeFirst());
+        cp2.addConnectedEdge(p2.removeFirst());
+        boolean revert = false;
+
+        while (!p1.isEmpty() && !p2.isEmpty()) {
+            var e1 = p1.removeFirst();
+            var e2 = p2.removeFirst();
+            /* Skip Edges if P1 and P2 share the same reverse edge */
+            if (e1.getEdge().getRemoteVertexId().equals(e2.getEdge().getLocalVertexId())) {
+                LOG.debug("Found common reverse edge: {} and {}", e1.getEdge().getName(), e2.getEdge().getName());
+                revert = !revert;
+                e1 = p1.removeFirst();
+                e2 = p2.removeFirst();
+            }
+            /* Add next Edges to the P'1 and P'2 regarding the revert flag */
+            if (revert) {
+                cp1.addConnectedEdge(e2);
+                cp2.addConnectedEdge(e1);
+            } else {
+                cp1.addConnectedEdge(e1);
+                cp2.addConnectedEdge(e2);
+            }
+        }
+        /* Complete P'1 or P'2 with remaining part of P1 or P2 */
+        if (!p1.isEmpty() && p2.isEmpty()) {
+            if (revert) {
+                cp2.addPath(p1);
+            } else {
+                cp1.addPath(p1);
+            }
+        }
+        if (p1.isEmpty() && !p2.isEmpty()) {
+            if (revert) {
+                cp2.addPath(p2);
+            } else {
+                cp1.addPath(p2);
+            }
+        }
+
+        /* Compute Metrics of new Paths */
+        if (constraints.getTeMetric() != null) {
+            cp1.setCost(getComputedTeMetric(cp1.getPath()));
+            cp2.setCost(getComputedTeMetric(cp2.getPath()));
+        } else {
+            cp1.setCost(getComputedMetric(cp1.getPath()));
+            cp2.setCost(getComputedMetric(cp2.getPath()));
+        }
+        cp1.setDelay(getComputedDelay(cp1.getPath()));
+        cp2.setDelay(getComputedDelay(cp2.getPath()));
+
+        return toConstrainedPath(cp1, cp2);
+    }
+
+    /**
+     * Compute Divert path algorithms could be simple as: 1) compute first path, 2) remove edges and nodes in graph
+     * and 3) compute the second path. Named Remove and Find this simple solution is not optimal and frequently failed.
+     * Thus, we use here another approach based on Suurballe's algorithm:
+     * - Step1: Compute the first path P1 from graph G(V,E)
+     * - Step2: Replace P1 by -P1 in G(V,E) to form a new graph G'(V',E')
+     * - Step3: Compute the second path P2 from graph G'(V',E')
+     * - Step4: Take the union of P1 and P2, remove from the union the set of links consisting of those P1 links
+     *          whose reversed links appear on P2, and vice versa; then group the remaining links into two paths
+     *          P1' and P2'
+     * In our case, step2 will consist to mark P1 edge's and/or vertice's as "diverted" in Connected Graph
+     * as all edges are bi-directionnal and unmark them after step 3.
+     */
+    @Override
+    public ConstrainedPath computeDivertPaths(final VertexKey source, final VertexKey destination,
+        final Constraints cts) {
+
+        // Get Path Constraints
+        if (cts.getPathDiversity() == null && cts.getPathDiversity().getType() == null) {
+            LOG.warn("Diversity constraints not specified. Abort divert path computation.");
+            return new ConstrainedPathBuilder().setStatus(ComputationStatus.WrongDiversityType).build();
+        }
+        constraints = cts;
+
+        // Step 1: compute the primary path
+        LOG.debug("Step 1: compute the primary path");
+        final CspfPath primaryPath = computeSimplePath(source, destination);
+        if (status != ComputationStatus.Completed || primaryPath == null) {
+            LOG.warn("Primary path computation failed. Abort divert path computation.");
+            return toConstrainedPath(primaryPath);
+        }
+
+        // Step 2: mark edges or vertices used by the primary path as diverted
+        LOG.debug("Step 2: mark edges or vertices used by the primary path as diverted");
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> setEdgesDiversity(primaryPath.getPath());
+            case Node -> setVerticesDiversity(primaryPath.getPath());
+            default -> {
+                LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+                return new ConstrainedPathBuilder().setStatus(ComputationStatus.WrongDiversityType).build();
+            }
+        }
+
+        // Step 3: compute the secondary path with new pair of source and destination if specified
+        LOG.debug("Step 3: compute the secondary path");
+        CspfPath secondaryPath;
+        if (cts.getPathDiversity().getSource() != null) {
+            if (cts.getPathDiversity().getDestination() != null) {
+                secondaryPath = computeSimplePath(new VertexKey(cts.getPathDiversity().getSource()),
+                    new VertexKey(cts.getPathDiversity().getDestination()));
+            } else {
+                secondaryPath = computeSimplePath(new VertexKey(cts.getPathDiversity().getSource()), destination);
+            }
+        } else if (cts.getPathDiversity().getDestination() != null) {
+            secondaryPath = computeSimplePath(source, new VertexKey(cts.getPathDiversity().getDestination()));
+        } else {
+            secondaryPath = computeSimplePath(source, destination);
+        }
+
+        // Step 3b: reset diversity on edges or vertices used by the primary path
+        LOG.debug("Step 3b: reset diversity on edges or vertices used by the primary path");
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> resetEdgesDiversity(primaryPath.getPath());
+            case Node -> resetVerticesDiversity(primaryPath.getPath());
+            default -> LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+        }
+
+        // Step 4: combine paths if secondary path computation succeeded
+        LOG.debug("Step 4: combine paths if secondary path computation succeeded");
+        if (status == ComputationStatus.NoPath || secondaryPath == null) {
+            LOG.warn("Secondary path computation failed. Abort divert path computation.");
+            return toConstrainedPath(primaryPath, null);
+        }
+        return combineDivertPaths(primaryPath, secondaryPath);
     }
 
     protected abstract CspfPath computeSimplePath(VertexKey source, VertexKey destination);
