@@ -17,6 +17,9 @@ import org.opendaylight.graph.ConnectedVertex;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.Delay;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.rev250115.graph.topology.graph.VertexKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ConstrainedPath;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.Constraints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.path.constraints.ConstraintsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -253,7 +256,7 @@ public class Samcra extends AbstractPathComputation {
         /* Process CspfPath including the next Vertex */
         CspfPath nextVertexPath = processedPath.get(edge.getDestination().getKey());
         if (nextVertexPath == null) {
-            nextVertexPath = new CspfPath(edge.getDestination());
+            nextVertexPath = new CspfPath(source.getSource(), edge.getDestination());
             processedPath.put(nextVertexPath.getVertexKey(), nextVertexPath);
             SamcraPath nextSamcraPath = new SamcraPath(edge.getDestination());
             samcraPaths.put(nextVertexPath.getVertexKey(), nextSamcraPath);
@@ -283,21 +286,26 @@ public class Samcra extends AbstractPathComputation {
          * Even if call to pruneEdge() method has removed edges that do not meet constraints, the method keep edges
          * that have no Delay or TE Metric if the Delay, respectively the TE Metric are not specified in constraints.
          * So, Delay and TE Metric presence in edge attributes must be checked again.
+         * Note that for path diversity, DIMCRA Algorithm reset edge metrics to 0 for reverse link
+         * i.e. edge which has reverse edge marked as divert.
          */
-        if (edge.getEdge().getEdgeAttributes().getTeMetric() != null
-                && edge.getEdge().getEdgeAttributes().getTeMetric().getMetric() != null) {
-            teCost = edge.getEdge().getEdgeAttributes().getTeMetric().getMetric().intValue() + currentPath.getCost();
-        } else {
+        final var eAttributes = edge.getEdge().getEdgeAttributes();
+        final var revertEdge = edge.getReverse();
+        if (revertEdge != null && revertEdge.isDivert()) {
             teCost = currentPath.getCost();
-        }
-        if (edge.getEdge().getEdgeAttributes().getExtendedMetric() != null
-                && edge.getEdge().getEdgeAttributes().getExtendedMetric().getDelay() != null) {
-            delayCost = edge.getEdge().getEdgeAttributes().getExtendedMetric().getDelay().getValue().intValue()
-                    + currentPath.getDelay();
-        } else {
             delayCost = currentPath.getDelay();
+        } else {
+            if (eAttributes.getTeMetric() != null && eAttributes.getTeMetric().getMetric() != null) {
+                teCost = currentPath.getCost() + eAttributes.getTeMetric().getMetric().intValue();
+            } else {
+                teCost = currentPath.getCost();
+            }
+            if (eAttributes.getExtendedMetric() != null && eAttributes.getExtendedMetric().getDelay() != null) {
+                delayCost = currentPath.getDelay() + eAttributes.getExtendedMetric().getDelay().getValue().intValue();
+            } else {
+                delayCost = currentPath.getDelay();
+            }
         }
-
         SamcraPath samcraPath = samcraPaths.get(nextVertexPath.getVertexKey());
         if (isPathDominated(samcraPath)) {
             LOG.debug("     - Skip Edge because new path is dominated");
@@ -444,7 +452,7 @@ public class Samcra extends AbstractPathComputation {
         }
 
         /* Create new Path with computed TE Metric, Delay and Path Length */
-        CspfPath newPath = new CspfPath(vertex)
+        CspfPath newPath = new CspfPath(cspfPath.getSource(), vertex)
                 .setCost(teCost)
                 .setDelay(delayCost)
                 .setKey((int) (100 * pathLength))
@@ -458,5 +466,136 @@ public class Samcra extends AbstractPathComputation {
                 newPath, pathLength, teCost, delayCost);
 
         return newPath;
+    }
+
+    /**
+     * Dimcra algorithm is based on a variant of Suurballe algorithm to compute a path satisfying multiple constraints.
+     * The main difference with Suurballe algorithm, take place is step 3 and 4:
+     * - For step 3, use 0 for combined metrics when reverse edges are marked as divert instead of using negative
+     * metrics and multiply by twice constraints before computing the secondary path.
+     * - For Step 4, if the final paths are not met the constraints, the algorithm loop to step 2 to mark divert
+     * the edges of secondary path before attempting to compute a secondary path (step 3) and combine paths (step 4).
+     * Details of DIMCRA algorithm could be found in the article "Link-disjoint paths for reliable QoS routing",
+     * Yuchun Guo, Fernando Kuipers and Piet Van Mieghem, Int. Journal of Communication Systems, volume 16, 2003
+     *
+     * @param source        Vertex Key of source
+     * @param destination   Vertex key of destination
+     * @param cts           Path constraints
+     *
+     * @return Constrained Path
+     */
+    private ConstrainedPath dimcra(final VertexKey source, final VertexKey destination,
+            final Constraints cts) {
+
+        // Get Path Constraints
+        if (cts.getPathDiversity() == null && cts.getPathDiversity().getType() == null) {
+            LOG.warn("Diversity constraints not specified. Abort divert path computation.");
+            status = ComputationStatus.WrongDiversityType;
+            return null;
+        }
+        constraints = cts;
+
+        // Step 1: compute the primary path
+        LOG.debug("Dimcra - Step 1: compute the primary path");
+        final CspfPath primaryPath = computeSimplePath(source, destination);
+        if (status != ComputationStatus.Completed || primaryPath == null) {
+            LOG.warn("Primary path computation failed. Abort divert path computation.");
+            return toConstrainedPath(null);
+        }
+
+        // Step 2: mark edges or vertices used by the primary path as diverted
+        LOG.debug("Dimcra - Step 2: mark edges or vertices used by the primary path {} as diverted",
+            primaryPath.getPath());
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> setEdgesDiversity(primaryPath.getPath());
+            case Node -> setVerticesDiversity(primaryPath.getPath());
+            default -> LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+        }
+
+        // Step 3a: Change constraints C to 2*C
+        LOG.debug("Dimcra - Step 3a: Change constraints C to 2*C");
+        constraints = new ConstraintsBuilder(cts)
+            .setTeMetric(cts.getTeMetric() != null
+                ? Uint32.valueOf(cts.getTeMetric().longValue() * 2L) : null)
+            .setDelay(cts.getDelay() != null
+                ? new Delay(Uint32.valueOf(cts.getDelay().getValue().longValue() * 2L)) : null)
+            .build();
+
+        // Step 3b - 5: Compute the secondary path and combine them
+        VertexKey secondarySource = source;
+        VertexKey secondaryDestination = destination;
+        if (constraints.getPathDiversity().getSource() != null) {
+            secondarySource = new VertexKey(cts.getPathDiversity().getSource());
+        }
+        if (constraints.getPathDiversity().getDestination() != null) {
+            secondaryDestination = new VertexKey(cts.getPathDiversity().getDestination());
+        }
+        final ConstrainedPath diverPath =  dimcra_next(secondarySource, secondaryDestination, primaryPath, cts);
+
+        // Step 5: reset diversity on edges or vertices
+        LOG.debug("Dimcra - Step 5: reset diversity on edges or vertices for primary path {}",
+            primaryPath.getPath());
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> resetEdgesDiversity(primaryPath.getPath());
+            case Node -> resetVerticesDiversity(primaryPath.getPath());
+            default -> LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+        }
+
+        return diverPath;
+    }
+
+    private ConstrainedPath dimcra_next(final VertexKey source, final VertexKey destination,
+            CspfPath primaryPath, final Constraints cts) {
+
+        LOG.debug("Start DIMCRA next step for secondary path from {} to {}", source, destination);
+        CspfPath secondaryPath;
+        // Step3: compute secondary path
+        LOG.debug("Dimcra - Step 3: compute secondary path");
+        secondaryPath = computeSimplePath(source, destination);
+
+        // Step 4: combine paths if secondary path computation succeeded
+        LOG.debug("Dimcra - Step 4: combine paths if secondary path computation succeeded");
+        if (status != ComputationStatus.Completed || secondaryPath == null) {
+            return toConstrainedPath(primaryPath, null);
+        }
+        ConstrainedPath divertPath = combineDivertPaths(primaryPath, secondaryPath);
+
+        // Step 4b: Check that final divert path meets constraints
+        LOG.debug("Dimcra - Step 4b: Check that final divert path meets constraints");
+        if ((cts.getTeMetric() == null
+                || divertPath.getComputedTeMetric().intValue() < cts.getTeMetric().intValue())
+            && (cts.getDelay() == null
+                || divertPath.getComputedDelay().getValue().intValue() < cts.getDelay().getValue().intValue())) {
+            LOG.debug(" - Divert paths meet constraints");
+            return divertPath;
+        }
+
+        // Mark secondary path edges or vertices as diverted as they don't meet constraints
+        LOG.debug(" - Divert paths don't meet constraints. Mark secondary path edges or vertices as diverted");
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> setEdgesDiversity(secondaryPath.getPath());
+            case Node -> setVerticesDiversity(secondaryPath.getPath());
+            default -> LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+        }
+
+        // and loop to step 3 to compute a new secondary path
+        divertPath = dimcra_next(source, destination, primaryPath, cts);
+
+        // Step 5: Reset diversity on edges or vertices after secondary path computation
+        LOG.debug("Dimcra - Step 5: reset diversity on edges or vertices for secondary path {}",
+            secondaryPath.getPath());
+        switch (cts.getPathDiversity().getType()) {
+            case Link, Srlg -> resetEdgesDiversity(secondaryPath.getPath());
+            case Node -> resetVerticesDiversity(secondaryPath.getPath());
+            default -> LOG.warn("Unsupported Diversity Type: {}", cts.getPathDiversity().getType());
+        }
+
+        return divertPath;
+    }
+
+    @Override
+    public ConstrainedPath computeDivertPaths(final VertexKey source, final VertexKey destination,
+        final Constraints cts) {
+        return dimcra(source, destination, cts);
     }
 }

@@ -45,7 +45,7 @@ public class ShortestPathFirst extends AbstractPathComputation {
 
         /* Process all Connected Vertex until priority queue becomes empty. Connected Vertices are added into the
          * priority queue when processing the next Connected Vertex: see relax() method */
-        final var finalPath = new CspfPath(pathDestination.getVertex()).setStatus(CspfPathStatus.InProgress);
+        final var finalPath = new CspfPath(pathDestination).setStatus(CspfPathStatus.InProgress);
         visitedVertices.clear();
 
         while (priorityQueue.size() != 0) {
@@ -98,15 +98,23 @@ public class ShortestPathFirst extends AbstractPathComputation {
          */
         CspfPath nextPath = processedPath.get(nextVertexKey);
         if (nextPath == null) {
-            nextPath = new CspfPath(edge.getDestination());
+            nextPath = new CspfPath(currentPath.getSource(), edge.getDestination());
             processedPath.put(nextPath.getVertexKey(), nextPath);
         }
 
         /* Compute Cost from source to this next Vertex and add or update it in the Priority Queue
          * if total path Cost is lower than cost associated to this next Vertex.
          * This could occurs if we process a Vertex that as not yet been visited in the Graph
-         * or if we found a shortest path up to this Vertex. */
-        int totalCost = edge.getEdge().getEdgeAttributes().getMetric().intValue() + currentPath.getCost();
+         * or if we found a shortest path up to this Vertex.
+         * Note that for path diversity, Suurballe Algorithm used negative metric for reverse link
+         * i.e. edge which has reverse edge marked as divert. */
+        final var revertEdge = edge.getReverse();
+        int totalCost;
+        if (revertEdge != null && revertEdge.isDivert()) {
+            totalCost = currentPath.getCost() - edge.getEdge().getEdgeAttributes().getMetric().intValue();
+        } else {
+            totalCost = currentPath.getCost() + edge.getEdge().getEdgeAttributes().getMetric().intValue();
+        }
         if (nextPath.getCost() > totalCost) {
             nextPath.setCost(totalCost)
                     .replacePath(currentPath.getPath())
