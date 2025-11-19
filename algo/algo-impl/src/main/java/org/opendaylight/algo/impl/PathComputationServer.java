@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.GetConstrainedPathInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.GetConstrainedPathOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.GetConstrainedPathOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.get.constrained.path.output.DivertPathBuilder;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -88,14 +89,26 @@ public final class PathComputationServer implements AutoCloseable, PathComputati
         final VertexKey destination = new VertexKey(input.getDestination());
         LOG.info("Call Path Computation {} algorithm for path from {} to {} with contraints {}",
                 input.getAlgorithm().getName(), source, destination, input.getConstraints());
-        final ConstrainedPath cpath = algo.computeP2pPath(source, destination, input.getConstraints());
+        ConstrainedPath cpath;
+        if (input.getConstraints().getPathDiversity() == null) {
+            cpath = algo.computeP2pPath(source, destination, input.getConstraints());
+        } else {
+            cpath = algo.computeDivertPaths(source, destination, input.getConstraints());
+        }
+        LOG.info("Path Computation {} algorithm returned path: {}", input.getAlgorithm().getName(), cpath);
 
-        /* Send back the Computed Path */
-        output.setPathDescription(cpath.getPathDescription()).setStatus(cpath.getStatus())
+        output.setStatus(cpath.getStatus())
+            .setSource(cpath.getSource())
+            .setDestination(cpath.getDestination())
+            .setPathDescription(cpath.getPathDescription())
             .setComputedMetric(cpath.getComputedMetric())
             .setComputedTeMetric(cpath.getComputedTeMetric())
             .setComputedDelay(cpath.getComputedDelay());
+        if (input.getConstraints().getPathDiversity() != null && cpath.getDivertPath() != null) {
+            output.setDivertPath(new DivertPathBuilder(cpath.getDivertPath()).build());
+        }
 
+        /* Send back the Computed Path */
         return RpcResultBuilder.success(output.build()).buildFuture();
     }
 
