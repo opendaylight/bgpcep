@@ -32,4 +32,19 @@ public interface PathComputationAlgorithm {
      *         the path computation (Completed or Failed)
      */
     @NonNull ConstrainedPath computeP2pPath(VertexKey source, VertexKey destination, Constraints constraints);
+
+    /**
+     * Compute point to point divert path from source to destination taking into account specified constraints.
+     * The secondary path could use the same source / destination endpoints or a new endpoint pair could be specified
+     * within the diversity Object under the constraints.
+     *
+     * @param source      Source Vertex Key
+     * @param destination Destination Vertex Key
+     * @param constraints Constraints including diversity (link, node, srlg and endpoints if different)
+     *
+     * @return Two diverted paths that meet constraints or empty paths otherwise. ConstrainedPath.Status indicates the
+     *         result of the path computation (Completed or Failed). SecondaryPath contains the path description of the
+     *         diverted path.
+     */
+    @NonNull ConstrainedPath computeDivertPaths(VertexKey source, VertexKey destination, Constraints constraints);
 }
