@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedVertex;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.computation.rev251022.ComputationStatus;
 
 /**
  * This Class implements the Constrained Shortest Path First (CSPF) Path stored in the Priority Queue used by various
@@ -31,8 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.path.com
 
 public class CspfPath implements Comparable<CspfPath> {
 
-    /* Associated Connected Vertex: i.e. the current vertex in the Path */
+    /* Associated Connected Vertex: i.e. source and the current vertex in the Path */
     private final ConnectedVertex cvertex;
+    private final ConnectedVertex source;
 
     /* Path Length and associated cost and delay */
     private float pathLength = 0;
@@ -57,18 +57,36 @@ public class CspfPath implements Comparable<CspfPath> {
         NoPath,
         Failed
     }
+
     /* Status of the Path */
     private CspfPathStatus status;
 
     /* Key used by the Priority Queue to sort the paths */
     private Integer key = Integer.MAX_VALUE;
 
-    public CspfPath(final ConnectedVertex vertex) {
+    public CspfPath(final ConnectedVertex source, final ConnectedVertex vertex) {
+        this.source = source;
         this.cvertex = vertex;
+    }
+
+    public CspfPath(final CspfPath path) {
+        this.source = path.getSource();
+        this.cvertex = path.getVertex();
+        this.cost = path.getCost();
+        this.delay = path.getDelay();
+        this.currentPath.addAll(path.getPath());
+        this.status = path.getStatus();
+        this.predecessor = path.getPredecessor();
+        this.pathLength = path.getPathLength();
+        this.key = path.getKey();
     }
 
     public ConnectedVertex getVertex() {
         return this.cvertex;
+    }
+
+    public ConnectedVertex getSource() {
+        return this.source;
     }
 
     public Long getVertexKey() {
