@@ -32,7 +32,7 @@
         <module>api</module>
         <module>impl</module>
         <module>spi</module>
-        <module>base-parser</module>
+        <module>parser</module>
         <module>testtool</module>
         <module>server</module>
         <module>topology</module>

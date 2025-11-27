@@ -16,7 +16,7 @@
         <relativePath>../../binding-parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>pcep-base-parser</artifactId>
+    <artifactId>pcep-parser</artifactId>
     <description>PCE Protocol base parser extension provider</description>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>

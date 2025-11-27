@@ -398,7 +398,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>pcep-base-parser</artifactId>
+                <artifactId>pcep-parser</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -923,7 +923,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>odl-bgpcep-pcep-base-parser</artifactId>
+                <artifactId>odl-bgpcep-pcep-parser</artifactId>
                 <version>${project.version}</version>
                 <classifier>features</classifier>
                 <type>xml</type>
