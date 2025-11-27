@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.proc.time.object.ProcTime;
 
 /**
- * Utilities used in pcep-base-parser.
+ * Utilities used in pcep-parser.
  */
 public final class Util {
     private Util() {
