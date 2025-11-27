@@ -34,6 +34,24 @@
       "parentUuid": "dd6e5891_56c8aa30",
       "revId": "32b3885092da84796dbcb7e6403ede6ce83c3336",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d199dd2e_baa42c3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2025-11-27T12:18:34Z",
+      "side": 1,
+      "message": "I updated the commit message as well as create a new JIRA ticket BGPCEP-1067 to reflect the work done in this patch. JIRA reference has been also modified in the commit message.",
+      "parentUuid": "c36ce063_2c5b9bbb",
+      "revId": "32b3885092da84796dbcb7e6403ede6ce83c3336",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
