@@ -1,0 +1,128 @@
+{
+   "network-topology:topology":[
+      {
+         "topology-id":"pcep-topology",
+         "node":[
+         {% for i in range(PCC_COUNT) %}
+            {% set lsp_name = "pcc_127.0.1." ~ i ~ "_tunnel_1" %}
+            {
+               "network-pcep-topology-stats:pcep-session-state": {
+                  "delegated-lsps-count": 2,
+                  "local-pref": {
+                        "deadtimer": 120,
+                        "ip-address": "127.0.0.1",
+                        "keepalive": 30,
+                        "session-id": 0
+                  },
+                  "messages": {
+                        "error-messages": {
+                           "received-error-msg-count": 1,
+                           "sent-error-msg-count": 0
+                        },
+                        "last-received-rpt-msg-timestamp": 1765272574,
+                        "last-sent-msg-timestamp": 1765272576,
+                        "received-msg-count": 5,
+                        "received-rpt-msg-count": 4,
+                        "reply-time": {
+                           "average-time": 98,
+                           "max-time": 119,
+                           "min-time": 76
+                        },
+                        "sent-init-msg-count": 2,
+                        "sent-msg-count": 3,
+                        "sent-upd-msg-count": 1,
+                        "unknown-msg-received": 0
+                  },
+                  "peer-capabilities": {
+                        "active": true,
+                        "instantiation": true,
+                        "stateful": true
+                  },
+                  "peer-pref": {
+                        "deadtimer": 120,
+                        "ip-address": "127.0.1.{{ i }}",
+                        "keepalive": 30,
+                        "session-id": 0
+                  },
+                  "session-duration": "0:00:00:05",
+                  "synchronized": true
+               },
+               "node-id":"pcc://127.0.1.{{ i }}",
+               "network-topology-pcep:path-computation-client":{
+                  "stateful-capability":{
+                     "include-db-version":false,
+                     "lsp-update-capability":true,
+                     "triggered-resync":false,
+                     "initiation":true,
+                     "triggered-initial-sync":false,
+                     "delta-lsp-sync-capability":false
+                  },
+                  "state-sync":"synchronized",
+                  "ip-address":"127.0.1.{{ i }}",
+                  "reported-lsp":[
+                     {
+                        "name":"{{ lsp_name }}",
+                        "path":[
+                           {
+                              "lsp-id":1,
+                              "ero":{
+                                 "ignore":false,
+                                 "processing-rule":false,
+                                 "subobject":[
+                                    {
+                                       "loose":false,
+                                       "ip-prefix":{
+                                          "ip-prefix":"1.1.1.1/32"
+                                       }
+                                    },
+                                    {
+                                       "loose":false,
+                                       "ip-prefix":{
+                                          "ip-prefix":"{{i+2}}.{{i+2}}.{{i+2}}.{{i+2}}/32"
+                                       }
+                                    }
+                                 ]
+                              },
+                              "lsp":{
+                                 "ignore":false,
+                                 "tlvs":{
+                                    "lsp-identifiers":{
+                                       "ipv4":{
+                                          "ipv4-tunnel-sender-address":"127.0.1.{{ i }}",
+                                          "ipv4-extended-tunnel-id":"127.0.1.{{ i }}",
+                                          "ipv4-tunnel-endpoint-address":"1.1.1.1"
+                                       },
+                                       "tunnel-id":1,
+                                       "lsp-id":1
+                                    },
+                                    "symbolic-path-name":{
+                                       "path-name":"{{ lsp_name | b64encode }}"
+                                    }
+                                 },
+                                 "processing-rule":false,
+                                 "plsp-id":1,
+                                 "lsp-flags":{
+                                    "create":false,
+                                    "sync":true,
+                                    "operational":"up",
+                                    "remove":false,
+                                    "administrative":true,
+                                    "delegate":true,
+                                    "pce-allocation":false
+                                 }
+                              }
+                           }
+                        ]
+                     }
+                  ]
+               }
+            }{% if not loop.last %},{% endif %}
+        {% endfor %}
+         ],
+         "topology-types":{
+            "network-topology-pcep:topology-pcep":{
+            }
+         }
+      }
+   ]
+}
