@@ -15,6 +15,7 @@
 # It uses odl and exabgp as bgp peers. Routes advertized from
 # odl are configured via application peer.
 
+from jinja2 import Environment, FileSystemLoader
 import logging
 import pytest
 
@@ -25,10 +26,10 @@ from libraries import utils
 from libraries.variables import variables
 
 
+BGP_PEERS_COUNT = 20
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 TOOLS_IP = variables.TOOLS_IP
-BGP_RPC_CLIENT = bgp.BgpRpcClient(TOOLS_IP)
 HOLDTIME = 180
 DEVICE_NAME = "controller-config"
 BGP_PEER_NAME = "example-bgp-peer"
@@ -62,17 +63,20 @@ log = logging.getLogger(__name__)
 class TestBgpfunctionalMultipath:
     exabgp_process = None
     rib_odl = None
+    bgp_rpc_clients = None
 
     def setup_config_files(self, add_path="disable"):
         """Copies exabgp config files."""
-        rc, output = infra.shell("which python")
-        log.warn(output)
-        infra.shell(f"cp {BGP_VAR_FOLDER}/{DEFAUTL_RPC_CFG} tmp/")
-        infra.shell(f"cp {EXARPCSCRIPT} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ROUTEREFRESH/enable/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ADDPATH/{add_path}/g' tmp/{DEFAUTL_RPC_CFG}")
+        env = Environment(loader=FileSystemLoader(BGP_VAR_FOLDER))
+        # generate config file for bgp-flowspec-manypeers.cfg
+        template = env.get_template("exa.j2")
+        config = template.render({
+            "ODL_IP": ODL_IP,
+            "PEER_COUNT": BGP_PEERS_COUNT,
+            "ROUTEREFRESH": "enable",
+            "ADDPATH": add_path,
+            })
+        infra.save_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
         rc, stdout = infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
         log.info(stdout)
 
@@ -99,37 +103,44 @@ class TestBgpfunctionalMultipath:
         self.exabgp_process = bgp.start_exabgp_and_verify_connected(
             f"tmp/{DEFAUTL_RPC_CFG}", TOOLS_IP, "exabgp.log"
         )
+        self.bgp_rpc_clients = [bgp.BgpRpcClient(f"127.0.1.{i}") for i in range(BGP_PEERS_COUNT)]
 
-    def stop_exabgp_and_remove_odl_and_app_peer_configuration(self):
-        bgp.stop_exabgp(self.exabgp_process)
-        mapping = {"IP": TOOLS_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
-        templated_requests.delete_templated_request(
-            f"{MULT_VAR_FOLDER}/bgp_peer", mapping
-        )
+    def remove_odl_and_app_peer_configuration_and_stop_exaBgp(self):
+        for i in range(BGP_PEERS_COUNT):
+            mapping = {
+                "IP": f"127.0.1.{i}",
+                "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
+            templated_requests.delete_templated_request(
+                f"{MULT_VAR_FOLDER}/bgp_peer", mapping
+            )
         self.deconfigure_app_peer()
+        bgp.stop_exabgp(self.exabgp_process)
+        self.bgp_rpc_clients = None
 
     def verify_expected_update_count(self, exp_count):
         """Verify number of received update messages"""
-        tool_count = BGP_RPC_CLIENT.exa_get_received_update_count()
-        assert tool_count == exp_count
+        for i in range(BGP_PEERS_COUNT):
+            tool_count = self.bgp_rpc_clients[i].exa_get_received_update_count()
+            assert tool_count == exp_count, f"Expected count {exp_count} does not match received count {tool_count} on peer {i}"
 
     def configure_odl_peer_with_path_selection_mode(self, psm):
         """Configures odl peer with path selection mode"""
         npaths = 0 if psm == ALLPATHS_SELM else N_PATHS_VALUE
-        mapping = {
-            "IP": TOOLS_IP,
-            "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
-            "HOLDTIME": HOLDTIME,
-            "PEER_PORT": 17900,
-            "PASSIVE_MODE": "true",
-            "MULTIPATH": npaths,
-        }
         templated_requests.put_templated_request(
-            f"{MULT_VAR_FOLDER}/rib_policies", mapping, json=False
+            f"{MULT_VAR_FOLDER}/rib_policies", {"MULTIPATH": npaths}, json=False
         )
-        templated_requests.put_templated_request(
-            f"{MULT_VAR_FOLDER}/bgp_peer", mapping, json=False
-        )
+        for i in range(BGP_PEERS_COUNT):
+            mapping = {
+                "IP": f"127.0.1.{i}",
+                "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
+                "HOLDTIME": HOLDTIME,
+                "PEER_PORT": 17900,
+                "PASSIVE_MODE": "true",
+                "MULTIPATH": npaths,
+            }
+            templated_requests.put_templated_request(
+                f"{MULT_VAR_FOLDER}/bgp_peer", mapping, json=False
+            )
 
     def log_loc_rib_operational(self):
         rsp = templated_requests.get_from_uri(
@@ -178,12 +189,13 @@ class TestBgpfunctionalMultipath:
             )
             try:
                 self.log_loc_rib_operational()
+                # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 4
                 utils.wait_until_function_pass(
                     6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                utils.run_function_ignore_errors(self.stop_exabgp_and_remove_odl_and_app_peer_configuration)
+                self.remove_odl_and_app_peer_configuration_and_stop_exaBgp()
 
         with allure_step_with_separate_logging("step_odl_npaths_exa_sendreceived"):
             """n-paths policy selected on odl."""
@@ -195,7 +207,7 @@ class TestBgpfunctionalMultipath:
                 # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 3
                 utils.wait_until_function_pass(
-                    2, 2, self.verify_expected_update_count, update_messages
+                    6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                utils.run_function_ignore_errors(self.stop_exabgp_and_remove_odl_and_app_peer_configuration)
+                self.remove_odl_and_app_peer_configuration_and_stop_exaBgp()

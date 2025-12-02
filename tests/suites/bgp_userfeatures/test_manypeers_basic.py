@@ -49,11 +49,12 @@ from libraries import utils
 from libraries.variables import variables
 
 
+BGP_PEERS_COUNT = 20
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 BGP_PEER_NAME = "example-bgp-peer"
-BGP_TOOL_LOG_LEVEL = "info"
+BGP_TOOL_LOG_LEVEL = "debug"
 BGP_VARIABLES_FOLDER = "variables/bgpuser/"
 HOLDTIME = 180
 ODL_BGP_LOG_LEVEL = "DEFAULT"
@@ -107,7 +108,11 @@ class TestBasic:
         We have to restart it this way because we reset session before"""
         bgp.stop_bgp_speaker(self.bgp_speaker_process)
         self.bgp_speaker_process = bgp.start_bgp_speaker(
-            ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
+            ammount=3 * BGP_PEERS_COUNT,
+            my_ip=TOOLS_IP,
+            peer_ip=ODL_IP,
+            log_level=BGP_TOOL_LOG_LEVEL,
+            multiplicity=BGP_PEERS_COUNT
         )
         utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
@@ -121,7 +126,7 @@ class TestBasic:
     def check_speaker_is_connected(self):
         """Give it several tries to see exactly one established connection."""
         utils.wait_until_function_pass(
-            5, 1, self.verify_number_of_speaker_connections, 1
+            5, 1, self.verify_number_of_speaker_connections, BGP_PEERS_COUNT
         )
 
     def check_speaker_is_not_connected(self):
@@ -174,17 +179,18 @@ class TestBasic:
             "step_reconfigure_odl_to_initiate_connection"
         ):
             """Configure ibgp peer with local-address."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "LOCAL": ODL_IP,
-                "HOLDTIME": HOLDTIME,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "PASSIVE_MODE": "false",
-            }
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/ibgp_local_address", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_PORT": BGP_TOOL_PORT,
+                    "LOCAL": f"127.0.0.{i}",
+                    "HOLDTIME": HOLDTIME,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                    "PASSIVE_MODE": "false",
+                }
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/ibgp_local_address", mapping, json=False
+                )
 
         with allure_step_with_separate_logging(
             "step_tc_la_start_bgp_speaker_and_verify_connected"
@@ -192,11 +198,12 @@ class TestBasic:
             """Verify that peer is present in odl's rib under local-address ip."""
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
                 speaker_ips=TOOLS_IP,
-                ammount=3,
+                ammount=3 * BGP_PEERS_COUNT,
                 listen=True,
                 my_ip=TOOLS_IP,
                 peer_ip=ODL_IP,
                 log_level=BGP_TOOL_LOG_LEVEL,
+                multiplicity=BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc_la_kill_bgp_speaker"):
@@ -207,30 +214,39 @@ class TestBasic:
             "step_tc_la_delete_bgp_peer_configuration"
         ):
             """Delete peer configuration."""
-            mapping = {"IP": TOOLS_IP, "BGP_RIB_OPENCONFIG": RIB_NAME}
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/ibgp_local_address", mapping
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "BGP_RIB_OPENCONFIG": RIB_NAME
+                }
+                templated_requests.delete_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/ibgp_local_address", mapping
+                )
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "HOLDTIME": HOLDTIME,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "PASSIVE_MODE": "true",
-            }
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_PORT": BGP_TOOL_PORT,
+                    "HOLDTIME": HOLDTIME,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                    "PASSIVE_MODE": "true",
+                }
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
+                )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
             """Start Python speaker to connect to ODL, verify that the tool does not promptly exit."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
-                ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
+                ammount=3 * BGP_PEERS_COUNT, 
+                my_ip=TOOLS_IP, 
+                peer_ip=ODL_IP, 
+                log_level=BGP_TOOL_LOG_LEVEL,
+                multiplicity=BGP_PEERS_COUNT
             )
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
@@ -244,14 +260,18 @@ class TestBasic:
 
         with allure_step_with_separate_logging("step_check_talking_topology_is_filled"):
             """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
-            self.wait_for_topology_to_change_to("filled_topology")
+            self.wait_for_topology_to_change_to("filled_topology_manypeers")
 
         with allure_step_with_separate_logging("step_tc_r_reset_bgp_peer_session"):
             """Reset Peer Session."""
-            mapping = {"IP": TOOLS_IP, "RIB_INSTANCE_NAME": RIB_NAME}
-            templated_requests.post_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/peer_session/restart", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "RIB_INSTANCE_NAME": RIB_NAME
+                }
+                templated_requests.post_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/peer_session/restart", mapping, json=False
+                )
 
         with allure_step_with_separate_logging(
             "step_tc_r_check_for_empty_topology_after_resetting"
@@ -263,22 +283,23 @@ class TestBasic:
             "step_tc_pg_reconfigure_odl_with_peer_group_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-            }
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
-            )
-            self.configure_peer_group("peer_group")
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_GROUP_NAME": PEER_GROUP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-            }
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                }
+                templated_requests.delete_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
+                )
+                self.configure_peer_group("peer_group")
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_GROUP_NAME": PEER_GROUP,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                }
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping, json=False
+                )
 
         with allure_step_with_separate_logging(
             "step_tc_pg_restart_talking_bgp_speaker"
@@ -288,7 +309,7 @@ class TestBasic:
 
         with allure_step_with_separate_logging("step_check_talking_topology_is_filled"):
             """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
-            self.wait_for_topology_to_change_to("filled_topology")
+            self.wait_for_topology_to_change_to("filled_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_tc_pg_reconfigure_odl_with_peer_group_without_ipv4_unicast"
@@ -306,20 +327,21 @@ class TestBasic:
             "step_tc_pg_reconfigure_odl_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "PEER_GROUP_NAME": PEER_GROUP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "HOLDTIME": HOLDTIME,
-                "PASSIVE_MODE": "true",
-            }
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping
-            )
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_PORT": BGP_TOOL_PORT,
+                    "PEER_GROUP_NAME": PEER_GROUP,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                    "HOLDTIME": HOLDTIME,
+                    "PASSIVE_MODE": "true",
+                }
+                templated_requests.delete_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping
+                )
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
+                )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             """Abort the Python speaker."""
@@ -334,11 +356,12 @@ class TestBasic:
         with allure_step_with_separate_logging("step_start_listening_bgp_speaker"):
             """Start Python speaker in listening mode, verify that the tool does not exit quickly."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
-                ammount=3,
+                ammount=3 * BGP_PEERS_COUNT,
                 listen=True,
                 my_ip=TOOLS_IP,
                 peer_ip=ODL_IP,
                 log_level=BGP_TOOL_LOG_LEVEL,
+                multiplicity=BGP_PEERS_COUNT
             )
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
@@ -358,16 +381,17 @@ class TestBasic:
             "step_reconfigure_odl_to_initiate_connection"
         ):
             """Replace BGP peer config module, now with initiate-connection set to true."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "HOLDTIME": HOLDTIME,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "PASSIVE_MODE": "false",
-            }
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_PORT": BGP_TOOL_PORT,
+                    "HOLDTIME": HOLDTIME,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                    "PASSIVE_MODE": "false",
+                }
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
+                )
 
         with allure_step_with_separate_logging(
             "step_check_listening_connection_is_established"
@@ -379,7 +403,7 @@ class TestBasic:
             "step_check_listening_topology_is_filled"
         ):
             """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
-            self.wait_for_topology_to_change_to("filled_topology")
+            self.wait_for_topology_to_change_to("filled_topology_manypeers")
 
         with allure_step_with_separate_logging("step_kill_listening_bgp_speaker"):
             """Abort the Python speaker."""
@@ -396,7 +420,7 @@ class TestBasic:
         ):
             """BGP Speaker introduces 2 prefixes in the first update & another 2 prefixes while the very first is withdrawn in 2nd update"""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
-                ammount=3,
+                ammount=3 * BGP_PEERS_COUNT,
                 listen=True,
                 my_ip=TOOLS_IP,
                 peer_ip=ODL_IP,
@@ -406,6 +430,7 @@ class TestBasic:
                 updates="single",
                 firstprefix="8.0.0.240",
                 log_level=BGP_TOOL_LOG_LEVEL,
+                multiplicity=BGP_PEERS_COUNT
             )
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
@@ -419,7 +444,7 @@ class TestBasic:
             "step_check_listening_topology_is_filled_case_2"
         ):
             """See TCP (BGP) connection in established state."""
-            self.wait_for_topology_to_change_to("filled_topology")
+            self.wait_for_topology_to_change_to("filled_topology_manypeers_with_withdrawals")
 
         with allure_step_with_separate_logging(
             "step_kill_listening_bgp_speaker_case_2"
@@ -438,7 +463,7 @@ class TestBasic:
         ):
             """BGP Speaker introduces 3 prefixes while the first one occures again in the withdrawn list (to be ignored by controller)."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
-                ammount=2,
+                ammount=2 * BGP_PEERS_COUNT,
                 listen=True,
                 my_ip=TOOLS_IP,
                 peer_ip=ODL_IP,
@@ -447,6 +472,7 @@ class TestBasic:
                 withdraw=1,
                 updates="single",
                 log_level=BGP_TOOL_LOG_LEVEL,
+                multiplicity=BGP_PEERS_COUNT
             )
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
@@ -460,7 +486,7 @@ class TestBasic:
             "step_check_listening_topology_is_filled_case_3"
         ):
             """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
-            self.wait_for_topology_to_change_to("filled_topology")
+            self.wait_for_topology_to_change_to("filled_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_kill_listening_bgp_speaker_case_3"
@@ -476,11 +502,12 @@ class TestBasic:
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             """Revert the BGP configuration to the original state: without any configured peers."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_GROUP_NAME": PEER_GROUP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-            }
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "PEER_GROUP_NAME": PEER_GROUP,
+                    "BGP_RIB_OPENCONFIG": RIB_NAME,
+                }
+                templated_requests.delete_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
+                )

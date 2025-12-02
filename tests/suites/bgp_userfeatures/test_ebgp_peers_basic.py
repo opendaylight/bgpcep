@@ -100,6 +100,7 @@ class TestEbgpPeersBasic:
 
     def setup_everything(self):
         """Configure karaf logging level"""
+        assert False
         infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
         infra.execute_karaf_command(
             f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
@@ -332,7 +333,7 @@ class TestEbgpPeersBasic:
         ):
             """Verify that peer is present in odl's rib. Peer is configured with local-as."""
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
-                speaker_ip=iBGP_PEER1_IP,
+                speaker_ips=iBGP_PEER1_IP,
                 firstprefix=iBGP_PEER1_FIRST_PREFIX_IP,
                 prefixlen=PREFIX_LEN,
                 ammount=1,
@@ -348,7 +349,7 @@ class TestEbgpPeersBasic:
         ):
             """Verify that peer is present in odl's rib. Peer is configured with local-as."""
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
-                speaker_ip=eBGP_PEER1_IP,
+                speaker_ips=eBGP_PEER1_IP,
                 firstprefix=eBGP_PEER1_FIRST_PREFIX_IP,
                 prefixlen=PREFIX_LEN,
                 ammount=1,
