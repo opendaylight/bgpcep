@@ -1,0 +1,626 @@
+{
+    "bgp-flowspec:flowspec-routes": {
+      "flowspec-route": [
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.19/32 AND from 10.0.0.19/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.19/32"
+            },
+            {
+              "source-prefix": "10.0.0.19/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.4/32 AND from 10.0.0.4/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.4/32"
+            },
+            {
+              "source-prefix": "10.0.0.4/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.11/32 AND from 10.0.0.11/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.11/32"
+            },
+            {
+              "source-prefix": "10.0.0.11/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.8/32 AND from 10.0.0.8/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.8/32"
+            },
+            {
+              "source-prefix": "10.0.0.8/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.12/32 AND from 10.0.0.12/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.12/32"
+            },
+            {
+              "source-prefix": "10.0.0.12/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.6/32 AND from 10.0.0.6/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.6/32"
+            },
+            {
+              "source-prefix": "10.0.0.6/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.18/32 AND from 10.0.0.18/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.18/32"
+            },
+            {
+              "source-prefix": "10.0.0.18/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.0/32 AND from 10.0.0.0/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.0/32"
+            },
+            {
+              "source-prefix": "10.0.0.0/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.2/32 AND from 10.0.0.2/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.2/32"
+            },
+            {
+              "source-prefix": "10.0.0.2/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.5/32 AND from 10.0.0.5/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.5/32"
+            },
+            {
+              "source-prefix": "10.0.0.5/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.3/32 AND from 10.0.0.3/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.3/32"
+            },
+            {
+              "source-prefix": "10.0.0.3/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.7/32 AND from 10.0.0.7/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.7/32"
+            },
+            {
+              "source-prefix": "10.0.0.7/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.15/32 AND from 10.0.0.15/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.15/32"
+            },
+            {
+              "source-prefix": "10.0.0.15/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.16/32 AND from 10.0.0.16/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.16/32"
+            },
+            {
+              "source-prefix": "10.0.0.16/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.9/32 AND from 10.0.0.9/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "127.0.0.1"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.9/32"
+            },
+            {
+              "source-prefix": "10.0.0.9/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.17/32 AND from 10.0.0.17/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.17/32"
+            },
+            {
+              "source-prefix": "10.0.0.17/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.10/32 AND from 10.0.0.10/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.10/32"
+            },
+            {
+              "source-prefix": "10.0.0.10/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.14/32 AND from 10.0.0.14/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-ip-nh-extended-community": {
+                  "next-hop-address": "0.0.0.0",
+                  "copy": false
+                },
+                "transitive": true
+              }
+            ],
+            "ipv4-next-hop": {
+              "global": "1.2.3.4"
+            },
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.14/32"
+            },
+            {
+              "source-prefix": "10.0.0.14/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.13/32 AND from 10.0.0.13/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.13/32"
+            },
+            {
+              "source-prefix": "10.0.0.13/32"
+            }
+          ]
+        },
+        {
+          "path-id": 0,
+          "route-key": "all packets to 192.168.0.1/32 AND from 10.0.0.1/32",
+          "attributes": {
+            "extended-communities": [
+              {
+                "redirect-extended-community": {
+                  "global-administrator": 65500,
+                  "local-administrator": "AAAwOQ=="
+                },
+                "transitive": true
+              }
+            ],
+            "origin": {
+              "value": "igp"
+            },
+            "local-pref": {
+              "pref": 100
+            }
+          },
+          "flowspec": [
+            {
+              "destination-prefix": "192.168.0.1/32"
+            },
+            {
+              "source-prefix": "10.0.0.1/32"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  

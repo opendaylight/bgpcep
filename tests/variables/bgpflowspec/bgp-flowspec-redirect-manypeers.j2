@@ -1,0 +1,41 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODL_IP }} {
+    router-id 127.0.1.{{ i }};
+    local-address 127.0.1.{{ i }};
+    
+    local-as 64496;
+    peer-as 64496;
+    hold-time 180;
+
+    family {
+        ipv4 flow;
+    }
+
+    flow {
+        route flow_{{ i }} {
+            match {
+                source 10.0.0.{{ i }}/32;
+                destination 192.168.0.{{ i }}/32;
+            }
+            {% set mode = i % 3 %}
+
+            {% if mode == 1 %}
+            then {
+                redirect 65500:12345;
+            }
+
+            {% elif mode == 2 %}
+            then {
+                redirect 1.2.3.4;
+            }
+
+            {% else %}
+            next-hop 127.0.0.1;
+            then {
+                redirect-to-nexthop;
+            }
+            {% endif %}
+        }
+    }
+}
+{% endfor %}
