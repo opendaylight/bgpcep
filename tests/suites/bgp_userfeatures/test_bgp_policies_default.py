@@ -13,6 +13,7 @@
 # additional arguments. Peers 3,6 have ipv4 and ipv6 mpls-labeled routes.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -43,7 +44,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=54)
 class TestBgpPoliciesDefault:
     exabgp_processes = []
@@ -92,7 +93,8 @@ class TestBgpPoliciesDefault:
         )
 
     def verify_rib_status_empty(self):
-        """Checks that example-ipv4-topology is ready, and therefore full rib is ready to be configured."""
+        """Checks that example-ipv4-topology is ready, and therefore full
+        rib is ready to be configured."""
         utils.wait_until_function_pass(
             20,
             3,
@@ -125,7 +127,8 @@ class TestBgpPoliciesDefault:
             "step_reconfigure_odl_to_accept_connections"
         ):
             """Configure BGP peer modules with initiate-connection set to false.
-            Configures 6 different peers, two internal, two external and two route-reflectors.
+            Configures 6 different peers, two internal, two external and two
+            route-reflectors.
             """
             for index, peer_type in enumerate(PEER_TYPES):
                 mapping = {
@@ -140,7 +143,8 @@ class TestBgpPoliciesDefault:
                 )
 
         with allure_step_with_separate_logging("step_start_exabgps"):
-            """Start 6 exabgps as processes in background, each with it's own configuration."""
+            """Start 6 exabgps as processes in background, each with it's own
+            configuration."""
             for index in range(1, 7):
                 exabgp_process = bgp.start_exabgp(
                     f"tmp/exabgp{index}.cfg", log_file=f"exa{index}.log"
@@ -158,7 +162,8 @@ class TestBgpPoliciesDefault:
                 infra.shell(f"cp tmp/exa{index}.log results/")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             for index, peer_type in enumerate(PEER_TYPES):
                 mapping = {
                     "IP": f"127.0.0.{index+2}",
@@ -170,7 +175,8 @@ class TestBgpPoliciesDefault:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer."""
+            """Revert the BGP configuration to the original state without
+            application peer."""
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{POLICIES_VAR}/app_peer", mapping

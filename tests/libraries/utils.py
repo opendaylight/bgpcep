@@ -18,7 +18,7 @@ from libraries import norm_json
 log = logging.getLogger(__name__)
 
 
-def verify_jsons_matach(
+def verify_jsons_match(
     json1: str,
     json2: str,
     json1_data_label: str = "json1",
@@ -60,6 +60,7 @@ def verify_jsons_matach(
                 n=2000,
             )
         )
+        # TODO: show in the output part which is different
         if len(visual_diff) > 2000:
             visual_diff = visual_diff[:2000] + " ... (truncated long output)"
         raise AssertionError(f": \n{visual_diff}")
@@ -347,8 +348,6 @@ def run_function_ignore_errors(function: Callable, *args, **kwargs):
     """Inovke function with provided arguments and ignore possible exceptions.
 
     Args:
-        retry_count (str): Total repetition count.
-        interval (str): Interval in seconds between each verification.
         function (Callable): Function to be called.
         *args: Function positional arguments.
         **kwargs: Function keyword arguments.

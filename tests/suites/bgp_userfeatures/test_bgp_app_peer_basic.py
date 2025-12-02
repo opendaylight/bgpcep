@@ -35,6 +35,7 @@
 # BGP_Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -49,22 +50,19 @@ RESTCONF_PORT = variables.RESTCONF_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
-SCRIPT_URI_OPT = f"data/bgp-rib:application-rib={ODL_IP}/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family"
-
-
 BGP_VARIABLES_FOLDER = "variables/bgpuser/"
 HOLDTIME = 180
 BGP_PEER_LOG_LEVEL = "debug"
 BGP_APP_PEER_LOG_LEVEL = "debug"
-BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL}"
+BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} >bgp_peer.log 2>&1"
 BGP_PEER_OPTIONS = ""
 BGP_APP_PEER_ID = ODL_IP
-BGP_APP_PEER_POST_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command post --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_PUT_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command put --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_DELETE_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_POST_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command post --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_PUT_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command put --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_DELETE_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
 BGP_APP_PEER_DELETE_ALL_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete-all --{BGP_APP_PEER_LOG_LEVEL}"
 BGP_APP_PEER_GET_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command get --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_OPTIONS = "2>&1 >/dev/null"
+BGP_APP_PEER_OPTIONS = "2>&1 >tmp/bgp_app_peer.log"
 BGP_APP_PEER_TIMEOUT = 30
 BGP_PEER_APP_NAME = "example-bgp-peer-app"
 RIB_INSTANCE = "example-bgp-rib"
@@ -151,7 +149,8 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_check_example_ipv4_topology_is_filled_with_3_routes"
         ):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("variables/bgpuser/filled_topology")
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
@@ -276,7 +275,8 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_check_example_ipv4_topology_is_filled_with_3_routes"
         ):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("variables/bgpuser/filled_topology")
 
         with allure_step_with_separate_logging(
@@ -349,7 +349,6 @@ class TestBgpAppPeerBasic:
                 src_file_name="bgp_peer.log",
                 target_file_name="bgp_peer_tc2.log",
             )
-            # infra.shell("cp  bgp_peer.log results/bgp_peer_tc2.log")
 
         with allure_step_with_separate_logging(
             "step_tc3_bgp_application_peer_put_3_routes"
@@ -460,7 +459,8 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_delete_bgp_application_peer_configuration"
         ):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_application_peer", mapping

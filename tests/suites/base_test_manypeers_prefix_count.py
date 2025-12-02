@@ -104,7 +104,7 @@ class BaseTestManyPeerPrefixCount:
         ):
             """Configure BGP peers with initiate-connection set to false."""
             bgp.set_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP,
+                first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,
                 holdtime=HOLDTIME,
                 peer_port=BGP_TOOL_PORT,
@@ -189,7 +189,7 @@ class BaseTestManyPeerPrefixCount:
             """Revert the BGP configuration to the original state: without any
             configured peers."""
             bgp.delete_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP,
+                first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,
                 rib_instance=RIB_INSTANCE,
             )

@@ -31,6 +31,7 @@
 # For polices see: https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -140,7 +141,7 @@ class TestIbgpPeersBasic:
     def test_ibgp_peers_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
-            """Configure karaf logging level"""
+            """Configure karaf logging level."""
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
                 f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
@@ -237,7 +238,7 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc1_check_for_empty_ipv4_topology"
         ):
-            """Checks for empty topology after"""
+            """Checks for empty topology after."""
             utils.wait_until_function_pass(
                 10,
                 1,
@@ -255,7 +256,8 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc2_configure_one_ibgp_route_reflector_client_and_one_ibgp_non_client"
         ):
-            """Configure iBGP peers: 1st one as RR client, 2nd one as RR non-client."""
+            """Configure iBGP peers: 1st one as RR client, 2nd one as RR
+            non-client."""
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=True, cluster_id=False)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=False, cluster_id=False)
 
@@ -358,7 +360,8 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc3_configure_two_ibgp_non_client_peers"
         ):
-            """Configure iBGP peers: 1st one as RR client, 2nd one as RR non-client."""
+            """Configure iBGP peers: 1st one as RR client, 2nd one as RR
+            non-client."""
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=False, cluster_id=False)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=False, cluster_id=False)
 
@@ -427,7 +430,8 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc4_configure_two_ibgp_rr_clients_with_cluster_id"
         ):
-            """Configure two iBGP peers as routing reflector clients with cluster-id argument."""
+            """Configure two iBGP peers as routing reflector clients with
+            cluster-id argument."""
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=True, cluster_id=True)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=True, cluster_id=False)
 
@@ -441,8 +445,8 @@ class TestIbgpPeersBasic:
             "step_tc4_bgp_peer1_check_rib_out_for_introduced_prefixes"
         ):
             """Check incomming updates for new routes and respective cluster-ids
-            on first peer which should contain default-cluster id from global config reflected
-            from the second peer equal to router-id."""
+            on first peer which should contain default-cluster id from global
+            config reflected from the second peer equal to router-id."""
             mapping = {
                 "IP": BGP_PEER1_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",

@@ -1,0 +1,36 @@
+{
+    "bgp-linkstate:linkstate-routes": {
+        "linkstate-route": [
+            {
+                "path-id": 0,
+                "route-key": "$ROUTE_KEY",
+                "tunnel-id": 1,
+                "lsp-id": 1,
+                "ipv4-tunnel-endpoint-address": "$ENDPOINT_ADDR",
+                "ipv4-tunnel-sender-address": "$SENDER_ADDR",
+                "attributes": {
+                    "ipv4-next-hop": {
+                        "global": "192.0.2.1"
+                    },
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    64496
+                                ]
+                            }
+                        ]
+                    },
+                    "local-pref": {
+                        "pref": 100
+                    }
+                },
+                "identifier": "$IDENTIFIER",
+                "protocol-id": "bgp-epe"
+            }
+        ]
+    }
+}

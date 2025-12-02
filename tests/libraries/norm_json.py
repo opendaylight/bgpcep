@@ -226,6 +226,9 @@ def normalize_json_text(
         sort_bits(object_decoded, keys_with_bits)
     if keys_with_volatiles:
         hide_volatile(object_decoded, keys_with_volatiles)
+        # re-sort the json data based on the hidden volatile values
+        masked_text = dumps_indented(object_decoded, indent=indent)
+        object_decoded = loads_sorted(masked_text)
 
     pretty_json = dumps_indented(object_decoded, indent=indent)
 

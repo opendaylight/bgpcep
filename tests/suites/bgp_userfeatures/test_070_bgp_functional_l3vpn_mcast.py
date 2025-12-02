@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test suite for bgp - l3vpn-mutlicast
 #
 # This suite tests advertising l3vpn_mcast routes to odl. For advertising
@@ -16,6 +12,7 @@
 # L3vpn-ipv4-multicast routes and L3vpn-ipv6-multicast routes tested.
 
 import logging
+
 import pytest
 
 from libraries import bgp

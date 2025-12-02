@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test suite for bgp - l3vpn-ipv4
 #
 # This suite tests advertising and receiveing routes with l3vpn content. It
@@ -23,6 +19,7 @@
 
 import json
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -55,6 +52,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.run(order=36)
 class TestBgpfunctionalL3Vpn:
@@ -66,7 +64,7 @@ class TestBgpfunctionalL3Vpn:
         )
         rcv_update_dict = BGP_RPC_CLIENT.exa_get_update_message(msg_only=True)
         rcv_update = json.dumps(rcv_update_dict)
-        utils.verify_jsons_matach(exp_update, rcv_update)
+        utils.verify_jsons_match(exp_update, rcv_update)
 
     def verify_empty_reported_data(self):
         """Verfiy empty data response"""
@@ -167,7 +165,7 @@ class TestBgpfunctionalL3Vpn:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without any configured peer."""
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB": RIB_INSTANCE,

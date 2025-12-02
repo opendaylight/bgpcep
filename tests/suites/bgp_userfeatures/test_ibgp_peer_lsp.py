@@ -5,17 +5,13 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
-#
 # Basic tests for iBGP peers.
 # Test suite performs basic iBGP functional test case for carrying LSP State
 # Information in BGP as described in
 # http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -55,7 +51,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.run(order=50)
 class TestIbgpPeerLsp:
-    flowspec_process = None
+    bgp_speaker_process = None
 
     def test_ibgp_peer_lsp(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_tc1_configure_ibgp_peer"):
@@ -78,7 +74,8 @@ class TestIbgpPeerLsp:
             bgp.check_example_bgp_rib_does_not_contain(JSONKEYSTR)
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
-            """Connect BGP peer with advertising the routes without mandatory params like LOC_PREF."""
+            """Connect BGP peer with advertising the routes without mandatory
+            params like LOC_PREF."""
             infra.log_message_to_karaf(
                 "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, and should be thrown when missing mandatory attributes."
             )
@@ -89,7 +86,8 @@ class TestIbgpPeerLsp:
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging("step_tc1_check_example_bgp_rib"):
-            """Check RIB for not containig linkstate-route(s), because update messages were not good."""
+            """Check RIB for not containig linkstate-route(s), because update
+            messages were not good."""
             utils.verify_function_does_not_fail_within_timeout(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
@@ -105,7 +103,8 @@ class TestIbgpPeerLsp:
             )
 
         with allure_step_with_separate_logging("step_tc1_deconfigure_ibgp_peer"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
@@ -160,7 +159,8 @@ class TestIbgpPeerLsp:
             )
 
         with allure_step_with_separate_logging("step_tc2_deconfigure_ibgp_peer"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
