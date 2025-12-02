@@ -1,0 +1,19 @@
+{% for peer in peers %}
+neighbor {{ odl_ip }} {
+    router-id {{ peer.ip }};
+    local-address {{ peer.ip }};
+    local-as 64496;
+    peer-as 64496;
+
+    static {
+        route 2.{{ peer.index }}.1.0/24 { next-hop 12.0.{{ peer.index }}.254; }
+        route 2.{{ peer.index }}.2.0/24 { next-hop 12.1.{{ peer.index }}.254; }
+        route 2.{{ peer.index }}.3.0/24 { next-hop 12.3.{{ peer.index }}.254; }
+    }
+    capability {
+        route-refresh {{ ROUTEREFRESH }};
+        add-path {{ ADDPATH }};
+    }
+    family { all }
+}
+{% endfor %}

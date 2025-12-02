@@ -527,7 +527,7 @@ def stop_process_by_pid(pid: int, gracefully: bool = True, timeout: int | None =
         # check if it is still running
         try:
             utils.wait_until_function_returns_value(
-                5, 1, False, is_process_still_running, process.pid
+                timeout, 1, False, is_process_still_running, process.pid
             )
         except AssertionError as e:
             raise AssertionError(
@@ -563,6 +563,19 @@ def get_file_content(path: str):
         content = file.read()
 
     return content
+
+
+def save_to_a_file(path: str, content: str):
+    """Stores text content to a file.
+
+    Args:
+        path (str): Text file path.
+
+    Returns:
+        None
+    """
+    with open(path, "w", encoding="utf-8") as file:
+        file.write(content)
 
 
 def backup_file(

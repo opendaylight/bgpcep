@@ -5,13 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test for bgp flowspec.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -72,7 +69,7 @@ class TestBgpFlowspec:
             self.prepare_config_files()
 
         with allure_step_with_separate_logging(
-            "step_check_for_rmpty_topology_before_talking"
+            "step_check_for_empty_topology_before_talking"
         ):
             """Sanity check bgp-flowspec:flowspec-routes is up but empty."""
             flowspec.wait_until_flowspec_data_is_empty(20, 3)

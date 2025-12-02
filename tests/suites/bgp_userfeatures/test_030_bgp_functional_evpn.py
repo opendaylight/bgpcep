@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test suite for bgp - evpn
 #
 # This suite tests advertising and receiveing routes with evpn content.
@@ -18,6 +14,7 @@
 # recevied from odl.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -142,7 +139,7 @@ class TestBgpfunctionalEvpn:
 
     def loc_rib_presence(self, expected_content):
         resp = templated_requests.get_from_uri(uri=EVPN_LOC_RIB, headers=JSON_HEADERS)
-        utils.verify_jsons_matach(
+        utils.verify_jsons_match(
             expected_content, resp.content, "expected content", "received response"
         )
 
@@ -158,7 +155,7 @@ class TestBgpfunctionalEvpn:
         expected_content = infra.get_file_content(
             f"{EVPN_DIR}/empty_routes/empty_routes.json"
         )
-        utils.verify_jsons_matach(
+        utils.verify_jsons_match(
             expected_content, resp.content, "expected content", "received response"
         )
 

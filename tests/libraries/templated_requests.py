@@ -283,7 +283,7 @@ def get_templated_request(
         )
         volatiles_list = resolve_volatiles_path(temlate_dir)
         try:
-            utils.verify_jsons_matach(
+            utils.verify_jsons_match(
                 response.text,
                 expected_response,
                 "received response",

@@ -5,7 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-#
 # This is a basic test for bgp monitoring protocol feature. After the feature
 # odl-bgpcep-bmp installation, the port 12345 should be bound for listening.
 # To test this feature bgp-bmp-mock tool is used. It is a part of the bgpcep project.
@@ -15,6 +14,7 @@
 # rests/data/bmp-monitor:bmp-monitor?content=nonconfig.
 
 import logging
+
 import pytest
 
 from libraries import bmp

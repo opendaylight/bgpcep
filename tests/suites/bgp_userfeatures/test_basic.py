@@ -40,6 +40,7 @@
 # https://wiki.opendaylight.org/view/BGP_LS_PCEP:Lithium_Feature_Tests#How_to_test_2
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -103,8 +104,8 @@ class TestBasic:
         )
 
     def restart_talking_bgp_speaker(self):
-        """Abort the Python speaker. Also, attempt to stop failing fast. And Start it again.
-        We have to restart it this way because we reset session before"""
+        """Abort the Python speaker. And Start it again.
+        We have to restart it this way because we reset session before."""
         bgp.stop_bgp_speaker(self.bgp_speaker_process)
         self.bgp_speaker_process = bgp.start_bgp_speaker(
             ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
@@ -116,7 +117,8 @@ class TestBasic:
         count = infra.count_port_occurences(BGP_TOOL_PORT, "ESTAB", "python")
         assert (
             count == how_many
-        ), f"Number of found occurences of bgp speaker process port {count} does not match expected number {how_many}"
+        ), f"Number of found occurences of bgp speaker process port {count} "
+        f"does not match expected number {how_many}"
 
     def check_speaker_is_connected(self):
         """Give it several tries to see exactly one established connection."""
@@ -131,7 +133,8 @@ class TestBasic:
         )
 
     def compare_topology(self, folder_name: str):
-        """Get current example-ipv4-topology as json, and compare it to expected result."""
+        """Get current example-ipv4-topology as json, and compare it to
+        expected result."""
         templated_requests.get_templated_request(
             f"{BGP_VARIABLES_FOLDER}/{folder_name}", dict(), verify=True
         )
@@ -147,7 +150,8 @@ class TestBasic:
     def verify_that_topology_does_not_change_from(
         self, folder_name: str, retry: int = 10, interval: int = 1
     ):
-        """Verify that Compare_Topology keeps passing, it will hold its last result."""
+        """Verify that Compare_Topology keeps passing, it will hold its
+        last result."""
         utils.verify_function_does_not_fail_within_timeout(
             retry, interval, self.compare_topology, folder_name
         )
@@ -191,7 +195,7 @@ class TestBasic:
         ):
             """Verify that peer is present in odl's rib under local-address ip."""
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
-                speaker_ip=TOOLS_IP,
+                speaker_ips=TOOLS_IP,
                 ammount=3,
                 listen=True,
                 my_ip=TOOLS_IP,
@@ -228,7 +232,8 @@ class TestBasic:
             )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
-            """Start Python speaker to connect to ODL, verify that the tool does not promptly exit."""
+            """Start Python speaker to connect to ODL, verify that the tool
+            does not promptly exit."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
             )
@@ -238,12 +243,14 @@ class TestBasic:
             "step_check_talking_connection_is_established"
         ):
             """See TCP (BGP) connection in established state.
-            This case is separate from the previous one, to resemble structure of the second half of this suite more closely.
+            This case is separate from the previous one, to resemble structure
+            of the second half of this suite more closely.
             """
             self.check_speaker_is_connected()
 
         with allure_step_with_separate_logging("step_check_talking_topology_is_filled"):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("filled_topology")
 
         with allure_step_with_separate_logging("step_tc_r_reset_bgp_peer_session"):
@@ -265,7 +272,6 @@ class TestBasic:
             """Configure BGP peer module with initiate-connection set to false."""
             mapping = {
                 "IP": TOOLS_IP,
-                "PEER_GROUP_NAME": PEER_GROUP,
                 "BGP_RIB_OPENCONFIG": RIB_NAME,
             }
             templated_requests.delete_templated_request(
@@ -288,7 +294,8 @@ class TestBasic:
             self.restart_talking_bgp_speaker()
 
         with allure_step_with_separate_logging("step_check_talking_topology_is_filled"):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("filled_topology")
 
         with allure_step_with_separate_logging(
@@ -322,25 +329,6 @@ class TestBasic:
                 f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
             )
 
-        with allure_step_with_separate_logging(
-            "step_tc_pg_reconfigure_odl_to_accept_connection"
-        ):
-            """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "PEER_GROUP_NAME": PEER_GROUP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "HOLDTIME": HOLDTIME,
-                "PASSIVE_MODE": "true",
-            }
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping
-            )
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
-
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             """Abort the Python speaker."""
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
@@ -352,7 +340,8 @@ class TestBasic:
             self.wait_for_topology_to_change_to("empty_topology")
 
         with allure_step_with_separate_logging("step_start_listening_bgp_speaker"):
-            """Start Python speaker in listening mode, verify that the tool does not exit quickly."""
+            """Start Python speaker in listening mode, verify that the tool does
+            not exit quickly."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=3,
                 listen=True,
@@ -377,7 +366,7 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
         ):
-            """Replace BGP peer config module, now with initiate-connection set to true.."""
+            """Replace BGP peer config module, now with initiate-connection set to true."""
             mapping = {
                 "IP": TOOLS_IP,
                 "PEER_PORT": BGP_TOOL_PORT,
@@ -398,7 +387,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_check_listening_topology_is_filled"
         ):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("filled_topology")
 
         with allure_step_with_separate_logging("step_kill_listening_bgp_speaker"):
@@ -414,7 +404,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_start_listening_bgp_speaker_case_2"
         ):
-            """BGP Speaker introduces 2 prefixes in the first update & another 2 prefixes while the very first is withdrawn in 2nd update"""
+            """BGP Speaker introduces 2 prefixes in the first update & another
+            2 prefixes while the very first is withdrawn in 2nd update"""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=3,
                 listen=True,
@@ -456,7 +447,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_start_listening_bgp_speaker_case_3"
         ):
-            """BGP Speaker introduces 3 prefixes while the first one occures again in the withdrawn list (to be ignored by controller)."""
+            """BGP Speaker introduces 3 prefixes while the first one occures
+            again in the withdrawn list (to be ignored by controller)."""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=2,
                 listen=True,
@@ -479,7 +471,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_check_listening_topology_is_filled_case_3"
         ):
-            """See new routes in example-ipv4-topology as a proof that synchronization was correct."""
+            """See new routes in example-ipv4-topology as a proof that
+            synchronization was correct."""
             self.wait_for_topology_to_change_to("filled_topology")
 
         with allure_step_with_separate_logging(
@@ -495,7 +488,8 @@ class TestBasic:
             self.wait_for_topology_to_change_to("empty_topology")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without any
+            configured peer."""
             mapping = {
                 "IP": TOOLS_IP,
                 "PEER_GROUP_NAME": PEER_GROUP,
