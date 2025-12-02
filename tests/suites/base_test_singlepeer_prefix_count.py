@@ -147,7 +147,6 @@ class BaseTestSinglePeerPrefixCount:
             """Wait until example-ipv4-topology becomes stable again."""
             # TODO: Is is possible to have failed at Check_Talking_Ipv4_Topology_Count and still have initial period of constant count?
             # FIXME: If yes, do count here to get the initial value and use it (if nonzero).
-            # TODO: If yes, decide whether access to the FailFast state should have keyword or just variable name.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=count_prefix_count_single,
                 timeout=bgp_emptying_timeout,

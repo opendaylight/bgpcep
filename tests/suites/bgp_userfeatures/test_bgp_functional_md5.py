@@ -5,16 +5,12 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# This suite tests simple connection between one ibgp peer (exabgp) and Odl.
-# Peer is configured with ipv6, and exabgp connectes to odl via ipv6. Exabgp
-# sends one ipv6 unicast route, which presence is verified in
-# example-ipv6-topology. Tests this connection multiple times, with different
-# ipv6 accepted formats, e.g. (::1, 0:0:0:0:0:0:0:1, full text) This suite
-# also tests a combination of afi-safis on odl and exabgp. ipv6 route
-# injection is carried out from odl to the ibgp peer without ipv6 family
-# enabled on the peer device and checked for exceptions
+# This suite tests tcpmd5 connection of bgp peer. It uses odl and exabgp as
+# bgp peer. No routes are advertized, simple peer presence in the datastore
+# is tested.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -40,7 +36,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=44)
 class TestBgpFunctionalMd5:
 
@@ -75,7 +71,7 @@ class TestBgpFunctionalMd5:
             self.prepare_exabgp_config_file()
 
         with allure_step_with_separate_logging("step_verify_exabgp_connected"):
-            """Verifies exabgp connected with md5 settings"""
+            """Verifies exabgp connected with md5 settings."""
             self.reconfigure_odl_to_accept_connections(MD5_SAME_PASSWD)
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 BGP_EXAMD5_CFG, TOOLS_IP
@@ -84,7 +80,7 @@ class TestBgpFunctionalMd5:
             self.delete_bgp_peer_configuration()
 
         with allure_step_with_separate_logging("step_verify_exabgp_not_connected"):
-            """Verifies exabgp not connected with md5 settings"""
+            """Verifies exabgp not connected with md5 settings."""
             self.reconfigure_odl_to_accept_connections(MD5_DIFF_PASSWD)
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 BGP_EXAMD5_CFG, ODL_IP, expect_connected=False

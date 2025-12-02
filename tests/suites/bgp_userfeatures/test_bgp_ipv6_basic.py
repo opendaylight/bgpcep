@@ -17,8 +17,9 @@
 # family enabled on the peer device and checked for exceptions.
 
 import logging
-import pytest
 import time
+
+import pytest
 
 from libraries import bgp
 from libraries import infra
@@ -58,13 +59,13 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=45)
 class TestBgpIpv6Basic:
     exabgp_process = None
 
     def configure_ipv6_network(self):
-        """Reconfigures basic network settings on controller"""
+        """Reconfigures basic network settings on controller."""
         rc, stdout = infra.shell("ip route | grep '^default' | awk '{print $5}'")
         assert rc == 0, f"Failed to get interface set for default route: {stdout}"
         main_net_interface = stdout
@@ -105,7 +106,7 @@ class TestBgpIpv6Basic:
         self.setup_config_files()
 
     def verify_rib_status_empty(self):
-        """Verifies that example-ipv6-topology is empty"""
+        """Verifies that example-ipv6-topology is empty."""
         utils.wait_until_function_pass(
             5,
             2,
@@ -116,7 +117,7 @@ class TestBgpIpv6Basic:
         )
 
     def verify_rib_status_filled(self):
-        """Verifies that example-ipv6-topology is filled with ipv6 route"""
+        """Verifies that example-ipv6-topology is filled with ipv6 route."""
         utils.wait_until_function_pass(
             5,
             2,
@@ -134,7 +135,8 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with short ipv6 address."""
             mapping = {
                 "IP": IPV6_IP,
                 "PEER_PORT": 17900,
@@ -157,7 +159,8 @@ class TestBgpIpv6Basic:
             self.verify_rib_status_filled()
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV6_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
@@ -170,7 +173,8 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections_2"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with ipv6 address without "::" shortened version."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with ipv6 address without "::" shortened version."""
             mapping = {
                 "IP": IPV6_IP_2,
                 "PEER_PORT": 17900,
@@ -183,24 +187,28 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_filled_2"):
-            """Verifies that example-ipv6-topology is filled after configuring the peer for the second time."""
+            """Verifies that example-ipv6-topology is filled after configuring
+            the peer for the second time."""
             self.verify_rib_status_filled()
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration_2"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV6_IP_2, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_empty_2"):
-            """Verifies that example-ipv6-topology is empty after deconfiguring peer for the second time."""
+            """Verifies that example-ipv6-topology is empty after
+            deconfiguring peer for the second time."""
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections_3"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with full text ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with full text ipv6 address."""
             mapping = {
                 "IP": IPV6_IP_3,
                 "PEER_PORT": 17900,
@@ -213,22 +221,26 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_filled_3"):
-            """Verifies that example-ipv6-topology is filled after configuring the peer for the third time."""
+            """Verifies that example-ipv6-topology is filled after configuring
+            the peer for the third time."""
             self.verify_rib_status_filled()
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration_3"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV6_IP_3, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_empty_3"):
-            """Verifies that example-ipv6-topology is empty after deconfiguring peer for the second time."""
+            """Verifies that example-ipv6-topology is empty after
+            deconfiguring peer for the second time."""
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_stop_all_exabgps"):
-            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c
+            bash signal."""
             infra.shell(f"cp tmp/{EXABGP_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
@@ -242,7 +254,8 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections_4"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with full text ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with full text ipv6 address."""
             mapping = {
                 "IP": IPV4_IP,
                 "PEER_PORT": 17900,
@@ -291,20 +304,23 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration_4"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV4_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_neighbor_rib", mapping
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_empty_4"):
-            """Verifies that example-ipv6-topology is empty after deconfiguring peer for the first time."""
+            """Verifies that example-ipv6-topology is empty after deconfiguring
+            peer for the first time."""
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections_5"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with short ipv6 address."""
             mapping = {
                 "IP": IPV4_IP,
                 "PEER_PORT": 17900,
@@ -345,14 +361,16 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration_5"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV4_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_empty_5"):
-            """Verifies that example-ipv6-topology is empty after deconfiguring peer for the first time."""
+            """Verifies that example-ipv6-topology is empty after deconfiguring
+            peer for the first time."""
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_stop_all_exabgps_2"):
@@ -363,7 +381,8 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections_6"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with short ipv6 address."""
             mapping = {
                 "IP": IPV6_IP,
                 "PEER_PORT": 17900,
@@ -382,7 +401,8 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_stop_all_exabgps_3"):
-            """Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp
+            with ctrl-c bash signal."""
             infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
             time.sleep(40)
@@ -395,14 +415,16 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration_6"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"IP": IPV6_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/graceful_restart", mapping
             )
 
         with allure_step_with_separate_logging("step_stop_all_exabgps_4"):
-            """Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp
+            with ctrl-c bash signal."""
             infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
@@ -410,7 +432,8 @@ class TestBgpIpv6Basic:
             with allure_step_with_separate_logging(
                 "step_reconfigure_odl_to_accept_connections_7"
             ):
-                """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+                """Configure BGP peer modules with initiate-connection set to
+                false with short ipv6 address."""
                 mapping = {
                     "IP": IPV6_IP,
                     "PEER_PORT": 17900,
@@ -431,13 +454,15 @@ class TestBgpIpv6Basic:
             with allure_step_with_separate_logging(
                 "step_delete_bgp_peer_configuration_5"
             ):
-                """Revert the BGP configuration to the original state: without any configured peers."""
+                """Revert the BGP configuration to the original state without
+                any configured peer."""
                 mapping = {"IP": IPV6_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
                 templated_requests.delete_templated_request(
                     f"{BGP_VAR_FOLDER}/bgp_peer", mapping
                 )
 
             with allure_step_with_separate_logging("step_stop_all_exabgps_5"):
-                """Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp with ctrl-c bash signal."""
+                """Save exabgp logs as exabgp_graceful_restart.log, and stop
+                exabgp with ctrl-c bash signal."""
                 infra.shell(f"cp tmp/{EXABGP4_LOG} results/")
                 bgp.stop_exabgp(self.exabgp_process)

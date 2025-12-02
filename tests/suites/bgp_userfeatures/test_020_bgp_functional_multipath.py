@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test suite for bgp - n-path and all-path selection
 #
 # This suite tests n-path and all-path selection policy.
@@ -16,6 +12,7 @@
 # odl are configured via application peer.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -57,7 +54,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=52)
 class TestBgpfunctionalMultipath:
     exabgp_process = None
@@ -84,7 +81,7 @@ class TestBgpfunctionalMultipath:
         self.rib_odl = response.text
 
     def restore_original_rib_configuration(self):
-        """Suite teardown keyword with old rib restoration"""
+        """Suite teardown function with old rib restoration"""
         templated_requests.put_request(OPENCONFIG_RIB_URI, self.rib_odl)
 
     def configure_path_selection_and_app_peer_and_connect_peer(
@@ -96,17 +93,17 @@ class TestBgpfunctionalMultipath:
         self.configure_odl_peer_with_path_selection_mode(odl_path_sel_mode)
         self.configure_app_peer_with_routes()
         self.setup_config_files(add_path=exa_add_path_value)
-        bgp.start_exabgp_and_verify_connected(
+        self.exabgp_process = bgp.start_exabgp_and_verify_connected(
             f"tmp/{DEFAUTL_RPC_CFG}", TOOLS_IP, "exabgp.log"
         )
 
-    def remove_odl_and_app_peer_configuration_and_stop_exaBgp(self):
+    def stop_exabgp_and_remove_odl_and_app_peer_configuration(self):
+        bgp.stop_exabgp(self.exabgp_process)
         mapping = {"IP": TOOLS_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
         templated_requests.delete_templated_request(
             f"{MULT_VAR_FOLDER}/bgp_peer", mapping
         )
         self.deconfigure_app_peer()
-        bgp.stop_exabgp(self.exabgp_process)
 
     def verify_expected_update_count(self, exp_count):
         """Verify number of received update messages"""
@@ -160,7 +157,7 @@ class TestBgpfunctionalMultipath:
         templated_requests.delete_templated_request(
             f"{MULT_VAR_FOLDER}/route", route_mapping
         )
-        mapping = {"IP": TOOLS_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
+        mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
         templated_requests.delete_templated_request(
             f"{BGP_VAR_FOLDER}/app_peer", mapping
         )
@@ -178,25 +175,28 @@ class TestBgpfunctionalMultipath:
             )
             try:
                 self.log_loc_rib_operational()
-                # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 4
                 utils.wait_until_function_pass(
                     6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                self.remove_odl_and_app_peer_configuration_and_stop_exaBgp()
+                utils.run_function_ignore_errors(
+                    self.stop_exabgp_and_remove_odl_and_app_peer_configuration
+                )
 
         with allure_step_with_separate_logging("step_odl_npaths_exa_sendreceived"):
             """n-paths policy selected on odl."""
             self.configure_path_selection_and_app_peer_and_connect_peer(
-                ALLPATHS_SELM, ADDPATHCAP_SR
+                NPATHS_SELM, ADDPATHCAP_SR
             )
             try:
                 self.log_loc_rib_operational()
                 # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 3
                 utils.wait_until_function_pass(
-                    6, 2, self.verify_expected_update_count, update_messages
+                    2, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                self.remove_odl_and_app_peer_configuration_and_stop_exaBgp()
+                utils.run_function_ignore_errors(
+                    self.stop_exabgp_and_remove_odl_and_app_peer_configuration
+                )

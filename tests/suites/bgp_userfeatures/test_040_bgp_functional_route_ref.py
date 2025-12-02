@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test for bgp - route refresh
 #
 # This suite tests sending and receiveing route refresh message.
@@ -19,6 +15,7 @@
 # odl-bgpcep-bgp-cli and restconf using BGP neighbor operational state.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -41,7 +38,7 @@ EXARPCSCRIPT = "tools/exabgp_files/exarpc.py"
 HOLDTIME = 180
 RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
-MSG_STATE_OFFSET = 24
+MSG_STATE_OFFSET = 22
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +46,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=51)
 class TestBgpfunctionalRouteRef:
     exabgp_process = None
@@ -81,8 +78,9 @@ class TestBgpfunctionalRouteRef:
         """Checks notification and update count from odl-bgpcep-bgp-cli.
         odl-bgpcep-bgp-cli is only avaiable on versions oxygen and above."""
         stdout, stderror = infra.execute_karaf_command(
-            f"bgp:operational-state -rib example-bgp-rib -neighbor ${TOOLS_IP}"
+            f"bgp:operational-state -rib example-bgp-rib -neighbor {TOOLS_IP}"
         )
+        stdout = stdout.replace("│", "|").replace("─", "-")
         log.info(f"Karaf stdout: {stdout}")
         mapping = {
             "IP": TOOLS_IP,
@@ -95,7 +93,7 @@ class TestBgpfunctionalRouteRef:
             f"{BGP_RR_VAR_FOLDER}/operational_cli/update.txt", mapping
         )
         log.info(f"Expected state: {exp_state}")
-        line_count = exp_state.find("\n") + 1
+        line_count = len(exp_state.splitlines())
         real_state = "\n".join(
             stdout.splitlines()[MSG_STATE_OFFSET : MSG_STATE_OFFSET + line_count]
         )
@@ -142,10 +140,10 @@ class TestBgpfunctionalRouteRef:
         )
         utils.wait_until_function_pass(3, 3, self.verify_exaBgp_received_updates, 4)
 
-    def deconfigure_routes_and_stop_exabgp(self, cfg_file: str):
-        """Teardown keyword for exa to odl test case."""
-        bgp.stop_bgp_speaker(self.exabgp_process)
-        mapping = {"PREFIX": prefix, "APP_RIB": ODL_IP}
+    def deconfigure_routes_and_stop_exabgp(self):
+        """Teardown funtion for exa to odl test case."""
+        bgp.stop_exabgp(self.exabgp_process)
+        mapping = {"APP_RIB": ODL_IP}
         templated_requests.delete_templated_request(
             f"{BGP_RR_VAR_FOLDER}/route", mapping
         )
@@ -203,7 +201,7 @@ class TestBgpfunctionalRouteRef:
 
         with allure_step_with_separate_logging("step_odl_to_send_route_refresh"):
             """Sends route refresh request and checks if exabgp receives it."""
-            bgp.start_exabgp_and_verify_connected(BGP_CFG_NAME, TOOLS_IP)
+            bgp.start_exabgp_and_verify_connected(f"tmp/{BGP_CFG_NAME}", TOOLS_IP)
             try:
                 BGP_RPC_CLIENT.exa_clean_received_route_refresh_count()
                 mapping = {"BGP_PEER_IP": TOOLS_IP}

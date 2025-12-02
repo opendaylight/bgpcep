@@ -331,21 +331,29 @@ def get_string_occurence_count_in_file(string: str, file_name: str) -> int:
     return int(output)
 
 
-def verify_string_occurence_count_in_file(string: str, file_name: str, count: int):
+def verify_string_occurence_count_in_file(string: str, file_name: str, count: int, exact: bool = True):
     """Verifies number of occurences of specific string in a text file.
 
     Args:
         string (str): Pattern to be matched.
         file_name (str): Name of the text file to be searched.
         count (int): Expected number of string occurences.
+        exact (bool): If set, number of occurences must exactly match
+            the expected count, otherwise must be greater then or equal to
+            the expected count.
 
     Returns:
         None
     """
     found_occurences = get_string_occurence_count_in_file(string, file_name)
-    assert (
-        found_occurences == count
-    ), f"Did not find {count} times str: {string} in {file_name}"
+    if exact:
+        assert (
+            found_occurences == count
+        ), f"Did not find {count} times str: {string} in {file_name}"
+    else:
+        assert (
+            found_occurences >= count
+        ), f"Did not find at least {count} times str: {string} in {file_name}"
 
 
 def count_port_occurences(port: int, state: str, name: str):
@@ -527,7 +535,7 @@ def stop_process_by_pid(pid: int, gracefully: bool = True, timeout: int | None =
         # check if it is still running
         try:
             utils.wait_until_function_returns_value(
-                5, 1, False, is_process_still_running, process.pid
+                timeout, 1, False, is_process_still_running, process.pid
             )
         except AssertionError as e:
             raise AssertionError(
@@ -563,6 +571,19 @@ def get_file_content(path: str):
         content = file.read()
 
     return content
+
+
+def save_to_a_file(path: str, content: str):
+    """Stores text content to a file.
+
+    Args:
+        path (str): Text file path.
+
+    Returns:
+        None
+    """
+    with open(path, "w", encoding="utf-8") as file:
+        file.write(content)
 
 
 def backup_file(

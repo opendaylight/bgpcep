@@ -9,6 +9,7 @@
 # Peer is configured with ipv6, and gobgp connectes to odl via ipv6.
 
 import logging
+
 import pytest
 
 from libraries import bgp
@@ -35,7 +36,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_gobgp_processes")
 @pytest.mark.run(order=46)
 class TestBgpLlgrBasic:
     gobgp_process = None
@@ -48,7 +49,7 @@ class TestBgpLlgrBasic:
         infra.shell("sed -i -e 's/ROUTEREFRESH/disable/g' tmp/gobgp.cfg")
         infra.shell("sed -i -e 's/ADDPATH/disable/g' tmp/gobgp.cfg")
         rc, stdout = infra.shell("cat tmp/gobgp.cfg")
-        log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
+        log.info(f"Updated tmp/gobgp.cfg config:\n{stdout}")
 
     def download_gobgp_binary(self):
         """Downloads gobgp binary and untar the binary zip file."""
@@ -64,7 +65,8 @@ class TestBgpLlgrBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to
+            false with short ipv6 address."""
             mapping = {
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
                 "IP": TOOLS_IP,
@@ -83,13 +85,15 @@ class TestBgpLlgrBasic:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state without any
+            configured peer."""
             mapping = {"BGP_RIB_OPENCONFIG": RIB_INSTANCE, "IP": TOOLS_IP}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
             )
 
         with allure_step_with_separate_logging("step_stop_gobgp"):
-            """Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash signal"""
+            """Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
+            signal."""
             infra.backup_file(src_file_name="gobgp.log")
             bgp.stop_gobgp(self.gobgp_process)
