@@ -6,6 +6,7 @@ Also, it is needed to generate base64 encoded tunnel name
 from Mininet IP (which is not known beforehand),
 so it is easier to employ Python here,
 than do manipulation in Robot file."""
+
 # Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
@@ -201,11 +202,11 @@ def get_variables(mininet_ip):
         '/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]'
         "</network-topology-ref>\n"
         " <arguments>\n"
-        '  <lsp>\n'
-        '  <lsp-flags>\n'
+        "  <lsp>\n"
+        "  <lsp-flags>\n"
         "   <delegate>true</delegate>\n"
         "   <administrative>true</administrative>\n"
-        '  </lsp-flags>\n'
+        "  </lsp-flags>\n"
         "  </lsp>\n"
         "  <endpoints-obj>\n"
         "   <ipv4>\n"
@@ -230,11 +231,11 @@ def get_variables(mininet_ip):
         '/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]'
         "</network-topology-ref>\n"
         " <arguments>\n"
-        '  <lsp>\n'
-        '  <lsp-flags>\n'
+        "  <lsp>\n"
+        "  <lsp-flags>\n"
         "   <delegate>true</delegate>\n"
         "   <administrative>true</administrative>\n"
-        '  </lsp-flags>\n'
+        "  </lsp-flags>\n"
         "  </lsp>\n"
         "  <ero>\n"
         "   <subobject>\n"
