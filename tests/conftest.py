@@ -150,7 +150,7 @@ def preconditions():
     """
     infra.shell("rm -rf tmp && mkdir tmp")
     infra.shell("ls results || mkdir results")
-    infra.start_odl_with_features(ODL_FEATRUES, timeout=180)
+    infra.start_odl_with_features(ODL_FEATRUES, timeout=580)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
     yield
     infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
@@ -202,6 +202,41 @@ def teardown_kill_all_running_play_script_processes():
     """
     yield
     infra.shell(
-        "kill $(pgrep -f play.py | grep -v ^$$\$) || " \
-        "echo 'No running instance of play.py script.'"
+        r"pkill -f '^(.*/)?python3?\s+.*play.py' || " \
+        #"kill $(pgrep -f play.py | grep -v ^$$\$) || " \
+        r"echo 'No running instance of play.py script.'"
+    )
+
+@pytest.fixture(scope="class")
+def teardown_kill_all_running_exabgp_processes():
+    """Fixture to stop exabgp instaces at the end of test class execution
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    yield
+    infra.shell(
+        r"pkill -f '^(.*/)?python3?\s+.*bin/exabgp' || " \
+        #"kill $(pgrep -f play.py | grep -v ^$$\$) || " \
+        r"echo 'No running instance of play.py script.'"
+    )
+
+@pytest.fixture(scope="class")
+def teardown_kill_all_running_gobgp_processes():
+    """Fixture to stop gobpd instaces at the end of test class execution
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    yield
+    infra.shell(
+        "pkill gobgpd || " \
+        #"kill $(pgrep -f gobgpd | grep -v ^$$\$) || " \
+        "echo 'No running instance of gobgpd script.'"
     )

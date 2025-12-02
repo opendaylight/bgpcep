@@ -106,7 +106,7 @@ class BaseTestCases:
             local_address=ODL_IP,
             remote_address=ODL_IP,
             lsp=self.lsps,
-            log_file_name=LOG_NAME
+            log_file_name=LOG_NAME,
         )
         rc, stdout = pcep.run_updater(
             hop=updated_hop,
@@ -586,7 +586,7 @@ class BaseTestCases:
                     remote_address=ODL_IP,
                     verify_introduced_lsps=True,
                     verify_timeout=pcep_ready_verify_timeout,
-                    log_file_name="serial_execution.log"
+                    log_file_name="serial_execution.log",
                 )
                 rc, stdout = pcep.run_updater(
                     hop=updated_hop,

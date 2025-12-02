@@ -122,7 +122,7 @@ class BaseTestManyPeerChangeCount:
                 rr_client=False,
             )
             bgp.set_bgp_peer_group_members(
-                first_neigbout_ip=FIRST_PEER_IP,
+                first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,
                 peer_group_name=PEER_GROUP,
             )
@@ -228,7 +228,7 @@ class BaseTestManyPeerChangeCount:
             """Revert the BGP configuration to the original state: without any
             configured peers."""
             bgp.delete_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP,
+                first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,
                 rib_instance=RIB_INSTANCE,
             )

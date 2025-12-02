@@ -5,10 +5,6 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
 # Functional test suite for bgp - mvpn
 #
 # This suite tests advertising mvpn routes to odl. For advertising play.py
@@ -17,6 +13,7 @@
 # Also 4 more routes with new attributes specific for mvpn.
 
 import logging
+
 import pytest
 
 from libraries import bgp
