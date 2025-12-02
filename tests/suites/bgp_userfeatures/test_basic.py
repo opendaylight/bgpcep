@@ -191,7 +191,7 @@ class TestBasic:
         ):
             """Verify that peer is present in odl's rib under local-address ip."""
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
-                speaker_ip=TOOLS_IP,
+                speaker_ips=TOOLS_IP,
                 ammount=3,
                 listen=True,
                 my_ip=TOOLS_IP,
@@ -265,7 +265,6 @@ class TestBasic:
             """Configure BGP peer module with initiate-connection set to false."""
             mapping = {
                 "IP": TOOLS_IP,
-                "PEER_GROUP_NAME": PEER_GROUP,
                 "BGP_RIB_OPENCONFIG": RIB_NAME,
             }
             templated_requests.delete_templated_request(
@@ -322,25 +321,6 @@ class TestBasic:
                 f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
             )
 
-        with allure_step_with_separate_logging(
-            "step_tc_pg_reconfigure_odl_to_accept_connection"
-        ):
-            """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "PEER_GROUP_NAME": PEER_GROUP,
-                "BGP_RIB_OPENCONFIG": RIB_NAME,
-                "HOLDTIME": HOLDTIME,
-                "PASSIVE_MODE": "true",
-            }
-            templated_requests.delete_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer_group", mapping
-            )
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
-
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             """Abort the Python speaker."""
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
@@ -377,7 +357,7 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
         ):
-            """Replace BGP peer config module, now with initiate-connection set to true.."""
+            """Replace BGP peer config module, now with initiate-connection set to true."""
             mapping = {
                 "IP": TOOLS_IP,
                 "PEER_PORT": BGP_TOOL_PORT,
