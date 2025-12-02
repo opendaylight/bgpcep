@@ -1,0 +1,22 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODL_IP }} {
+    router-id 127.0.1.{{ i }};
+    local-address 127.0.1.{{ i }};
+    
+    local-as 64496;
+    peer-as 64496;
+    hold-time 180;
+
+    family {
+        ipv4 mpls-vpn;
+    }
+
+    static {
+        route 1.1.{{ i }}.0/24 {
+            next-hop 10.0.255.254;
+            rd 1.2.3.4:{{ i }};
+            label {{ 24000 + i }};
+        }
+    }
+}
+{% endfor %}

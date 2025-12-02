@@ -1,0 +1,23 @@
+<input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+ <node>pcc://${IP}</node>
+ <name>${LSP_NAME}</name>
+ <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
+ <arguments>
+  <lsp>
+  <lsp-flags>
+   <delegate>true</delegate>
+   <administrative>true</administrative>
+  </lsp-flags>
+  </lsp>
+  <ero>
+   <subobject>
+    <loose>false</loose>
+    <ip-prefix><ip-prefix>${ADDED_PREFIX}</ip-prefix></ip-prefix>
+   </subobject>
+   <subobject>
+    <loose>false</loose>
+    <ip-prefix><ip-prefix>${ORIGINAL_PREFIX}</ip-prefix></ip-prefix>
+   </subobject>
+  </ero>
+ </arguments>
+</input>
