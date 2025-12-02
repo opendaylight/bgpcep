@@ -100,6 +100,7 @@ class TestEbgpPeersBasic:
 
     def setup_everything(self):
         """Configure karaf logging level"""
+        assert False
         infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
         infra.execute_karaf_command(
             f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
