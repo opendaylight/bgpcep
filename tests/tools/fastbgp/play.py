@@ -2473,6 +2473,8 @@ class Rpcs:
         Returns:
             :data: stored data
         """
+        logger.warn("Checking storages")
+        logger.warn(self.storages)
         with self.storages[peer_id] as stor:
             return stor.get(text, "")
 
@@ -2515,7 +2517,11 @@ def threaded_job(arguments):
     peers_storages = []
 
     while 1:
-        amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
+        #amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
+        if amount_left <= 0:
+            amount_per_util = 0
+        else:
+            amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
         amount_left -= amount_per_util
         utils_left -= 1
 

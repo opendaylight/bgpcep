@@ -44,6 +44,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
+BGP_PEERS_COUNT = 20
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
@@ -53,14 +54,14 @@ BGP_VARIABLES_FOLDER = "variables/bgpuser/"
 HOLDTIME = 180
 BGP_PEER_LOG_LEVEL = "debug"
 BGP_APP_PEER_LOG_LEVEL = "debug"
-BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} >bgp_peer.log 2>&1"
+BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --multiplicity={BGP_PEERS_COUNT} --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} >bgp_peer.log 2>&1"
 BGP_PEER_OPTIONS = ""
 BGP_APP_PEER_ID = ODL_IP
-BGP_APP_PEER_POST_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command post --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_PUT_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command put --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_DELETE_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_DELETE_ALL_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete-all --{BGP_APP_PEER_LOG_LEVEL}"
-BGP_APP_PEER_GET_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command get --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_POST_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command post --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_PUT_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command put --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_DELETE_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete --count 3 --prefix 8.0.1.0 --prefixlen 28 --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_DELETE_ALL_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command delete-all --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+BGP_APP_PEER_GET_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command get --xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
 BGP_APP_PEER_OPTIONS = "2>&1 >/dev/null"
 BGP_APP_PEER_TIMEOUT = 30
 BGP_PEER_APP_NAME = "example-bgp-peer-app"
@@ -103,16 +104,17 @@ class TestBgpAppPeerBasic:
             "step_reconfigure_odl_to_accept_bgp_peer_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
-            mapping = {
-                "IP": TOOLS_IP,
-                "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
-                "HOLDTIME": HOLDTIME,
-                "PEER_PORT": BGP_TOOL_PORT,
-                "PASSIVE_MODE": "true",
-            }
-            templated_requests.put_templated_request(
-                f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
-            )
+            for i in range(BGP_PEERS_COUNT):
+                mapping = {
+                    "IP": f"127.0.1.{i}",
+                    "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
+                    "HOLDTIME": HOLDTIME,
+                    "PEER_PORT": BGP_TOOL_PORT,
+                    "PASSIVE_MODE": "true",
+                }
+                templated_requests.put_templated_request(
+                    f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping, json=False
+                )
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_bgp_application_peer"
@@ -163,16 +165,16 @@ class TestBgpAppPeerBasic:
         ):
             """Check incomming updates for new routes."""
             infra.wait_for_string_in_file(
-                10, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3
+                20, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
@@ -205,19 +207,19 @@ class TestBgpAppPeerBasic:
         ):
             """Check incomming updates for new routes."""
             infra.wait_for_string_in_file(
-                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3
+                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received:", "bgp_peer.log", 3
+                "nlri_prefix_received:", "bgp_peer.log", 3 * BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc1_stop_bgp_peer"):
@@ -281,16 +283,16 @@ class TestBgpAppPeerBasic:
         ):
             """Check incomming updates for new routes."""
             infra.wait_for_string_in_file(
-                10, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3
+                10, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
@@ -323,19 +325,19 @@ class TestBgpAppPeerBasic:
         ):
             """Check incomming updates for new routes."""
             infra.wait_for_string_in_file(
-                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3
+                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received:", "bgp_peer.log", 3
+                "nlri_prefix_received:", "bgp_peer.log", 3*BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc2_stop_bgp_peer"):
@@ -377,19 +379,19 @@ class TestBgpAppPeerBasic:
 
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
             infra.wait_for_string_in_file(
-                20, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3
+                20, 1, "nlri_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received:", "bgp_peer.log", 3
+                "nlri_prefix_received:", "bgp_peer.log", 3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
@@ -422,19 +424,19 @@ class TestBgpAppPeerBasic:
         ):
             """Check incomming updates for new routes."""
             infra.wait_for_string_in_file(
-                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3
+                10, 1, "withdrawn_prefix_received:", "bgp_peer.log", threshold=3*BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", 1
+                "withdrawn_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
             infra.verify_string_occurence_count_in_file(
-                "nlri_prefix_received:", "bgp_peer.log", 3
+                "nlri_prefix_received:", "bgp_peer.log", 3*BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc3_stop_bgp_peer"):
@@ -461,3 +463,4 @@ class TestBgpAppPeerBasic:
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_application_peer", mapping
             )
+
