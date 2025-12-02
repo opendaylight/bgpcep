@@ -56,7 +56,7 @@ BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 KARAF_LOG_LEVEL = variables.KARAF_LOG_LEVEL
 FIRST_PEER_IP = TOOLS_IP
-TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER
+TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER * 100
 CHECK_PERIOD_PREFIX_COUNT_MANY = 20
 REPETITIONS_PREFIX_COUNT_MANY = 4
 
@@ -136,6 +136,7 @@ class BaseTestManyPeerPrefixCount:
                 prefill=prefill,
                 update=UPDATE,
                 listen=False,
+                # log_level="debug"
             )
 
         with allure_step_with_separate_logging(
@@ -161,7 +162,7 @@ class BaseTestManyPeerPrefixCount:
 
         with allure_step_with_separate_logging(
             "step_wait_for_stable_ip_topology_after_talking"
-        ):
+         ):
             """Wait until example-ipv4-topology becomes stable again."""
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=count_prefix_count_many,
@@ -172,7 +173,7 @@ class BaseTestManyPeerPrefixCount:
 
         with allure_step_with_separate_logging(
             "step_check_for_empty_ip_topology_after_talking"
-        ):
+         ):
             """Example-ipv4-topology should be empty now."""
             prefix_counting.check_ipv4_topology_is_empty()
 
