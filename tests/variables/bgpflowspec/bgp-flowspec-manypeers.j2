@@ -1,0 +1,36 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODL_IP }} {
+    description "Simulated Peer {{ i }}";
+    router-id 127.0.1.{{ i }};
+    local-address 127.0.1.{{ i }};
+    local-as 64496;
+    peer-as 64496;
+    hold-time 180;
+
+    family {
+        ipv4 flow;
+    }
+
+    flow {
+        route flow_{{ i }} {
+            match {
+                source 10.0.0.{{ i }}/32;
+                destination 192.168.0.{{ i }}/32;
+                port =80;
+                destination-port >8080&<8088;
+                source-port >1024;
+                protocol tcp;
+                packet-length >400&<500;
+                fragment =first-fragment;
+                icmp-type echo-reply;
+                icmp-code network-unreachable;
+                tcp-flags =urgent;
+                dscp 20;
+            }
+            then {
+                action sample-terminal;
+            }
+        }
+    }
+}
+{% endfor %}

@@ -1,0 +1,21 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODLIP }} {
+    router-id {{ ROUTERID_TEMPATE | format_ip(i+2) }};
+    local-address {{ EXABGPIP_TEMPLATE | format_ip(i+2) }};
+    local-as 4210010000;
+    peer-as 4210010000;
+
+    capability {
+        route-refresh {{ ROUTEREFRESH }};
+        add-path {{ ADDPATH }};
+    }
+
+    family {
+        ipv6 unicast;
+    }
+
+    static {
+        route 2a04:6d80::1/128 next-hop self;
+    }
+}
+{% endfor -%}
