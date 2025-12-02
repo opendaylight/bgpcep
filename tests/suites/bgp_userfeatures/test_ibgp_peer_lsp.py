@@ -55,7 +55,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.run(order=50)
 class TestIbgpPeerLsp:
-    flowspec_process = None
+    bgp_speaker_process = None
 
     def test_ibgp_peer_lsp(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_tc1_configure_ibgp_peer"):

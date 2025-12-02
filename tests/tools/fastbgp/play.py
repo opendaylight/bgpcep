@@ -2473,6 +2473,8 @@ class Rpcs:
         Returns:
             :data: stored data
         """
+        logger.warn("Checking storages")
+        logger.warn(self.storages)
         with self.storages[peer_id] as stor:
             return stor.get(text, "")
 
@@ -2509,13 +2511,18 @@ def threaded_job(arguments):
     utils_left = arguments.multiplicity
     prefix_current = arguments.firstprefix
     myip_current = arguments.myip
+    peerip_current = arguments.peerip
     port = arguments.port
     thread_args = []
     rpcqueues = []
     peers_storages = []
 
     while 1:
-        amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
+        #amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
+        if amount_left <= 0:
+            amount_per_util = 0
+        else:
+            amount_per_util = int((amount_left - 1) / utils_left) + 1  # round up
         amount_left -= amount_per_util
         utils_left -= 1
 
@@ -2523,6 +2530,7 @@ def threaded_job(arguments):
         args.amount = amount_per_util
         args.firstprefix = prefix_current
         args.myip = myip_current
+        args.peerip = peerip_current
         thread_args.append(args)
 
         if not utils_left:
@@ -2536,6 +2544,8 @@ def threaded_job(arguments):
         )  # round up
         prefix_current += ((number_of_iterations * args.insert) + args.prefill) * 16
         myip_current += 1
+        if args.listen:
+            peerip_current += 1
 
     try:
         # Create threads
