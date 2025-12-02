@@ -1,0 +1,18 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODLIP }} {
+  router-id 127.0.1.{{ i }};
+  local-address 127.0.1.{{ i }};
+  local-as 64496;
+  peer-as 64496;
+  md5-password {{ PASSWORD }};
+
+  capability {
+    route-refresh {{ ROUTEREFRESH }};
+    add-path {{ ADDPATH }};
+  }
+
+  family {
+    ipv4 unicast;
+  }
+}
+{% endfor %}

@@ -60,6 +60,7 @@ def verify_jsons_matach(
                 n=2000,
             )
         )
+        # TODO: show in the output part which is different
         if len(visual_diff) > 2000:
             visual_diff = visual_diff[:2000] + " ... (truncated long output)"
         raise AssertionError(f": \n{visual_diff}")
