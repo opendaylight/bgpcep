@@ -1,0 +1,11 @@
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODLIP }} {
+    router-id {{ ROUTERID_TEMPATE | format_ip(i+2) }};
+    local-address {{ EXABGPIP_TEMPLATE | format_ip(i+2) }};
+    local-as 64496;
+    peer-as 64496;
+    family {
+        ipv4 unicast;
+    }
+}
+{% endfor -%}

@@ -1,0 +1,21 @@
+[global.config]
+    as = 64496
+    router-id = "{{ ROUTERID }}"
+    port = 17900
+{% for i in range(PEER_COUNT) %}
+[[neighbors]]
+    [neighbors.config]
+         peer-as = 64496
+        neighbor-address = "127.0.0.{{ i+1 }}"
+        local-as = 64496
+    [neighbors.transport.config]
+        local-address = "127.0.1.{{ i }}"
+        remote-port = 1790
+    [[neighbors.afi-safis]]
+        [neighbors.afi-safis.config]
+           afi-safi-name = "ipv4-flowspec"
+        [neighbors.afi-safis.long-lived-graceful-restart.config]
+           enabled = true
+           restart-time = 86400
+
+{% endfor %}

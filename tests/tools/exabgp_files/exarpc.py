@@ -2,15 +2,23 @@
 
 import argparse
 import binascii
+import copy
 import json
 import logging
 import os
+import queue
 import re
 import select
 import sys
 import threading
 from exabgp.bgp.message import Message
 from xmlrpc.server import SimpleXMLRPCServer
+from socketserver import ThreadingMixIn
+ 
+ 
+class ThreadedXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
+    """Multi-threaded XMLRPC Server."""
+    pass
 
 
 class ExaStorage(dict):
@@ -28,7 +36,7 @@ class ExaStorage(dict):
     def __init__(self):
         """Thread safe dictionary init"""
         super(ExaStorage, self).__init__()
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
 
     def __enter__(self):
         """Entry point of "with" statement"""
@@ -57,11 +65,14 @@ class Rpcs(object):
         Arguments:
             :text: exabgp command
         """
-        logging.debug("Command towards exabgp: {}".format(text))
-        sys.stdout.write(text)
-        sys.stdout.write("\n")
-        sys.stdout.flush()
-        logging.debug("Connand flushed: {}.".format(text))
+        try:
+            logging.debug("Command towards exabgp: {}".format(text))
+            sys.stdout.write(text)
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+            logging.debug("Connand flushed: {}.".format(text))
+        except Exception as e:
+            logging.error("Failed to write to stdout: {}".format(e))
 
     def get_counter(self, msg_type):
         """Gets counter value
@@ -71,8 +82,9 @@ class Rpcs(object):
         Returns:
             :cnt: counter value
         """
-        logging.debug("get_counter rpc called, storage {}".format(self.storage))
+        logging.debug("get_counter rpc called,")
         with self.storage as s:
+            logging.debug("storage {}".format(s))
             if "counters" not in s:
                 return 0
             cnt = 0 if msg_type not in s["counters"] else s["counters"][msg_type]
@@ -85,8 +97,9 @@ class Rpcs(object):
             :msg_type: message type which counter should be cleaned
         """
 
-        logging.debug("clean_counter rpc called, storage {}".format(self.storage))
+        logging.debug("clean_counter rpc called,")
         with self.storage as s:
+            logging.debug("storage {}".format(s))
             if "counters" not in s:
                 return
             if msg_type in s["counters"]:
@@ -100,10 +113,9 @@ class Rpcs(object):
         Returns:
             :msg: message
         """
-        logging.debug(
-            "get_message {} rpc called, storage {}".format(msg_type, self.storage)
-        )
+        logging.debug("get_message {} rpc called")
         with self.storage as s:
+            logging.debug("storage {}".format(s))
             if "messages" not in s:
                 return None
             msg = None if msg_type not in s["messages"] else s["messages"][msg_type]
@@ -116,8 +128,9 @@ class Rpcs(object):
             :msg_type: message type which message should be cleaned
         """
 
-        logging.debug("clean_message rpc called, storage {}".format(self.storage))
+        logging.debug("clean_message rpc called")
         with self.storage as s:
+            logging.debug("storage {}".format(s))
             if "messages" not in s:
                 return
             if msg_type in s["messages"]:
@@ -187,7 +200,9 @@ def handle_open(storage, msg):
     Arguments:
         :msg: hex string of open body
     """
-    logging.debug("Handling Open with storage {}".format(storage))
+    logging.debug("Handling Open with")
+    with storage as s:
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "open")
 
 
@@ -199,7 +214,9 @@ def handle_keepalive(storage, msg):
     Arguments:
         :msg: hex string of message body (in fact it is None)
     """
-    logging.debug("Handling KeepAlive with storage {}".format(storage))
+    logging.debug("Handling KeepAlive with")
+    with storage as s:
+            logging.debug("storage {}".format(s))
     _increment_counter(storage, "keepalive")
 
 
@@ -211,7 +228,9 @@ def handle_update(storage, msg):
     Arguments:
         :msg: hex string of update body
     """
-    logging.debug("Handling Update with storage {}".format(storage))
+    logging.debug("Handling Update with")
+    with storage as s:
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "update")
 
 
@@ -223,7 +242,9 @@ def handle_route_refresh(storage, msg):
     Arguments:
         :msg: hex string of route refresh body
     """
-    logging.debug("Handling Route Refresh with storage {}".format(storage))
+    logging.debug("Handling Route Refresh with")
+    with storage as s:
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "route_refresh")
 
 
@@ -235,7 +256,9 @@ def handle_json_update(storage, jdata):
     Arguments:
         :jdata: json formated data of update message
     """
-    logging.debug("Handling Json Update with storage {}".format(storage))
+    logging.debug("Handling Json Update with")
+    with storage as s:
+            logging.debug("storage {}".format(s))
     _increment_counter(storage, "update")
     _store_last_received_message(storage, "update", jdata)
 
@@ -249,7 +272,9 @@ def handle_json_state(storage, jdata):
     Arguments:
         :jdata: json formated data about connection/peer state
     """
-    logging.debug("Handling Json State with storage {}".format(storage))
+    logging.debug("Handling Json State with")
+    with storage as s:
+            logging.debug("storage {}".format(s))
 
 
 def handle_json_refresh(storage, jdata):
@@ -261,7 +286,9 @@ def handle_json_refresh(storage, jdata):
     Arguments:
         :jdata: json formated data about connection/peer state
     """
-    logging.debug("Handling Json State with storage {}".format(storage))
+    logging.debug("Handling Json State with")
+    with storage as s:
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "route_refresh")
 
 
@@ -318,6 +345,17 @@ def exa_msg_handler(storage, data, encoder):
     else:
         logging.error("Ignoring received data, unknown encoder: {}".format(encoder))
 
+def worker_loop(storage, msg_queue, encoder):
+    while True:
+        data = msg_queue.get()
+        if data is None:
+            break
+        try:
+            exa_msg_handler(storage, data, encoder)
+        except Exception as e:
+            logging.error("Worker exception: {}".format(e))
+        finally:
+            msg_queue.task_done()
 
 def main(*argv):
     """This script is used as i/o api for communication with exabgp
@@ -343,30 +381,46 @@ def main(*argv):
     )
     parser.add_argument("--encoder", default="json", help="Exabgp encoder type")
     in_args = parser.parse_args(*argv)
-    logging.basicConfig(filename=in_args.logfile, level=in_args.loglevel)
+    logging.basicConfig(
+        filename=in_args.logfile,
+        level=in_args.loglevel,
+        format='%(asctime)s %(levelname)s: %(message)s'
+    )
 
     storage = ExaStorage()
-    rpcserver = SimpleXMLRPCServer((in_args.host, 8000), allow_none=True)
+    rpcserver = ThreadedXMLRPCServer((in_args.host, 8000), allow_none=True)
     rpcserver.register_instance(Rpcs(storage))
     trpc = threading.Thread(target=rpcserver.serve_forever)
+    trpc.daemon = True
     trpc.start()
 
-    epoll = select.epoll()
+    msg_queue = queue.Queue()
+    t_worker = threading.Thread(
+        target=worker_loop, 
+        args=(storage, msg_queue, in_args.encoder)
+    )
+    t_worker.daemon = True
+    t_worker.start()
 
-    epoll.register(sys.__stdin__, select.EPOLLIN | select.EPOLLERR | select.EPOLLHUP)
+    #epoll = select.epoll()
+
+    #epoll.register(sys.__stdin__, select.EPOLLIN | select.EPOLLERR | select.EPOLLHUP)
 
     try:
         while True:
             logging.debug("Epoll loop")
-            events = epoll.poll(10)
-            for fd, event_type in events:
-                logging.debug("Epoll returned: {},{}".format(fd, event_type))
-                if event_type != select.EPOLLIN:
-                    raise Exception("Unexpected epoll event")
-                else:
-                    data = sys.stdin.readline()
-                    logging.debug("Data recevied from exabgp: {}.".format(data))
-                    exa_msg_handler(storage, data, in_args.encoder)
+            #events = epoll.poll(10)
+            #for fd, event_type in events:
+            #    logging.debug("Epoll returned: {},{}".format(fd, event_type))
+            #    if event_type != select.EPOLLIN:
+            #        raise Exception("Unexpected epoll event")
+            #    else:
+            #        data = sys.stdin.readline()
+            #        logging.debug("------------------------------------Data recevied from exabgp: {}.".format(data))
+            #        #exa_msg_handler(storage, data, in_args.encoder)
+            #        msg_queue.put(data)
+            data = sys.stdin.readline()
+            msg_queue.put(data)
     except Exception as e:
         logging.warn("Exception occured: {}".format(e))
     finally:

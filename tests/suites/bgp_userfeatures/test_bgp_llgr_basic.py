@@ -48,7 +48,7 @@ class TestBgpLlgrBasic:
         infra.shell("sed -i -e 's/ROUTEREFRESH/disable/g' tmp/gobgp.cfg")
         infra.shell("sed -i -e 's/ADDPATH/disable/g' tmp/gobgp.cfg")
         rc, stdout = infra.shell("cat tmp/gobgp.cfg")
-        log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
+        log.info(f"Updated tmp/gobgp.cfg config:\n{stdout}")
 
     def download_gobgp_binary(self):
         """Downloads gobgp binary and untar the binary zip file."""

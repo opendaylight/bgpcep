@@ -49,14 +49,11 @@ RESTCONF_PORT = variables.RESTCONF_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
-SCRIPT_URI_OPT = f"data/bgp-rib:application-rib={ODL_IP}/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family"
-
-
 BGP_VARIABLES_FOLDER = "variables/bgpuser/"
 HOLDTIME = 180
 BGP_PEER_LOG_LEVEL = "debug"
 BGP_APP_PEER_LOG_LEVEL = "debug"
-BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL}"
+BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} >bgp_peer.log 2>&1"
 BGP_PEER_OPTIONS = ""
 BGP_APP_PEER_ID = ODL_IP
 BGP_APP_PEER_POST_COMMAND = f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} --command post --count 3 --prefix 8.0.1.0 --prefixlen 28 --{BGP_APP_PEER_LOG_LEVEL}"
@@ -349,7 +346,6 @@ class TestBgpAppPeerBasic:
                 src_file_name="bgp_peer.log",
                 target_file_name="bgp_peer_tc2.log",
             )
-            # infra.shell("cp  bgp_peer.log results/bgp_peer_tc2.log")
 
         with allure_step_with_separate_logging(
             "step_tc3_bgp_application_peer_put_3_routes"
