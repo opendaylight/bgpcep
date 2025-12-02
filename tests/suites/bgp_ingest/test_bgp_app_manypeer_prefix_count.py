@@ -85,8 +85,9 @@ class TestBgpAppManyPeerPrefixCount:
             "step_reconfigure_odl_to_accept_connections"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
-            bgp.set_bgp_neighbour(
-                ip=TOOLS_IP,
+            bgp.set_bgp_neighbours(
+                first_neigbout_ip=TOOLS_IP,
+                count=BGP_PEERS_COUNT,
                 holdtime=HOLDTIME,
                 rib_instance=RIB_INSTANCE,
                 passive_mode=True,
@@ -280,7 +281,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             """Revert the BGP configuration to the original state: without any
             configured peers."""
-            bgp.delete_bgp_neighbour(TOOLS_IP, rib_instance=RIB_INSTANCE)
+            bgp.delete_bgp_neighbours(TOOLS_IP, BGP_PEERS_COUNT, rib_instance=RIB_INSTANCE)
 
         with allure_step_with_separate_logging(
             "step_delete_bgp_application_peer_configuration"

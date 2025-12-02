@@ -1,0 +1,33 @@
+{% for i in range(PEER_COUNT) %}
+process exarpcserver_{{ i }} {
+    run ../tools/exabgp_files/exarpc.py --host 127.0.1.{{ i }};
+    encoder json;
+}
+{% endfor %}
+
+{% for i in range(PEER_COUNT) %}
+neighbor {{ ODL_IP }} {
+    router-id 127.0.1.{{ i }};
+    local-address 127.0.1.{{ i }};
+    local-as 64496;
+    peer-as 64496;
+    capability {
+        route-refresh {{ ROUTEREFRESH }};
+        add-path {{ ADDPATH }};
+    }
+
+    family {
+        ipv4 unicast;
+        ipv4 mpls-vpn;
+    }
+
+    api {
+        processes [ exarpcserver_{{ i }} ];
+
+        receive {
+            parsed;
+            update;
+        }
+    }
+}
+{% endfor %}

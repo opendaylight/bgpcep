@@ -82,7 +82,7 @@ class TestSinglePeer300KRoutes:
             """Start Python speaker to connect to ODL."""
             TestSinglePeer300KRoutes.bgp_speaker_process = (
                 bgp.start_bgp_speaker_with_verify_and_retry(
-                    speaker_ip=TOOLS_IP,
+                    speaker_ips=TOOLS_IP,
                     my_ip=TOOLS_IP,
                     my_port=BGP_TOOL_PORT,
                     peer_ip=ODL_IP,
