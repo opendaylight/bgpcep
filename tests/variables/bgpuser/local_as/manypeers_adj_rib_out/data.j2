@@ -1,0 +1,31 @@
+{
+    "bgp-inet:ipv4-routes": {
+        "ipv4-route": [
+            {% for route in ROUTES %}
+            {
+                "attributes": {
+                    "as-path": {
+                        "segments": [
+                            {
+                                "as-sequence": [
+                                    {{ AS_NUMBER }},
+                                    {{ route.peer_as }}
+                                ]
+                            }
+                        ]
+                    },
+                    "ipv4-next-hop": {
+                        "global": "192.0.2.1"
+                    },
+                    "origin": {
+                        "value": "igp"
+                    }
+                },
+                "path-id": 0,
+                "prefix": "{{ route.prefix }}",
+                "route-key": "{{ route.prefix }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    }
+}

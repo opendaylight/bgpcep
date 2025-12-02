@@ -1,0 +1,26 @@
+{% for peer in peers %}
+neighbor {{ odl_ip }} {
+    router-id {{ peer.ip }};
+    local-address {{ peer.ip }};
+    local-as 64496;
+    peer-as 64496;
+
+    static {
+        route 2001:4B50:{{ peer.index }}::/48 {
+            rd 3215:{{ peer.index }};
+            as-path [ 25186 65000 64512 ];
+            next-hop ::FFFF;
+            originator-id 57.35.2.240;
+            local-preference 100;
+            community [ 65000:33 ];
+            extended-community [ target:10283:4.249.92.120 ];
+            label {{ 900 + peer.index }};
+        }
+    }
+    capability {
+        route-refresh {{ ROUTEREFRESH }};
+        add-path {{ ADDPATH }};
+    }
+    family { all }
+}
+{% endfor %}
