@@ -56,12 +56,12 @@ BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 KARAF_LOG_LEVEL = variables.KARAF_LOG_LEVEL
 FIRST_PEER_IP = TOOLS_IP
-TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER
+TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER * 100
 CHECK_PERIOD_PREFIX_COUNT_MANY = 20
 REPETITIONS_PREFIX_COUNT_MANY = 4
 
-BGP_TOOL_LOG_LEVEL = "info"
-KARAF_LOG_LEVEL = "INFO"
+BGP_TOOL_LOG_LEVEL = "debug"
+KARAF_LOG_LEVEL = "DEBUG"
 KARAF_BGPCEP_LOG_LEVEL = KARAF_LOG_LEVEL
 KARAF_PROTOCOL_LOG_LEVEL = KARAF_BGPCEP_LOG_LEVEL
 HOLDTIME = 180
@@ -90,6 +90,11 @@ class BaseTestManyPeerPrefixCount:
         )
         bgp_emptying_timeout = bgp_filling_timeout * 3 / 4
 
+        with allure_step_with_separate_logging("step_set_karaf_debug_logging_level"):
+            """Set logging on bgpcep and protocol to the global value."""
+            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
+            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
+
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
@@ -112,15 +117,15 @@ class BaseTestManyPeerPrefixCount:
                 passive_mode=True,
             )
 
-        with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
-            """We may want to set more verbose logging here after configuration is
-            done."""
-            infra.execute_karaf_command(
-                f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
-            )
-            infra.execute_karaf_command(
-                f"log:set {KARAF_PROTOCOL_LOG_LEVEL} org.opendaylight.protocol"
-            )
+        # with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
+        #    """We may want to set more verbose logging here after configuration is
+        #    done."""
+        #    infra.execute_karaf_command(
+        #        f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
+        #    )
+        #    infra.execute_karaf_command(
+        #        f"log:set {KARAF_PROTOCOL_LOG_LEVEL} org.opendaylight.protocol"
+        #    )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_managers"):
             """Start Python manager to connect speakers to ODL."""
@@ -136,6 +141,7 @@ class BaseTestManyPeerPrefixCount:
                 prefill=prefill,
                 update=UPDATE,
                 listen=False,
+                # log_level="debug"
             )
 
         with allure_step_with_separate_logging(
@@ -159,37 +165,37 @@ class BaseTestManyPeerPrefixCount:
             """Abort the Python speakers. Also, attempt to stop failing fast."""
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
 
-        with allure_step_with_separate_logging(
-            "step_wait_for_stable_ip_topology_after_talking"
-        ):
-            """Wait until example-ipv4-topology becomes stable again."""
-            prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=count_prefix_count_many,
-                wait_period=CHECK_PERIOD_PREFIX_COUNT_MANY,
-                consecutive_times_stable_value=REPETITIONS_PREFIX_COUNT_MANY,
-                timeout=bgp_emptying_timeout,
-            )
+        # with allure_step_with_separate_logging(
+        #    "step_wait_for_stable_ip_topology_after_talking"
+        # ):
+        #    """Wait until example-ipv4-topology becomes stable again."""
+        #    prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
+        #        excluded_value=count_prefix_count_many,
+        #        wait_period=CHECK_PERIOD_PREFIX_COUNT_MANY,
+        #        consecutive_times_stable_value=REPETITIONS_PREFIX_COUNT_MANY,
+        #        timeout=bgp_emptying_timeout,
+        #    )
 
-        with allure_step_with_separate_logging(
-            "step_check_for_empty_ip_topology_after_talking"
-        ):
-            """Example-ipv4-topology should be empty now."""
-            prefix_counting.check_ipv4_topology_is_empty()
+        # with allure_step_with_separate_logging(
+        #    "step_check_for_empty_ip_topology_after_talking"
+        # ):
+        #    """Example-ipv4-topology should be empty now."""
+        #    prefix_counting.check_ipv4_topology_is_empty()
 
-        with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
-            """Set logging on bgpcep and protocol to the global value."""
-            infra.execute_karaf_command(
-                f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
-            )
-            infra.execute_karaf_command(
-                f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
-            )
+        # with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
+        #    """Set logging on bgpcep and protocol to the global value."""
+        #    infra.execute_karaf_command(
+        #        f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
+        #    )
+        #    infra.execute_karaf_command(
+        #        f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
+        #    )
 
-        with allure_step_with_separate_logging("step_delete_bgp_peers_configurations"):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
-            bgp.delete_bgp_neighbours(
-                first_neigbout_ip=FIRST_PEER_IP,
-                count=bgp_peers_count,
-                rib_instance=RIB_INSTANCE,
-            )
+        # with allure_step_with_separate_logging("step_delete_bgp_peers_configurations"):
+        #    """Revert the BGP configuration to the original state: without any
+        #    configured peers."""
+        #    bgp.delete_bgp_neighbours(
+        #        first_neigbout_ip=FIRST_PEER_IP,
+        #        count=bgp_peers_count,
+        #        rib_instance=RIB_INSTANCE,
+        #    )

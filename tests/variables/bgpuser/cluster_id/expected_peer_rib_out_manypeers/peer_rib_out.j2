@@ -1,0 +1,43 @@
+{
+  "bgp-inet:ipv4-routes": {
+    "ipv4-route": [
+    {%- for peer_data in peers_data %}
+      {
+        "path-id": 0,
+        "prefix": "{{ peer_data.prefix}}/28",
+        "route-key": "{{ peer_data.prefix}}/28",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "originator-id": {
+            "originator": "192.0.2.2"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "as-path": {
+            "segments": [
+              {
+                "as-sequence": [
+                  64496
+                ]
+              }
+            ]
+          },
+          "cluster-id": {
+            "cluster": [
+              "{{ peer_data.cluster_id}}",
+              "{{ peer_data.default_id}}"
+            ]
+          },
+          "ipv4-next-hop": {
+            "global": "192.0.2.1"
+          }
+        }
+      } {% if not loop.last %},{% endif %}
+    {%- endfor %}
+    ]
+  }
+}
+
