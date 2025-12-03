@@ -311,7 +311,13 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         /* Add the Edge in the Connected Graph */
         LOG.debug("Add Edge {} and associated Prefix {} in TED[{}]", edge.getName(), prefBuilder.getPrefix(), cgraph);
         cgraph.addEdge(edge);
-        cgraph.addPrefix(prefBuilder.build());
+        if (prefBuilder.getPrefix() == null) {
+            LOG.debug(
+                "(Custom)Skipped Adding Edges due to prefix is Null/Empty. Edge {} and associated Prefix {} in TED[{}]",
+                edge.getName(), prefBuilder.getPrefix(), cgraph);
+        } else {
+            cgraph.addPrefix(prefBuilder.build());
+        }
     }
 
     /**
