@@ -300,12 +300,14 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         /*
          * Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
         final var attr = edge.getEdgeAttributes();
-        PrefixBuilder prefBuilder = new PrefixBuilder().setVertexId(srcId);
+        final var prefBuilder = new PrefixBuilder().setVertexId(srcId);
         if (attr.getLocalAddress() != null) {
             prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv4PrefixFor(attr.getLocalAddress())));
-        }
-        if (attr.getLocalAddress6() != null) {
+        } else if (attr.getLocalAddress6() != null) {
             prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv6PrefixFor(attr.getLocalAddress6())));
+        } else {
+            LOG.warn("Skipping Edge {} from TED[{}] because of missing IPv4 or IPv6 prefix", edge.getName(), cgraph);
+            return;
         }
 
         /* Add the Edge in the Connected Graph */
