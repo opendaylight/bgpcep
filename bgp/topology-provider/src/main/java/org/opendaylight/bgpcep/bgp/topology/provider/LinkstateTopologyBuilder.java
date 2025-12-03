@@ -627,7 +627,8 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 ilab.setMetric(la.getMetric().getValue());
             }
             ilab.setName(la.getLinkName());
-            if (la.getSrAttribute().getSrAdjIds() != null && !la.getSrAttribute().getSrAdjIds().isEmpty()) {
+            if (la.getSrAttribute() != null
+                    && la.getSrAttribute().getSrAdjIds() != null && !la.getSrAttribute().getSrAdjIds().isEmpty()) {
                 final SrAdjIds srAdjIds = la.getSrAttribute().getSrAdjIds().getFirst();
                 if (srAdjIds != null) {
                     final SidLabelIndex sidLabelIndex = srAdjIds.getSidLabelIndex();
