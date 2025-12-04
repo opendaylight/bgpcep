@@ -403,10 +403,6 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (!isRestartingGracefully()) {
             peerId = RouterIds.createPeerId(session.getBgpId());
 
-            final var peerIId = getInstanceIdentifier().toBuilder()
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
-                    .bgp.rib.rib.Peer.class, new PeerKey(peerId))
-                .build();
             peerPath = createPeerPath(peerId);
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             trackerRegistration = rib.getPeerTracker().registerPeer(this);
