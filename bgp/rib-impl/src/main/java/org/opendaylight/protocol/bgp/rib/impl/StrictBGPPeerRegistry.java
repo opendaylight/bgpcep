@@ -316,19 +316,16 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
             if (this == obj) {
                 return true;
             }
-            if (obj == null || getClass() != obj.getClass()) {
+            if (!(obj instanceof BGPSessionId other)) {
                 return false;
             }
 
-            final BGPSessionId bGPSessionId = (BGPSessionId) obj;
-
-            if (!from.equals(bGPSessionId.from) && !from.equals(bGPSessionId.to)) {
+            if (!from.equals(other.from) && !from.equals(other.to)) {
                 return false;
             }
-            if (!to.equals(bGPSessionId.to) && !to.equals(bGPSessionId.from)) {
+            if (!to.equals(other.to) && !to.equals(other.from)) {
                 return false;
             }
-
             return true;
         }
 
