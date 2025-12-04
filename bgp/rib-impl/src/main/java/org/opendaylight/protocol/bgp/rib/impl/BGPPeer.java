@@ -556,7 +556,7 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
      */
     @Holding("this")
     private @NonNull FluentFuture<? extends CommitInfo> releaseConnection(final boolean isWaitForSubmitted) {
-        LOG.info("Closing session with peer");
+        LOG.info("Closing session with peer {}", getName());
         sessionUp = false;
         adjRibOutListenerSet.values().forEach(AdjRibOutListener::close);
         adjRibOutListenerSet.clear();
@@ -685,12 +685,12 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized void onFailure(final Throwable cause) {
-        LOG.error("Transaction domChain failed.", cause);
+        LOG.error("Transaction domChain for peer {} failed.", getName(), cause);
         releaseConnection(true);
     }
 
     private synchronized void onRibOutChainFailed(final Throwable cause) {
-        LOG.error("RibOut transaction chain failed.", cause);
+        LOG.error("RibOut transaction chain for peer {} failed.", getName(), cause);
         releaseConnection(false);
     }
 
