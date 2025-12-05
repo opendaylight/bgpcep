@@ -7,10 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static java.util.Objects.requireNonNull;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
@@ -72,38 +69,5 @@ public final class BgpPeerUtil {
             }
         }
         return false;
-    }
-
-    /**
-     * DTO for transferring LLGR advertizements.
-     *
-     * @deprecated This class is deprecated for refactoring.
-     */
-    // FIXME: there should be no need for this class, as we should be able to efficiently translate TableKey classes
-    //        and rely on yang-parser-api.
-    @Deprecated
-    @NonNullByDefault
-    public static final class LlGracefulRestartDTO {
-        private final TablesKey tableKey;
-        private final Uint24 staleTime;
-        private final boolean forwardingFlag;
-
-        public LlGracefulRestartDTO(final TablesKey tableKey, final Uint24 staleTime, final boolean forwardingFlag) {
-            this.tableKey = requireNonNull(tableKey);
-            this.staleTime = requireNonNull(staleTime);
-            this.forwardingFlag = forwardingFlag;
-        }
-
-        public TablesKey getTableKey() {
-            return tableKey;
-        }
-
-        public Uint24 getStaleTime() {
-            return staleTime;
-        }
-
-        public boolean isForwarding() {
-            return forwardingFlag;
-        }
     }
 }

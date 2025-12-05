@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
@@ -30,7 +29,6 @@ import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
-import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -294,12 +292,9 @@ public final class BgpPeerBean extends PeerBean {
 
         private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
                                                             final Map<TablesKey, Uint24> llGracefulTimers) {
-            final var llGracefulRestarts = llGracefulTimers.entrySet().stream()
-                    .map(entry -> new BgpPeerUtil.LlGracefulRestartDTO(entry.getKey(), entry.getValue(), false))
-                    .collect(Collectors.toSet());
             return Collections.singletonList(
                     GracefulRestartUtil.getGracefulBgpParameters(finalCapabilities, gracefulTables, Set.of(),
-                        gracefulRestartTimer, false, llGracefulRestarts));
+                        gracefulRestartTimer, false, llGracefulTimers, unused -> false));
         }
 
         synchronized void instantiateServiceInstance() {

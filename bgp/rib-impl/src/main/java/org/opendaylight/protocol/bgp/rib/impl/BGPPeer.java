@@ -760,7 +760,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .collect(Collectors.toSet());
         final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
                 bean.getBgpFixedCapabilities(), gracefulTables, preservedTables,
-                bean.getGracefulRestartTimer(), localRestarting, Collections.emptySet());
+                bean.getGracefulRestartTimer(), localRestarting, Map.of(), unused -> false);
         final BGPSessionPreferences oldPrefs = rib.getDispatcher().getBGPPeerRegistry()
                 .getPeerPreferences(getNeighborAddress());
         final BGPSessionPreferences newPrefs = new BGPSessionPreferences(

@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,7 +27,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
-import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.GracefulRestartBuilder;
@@ -144,13 +142,12 @@ public class GracefulRestartUtilTest {
         final OptionalCapabilities expectedGracefulCapability = new OptionalCapabilitiesBuilder()
                 .setCParameters(GracefulRestartUtil.getGracefulCapability(gracefulMap, RESTART_TIME, RESTARTING))
                 .build();
-        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulDTOs = Collections.singleton(
-                new BgpPeerUtil.LlGracefulRestartDTO(IPV4_KEY, STALE_TIME, true));
+        final var llGraceful = Map.of(IPV4_KEY, STALE_TIME);
         final OptionalCapabilities expectedLlGracefulCapability = new OptionalCapabilitiesBuilder()
-                .setCParameters(GracefulRestartUtil.getLlGracefulCapability(llGracefulDTOs))
+                .setCParameters(GracefulRestartUtil.getLlGracefulCapability(llGraceful, unused -> true))
                 .build();
         final BgpParameters parameters = GracefulRestartUtil.getGracefulBgpParameters(fixedCaps, gracefulTables,
-                preservedTables, RESTART_TIME, RESTARTING, llGracefulDTOs);
+                preservedTables, RESTART_TIME, RESTARTING, llGraceful, unused -> true);
         final List<OptionalCapabilities> capabilities = parameters.getOptionalCapabilities();
         assertTrue(capabilities != null);
         assertEquals(4, capabilities.size());
@@ -162,10 +159,8 @@ public class GracefulRestartUtilTest {
 
     @Test
     public void getLlGracefulCapabilityTest() {
-        final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestartDTOs = new HashSet<>();
-        llGracefulRestartDTOs.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV4_KEY, STALE_TIME, true));
-        llGracefulRestartDTOs.add(new BgpPeerUtil.LlGracefulRestartDTO(IPV6_KEY, STALE_TIME, false));
-        CParameters capability = GracefulRestartUtil.getLlGracefulCapability(llGracefulRestartDTOs);
+        CParameters capability = GracefulRestartUtil.getLlGracefulCapability(
+            Map.of(IPV4_KEY, STALE_TIME, IPV6_KEY, STALE_TIME), IPV4_KEY::equals);
         final CParameters1 params = capability.augmentation(CParameters1.class);
         assertNotNull(params);
         final LlGracefulRestartCapability llGracefulCapability = params.getLlGracefulRestartCapability();

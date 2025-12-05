@@ -18,8 +18,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config1;
@@ -66,21 +66,25 @@ public final class GracefulRestartUtil {
             .collect(BindingMap.toMap()), restartTime, localRestarting);
     }
 
-    public static CParameters getLlGracefulCapability(final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulRestarts) {
+    public static CParameters getLlGracefulCapability(final Map<TablesKey, Uint24> llGracefulRestarts,
+                                                      final Predicate<TablesKey> forwardingPredicate) {
         return new CParametersBuilder()
-                .addAugmentation(new CParameters1Builder()
-                    .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
-                        .setTables(llGracefulRestarts.stream()
-                            .map(dto -> new TablesBuilder()
-                                .setAfi(dto.getTableKey().getAfi())
-                                .setSafi(dto.getTableKey().getSafi())
-                                .setAfiFlags(new AfiFlags(dto.isForwarding()))
-                                .setLongLivedStaleTime(dto.getStaleTime())
-                                .build())
-                            .collect(BindingMap.toMap()))
-                        .build())
+            .addAugmentation(new CParameters1Builder()
+                .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
+                    .setTables(llGracefulRestarts.entrySet().stream()
+                        .map(entry -> {
+                            final var tablesKey = entry.getKey();
+                            return new TablesBuilder()
+                                .setAfi(tablesKey.getAfi())
+                                .setSafi(tablesKey.getSafi())
+                                .setAfiFlags(new AfiFlags(forwardingPredicate.test(tablesKey)))
+                                .setLongLivedStaleTime(entry.getValue())
+                                .build();
+                        })
+                        .collect(BindingMap.toMap()))
                     .build())
-                .build();
+                .build())
+            .build();
     }
 
     static Set<TablesKey> getGracefulTables(final Collection<AfiSafi> afiSafis,
@@ -151,14 +155,15 @@ public final class GracefulRestartUtil {
                                                          final Set<TablesKey> preservedTables,
                                                          final int gracefulRestartTimer,
                                                          final boolean localRestarting,
-                                                         final Set<BgpPeerUtil.LlGracefulRestartDTO> llGracefulDTOs) {
-        final List<OptionalCapabilities> capabilities = new ArrayList<>(fixedCapabilities);
+                                                         final Map<TablesKey, Uint24> llGraceful,
+                                                         final Predicate<TablesKey> llGracefulForwarding) {
+        final var capabilities = new ArrayList<>(fixedCapabilities);
         capabilities.add(new OptionalCapabilitiesBuilder()
             .setCParameters(getGracefulCapability(Maps.asMap(gracefulTables, preservedTables::contains),
                 gracefulRestartTimer, localRestarting))
             .build());
         capabilities.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(getLlGracefulCapability(llGracefulDTOs))
+            .setCParameters(getLlGracefulCapability(llGraceful, llGracefulForwarding))
             .build());
 
         return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();
