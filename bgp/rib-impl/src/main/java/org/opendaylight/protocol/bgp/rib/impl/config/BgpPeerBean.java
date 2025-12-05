@@ -30,7 +30,6 @@ import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
-import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
 import org.opendaylight.protocol.bgp.rib.impl.BGPPeer;
 import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -234,10 +233,8 @@ public final class BgpPeerBean extends PeerBean {
         private boolean isServiceInstantiated;
         private final List<OptionalCapabilities> finalCapabilities;
         private final int gracefulRestartTimer;
-        private final RevisedErrorHandlingSupport errorHandling;
 
-
-        private BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final DataObjectIdentifier<Bgp> bgpIid,
+        BgpPeerSingletonService(final RIB rib, final Neighbor neighbor, final DataObjectIdentifier<Bgp> bgpIid,
                 final PeerGroupConfigLoader peerGroupLoader, final BGPTableTypeRegistryConsumer tableTypeRegistry) {
             neighborAddress = OpenConfigMappingUtil.convertIpAddress(neighbor.getNeighborAddress());
 
@@ -284,9 +281,9 @@ public final class BgpPeerBean extends PeerBean {
                 neighborLocalAs = globalAs;
             }
 
-            errorHandling = OpenConfigMappingUtil.getRevisedErrorHandling(role, peerGroup, neighbor);
             bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
                     neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+                    OpenConfigMappingUtil.getTreatAsWithdraw(peerGroup, neighbor),
                     BgpPeerBean.this);
             prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters,
@@ -360,9 +357,5 @@ public final class BgpPeerBean extends PeerBean {
 
     public synchronized int getGracefulRestartTimer() {
         return bgpPeerSingletonService.gracefulRestartTimer;
-    }
-
-    public synchronized Optional<RevisedErrorHandlingSupport> getErrorHandling() {
-        return Optional.ofNullable(bgpPeerSingletonService.errorHandling);
     }
 }

@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.After;
@@ -123,7 +122,6 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
         final var bean = mock(BgpPeerBean.class);
         doReturn(GRACEFUL_RESTART_TIME).when(bean).getGracefulRestartTimer();
-        doReturn(Optional.empty()).when(bean).getErrorHandling();
         doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bean).getBgpFixedCapabilities();
         peer = configurePeer(tableRegistry, PEER1, ribImpl, parameters, PeerRole.Ibgp,

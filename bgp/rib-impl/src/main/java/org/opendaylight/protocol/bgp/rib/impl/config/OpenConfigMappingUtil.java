@@ -25,8 +25,6 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
-import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
-import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.BgpCommonAfiSafiList;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -463,30 +461,23 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static @Nullable RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role, final PeerGroup peerGroup,
-            final Neighbor neighbor) {
-        Optional<Boolean> enabled = getRevisedErrorHandling(neighbor);
-        if (!enabled.isPresent()) {
-            enabled = getRevisedErrorHandling(peerGroup);
+    static boolean getTreatAsWithdraw(final PeerGroup peerGroup, final Neighbor neighbor) {
+        var enabled = getTreatAsWithdraw(neighbor);
+        if (enabled == null) {
+            enabled = getTreatAsWithdraw(peerGroup);
         }
-        if (!enabled.orElse(Boolean.FALSE)) {
-            return null;
-        }
-        return switch (role) {
-            case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
-            case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
-        };
+        return enabled != null ? enabled : false;
     }
 
-    private static Optional<Boolean> getRevisedErrorHandling(final BgpNeighborGroup group) {
+    private static @Nullable Boolean getTreatAsWithdraw(final BgpNeighborGroup group) {
         if (group == null) {
-            return Optional.empty();
+            return null;
         }
         final var errorHandling = group.getErrorHandling();
         if (errorHandling == null) {
-            return Optional.empty();
+            return null;
         }
         final var config = errorHandling.getConfig();
-        return config == null ? Optional.empty() : Optional.of(config.getTreatAsWithdraw());
+        return config == null ? null : config.getTreatAsWithdraw();
     }
 }

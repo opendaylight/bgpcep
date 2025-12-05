@@ -19,7 +19,6 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
@@ -247,10 +246,8 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final Ipv4AddressNoZone peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised) {
-        final var bean = Mockito.mock(BgpPeerBean.class);
-        doReturn(Optional.empty()).when(bean).getErrorHandling();
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bean);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), Mockito.mock(BgpPeerBean.class));
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4AddressNoZone peerAddress,
@@ -261,7 +258,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final IpAddressNoZone ipAddress = new IpAddressNoZone(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddressNoZone(peerAddress), null, ribImpl, peerRole,
-                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, bean);
+            null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, false, bean);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));

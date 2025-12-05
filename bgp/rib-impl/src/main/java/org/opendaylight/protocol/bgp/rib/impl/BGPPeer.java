@@ -46,6 +46,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
+import org.opendaylight.protocol.bgp.parser.spi.pojo.RevisedErrorHandlingSupportImpl;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
@@ -129,6 +130,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    // Enable RFC7606 treat-as-withdraw UPDATE handling
+    private final boolean treatAsWithdraw;
 
     // FIXME: this is a reference to configuration: why do we actually need it?
     private final BgpPeerBean bean;
@@ -167,12 +170,14 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
             final Map<TablesKey, Integer> llGracefulTablesAdvertised,
+            final boolean treatAsWithdraw,
             final BgpPeerBean bean) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
             afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
+        this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
 
         createDomChain();
@@ -481,10 +486,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
         }
 
-        // SpotBugs does not grok Optional.ifPresent() and thinks we are using unsynchronized access
-        final Optional<RevisedErrorHandlingSupport> errorHandling = bean.getErrorHandling();
-        if (errorHandling.isPresent()) {
-            currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.orElseThrow());
+        if (treatAsWithdraw) {
+            currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, switch (getRole()) {
+                case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
+                case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
+            });
         }
     }
 
