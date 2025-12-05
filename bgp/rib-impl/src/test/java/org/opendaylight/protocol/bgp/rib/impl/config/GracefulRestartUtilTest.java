@@ -182,8 +182,26 @@ public class GracefulRestartUtilTest {
 
     @Test
     public void getLlGracefulTimersTest() {
-        final List<AfiSafi> afiSafi = new ArrayList<>();
-        afiSafi.add(new AfiSafiBuilder()
+        assertEquals(Map.of(IPV4_KEY, STALE_TIME), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
+            .setAfiSafiName(IPV4UNICAST.VALUE)
+            .setGracefulRestart(new GracefulRestartBuilder()
+                .setConfig(new ConfigBuilder()
+                    .setEnabled(true)
+                    .addAugmentation(new Config1Builder()
+                        .setLlGracefulRestart(new LlGracefulRestartBuilder()
+                            .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
+                                .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
+                                .ConfigBuilder().setLongLivedStaleTime(new Uint24(Uint32.valueOf(STALE_TIME))).build())
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build()), tableRegistry));
+    }
+
+    @Test
+    public void getLlGracefulTimersDisabledTest() {
+        assertEquals(Map.of(), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                 .setConfig(new ConfigBuilder()
@@ -196,12 +214,7 @@ public class GracefulRestartUtilTest {
                         .build())
                     .build())
                 .build())
-            .build());
-        final Map<TablesKey, Integer> llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(afiSafi,
-            tableRegistry);
-        assertNotNull(llGracefulTimers);
-        assertEquals(1, llGracefulTimers.size());
-        assertEquals(STALE_TIME, llGracefulTimers.get(IPV4_KEY).intValue());
+            .build()), tableRegistry));
     }
 
     private static boolean isSameKey(final TablesKey key1, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
