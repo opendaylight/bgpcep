@@ -464,7 +464,7 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static @Nullable RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role,final PeerGroup peerGroup,
+    static @Nullable RevisedErrorHandlingSupport getRevisedErrorHandling(final PeerRole role, final PeerGroup peerGroup,
             final Neighbor neighbor) {
         Optional<Boolean> enabled = getRevisedErrorHandling(neighbor);
         if (!enabled.isPresent()) {
@@ -476,7 +476,6 @@ final class OpenConfigMappingUtil {
         return switch (role) {
             case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
             case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
-            default -> throw new IllegalStateException("Unhandled role " + role);
         };
     }
 
