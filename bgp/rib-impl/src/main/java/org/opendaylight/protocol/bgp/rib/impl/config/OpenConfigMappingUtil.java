@@ -47,7 +47,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.p
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.PeerType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -277,20 +276,16 @@ final class OpenConfigMappingUtil {
         return Optional.empty();
     }
 
-    static PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
+    static @Nullable PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
         if (isRrClient(neighbor)) {
             return PeerRole.RrClient;
         }
-
-        if (neighbor.getConfig() != null) {
-            final PeerType peerType = neighbor.getConfig().getPeerType();
-            if (peerType == PeerType.EXTERNAL) {
-                return PeerRole.Ebgp;
-            } else if (peerType == PeerType.INTERNAL) {
-                return PeerRole.Ibgp;
-            }
-        }
-        return null;
+        final var config = neighbor.getConfig();
+        return config == null ? null : switch (config.getPeerType()) {
+            case null -> null;
+            case EXTERNAL -> PeerRole.Ebgp;
+            case INTERNAL -> PeerRole.Ibgp;
+        };
     }
 
     static @NonNull PeerRole toPeerRole(final Neighbor neighbor, final PeerGroup peerGroup) {
