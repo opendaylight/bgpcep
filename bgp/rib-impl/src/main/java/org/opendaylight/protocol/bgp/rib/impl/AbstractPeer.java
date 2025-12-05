@@ -63,8 +63,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImportParameters, Peer,
-        PeerTransactionChain, FutureCallback<Empty> {
+abstract sealed class AbstractPeer extends BGPPeerStateImpl
+        implements BGPRouteEntryImportParameters, Peer, PeerTransactionChain, FutureCallback<Empty>
+        permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
     final RTCClientRouteCache rtCache = new RTCClientRouteCache();

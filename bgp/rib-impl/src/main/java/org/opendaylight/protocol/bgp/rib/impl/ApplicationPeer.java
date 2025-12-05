@@ -72,7 +72,7 @@ import org.slf4j.LoggerFactory;
  * <p>For purposed of import policies such as Best Path Selection, application peer needs to have a BGP-ID that is
  * configurable.
  */
-public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeListener {
+public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeListener {
     @FunctionalInterface
     interface RegisterAppPeerListener {
         /**

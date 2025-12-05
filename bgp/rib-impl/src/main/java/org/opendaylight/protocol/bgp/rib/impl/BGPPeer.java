@@ -105,7 +105,7 @@ import org.slf4j.LoggerFactory;
  * Class representing a peer. We have a single instance for each peer, which provides translation from BGP events into
  * RIB actions.
  */
-public class BGPPeer extends AbstractPeer implements BGPSessionListener {
+public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
     private static final TablesKey IPV4_UCAST_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
