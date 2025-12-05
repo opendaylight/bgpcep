@@ -31,11 +31,11 @@ module bgp-ll-graceful-restart {
     }
 
     identity NO_LLGR {
-            base bgp-types:bgp-well-known-std-community;
-            description
-                "NO_LLGR community can be used to mark routes which a BGP speaker does not want treated according
-                 to long-lived graceful restart procedures, as detailed in RFC";
-            reference "https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04";
+        base bgp-types:bgp-well-known-std-community;
+        description
+            "NO_LLGR community can be used to mark routes which a BGP speaker does not want treated according
+             to long-lived graceful restart procedures, as detailed in RFC";
+        reference "https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04";
     }
 
     grouping afi-safi-ll-graceful-restart {
@@ -62,9 +62,9 @@ module bgp-ll-graceful-restart {
         }
 
     augment "/netinst:network-instances/netinst:network-instance/netinst:protocols/netinst:protocol/" +
-            "bgp-op-ext:bgp/bgp-op-ext:neighbors/bgp-op-ext:neighbor/bgp-op-ext:afi-safis/" +
-            "bgp-op-ext:afi-safi/bgp-op-ext:graceful-restart/bgp-op-ext:config" {
-                description "Add per peer-group afi-safi long-lived graceful restart config";
-                uses afi-safi-ll-graceful-restart;
-            }
+        "bgp-op-ext:bgp/bgp-op-ext:neighbors/bgp-op-ext:neighbor/bgp-op-ext:afi-safis/" +
+        "bgp-op-ext:afi-safi/bgp-op-ext:graceful-restart/bgp-op-ext:config" {
+            description "Add per peer-group afi-safi long-lived graceful restart config";
+            uses afi-safi-ll-graceful-restart;
+        }
 }
