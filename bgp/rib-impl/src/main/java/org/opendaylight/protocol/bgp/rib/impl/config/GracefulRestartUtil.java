@@ -111,6 +111,10 @@ public final class GracefulRestartUtil {
             if (gr != null) {
                 final var config = gr.getConfig();
                 if (config != null) {
+                    if (!Boolean.TRUE.equals(config.getEnabled())) {
+                        continue;
+                    }
+
                     final LlGracefulRestart llGracefulRestart;
                     final var peerAug = config.augmentation(Config1.class);
                     if (peerAug != null) {
