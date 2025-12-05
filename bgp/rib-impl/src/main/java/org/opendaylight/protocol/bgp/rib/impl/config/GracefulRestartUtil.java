@@ -23,7 +23,6 @@ import org.opendaylight.protocol.bgp.rib.impl.BgpPeerUtil;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.GracefulRestart;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.Config;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config2;
@@ -87,20 +86,18 @@ public final class GracefulRestartUtil {
                 .build();
     }
 
-    static Set<TablesKey> getGracefulTables(final Collection<? extends AfiSafi> afiSafis,
+    static Set<TablesKey> getGracefulTables(final Collection<AfiSafi> afiSafis,
                                             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        Set<TablesKey> gracefulTables = new HashSet<>();
-        for (final AfiSafi afiSafi : afiSafis) {
-            final GracefulRestart gr = afiSafi.getGracefulRestart();
+        final var gracefulTables = new HashSet<TablesKey>();
+        for (var afiSafi : afiSafis) {
+            final var gr = afiSafi.getGracefulRestart();
             if (gr != null) {
-                final Config config = gr.getConfig();
+                final var config = gr.getConfig();
                 if (config != null && Boolean.TRUE.equals(config.getEnabled())) {
-                    final AfiSafiType afiSafiName = afiSafi.getAfiSafiName();
-                    if (afiSafiName != null) {
-                        final TablesKey tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
-                        if (tablesKey != null) {
-                            gracefulTables.add(tablesKey);
-                        }
+                    final var afiSafiName = afiSafi.requireAfiSafiName();
+                    final var tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
+                    if (tablesKey != null) {
+                        gracefulTables.add(tablesKey);
                     }
                 }
             }
