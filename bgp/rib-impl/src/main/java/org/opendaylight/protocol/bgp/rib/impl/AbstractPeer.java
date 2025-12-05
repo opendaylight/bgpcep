@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -19,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -72,9 +74,9 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     final RIB rib;
 
     private final ClusterIdentifier clusterId;
-    private final PeerRole peerRole;
+    private final @NonNull PeerRole role;
     private final AsNumber localAs;
-    private final String name;
+    private final @NonNull String name;
 
     // FIXME: Revisit locking here to improve concurrency:
     //        -- identifiers, peerId are a shared resource
@@ -100,7 +102,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     AbstractPeer(
             final RIB rib,
-            final String peerName,
+            final String name,
             final String groupId,
             final PeerRole role,
             final @Nullable ClusterIdentifier clusterId,
@@ -111,8 +113,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
         super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
                 afiSafisLlGracefulAdvertized);
-        name = peerName;
-        peerRole = role;
+        this.name = requireNonNull(name);
+        this.role = requireNonNull(role);
         this.clusterId = clusterId;
         this.localAs = localAs;
         this.rib = rib;
@@ -151,7 +153,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @Override
     public final PeerRole getRole() {
-        return peerRole;
+        return role;
     }
 
     @Override
