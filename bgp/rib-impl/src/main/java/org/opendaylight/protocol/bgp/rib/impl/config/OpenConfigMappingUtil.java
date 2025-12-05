@@ -230,14 +230,6 @@ final class OpenConfigMappingUtil {
         return SendReceive.Receive;
     }
 
-    private static boolean isRrClient(final BgpNeighborGroup neighbor) {
-        final RouteReflector routeReflector = neighbor.getRouteReflector();
-        if (routeReflector != null && routeReflector.getConfig() != null) {
-            return routeReflector.getConfig().getRouteReflectorClient();
-        }
-        return false;
-    }
-
     static List<BgpTableType> toTableTypes(final Collection<AfiSafi> afiSafis,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         return afiSafis.stream()
@@ -276,9 +268,15 @@ final class OpenConfigMappingUtil {
     }
 
     static @Nullable PeerRole toPeerRole(final BgpNeighborGroup neighbor) {
-        if (isRrClient(neighbor)) {
-            return PeerRole.RrClient;
+        // Deal with route reflector case first
+        final var routeReflector = neighbor.getRouteReflector();
+        if (routeReflector != null) {
+            final var config = routeReflector.getConfig();
+            if (config != null && Boolean.TRUE.equals(config.getRouteReflectorClient())) {
+                return PeerRole.RrClient;
+            }
         }
+
         final var config = neighbor.getConfig();
         return config == null ? null : switch (config.getPeerType()) {
             case null -> null;
