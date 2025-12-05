@@ -187,6 +187,7 @@ public class GracefulRestartUtilTest {
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                 .setConfig(new ConfigBuilder()
+                    .setEnabled(true)
                     .addAugmentation(new Config1Builder()
                         .setLlGracefulRestart(new LlGracefulRestartBuilder()
                             .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
