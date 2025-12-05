@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNe
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ErrorHandling;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
@@ -483,12 +482,11 @@ final class OpenConfigMappingUtil {
         if (group == null) {
             return Optional.empty();
         }
-        final ErrorHandling errorHandling = group.getErrorHandling();
+        final var errorHandling = group.getErrorHandling();
         if (errorHandling == null) {
             return Optional.empty();
         }
-        final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
-            .Config config = errorHandling.getConfig();
+        final var config = errorHandling.getConfig();
         return config == null ? Optional.empty() : Optional.of(config.getTreatAsWithdraw());
     }
 }
