@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborAddPathsConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborGroup;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.BgpNeighborTransportConfig;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.graceful.restart.GracefulRestart;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.RouteReflector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
@@ -440,9 +439,9 @@ final class OpenConfigMappingUtil {
     private static @Nullable PortNumber getPort(final @Nullable Transport transport,
             final Function<Config, TransportConfig> extractConfig) {
         if (transport != null) {
-            final Config config = transport.getConfig();
+            final var config = transport.getConfig();
             if (config != null) {
-                final TransportConfig peerTc = extractConfig.apply(config);
+                final var peerTc = extractConfig.apply(config);
                 if (peerTc != null) {
                     return peerTc.getRemotePort();
                 }
@@ -451,11 +450,14 @@ final class OpenConfigMappingUtil {
         return null;
     }
 
-    static @Nullable IpAddressNoZone getLocalAddress(@Nullable final Transport transport) {
-        if (transport != null && transport.getConfig() != null) {
-            final BgpNeighborTransportConfig.LocalAddress localAddress = transport.getConfig().getLocalAddress();
-            if (localAddress != null) {
-                return convertIpAddress(localAddress.getIpAddress());
+    static @Nullable IpAddressNoZone getLocalAddress(final @Nullable Transport transport) {
+        if (transport != null) {
+            final var config = transport.getConfig();
+            if (config != null) {
+                final var localAddress = config.getLocalAddress();
+                if (localAddress != null) {
+                    return convertIpAddress(localAddress.getIpAddress());
+                }
             }
         }
         return null;
