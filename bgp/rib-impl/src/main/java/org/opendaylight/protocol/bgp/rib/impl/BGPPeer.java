@@ -259,12 +259,10 @@ public class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public void onMessage(final BGPSession session, final Notification<?> msg) throws BGPDocumentedException {
-        if (msg instanceof Update update) {
-            onUpdateMessage(update);
-        } else if (msg instanceof RouteRefresh routeRefresh) {
-            onRouteRefreshMessage(routeRefresh);
-        } else {
-            LOG.info("Ignoring unhandled message class {}", msg.getClass());
+        switch (msg) {
+            case RouteRefresh routeRefresh -> onRouteRefreshMessage(routeRefresh);
+            case Update update -> onUpdateMessage(update);
+            default -> LOG.info("Ignoring unhandled message class {}", msg.getClass());
         }
     }
 
