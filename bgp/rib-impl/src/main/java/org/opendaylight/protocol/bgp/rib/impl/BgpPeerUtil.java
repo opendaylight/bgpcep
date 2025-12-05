@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateMessage;
@@ -32,6 +33,7 @@ public final class BgpPeerUtil {
      * @param key of family for which we need EOR
      * @return UPDATE message with EOR marker
      */
+    @NonNullByDefault
     public static Update createEndOfRib(final TablesKey key) {
         final var builder = new UpdateBuilder();
         final var afi = key.getAfi();
@@ -39,10 +41,7 @@ public final class BgpPeerUtil {
         if (!Ipv4AddressFamily.VALUE.equals(afi) || !UnicastSubsequentAddressFamily.VALUE.equals(safi)) {
             builder.setAttributes(new AttributesBuilder()
                 .addAugmentation(new AttributesUnreachBuilder()
-                    .setMpUnreachNlri(new MpUnreachNlriBuilder()
-                        .setAfi(key.getAfi())
-                        .setSafi(key.getSafi())
-                        .build())
+                    .setMpUnreachNlri(new MpUnreachNlriBuilder().setAfi(afi).setSafi(safi).build())
                     .build())
                 .build());
         }
