@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME_OPT;
 import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUtil.getNeighborInstanceIdentifier;
@@ -33,7 +32,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
@@ -160,8 +161,8 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     }
 
     synchronized void onGlobalChanged(final DataObjectModification<Global> dataObjectModification) {
-        switch (dataObjectModification.modificationType()) {
-            case DELETE:
+        switch (dataObjectModification) {
+            case DataObjectDeleted<Global> deleted -> {
                 LOG.debug("Removing RIB instance: {}", bgpIid);
                 if (ribImpl != null) {
                     LOG.debug("RIB instance removed {}", ribImpl);
@@ -169,18 +170,15 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
                     closeRibInstance();
                     ribImpl = null;
                 }
-                break;
-            case SUBTREE_MODIFIED:
-            case WRITE:
-                final Global global = dataObjectModification.dataAfter();
+            }
+            case WithDataAfter<Global> present -> {
+                final var global = present.dataAfter();
                 if (ribImpl == null) {
                     onGlobalCreated(global);
-                } else if (!ribImpl.isGlobalEqual(requireNonNull(global))) {
+                } else if (!ribImpl.isGlobalEqual(global)) {
                     onGlobalUpdated(global);
                 }
-                break;
-            default:
-                break;
+            }
         }
     }
 
