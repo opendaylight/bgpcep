@@ -70,8 +70,8 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpPeer extends PeerBean {
-    private static final Logger LOG = LoggerFactory.getLogger(BgpPeer.class);
+public final class BgpPeerBean extends PeerBean {
+    private static final Logger LOG = LoggerFactory.getLogger(BgpPeerBean.class);
 
     private final RpcProviderService rpcRegistry;
     private final BGPStateProviderRegistry stateProviderRegistry;
@@ -83,7 +83,7 @@ public class BgpPeer extends PeerBean {
     @GuardedBy("this")
     private Registration stateProviderRegistration;
 
-    public BgpPeer(final RpcProviderService rpcRegistry, final BGPStateProviderRegistry stateProviderRegistry) {
+    public BgpPeerBean(final RpcProviderService rpcRegistry, final BGPStateProviderRegistry stateProviderRegistry) {
         this.rpcRegistry = requireNonNull(rpcRegistry);
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
@@ -287,7 +287,7 @@ public class BgpPeer extends PeerBean {
             errorHandling = OpenConfigMappingUtil.getRevisedErrorHandling(role, peerGroup, neighbor);
             bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
                     neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
-                    BgpPeer.this);
+                    BgpPeerBean.this);
             prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
                     neighborRemoteAs, bgpParameters,
                     keyMapping == null ? Optional.empty()

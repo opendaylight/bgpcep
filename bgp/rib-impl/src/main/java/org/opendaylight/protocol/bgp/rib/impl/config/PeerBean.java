@@ -18,7 +18,7 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 /**
  * Common interface for BgpPeer and AppPeer beans.
  */
-abstract class PeerBean implements BGPPeerStateProvider {
+abstract sealed class PeerBean implements BGPPeerStateProvider permits AppPeerBean, BgpPeerBean {
 
     abstract void start(RIB rib, Neighbor neighbor, DataObjectIdentifier<Bgp> bgpIid,
         PeerGroupConfigLoader peerGroupLoader, BGPTableTypeRegistryConsumer tableTypeRegistry);

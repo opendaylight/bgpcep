@@ -34,7 +34,7 @@ import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
@@ -247,21 +247,21 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final Ipv4AddressNoZone peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised) {
-        final BgpPeer bgpPeer = Mockito.mock(BgpPeer.class);
-        doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
+        final var bean = Mockito.mock(BgpPeerBean.class);
+        doReturn(Optional.empty()).when(bean).getErrorHandling();
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bgpPeer);
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bean);
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4AddressNoZone peerAddress,
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
             final Set<TablesKey> gracefulAfiSafiAdvertised, final Map<TablesKey, Integer> llGracefulTimersAdvertised,
-            final BgpPeer peer) {
+            final BgpPeerBean bean) {
         final IpAddressNoZone ipAddress = new IpAddressNoZone(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddressNoZone(peerAddress), null, ribImpl, peerRole,
-                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, peer);
+                null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, bean);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));

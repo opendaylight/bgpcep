@@ -284,9 +284,9 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         LOG.info("Creating Peer instance {} with configuration: {}", neighbor.getNeighborAddress(), neighbor);
         final PeerBean bgpPeer;
         if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
-            bgpPeer = new AppPeer(stateProviderRegistry);
+            bgpPeer = new AppPeerBean(stateProviderRegistry);
         } else {
-            bgpPeer = new BgpPeer(rpcRegistry, stateProviderRegistry);
+            bgpPeer = new BgpPeerBean(rpcRegistry, stateProviderRegistry);
         }
         final var neighborInstanceIdentifier = getNeighborInstanceIdentifier(bgpIid, neighbor.key());
         initiatePeerInstance(neighbor, bgpPeer);

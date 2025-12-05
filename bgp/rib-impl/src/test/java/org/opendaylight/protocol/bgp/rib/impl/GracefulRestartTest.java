@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
-import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -121,13 +121,13 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         gracefulAfiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
-        final BgpPeer bgpPeer = mock(BgpPeer.class);
-        doReturn(GRACEFUL_RESTART_TIME).when(bgpPeer).getGracefulRestartTimer();
-        doReturn(Optional.empty()).when(bgpPeer).getErrorHandling();
+        final var bean = mock(BgpPeerBean.class);
+        doReturn(GRACEFUL_RESTART_TIME).when(bean).getGracefulRestartTimer();
+        doReturn(Optional.empty()).when(bean).getErrorHandling();
         doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
-                .getOptionalCapabilities()).when(bgpPeer).getBgpFixedCapabilities();
+                .getOptionalCapabilities()).when(bean).getBgpFixedCapabilities();
         peer = configurePeer(tableRegistry, PEER1, ribImpl, parameters, PeerRole.Ibgp,
-                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bgpPeer);
+                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bean);
         session = createPeerSession(PEER1, parameters, listener);
     }
 

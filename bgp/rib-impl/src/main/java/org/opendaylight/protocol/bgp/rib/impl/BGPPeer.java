@@ -46,7 +46,7 @@ import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
 import org.opendaylight.protocol.bgp.parser.spi.MessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
-import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeer;
+import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -129,7 +129,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
-    private final BgpPeer bgpPeer;
+
+    // FIXME: this is a reference to configuration: why do we actually need it?
+    private final BgpPeerBean bean;
 
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerRibOutIId;
@@ -165,13 +167,13 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
             final Map<TablesKey, Integer> llGracefulTablesAdvertised,
-            final BgpPeer bgpPeer) {
+            final BgpPeerBean bean) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
             afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
-        this.bgpPeer = bgpPeer;
+        this.bean = requireNonNull(bean);
 
         createDomChain();
     }
@@ -480,7 +482,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
 
         // SpotBugs does not grok Optional.ifPresent() and thinks we are using unsynchronized access
-        final Optional<RevisedErrorHandlingSupport> errorHandling = bgpPeer.getErrorHandling();
+        final Optional<RevisedErrorHandlingSupport> errorHandling = bean.getErrorHandling();
         if (errorHandling.isPresent()) {
             currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, errorHandling.orElseThrow());
         }
@@ -751,8 +753,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .filter(this::isGracefulRestartAdvertized)
                 .collect(Collectors.toSet());
         final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
-                bgpPeer.getBgpFixedCapabilities(), gracefulTables, preservedTables,
-                bgpPeer.getGracefulRestartTimer(), localRestarting, Collections.emptySet());
+                bean.getBgpFixedCapabilities(), gracefulTables, preservedTables,
+                bean.getGracefulRestartTimer(), localRestarting, Collections.emptySet());
         final BGPSessionPreferences oldPrefs = rib.getDispatcher().getBGPPeerRegistry()
                 .getPeerPreferences(getNeighborAddress());
         final BGPSessionPreferences newPrefs = new BGPSessionPreferences(

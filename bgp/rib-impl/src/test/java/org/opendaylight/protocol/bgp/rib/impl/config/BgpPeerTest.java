@@ -65,7 +65,7 @@ public class BgpPeerTest extends AbstractConfig {
             .build();
     static final Map<AfiSafiKey, AfiSafi> AFI_SAFI = Map.of(AFI_SAFI_IPV4.key(), AFI_SAFI_IPV4);
     private static final Decimal64 DEFAULT_TIMERS = Decimal64.valueOf(2, 30);
-    private BgpPeer bgpPeer;
+    private BgpPeerBean bgpPeer;
 
     static Neighbor createNeighborExpected(final IpAddress neighborAddress) {
         return new NeighborBuilder()
@@ -128,7 +128,7 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        bgpPeer = new BgpPeer(mock(RpcProviderService.class), new BGPStateCollector());
+        bgpPeer = new BgpPeerBean(mock(RpcProviderService.class), new BGPStateCollector());
     }
 
     @Test

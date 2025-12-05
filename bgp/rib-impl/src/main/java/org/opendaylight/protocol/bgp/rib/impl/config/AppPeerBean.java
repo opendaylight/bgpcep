@@ -40,8 +40,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AppPeer extends PeerBean {
-    private static final Logger LOG = LoggerFactory.getLogger(AppPeer.class);
+final class AppPeerBean extends PeerBean {
+    private static final Logger LOG = LoggerFactory.getLogger(AppPeerBean.class);
     private static final NodeIdentifier APPRIB = NodeIdentifier.create(ApplicationRib.QNAME);
     private static final QName APP_ID_QNAME = QName.create(ApplicationRib.QNAME, "id").intern();
 
@@ -53,7 +53,7 @@ final class AppPeer extends PeerBean {
     @GuardedBy("this")
     private Registration stateProviderRegistration;
 
-    AppPeer(final BGPStateProviderRegistry stateProviderRegistry) {
+    AppPeerBean(final BGPStateProviderRegistry stateProviderRegistry) {
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
 

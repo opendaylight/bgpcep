@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfigBuilder;
 
 public class AppPeerTest extends AbstractConfig {
-    private final AppPeer appPeer = new AppPeer(new BGPStateCollector());
+    private final AppPeerBean appPeer = new AppPeerBean(new BGPStateCollector());
 
     private final Neighbor neighbor = new NeighborBuilder()
         .setConfig(new ConfigBuilder()
