@@ -56,7 +56,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 public class GracefulRestartUtilTest {
 
     private static final int RESTART_TIME = 5;
-    private static final int STALE_TIME = 10;
+    private static final Uint24 STALE_TIME = new Uint24(Uint32.TEN);
     private static final boolean RESTARTING = true;
     private static final AfiSafi IPV4_UNICAST_AFISAFI = new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
@@ -173,7 +173,7 @@ public class GracefulRestartUtilTest {
         final var tables = llGracefulCapability.getTables();
         assertNotNull(tables);
         assertEquals(2, tables.size());
-        assertEquals(STALE_TIME, tables.values().iterator().next().getLongLivedStaleTime().getValue().intValue());
+        assertEquals(STALE_TIME, tables.values().iterator().next().getLongLivedStaleTime());
         tables.values().forEach(table -> {
             assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().getForwardingState()
                 || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().getForwardingState());
@@ -191,7 +191,7 @@ public class GracefulRestartUtilTest {
                         .setLlGracefulRestart(new LlGracefulRestartBuilder()
                             .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
                                 .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
-                                .ConfigBuilder().setLongLivedStaleTime(new Uint24(Uint32.valueOf(STALE_TIME))).build())
+                                .ConfigBuilder().setLongLivedStaleTime(STALE_TIME).build())
                             .build())
                         .build())
                     .build())
@@ -209,7 +209,7 @@ public class GracefulRestartUtilTest {
                         .setLlGracefulRestart(new LlGracefulRestartBuilder()
                             .setConfig(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll
                                 .graceful.restart.rev181112.afi.safi.ll.graceful.restart.ll.graceful.restart
-                                .ConfigBuilder().setLongLivedStaleTime(new Uint24(Uint32.valueOf(STALE_TIME))).build())
+                                .ConfigBuilder().setLongLivedStaleTime(STALE_TIME).build())
                             .build())
                         .build())
                     .build())

@@ -35,6 +35,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
@@ -51,8 +52,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
     private final Set<TablesKey> afiSafisGracefulReceived = new HashSet<>();
-    private final Map<TablesKey, Integer> afiSafisLlGracefulAdvertised;
-    private final Map<TablesKey, Integer> afiSafisLlGracefulReceived = new HashMap<>();
+    private final Map<TablesKey, Uint24> afiSafisLlGracefulAdvertised;
+    private final Map<TablesKey, Uint24> afiSafisLlGracefulReceived = new HashMap<>();
     private final LongAdder updateSentCounter = new LongAdder();
     private final LongAdder notificationSentCounter = new LongAdder();
     private final LongAdder updateReceivedCounter = new LongAdder();
@@ -78,7 +79,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
             final @Nullable String groupId, final @NonNull IpAddressNoZone neighborAddress,
             final @NonNull Set<TablesKey> afiSafisAdvertized,
             final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,
-            final @NonNull Map<TablesKey, Integer> afiSafisLlGracefulAdvertized) {
+            final @NonNull Map<TablesKey, Uint24> afiSafisLlGracefulAdvertized) {
         super(instanceIdentifier);
         this.neighborAddress = requireNonNull(neighborAddress);
         this.groupId = groupId;
@@ -295,7 +296,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     }
 
     public final synchronized void setAdvertizedLlGracefulRestartTableTypes(
-            final Map<TablesKey, Integer> afiSafiReceived) {
+            final Map<TablesKey, Uint24> afiSafiReceived) {
         afiSafisLlGracefulReceived.clear();
         afiSafisLlGracefulReceived.putAll(afiSafiReceived);
     }
@@ -312,10 +313,14 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized int getLlGracefulRestartTimer(final TablesKey tablesKey) {
-        final int timerAdvertised = isLlGracefulRestartAdvertised(tablesKey)
-                ? afiSafisLlGracefulAdvertised.get(tablesKey) : 0;
-        final int timerReceived = isLlGracefulRestartReceived(tablesKey)
-                ? afiSafisLlGracefulReceived.get(tablesKey) : 0;
-        return Integer.min(timerAdvertised, timerReceived);
+        final var timerAdvertised = afiSafisLlGracefulAdvertised.get(tablesKey);
+        if (timerAdvertised == null) {
+            return 0;
+        }
+        final var timerReceived = afiSafisLlGracefulReceived.get(tablesKey);
+        if (timerReceived == null) {
+            return 0;
+        }
+        return Integer.min(timerAdvertised.getValue().intValue(), timerReceived.getValue().intValue());
     }
 }

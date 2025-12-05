@@ -37,7 +37,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,7 @@ public final class GracefulRestartUtil {
                                 .setAfi(dto.getTableKey().getAfi())
                                 .setSafi(dto.getTableKey().getSafi())
                                 .setAfiFlags(new AfiFlags(dto.isForwarding()))
-                                .setLongLivedStaleTime(new Uint24(Uint32.valueOf(dto.getStaleTime())))
+                                .setLongLivedStaleTime(dto.getStaleTime())
                                 .build())
                             .collect(BindingMap.toMap()))
                         .build())
@@ -103,9 +102,9 @@ public final class GracefulRestartUtil {
         return gracefulTables;
     }
 
-    static Map<TablesKey, Integer> getLlGracefulTimers(final Collection<AfiSafi> afiSafis,
+    static Map<TablesKey, Uint24> getLlGracefulTimers(final Collection<AfiSafi> afiSafis,
                                                        final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        final var timers = new HashMap<TablesKey, Integer>();
+        final var timers = new HashMap<TablesKey, Uint24>();
         for (var afiSafi : afiSafis) {
             final var gr = afiSafi.getGracefulRestart();
             if (gr != null) {
@@ -134,7 +133,7 @@ public final class GracefulRestartUtil {
                                 final var afiSafiName = afiSafi.requireAfiSafiName();
                                 final var tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
                                 if (tablesKey != null) {
-                                    timers.put(tablesKey, staleTime.getValue().intValue());
+                                    timers.put(tablesKey, staleTime);
                                 } else {
                                     LOG.debug("Skipping unsupported afi-safi {}", afiSafiName);
                                 }

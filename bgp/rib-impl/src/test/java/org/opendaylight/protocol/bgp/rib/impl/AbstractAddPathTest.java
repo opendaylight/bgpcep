@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -253,7 +254,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4AddressNoZone peerAddress,
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
-            final Set<TablesKey> gracefulAfiSafiAdvertised, final Map<TablesKey, Integer> llGracefulTimersAdvertised,
+            final Set<TablesKey> gracefulAfiSafiAdvertised, final Map<TablesKey, Uint24> llGracefulTimersAdvertised,
             final BgpPeerBean bean) {
         final IpAddressNoZone ipAddress = new IpAddressNoZone(peerAddress);
 

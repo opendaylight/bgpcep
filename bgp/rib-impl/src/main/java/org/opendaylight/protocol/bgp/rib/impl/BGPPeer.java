@@ -63,6 +63,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
@@ -169,7 +170,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final RpcProviderService rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
-            final Map<TablesKey, Integer> llGracefulTablesAdvertised,
+            final Map<TablesKey, Uint24> llGracefulTablesAdvertised,
             final boolean treatAsWithdraw,
             final BgpPeerBean bean) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
@@ -457,15 +458,14 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime().toJava(), false,
             restartingLocally);
 
-        final Map<TablesKey, Integer> llTablesReceived;
+        final Map<TablesKey, Uint24> llTablesReceived;
         if (advertisedLLTables != null) {
             llTablesReceived = new HashMap<>();
             for (var table : advertisedLLTables.values()) {
-                llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()),
-                    table.getLongLivedStaleTime().getValue().intValue());
+                llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()), table.requireLongLivedStaleTime());
             }
         } else {
-            llTablesReceived = Collections.emptyMap();
+            llTablesReceived = Map.of();
         }
         setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
 

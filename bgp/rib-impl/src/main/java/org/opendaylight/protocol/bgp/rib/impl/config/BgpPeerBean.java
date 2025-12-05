@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.p
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
@@ -292,7 +293,7 @@ public final class BgpPeerBean extends PeerBean {
         }
 
         private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
-                                                            final Map<TablesKey, Integer> llGracefulTimers) {
+                                                            final Map<TablesKey, Uint24> llGracefulTimers) {
             final var llGracefulRestarts = llGracefulTimers.entrySet().stream()
                     .map(entry -> new BgpPeerUtil.LlGracefulRestartDTO(entry.getKey(), entry.getValue(), false))
                     .collect(Collectors.toSet());
