@@ -106,7 +106,7 @@ public final class GracefulRestartUtil {
     static Map<TablesKey, Integer> getLlGracefulTimers(final Collection<AfiSafi> afiSafis,
                                                        final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final var timers = new HashMap<TablesKey, Integer>();
-        afiSafis.forEach(afiSafi -> {
+        for (var afiSafi : afiSafis) {
             final var gr = afiSafi.getGracefulRestart();
             if (gr != null) {
                 final var config = gr.getConfig();
@@ -117,11 +117,10 @@ public final class GracefulRestartUtil {
                         llGracefulRestart = peerAug.getLlGracefulRestart();
                     } else {
                         final var neighborAug = config.augmentation(Config2.class);
-                        if (neighborAug != null) {
-                            llGracefulRestart = neighborAug.getLlGracefulRestart();
-                        } else {
-                            return;
+                        if (neighborAug == null) {
+                            continue;
                         }
+                        llGracefulRestart = neighborAug.getLlGracefulRestart();
                     }
                     if (llGracefulRestart != null) {
                         final var llConfig = llGracefulRestart.getConfig();
@@ -140,7 +139,7 @@ public final class GracefulRestartUtil {
                     }
                 }
             }
-        });
+        }
         return timers;
     }
 
