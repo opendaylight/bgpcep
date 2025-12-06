@@ -107,7 +107,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final ApplicationRibId applicationRibId, final Ipv4AddressNoZone ipAddress, final RIB rib) {
         super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal, null, null,
-            new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Set.of(), Map.of());
+            new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Map.of());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         peerId = RouterIds.createPeerId(ipAddress);
 

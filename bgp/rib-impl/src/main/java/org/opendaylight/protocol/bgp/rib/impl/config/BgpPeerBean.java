@@ -253,8 +253,6 @@ public final class BgpPeerBean extends PeerBean {
             gracefulRestartTimer = OpenConfigMappingUtil.getGracefulRestartTimer(neighbor, peerGroup, hold);
             final var gracefulTables = GracefulRestartUtil.getGracefulTables(afisSafis.nonnullAfiSafi().values(),
                 tableTypeRegistry);
-            final var llGracefulTimers = GracefulRestartUtil.getLlGracefulTimers(afisSafis.nonnullAfiSafi().values(),
-                tableTypeRegistry);
             final var keyMapping = OpenConfigMappingUtil.getNeighborKey(neighbor);
             final var neighborLocalAddress = OpenConfigMappingUtil.getLocalAddress(neighbor.getTransport());
             final var globalAs = rib.getLocalAs();
@@ -267,11 +265,11 @@ public final class BgpPeerBean extends PeerBean {
             }
 
             bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+                    neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables,
                     OpenConfigMappingUtil.getTreatAsWithdraw(peerGroup, neighbor),
                     BgpPeerBean.this);
             prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
-                    neighborRemoteAs, getInitialBgpParameters(gracefulTables, llGracefulTimers),
+                    neighborRemoteAs, getInitialBgpParameters(gracefulTables),
                     keyMapping == null ? Optional.empty()
                         : Optional.of(Iterables.getOnlyElement(keyMapping.asMap().values())));
             activeConnection = OpenConfigMappingUtil.isActive(neighbor, peerGroup);
@@ -290,11 +288,10 @@ public final class BgpPeerBean extends PeerBean {
                     inetAddress, localAddress, neighborRemoteAs, prefs.getBgpId(), activeConnection);
         }
 
-        private List<BgpParameters> getInitialBgpParameters(final Set<TablesKey> gracefulTables,
-                                                            final Map<TablesKey, Uint24> llGracefulTimers) {
+        private List<BgpParameters> getInitialBgpParameters(final Map<TablesKey, Uint24> gracefulTables) {
             return Collections.singletonList(
                     GracefulRestartUtil.getGracefulBgpParameters(finalCapabilities, gracefulTables, Set.of(),
-                        gracefulRestartTimer, false, llGracefulTimers, unused -> false));
+                        gracefulRestartTimer, false, unused -> false));
         }
 
         synchronized void instantiateServiceInstance() {

@@ -218,7 +218,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
-            ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+            ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Map.of());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, speakerListener, classicOpen,
                 classicOpen.getHoldTimer().toJava(), null);
@@ -266,7 +266,7 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
-            ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Collections.emptySet());
+            ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Map.of());
         bgpPeer.instantiateServiceInstance();
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, speakerListener, classicOpen,
                 classicOpen.getHoldTimer().toJava(), null);
