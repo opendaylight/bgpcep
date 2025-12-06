@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
@@ -50,10 +50,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private static final long NONE = 0L;
     private final IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
-    private final Set<TablesKey> afiSafisGracefulAdvertized;
-    private final Set<TablesKey> afiSafisGracefulReceived = new HashSet<>();
-    private final Map<TablesKey, Uint24> afiSafisLlGracefulAdvertised;
-    private final Map<TablesKey, Uint24> afiSafisLlGracefulReceived = new HashMap<>();
+    private final Map<TablesKey, @Nullable Uint24> afiSafisGracefulAdvertized;
+    private final Map<TablesKey, @Nullable Uint24> afiSafisGracefulReceived = new HashMap<>();
     private final LongAdder updateSentCounter = new LongAdder();
     private final LongAdder notificationSentCounter = new LongAdder();
     private final LongAdder updateReceivedCounter = new LongAdder();
@@ -78,14 +76,12 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     public BGPPeerStateImpl(final DataObjectIdentifier.@NonNull WithKey<Rib, RibKey> instanceIdentifier,
             final @Nullable String groupId, final @NonNull IpAddressNoZone neighborAddress,
             final @NonNull Set<TablesKey> afiSafisAdvertized,
-            final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,
-            final @NonNull Map<TablesKey, Uint24> afiSafisLlGracefulAdvertized) {
+            final @NonNull Map<TablesKey, Uint24> afiSafisGracefulAdvertized) {
         super(instanceIdentifier);
         this.neighborAddress = requireNonNull(neighborAddress);
         this.groupId = groupId;
         this.afiSafisAdvertized = requireNonNull(afiSafisAdvertized);
-        this.afiSafisGracefulAdvertized = requireNonNull(afiSafisGracefulAdvertized);
-        afiSafisLlGracefulAdvertised = requireNonNull(afiSafisLlGracefulAdvertized);
+        this.afiSafisGracefulAdvertized = Map.copyOf(afiSafisGracefulAdvertized);
     }
 
     @Override
@@ -165,12 +161,12 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final boolean isGracefulRestartAdvertized(final TablesKey tablesKey) {
-        return afiSafisGracefulAdvertized.contains(tablesKey);
+        return afiSafisGracefulAdvertized.containsKey(tablesKey);
     }
 
     @Override
     public final boolean isGracefulRestartReceived(final TablesKey tablesKey) {
-        return afiSafisGracefulReceived.contains(tablesKey);
+        return afiSafisGracefulReceived.containsKey(tablesKey);
     }
 
     @Override
@@ -197,7 +193,9 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     protected final synchronized void setAdvertizedGracefulRestartTableTypes(final List<TablesKey> receivedGraceful) {
         afiSafisGracefulReceived.clear();
-        afiSafisGracefulReceived.addAll(receivedGraceful);
+        for (var tablesKey : receivedGraceful) {
+            afiSafisGracefulReceived.put(tablesKey, null);
+        }
     }
 
     protected final synchronized void registerPrefixesSentCounter(final TablesKey tablesKey,
@@ -297,27 +295,28 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     public final synchronized void setAdvertizedLlGracefulRestartTableTypes(
             final Map<TablesKey, Uint24> afiSafiReceived) {
-        afiSafisLlGracefulReceived.clear();
-        afiSafisLlGracefulReceived.putAll(afiSafiReceived);
+        afiSafisGracefulReceived.putAll(afiSafiReceived);
     }
 
     @Override
     public final synchronized boolean isLlGracefulRestartAdvertised(final TablesKey tablesKey) {
-        return afiSafisLlGracefulAdvertised.containsKey(tablesKey);
+        final var staleTime = afiSafisGracefulAdvertized.get(tablesKey);
+        return staleTime != null && !Uint32.ZERO.equals(staleTime.getValue());
     }
 
     @Override
     public final synchronized boolean isLlGracefulRestartReceived(final TablesKey tablesKey) {
-        return afiSafisLlGracefulReceived.containsKey(tablesKey);
+        final var staleTime = afiSafisGracefulReceived.get(tablesKey);
+        return staleTime != null && !Uint32.ZERO.equals(staleTime.getValue());
     }
 
     @Override
     public final synchronized int getLlGracefulRestartTimer(final TablesKey tablesKey) {
-        final var timerAdvertised = afiSafisLlGracefulAdvertised.get(tablesKey);
+        final var timerAdvertised = afiSafisGracefulAdvertized.get(tablesKey);
         if (timerAdvertised == null) {
             return 0;
         }
-        final var timerReceived = afiSafisLlGracefulReceived.get(tablesKey);
+        final var timerReceived = afiSafisGracefulReceived.get(tablesKey);
         if (timerReceived == null) {
             return 0;
         }

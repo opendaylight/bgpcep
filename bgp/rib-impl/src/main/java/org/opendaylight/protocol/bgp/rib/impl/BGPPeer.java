@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -169,12 +170,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final AsNumber localAs,
             final RpcProviderService rpcRegistry,
             final Set<TablesKey> afiSafisAdvertized,
-            final Set<TablesKey> afiSafisGracefulAdvertized,
-            final Map<TablesKey, Uint24> llGracefulTablesAdvertised,
+            final Map<TablesKey, Uint24> afiSafisGracefulAdvertized,
             final boolean treatAsWithdraw,
             final BgpPeerBean bean) {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
-            afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
+            afiSafisAdvertized, afiSafisGracefulAdvertized);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
@@ -755,12 +755,12 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     private synchronized void setGracefulPreferences(final boolean localRestarting,
                                                      final Set<TablesKey> preservedTables) {
-        final Set<TablesKey> gracefulTables = tables.stream()
+        final Map<TablesKey, Uint24> gracefulTables = tables.stream()
                 .filter(this::isGracefulRestartAdvertized)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toMap(Function.identity(), unused -> null));
         final BgpParameters bgpParameters = GracefulRestartUtil.getGracefulBgpParameters(
                 bean.getBgpFixedCapabilities(), gracefulTables, preservedTables,
-                bean.getGracefulRestartTimer(), localRestarting, Map.of(), unused -> false);
+                bean.getGracefulRestartTimer(), localRestarting, unused -> false);
         final BGPSessionPreferences oldPrefs = rib.getDispatcher().getBGPPeerRegistry()
                 .getPeerPreferences(getNeighborAddress());
         final BGPSessionPreferences newPrefs = new BGPSessionPreferences(

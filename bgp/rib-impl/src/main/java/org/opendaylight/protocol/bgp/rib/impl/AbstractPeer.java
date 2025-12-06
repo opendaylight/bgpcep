@@ -110,10 +110,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final @Nullable AsNumber localAs,
             final IpAddressNoZone neighborAddress,
             final Set<TablesKey> afiSafisAdvertized,
-            final Set<TablesKey> afiSafisGracefulAdvertized,
-            final Map<TablesKey, Uint24> afiSafisLlGracefulAdvertized) {
-        super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
-                afiSafisLlGracefulAdvertized);
+            final Map<TablesKey, Uint24> afiSafisGracefulAdvertized) {
+        super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized);
         this.name = requireNonNull(name);
         this.role = requireNonNull(role);
         this.clusterId = clusterId;

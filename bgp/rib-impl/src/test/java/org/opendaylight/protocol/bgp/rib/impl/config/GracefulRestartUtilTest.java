@@ -10,6 +10,8 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.ImmutableList;
@@ -94,10 +96,8 @@ public class GracefulRestartUtilTest {
 
     @Test
     public void getGracefulCapabilityTest() {
-        final Map<TablesKey, Boolean> gracefulMap = new HashMap<>();
-        gracefulMap.put(IPV4_KEY, true);
-        gracefulMap.put(IPV6_KEY, false);
-        CParameters capability = GracefulRestartUtil.getGracefulCapability(gracefulMap, RESTART_TIME, RESTARTING);
+        CParameters capability = GracefulRestartUtil.getGracefulCapability(Set.of(IPV4_KEY, IPV6_KEY), IPV4_KEY::equals,
+            RESTART_TIME, RESTARTING);
         final CParameters1 params = capability.augmentation(CParameters1.class);
         assertNotNull(params);
         final GracefulRestartCapability gracefulCapability = params.getGracefulRestartCapability();
@@ -108,17 +108,20 @@ public class GracefulRestartUtilTest {
         assertNotNull(tables);
         assertEquals(2, tables.size());
         tables.values().forEach(table -> {
-            assertTrue(isSameKey(IPV4_KEY, table.key()) && table.getAfiFlags().getForwardingState()
-                || isSameKey(IPV6_KEY, table.key()) && !table.getAfiFlags().getForwardingState());
+            if (isSameKey(IPV4_KEY, table.key())) {
+                assertTrue(table.getAfiFlags().getForwardingState());
+            } else if (isSameKey(IPV6_KEY, table.key())) {
+                assertFalse(table.getAfiFlags().getForwardingState());
+            } else {
+                fail("Unexpected table " + table);
+            }
         });
     }
 
     @Test
     public void getGracefulTablesTest() {
-        final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(AFISAFIS, tableRegistry);
-        assertEquals(2, gracefulTables.size());
-        assertTrue(gracefulTables.contains(IPV4_KEY));
-        assertTrue(gracefulTables.contains(IPV6_KEY));
+        assertEquals(Map.of(IPV4_KEY, null, IPV6_KEY, null),
+            GracefulRestartUtil.getGracefulTables(AFISAFIS, tableRegistry));
     }
 
     @Test
@@ -130,24 +133,21 @@ public class GracefulRestartUtilTest {
         final List<OptionalCapabilities> fixedCaps = new ArrayList<>();
         fixedCaps.add(cap1);
         fixedCaps.add(cap2);
-        final Set<TablesKey> gracefulTables = new HashSet<>();
-        gracefulTables.add(IPV4_KEY);
-        gracefulTables.add(IPV6_KEY);
+        final var gracefulTables = new HashMap<TablesKey, Uint24>();
+        gracefulTables.put(IPV4_KEY, STALE_TIME);
+        gracefulTables.put(IPV6_KEY, null);
         final Set<TablesKey> preservedTables = new HashSet<>();
         preservedTables.add(IPV4_KEY);
 
-        final Map<TablesKey, Boolean> gracefulMap = new HashMap<>();
-        gracefulMap.put(IPV4_KEY, true);
-        gracefulMap.put(IPV6_KEY, false);
         final OptionalCapabilities expectedGracefulCapability = new OptionalCapabilitiesBuilder()
-                .setCParameters(GracefulRestartUtil.getGracefulCapability(gracefulMap, RESTART_TIME, RESTARTING))
+                .setCParameters(GracefulRestartUtil.getGracefulCapability(gracefulTables.keySet(), IPV4_KEY::equals,
+                    RESTART_TIME, RESTARTING))
                 .build();
-        final var llGraceful = Map.of(IPV4_KEY, STALE_TIME);
         final OptionalCapabilities expectedLlGracefulCapability = new OptionalCapabilitiesBuilder()
-                .setCParameters(GracefulRestartUtil.getLlGracefulCapability(llGraceful, unused -> true))
+                .setCParameters(GracefulRestartUtil.getLlGracefulCapability(gracefulTables, unused -> true))
                 .build();
         final BgpParameters parameters = GracefulRestartUtil.getGracefulBgpParameters(fixedCaps, gracefulTables,
-                preservedTables, RESTART_TIME, RESTARTING, llGraceful, unused -> true);
+                preservedTables, RESTART_TIME, RESTARTING, unused -> true);
         final List<OptionalCapabilities> capabilities = parameters.getOptionalCapabilities();
         assertTrue(capabilities != null);
         assertEquals(4, capabilities.size());
@@ -177,7 +177,7 @@ public class GracefulRestartUtilTest {
 
     @Test
     public void getLlGracefulTimersTest() {
-        assertEquals(Map.of(IPV4_KEY, STALE_TIME), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
+        assertEquals(Map.of(IPV4_KEY, STALE_TIME), GracefulRestartUtil.getGracefulTables(List.of(new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                 .setConfig(new ConfigBuilder()
@@ -196,7 +196,7 @@ public class GracefulRestartUtilTest {
 
     @Test
     public void getLlGracefulTimersDisabledTest() {
-        assertEquals(Map.of(), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
+        assertEquals(Map.of(), GracefulRestartUtil.getGracefulTables(List.of(new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
                 .setConfig(new ConfigBuilder()
