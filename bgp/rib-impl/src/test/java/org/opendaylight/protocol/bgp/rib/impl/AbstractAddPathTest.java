@@ -240,26 +240,25 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry) {
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                AFI_SAFIS_ADVERTIZED, Set.of());
+                AFI_SAFIS_ADVERTIZED, Map.of());
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry,
             final Ipv4AddressNoZone peerAddress, final RIBImpl ribImpl, final BgpParameters bgpParameters,
             final PeerRole peerRole, final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
-            final Set<TablesKey> gracefulAfiSafiAdvertised) {
+            final Map<TablesKey, Uint24> gracefulAfiSafiAdvertised) {
         return configurePeer(tableRegistry, peerAddress, ribImpl, bgpParameters, peerRole, bgpPeerRegistry,
-                afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), Mockito.mock(BgpPeerBean.class));
+                afiSafiAdvertised, gracefulAfiSafiAdvertised, Mockito.mock(BgpPeerBean.class));
     }
 
     static BGPPeer configurePeer(final BGPTableTypeRegistryConsumer tableRegistry, final Ipv4AddressNoZone peerAddress,
             final RIBImpl ribImpl, final BgpParameters bgpParameters, final PeerRole peerRole,
             final BGPPeerRegistry bgpPeerRegistry, final Set<TablesKey> afiSafiAdvertised,
-            final Set<TablesKey> gracefulAfiSafiAdvertised, final Map<TablesKey, Uint24> llGracefulTimersAdvertised,
-            final BgpPeerBean bean) {
+            final Map<TablesKey, Uint24> gracefulAfiSafiAdvertised, final BgpPeerBean bean) {
         final IpAddressNoZone ipAddress = new IpAddressNoZone(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddressNoZone(peerAddress), null, ribImpl, peerRole,
-            null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, false, bean);
+            null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, false, bean);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));

@@ -7,20 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import static org.opendaylight.protocol.bgp.parser.GracefulRestartUtil.ZERO_STALE_TIME;
 import static org.opendaylight.protocol.bgp.parser.GracefulRestartUtil.gracefulRestartCapability;
 import static org.opendaylight.protocol.bgp.parser.GracefulRestartUtil.gracefulRestartTable;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.afi.safi.graceful.restart.Config;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.ll.graceful.restart.rev181112.Config2;
@@ -37,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.ll.graceful.restart.capability.TablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +57,12 @@ public final class GracefulRestartUtil {
         // Hidden on purpose
     }
 
-    public static CParameters getGracefulCapability(final Map<TablesKey, Boolean> tables,
+    public static CParameters getGracefulCapability(final Set<TablesKey> tables,
+                                                    final Predicate<TablesKey> forwardingPredicate,
                                                     final int restartTime,
                                                     final boolean localRestarting) {
-        return gracefulRestartCapability(tables.entrySet().stream()
-            .map(entry -> {
-                final TablesKey key = entry.getKey();
-                return gracefulRestartTable(key.getAfi(), key.getSafi(), entry.getValue());
-            })
+        return gracefulRestartCapability(tables.stream()
+            .map(key -> gracefulRestartTable(key.getAfi(), key.getSafi(), forwardingPredicate.test(key)))
             .collect(BindingMap.toMap()), restartTime, localRestarting);
     }
 
@@ -72,6 +72,7 @@ public final class GracefulRestartUtil {
             .addAugmentation(new CParameters1Builder()
                 .setLlGracefulRestartCapability(new LlGracefulRestartCapabilityBuilder()
                     .setTables(llGracefulRestarts.entrySet().stream()
+                        .filter(entry -> !Uint32.ZERO.equals(entry.getValue().getValue()))
                         .map(entry -> {
                             final var tablesKey = entry.getKey();
                             return new TablesBuilder()
@@ -87,9 +88,9 @@ public final class GracefulRestartUtil {
             .build();
     }
 
-    static Set<TablesKey> getGracefulTables(final Collection<AfiSafi> afiSafis,
-                                            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        final var gracefulTables = new HashSet<TablesKey>();
+    static Map<TablesKey, Uint24> getGracefulTables(final Collection<AfiSafi> afiSafis,
+                                                    final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+        final var gracefulTables = new HashMap<TablesKey, Uint24>();
         for (var afiSafi : afiSafis) {
             final var gr = afiSafi.getGracefulRestart();
             if (gr != null) {
@@ -97,73 +98,53 @@ public final class GracefulRestartUtil {
                 if (config != null && Boolean.TRUE.equals(config.getEnabled())) {
                     final var afiSafiName = afiSafi.requireAfiSafiName();
                     final var tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
-                    if (tablesKey != null) {
-                        gracefulTables.add(tablesKey);
+                    if (tablesKey == null) {
+                        LOG.debug("Skipping unsupported afi-safi {}", afiSafiName);
+                        continue;
                     }
+
+                    gracefulTables.put(tablesKey, staleTimeOf(config));
                 }
             }
         }
         return gracefulTables;
     }
 
-    static Map<TablesKey, Uint24> getLlGracefulTimers(final Collection<AfiSafi> afiSafis,
-                                                       final BGPTableTypeRegistryConsumer tableTypeRegistry) {
-        final var timers = new HashMap<TablesKey, Uint24>();
-        for (var afiSafi : afiSafis) {
-            final var gr = afiSafi.getGracefulRestart();
-            if (gr != null) {
-                final var config = gr.getConfig();
-                if (config != null) {
-                    if (!Boolean.TRUE.equals(config.getEnabled())) {
-                        continue;
-                    }
-
-                    final LlGracefulRestart llGracefulRestart;
-                    final var peerAug = config.augmentation(Config1.class);
-                    if (peerAug != null) {
-                        llGracefulRestart = peerAug.getLlGracefulRestart();
-                    } else {
-                        final var neighborAug = config.augmentation(Config2.class);
-                        if (neighborAug == null) {
-                            continue;
-                        }
-                        llGracefulRestart = neighborAug.getLlGracefulRestart();
-                    }
-                    if (llGracefulRestart != null) {
-                        final var llConfig = llGracefulRestart.getConfig();
-                        if (llConfig != null) {
-                            final var staleTime = llConfig.getLongLivedStaleTime();
-                            if (staleTime != null && staleTime.getValue().toJava() > 0) {
-                                final var afiSafiName = afiSafi.requireAfiSafiName();
-                                final var tablesKey = tableTypeRegistry.getTableKey(afiSafiName);
-                                if (tablesKey != null) {
-                                    timers.put(tablesKey, staleTime);
-                                } else {
-                                    LOG.debug("Skipping unsupported afi-safi {}", afiSafiName);
-                                }
-                            }
-                        }
-                    }
+    @NonNullByDefault
+    private static Uint24 staleTimeOf(final Config config) {
+        final LlGracefulRestart llGracefulRestart;
+        final var peerAug = config.augmentation(Config1.class);
+        if (peerAug != null) {
+            llGracefulRestart = peerAug.getLlGracefulRestart();
+        } else {
+            final var neighborAug = config.augmentation(Config2.class);
+            llGracefulRestart = neighborAug == null ? null : neighborAug.getLlGracefulRestart();
+        }
+        if (llGracefulRestart != null) {
+            final var llConfig = llGracefulRestart.getConfig();
+            if (llConfig != null) {
+                final var staleTime = llConfig.getLongLivedStaleTime();
+                if (staleTime != null) {
+                    return staleTime;
                 }
             }
         }
-        return timers;
+        return ZERO_STALE_TIME;
     }
 
     public static BgpParameters getGracefulBgpParameters(final List<OptionalCapabilities> fixedCapabilities,
-                                                         final Set<TablesKey> gracefulTables,
+                                                         final Map<TablesKey, Uint24> gracefulTables,
                                                          final Set<TablesKey> preservedTables,
                                                          final int gracefulRestartTimer,
                                                          final boolean localRestarting,
-                                                         final Map<TablesKey, Uint24> llGraceful,
-                                                         final Predicate<TablesKey> llGracefulForwarding) {
+                                                         final Predicate<TablesKey> gracefulForwarding) {
         final var capabilities = new ArrayList<>(fixedCapabilities);
         capabilities.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(getGracefulCapability(Maps.asMap(gracefulTables, preservedTables::contains),
+            .setCParameters(getGracefulCapability(gracefulTables.keySet(), preservedTables::contains,
                 gracefulRestartTimer, localRestarting))
             .build());
         capabilities.add(new OptionalCapabilitiesBuilder()
-            .setCParameters(getLlGracefulCapability(llGraceful, llGracefulForwarding))
+            .setCParameters(getLlGracefulCapability(gracefulTables, gracefulForwarding))
             .build());
 
         return new BgpParametersBuilder().setOptionalCapabilities(capabilities).build();

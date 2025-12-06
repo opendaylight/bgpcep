@@ -25,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -43,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.bgp.rib.rib.loc.rib.tables.routes.Ipv6RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
@@ -76,7 +79,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     private BGPPeer peer;
     private BGPPeer nonIpv4;
     private final Set<TablesKey> afiSafiAdvertised = new HashSet<>();
-    private final Set<TablesKey> gracefulAfiSafiAdvertised = new HashSet<>();
+    private final Map<TablesKey, Uint24> gracefulAfiSafiAdvertised = new HashMap<>();
     private RIBImpl ribImpl;
     private Channel serverChannel;
     private final SimpleSessionListener listener = new SimpleSessionListener();
@@ -117,7 +120,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         waitFutureSuccess(channelFuture);
         serverChannel = channelFuture.channel();
 
-        gracefulAfiSafiAdvertised.add(TABLES_KEY);
+        gracefulAfiSafiAdvertised.put(TABLES_KEY, GracefulRestartUtil.ZERO_STALE_TIME);
         afiSafiAdvertised.add(TABLES_KEY);
         afiSafiAdvertised.add(IPV6_TABLES_KEY);
         final var bean = mock(BgpPeerBean.class);
@@ -125,7 +128,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
         doReturn(createParameter(false, true, Map.of(TABLES_KEY, false))
                 .getOptionalCapabilities()).when(bean).getBgpFixedCapabilities();
         peer = configurePeer(tableRegistry, PEER1, ribImpl, parameters, PeerRole.Ibgp,
-                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, Map.of(), bean);
+                serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised, bean);
         session = createPeerSession(PEER1, parameters, listener);
     }
 
@@ -148,7 +151,7 @@ public class GracefulRestartTest extends AbstractAddPathTest {
     public void nonIpv4PeerGracefulRestart() throws InterruptedException {
         BgpParameters parametersv6 = PeerUtil.createBgpParameters(List.of(IPV6_TABLES_KEY), List.of(),
                 Map.of(IPV6_TABLES_KEY, true), GRACEFUL_RESTART_TIME);
-        gracefulAfiSafiAdvertised.add(IPV6_TABLES_KEY);
+        gracefulAfiSafiAdvertised.put(IPV6_TABLES_KEY, GracefulRestartUtil.ZERO_STALE_TIME);
         nonIpv4 = configurePeer(tableRegistry, PEER2, ribImpl, parametersv6, PeerRole.Ibgp,
                 serverRegistry, afiSafiAdvertised, gracefulAfiSafiAdvertised);
         sessionv6 = createPeerSession(PEER2, parametersv6, listener);

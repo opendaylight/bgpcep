@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.parser;
 import com.google.common.annotations.Beta;
 import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
@@ -25,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint16;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 /**
  * Utility class for dealing with Graceful Restart.
@@ -34,7 +36,7 @@ public final class GracefulRestartUtil {
      * GR capability advertizing inactive GR.
      */
     public static final @NonNull GracefulRestartCapability EMPTY_GR_CAPABILITY = new GracefulRestartCapabilityBuilder()
-            .setRestartFlags(new RestartFlags(Boolean.FALSE))
+            .setRestartFlags(new RestartFlags(false))
             .setRestartTime(Uint16.ZERO)
             .build();
 
@@ -44,8 +46,15 @@ public final class GracefulRestartUtil {
     public static final @NonNull LlGracefulRestartCapability EMPTY_LLGR_CAPABILITY =
             new LlGracefulRestartCapabilityBuilder().build();
 
-    private GracefulRestartUtil() {
+    /**
+     * Zero value of LLGR stale time.
+     *
+     * @since 1.0.1
+     */
+    public static final @NonNull Uint24 ZERO_STALE_TIME = new Uint24(Uint32.ZERO);
 
+    private GracefulRestartUtil() {
+        // Hidden on purpose
     }
 
     @Beta
