@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "3c6f5516e6e673a3c1ce820991cc311c77f1e6be",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4a0f85b_98f196c7",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilderTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-12-11T11:21:08Z",
+      "side": 1,
+      "message": "failing on:\nassert getMockMaker(handler.getMockSettings().getMockMaker()) \u003d\u003d mockMaker;",
+      "revId": "3c6f5516e6e673a3c1ce820991cc311c77f1e6be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
