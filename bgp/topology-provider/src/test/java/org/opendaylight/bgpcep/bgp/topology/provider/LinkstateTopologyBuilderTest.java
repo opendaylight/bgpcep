@@ -127,6 +127,8 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private static final String NODE_2_OSPF_ID = "bgpls://Ospf:1/type=node&as=2";
     private static final Identifier IDENTIFIER = new Identifier(Uint64.ONE);
     private static final long LISTENER_RESTART_TIME = 20000;
+    // to enforce listener to increase timeout by LISTENER_RESTART_TIME we have to wait at least that long time
+    private static final long LISTENER_RESTART_TIMEOUT = LISTENER_RESTART_TIME + 10000;
     private static final int LISTENER_ENFORCE_COUNTER = 2;
     private static final int SRGB_START = 90000;
     private static final int SRGB_RANGE = 16;
@@ -396,7 +398,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartEnforceCounter);
         verify(spiedLinkstateTopologyBuilder, times(2)).resetTransactionChain();
         verify(spiedLinkstateTopologyBuilder, never()).resetListener();
-        Thread.sleep(LISTENER_RESTART_TIME);
+        Thread.sleep(LISTENER_RESTART_TIMEOUT);
         // manually invoke onTransactionChainFailed() to have the listener restart scheduled again
         spiedLinkstateTopologyBuilder.onFailure(null);
         assertEquals(spiedLinkstateTopologyBuilder.listenerScheduledRestartTime, listenerScheduledRestartTime
@@ -408,7 +410,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
         verify(spiedLinkstateTopologyBuilder, times(3)).resetTransactionChain();
         verify(spiedLinkstateTopologyBuilder, never()).resetListener();
         // sleep to let the listener restart timer times out
-        Thread.sleep(LISTENER_RESTART_TIME);
+        Thread.sleep(LISTENER_RESTART_TIMEOUT);
         // apply a good modification (empty change)
         spiedLinkstateTopologyBuilder.onDataTreeChanged(List.of());
         assertEquals(0, spiedLinkstateTopologyBuilder.listenerScheduledRestartTime);
