@@ -22,6 +22,30 @@
       },
       "revId": "48dfc8d6e06e25089dc749a5563342bd81e76bdc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "196f3f5b_4deb5d9a",
+        "filename": "bgp/topology-provider/src/main/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateGraphBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-12-11T11:06:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3685786_6f3a7aa9",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 35
+      },
+      "revId": "48dfc8d6e06e25089dc749a5563342bd81e76bdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
