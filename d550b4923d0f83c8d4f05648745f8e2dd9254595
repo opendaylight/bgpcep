@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "404eeea5_718bb99a",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-12-17T15:49:52Z",
+      "side": 1,
+      "message": "remove this line",
+      "revId": "d550b4923d0f83c8d4f05648745f8e2dd9254595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f403dac7_0c7976f7",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-12-17T15:49:52Z",
+      "side": 1,
+      "message": "why changed this?",
+      "revId": "d550b4923d0f83c8d4f05648745f8e2dd9254595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b899d59d_6310a415",
+        "filename": "bgp/topology-provider/src/test/java/org/opendaylight/bgpcep/bgp/topology/provider/LinkstateTopologyBuilderTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2025-12-17T15:49:52Z",
+      "side": 1,
+      "message": "can we move it to its user?",
+      "revId": "d550b4923d0f83c8d4f05648745f8e2dd9254595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
