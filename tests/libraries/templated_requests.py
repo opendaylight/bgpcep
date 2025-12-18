@@ -302,6 +302,7 @@ def put_templated_request(
     temlate_dir: str,
     mapping: dict,
     json: bool = True,
+    verify: bool = False,
     expected_code: int | List[int] | None = None,
 ) -> requests.Response:
     """Evaluates and sends PUT request using template file.
@@ -315,6 +316,8 @@ def put_templated_request(
             values specified in template and expected value.
         json (bool): If true, use json template (file name with .json suffix),
             otherwise use xml tempale (file anem with .xml suffix).
+        verify (bool): If true, verify returned response with stored
+            template file.
         expected_code (int | List[int] | None): Expected resposne code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
@@ -338,6 +341,25 @@ def put_templated_request(
         expected_code=expected_code,
     )
 
+    if verify:
+        file_name_suffix = "json" if json else "xml"
+        expected_response = resolve_templated_text(
+            temlate_dir + "/data." + file_name_suffix, mapping
+        )
+        volatiles_list = resolve_volatiles_path(temlate_dir)
+        try:
+            utils.verify_jsons_match(
+                response.text,
+                expected_response,
+                "received response",
+                "expected response",
+                volatiles_list,
+            )
+        except AssertionError as e:
+            raise AssertionError(
+                "Received response does not match expected response:"
+            ) from e
+
     return response
 
 
@@ -345,6 +367,7 @@ def post_templated_request(
     temlate_dir: str,
     mapping: dict,
     json=True,
+    verify: bool = False,
     expected_code: int | List[int] | None = None,
     accept=None,
 ) -> requests.Response:
@@ -359,6 +382,8 @@ def post_templated_request(
             values specified in template and expected value.
         json (bool): If true, use json template (file name with .json suffix),
             otherwise use xml tempale (file anem with .xml suffix).
+        verify (bool): If true, verify returned response with stored
+            template file.
         expected_code (int | List[int] | None): Expected resposne code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
@@ -384,6 +409,25 @@ def post_templated_request(
         data,
         expected_code=expected_code,
     )
+
+    if verify:
+        file_name_suffix = "json" if json else "xml"
+        expected_response = resolve_templated_text(
+            temlate_dir + "/data." + file_name_suffix, mapping
+        )
+        volatiles_list = resolve_volatiles_path(temlate_dir)
+        try:
+            utils.verify_jsons_match(
+                response.text,
+                expected_response,
+                "received response",
+                "expected response",
+                volatiles_list,
+            )
+        except AssertionError as e:
+            raise AssertionError(
+                "Received response does not match expected response:"
+            ) from e
 
     return response
 
