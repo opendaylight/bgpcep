@@ -1,0 +1,72 @@
+#
+# Copyright (c) 2025 PANTHEON.tech, s.r.o. and others.  All rights reserved.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License v1.0 which accompanies this distribution,
+# and is available at http://www.eclipse.org/legal/epl-v10.html
+
+import logging
+
+import pytest
+import time
+
+from libraries import infra
+from libraries import pcep
+from libraries.variables import variables
+
+
+DEFAULT_UPDATE_INTERVAL = 5
+ODL_IP = variables.ODL_IP
+TOOLS_IP = variables.TOOLS_IP
+
+log = logging.getLogger(__name__)
+
+
+@pytest.mark.usefixtures("preconditions")
+@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
+@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
+@pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.run(order=77)
+class TestPcepUser:
+    pcc_mock_process = None
+
+    def test_default_update_interval(self, allure_step_with_separate_logging):
+
+        with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
+            """To be able to track time of the last pcep stats update we
+            need to check it in logs with at least DEBUG level."""
+            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
+            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
+
+        with allure_step_with_separate_logging("step_wait_for_next_stat_update"):
+            """Wait until next stat update is executed to synchronize test
+            with stat update inteval."""
+            pcep.wait_for_the_next_stat_update()
+
+        with allure_step_with_separate_logging("step_start_pcc_mock"):
+            """Starts PCC mocks simulator."""
+            self.pcc_mock_process = pcep.start_pcc_mock(
+                pcc=1,
+                lsp=1,
+                local_address=TOOLS_IP,
+                remote_address=ODL_IP,
+                verify_introduced_lsps=False,
+            )
+
+        with allure_step_with_separate_logging(
+            f"step_wait_{DEFAULT_UPDATE_INTERVAL - 1}_seconds"
+        ):
+            """Wait until one second before the next pcep stat update."""
+            time.sleep(DEFAULT_UPDATE_INTERVAL - 1)
+
+        with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
+            """Verifies that get-stat RPC does not return any statistics."""
+            pcep.verify_odl_does_not_return_stats_for_pcc(pcc_ip=TOOLS_IP)
+
+        with allure_step_with_separate_logging("step_wait_1_second"):
+            """Wait for 1 second."""
+            time.sleep(1)
+
+        with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
+            """Verifies that get-stat RPC does return statistics."""
+            pcep.get_stats(pcc_ip=TOOLS_IP, verify_response=True)
