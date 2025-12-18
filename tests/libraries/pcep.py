@@ -116,6 +116,65 @@ def configure_speaker_entitiy_identifier() -> requests.Response:
     return resposne
 
 
+def get_stats(pcc_ip: str, verify_response: bool = False) -> requests.Response:
+    """Returns nodes PCEP statistics.
+
+    Args:
+        pcc_ip (str): PCC node IP address.
+        verify_response (bool): Verify response data using template.
+
+    Returns:
+        requests.Response: PCEP node statistics.
+    """
+    mapping = {"PCC_IP": pcc_ip}
+    response = templated_requests.post_templated_request(
+        "variables/pcepuser/titanium/get_stats",
+        mapping,
+        json=True,
+        verify=verify_response,
+    )
+
+    return response
+
+
+def wait_for_the_next_stat_update(timeout: int = 60, interval: float = 0.1):
+    """Returns nodes PCEP statistics.
+
+    Args:
+        timeout (int): Timeout in seconds.
+
+    Returns:
+        None
+    """
+    karaf_log_file_path = "data/log/karaf.log"
+    updated_stats_log_pattern = "Successfully committed BGP stats update"
+
+    rc, stdout = infra.shell(f"wc -l < {karaf_log_file_path}", cwd="opendaylight")
+    current_lines_num = int(stdout)
+    infra.retry_shell_command(
+        int(timeout // interval),
+        interval,
+        f"sed -n '{current_lines_num},$p' {karaf_log_file_path} | "
+        f"grep '{updated_stats_log_pattern}'",
+        cwd="opendaylight",
+    )
+
+
+def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
+    """Verify ODL does not return statistics using get-stats RPC.
+
+    Args:
+        pcc_ip (str): PCC node IP address.
+
+    Returns:
+        None
+    """
+    response = get_stats(pcc_ip=pcc_ip)
+    assert (
+        "pcep-session-state" not in response.text
+    ), f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n Response:{response.text}'
+
+
 def add_lsp(xml_data: str) -> requests.Response:
     """Invoke add-lsp operation on ODL.
 

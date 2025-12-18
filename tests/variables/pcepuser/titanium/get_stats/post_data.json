@@ -1,0 +1,14 @@
+{
+    "input": {
+        "topology": [
+            {
+              "topology-id": "pcep-topology",
+                "node": [
+                    {
+                        "node-id": "pcc://$PCC_IP"
+                    }
+                ]
+            }
+        ]
+    }
+}
