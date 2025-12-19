@@ -623,17 +623,21 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         final IgpLinkAttributesBuilder ilab = new IgpLinkAttributesBuilder();
         Long adjSid = null;
         if (la != null) {
-            if (la.getMetric() != null) {
-                ilab.setMetric(la.getMetric().getValue());
+            final var metric = la.getMetric();
+            if (metric != null) {
+                ilab.setMetric(metric.getValue());
             }
             ilab.setName(la.getLinkName());
-            if (la.getSrAttribute() != null
-                    && la.getSrAttribute().getSrAdjIds() != null && !la.getSrAttribute().getSrAdjIds().isEmpty()) {
-                final SrAdjIds srAdjIds = la.getSrAttribute().getSrAdjIds().getFirst();
-                if (srAdjIds != null) {
-                    final SidLabelIndex sidLabelIndex = srAdjIds.getSidLabelIndex();
-                    if (sidLabelIndex instanceof LabelCase) {
-                        adjSid = ((LabelCase) sidLabelIndex).getLabel().getValue().longValue();
+            final var srAttribute = la.getSrAttribute();
+            if (srAttribute != null) {
+                final var srAdjIdsList = srAttribute.getSrAdjIds();
+                if (srAdjIdsList != null && !srAdjIdsList.isEmpty()) {
+                    final SrAdjIds srAdjIds = srAdjIdsList.getFirst();
+                    if (srAdjIds != null) {
+                        final SidLabelIndex sidLabelIndex = srAdjIds.getSidLabelIndex();
+                        if (sidLabelIndex instanceof LabelCase labelCase) {
+                            adjSid = labelCase.getLabel().getValue().longValue();
+                        }
                     }
                 }
             }
@@ -661,17 +665,18 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         LOG.trace("Created TP {} as link source", srcTp);
         NodeHolder snh = nodes.get(srcNode);
+        final var linkId = lb.getLinkId();
         if (snh == null) {
             snh = getNode(srcNode);
-            snh.addTp(srcTp, lb.getLinkId(), false);
+            snh.addTp(srcTp, linkId, false);
             if (adjSid != null) {
-                snh.createSrHolderIfRequired().addAdjacencySid(trans, false, lb.getLinkId(), adjSid);
+                snh.createSrHolderIfRequired().addAdjacencySid(trans, false, linkId, adjSid);
             }
             putNode(trans, snh);
         } else {
-            snh.addTp(srcTp, lb.getLinkId(), false);
+            snh.addTp(srcTp, linkId, false);
             if (adjSid != null) {
-                snh.createSrHolderIfRequired().addAdjacencySid(trans, true, lb.getLinkId(), adjSid);
+                snh.createSrHolderIfRequired().addAdjacencySid(trans, true, linkId, adjSid);
             }
             trans.put(LogicalDatastoreType.OPERATIONAL,
                 getNodeInstanceIdentifier(new NodeKey(snh.getNodeId())).toBuilder()
@@ -687,10 +692,10 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         NodeHolder dnh = nodes.get(dstNode);
         if (dnh == null) {
             dnh = getNode(dstNode);
-            dnh.addTp(dstTp, lb.getLinkId(), true);
+            dnh.addTp(dstTp, linkId, true);
             putNode(trans, dnh);
         } else {
-            dnh.addTp(dstTp, lb.getLinkId(), true);
+            dnh.addTp(dstTp, linkId, true);
             trans.put(LogicalDatastoreType.OPERATIONAL, getInstanceIdentifier().toBuilder()
                 .child(org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network
                     .topology.topology.Node.class, new NodeKey(dnh.getNodeId()))
@@ -698,7 +703,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
                 .build(), dstTp);
         }
 
-        final var lid = buildLinkIdentifier(lb.getLinkId());
+        final var lid = buildLinkIdentifier(linkId);
         final var link = lb.build();
 
         trans.put(LogicalDatastoreType.OPERATIONAL, lid, link);
