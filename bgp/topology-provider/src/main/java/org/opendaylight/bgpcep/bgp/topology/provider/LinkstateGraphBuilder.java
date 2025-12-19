@@ -265,24 +265,35 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
                 .setName(srcId + " - " + dstId)
                 .setEdgeAttributes(createEdgeAttributes(la, linkCase.getLinkDescriptors())).build();
 
-        /*
-         * Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
+        /* Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
         final var attr = edge.getEdgeAttributes();
-        final var prefBuilder = new PrefixBuilder().setVertexId(srcId);
-        if (attr.getLocalAddress() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv4PrefixFor(attr.getLocalAddress())));
-        } else if (attr.getLocalAddress6() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv6PrefixFor(attr.getLocalAddress6())));
+        final IpPrefix prefix;
+        final var localAddress = attr.getLocalAddress();
+        if (localAddress == null) {
+            final var localAddress6 = attr.getLocalAddress6();
+            if (localAddress6 == null) {
+                LOG.warn("Skipping Edge {} from TED[{}] because of missing IPv4 or IPv6 prefix", edge.getName(),
+                    cgraph);
+                return;
+            }
+            prefix = new IpPrefix(IetfInetUtil.ipv6PrefixFor(localAddress6));
         } else {
-            LOG.warn("Skipping Edge {} from TED[{}] because of missing IPv4 or IPv6 prefix", edge.getName(), cgraph);
-            return;
+            prefix = new IpPrefix(IetfInetUtil.ipv4PrefixFor(localAddress));
         }
         Prefix prefix = prefBuilder.build();
 
         /* Add the Edge in the Connected Graph */
+<<<<<<< HEAD   (ac26e6 Fix: Key component "prefix" may not be null)
         LOG.info("Add Edge {} and associated Prefix {} in TED[{}]", edge.getName(), prefix.getPrefix(), cgraph);
+=======
+        LOG.debug("Add Edge {} and associated Prefix {} in TED[{}]", edge.getName(), prefix, cgraph);
+>>>>>>> CHANGE (ac2a3f Remove repetitive getter usage inside createEdge)
         cgraph.addEdge(edge);
+<<<<<<< HEAD   (ac26e6 Fix: Key component "prefix" may not be null)
         cgraph.addPrefix(prefix);
+=======
+        cgraph.addPrefix(new PrefixBuilder().setVertexId(srcId).setPrefix(prefix).build());
+>>>>>>> CHANGE (ac2a3f Remove repetitive getter usage inside createEdge)
     }
 
     /**
