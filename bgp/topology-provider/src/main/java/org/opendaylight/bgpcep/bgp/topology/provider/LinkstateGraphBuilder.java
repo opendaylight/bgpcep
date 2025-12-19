@@ -301,10 +301,12 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
          * Add corresponding Prefix for the Local Address. Remote address will be added with the remote Edge */
         final var attr = edge.getEdgeAttributes();
         final var prefBuilder = new PrefixBuilder().setVertexId(srcId);
-        if (attr.getLocalAddress() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv4PrefixFor(attr.getLocalAddress())));
-        } else if (attr.getLocalAddress6() != null) {
-            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv6PrefixFor(attr.getLocalAddress6())));
+        final var localAddress = attr.getLocalAddress();
+        final var localAddress6 = attr.getLocalAddress6();
+        if (localAddress != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv4PrefixFor(localAddress)));
+        } else if (localAddress6 != null) {
+            prefBuilder.setPrefix(new IpPrefix(IetfInetUtil.ipv6PrefixFor(localAddress6)));
         } else {
             LOG.warn("Skipping Edge {} from TED[{}] because of missing IPv4 or IPv6 prefix", edge.getName(), cgraph);
             return;
