@@ -4,6 +4,10 @@
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
+#
+# Tests that PCEP statistics are updated strictly after the default timer
+# elapses. It verifies statistics are not updated before the timer expires,
+# but right after.
 
 import logging
 
@@ -15,7 +19,7 @@ from libraries import pcep
 from libraries.variables import variables
 
 
-DEFAULT_UPDATE_INTERVAL = 5
+DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 
@@ -56,10 +60,10 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging(
-            f"step_wait_{DEFAULT_UPDATE_INTERVAL - 1}_seconds"
+            f"step_wait_{DEFAULT_PCEP_STATS_UPDATE_INTERVAL - 1}_seconds"
         ):
             """Wait until one second before the next pcep stat update."""
-            time.sleep(DEFAULT_UPDATE_INTERVAL - 1)
+            time.sleep(DEFAULT_PCEP_STATS_UPDATE_INTERVAL - 1)
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
             """Verifies that get-stat RPC does not return any statistics."""

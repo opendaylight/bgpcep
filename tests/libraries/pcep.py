@@ -11,6 +11,7 @@ import gc
 import logging
 import re
 import subprocess
+from typing import List
 
 import requests
 
@@ -173,6 +174,52 @@ def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
     assert (
         "pcep-session-state" not in response.text
     ), f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n Response:{response.text}'
+
+
+def get_stat_timer_value(expected_response_code: int | List[int] | None = 200) -> requests.Response:
+    """Get the PCEP statistics timer value.
+
+    This value determines the interval in which the statistics are updated.
+
+    Args:
+        expected_response_code (int | List[int] | None): Expected HTTP response code returned
+            from ODL. Can be either single value or list of possible values.
+
+    Returns:
+        requests.Response: PCEP node statistics.
+    """
+    response = templated_requests.get_templated_request(
+        "variables/pcepuser/titanium/get_timer_value",
+        None,
+        json=True,
+        expected_code=expected_response_code
+    )
+
+    return response
+
+
+def set_stat_timer_value(timer_value: int, expected_response_code: int | List[int] | None = (201, 204)) -> requests.Response:
+    """Set the PCEP statistics timer value.
+
+    This value determines the interval in which the statistics are updated.
+
+    Args:
+        timer_value (str): PCEP statistics timer value.
+        expected_response_code (int | List[int] | None): Expected HTTP response code returned
+            from ODL. Can be either single value or list of possible values.
+
+    Returns:
+        requests.Response: PCEP node statistics.
+    """
+    mapping = {"TIMER": timer_value}
+    response = templated_requests.put_templated_request(
+        "variables/pcepuser/titanium/set_timer_value",
+        mapping,
+        json=True,
+        expected_code=expected_response_code
+    )
+
+    return response
 
 
 def add_lsp(xml_data: str) -> requests.Response:
