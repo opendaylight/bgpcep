@@ -39,6 +39,7 @@ class Variables(BaseSettings):
     TEST_DURATION_MULTIPLIER: int = 1
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     ENABLE_TCP_TW_REUSE: bool = False
+    DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
 
 
 variables = Variables()
