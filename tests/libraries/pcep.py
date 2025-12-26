@@ -310,7 +310,7 @@ def start_pcc_mock(
 
     if verify_introduced_lsps:
         utils.wait_until_function_returns_value(
-            int(verify_timeout/verify_interval),
+            int(verify_timeout / verify_interval),
             verify_interval,
             pcc * lsp,
             get_pcep_topology_hop_count,
