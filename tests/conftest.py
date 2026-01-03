@@ -202,9 +202,10 @@ def teardown_kill_all_running_play_script_processes():
     """
     yield
     infra.shell(
-        r"pkill -f '^(.*/)?python3?\s+.*play.py' || " \
-        #"kill $(pgrep -f play.py | grep -v ^$$\$) || " \
-        r"echo 'No running instance of play.py script.'"
+        (
+            r"pkill -f '^(.*/)?python3?\s+.*play.py' || "
+            r"echo 'No running instance of play.py script.'"
+        )
     )
 
 @pytest.fixture(scope="class")
@@ -219,9 +220,10 @@ def teardown_kill_all_running_exabgp_processes():
     """
     yield
     infra.shell(
-        r"pkill -f '^(.*/)?python3?\s+.*bin/exabgp' || " \
-        #"kill $(pgrep -f play.py | grep -v ^$$\$) || " \
-        r"echo 'No running instance of play.py script.'"
+        (
+            r"pkill -f '^(.*/)?python3?\s+.*bin/exabgp' || "
+            r"echo 'No running instance of play.py script.'"
+        )
     )
 
 @pytest.fixture(scope="class")
@@ -236,7 +238,26 @@ def teardown_kill_all_running_gobgp_processes():
     """
     yield
     infra.shell(
-        "pkill gobgpd || " \
-        #"kill $(pgrep -f gobgpd | grep -v ^$$\$) || " \
-        "echo 'No running instance of gobgpd script.'"
+        (
+            "pkill gobgpd || "
+            "echo 'No running instance of gobgpd script.'"
+        )
+    )
+
+@pytest.fixture(scope="class")
+def teardown_kill_all_running_pcep_pcc_mock_processes():
+    """Fixture to stop pcep-pcc-mock.jar instances at the end of test class execution
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    yield
+    infra.shell(
+        (
+            r"pkill -f '^(.*/)?java\s+.*pcep-pcc-mock\.jar' || "
+            r"echo 'No running instance of pcep-pcc-mock.jar.'"
+        )
     )
