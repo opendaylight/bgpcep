@@ -19,7 +19,10 @@ import paramiko
 import psutil
 
 from libraries import utils
+from libraries.KarafShell import KarafShell
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
+
+KARAF_SHELL_INSTANCE = None
 
 log = logging.getLogger(__name__)
 
@@ -452,20 +455,22 @@ def execute_karaf_command(command: str) -> tuple[str, str]:
     Returns:
         tuple[str, str]: Stdout from karaf CLI, stderr from karaf CLI.
     """
+    global KARAF_SHELL_INSTANCE
+
     log.info(f"Executing command '{command}' on karaf console.")
-    with open_ssh_connection("127.0.0.1", 8101, "karaf", "karaf") as karaf_connection:
-        stdin, stdout_channel, stderr_channel = karaf_connection.exec_command(command)
-        stdin.close()
 
-        stdout = stdout_channel.read().decode()
-        stderr = stderr_channel.read().decode()
-        exit_status = stdout_channel.channel.recv_exit_status()
+    if KARAF_SHELL_INSTANCE is None:
+        KARAF_SHELL_INSTANCE = KarafShell(host="127.0.0.1", port=8101)
 
-    log.info(f"{stdout=}")
-    if exit_status != 0 or stderr:
-        log.warn(f"Karaf command {command} failed with {exit_status=} {stderr=}")
+    try:
+        stdout = KARAF_SHELL_INSTANCE.execute(command)
+        log.info(f"Command Output:\n{stdout}")
 
-    return stdout, stderr
+        return stdout, ""
+
+    except Exception as e:
+        log.error(f"Failed to execute karaf command: {e}")
+        return "", str(e)
 
 
 def log_message_to_karaf(message: str):
