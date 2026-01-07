@@ -176,7 +176,9 @@ def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
     ), f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n Response:{response.text}'
 
 
-def get_stat_timer_value(expected_response_code: int | List[int] | None = 200) -> requests.Response:
+def get_stat_timer_value(
+    expected_response_code: int | List[int] | None = 200,
+) -> requests.Response:
     """Get the PCEP statistics timer value.
 
     This value determines the interval in which the statistics are updated.
@@ -192,13 +194,15 @@ def get_stat_timer_value(expected_response_code: int | List[int] | None = 200) -
         "variables/pcepuser/titanium/get_timer_value",
         None,
         json=True,
-        expected_code=expected_response_code
+        expected_code=expected_response_code,
     )
 
     return response
 
 
-def set_stat_timer_value(timer_value: int, expected_response_code: int | List[int] | None = (201, 204)) -> requests.Response:
+def set_stat_timer_value(
+    timer_value: int, expected_response_code: int | List[int] | None = (201, 204)
+) -> requests.Response:
     """Set the PCEP statistics timer value.
 
     This value determines the interval in which the statistics are updated.
@@ -216,7 +220,7 @@ def set_stat_timer_value(timer_value: int, expected_response_code: int | List[in
         "variables/pcepuser/titanium/set_timer_value",
         mapping,
         json=True,
-        expected_code=expected_response_code
+        expected_code=expected_response_code,
     )
 
     return response
