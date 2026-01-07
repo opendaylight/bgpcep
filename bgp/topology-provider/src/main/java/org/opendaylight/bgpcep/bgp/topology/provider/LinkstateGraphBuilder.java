@@ -429,7 +429,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * Create Vertex from the Node Attributes.
      *
      * @param na       Node Attributes
-     * @param cvertex  Connected Vertex associated to this Vertex
+     * @param id       Vertex id
      * @param as       As number
      *
      * @return New Vertex
