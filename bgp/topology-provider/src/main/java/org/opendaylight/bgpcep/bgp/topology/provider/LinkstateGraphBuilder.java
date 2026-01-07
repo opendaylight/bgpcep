@@ -429,7 +429,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * Create Vertex from the Node Attributes.
      *
      * @param na       Node Attributes
-     * @param cvertex  Connected Vertex associated to this Vertex
+     * @param id       Vertex id
      * @param as       As number
      *
      * @return New Vertex
@@ -480,6 +480,121 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     }
 
     /**
+<<<<<<< HEAD   (129235 Remove repetitive getter usage inside createEdge)
+=======
+     * Fulfill Vertex Segment Routing Information from the Node attributes.
+     *
+     * @param sr    Node Attributes
+     * @return      Segment Routing Node information
+     */
+    private static SrNodeAttributes getSrNodeAttributes(final SrCapabilities sr, final FlexAlgoDefinition fad) {
+        final SrNodeAttributesBuilder sraBuilder = new SrNodeAttributesBuilder();
+
+        // SR Flags
+        sraBuilder.setMplsIpv4(sr.getMplsIpv4())
+            .setMplsIpv6(sr.getMplsIpv6());
+        // Algorithms
+        if (sr.getAlgorithms() != null) {
+            final var algos = ImmutableSet.<Algorithm>builder();
+            sr.getAlgorithms().forEach(algo -> algos.add(Algorithm.forValue(algo.getIntValue())));
+            sraBuilder.setAlgorithms(algos.build());
+        }
+        // MSD
+        if (sr.getNodeMsd() != null) {
+            final var msds = new ArrayList<NodeMsd>();
+            sr.getNodeMsd().forEach(msd ->
+                msds.add(new NodeMsdBuilder()
+                    .setMsdType(Uint8.valueOf(msd.getType().getIntValue()))
+                    .setValue(msd.getValue())
+                    .build())
+            );
+            sraBuilder.setNodeMsd(msds);
+        }
+        // SRGB
+        if (sr.getSrgb() != null) {
+            final var srgbs = new ArrayList<Srgb>();
+            sr.getSrgb().forEach(srgb -> {
+                final var labelIndex = sr.getSrgb().getFirst().getSidLabelIndex();
+                if (labelIndex instanceof LabelCase) {
+                    srgbs.add(new SrgbBuilder()
+                            .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                            .setRangeSize(sr.getSrgb().getFirst().getRangeSize().getValue())
+                            .build());
+                } else if (labelIndex instanceof SidCase) {
+                    srgbs.add(new SrgbBuilder()
+                            .setLowerBound(((SidCase) labelIndex).getSid())
+                            .setRangeSize(sr.getSrgb().getFirst().getRangeSize().getValue())
+                            .build());
+                }
+            });
+            sraBuilder.setSrgb(srgbs);
+        }
+        // SRLB
+        if (sr.getSrlb() != null) {
+            final var srlbs = new ArrayList<Srlb>();
+            sr.getSrlb().forEach(srlb -> {
+                final var labelIndex = sr.getSrlb().getFirst().getSidLabelIndex();
+                if (labelIndex instanceof LabelCase) {
+                    srlbs.add(new SrlbBuilder()
+                            .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                            .setRangeSize(sr.getSrlb().getFirst().getRangeSize().getValue())
+                            .build());
+                } else if (labelIndex instanceof SidCase) {
+                    srlbs.add(new SrlbBuilder()
+                            .setLowerBound(((SidCase) labelIndex).getSid())
+                            .setRangeSize(sr.getSrlb().getFirst().getRangeSize().getValue())
+                            .build());
+                }
+            });
+            sraBuilder.setSrlb(srlbs);
+        }
+        // Flex Algo
+        if (fad != null) {
+            sraBuilder.setFlexAlgo(getFlexAlgoDefinition(fad));
+        }
+
+        return sraBuilder.build();
+    }
+
+    /**
+     * Fulfill Vertex Flex Algo Information from the Node attributes.
+     *
+     * @param fadList   Node Flex Algo Definition
+     * @return          List of FlexAlgo
+     */
+    private static List<FlexAlgo> getFlexAlgoDefinition(final FlexAlgoDefinition fadList) {
+        final var faList = new ArrayList<FlexAlgo>();
+
+        fadList.getFlexAlgoDefinitionTlv().forEach(fad -> {
+            final FlexAlgoBuilder fab = new FlexAlgoBuilder();
+
+            fab.setCalcType(fad.getCalcType());
+            fab.setFlexAlgo(fad.getFlexAlgo().getValue());
+            fab.setMetricType(FlexMetric.forValue(fad.getMetricType().getIntValue()));
+            fab.setPriority(fad.getPriority());
+
+            // SubTlvs
+            final FlexAlgoSubtlvs fas = fad.getFlexAlgoSubtlvs();
+            final var excludes = ImmutableSet.<Uint32>builder();
+            fas.getExcludeAny().forEach(eag -> excludes.add(eag.getValue()));
+            final var includesAny = ImmutableSet.<Uint32>builder();
+            fas.getIncludeAny().forEach(eag -> includesAny.add(eag.getValue()));
+            final var includesAll = ImmutableSet.<Uint32>builder();
+            fas.getIncludeAll().forEach(eag -> includesAny.add(eag.getValue()));
+            final var srlgs = ImmutableSet.<Uint32>builder();
+            fas.getExcludeSrlg().forEach(srlg -> srlgs.add(srlg.getValue()));
+            fab.setExcludeAny(excludes.build())
+                .setIncludeAny(includesAny.build())
+                .setIncludeAll(includesAll.build())
+                .setExcludeSrlg(srlgs.build());
+            faList.add(fab.build());
+        });
+
+        return faList;
+    }
+
+    /**
+>>>>>>> CHANGE (98b340 Fix LinkstateGraphBuilder javadocs)
      * Create new Connected Vertex in the Connected Graph.
      *
      * @param value       The complete Linkstate route information
