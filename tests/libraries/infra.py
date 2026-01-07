@@ -11,15 +11,18 @@ import signal
 import subprocess
 import threading
 import urllib
-from contextlib import contextmanager
 from queue import Queue
 from typing import List
 
 import paramiko
 import psutil
 
+from libraries import ssh_utils
 from libraries import utils
+from libraries.KarafShell import KarafShell
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
+
+KARAF_SHELL_INSTANCE = None
 
 log = logging.getLogger(__name__)
 
@@ -150,45 +153,6 @@ def read_until(process: subprocess.Popen, expected_text: str, timeout: int = 10)
     return whole_text
 
 
-def ssh_run_command(
-    command: str,
-    host: str,
-    username: str,
-    password: str,
-    port: int = 22,
-    timeout: int = 900,
-):
-    """Runs single command on remote host using SSH
-
-    Command needs to finish within specific time otherwise it would time out.
-
-    Args:
-        command (str): Shell command to be run.
-        host (str): SSH server host name.
-        username (str): Client username credentials.
-        password (bool): Client password credentials.
-        port (int): SSH server port number.
-        timeout (int): Timeout in seconds for the command.
-
-    Returns:
-        tuple[str, str]: A tuple containing the standard output
-            and standard error.
-    """
-    log.info(command)
-    with open_ssh_connection(host, port, username, password) as ssh_connection:
-        stdin, stdout, stderr = ssh_connection.exec_command(
-            command, get_pty=True, timeout=timeout
-        )
-        stdout = stdout.read().decode()
-        stderr = stderr.read().decode()
-
-    log.info(f"{stdout=}")
-    if stderr:
-        log.warn(f"{stderr=}")
-
-    return stdout, stderr
-
-
 def get_children_processes_pids(
     process: subprocess.Popen, command: str = ""
 ) -> List[int]:
@@ -210,69 +174,6 @@ def get_children_processes_pids(
     ]
 
     return matching_pids
-
-
-def ssh_start_command(
-    command: str, host: str, username: str, password: str, port: int = 22
-) -> RemoteSSHSessionHandler:
-    """Opens an ssh session to remote host and start a command.
-
-    Enters a command on an SSH session and returns
-    a handler to this session.
-
-    Args:
-        command (str): Shell command to be run.
-        host (str): SSH server host name.
-        username (str): Client username credentials.
-        password (bool): Client password credentials.
-        port (int): SSH server port number.
-
-    Returns:
-        RemoteSSHSessionHandler: Remote session handler.
-    """
-    session_handler = RemoteSSHSessionHandler(host, username, password, port)
-    session_handler.start_command(command)
-
-    return session_handler
-
-
-def ssh_stop_command(session_handler: RemoteSSHSessionHandler):
-    """Stops command which is beeing executed through SSH session.
-
-    Args:
-        session_handler (RemoteSSHSessionHandler): Handler for remote SSH session.
-
-    Returns:
-        None
-    """
-    session_handler.stop_command()
-
-
-def ssh_put_file(
-    local_file_path: str,
-    remot_file_path: str,
-    host: str,
-    username: str,
-    password: str,
-    port: int = 22,
-):
-    """Transfers a file from the local machine to the remote host via SFTP.
-
-    Args:
-        local_file_path (str): The full path to the file on the local machine.
-        remot_file_path (str): The full destination path on the remote host.
-        host (str): SSH server host name.
-        username (str): Client username credentials.
-        password (str): Client password credentials.
-        port (int): SSH server port number.
-
-    Returns:
-        None
-    """
-    with open_ssh_connection(host, port, username, password) as ssh_connection:
-        sftp_client = ssh_connection.open_sftp()
-        sftp_client.put(local_file_path, remot_file_path)
-        sftp_client.close()
 
 
 def retry_shell_command(retry_count: int, interval: int, *args, **kwargs):
@@ -416,37 +317,6 @@ def start_odl_with_features(features: tuple[str], timeout: int = 60):
     )
 
 
-@contextmanager
-def open_ssh_connection(
-    hostname: str, port: int, username: str, password: str
-) -> paramiko.SSHClient:
-    """Creates ssh connection to remote host
-
-    It also automatically closes this connection using context manager.
-
-    Args:
-        hostname (str): Target server hostname or ip address.
-        port (int): Port used for ssh conenction.
-        username (str): username used to log in to the ssh server
-        password (str): password used to log in to the ssh server
-
-    Returns:
-        paramiko.SSHClient: ssh client connected to the remote ssh server.
-    """
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh_client.connect(
-        hostname=hostname,
-        port=port,
-        username=username,
-        password=password,
-        look_for_keys=False,
-        allow_agent=False,
-    )
-    yield ssh_client
-    ssh_client.close()
-
-
 def execute_karaf_command(command: str) -> tuple[str, str]:
     """Executed specific command using ODL karaf CLI console
 
@@ -458,20 +328,22 @@ def execute_karaf_command(command: str) -> tuple[str, str]:
     Returns:
         tuple[str, str]: Stdout from karaf CLI, stderr from karaf CLI.
     """
+    global KARAF_SHELL_INSTANCE
+
     log.info(f"Executing command '{command}' on karaf console.")
-    with open_ssh_connection("127.0.0.1", 8101, "karaf", "karaf") as karaf_connection:
-        stdin, stdout_channel, stderr_channel = karaf_connection.exec_command(command)
-        stdin.close()
 
-        stdout = stdout_channel.read().decode()
-        stderr = stderr_channel.read().decode()
-        exit_status = stdout_channel.channel.recv_exit_status()
+    if KARAF_SHELL_INSTANCE is None:
+        KARAF_SHELL_INSTANCE = KarafShell(host="127.0.0.1", port=8101)
 
-    log.info(f"{stdout=}")
-    if exit_status != 0 or stderr:
-        log.warn(f"Karaf command {command} failed with {exit_status=} {stderr=}")
+    try:
+        stdout = KARAF_SHELL_INSTANCE.execute(command)
+        log.info(f"Command Output:\n{stdout}")
 
-    return stdout, stderr
+        return stdout, ""
+
+    except Exception as e:
+        log.error(f"Failed to execute karaf command: {e}")
+        return "", str(e)
 
 
 def log_message_to_karaf(message: str):

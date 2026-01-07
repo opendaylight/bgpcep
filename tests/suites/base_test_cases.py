@@ -12,6 +12,7 @@ import allure
 
 from libraries import infra
 from libraries import pcep
+from libraries import ssh_utils
 from libraries import utils
 from libraries.variables import variables
 
@@ -449,14 +450,14 @@ class BaseTestCases:
                 on TOOLS host. If both of these hosts, ODL and TOOLS are the same,
                 then this step is skipped
                 """
-                infra.ssh_put_file(
+                ssh_utils.ssh_put_file(
                     local_file_path="build_tools/pcep-pcc-mock.jar",
                     remot_file_path="/tmp/pcep-pcc-mock.jar",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                self.ssh_handler = infra.ssh_start_command(
+                self.ssh_handler = ssh_utils.ssh_start_command(
                     f"java -jar /tmp/pcep-pcc-mock.jar --local-address {TOOLS_IP} "
                     f"--remote-address {ODL_IP} --pcc {pccs} --lsp {lsps}",
                     host=TOOLS_IP,
@@ -470,21 +471,21 @@ class BaseTestCases:
                     pcep.get_pcep_topology_hop_count,
                     "1.1.1.1/32",
                 )
-                infra.ssh_put_file(
+                ssh_utils.ssh_put_file(
                     local_file_path="tools/pcep_updater/updater.py",
                     remot_file_path="/tmp/updater.py",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                infra.ssh_put_file(
+                ssh_utils.ssh_put_file(
                     local_file_path="libraries/AuthStandalone.py",
                     remot_file_path="/tmp/AuthStandalone.py",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                stdout, stderr = infra.ssh_run_command(
+                stdout, stderr = ssh_utils.ssh_run_command(
                     f"taskset 0x00000001 python3 /tmp/updater.py  "
                     f"--odladdress '{ODL_IP}' --pccaddress '{TOOLS_IP}' "
                     f"--user 'admin' --password 'admin' --hop '11.11.11.11/32' "
@@ -507,7 +508,7 @@ class BaseTestCases:
                     pcep.get_pcep_topology_hop_count,
                     "11.11.11.11/32",
                 )
-                infra.ssh_stop_command(self.ssh_handler)
+                ssh_utils.ssh_stop_command(self.ssh_handler)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Send ctrl+c to pcc-mock, see prompt again within timeout."""
