@@ -157,20 +157,6 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         LOG.info("Started Traffic Engineering Graph Builder");
     }
 
-    @VisibleForTesting
-    LinkstateGraphBuilder(final DataBroker dataProvider, final RibReference locRibReference,
-            final TopologyId topologyId, final ConnectedGraphProvider provider, final long listenerResetLimitInMillsec,
-            final int listenerResetEnforceCounter) {
-        super(dataProvider, locRibReference, topologyId, LINKSTATE_TOPOLOGY_TYPE, LinkstateAddressFamily.VALUE,
-                LinkstateSubsequentAddressFamily.VALUE, listenerResetLimitInMillsec, listenerResetEnforceCounter);
-        cgraph = requireNonNull(provider).createConnectedGraph("ted://" + topologyId.getValue(),
-                DomainScope.IntraDomain);
-        /* LinkStateGraphBuilder doesn't write information in the Network Topology tree of the Data Store.
-         * This is performed by ConnectedGraphProvider which write element in Graph tree of the Data Store */
-        networkTopologyTransaction = false;
-        LOG.info("Started Traffic Engineering Graph Builder");
-    }
-
     @Override
     protected void routeChanged(final DataTreeModification<LinkstateRoute> change, final ReadWriteTransaction trans) {
         final var root = change.getRootNode();
