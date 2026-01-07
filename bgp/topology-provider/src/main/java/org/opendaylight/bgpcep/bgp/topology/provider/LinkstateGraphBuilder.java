@@ -666,7 +666,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * Create Vertex from the Node Attributes.
      *
      * @param na       Node Attributes
-     * @param cvertex  Connected Vertex associated to this Vertex
+     * @param id       Vertex id
      * @param as       As number
      *
      * @return New Vertex
@@ -789,8 +789,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
     /**
      * Fulfill Vertex Flex Algo Information from the Node attributes.
      *
-     * @param fad   Node Flex Algo Definition
-     * @return      FlexAlgo
+     * @param fadList   Node Flex Algo Definition
+     * @return          List of FlexAlgo
      */
     private static List<FlexAlgo> getFlexAlgoDefinition(final FlexAlgoDefinition fadList) {
         final var faList = new ArrayList<FlexAlgo>();
