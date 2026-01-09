@@ -5,20 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test for bgp - route-target-constrain safi
-#
-# This suite tests advertising rt-constrain routes to odl. For advertising
-# from peer play.py is used, sending hex messages to odl.
-# There are 3 groups of peers: ebgp and two ibgps. First peers group sends
-# l3vpn route with specific RT to odl, second peers group sends RT route
-# and third peers group only establishes connection. Then it is checked that
-# odl advertizes l3vpn route to second peer. Third peers group sends wildcard
-# RT route and it is checked that odl doesn't advertize l3vpn route to it.
-# Then second peer removes RT and it is checked that second peers group
-# withdrew RT route and that odl withdrew l3vpn route from it.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -126,6 +116,18 @@ class TestBgpfunctionalRtConstrainValidation:
                 BGP_RPC_CLIENT3, announce_hex, False, peer_id=i
             )
 
+    @allure.description(
+        "**Functional test for bgp - route-target-constrain safi**\n"
+        "\n"
+        "This suite tests advertising rt-constrain routes to odl. For advertising "
+        "from peer play.py is used, sending hex messages to odl. "
+        "There are 3 groups of peers: ebgp and two ibgps. First peers group sends "
+        "l3vpn route with specific RT to odl, second peers group sends RT route "
+        "and third peers group only establishes connection. Then it is checked that "
+        "odl advertizes l3vpn route to second peer. Third peers group sends wildcard "
+        "RT route and it is checked that odl doesn't advertize l3vpn route to it. "
+        "Then second peer removes RT and it is checked that second peers group "
+        "withdrew RT route and that odl withdrew l3vpn route from it.")
     def test_bgp_functional_rt_constrain_validation(
         self, allure_step_with_separate_logging
     ):

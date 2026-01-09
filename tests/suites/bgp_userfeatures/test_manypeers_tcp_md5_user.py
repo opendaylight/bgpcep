@@ -5,29 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# TCPMD5 user-facing feature system tests, using PCEP.
-#
-# Test suite performs basic pcep md5 password authorization test cases:
-# (Run entire basic PCEP suite without passwords.)
-# Start pcc-mock (reconnecting mode): 150 pccs, 1 lsp, password set,
-# check pcep-topology stays empty.
-# Use restconf to change PCEP configuration to use a wrong password,
-# check pcep-topology stays empty.
-# Change ODL PCEP configuration to use the correct password,
-# check pcep-topology shows the lsp.
-# Stop pcc-mock, check pcep-topology stays empty.
-# Start pcc-mock with new password, check pcep-topology stays empty.
-# Change ODL PCEP configuration to use the correct password,
-# check pcep-topology shows the lsp.
-# Update the lsp, check a change in pcep-topology.
-# Change ODL PCEP configuration to not use password, pcep-topology empties,
-# kill pcep-pcc-mock.
-#
-# Test cases no longer need netconf-connector-ssh, and they include comparison of
-# pcep-session-state.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import infra
@@ -101,6 +82,27 @@ class TestTcpMd5User:
         log.info(f"Killing pcc mock process with PID {pid}")
         infra.stop_process_by_pid(pid, gracefully=True)
 
+    @allure.description(
+        "**TCPMD5 user-facing feature system tests, using PCEP.**\n"
+        "\n"
+        "Test suite performs basic pcep md5 password authorization test cases:\n"
+        "(Run entire basic PCEP suite without passwords.)\n"
+        "Start pcc-mock (reconnecting mode): 150 pccs, 1 lsp, password set, "
+        "check pcep-topology stays empty."
+        "Use restconf to change PCEP configuration to use a wrong password, "
+        "check pcep-topology stays empty.\n"
+        "Change ODL PCEP configuration to use the correct password, "
+        "check pcep-topology shows the lsp.\n"
+        "Stop pcc-mock, check pcep-topology stays empty.\n"
+        "Start pcc-mock with new password, check pcep-topology stays empty.\n"
+        "Change ODL PCEP configuration to use the correct password, "
+        "check pcep-topology shows the lsp.\n"
+        "Update the lsp, check a change in pcep-topology.\n"
+        "Change ODL PCEP configuration to not use password, pcep-topology empties, "
+        "kill pcep-pcc-mock.\n"
+        "\n"
+        "Test cases no longer need netconf-connector-ssh, and they include comparison of "
+        "pcep-session-state.")
     def test_tcp_md5_user(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):
