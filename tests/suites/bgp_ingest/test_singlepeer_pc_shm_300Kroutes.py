@@ -5,14 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-#
-# BGP performance of ingesting from 1 iBGP peer, data change
-# counter is NOT used.This suite uses play.py as single iBGP peer
-# which talks to single controller.Test suite checks changes
-# of the the example-ipv4-topology on all nodes. RIB is not examined.
-# test_singlepeer_pc_300kroutes: pc - prefix counting
 
 import logging
+
+import allure
 import pytest
 
 from libraries import bgp
@@ -53,6 +49,15 @@ log = logging.getLogger(__name__)
 class TestSinglePeer300KRoutes:
     bgp_speaker_process = None
 
+
+    @allure.description(
+        "**BGP performance of ingesting from 1 iBGP peer**\n"
+        "\n"
+        "Data change counter is NOT used.This suite uses play.py "
+        "as single iBGP peer which talks to single controller. Test suite "
+        "checks changes of the the example-ipv4-topology on all nodes. "
+        "RIB is not examined.\n"
+        "test_singlepeer_pc_300kroutes: pc - prefix counting.")
     def test_single_peer_300K_routes(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(

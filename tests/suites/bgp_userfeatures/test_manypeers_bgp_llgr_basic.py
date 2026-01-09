@@ -5,12 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# This suite tests simple connection between twnety ibgp peers
-# (goabgp) and Odl.Peers are configured with ipv6, and gobgp connectes to odl
-# via ipv6.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -61,6 +59,12 @@ class TestBgpLlgrBasic:
         infra.download_file(GOBGP_BINARY_URL)
         infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
 
+    @allure.description(
+        "**This suite tests simple connection between twnety ibgp peers"
+        "(goabgp) and Odl.**\n"
+        "\n"
+        "Peers are configured with ipv6, and gobgp connectes to odl"
+        "via ipv6.")
     def test_bgp_llgr_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_setup_gobgp"):

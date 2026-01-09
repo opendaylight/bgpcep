@@ -5,17 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test for bgp - route refresh
-#
-# This suite tests sending and receiveing route refresh message.
-# It uses odl and exabgp as bgp peers. Sending route refresh message
-# from odl is initiated via restconf. If route refresh is received by odl,
-# correct advertising of routes is verified. Receiving of route refresh
-# by odl is verified by checking appropriate message counter via
-# odl-bgpcep-bgp-cli and restconf using BGP neighbor operational state.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -148,6 +141,15 @@ class TestBgpfunctionalRouteRef:
             f"{BGP_RR_VAR_FOLDER}/route", mapping
         )
 
+    @allure.description(
+        "**Functional test for bgp - route refresh**\n"
+        "\n"
+        "This suite tests sending and receiveing route refresh message. "
+        "It uses odl and exabgp as bgp peers. Sending route refresh message "
+        "from odl is initiated via restconf. If route refresh is received by odl, "
+        "correct advertising of routes is verified. Receiving of route refresh "
+        "by odl is verified by checking appropriate message counter via "
+        "odl-bgpcep-bgp-cli and restconf using BGP neighbor operational state.")
     def test_bgp_functional_route_ref(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):

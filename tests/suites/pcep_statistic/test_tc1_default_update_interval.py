@@ -1,16 +1,14 @@
 #
-# Copyright (c) 2025 PANTHEON.tech, s.r.o. and others.  All rights reserved.
+# Copyright (c) 2026 PANTHEON.tech, s.r.o. and others.  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Tests that PCEP statistics are updated strictly after the default timer
-# elapses. It verifies statistics are not updated before the timer expires,
-# but right after.
 
 import logging
 
+import allure
 import pytest
 import time
 
@@ -34,6 +32,10 @@ log = logging.getLogger(__name__)
 class TestPcepUser:
     pcc_mock_process = None
 
+    @allure.description(
+        """Tests that PCEP statistics are updated strictly after the default timer
+        elapses. It verifies statistics are not updated before the timer expires,
+        but right after.""")
     def test_default_update_interval(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(
