@@ -5,10 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test for bgp flowspec.
 
 import logging
 
+import allure
 from jinja2 import Environment, FileSystemLoader
 import pytest
 
@@ -70,6 +70,7 @@ class TestBgpFlowspec:
             f"{BGP_VARIABLES_FOLDER}/{exprspdir}", mapping=None, verify=True
         )
 
+    @allure.description("Functional test for bgp flowspec.")
     def test_bgp_flowspec(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_prepare_config_files"):
             self.prepare_config_files()

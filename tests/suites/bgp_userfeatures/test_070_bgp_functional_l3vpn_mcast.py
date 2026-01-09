@@ -5,14 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test suite for bgp - l3vpn-mutlicast
-#
-# This suite tests advertising l3vpn_mcast routes to odl. For advertising
-# play.py is used, and particular files are stored as *.hex files.There are
-# L3vpn-ipv4-multicast routes and L3vpn-ipv6-multicast routes tested.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -51,6 +47,12 @@ log = logging.getLogger(__name__)
 @pytest.mark.run(order=40)
 class TestBgpfunctionalL3vpnMcast:
 
+    @allure.description(
+        "**Functional test suite for bgp - l3vpn-mutlicast**\n"
+        "\n"
+        "This suite tests advertising l3vpn_mcast routes to odl. For advertising "
+        "play.py is used, and particular files are stored as \*.hex files.There are "
+        "L3vpn-ipv4-multicast routes and L3vpn-ipv6-multicast routes tested.")
     def test_bgp_functional_l3vpn_mcast(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             """Configures bgp application peer."""

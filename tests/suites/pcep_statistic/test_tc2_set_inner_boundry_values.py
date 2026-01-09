@@ -1,16 +1,14 @@
 #
-# Copyright (c) 2025 PANTHEON.tech, s.r.o. and others.  All rights reserved.
+# Copyright (c) 2026 PANTHEON.tech, s.r.o. and others.  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Tests that PCEP statistics timer can be updated to valid boundary values.
-# It tries to set the minimal and maximal allowed values and expects a success
-# response from ODL.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import pcep
@@ -33,6 +31,13 @@ log = logging.getLogger(__name__)
 class TestPcepUser:
     pcc_mock_process = None
 
+    @allure.description(
+        "**Ensure system allows to set inner boundary values for delay "
+        "interval**\n"
+        "\n"
+        "Tests that PCEP statistics timer can be updated to valid boundary "
+        "values. It tries to set the minimal and maximal allowed values "
+        "and expects a success response from ODL.")
     def test_set_inner_boundry_values(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_set_timer_value_to_lowest_possible"):
