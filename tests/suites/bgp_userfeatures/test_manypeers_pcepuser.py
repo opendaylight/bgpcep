@@ -9,6 +9,7 @@ import base64
 import logging
 import time
 
+import allure
 import ipaddr
 from jinja2 import Environment, FileSystemLoader
 import pytest
@@ -88,6 +89,10 @@ class TestPcepUser:
 
         return config
 
+    @allure.description(
+        "This test, first connect PCC mock devices to ODL "
+        "and then tries to perform various operations on "
+        "reported LSPs (add, update, remove)")
     def test_pcep_user(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):

@@ -8,6 +8,7 @@
 import logging
 import time
 
+import allure
 import pytest
 
 from libraries import infra
@@ -50,6 +51,10 @@ class TestPcepUser:
         resp = templated_requests.get_from_uri(topology_uri, expected_code=200)
         utils.verify_jsons_match(resp.text, exp)
 
+    @allure.description(
+        "This test, first connect PCC mock device to ODL "
+        "and then tries to perform various operations on "
+        "reported LSPs (add, update, remove)")
     def test_pcep_user(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):

@@ -5,14 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test suite for bgp - route-target-constrain safi
-#
-# This suite tests advertising rt-constrain routes to odl. For advertising
-# from peer, play.py is used, sending hex messages to odl. For advertising
-# to app-peer, we are sending post requests with routes in xml.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -50,6 +46,12 @@ log = logging.getLogger(__name__)
 @pytest.mark.run(order=41)
 class TestBgpfunctionalRtConstrain:
 
+    @allure.description(
+        "**Functional test suite for bgp - route-target-constrain safi**\n"
+        "\n"
+        "This suite tests advertising rt-constrain routes to odl. For advertising "
+        "from peer, play.py is used, sending hex messages to odl. For advertising "
+        "to app-peer, we are sending post requests with routes in xml.")
     def test_bgp_functional_rt_constrain(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             """Configures bgp application peer."""

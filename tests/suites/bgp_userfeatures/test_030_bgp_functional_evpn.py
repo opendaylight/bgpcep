@@ -5,16 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test suite for bgp - evpn
-#
-# This suite tests advertising and receiveing routes with evpn content.
-# It uses play.py and odl as bgp peers. Routes advertized from odl are
-# configured via application peer. Routes advertised from play.py are stored
-# in *.hex files. These files are used also as expected data which is
-# recevied from odl.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -191,6 +185,14 @@ class TestBgpfunctionalEvpn:
             retry_count, interval, self.verify_reported_data, template_path
         )
 
+    @allure.description(
+        "**Functional test suite for bgp - evpn**\n"
+        "\n"
+        "This suite tests advertising and receiveing routes with evpn content. "
+        "It uses play.py and odl as bgp peers. Routes advertized from odl are "
+        "configured via application peer. Routes advertised from play.py are stored "
+        "in \*.hex files. These files are used also as expected data which is "
+        "recevied from odl.")
     def test_bgp_functional_evpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             """Configures bgp application peer. Openconfig is used for carbon and above."""
