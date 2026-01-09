@@ -138,29 +138,6 @@ def get_stats(pcc_ip: str, verify_response: bool = False) -> requests.Response:
     return response
 
 
-def wait_for_the_next_stat_update(timeout: int = 60, interval: float = 0.1):
-    """Returns nodes PCEP statistics.
-
-    Args:
-        timeout (int): Timeout in seconds.
-
-    Returns:
-        None
-    """
-    karaf_log_file_path = "data/log/karaf.log"
-    updated_stats_log_pattern = "Successfully committed BGP stats update"
-
-    rc, stdout = infra.shell(f"wc -l < {karaf_log_file_path}", cwd="opendaylight")
-    current_lines_num = int(stdout)
-    infra.retry_shell_command(
-        int(timeout // interval),
-        interval,
-        f"sed -n '{current_lines_num},$p' {karaf_log_file_path} | "
-        f"grep '{updated_stats_log_pattern}'",
-        cwd="opendaylight",
-    )
-
-
 def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
     """Verify ODL does not return statistics using get-stats RPC.
 

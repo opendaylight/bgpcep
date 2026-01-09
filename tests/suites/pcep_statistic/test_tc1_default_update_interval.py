@@ -46,11 +46,6 @@ class TestPcepUser:
             infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
             infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
 
-        with allure_step_with_separate_logging("step_wait_for_next_stat_update"):
-            """Wait until next stat update is executed to synchronize test
-            with stat update inteval."""
-            pcep.wait_for_the_next_stat_update()
-
         with allure_step_with_separate_logging("step_start_pcc_mock"):
             """Starts PCC mocks simulator."""
             self.pcc_mock_process = pcep.start_pcc_mock(
