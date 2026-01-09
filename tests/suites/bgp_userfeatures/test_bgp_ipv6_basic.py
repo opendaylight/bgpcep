@@ -5,20 +5,11 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test for ipv6 connection with bgp.
-#
-# This suite tests simple connection between one ibgp peer (exabgp) and Odl.
-# Peer is configured with ipv6, and exabgp connectes to odl via ipv6.
-# Exabgp sends one ipv6 unicast route, which presence is verified in
-# example-ipv6-topology. Tests this connection multiple times, with different
-# ipv6 accepted formats, e.g. (::1, 0:0:0:0:0:0:0:1, full text)
-# This suite also tests a combination of afi-safis on odl and exabgp.
-# ipv6 route injection is carried out from odl to the ibgp peer without ipv6
-# family enabled on the peer device and checked for exceptions.
 
 import logging
 import time
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -127,6 +118,17 @@ class TestBgpIpv6Basic:
             verify=True,
         )
 
+    @allure.description(
+        "**Functional test for ipv6 connection with bgp.**\n"
+        "\n"
+        "This suite tests simple connection between one ibgp peer (exabgp) and Odl. "
+        "Peer is configured with ipv6, and exabgp connectes to odl via ipv6. "
+        "Exabgp sends one ipv6 unicast route, which presence is verified in "
+        "example-ipv6-topology. Tests this connection multiple times, with different "
+        "ipv6 accepted formats, e.g. (::1, 0:0:0:0:0:0:0:1, full text) "
+        "This suite also tests a combination of afi-safis on odl and exabgp. "
+        "ipv6 route injection is carried out from odl to the ibgp peer without ipv6 "
+        "family enabled on the peer device and checked for exceptions.")
     def test_bgp_ipv6_basic(self, allure_step_with_separate_logging, step_tag_checker):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
