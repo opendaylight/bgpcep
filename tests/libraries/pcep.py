@@ -269,6 +269,7 @@ def start_pcc_mock(
     log_file_name: str = "pcep-pcc-mock_output.txt",
     verify_introduced_lsps=True,
     verify_timeout: int = 900,
+    verify_interval: int = 1,
 ) -> subprocess.Popen:
     """Starts pcep-pcc-mock.jar tool for simulating PCC device.
 
@@ -284,6 +285,8 @@ def start_pcc_mock(
         verify_introduced_lsps (bool): Flag to indicate if presence of LSPs
             automatiically reported by pcep pcc mock devices should be verified in ODL.
         verify_timeout (int): Number of seconds to time out verification
+        verify_interval (int): Number of seconds to elapse between each verification
+            retry
 
     Returns:
         subprocess.Popen: PCEP device simulator process handler.
@@ -307,8 +310,8 @@ def start_pcc_mock(
 
     if verify_introduced_lsps:
         utils.wait_until_function_returns_value(
-            verify_timeout,
-            1,
+            int(verify_timeout/verify_interval),
+            verify_interval,
             pcc * lsp,
             get_pcep_topology_hop_count,
             "1.1.1.1/32",

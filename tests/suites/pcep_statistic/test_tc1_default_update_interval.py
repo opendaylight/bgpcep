@@ -58,6 +58,7 @@ class TestPcepUser:
                 local_address=TOOLS_IP,
                 remote_address=ODL_IP,
                 verify_introduced_lsps=True,
+                verify_interval=0.1,
             )
 
         with allure_step_with_separate_logging(
