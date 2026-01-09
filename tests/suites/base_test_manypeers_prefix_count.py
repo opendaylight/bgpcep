@@ -40,8 +40,9 @@
 # Note that configuring ODL is slow, which may affect measured performance singificantly.
 # Advanced TODO: Give manager ability to start pushing on trigger long after connections are established.
 
-import pytest
 import logging
+
+import allure
 
 from libraries import bgp
 from libraries import infra
@@ -85,6 +86,10 @@ class BaseTestManyPeerPrefixCount:
         withdraw,
         prefill,
     ):
+        test_description = getattr(self, "test_description", None)
+        if test_description:
+            allure.dynamic.description(test_description)
+
         bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
             count_prefix_count_many * 4.0 / 10000 + 80
         )

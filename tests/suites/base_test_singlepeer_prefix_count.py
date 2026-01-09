@@ -27,6 +27,8 @@
 
 import logging
 
+import allure
+
 from libraries import bgp
 from libraries import infra
 from libraries import prefix_counting
@@ -60,6 +62,10 @@ class BaseTestSinglePeerPrefixCount:
         withdraw,
         prefill,
     ):
+        test_description = getattr(self, "test_description", None)
+        if test_description:
+            allure.dynamic.description(test_description)
+
         bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
             count_prefix_count_single * 9.0 / 10000 + 20
         )

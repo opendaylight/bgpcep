@@ -5,15 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Functional test suite for bgp - mvpn
-#
-# This suite tests advertising mvpn routes to odl. For advertising play.py
-# is used, and particular files are stored as *.hex files. There are
-# 7 different types of routes used for auto-discovery of multicast network.
-# Also 4 more routes with new attributes specific for mvpn.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -50,6 +45,12 @@ log = logging.getLogger(__name__)
 @pytest.mark.run(order=39)
 class TestBgpfunctionalMvpn:
 
+    @allure.description("""Functional test suite for bgp - mvpn
+
+        This suite tests advertising mvpn routes to odl. For advertising play.py
+        is used, and particular files are stored as *.hex files. There are
+        7 different types of routes used for auto-discovery of multicast network.
+        Also 4 more routes with new attributes specific for mvpn.""")
     def test_bgp_functional_Mvpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             """Configures bgp application peer."""

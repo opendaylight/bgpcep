@@ -33,6 +33,8 @@
 
 import logging
 
+import allure
+
 from libraries import bgp
 from libraries import change_counter
 from libraries import infra
@@ -73,6 +75,9 @@ class BaseTestSinglePeerChangeCount:
         withdraw,
         prefill,
     ):
+        test_description = getattr(self, "test_description", None)
+        if test_description:
+            allure.dynamic.description(test_description)
 
         bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
             count_change_count_single * 9.0 / 10000 + 20

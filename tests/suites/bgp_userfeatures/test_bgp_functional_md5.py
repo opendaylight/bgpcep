@@ -5,12 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# This suite tests tcpmd5 connection of bgp peer. It uses odl and exabgp as
-# bgp peer. No routes are advertized, simple peer presence in the datastore
-# is tested.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -65,6 +63,9 @@ class TestBgpFunctionalMd5:
         rc, stdout = infra.shell("cat tmp/exa-md5.cfg")
         log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
 
+    @allure.description("""This suite tests tcpmd5 connection of bgp peer. It uses odl and exabgp as
+        bgp peer. No routes are advertized, simple peer presence in the datastore
+        is tested.""")
     def test_bgp_functional_md5(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_prepare_exabgp_config_file"):

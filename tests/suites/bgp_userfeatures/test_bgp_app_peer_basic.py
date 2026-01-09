@@ -5,37 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
-# Test case 1: Initial BGP peer connection with pre-filled topology,
-# POST and simple DELETE requests used.
-# BGP_Application_Peer_Post_3_Initial_Routes,
-# Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,Connect_BGP_Peer,
-# BGP_Peer_Check_Incomming_Updates_For_3_Introduced_Prefixes
-# BGP_Application_Peer_Delete_3_Initial_Routes,
-# Check_Example-IPv4-Topology_Is_Empty,
-# Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
-#
-# Test case 2: PUT and DELETE all routes requests while BGP peer
-# is connected. Reconnect_BGP_Peer, BGP_Application_Peer_Put_3_Routes,
-# Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,
-# BGP_Peer_Check_Incomming_Updates_For_3_Introduced_Prefixes,
-# BGP_Application_Peer_Delete_All_Routes,
-# Check_Example-IPv4-Topology_Is_Empty,
-# BGP_Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
-#
-# Test case 3: Repeated BGP peer re-connection with pre-filled topology.
-# BGP_Application_Peer_Put_3_Routes,
-# Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,
-# Reconnect_BGP_Peer_And_Check_Incomming_Updates_For_3_Introduced_Prefixes,
-# BGP_Application_Peer_Delete_All_Routes,
-# Check_Example-IPv4-Topology_Is_Empty,
-# BGP_Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -98,6 +71,34 @@ class TestBgpAppPeerBasic:
         infra.search_and_kill_process("play\.py")
         infra.search_and_kill_process("bgp_app_peer\.py")
 
+    @allure.description("""Test suite performs basic BGP functional test cases for BGP application
+        peer operations and checks for IP4 topology updates and updates towards
+        BGP peer as follows:
+
+        Test case 1: Initial BGP peer connection with pre-filled topology,
+        POST and simple DELETE requests used.
+        BGP_Application_Peer_Post_3_Initial_Routes,
+        Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,Connect_BGP_Peer,
+        BGP_Peer_Check_Incomming_Updates_For_3_Introduced_Prefixes
+        BGP_Application_Peer_Delete_3_Initial_Routes,
+        Check_Example-IPv4-Topology_Is_Empty,
+        Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
+
+        Test case 2: PUT and DELETE all routes requests while BGP peer
+        is connected. Reconnect_BGP_Peer, BGP_Application_Peer_Put_3_Routes,
+        Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,
+        BGP_Peer_Check_Incomming_Updates_For_3_Introduced_Prefixes,
+        BGP_Application_Peer_Delete_All_Routes,
+        Check_Example-IPv4-Topology_Is_Empty,
+        BGP_Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.
+
+        Test case 3: Repeated BGP peer re-connection with pre-filled topology.
+        BGP_Application_Peer_Put_3_Routes,
+        Check_Example-IPv4-Topology_Is_Filled_With_3_Routes,
+        Reconnect_BGP_Peer_And_Check_Incomming_Updates_For_3_Introduced_Prefixes,
+        BGP_Application_Peer_Delete_All_Routes,
+        Check_Example-IPv4-Topology_Is_Empty,
+        BGP_Peer_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peer.""")
     def test_bgp_app_peer_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(

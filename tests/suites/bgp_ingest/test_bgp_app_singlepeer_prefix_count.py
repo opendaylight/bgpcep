@@ -5,29 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# BGP performance of ingesting from 1 BGP application peer
-# Test suite performs basic BGP performance test cases for
-# BGP application peer. BGP application peer introduces routes
-# using restconf - in two steps:
-# 1. introduces the 100000 number of routes in one POST request
-# 2. POSTs the rest of routes (up to the 180000 number) one by one
-# Test suite checks that the prefixes are propagated to IPv4 topology
-# and announced to BGP peer via updates. Test case where the BGP peer
-# is disconnected and reconnected and all routes are deleted by
-# BGP application peer are performed as well. Brief description
-# how to configure BGP application peer and how to use
-# restconf application peer interface:
-# https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Application_Peer
-# https://wiki.opendaylight.org/view/BGP_LS_PCEP:Programmer_Guide#BGP
-# http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering
-# http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#application-peer-configuration
-# Reported bugs:
-# Bug 4689 - Not a reasonable duration of 1M prefix introduction
-# from BGP application peer via restconf
-# Bug 4791 - BGPSessionImpl: Failed to send message Update logged
-# even all UPDATE mesages received by iBGP peer
 
 import logging
+
+import allure
 import pytest
 
 from libraries import bgp
@@ -70,6 +51,28 @@ class TestBgpAppPeerPrefixCount:
     bgp_speaker_process = None
     last_change_count_single = 1
 
+    @allure.description(
+        """BGP performance of ingesting from 1 BGP application peer
+        Test suite performs basic BGP performance test cases for
+        BGP application peer. BGP application peer introduces routes
+        using restconf - in two steps:
+        1. introduces the 100000 number of routes in one POST request
+        2. POSTs the rest of routes (up to the 180000 number) one by one
+        Test suite checks that the prefixes are propagated to IPv4 topology
+        and announced to BGP peer via updates. Test case where the BGP peer
+        is disconnected and reconnected and all routes are deleted by
+        BGP application peer are performed as well. Brief description
+        how to configure BGP application peer and how to use
+        restconf application peer interface:
+        https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Application_Peer
+        https://wiki.opendaylight.org/view/BGP_LS_PCEP:Programmer_Guide#BGP
+        http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering
+        http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#application-peer-configuration
+        Reported bugs:
+        Bug 4689 - Not a reasonable duration of 1M prefix introduction
+        from BGP application peer via restconf
+        Bug 4791 - BGPSessionImpl: Failed to send message Update logged
+        even all UPDATE mesages received by iBGP peer.""")
     def test_bgp_app_single_peer_prfix_count(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(

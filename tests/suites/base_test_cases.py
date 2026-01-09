@@ -65,7 +65,8 @@
 
 
 import logging
-import pytest
+
+import allure
 
 from libraries import infra
 from libraries import pcep
@@ -135,6 +136,9 @@ class BaseTestCases:
         updater_timeout,
         restconf_reuse,
     ):
+        test_description = getattr(self, "test_description", None)
+        if test_description:
+            allure.dynamic.description(test_description)
 
         self.total_lsps = lsps * pccs
         self.pccs = pccs

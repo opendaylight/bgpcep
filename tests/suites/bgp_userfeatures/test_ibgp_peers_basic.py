@@ -5,33 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Test suite performs basic BGP functional test cases for BGP application
-# peer operations and checks for IP4 topology updates and updates towards
-# BGP peer as follows:
-#
-# Test suite performs basic iBGP functional test cases for BGP peers in
-# different roles (iBGP, iBGP RR-client):
-#
-# Test Case 1: Two iBGP RR-client peers introduce prefixes Expected result:
-# controller forwards updates towards both peers
-#
-# Test Case 2: Two iBGP peers: one RR client and one non-client introduces
-# prefixes Expected result: controller forwards updates towards both peers
-#
-# Test Case 3: Two iBGP RR non-client peers introduce prefixes
-# Expected result: controller does not forward any update towards peers
-#
-# Test Case 4: Two iBGP(play.py) RR-client peers configured, first of them
-# configured with route-reflector-cluster-id, second inherits it's
-# cluster-id from global config. Each of them introduces 3 prefixes.
-# Expected result: controller forwards updates towards both peers and
-# each of their adj-rib-in contains routes. First peer should contain
-# default cluster-id and second cluster-id from first peers configuration.
-#
-# For polices see: https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -138,6 +115,30 @@ class TestIbgpPeersBasic:
             f"'prefix': '{BGP_PEER2_FIRST_PREFIX_IP}/{PREFIX_LEN}'",
         )
 
+    @allure.description("""Test suite performs basic BGP functional test cases for BGP application
+        peer operations and checks for IP4 topology updates and updates towards
+        BGP peer as follows:
+
+        Test suite performs basic iBGP functional test cases for BGP peers in
+        different roles (iBGP, iBGP RR-client):
+
+        Test Case 1: Two iBGP RR-client peers introduce prefixes Expected result:
+        controller forwards updates towards both peers
+
+        Test Case 2: Two iBGP peers: one RR client and one non-client introduces
+        prefixes Expected result: controller forwards updates towards both peers
+
+        Test Case 3: Two iBGP RR non-client peers introduce prefixes
+        Expected result: controller does not forward any update towards peers
+
+        Test Case 4: Two iBGP(play.py) RR-client peers configured, first of them
+        configured with route-reflector-cluster-id, second inherits it's
+        cluster-id from global config. Each of them introduces 3 prefixes.
+        Expected result: controller forwards updates towards both peers and
+        each of their adj-rib-in contains routes. First peer should contain
+        default cluster-id and second cluster-id from first peers configuration.
+
+        For polices see: https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP""")
     def test_ibgp_peers_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):

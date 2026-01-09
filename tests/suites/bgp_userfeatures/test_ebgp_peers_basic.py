@@ -5,29 +5,10 @@
 # terms of the Eclipse Public License v1.0 which accompanies this distribution,
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
-# Basic tests for eBGP application peers.
-#
-# Test suite performs basic eBGP functional tests: Two eBGP peers advertise
-# the same group of prefixes (aka BGP HA)
-# https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP
-# Reported bugs: Bug 4834 - ODL controller announces the same route twice
-# (two eBGP scenario aka HA)
-# Bug 4835 - Routes not withdrawn when eBGP peers are disconnected
-# (the same prefixes announced)
-#
-# For versions Fluorine and above, there are test cases: TC_LAS
-# (test case local AS):
-# - configuration of ebgp with local-as and ibgp without local-as
-# - connect bgp speakers (play.py) to both peers and check their connection
-# - check adj-rib-out on both peers, expecting local-as in as-sequence on
-#   both peers.
-#
-# TODO: Extend testsuite by tests dedicated to path selection algorithm
-# TODO: Choose functions used by more than one test suite to be placed
-# in a common place.
 
 import logging
 
+import allure
 import pytest
 
 from libraries import bgp
@@ -109,6 +90,26 @@ class TestEbgpPeersBasic:
             f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
         )
 
+    @allure.description("""Basic tests for eBGP application peers.
+
+        Test suite performs basic eBGP functional tests: Two eBGP peers advertise
+        the same group of prefixes (aka BGP HA)
+        https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP
+        Reported bugs: Bug 4834 - ODL controller announces the same route twice
+        (two eBGP scenario aka HA)
+        Bug 4835 - Routes not withdrawn when eBGP peers are disconnected
+        (the same prefixes announced)
+
+        For versions Fluorine and above, there are test cases: TC_LAS
+        (test case local AS):
+        - configuration of ebgp with local-as and ibgp without local-as
+        - connect bgp speakers (play.py) to both peers and check their connection
+        - check adj-rib-out on both peers, expecting local-as in as-sequence on
+          both peers.
+
+        TODO: Extend testsuite by tests dedicated to path selection algorithm
+        TODO: Choose functions used by more than one test suite to be placed
+        in a common place.""")
     def test_ebgp_peers_basic(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_bgp_peers"):
             """Configure an iBGP and two eBGP peers."""
