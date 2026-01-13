@@ -126,23 +126,32 @@ def configure_speaker_entitiy_identifier() -> requests.Response:
     return resposne
 
 
-def get_stats(pcc_ip: str, verify_response: bool = False) -> requests.Response:
+def get_stats(pcc_ip: str | None = None, verify_response: bool = False) -> requests.Response:
     """Returns nodes PCEP statistics.
 
     Args:
-        pcc_ip (str): PCC node IP address.
+        pcc_ip (str | None): PCC node IP address. If not specified,
+            gets PCEP statistics for all pcc nodes.
         verify_response (bool): Verify response data using template.
 
     Returns:
         requests.Response: PCEP node statistics.
     """
-    mapping = {"PCC_IP": pcc_ip}
-    response = templated_requests.post_templated_request(
-        "variables/pcepuser/titanium/get_stats",
-        mapping,
-        json=True,
-        verify=verify_response,
-    )
+    if pcc_ip is None:
+        response = templated_requests.post_templated_request(
+            "variables/pcepuser/titanium/get_stats_all",
+            None,
+            json=True,
+            verify=False,
+        )
+    else:
+        mapping = {"PCC_IP": pcc_ip}
+        response = templated_requests.post_templated_request(
+            "variables/pcepuser/titanium/get_pcc_stats",
+            mapping,
+            json=True,
+            verify=verify_response,
+        )
 
     return response
 
@@ -160,6 +169,39 @@ def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
     assert "pcep-session-state" not in response.text, (
         f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n '
         f"Response:{response.text}"
+    )
+
+
+def verify_stats_pcc_count(expected_pcc_count: int, expected_lsps_per_pcc_count: int = 1):
+    """Verify number of reported PCC nodes and their LSPs in statistics.
+
+    To read the statistics status it is using the get-stats RPC.
+
+    Args:
+        expected_pcc_count (int): Expected number of reported PCC nodes.
+        expected_lsps_per_pcc_count (int): Expected number of reported LSPs
+            for each PCC node.
+
+    Returns:
+        None
+    """
+    response = get_stats()
+    response_json = response.json()
+    topology = response_json["pcep-topology-stats-rpc:output"]["topology"][0]
+    nodes = topology.get("node", ())
+    for node in nodes:
+        assert "pcep-session-state" in node, (
+            f"Found PCC node without PCEP statistics: {node}."
+        )
+        reported_lsps_count = node["pcep-session-state"]["delegated-lsps-count"]
+        assert reported_lsps_count == expected_lsps_per_pcc_count, (
+            f"Number of expected LSP/s count {expected_lsps_per_pcc_count} "
+            f"does not match number of reported LSP/s {reported_lsps_count}."
+        )
+    nodes_count = len(nodes)
+    assert expected_pcc_count == nodes_count, (
+        f"Number of returned {nodes_count} node/s in \"get-stats\" RPC "
+        f"does not match expected {expected_pcc_count} node/s."
     )
 
 
