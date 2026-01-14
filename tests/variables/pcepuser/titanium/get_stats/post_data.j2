@@ -1,0 +1,18 @@
+{
+    "input": {
+        "topology": [
+            {
+                "topology-id": "pcep-topology"
+                {%- if PCC_IPS %},
+                "node": [
+                    {%- for PCC_IP in PCC_IPS %}
+                    {
+                        "node-id": "pcc://{{ PCC_IP }}"
+                    }{{ "," if not loop.last }}
+                    {%- endfor %}
+                ]
+                {%- endif %}
+            }
+        ]
+    }
+}
