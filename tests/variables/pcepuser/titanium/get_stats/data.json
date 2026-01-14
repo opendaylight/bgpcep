@@ -1,0 +1,63 @@
+{
+  "pcep-topology-stats-rpc:output": {
+    "topology": [
+      {
+      "topology-id": "pcep-topology",
+      "node": [
+        {
+        "node-id": "pcc://$PCC_IP",
+        "pcep-session-state": {
+          "synchronized": "*",
+          "peer-capabilities": {
+            "stateful": "*",
+            "instantiation": "*",
+            "active": "*"
+          },
+          "local-pref": {
+            "keepalive": "*",
+            "deadtimer": "*",
+            "session-id": "*",
+            "ip-address": "*"
+          },
+          "session-duration": "*",
+          "messages": {
+            "unknown-msg-received": "*",
+            "received-msg-count": "*",
+            "error-messages": {
+              "last-sent-error": {
+                "error-type": "*",
+                "error-value": "*"
+              },
+              "received-error-msg-count": "*",
+              "last-received-error": {
+                "error-type": "*",
+                "error-value": "*"
+              },
+              "sent-error-msg-count": "*"
+            },
+            "sent-msg-count": "*",
+            "last-sent-msg-timestamp": "*",
+            "reply-time": {
+              "average-time": "*",
+              "min-time": "*",
+              "max-time": "*"
+            },
+            "received-rpt-msg-count": "*",
+            "sent-init-msg-count": "*",
+            "last-received-rpt-msg-timestamp": "*",
+            "sent-upd-msg-count": "*"
+          },
+          "peer-pref": {
+            "keepalive": "*",
+            "deadtimer": "*",
+            "session-id": "*",
+            "ip-address": "*"
+          },
+          "delegated-lsps-count": "*"
+        }
+      }
+    ]
+    }
+    ]
+  }
+}
