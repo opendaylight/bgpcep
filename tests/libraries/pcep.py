@@ -138,19 +138,17 @@ def get_stats(pcc_ip: str | None = None, verify_response: bool = False) -> reque
         requests.Response: PCEP node statistics.
     """
     if pcc_ip is None:
-        response = templated_requests.post_templated_request(
-            "variables/pcepuser/titanium/get_stats_all",
-            None,
-            json=True,
-            verify=False,
-        )
+        pcc_ips = ()
     else:
-        mapping = {"PCC_IP": pcc_ip}
-        response = templated_requests.post_templated_request(
-            "variables/pcepuser/titanium/get_pcc_stats",
-            mapping,
-            json=True,
-            verify=verify_response,
+        pcc_ips = (pcc_ip,)
+    mapping = {"PCC_IPS": pcc_ips}
+
+    response = templated_requests.post_templated_request(
+        "variables/pcepuser/titanium/get_stats",
+        mapping,
+        json=True,
+        jinja_template=True,
+        verify=False,
         )
 
     return response
@@ -249,6 +247,7 @@ def set_stat_timer_value(
         "variables/pcepuser/titanium/set_timer_value",
         mapping,
         json=True,
+        jinja_template=True,
         expected_code=expected_response_code,
     )
 

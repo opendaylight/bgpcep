@@ -11,6 +11,7 @@ import os
 import string
 from typing import List
 
+from jinja2 import Environment, FileSystemLoader
 import requests
 
 from libraries import utils
@@ -244,6 +245,24 @@ def resolve_templated_text(template_location: str, mapping: dict) -> str:
 
     return resolved_tempate
 
+def resolve_jinja_template(template_location: str, file_name: str, mapping: dict) -> str:
+    """Evaluates templated text using provided value mapping.
+
+    Args:
+        template_location (str): Path to template text file.
+        mapping (dict): Dictionary with all value mapping between
+            placeholder values specified in template and expected value.
+
+    Returns:
+        str: Evaluated template file.
+    """
+
+    env = Environment(loader=FileSystemLoader(template_location))
+    template = env.get_template(file_name)
+    resolved_tempate = template.render(mapping)
+
+    return resolved_tempate
+
 
 def get_templated_request(
     temlate_dir: str,
@@ -302,6 +321,7 @@ def put_templated_request(
     temlate_dir: str,
     mapping: dict,
     json: bool = True,
+    jinja_template: bool = False,
     verify: bool = False,
     expected_code: int | List[int] | None = None,
 ) -> requests.Response:
@@ -316,6 +336,8 @@ def put_templated_request(
             values specified in template and expected value.
         json (bool): If true, use json template (file name with .json suffix),
             otherwise use xml tempale (file anem with .xml suffix).
+        jinja_template (bool): If true, use jinja template (file name with .j2 suffix),
+            otherwise use regular json or xml template.
         verify (bool): If true, verify returned response with stored
             template file.
         expected_code (int | List[int] | None): Expected resposne code(s)
@@ -333,7 +355,10 @@ def put_templated_request(
         data_file_name = "data.xml"
         headers = {"Accept": "application/xml", "Content-Type": "application/xml"}
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    data = resolve_templated_text(temlate_dir + "/" + data_file_name, mapping)
+    if jinja_template:
+        data = resolve_jinja_template(temlate_dir, "data.j2", mapping)
+    else:
+        data = resolve_templated_text(temlate_dir + "/" + data_file_name, mapping)
     response = put_to_uri_request(
         uri,
         headers,
@@ -367,6 +392,7 @@ def post_templated_request(
     temlate_dir: str,
     mapping: dict,
     json=True,
+    jinja_template: bool = False,
     verify: bool = False,
     expected_code: int | List[int] | None = None,
     accept=None,
@@ -382,6 +408,8 @@ def post_templated_request(
             values specified in template and expected value.
         json (bool): If true, use json template (file name with .json suffix),
             otherwise use xml tempale (file anem with .xml suffix).
+        jinja_template (bool): If true, use jinja template (file name with .j2 suffix),
+            otherwise use regular json or xml template.
         verify (bool): If true, verify returned response with stored
             template file.
         expected_code (int | List[int] | None): Expected resposne code(s)
@@ -402,7 +430,10 @@ def post_templated_request(
     if accept:
         headers["Accept"] = accept
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    data = resolve_templated_text(temlate_dir + "/" + data_file_name, mapping)
+    if jinja_template:
+        data = resolve_jinja_template(temlate_dir, "post_data.j2", mapping)
+    else:
+        data = resolve_templated_text(temlate_dir + "/" + data_file_name, mapping)
     response = post_to_uri(
         uri,
         headers,

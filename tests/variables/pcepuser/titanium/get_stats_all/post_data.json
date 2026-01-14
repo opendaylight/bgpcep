@@ -1,9 +1,0 @@
-{
-  "input": {
-      "topology": [
-          {
-            "topology-id": "pcep-topology"
-          }
-      ]
-  }
-}
