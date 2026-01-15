@@ -118,13 +118,15 @@ class TestBgpfunctionalRtConstrain:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without
+            any configured peers."""
             templated_requests.delete_templated_request(
                 f"{RT_CONSTRAIN_DIR}/bgp_peer", RT_CONSTRAIN_ODL_CONFIG_MAPPING
             )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer"""
+            """Revert the BGP configuration to the original state: without
+            application peer"""
             templated_requests.delete_templated_request(
                 f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING
             )

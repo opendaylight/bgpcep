@@ -102,10 +102,14 @@ class TestPcepUser:
             utils.wait_until_function_pass(300, 1, pcep.check_empty_pcep_topology)
 
         with allure_step_with_separate_logging("strep_start_pcc_mock"):
-            """Execute pcc-mock, fail is Open is not sent, keep it running for next tests."""
+            """Execute pcc-mock, fail is Open is not sent, keep it running for next
+            tests."""
             self.pcep_mock_process = infra.shell(
-                f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 " \
-                f"--reconnect 1 --local-address {TOOLS_IP} --remote-address {ODL_IP} 2>&1 | tee tmp/{LOG_NAME}",
+                (
+                    f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 "
+                    f"--reconnect 1 --local-address {TOOLS_IP} "
+                    f"--remote-address {ODL_IP} 2>&1 | tee tmp/{LOG_NAME}"
+                ),
                 run_in_background=True,
             )
             infra.read_until(self.pcep_mock_process, "started, sent proposal Open")
@@ -165,7 +169,11 @@ class TestPcepUser:
                     json=False,
                     accept="application/json",
                 )
-                expected_response_raw = '{"network-topology-pcep:output":{"error":[{"error-object":{"ignore":false,"processing-rule":false,"type":19,"value":9}}],"failure":"failed"}}'
+                expected_response_raw = (
+                    '{"network-topology-pcep:output":{"error":[{"error-object":'
+                    '{"ignore":false,"processing-rule":false,"type":19,"value":9}}],'
+                    '"failure":"failed"}}'
+                )
                 utils.verify_jsons_match(resp.text, expected_response_raw)
                 pcc_ip += 1
 

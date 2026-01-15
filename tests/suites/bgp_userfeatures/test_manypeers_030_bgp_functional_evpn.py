@@ -26,9 +26,22 @@ BGP_RPC_CLIENT = bgp.BgpRpcClient(TOOLS_IP)
 BGP_DIR = "variables/bgpfunctional"
 EVPN_DIR = "variables/bgpfunctional/l2vpn_evpn"
 RIB_NAME = "example-bgp-rib"
-EVPN_CONF_URL = f"rests/data/bgp-rib:application-rib={ODL_IP}/tables=odl-bgp-evpn%3Al2vpn-address-family,odl-bgp-evpn%3Aevpn-subsequent-address-family/odl-bgp-evpn:evpn-routes"
-EVPN_LOC_RIB = f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/tables=odl-bgp-evpn%3Al2vpn-address-family,odl-bgp-evpn%3Aevpn-subsequent-address-family/odl-bgp-evpn:evpn-routes?content=nonconfig"
-EVPN_FAMILY_LOC_RIB = f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/tables=odl-bgp-evpn%3Al2vpn-address-family,odl-bgp-evpn%3Aevpn-subsequent-address-family?content=nonconfig"
+EVPN_CONF_URL = (
+    f"rests/data/bgp-rib:application-rib={ODL_IP}"
+    f"/tables=odl-bgp-evpn%3Al2vpn-address-family,"
+    f"odl-bgp-evpn%3Aevpn-subsequent-address-family/odl-bgp-evpn:evpn-routes"
+)
+EVPN_LOC_RIB = (
+    f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
+    f"tables=odl-bgp-evpn%3Al2vpn-address-family,"
+    f"odl-bgp-evpn%3Aevpn-subsequent-address-family/"
+    f"odl-bgp-evpn:evpn-routes?content=nonconfig"
+)
+EVPN_FAMILY_LOC_RIB = (
+    f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
+    f"tables=odl-bgp-evpn%3Al2vpn-address-family,"
+    f"odl-bgp-evpn%3Aevpn-subsequent-address-family?content=nonconfig"
+)
 XML_HEADERS = {"Content-Type": "application/xml"}
 JSON_HEADERS = {"Content-Type": "application/json"}
 
@@ -176,7 +189,8 @@ class TestBgpfunctionalEvpn:
         )
 
     def withdraw_route_and_verify(self, withdraw_hex, peer_id=0):
-        """Sends withdraw update message from play.py and verifies route removal from odl's rib."""
+        """Sends withdraw update message from play.py and verifies route removal
+        from odl's rib."""
         BGP_RPC_CLIENT.play_send(withdraw_hex, peer_id)
         utils.wait_until_function_pass(3, 2, self.verify_test_preconditions)
 
@@ -217,7 +231,8 @@ class TestBgpfunctionalEvpn:
         "recevied from odl.")
     def test_bgp_functional_evpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon and above."""
+            """Configures bgp application peer. Openconfig is used for
+            carbon and above."""
             self.set_app_peer()
 
         with allure_step_with_separate_logging(
@@ -510,9 +525,11 @@ class TestBgpfunctionalEvpn:
             infra.shell("cp play.py.out results/evpn_play.log")
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without
+            any configured peers."""
             self.delete_bgp_peer_configuration()
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer"""
+            """Revert the BGP configuration to the original state: without
+            application peer"""
             self.delete_app_peer()

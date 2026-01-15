@@ -226,7 +226,9 @@ class BaseTestSinglePeerChangeCount:
             )
             infra.backup_file(
                 f"performance-{RESULTS_FILE_NAME}",
-                target_file_name=f"changecount-listening-performance-{RESULTS_FILE_NAME}",
+                target_file_name=(
+                    f"changecount-listening-performance-{RESULTS_FILE_NAME}"
+                ),
                 src_dir=".",
             )
 

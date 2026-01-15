@@ -57,11 +57,16 @@ def get_pcep_topology() -> requests.Response:
     # Not Logging content, as it may be huge.
     resp = AuthStandalone.Get_Using_Session(
         rest_session,
-        "data/network-topology:network-topology/topology=pcep-topology?content=nonconfig",
+        (
+            "data/network-topology:network-topology/"
+            "topology=pcep-topology"
+            "?content=nonconfig"
+        ),
     )
-    assert (
-        resp.status_code == 200
-    ), f"Response code for get pcep topology does not meach expected 200, but is {resp.status_code}"
+    assert resp.status_code == 200, (
+        f"Response code for get pcep topology does not meach expected 200, "
+        f"but is {resp.status_code}"
+    )
     log.debug(resp.text)
     return resp
 
@@ -75,7 +80,11 @@ def get_path_computation_client() -> requests.Response:
     Returns:
         requests.Response:: Path computation client.
     """
-    uri = f"rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc:%2F%2F{TOOLS_IP}/network-topology-pcep:path-computation-client?content=nonconfig"
+    uri = (
+        f"rests/data/network-topology:network-topology/topology=pcep-topology/"
+        f"node=pcc:%2F%2F{TOOLS_IP}/"
+        f"network-topology-pcep:path-computation-client?content=nonconfig"
+    )
     response = templated_requests.get_from_uri(uri)
 
     return response
@@ -171,19 +180,22 @@ def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
         None
     """
     response = get_stats(pcc_ip=pcc_ip)
-    assert (
-        "pcep-session-state" not in response.text
-    ), f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n Response:{response.text}'
+    assert "pcep-session-state" not in response.text, (
+        f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n '
+        f"Response:{response.text}"
+    )
 
 
-def get_stat_timer_value(expected_response_code: int | List[int] | None = 200) -> requests.Response:
+def get_stat_timer_value(
+    expected_response_code: int | List[int] | None = 200,
+) -> requests.Response:
     """Get the PCEP statistics timer value.
 
     This value determines the interval in which the statistics are updated.
 
     Args:
-        expected_response_code (int | List[int] | None): Expected HTTP response code returned
-            from ODL. Can be either single value or list of possible values.
+        expected_response_code (int | List[int] | None): Expected HTTP response code
+            returned from ODL. Can be either single value or list of possible values.
 
     Returns:
         requests.Response: PCEP node statistics.
@@ -192,21 +204,23 @@ def get_stat_timer_value(expected_response_code: int | List[int] | None = 200) -
         "variables/pcepuser/titanium/get_timer_value",
         None,
         json=True,
-        expected_code=expected_response_code
+        expected_code=expected_response_code,
     )
 
     return response
 
 
-def set_stat_timer_value(timer_value: int, expected_response_code: int | List[int] | None = (201, 204)) -> requests.Response:
+def set_stat_timer_value(
+    timer_value: int, expected_response_code: int | List[int] | None = (201, 204)
+) -> requests.Response:
     """Set the PCEP statistics timer value.
 
     This value determines the interval in which the statistics are updated.
 
     Args:
         timer_value (str): PCEP statistics timer value.
-        expected_response_code (int | List[int] | None): Expected HTTP response code returned
-            from ODL. Can be either single value or list of possible values.
+        expected_response_code (int | List[int] | None): Expected HTTP response code
+            returned from ODL. Can be either single value or list of possible values.
 
     Returns:
         requests.Response: PCEP node statistics.
@@ -216,7 +230,7 @@ def set_stat_timer_value(timer_value: int, expected_response_code: int | List[in
         "variables/pcepuser/titanium/set_timer_value",
         mapping,
         json=True,
-        expected_code=expected_response_code
+        expected_code=expected_response_code,
     )
 
     return response
@@ -495,9 +509,10 @@ def check_updater_response(stdout: str, lsps: int, parallel: bool):
     """
     if parallel:
         not_expected_log_message = f"Counter({{'pass': {0}}})"
-        assert (
-            not_expected_log_message not in stdout
-        ), f"Did not expect message {not_expected_log_message=}, but was found in {stdout=}"
+        assert not_expected_log_message not in stdout, (
+            f"Did not expect message {not_expected_log_message=}, "
+            f"but was found in {stdout=}"
+        )
     else:
         expected_log_message = f"Counter({{'pass': {lsps}}})"
         assert (

@@ -139,7 +139,10 @@ def read_until(process: subprocess.Popen, expected_text: str, timeout: int = 10)
 
     if not text_wasfound:
         raise AssertionError(
-            f"Unable to find expected text:' {expected_text}' withing {timeout} seconds. Captured output: '{whole_text}'"
+            (
+                f"Unable to find expected text:' {expected_text}' withing {timeout} "
+                f"seconds. Captured output: '{whole_text}'"
+            )
         )
 
     log.warn(whole_text)
@@ -331,7 +334,9 @@ def get_string_occurence_count_in_file(string: str, file_name: str) -> int:
     return int(output)
 
 
-def verify_string_occurence_count_in_file(string: str, file_name: str, count: int, exact: bool = True):
+def verify_string_occurence_count_in_file(
+    string: str, file_name: str, count: int, exact: bool = True
+):
     """Verifies number of occurences of specific string in a text file.
 
     Args:
@@ -393,7 +398,8 @@ def start_odl_with_features(features: tuple[str], timeout: int = 60):
 
     shell(
         "sed -ie 's/memory-mapped = true/memory-mapped = false/g' "
-        "system/org/opendaylight/controller/sal-clustering-config/*/sal-clustering-config-*-factorypekkoconf.xml",
+        "system/org/opendaylight/controller/sal-clustering-config/*/"
+        "sal-clustering-config-*-factorypekkoconf.xml",
         cwd="opendaylight",
     )
 
@@ -539,7 +545,10 @@ def stop_process_by_pid(pid: int, gracefully: bool = True, timeout: int | None =
             )
         except AssertionError as e:
             raise AssertionError(
-                f"Was not able to stop process with PID {process.pid}, it is still running."
+                (
+                    f"Was not able to stop process with PID {process.pid}, "
+                    f"it is still running."
+                )
             ) from e
 
 

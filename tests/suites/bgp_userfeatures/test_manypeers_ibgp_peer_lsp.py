@@ -78,7 +78,10 @@ class TestIbgpPeerLsp:
             """Connect BGP peers with advertising the routes without mandatory
             params like LOC_PREF."""
             infra.log_message_to_karaf(
-                "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, and should be thrown when missing mandatory attributes."
+                (
+                    "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
+                    "and should be thrown when missing mandatory attributes."
+                )
             )
             self.bgp_speaker_processes = []
             for i in range(BGP_PEERS_COUNT):
@@ -88,7 +91,14 @@ class TestIbgpPeerLsp:
                 sender_addr = f"1.2.3.{100 + i}"
                 endpoint_addr = f"5.6.7.{100 + i}"
                 bgp_speaker_process = infra.shell(
-                    f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} --logfile {log_file} --bgpls True  -lsid {ls_identifier} --lstsaddr {sender_addr} --lsteaddr {endpoint_addr} --skipattr 2>&1 >{log_file}",
+                    (
+                        f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} "
+                        f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} "
+                        f"--peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} "
+                        f"--logfile {log_file} --bgpls True  -lsid {ls_identifier} "
+                        f"--lstsaddr {sender_addr} --lsteaddr {endpoint_addr} "
+                        f"--skipattr 2>&1 >{log_file}"
+                    ),
                     run_in_background=True,
                 )
                 utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid)
@@ -155,7 +165,14 @@ class TestIbgpPeerLsp:
                 sender_addr = f"1.2.3.{100 + i}"
                 endpoint_addr = f"5.6.7.{100 + i}"
                 bgp_speaker_process = infra.shell(
-                    f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} --logfile {log_file} --bgpls True -lsid {ls_identifier} --lstsaddr {sender_addr} --lsteaddr {endpoint_addr} 2>&1 >{log_file}",
+                    (
+                        f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} "
+                        f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} "
+                        f"--peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} "
+                        f"--logfile {log_file} --bgpls True -lsid {ls_identifier} "
+                        f"--lstsaddr {sender_addr} --lsteaddr {endpoint_addr} "
+                        f"2>&1 >{log_file}"
+                    ),
                     run_in_background=True,
                 )
                 utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid)
@@ -191,7 +208,8 @@ class TestIbgpPeerLsp:
                 )
 
         with allure_step_with_separate_logging("step_tc2_deconfigure_ibgp_peer"):
-            """Revert the BGP configuration to the original state without any configured peer."""
+            """Revert the BGP configuration to the original state without
+            any configured peer."""
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",

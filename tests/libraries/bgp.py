@@ -523,7 +523,8 @@ def verify_bgp_speaker_connected(
         speaker_ips = [speaker_ips]
     for speaker_ip in speaker_ips:
         templated_requests.get_from_uri(
-            f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp:%2F%2F{speaker_ip}?content=nonconfig",
+            f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+            f"peer=bgp:%2F%2F{speaker_ip}?content=nonconfig",
             expected_code=expected_response_code,
         )
 
@@ -533,7 +534,10 @@ def start_bgp_app_peer(
     command: str = "post",
     prefix: str = "8.0.0.0",
     prefix_len: int = 28,
-    uri: str = "data/bgp-rib:application-rib=10.0.0.10/tables=bgp-types%3Aipv4-address-family,bgp-types%3Aunicast-subsequent-address-family",
+    uri: str = (
+        "data/bgp-rib:application-rib=10.0.0.10/tables=bgp-types%3A"
+        "ipv4-address-family,bgp-types%3Aunicast-subsequent-address-family"
+    ),
     log_level: str = "info",
     log_file: str = "bgp_app_peer.log",
     timeout: int = 1200,
@@ -619,7 +623,10 @@ def verify_exabgp_connection(
     if isinstance(exabgp_ips, str):
         exabgp_ips = [exabgp_ips]
     for exabgp_ip in exabgp_ips:
-        uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp%3A%2F%2F{exabgp_ip}?content=nonconfig"
+        uri = (
+            "rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+            f"peer=bgp%3A%2F%2F{exabgp_ip}?content=nonconfig"
+        )
         templated_requests.get_from_uri(uri, expected_code=expected_code)
 
 
@@ -692,7 +699,10 @@ def start_gobgp(
     Returns:
         subprocess.Popen: Gobgp process handler.
     """
-    command = f"{gobgp_path} -l debug -f {cfg_file} --api-hosts={grpc_address} > tmp/{log_file}"
+    command = (
+        f"{gobgp_path} -l debug -f {cfg_file} --api-hosts={grpc_address}"
+        f" > tmp/{log_file}"
+    )
 
     process = infra.shell(command, run_in_background=True)
 
@@ -714,7 +724,10 @@ def verify_gobgp_connection(gobgp_ip: str, expect_connected: bool = True):
         if expect_connected
         else templated_requests.DENIED_STATUS_CODE
     )
-    uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/peer=bgp%3A%2F%2F{gobgp_ip}?content=nonconfig"
+    uri = (
+        f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+        f"peer=bgp%3A%2F%2F{gobgp_ip}?content=nonconfig"
+    )
     templated_requests.get_from_uri(uri, expected_code=expected_code)
 
 
@@ -934,7 +947,10 @@ def check_example_ipv4_topology_content(string_to_check: str = ""):
         None
     """
     response = templated_requests.get_from_uri(
-        uri=f"{REST_API}/network-topology:network-topology/topology=example-ipv4-topology?content=nonconfig",
+        uri=(
+            f"{REST_API}/network-topology:network-topology/"
+            f"topology=example-ipv4-topology?content=nonconfig"
+        ),
     )
     log.info(response.status_code)
     log.info(response.text)
@@ -974,20 +990,23 @@ def verify_two_hex_messages_are_equal(hex1: str, hex2: str):
     Returns:
         requests.Response: Requests library response as returned for DELETE call.
     """
-    assert len(hex1) == len(
-        hex2
-    ), f"Hex values are different, they do not have the same lenght: {hex1=} {hex2=} {len(hex1)} != {len(hex2)}"
+    assert len(hex1) == len(hex2), (
+        f"Hex values are different, they do not have the same lenght: "
+        f"{hex1=} {hex2=} {len(hex1)} != {len(hex2)}"
+    )
     bgp_rpc_client = BgpRpcClient(TOOLS_IP)
     hex1_sum = bgp_rpc_client.sum_hex_message(hex1)
     hex2_sum = bgp_rpc_client.sum_hex_message(hex2)
-    assert (
-        hex1_sum == hex2_sum
-    ), f"Hex values are different, their sum values are different: {hex1=} {hex2=} {hex1_sum} != {hex2_sum}"
+    assert hex1_sum == hex2_sum, (
+        f"Hex values are different, their sum values are different: "
+        "{hex1=} {hex2=} {hex1_sum} != {hex2_sum}"
+    )
 
 
 def check_example_bgp_rib_does_not_contain(substr: str):
     uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib?content=nonconfig"
     response = templated_requests.get_from_uri(uri)
-    assert (
-        substr not in response.text
-    ), f"Did not expect {substr} to be present in example-bgp-rib config:\n{response.text}"
+    assert substr not in response.text, (
+        f"Did not expect {substr} to be present in example-bgp-rib config:\n"
+        f"{response.text}"
+    )

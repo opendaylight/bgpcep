@@ -58,7 +58,8 @@ class TestBgpfunctionalRouteRef:
         log.info(stdout)
 
     def verify_exaBgp_received_updates(self, exp_count: int):
-        """Gets number of received update requests and compares with given expected count"""
+        """Gets number of received update requests and compares with given expected
+        count"""
         count_recv = int(BGP_RPC_CLIENT.exa_get_received_update_count())
         assert count_recv == exp_count
 
@@ -156,7 +157,8 @@ class TestBgpfunctionalRouteRef:
             self.setup_config_files()
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon and above."""
+            """Configures bgp application peer. Openconfig is used for carbon
+            and above."""
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.put_templated_request(
                 f"{BGP_VAR_FOLDER}/app_peer", mapping, json=False
@@ -188,7 +190,8 @@ class TestBgpfunctionalRouteRef:
                 utils.wait_until_function_pass(
                     5, 2, self.verify_exaBgp_received_updates, update_count
                 )
-                # From neon onwards there are extra BGP End-Of-RIB message per address family
+                # From neon onwards there are extra BGP End-Of-RIB message per address
+                # family
                 update_count = 7
                 utils.wait_until_function_pass(
                     3,
@@ -213,7 +216,8 @@ class TestBgpfunctionalRouteRef:
                 utils.wait_until_function_pass(
                     5, 2, self.verify_exaBgp_received_route_refresh, 1
                 )
-                # From neon onwards there are extra BGP End-Of-RIB message per address family
+                # From neon onwards there are extra BGP End-Of-RIB message per address
+                # family
                 update_count = 9
                 utils.wait_until_function_pass(
                     3,
@@ -227,7 +231,8 @@ class TestBgpfunctionalRouteRef:
                 bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without
+            any configured peers."""
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
@@ -237,7 +242,8 @@ class TestBgpfunctionalRouteRef:
             )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer."""
+            """Revert the BGP configuration to the original state: without
+            application peer."""
             mapping = {
                 "IP": ODL_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",

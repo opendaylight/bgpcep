@@ -47,5 +47,6 @@ class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
         "number of prefixes present is performed.\n"
         "Brief description how to configure BGP peer can be found here:\n"
         "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Peer*\n"
-        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering*\n"
+        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html"
+        "#bgp-peering*\n"
     )

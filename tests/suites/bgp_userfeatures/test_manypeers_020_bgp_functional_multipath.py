@@ -37,7 +37,12 @@ N_PATHS_VALUE = 2
 DEFAULT_MAPPING = {"ODLIP": ODL_IP, "EXAIP": TOOLS_IP, "NPATHS": N_PATHS_VALUE}
 PATH_ID_LIST = (1, 2, 3)
 NEXT_HOP_PREF = "100.100.100."
-OPENCONFIG_RIB_URI = f"http://{ODL_IP}:{RESTCONF_PORT}/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types%3ABGP,example-bgp-rib"
+OPENCONFIG_RIB_URI = (
+    f"http://{ODL_IP}:{RESTCONF_PORT}/rests/data/"
+    f"openconfig-network-instance:network-instances/network-instance=global-bgp/"
+    f"openconfig-network-instance:protocols/"
+    f"protocol=openconfig-policy-types%3ABGP,example-bgp-rib"
+)
 NPATHS_SELM = "n-paths"
 ALLPATHS_SELM = "all-paths"
 ADDPATHCAP_SR = "send\\/receive"
@@ -89,9 +94,10 @@ class TestBgpfunctionalMultipath:
     def configure_path_selection_and_app_peer_and_connect_peer(
         self, odl_path_sel_mode, exa_add_path_value
     ):
-        """Setup test case function. Early after the path selection config the incomming connection
-        from exabgp towards odl may be rejected by odl due to config process not finished yet. Because of that
-        we try to start the tool 3 times in case early attempts fail."""
+        """Setup test case function. Early after the path selection config
+        the incomming connection from exabgp towards odl may be rejected by odl
+        due to config process not finished yet. Because of that we try to start
+        the tool 3 times in case early attempts fail."""
         self.configure_odl_peer_with_path_selection_mode(odl_path_sel_mode)
         self.configure_app_peer_with_routes()
         self.setup_config_files(add_path=exa_add_path_value)
@@ -116,9 +122,10 @@ class TestBgpfunctionalMultipath:
         """Verify number of received update messages."""
         for i in range(BGP_PEERS_COUNT):
             tool_count = self.bgp_rpc_clients[i].exa_get_received_update_count()
-            assert (
-                tool_count == exp_count
-            ), f"Expected count {exp_count} does not match received count {tool_count} on peer {i}"
+            assert tool_count == exp_count, (
+                f"Expected count {exp_count} does not match received "
+                f"count {tool_count} on peer {i}"
+            )
 
     def configure_odl_peer_with_path_selection_mode(self, psm):
         """Configures odl peers with path selection mode."""
@@ -163,7 +170,8 @@ class TestBgpfunctionalMultipath:
             )
 
     def deconfigure_app_peer(self):
-        """Revert the BGP configuration to the original state: without application peer."""
+        """Revert the BGP configuration to the original state: without
+        application peer."""
         route_mapping = {"APP_RIB": ODL_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
         templated_requests.delete_templated_request(
             f"{MULT_VAR_FOLDER}/route", route_mapping

@@ -93,13 +93,14 @@ class BaseTestCases:
                 "Skipped: step_save_and_enable_tcp_tw_reuse"
             ):
                 log.warn(
-                    "There is no point in running this step if changing TCP RW REUSE is prohibited."
+                    "There is no point in running this step if changing TCP RW REUSE "
+                    "is prohibited."
                 )
         else:
             with allure_step_with_separate_logging("step_save_and_enable_tcp_tw_reuse"):
-                """If requested, temporarily enable TCP port reuse to allow for high rate of
-                TCP connections. Do not fail whole test on possible step failures.
-                In case of failure only log the erorr message."""
+                """If requested, temporarily enable TCP port reuse to allow for high
+                rate of TCP connections. Do not fail whole test on possible step
+                failures. In case of failure only log the erorr message."""
                 try:
                     rc, output = infra.shell("cat /proc/sys/net/ipv4/tcp_tw_reuse")
                     self.original_tcp_tw_reuse_value = output
@@ -622,7 +623,8 @@ class BaseTestCases:
                 "Skipped: step_restore_tcp_tw_reuse"
             ):
                 log.warn(
-                    "There is no point in running this step if changing TCP TW REUSE is prohibited."
+                    "There is no point in running this step if changing TCP TW REUSE "
+                    "is prohibited."
                 )
         else:
             with allure_step_with_separate_logging("step_restore_tcp_tw_reuse"):

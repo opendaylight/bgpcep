@@ -61,7 +61,10 @@ class TestBgpIpv6Basic:
         assert rc == 0, f"Failed to get interface set for default route: {stdout}"
         main_net_interface = stdout
         infra.shell(
-            f"sudo ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} dev {main_net_interface}"
+            (
+                f"sudo ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
+                f"dev {main_net_interface}"
+            )
         )
         infra.shell(f"sudo ip -6 route add default via {IPV6_IP_GW}")
         rc, stdout = infra.shell("ip -6 addr show")
@@ -169,7 +172,8 @@ class TestBgpIpv6Basic:
             )
 
         with allure_step_with_separate_logging("step_verify_ipv6_topology_empty"):
-            """Verifies that example-ipv6-topology is empty after deconfiguring peer for the first time."""
+            """Verifies that example-ipv6-topology is empty after deconfiguring peer
+            for the first time."""
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging(
@@ -284,7 +288,8 @@ class TestBgpIpv6Basic:
 
         with allure_step_with_separate_logging("step_check_ipv6_prefix_in_bgp_rib_1"):
             """Check for the presence of Ipv6 Prefix in the BGP RIB."""
-            # TODO: fix this test case as verify is not used, but if used it would be failing.
+            # TODO: fix this test case as verify is not used,
+            # but if used it would be failing.
             mapping = {"BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             utils.wait_until_function_pass(
                 5,
@@ -376,7 +381,8 @@ class TestBgpIpv6Basic:
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_stop_all_exabgps_2"):
-            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash
+            signal."""
             infra.shell(f"cp tmp/{EXABGP2_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 

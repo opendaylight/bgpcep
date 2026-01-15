@@ -108,7 +108,8 @@ class TestBgpfunctionalL3Vpn:
             self.prepare_config_files()
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon and above."""
+            """Configures bgp application peer. Openconfig is used for carbon
+            and above."""
             bgp.set_bgp_application_peer(ip=ODL_IP)
 
         with allure_step_with_separate_logging(
@@ -177,7 +178,8 @@ class TestBgpfunctionalL3Vpn:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peer."""
+            """Revert the BGP configuration to the original state: without
+            any configured peer."""
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -188,5 +190,6 @@ class TestBgpfunctionalL3Vpn:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer."""
+            """Revert the BGP configuration to the original state: without
+            application peer."""
             bgp.delete_bgp_application_peer(ip=ODL_IP)

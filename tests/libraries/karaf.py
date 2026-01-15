@@ -32,7 +32,10 @@ def fail_if_exception_found_during_test(step_name: str):
         "opendaylight/data/log/karaf.log",
     )
     rc, stdout = infra.shell(
-        f"sed -n '/ROBOT MESSAGE: Starting step: {step_name}/,$ p' opendaylight/data/log/karaf.log"
+        (
+            f"sed -n '/ROBOT MESSAGE: Starting step: {step_name}/,$ p' "
+            f"opendaylight/data/log/karaf.log"
+        )
     )
     assert rc == 0 and stdout, "Failed to get logs for current test step"
     exlist, matchlist = excepts.verify_exceptions(stdout)
