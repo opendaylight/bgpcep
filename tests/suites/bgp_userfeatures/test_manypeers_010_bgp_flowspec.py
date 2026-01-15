@@ -31,7 +31,12 @@ CFG1 = "bgp-flowspec-manypeers.cfg"
 EXP1 = "bgp_flowspec_manypeers"
 CFG2 = "bgp-flowspec-redirect-manypeers.cfg"
 EXP2 = "bgp_flowspec_redirect_manypeers"
-FLOWSPEC_URL = "/rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig"
+FLOWSPEC_URL = (
+    "/rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
+    "tables=bgp-types:ipv4-address-family,"
+    "bgp-flowspec:flowspec-subsequent-address-family/"
+    "bgp-flowspec:flowspec-routes?content=nonconfig"
+)
 RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
 EMPTY_LIST = tuple()

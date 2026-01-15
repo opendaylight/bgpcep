@@ -65,7 +65,10 @@ class TestBgpIpv6Basic:
         for i in range(BGP_PEERS_COUNT):
             IPV6_IP = f"2607:f0d0:1002:0011:0000:0000:0000:{i+2:04d}"
             infra.shell(
-                f"sudo ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} dev {main_net_interface}"
+                (
+                    f"sudo ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
+                    f"dev {main_net_interface}"
+                )
             )
         infra.shell(f"sudo ip -6 route add default via {IPV6_IP_GW}")
         rc, stdout = infra.shell("ip -6 addr show")
@@ -163,7 +166,8 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to false with short ipv6 address."""
+            """Configure BGP peer modules with initiate-connection set to false
+            with short ipv6 address."""
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": self.format_ip(IPV6_IP_TEMPLATE, i + 2),
@@ -286,7 +290,8 @@ class TestBgpIpv6Basic:
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_stop_all_exabgps"):
-            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash
+            signal."""
             infra.shell(f"cp tmp/{EXABGP_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
@@ -332,7 +337,8 @@ class TestBgpIpv6Basic:
 
         with allure_step_with_separate_logging("step_check_ipv6_prefix_in_bgp_rib_1"):
             """Check for the presence of Ipv6 Prefix in the BGP RIB."""
-            # TODO: fix this test case as verify is not used, but if used it would be failing.
+            # TODO: fix this test case as verify is not used, but if used it would
+            # be failing.
             mapping = {"BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             utils.wait_until_function_pass(
                 5,
@@ -433,7 +439,8 @@ class TestBgpIpv6Basic:
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_stop_all_exabgps_2"):
-            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash signal."""
+            """Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash
+            signal."""
             infra.shell(f"cp tmp/{EXABGP2_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 

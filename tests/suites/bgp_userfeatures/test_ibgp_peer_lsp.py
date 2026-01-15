@@ -30,7 +30,11 @@ DEFAULT_RIB_CHECK_PERIOD = 1
 DEFAULT_RIB_CHECK_COUNTS = 10
 BGP_PEER_LOG_LEVEL = "debug"
 BGP_PEER_LOG_FILE = "bgp_peer.log"
-BGP_PEER_COMMAND = f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={TOOLS_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True"
+BGP_PEER_COMMAND = (
+    f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={TOOLS_IP} "
+    f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
+    f"--{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True"
+)
 BGP_PEER_OPTIONS = f"2>&1 >tmp/{BGP_PEER_LOG_FILE}"
 JSONKEYSTR = "linkstate-route"
 BGP_PEER_NAME = "example-bgp-peer"
@@ -80,7 +84,10 @@ class TestIbgpPeerLsp:
             """Connect BGP peer with advertising the routes without mandatory
             params like LOC_PREF."""
             infra.log_message_to_karaf(
-                "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, and should be thrown when missing mandatory attributes."
+                (
+                    "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
+                    "and should be thrown when missing mandatory attributes."
+                )
             )
             self.bgp_speaker_process = infra.shell(
                 f"{BGP_PEER_COMMAND} {SKIP_PARAMS} {BGP_PEER_OPTIONS}",

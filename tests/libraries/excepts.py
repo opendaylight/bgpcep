@@ -21,7 +21,8 @@ _whitelist = [
 
 _re_ts = re.compile(r"^[0-9]{4}(-[0-9]{2}){2}T([0-9]{2}:){2}[0-9]{2},[0-9]{3}")
 _re_ts_we = re.compile(
-    r"^[0-9]{4}(-[0-9]{2}){2}T([0-9]{2}:){2}[0-9]{2},[0-9]{3}( \| ERROR \| | \| WARN  \| )"
+    r"^[0-9]{4}(-[0-9]{2}){2}T([0-9]{2}:){2}[0-9]{2},[0-9]{3}"
+    r"( \| ERROR \| | \| WARN  \| )"
 )
 _re_ex = re.compile(r"(?i)exception")
 _ex_map = collections.OrderedDict()
@@ -71,7 +72,8 @@ def get_exceptions(lines):
             index = len(_ts_list) - 1
             if index not in _ex_map:
                 _ex_map[index] = {"warnerr_list": list(warnerr_deq), "lines": cur_list}
-                warnerr_deq.clear()  # reset the deque to only track new ERROR and WARN lines
+                # reset the deque to only track new ERROR and WARN lines
+                warnerr_deq.clear()
 
     return _ex_map
 
@@ -118,7 +120,8 @@ def verify_exceptions(lines):
     Return a list of exceptions not in the whitelist for the given lines.
 
     :param list lines: list of lines from a log
-    :return list, list: one list of exceptions not in the whitelist, and a second with matching issues
+    :return list, list: one list of exceptions not in the whitelist, and a second
+        with matching issues
     """
     if not lines:
         return

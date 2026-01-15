@@ -98,8 +98,8 @@ class TestTcpMd5User:
         "Change ODL PCEP configuration to not use password, pcep-topology empties, "
         "kill pcep-pcc-mock.\n"
         "\n"
-        "Test cases no longer need netconf-connector-ssh, and they include comparison of "
-        "pcep-session-state.")
+        "Test cases no longer need netconf-connector-ssh, and they include "
+        "comparison of pcep-session-state.")
     def test_tcp_md5_user(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):

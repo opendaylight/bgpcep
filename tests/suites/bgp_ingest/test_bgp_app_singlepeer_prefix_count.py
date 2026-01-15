@@ -67,10 +67,13 @@ class TestBgpAppPeerPrefixCount:
         "\n"
         "Brief description how to configure BGP application peer and how to "
         "use restconf application peer interface:\n"
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Application_Peer*\n"
+        "*https://wiki.opendaylight.org/view/"
+        "BGP_LS_PCEP:User_Guide#BGP_Application_Peer*\n"
         "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Programmer_Guide#BGP*\n"
-        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering*\n"
-        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#application-peer-configuration*\n"
+        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html"
+        "#bgp-peering*\n"
+        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html"
+        "#application-peer-configuration*\n"
         "\n"
         "**Reported bugs:**\n"
         "**Bug 4689** - Not a reasonable duration of 1M prefix introduction "
@@ -154,9 +157,10 @@ class TestBgpAppPeerPrefixCount:
                 f"total_received_nlri_prefix_counter: {PREFILL_COUNT}",
                 f"tmp/{BGP_PEER_LOG_FILE}",
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_intorduce_single_routes"
@@ -194,9 +198,10 @@ class TestBgpAppPeerPrefixCount:
                 f"total_received_nlri_prefix_counter: {TOTAL_COUNT}",
                 f"tmp/{BGP_PEER_LOG_FILE}",
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging("step_disconnect_bgp_peer"):
             """Stop BGP peer tool."""
@@ -230,9 +235,10 @@ class TestBgpAppPeerPrefixCount:
                 f"total_received_nlri_prefix_counter: {TOTAL_COUNT}",
                 f"tmp/{BGP_PEER_LOG_FILE}",
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_delete_all_routes"
@@ -273,9 +279,10 @@ class TestBgpAppPeerPrefixCount:
                 f"total_received_withdrawn_prefix_counter: {TOTAL_COUNT}",
                 f"tmp/{BGP_PEER_LOG_FILE}",
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging("step_stop_bgp_peer"):
             """Stop BGP peer tool."""

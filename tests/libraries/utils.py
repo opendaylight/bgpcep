@@ -189,7 +189,8 @@ def wait_until_function_returns_value_with_custom_value_validator(
         time.sleep(interval)
 
     raise AssertionError(
-        f"Failed to execute {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+        f"Failed to execute "
+        f"{function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
         f"after {retry_count} attempts."
     ) from last_exception
 
@@ -328,16 +329,20 @@ def verify_function_returns_value_which_passes_custom_value_validator_for_some_t
             passed_value_validator = return_value_validator(result)
         except Exception as e:
             raise AssertionError(
-                f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+                f"Function {function.__name__}"
+                f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
                 f"failed with the following error {e}"
             )
         if not passed_value_validator:
             raise AssertionError(
-                f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+                f"Function {function.__name__}"
+                f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
                 f"did not return expected value."
             )
         log.info(
-            f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) returned expected value ({retry_num}/{retry_count})"
+            f"Function {function.__name__}"
+            f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+            f"returned expected value ({retry_num}/{retry_count})"
         )
         time.sleep(interval)
 
@@ -359,7 +364,8 @@ def run_function_ignore_errors(function: Callable, *args, **kwargs):
         function(*args, **kwargs)
     except Exception as e:
         log.warning(
-            f"Function {function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
+            f"Function {function.__name__}"
+            f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
             f"with ignore errors failed on: \n{e}",
             exc_info=True,
         )

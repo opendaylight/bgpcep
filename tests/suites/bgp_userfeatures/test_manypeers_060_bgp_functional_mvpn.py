@@ -203,7 +203,8 @@ class TestBgpfunctionalMvpn:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without any configured peers."""
+            """Revert the BGP configuration to the original state: without
+            any configured peers."""
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -214,7 +215,8 @@ class TestBgpfunctionalMvpn:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without application peer"""
+            """Revert the BGP configuration to the original state: without
+            application peer"""
             templated_requests.delete_templated_request(
                 f"{MVPN_DIR}/app_peer", MVPN_APP_PEER_MAPPING
             )

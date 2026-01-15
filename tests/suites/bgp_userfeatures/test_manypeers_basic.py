@@ -43,9 +43,9 @@ class TestBasic:
     bgp_speaker_process = None
 
     def configure_peer_group(self, peer_group_folder: str):
-        """Configures peer group which is template for all the neighbors which are going
-        to be configured. Also after PUT, this case verifies presence of peer group within
-        peer-groups."""
+        """Configures peer group which is template for all the neighbors
+        which are going to be configured. Also after PUT, this case verifies
+        presence of peer group within peer-groups."""
         mapping = {
             "PEER_GROUP_NAME": PEER_GROUP,
             "HOLDTIME": HOLDTIME,
@@ -147,8 +147,8 @@ class TestBasic:
         "Resets the session, and than verifies that example-ipv4-topology is empty "
         "again.\n"
         "\n"
-        "**TC_LA** (test case local address) tests configuration of internal peers with "
-        "local-address configured\n"
+        "**TC_LA** (test case local address) tests configuration of internal peers "
+        "with local-address configured\n"
         "- configure peers with local-address and connect bgp-speaker to it "
         "  with tools_system_ips\n"
         "- check filled topology\n"
@@ -385,7 +385,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
         ):
-            """Replace BGP peer config module, now with initiate-connection set to true."""
+            """Replace BGP peer config module, now with initiate-connection
+            set to true."""
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",

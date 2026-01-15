@@ -56,9 +56,29 @@ eBGP_PEERS2_COUNT = int(BGP_PEERS_COUNT / 2)
 iBGP_PEER1_PREFIX_COUNT = 0
 eBGP_PEER1_PREFIX_COUNT = eBGP_PEERS1_COUNT
 eBGP_PEER2_PREFIX_COUNT = eBGP_PEERS2_COUNT
-iBGP_PEER1_COMMAND = f"python3 tools/fastbgp/play.py --multiplicity {iBGP_PEERS1_COUNT} --firstprefix {iBGP_PEER1_FIRST_PREFIX_IP} --prefixlen {iBGP_PEER1_PREFIX_LEN} --amount {iBGP_PEER1_PREFIX_COUNT} --myip={iBGP_PEER1_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} --logfile {iBGP_PEER1_LOG_FILE}"
-eBGP_PEER1_COMMAND = f"python3 tools/fastbgp/play.py --multiplicity {eBGP_PEERS1_COUNT} --firstprefix {eBGP_PEER1_FIRST_PREFIX_IP} --prefixlen {eBGP_PEER1_PREFIX_LEN} --amount {eBGP_PEER1_PREFIX_COUNT} --myip={eBGP_PEER1_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --nexthop {eBGP_PEER1_NEXT_HOP} --asnumber {eBGP_PEER1_AS} --{BGP_PEER_LOG_LEVEL} --logfile {eBGP_PEER1_LOG_FILE}"
-eBGP_PEER2_COMMAND = f"python3 tools/fastbgp/play.py --multiplicity {eBGP_PEERS2_COUNT} --firstprefix {eBGP_PEER2_FIRST_PREFIX_IP} --prefixlen {eBGP_PEER2_PREFIX_LEN} --amount {eBGP_PEER2_PREFIX_COUNT} --myip={eBGP_PEER2_IP} --myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} --nexthop {eBGP_PEER2_NEXT_HOP} --asnumber {eBGP_PEER2_AS} --{BGP_PEER_LOG_LEVEL} --logfile {eBGP_PEER2_LOG_FILE}"
+iBGP_PEER1_COMMAND = (
+    f"python3 tools/fastbgp/play.py --multiplicity {iBGP_PEERS1_COUNT} "
+    f"--firstprefix {iBGP_PEER1_FIRST_PREFIX_IP} --prefixlen {iBGP_PEER1_PREFIX_LEN} "
+    f"--amount {iBGP_PEER1_PREFIX_COUNT} --myip={iBGP_PEER1_IP} "
+    f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
+    f"--{BGP_PEER_LOG_LEVEL} --logfile {iBGP_PEER1_LOG_FILE}"
+)
+eBGP_PEER1_COMMAND = (
+    f"python3 tools/fastbgp/play.py --multiplicity {eBGP_PEERS1_COUNT} "
+    f"--firstprefix {eBGP_PEER1_FIRST_PREFIX_IP} --prefixlen {eBGP_PEER1_PREFIX_LEN} "
+    f"--amount {eBGP_PEER1_PREFIX_COUNT} --myip={eBGP_PEER1_IP} "
+    f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
+    f"--nexthop {eBGP_PEER1_NEXT_HOP} --asnumber {eBGP_PEER1_AS} "
+    f"--{BGP_PEER_LOG_LEVEL} --logfile {eBGP_PEER1_LOG_FILE}"
+)
+eBGP_PEER2_COMMAND = (
+    f"python3 tools/fastbgp/play.py --multiplicity {eBGP_PEERS2_COUNT} "
+    f"--firstprefix {eBGP_PEER2_FIRST_PREFIX_IP} --prefixlen {eBGP_PEER2_PREFIX_LEN} "
+    f"--amount {eBGP_PEER2_PREFIX_COUNT} --myip={eBGP_PEER2_IP} "
+    f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
+    f"--nexthop {eBGP_PEER2_NEXT_HOP} --asnumber {eBGP_PEER2_AS} "
+    f"--{BGP_PEER_LOG_LEVEL} --logfile {eBGP_PEER2_LOG_FILE}"
+)
 iBGP_PEER1_OPTIONS = f"2>&1 >{iBGP_PEER1_LOG_FILE}"
 eBGP_PEER1_OPTIONS = f"2>&1 >{eBGP_PEER1_LOG_FILE}"
 eBGP_PEER2_OPTIONS = f"2>&1 >{eBGP_PEER2_LOG_FILE}"

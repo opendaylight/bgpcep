@@ -67,16 +67,21 @@ class TestBgpAppManyPeerPrefixCount:
         "\n"
         "Brief description how to configure BGP application peer and how "
         "to use restconf application peer interface:\n"
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Application_Peer*\n"
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Programmer_Guide#BGP*\n"
-        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#bgp-peering*\n"
-        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html#application-peer-configuration*\n"
+        "*https://wiki.opendaylight.org/view/"
+        "BGP_LS_PCEP:User_Guide#BGP_Application_Peer*\n"
+        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Programmer_Guide"
+        "#BGP*\n"
+        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html"
+        "#bgp-peering*\n"
+        "*http://docs.opendaylight.org/en/stable-boron/user-guide/bgp-user-guide.html"
+        "#application-peer-configuration*\n"
         "\n"
         "**Reported bugs:**\n"
         "**Bug 4689** - Not a reasonable duration of 1M prefix introduction "
         "from BGP application peer via restconf\n"
         "**Bug 4791** - BGPSessionImpl: Failed to send message Update logged "
-        "even all UPDATE mesages received by iBGP peer")
+        "even all UPDATE mesages received by iBGP peer"
+    )
     def test_bgp_app_many_peers_prefix_count(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(
@@ -155,9 +160,10 @@ class TestBgpAppManyPeerPrefixCount:
                 f"tmp/{BGP_PEER_LOG_FILE}",
                 threshold=BGP_PEERS_COUNT,
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_intorduce_single_routes"
@@ -195,9 +201,10 @@ class TestBgpAppManyPeerPrefixCount:
                 f"tmp/{BGP_PEER_LOG_FILE}",
                 threshold=BGP_PEERS_COUNT,
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging("step_disconnect_bgp_peer"):
             """Stop BGP peer tool"""
@@ -232,9 +239,10 @@ class TestBgpAppManyPeerPrefixCount:
                 f"tmp/{BGP_PEER_LOG_FILE}",
                 threshold=BGP_PEERS_COUNT,
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_delete_all_routes"
@@ -273,9 +281,10 @@ class TestBgpAppManyPeerPrefixCount:
                 f"tmp/{BGP_PEER_LOG_FILE}",
                 threshold=BGP_PEERS_COUNT,
             )
-            assert (
-                1 <= count
-            ), f"Did not find expected received prefixes in tmp/{BGP_PEER_LOG_FILE} file"
+            assert 1 <= count, (
+                f"Did not find expected received prefixes in "
+                f"tmp/{BGP_PEER_LOG_FILE} file"
+            )
 
         with allure_step_with_separate_logging("step_stop_bgp_peers"):
             """Stop BGP peer tool"""
@@ -288,7 +297,9 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
             """Revert the BGP configuration to the original state: without any
             configured peers."""
-            bgp.delete_bgp_neighbours(TOOLS_IP, BGP_PEERS_COUNT, rib_instance=RIB_INSTANCE)
+            bgp.delete_bgp_neighbours(
+                TOOLS_IP, BGP_PEERS_COUNT, rib_instance=RIB_INSTANCE
+            )
 
         with allure_step_with_separate_logging(
             "step_delete_bgp_application_peer_configuration"

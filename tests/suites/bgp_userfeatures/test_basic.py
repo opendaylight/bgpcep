@@ -42,9 +42,9 @@ class TestBasic:
     bgp_speaker_process = None
 
     def configure_peer_group(self, peer_group_folder: str):
-        """Configures peer group which is template for all the neighbors which are going
-        to be configured. Also after PUT, this case verifies presence of peer group within
-        peer-groups."""
+        """Configures peer group which is template for all the neighbors which
+        are going to be configured. Also after PUT, this case verifies
+        presence of peer group within peer-groups."""
         mapping = {
             "PEER_GROUP_NAME": PEER_GROUP,
             "HOLDTIME": HOLDTIME,
@@ -157,7 +157,8 @@ class TestBasic:
         "- reconfigre neighbor without peer-group, delete peer-group\n"
         "\n"
         "Brief description how to perform BGP functional test:\n"
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Lithium_Feature_Tests#How_to_test_2*")
+        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Lithium_Feature_Tests"
+        "#How_to_test_2*")
     def test_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
@@ -368,7 +369,8 @@ class TestBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
         ):
-            """Replace BGP peer config module, now with initiate-connection set to true."""
+            """Replace BGP peer config module, now with initiate-connection
+            set to true."""
             mapping = {
                 "IP": TOOLS_IP,
                 "PEER_PORT": BGP_TOOL_PORT,

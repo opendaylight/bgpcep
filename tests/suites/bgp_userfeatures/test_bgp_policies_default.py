@@ -57,11 +57,13 @@ class TestBgpPoliciesDefault:
             log.info(stdout)
 
     def verify_rib_status(self):
-        """Verify output from effective-rib-in for each of the 6 exabgp peers and app peer.
-        First request is for full example-bgp-rib and it's output is logged for debug purposes.
-        Each of the peers have different output which is stored in folder by their respective
-        numbers as peer_${index} (peer_1, peer_2 ...)"""
-        # gets and outputs full rib output for debug purposes if one of the peers reports faulty data.
+        """Verify output from effective-rib-in for each of the 6 exabgp peers
+        and app peer. First request is for full example-bgp-rib and it's output
+        is logged for debug purposes. Each of the peers have different output which
+        is stored in folder by their respective numbers as peer_${index}
+        (peer_1, peer_2 ...)"""
+        # gets and outputs full rib output for debug purposes if one of the peers
+        # reports faulty data.
         response = templated_requests.get_templated_request(
             f"{POLICIES_VAR}/rib_state", dict()
         )

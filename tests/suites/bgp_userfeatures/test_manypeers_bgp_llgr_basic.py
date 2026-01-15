@@ -27,7 +27,10 @@ GOBGP_CFG = "gobgp"
 GOBGP_LOG = "gobgp.log"
 HOLDTIME = 180
 RIB_INSTANCE = "example-bgp-rib"
-GOBGP_BINARY_URL = "https://github.com/osrg/gobgp/releases/download/v2.18.0/gobgp_2.18.0_linux_386.tar.gz"
+GOBGP_BINARY_URL = (
+    "https://github.com/osrg/gobgp/releases/download/"
+    "v2.18.0/gobgp_2.18.0_linux_386.tar.gz"
+)
 FILE_NAME = "gobgp_2.18.0_linux_386.tar.gz"
 
 log = logging.getLogger(__name__)
