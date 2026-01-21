@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts)
+[![Maven Central](https://maven-badges.sml.io/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts/badge.svg)](https://maven-badges.sml.io/maven-central/org.opendaylight.bgpcep/bgpcep-artifacts)
 [![Javadocs](https://javadoc.io/badge2/org.opendaylight.bgpcep/bgpcep-karaf/javadoc.svg)](https://www.javadoc.io/doc/org.opendaylight.bgpcep)
 [![License](https://img.shields.io/badge/License-EPL%201.0-blue.svg)](https://opensource.org/licenses/EPL-1.0)
 
