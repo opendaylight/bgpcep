@@ -168,8 +168,16 @@
                                     <goal>clean</goal>
                                 </goals>
                                 <configuration>
-                                    <directory>${project.basedir}/tests/opendaylight</directory>
-                                    <directory>${project.basedir}/tests/build_tools</directory>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.basedir}/tests/opendaylight</directory>
+                                            <followSymlinks>false</followSymlinks>
+                                        </fileset>
+                                        <fileset>
+                                            <directory>${project.basedir}/tests/build_tools</directory>
+                                            <followSymlinks>false</followSymlinks>
+                                        </fileset>
+                                    </filesets>
                                 </configuration>
                             </execution>
                         </executions>
