@@ -152,6 +152,9 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
+            <properties>
+                <tox.args></tox.args>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -236,10 +239,7 @@
                                 </goals>
                                 <configuration>
                                     <executable>tox</executable>
-                                    <arguments>
-                                        <argument>-e</argument>
-                                        <argument>pytest</argument>
-                                    </arguments>
+                                    <commandlineArgs>-e pytest ${tox.args}</commandlineArgs>
                                     <workingDirectory>${project.basedir}/tests</workingDirectory>
                                 </configuration>
                             </execution>
