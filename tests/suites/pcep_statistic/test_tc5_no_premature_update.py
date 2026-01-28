@@ -64,7 +64,7 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.verify_odl_does_not_return_stats_for_pcc(pcc_ip=TOOLS_IP)
+            pcep.verify_odl_does_not_return_statistics_for_pcc(pcc_ip=TOOLS_IP)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Stop PCC mocks simulator."""

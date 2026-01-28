@@ -13,6 +13,7 @@ import pytest
 import time
 
 from libraries import pcep
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -51,7 +52,8 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging(
             f"step_start_pcc_mock_{INITAL_PCC_COUNT}_pcc_"
-            f"{INITAL_LSP_PER_PCC_COUNT}_lsps"):
+            f"{INITAL_LSP_PER_PCC_COUNT}_lsps"
+        ):
             """Starts PCC mocks simulator with initial count of simulated PCC device
             and initial count of reported LSPs."""
             self.pcc_mock_process = pcep.start_pcc_mock(
@@ -69,9 +71,12 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_correct_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.verify_stats_pcc_count(
+            utils.wait_until_function_pass(
+                5,
+                0.1,
+                pcep.verify_global_pcep_statistics,
                 expected_pcc_count=INITAL_PCC_COUNT,
-                expected_lsps_per_pcc_count=INITAL_LSP_PER_PCC_COUNT
+                expected_lsps_per_pcc_count=INITAL_LSP_PER_PCC_COUNT,
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
@@ -80,7 +85,8 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging(
             f"step_start_pcc_mock_{UPDATED_PCC_COUNT}_pcc_"
-            f"{UPDATED_LSP_PER_PCC_COUNT}_lsps"):
+            f"{UPDATED_LSP_PER_PCC_COUNT}_lsps"
+        ):
             """Starts PCC mocks simulator with updated count of simulated PCC device
             and updated count of reported LSPs."""
             self.pcc_mock_process = pcep.start_pcc_mock(
@@ -98,9 +104,12 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_updated_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.verify_stats_pcc_count(
+            utils.wait_until_function_pass(
+                5,
+                0.1,
+                pcep.verify_global_pcep_statistics,
                 expected_pcc_count=UPDATED_PCC_COUNT,
-                expected_lsps_per_pcc_count=UPDATED_LSP_PER_PCC_COUNT
+                expected_lsps_per_pcc_count=UPDATED_LSP_PER_PCC_COUNT,
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):

@@ -8,6 +8,7 @@
 
 
 import gc
+import ipaddress
 import logging
 import re
 import subprocess
@@ -126,7 +127,9 @@ def configure_speaker_entitiy_identifier() -> requests.Response:
     return resposne
 
 
-def get_stats(pcc_ip: str | None = None, verify_response: bool = False) -> requests.Response:
+def get_statistics(
+    pcc_ip: str | None = None, verify_response: bool = False
+) -> requests.Response:
     """Returns nodes PCEP statistics.
 
     Args:
@@ -156,7 +159,7 @@ def get_stats(pcc_ip: str | None = None, verify_response: bool = False) -> reque
     return response
 
 
-def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
+def verify_odl_does_not_return_statistics_for_pcc(pcc_ip: str):
     """Verify ODL does not return statistics using get-stats RPC.
 
     Args:
@@ -165,42 +168,90 @@ def verify_odl_does_not_return_stats_for_pcc(pcc_ip: str):
     Returns:
         None
     """
-    response = get_stats(pcc_ip=pcc_ip)
+    response = get_statistics(pcc_ip=pcc_ip)
     assert "pcep-session-state" not in response.text, (
         f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n '
         f"Response:{response.text}"
     )
 
 
-def verify_stats_pcc_count(expected_pcc_count: int, expected_lsps_per_pcc_count: int = 1):
-    """Verify number of reported PCC nodes and their LSPs in statistics.
+def verify_global_pcep_statistics(
+    expected_pcc_count: int, expected_lsps_per_pcc_count: int | None = None
+):
+    """Verify total number of reported PCC nodes and their statistics infromation.
 
-    To read the statistics status it is using the get-stats RPC.
+    To fetch the current PCEP statistics get-stats RPC is used.
+
+    Args:
+        expected_pcc_count (int): Expected number of reported PCC nodes.
+        expected_lsps_per_pcc_count (int | None): Expected number of LSPs reported
+            by each PCC node. If it is set to None, do not check this value.
+
+    Returns:
+        None
+    """
+    response = get_statistics()
+    response_json = response.json()
+    topology = response_json["pcep-topology-stats-rpc:output"]["topology"][0]
+    nodes = topology.get("node", ())
+    for node in nodes:
+        assert (
+            "pcep-session-state" in node
+        ), f"Found PCC node without PCEP statistics: {node}."
+        if expected_lsps_per_pcc_count is not None:
+            reported_lsps_count = node["pcep-session-state"]["delegated-lsps-count"]
+            assert reported_lsps_count == expected_lsps_per_pcc_count, (
+                f"Number of expected LSP/s count {expected_lsps_per_pcc_count} "
+                f"does not match number of reported LSP/s {reported_lsps_count}."
+            )
+    nodes_count = len(nodes)
+    assert expected_pcc_count == nodes_count, (
+        f'Number of returned {nodes_count} node/s in "get-stats" RPC '
+        f"does not match expected {expected_pcc_count} node/s."
+    )
+
+
+def verify_statsistics_contains_pcc_mock_data(
+    expected_pcc_count: int, expected_lsps_per_pcc_count: int, first_pcc_ip: str
+):
+    """Verify all PCCs and LSPs introduced by pcc mock sim are shown in PCEP stats.
+
+    To fetch the current PCEP statistics get-stats RPC is used. Only PCC nodes
+    expected to belong to the simulator are verifyed, based on ip address, ignoring
+    the rest. Pcc mock simulator assignes ip addresses to nodes in sequence.
+
 
     Args:
         expected_pcc_count (int): Expected number of reported PCC nodes.
         expected_lsps_per_pcc_count (int): Expected number of reported LSPs
             for each PCC node.
+        first_pcc_ip (str): IP address of the first PCC node in the sequence.
 
     Returns:
         None
     """
-    response = get_stats()
+    first_ip = ipaddress.IPv4Address(first_pcc_ip)
+    last_ip = first_ip + expected_pcc_count
+    response = get_statistics()
     response_json = response.json()
     topology = response_json["pcep-topology-stats-rpc:output"]["topology"][0]
     nodes = topology.get("node", ())
+    found_notes = 0
     for node in nodes:
-        assert "pcep-session-state" in node, (
-            f"Found PCC node without PCEP statistics: {node}."
-        )
+        node_ip = ipaddress.IPv4Address(node["node-id"].removeprefix("pcc://"))
+        if node_ip < first_ip or node_ip >= last_ip:
+            continue
+        found_notes += 1
+        assert (
+            "pcep-session-state" in node
+        ), f"Found PCC node without PCEP statistics: {node}."
         reported_lsps_count = node["pcep-session-state"]["delegated-lsps-count"]
         assert reported_lsps_count == expected_lsps_per_pcc_count, (
             f"Number of expected LSP/s count {expected_lsps_per_pcc_count} "
             f"does not match number of reported LSP/s {reported_lsps_count}."
         )
-    nodes_count = len(nodes)
-    assert expected_pcc_count == nodes_count, (
-        f"Number of returned {nodes_count} node/s in \"get-stats\" RPC "
+    assert expected_pcc_count == found_notes, (
+        f'Number of returned {found_notes} node/s in "get-stats" RPC '
         f"does not match expected {expected_pcc_count} node/s."
     )
 
@@ -312,6 +363,28 @@ def operate_xml_lsp_return_json(uri_part: str, xml_data: str) -> requests.Respon
     return response
 
 
+def wait_until_concrete_number_of_lsps_reported(
+    total_lsp_count: int, interval: int, timeout: int = 90
+):
+    """Repeatedly check PCEP topology until concrete number of LSPs is shown.
+
+    Args:
+        total_lsp_count (int): Expected total number of LSPs to be reported.
+        interval (int): Number of seconds to elapse between each verification retry.
+        timeout (int): Number of seconds to time out verification.
+
+    Returns:
+        None
+    """
+    utils.wait_until_function_returns_value(
+        int(timeout / interval),
+        interval,
+        total_lsp_count,
+        get_pcep_topology_hop_count,
+        "1.1.1.1/32",
+    )
+
+
 def start_pcc_mock(
     pcc: int,
     lsp: int = 1,
@@ -320,7 +393,7 @@ def start_pcc_mock(
     log_level: str | None = None,
     log_file_name: str = "pcep-pcc-mock_output.txt",
     verify_introduced_lsps=True,
-    verify_timeout: int = 900,
+    verify_timeout: int = 90,
     verify_interval: int = 1,
 ) -> subprocess.Popen:
     """Starts pcep-pcc-mock.jar tool for simulating PCC device.
@@ -336,9 +409,9 @@ def start_pcc_mock(
         log_file_name (str): Name of the file where to store tool output.
         verify_introduced_lsps (bool): Flag to indicate if presence of LSPs
             automatiically reported by pcep pcc mock devices should be verified in ODL.
-        verify_timeout (int): Number of seconds to time out verification
+        verify_timeout (int): Number of seconds to time out verification.
         verify_interval (int): Number of seconds to elapse between each verification
-            retry
+            retry.
 
     Returns:
         subprocess.Popen: PCEP device simulator process handler.
@@ -354,19 +427,15 @@ def start_pcc_mock(
     if log_level:
         command_parts.append(f"--log-level {log_level.upper()}")
 
-    command_parts.append(f"&>tmp/{log_file_name}")
+    command_parts.append(f"2>1 >tmp/{log_file_name}")
 
     process = infra.shell(
-        " ".join(command_parts), use_shell=False, run_in_background=True
+        " ".join(command_parts), use_shell=True, run_in_background=True
     )
 
     if verify_introduced_lsps:
-        utils.wait_until_function_returns_value(
-            int(verify_timeout / verify_interval),
-            verify_interval,
-            pcc * lsp,
-            get_pcep_topology_hop_count,
-            "1.1.1.1/32",
+        wait_until_concrete_number_of_lsps_reported(
+            pcc * lsp, verify_interval, verify_timeout
         )
 
     return process

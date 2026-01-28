@@ -169,6 +169,8 @@ def wait_until_function_returns_value_with_custom_value_validator(
     Returns:
         Any: Return value returend by last successful function call.
     """
+    last_exception = None
+
     for retry_num in range(retry_count):
         try:
             result = function(*args, **kwargs)
@@ -187,12 +189,12 @@ def wait_until_function_returns_value_with_custom_value_validator(
             )
             log.debug(f"failed with: {e}")
         time.sleep(interval)
-
-    raise AssertionError(
-        f"Failed to execute "
-        f"{function.__name__}({','.join([str(arg) for arg in args])} {kwargs or ''}) "
-        f"after {retry_count} attempts."
-    ) from last_exception
+    else:
+        raise AssertionError(
+            f"Failed to execute "
+            f"{function.__name__}({','.join([str(arg) for arg in args])} "
+            f"{kwargs or ''}) after {retry_count} attempts."
+        ) from last_exception
 
 
 def verify_function_never_passes_within_timeout(
