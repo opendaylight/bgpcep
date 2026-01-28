@@ -13,6 +13,7 @@ import pytest
 import time
 
 from libraries import pcep
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -68,7 +69,9 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.get_stats(pcc_ip=TOOLS_IP, verify_response=True)
+            utils.wait_until_function_pass(
+                5, 0.1, pcep.get_statistics, pcc_ip=TOOLS_IP, verify_response=True
+            )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Stop PCC mocks simulator."""

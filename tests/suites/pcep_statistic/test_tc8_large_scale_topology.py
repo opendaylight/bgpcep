@@ -13,6 +13,7 @@ import pytest
 import time
 
 from libraries import pcep
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -39,9 +40,7 @@ class TestPcepUser:
         "Tests that module for PCEP statistics is able to correctly handle large "
         "number of connected PCC devices and reported LSPs."
     )
-    def test_large_scale_topology(
-        self, allure_step_with_separate_logging
-    ):
+    def test_large_scale_topology(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
             """Update timer value to lowest possible value."""
@@ -66,15 +65,17 @@ class TestPcepUser:
         with allure_step_with_separate_logging("step_verify_correct_stats_are_present"):
             """Verifies that get-stat RPC does return correct statistics containing
             all PCC devices and all reported LSPs."""
-            pcep.verify_stats_pcc_count(
+            utils.wait_until_function_pass(
+                5,
+                0.1,
+                pcep.verify_global_pcep_statistics,
                 expected_pcc_count=PCC_COUNT,
-                expected_lsps_per_pcc_count=LSP_PER_PCC_COUNT
+                expected_lsps_per_pcc_count=LSP_PER_PCC_COUNT,
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Stop PCC mocks simulator."""
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
-
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
             """Update timer value back to the original default value."""

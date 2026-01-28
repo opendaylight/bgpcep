@@ -13,6 +13,7 @@ import pytest
 import time
 
 from libraries import pcep
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -67,9 +68,12 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verify_correct_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.verify_stats_pcc_count(
+            utils.wait_until_function_pass(
+                5,
+                0.1,
+                pcep.verify_global_pcep_statistics,
                 expected_pcc_count=PCC_COUNT,
-                expected_lsps_per_pcc_count=INITAL_LSP_PER_PCC_COUNT
+                expected_lsps_per_pcc_count=INITAL_LSP_PER_PCC_COUNT,
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
@@ -95,9 +99,12 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verify_updated_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.verify_stats_pcc_count(
+            utils.wait_until_function_pass(
+                5,
+                0.1,
+                pcep.verify_global_pcep_statistics,
                 expected_pcc_count=PCC_COUNT,
-                expected_lsps_per_pcc_count=UPDATED_LSP_PER_PCC_COUNT
+                expected_lsps_per_pcc_count=UPDATED_LSP_PER_PCC_COUNT,
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):

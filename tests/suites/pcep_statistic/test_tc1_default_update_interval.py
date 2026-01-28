@@ -14,6 +14,7 @@ import time
 
 from libraries import infra
 from libraries import pcep
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -69,7 +70,7 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
             """Verifies that get-stat RPC does not return any statistics."""
-            pcep.verify_odl_does_not_return_stats_for_pcc(pcc_ip=TOOLS_IP)
+            pcep.verify_odl_does_not_return_statistics_for_pcc(pcc_ip=TOOLS_IP)
 
         with allure_step_with_separate_logging("step_wait_1_second"):
             """Wait for 1 second."""
@@ -77,7 +78,9 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
             """Verifies that get-stat RPC does return statistics."""
-            pcep.get_stats(pcc_ip=TOOLS_IP, verify_response=True)
+            utils.wait_until_function_pass(
+                5, 0.1, pcep.get_statistics, pcc_ip=TOOLS_IP, verify_response=True
+            )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Stop PCC mocks simulator."""
