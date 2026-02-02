@@ -40,6 +40,7 @@ class Variables(BaseSettings):
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     ENABLE_TCP_TW_REUSE: bool = False
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
+    MAX_HTTP_RESPONSE_BODY_LOG_SIZE: int = 500
 
 
 variables = Variables()
