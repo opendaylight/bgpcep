@@ -18,6 +18,7 @@ from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
+MAX_HTTP_RESPONSE_BODY_LOG_SIZE = variables.MAX_HTTP_RESPONSE_BODY_LOG_SIZE
 BASE_URL = f"http://{ODL_IP}:{RESTCONF_PORT}"
 
 ALLOWED_STATUS_CODES = {200, 201, 204}
@@ -68,7 +69,8 @@ def get_from_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in GET response.") from e
     else:
-        log.debug(f"Response: {response.text}")
+        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -121,7 +123,8 @@ def put_to_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in PUT response.") from e
     else:
-        log.debug(f"Response: {response.text}")
+        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -174,7 +177,8 @@ def post_to_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in POST response.") from e
     else:
-        log.debug(f"Response: {response.text}")
+        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -220,7 +224,8 @@ def delete_from_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in DELETE response.") from e
     else:
-        log.debug(f"Response: {response.text}")
+        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
