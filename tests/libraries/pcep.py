@@ -26,6 +26,7 @@ from variables.pcepuser.titanium import variables as pcep_variables
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 TOOLS_IP = variables.TOOLS_IP
+MAX_HTTP_RESPONSE_BODY_LOG_SIZE = variables.MAX_HTTP_RESPONSE_BODY_LOG_SIZE
 VARIABLES = pcep_variables.get_variables(TOOLS_IP)
 
 log = logging.getLogger(__name__)
@@ -55,7 +56,6 @@ def get_pcep_topology() -> requests.Response:
         requests.Response:: Pcep topology
     """
     rest_session = AuthStandalone.Init_Session(ODL_IP, "admin", "admin")
-    # Not Logging content, as it may be huge.
     resp = AuthStandalone.Get_Using_Session(
         rest_session,
         (
@@ -68,7 +68,10 @@ def get_pcep_topology() -> requests.Response:
         f"Response code for get pcep topology does not meach expected 200, "
         f"but is {resp.status_code}"
     )
-    log.debug(resp.text)
+    resposne_text = utils.truncate_long_text(resp.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+    log.debug(f"Response: {resposne_text}")
+    log.info(f"Response code: {resp.status_code}")
+    log.debug(f"Response headers: {resp.headers}")
     return resp
 
 
