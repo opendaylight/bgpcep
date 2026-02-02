@@ -6,16 +6,94 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
 
+from contextlib import contextmanager
 import difflib
 import logging
 import time
 from collections.abc import Callable
-from typing import Any, List, Tuple
+from typing import Any, Generator, List, Tuple
 
 from libraries import infra
 from libraries import norm_json
 
 log = logging.getLogger(__name__)
+
+
+class DeferredLogHandler(logging.Handler):
+    """Stores log records in memory instead of writing them immediately."""
+    def __init__(self):
+        """Initialize the deferred handler with an empty record list."""
+        super().__init__()
+        self.records = []
+
+    def emit(self, record: logging.LogRecord):
+        """Store an emitted log record in local buffer.
+
+        Args:
+            record (logging.LogRecord): Log record to be stored.
+
+        Returns:
+            None
+        """
+        self.records.append(record)
+
+    def flush_to_target(self, target_logger: logging.Logger):
+        """Replay buffered log records to the target logger.
+
+        Args:
+            target_logger (logging.Logger): Logger to which the buffered records
+                should be sent.
+
+        Returns:
+            None
+        """
+        for record in self.records:
+            target_logger.handle(record)
+
+
+@contextmanager
+def deferred_logging() -> Generator['DeferredLogHandler', None, None]:
+    """Context manager for temporary log buffering.
+
+    This replaces the root logger's handlers with a temporary buffer. Logs
+    generated within this context are stored in memory and can be either flushed
+    to the original handlers or discarded. Usefull for functions which produces
+    a lot of log records and it is not known in advanced if those log
+    entries will be kept or discarded (e.g. wait until functions).
+
+    Args:
+        None
+
+    Yields:
+        DeferredLogHandler: Temporary handler for storing buffered logs.
+    """
+    root_logger = logging.getLogger()
+    original_handlers = root_logger.handlers[:]
+    buffer_handler = DeferredLogHandler()
+    root_logger.handlers = [buffer_handler]
+    try:
+        yield buffer_handler
+    finally:
+        root_logger.handlers = original_handlers
+
+
+def truncate_long_text(text: str, max_size: int) -> str:
+    """Truncates long text if it exceeds the maximum size.
+
+    Args:
+        text (str): Text to be truncate.
+        max_size (int): Maximum allowed length. If -1, text is not truncated.
+
+    Returns:
+        str: Final truncated text.
+    """
+    if max_size == -1:
+        return text
+
+    if len(text) > max_size:
+            text = text[:max_size] + " ... (truncated long output)"
+
+    return text
 
 
 def verify_jsons_match(
@@ -170,11 +248,14 @@ def wait_until_function_returns_value_with_custom_value_validator(
         Any: Return value returend by last successful function call.
     """
     last_exception = None
+    logger_buffer = None
 
     for retry_num in range(retry_count):
         try:
-            result = function(*args, **kwargs)
+            with deferred_logging() as logger_buffer:
+                result = function(*args, **kwargs)
             if return_value_validator(result):
+                logger_buffer.flush_to_target(log)
                 return result
             else:
                 raise AssertionError(
@@ -190,6 +271,8 @@ def wait_until_function_returns_value_with_custom_value_validator(
             log.debug(f"failed with: {e}")
         time.sleep(interval)
     else:
+        if logger_buffer:
+            logger_buffer.flush_to_target(log)
         raise AssertionError(
             f"Failed to execute "
             f"{function.__name__}({','.join([str(arg) for arg in args])} "
@@ -325,17 +408,22 @@ def verify_function_returns_value_which_passes_custom_value_validator_for_some_t
     Returns:
         Any: Return value returend by last successful function call.
     """
+    logger_buffer = None
+
     for retry_num in range(retry_count):
         try:
-            result = function(*args, **kwargs)
+            with deferred_logging() as logger_buffer:
+                result = function(*args, **kwargs)
             passed_value_validator = return_value_validator(result)
         except Exception as e:
+            logger_buffer.flush_to_target(log)
             raise AssertionError(
                 f"Function {function.__name__}"
                 f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
                 f"failed with the following error {e}"
             )
         if not passed_value_validator:
+            logger_buffer.flush_to_target(log)
             raise AssertionError(
                 f"Function {function.__name__}"
                 f"({','.join([str(arg) for arg in args])} {kwargs or ''}) "
@@ -348,6 +436,7 @@ def verify_function_returns_value_which_passes_custom_value_validator_for_some_t
         )
         time.sleep(interval)
 
+    logger_buffer.flush_to_target(log)
     return result
 
 
