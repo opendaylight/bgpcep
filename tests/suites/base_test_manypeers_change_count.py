@@ -62,7 +62,7 @@ class BaseTestManyPeerChangeCount:
             allure.dynamic.description(test_description)
 
         bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
-            count_change_count_many * 4.0 / 10000 + 80
+            count_change_count_many * 9.0 / 10_000 + 40
         )
         bgp_emptying_timeout = bgp_filling_timeout * 3 / 4
 
