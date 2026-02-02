@@ -69,7 +69,7 @@ def get_from_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in GET response.") from e
     else:
-        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
         log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -123,7 +123,7 @@ def put_to_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in PUT response.") from e
     else:
-        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
         log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -177,7 +177,7 @@ def post_to_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in POST response.") from e
     else:
-        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
         log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -224,7 +224,7 @@ def delete_from_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in DELETE response.") from e
     else:
-        resposne_text = utils.truncute_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
         log.debug(f"Response: {resposne_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")

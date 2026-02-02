@@ -68,7 +68,7 @@ def get_pcep_topology() -> requests.Response:
         f"Response code for get pcep topology does not meach expected 200, "
         f"but is {resp.status_code}"
     )
-    resposne_text = utils.truncute_long_text(resp.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+    resposne_text = utils.truncate_long_text(resp.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
     log.debug(f"Response: {resposne_text}")
     log.info(f"Response code: {resp.status_code}")
     log.debug(f"Response headers: {resp.headers}")
