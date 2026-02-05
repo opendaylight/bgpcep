@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71abf7a0_0875e867",
+        "filename": "tests/suites/pcep_statistic/test_tc12_randomly_changing_topology.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-02-05T16:45:51Z",
+      "side": 1,
+      "message": "can\u0027t we use a multiline string here?",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 12
+      },
+      "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
