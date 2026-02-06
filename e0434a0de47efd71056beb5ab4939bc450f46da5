@@ -22,6 +22,30 @@
       },
       "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2a97d45_26319dc1",
+        "filename": "tests/suites/pcep_statistic/test_tc12_randomly_changing_topology.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-02-06T07:46:34Z",
+      "side": 1,
+      "message": "yes, it is possible to use multiline string, but it would implicitly copy new line characters as they are defined in the string. This would split lines in the final string where it might not be wished. For example in here, last two lines\n`\"Tests that module for PCEP statistics is able to correctly handle random \"\n\"changes in number of connected PCC devices and reported LSPs.\"`\nwill be concatenated in the final string to one line, but using the multiline string (triple quoted) would cause splitting this to two lines.\n\nIt is possible to use multiline string if we would wish to keep the same line length in code and also in the final string. But if we would like to split line in the code locally (to keep maximum line length in code) and would not wish to split the final as it is displayed, then it would not be possible.",
+      "parentUuid": "71abf7a0_0875e867",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 12
+      },
+      "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
