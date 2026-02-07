@@ -46,6 +46,30 @@
       },
       "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f70b5208_6f29dbee",
+        "filename": "tests/suites/pcep_statistic/test_tc12_randomly_changing_topology.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-02-07T11:35:39Z",
+      "side": 1,
+      "message": "well, how about:\n\n    nite@nitebug : ~$ python\n    Python 3.14.2 (main, Dec  5 2025, 00:00:00) [GCC 15.2.1 20251111 (Red Hat 15.2.1-4)] on linux\n    Type \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n    \u003e\u003e\u003e a \u003d \u0027\u0027\u0027\n    ... foo \\\n    ... bar\u0027\u0027\u0027\n    \u003e\u003e\u003e print (a)\n\n    foo bar",
+      "parentUuid": "c2a97d45_26319dc1",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 12
+      },
+      "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
