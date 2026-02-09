@@ -70,6 +70,30 @@
       },
       "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0da03087_7737e1ae",
+        "filename": "tests/suites/pcep_statistic/test_tc12_randomly_changing_topology.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-02-09T08:35:10Z",
+      "side": 1,
+      "message": "yes, it could be done this way. I will update it for all test file.",
+      "parentUuid": "f70b5208_6f29dbee",
+      "range": {
+        "startLine": 42,
+        "startChar": 8,
+        "endLine": 42,
+        "endChar": 12
+      },
+      "revId": "e0434a0de47efd71056beb5ab4939bc450f46da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
