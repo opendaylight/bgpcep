@@ -57,11 +57,11 @@ def set_bgp_neighbour(
         "PASSIVE_MODE": passive_mode_mapping,
         "BGP_RIB_OPENCONFIG": rib_instance,
     }
-    resposne = templated_requests.put_templated_request(
+    response = templated_requests.put_templated_request(
         "variables/bgpuser/bgp_peer", mapping, json=False
     )
 
-    return resposne
+    return response
 
 
 def set_bgp_neighbours(
@@ -154,11 +154,11 @@ def set_bgp_application_peer(
         requests.Response: Requests library response as returned for PUT call.
     """
     mapping = {"IP": ip, "BGP_RIB_OPENCONFIG": rib_instance}
-    resposne = templated_requests.put_templated_request(
+    response = templated_requests.put_templated_request(
         "variables/bgpuser/bgp_application_peer", mapping, json=False
     )
 
-    return resposne
+    return response
 
 
 def set_and_verify_bgp_peer_group(
@@ -213,11 +213,11 @@ def delete_bgp_application_peer(ip: str) -> requests.Response:
             as returned for DELETE call.
     """
     mapping = {"IP": ip, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
-    resposne = templated_requests.delete_templated_request(
+    response = templated_requests.delete_templated_request(
         "variables/bgpfunctional/app_peer", mapping
     )
 
-    return resposne
+    return response
 
 
 def delete_bgp_neighbour(
@@ -234,11 +234,11 @@ def delete_bgp_neighbour(
             as returned for DELETE call.
     """
     mapping = {"IP": ip, "BGP_RIB_OPENCONFIG": rib_instance}
-    resposne = templated_requests.delete_templated_request(
+    response = templated_requests.delete_templated_request(
         "variables/bgpuser/bgp_peer", mapping
     )
 
-    return resposne
+    return response
 
 
 def delete_bgp_neighbours(
@@ -277,11 +277,11 @@ def delete_bgp_peer_group(peer_group_name: str, rib_instance: str = "example-bgp
         "PEER_GROUP_NAME": peer_group_name,
         "BGP_RIB_OPENCONFIG": rib_instance,
     }
-    resposne = templated_requests.delete_templated_request(
+    response = templated_requests.delete_templated_request(
         "variables/bgpuser/peer_group", mapping
     )
 
-    return resposne
+    return response
 
 
 def start_bgp_speaker(

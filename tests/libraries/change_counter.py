@@ -34,11 +34,11 @@ def set_change_counter(topology_name: str) -> requests.Response:
         requests.Response: Requests library response as returned by PUT call.
     """
     mapping = {"TOPOLOGY_NAME": topology_name}
-    resposne = templated_requests.put_templated_request(
+    response = templated_requests.put_templated_request(
         "variables/bgpuser/change_counter", mapping, json=False
     )
 
-    return resposne
+    return response
 
 
 def get_change_count(data_change_counter: str = "data-change-counter") -> int:

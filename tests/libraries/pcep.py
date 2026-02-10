@@ -121,13 +121,13 @@ def configure_speaker_entitiy_identifier() -> requests.Response:
         requests.Response: PUT request response.
     """
     mapping = {"IP": ODL_IP}
-    resposne = templated_requests.put_templated_request(
+    response = templated_requests.put_templated_request(
         "variables/pcepuser/titanium/node_speaker_entity_identifier",
         mapping,
         json=False,
     )
 
-    return resposne
+    return response
 
 
 def get_statistics(

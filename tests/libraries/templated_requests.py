@@ -35,7 +35,7 @@ def get_from_uri(
 
     Args:
         url (str): URL address.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -69,8 +69,8 @@ def get_from_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in GET response.") from e
     else:
-        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
-        log.debug(f"Response: {resposne_text}")
+        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -87,7 +87,7 @@ def put_to_uri_request(
 
     Args:
         uri (str): URI identifier.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -123,8 +123,8 @@ def put_to_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in PUT response.") from e
     else:
-        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
-        log.debug(f"Response: {resposne_text}")
+        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -142,7 +142,7 @@ def post_to_uri(
     Args:
         uri (str): URI identifier.
         data (dict | str): payload to be sent within the POST request to ODL.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -177,8 +177,8 @@ def post_to_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in POST response.") from e
     else:
-        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
-        log.debug(f"Response: {resposne_text}")
+        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -192,7 +192,7 @@ def delete_from_uri_request(
 
     Args:
         url (str): URL address.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -224,8 +224,8 @@ def delete_from_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in DELETE response.") from e
     else:
-        resposne_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
-        log.debug(f"Response: {resposne_text}")
+        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
 
@@ -270,7 +270,7 @@ def get_templated_request(
             otherwise use xml tempale (file anem with .xml suffix).
         verify (bool): If true, verify returned response with stored
             template file.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -323,7 +323,7 @@ def put_templated_request(
             otherwise use xml tempale (file anem with .xml suffix).
         verify (bool): If true, verify returned response with stored
             template file.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -389,7 +389,7 @@ def post_templated_request(
             otherwise use xml tempale (file anem with .xml suffix).
         verify (bool): If true, verify returned response with stored
             template file.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
@@ -449,7 +449,7 @@ def delete_templated_request(
         temlate_dir (str): Path to directory containing template text file(s).
         mapping (dict): Dictionary with all value mapping between placeholder
             values specified in template and expected value.
-        expected_code (int | List[int] | None): Expected resposne code(s)
+        expected_code (int | List[int] | None): Expected response code(s)
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
