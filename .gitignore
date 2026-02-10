@@ -44,3 +44,10 @@ maven-eclipse.xml
 .tox/
 docs/_build/
 
+# PyTest execution
+**/__pycache__/
+tests/allure-results/
+tests/build_tools/
+tests/opendaylight/
+tests/results/
+tests/tmp/
