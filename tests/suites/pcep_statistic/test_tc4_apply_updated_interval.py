@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -34,13 +35,15 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        "**Ensure interval parameters are applied when PCC is connected**\n"
-        "\n"
-        "Tests dynamic reconfiguration of the PCEP statistics timer value. "
-        "Verifies that when the timer value is updated, the new interval "
-        "between statistics updates is applied immediately. It validates "
-        "that the next statistics update occurs successfully after "
-        "the new timer value elapses."
+        textwrap.dedent("""
+            **Ensure interval parameters are applied when PCC is connected**
+
+            Tests dynamic reconfiguration of the PCEP statistics timer value. \
+            Verifies that when the timer value is updated, the new interval \
+            between statistics updates is applied immediately. It validates \
+            that the next statistics update occurs successfully after \
+            the new timer value elapses.
+        """)
     )
     def test_apply_updated_interval(self, allure_step_with_separate_logging):
 

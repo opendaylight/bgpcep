@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -33,10 +34,13 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        "**Ensure system properly functioning with lost topology items**\n"
-        "\n"
-        "Tests that module for PCEP statistics is able to correctly handle continuous "
-        "decrease in the number of connected PCC devices and reported LSPs."
+        textwrap.dedent("""
+            **Ensure system properly functioning with lost topology items**
+
+            Tests that module for PCEP statistics is able to correctly handle \
+            continuous decrease in the number of connected PCC devices and reported \
+            LSPs.
+        """)
     )
     def test_continuous_topology_decrease(self, allure_step_with_separate_logging):
 

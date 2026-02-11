@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -51,13 +52,16 @@ class TestSinglePeer300KRoutes:
 
 
     @allure.description(
-        "**BGP performance of ingesting from 1 iBGP peer**\n"
-        "\n"
-        "Data change counter is NOT used.This suite uses play.py "
-        "as single iBGP peer which talks to single controller. Test suite "
-        "checks changes of the the example-ipv4-topology on all nodes. "
-        "RIB is not examined.\n"
-        "test_singlepeer_pc_300kroutes: pc - prefix counting.")
+        textwrap.dedent("""
+            **BGP performance of ingesting from 1 iBGP peer**
+
+            Data change counter is NOT used.This suite uses play.py \
+            as single iBGP peer which talks to single controller. Test suite \
+            checks changes of the the example-ipv4-topology on all nodes. \
+            RIB is not examined.
+            test_singlepeer_pc_300kroutes: pc - prefix counting.
+        """)
+    )
     def test_single_peer_300K_routes(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging(

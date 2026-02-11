@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 from jinja2 import Environment, FileSystemLoader
@@ -114,13 +115,16 @@ class TestBgpPoliciesDefault:
         )
 
     @allure.description(
-        "**Functional test for bgp routing policies**\n"
-        "\n"
-        "This suite uses 21 peers: *app peer*, *8x rr-client*, *6x ebgp*, "
-        "*6x ibgp* Tests results on effective-rib-in dependant on their "
-        "respective configurations. Peers 1,2,4,5,7,8,10,11,13,14 "
-        "are testing multiple ipv4 routes with additional arguments. "
-        "Peers 3,6,9,12,15 have ipv4 and ipv6 mpls-labeled routes.")
+        textwrap.dedent("""
+            **Functional test for bgp routing policies**
+
+            This suite uses 21 peers: *app peer*, *8x rr-client*, *6x ebgp*, \
+            *6x ibgp* Tests results on effective-rib-in dependant on their \
+            respective configurations. Peers 1,2,4,5,7,8,10,11,13,14 \
+            are testing multiple ipv4 routes with additional arguments. \
+            Peers 3,6,9,12,15 have ipv4 and ipv6 mpls-labeled routes.
+        """)
+    )
     def test_bgp_policies_default(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):

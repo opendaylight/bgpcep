@@ -8,6 +8,7 @@
 
 import ipaddress
 import logging
+import textwrap
 
 import allure
 from jinja2 import Environment, FileSystemLoader
@@ -156,28 +157,32 @@ class TestEbgpPeersBasic:
         )
 
     @allure.description(
-        "**Basic tests for eBGP application peers.**\n"
-        "\n"
-        "Test suite performs basic eBGP functional tests: Twenty eBGP peers "
-        "(two peer groups) advertise the same group of prefixes (aka BGP HA) "
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP*\n"
-        "**Reported bugs:**\n"
-        "**Bug 4834** - ODL controller announces the same route twice "
-        "(two eBGP scenario aka HA)\n"
-        "**Bug 4835** - Routes not withdrawn when eBGP peers are disconnected "
-        "(the same prefixes announced)\n"
-        "\n"
-        "For versions Fluorine and above, there are test cases: TC_LAS "
-        "(test case local AS):\n"
-        "- configuration of ebgp with local-as and ibgp without local-as\n"
-        "- connect bgp speakers (play.py) to both peers groups and check their "
-        "  connection\n"
-        "- check adj-rib-out on both peers gropus, expecting local-as in as-sequence "
-        "  on both peers.\n"
-        "\n"
-        "**TODO**: Extend testsuite by tests dedicated to path selection algorithm\n"
-        "**TODO**: Choose functions used by more than one test suite to be placed "
-        "in a common place.")
+        textwrap.dedent("""
+            **Basic tests for eBGP application peers.**
+
+            Test suite performs basic eBGP functional tests: Twenty eBGP peers \
+            (two peer groups) advertise the same group of prefixes (aka BGP HA)
+            *https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP*
+
+            **Reported bugs:**
+            **Bug 4834** - ODL controller announces the same route twice \
+            (two eBGP scenario aka HA)
+            **Bug 4835** - Routes not withdrawn when eBGP peers are disconnected \
+            (the same prefixes announced)
+
+            For versions Fluorine and above, there are test cases: TC_LAS \
+            (test case local AS):
+            - configuration of ebgp with local-as and ibgp without local-as
+            - connect bgp speakers (play.py) to both peers groups and check their \
+            connection
+            - check adj-rib-out on both peers gropus, expecting local-as \
+            in as-sequence on both peers.
+
+            **TODO**: Extend testsuite by tests dedicated to path selection algorithm
+            **TODO**: Choose functions used by more than one test suite to be placed \
+            in a common place.
+        """)
+    )
     def test_ebgp_peers_basic(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_bgp_peers"):
             """Configure an iBGP and two eBGP peers groups."""

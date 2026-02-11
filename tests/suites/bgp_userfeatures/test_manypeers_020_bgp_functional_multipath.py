@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 from jinja2 import Environment, FileSystemLoader
@@ -182,11 +183,14 @@ class TestBgpfunctionalMultipath:
         )
 
     @allure.description(
-        "**Functional test suite for bgp - n-path and all-path selection**\n"
-        "\n"
-        "This suite tests n-path and all-path selection policy. "
-        "It uses odl and exabgp as bgp peers. Routes advertized from "
-        "odl are configured via application peer.")
+        textwrap.dedent("""
+            **Functional test suite for bgp - n-path and all-path selection**
+
+            This suite tests n-path and all-path selection policy. \
+            It uses odl and exabgp as bgp peers. Routes advertized from \
+            odl are configured via application peer.
+        """)
+    )
     def test_bgp_functional_multipath(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):

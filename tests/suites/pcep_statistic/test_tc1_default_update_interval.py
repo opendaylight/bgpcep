@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -34,12 +35,13 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        "**Ensure statistics update interval is set to 5 seconds by "
-        "default**\n"
-        "\n"
-        "Tests that PCEP statistics are updated strictly after the default "
-        "timer elapses. It verifies statistics are not updated before "
-        "the timer expires, but right after."
+        textwrap.dedent("""
+            **Ensure statistics update interval is set to 5 seconds by default**
+
+            Tests that PCEP statistics are updated strictly after the default \
+            timer elapses. It verifies statistics are not updated before \
+            the timer expires, but right after.
+        """)
     )
     def test_default_update_interval(self, allure_step_with_separate_logging):
 
