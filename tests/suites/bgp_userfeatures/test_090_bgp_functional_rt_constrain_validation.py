@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -51,18 +52,6 @@ log = logging.getLogger(__name__)
 @pytest.mark.run(order=53)
 class TestBgpfunctionalRtConstrainValidation:
 
-    @allure.description(
-        "**Functional test for bgp - route-target-constrain safi**\n"
-        "\n"
-        "This suite tests advertising rt-constrain routes to odl. For advertising "
-        "from peer play.py is used, sending hex messages to odl.\n"
-        "There are 3 peers: ebgp and two ibgps\n."
-        "First peer sends l3vpn route with specific RT to odl, second peer sends RT "
-        "route and third peer only establishes connection. Then it is checked that "
-        "odl advertizes l3vpn route to second peer. Third peer sends wildcard RT "
-        "route and it is checked that odl doesn't advertize l3vpn route to it. "
-        "Then second peer removes RT and it is checked that second peer withdrew RT "
-        "route and that odl withdrew l3vpn route from it.")
     def start_bgp_peer(self, ip, as_number, port, filename):
         """Starts bgp peer."""
         bgp.start_bgp_speaker(
@@ -128,6 +117,21 @@ class TestBgpfunctionalRtConstrainValidation:
             f"{RT_CONSTRAIN_DIR}/empty_l3vpn", mapping=ADJ_RIB_OUT, verify=True
         )
 
+    @allure.description(
+        textwrap.dedent("""
+            **Functional test for bgp - route-target-constrain safi**
+
+            This suite tests advertising rt-constrain routes to odl. For advertising \
+            from peer play.py is used, sending hex messages to odl.
+            There are 3 peers: ebgp and two ibgps
+            First peer sends l3vpn route with specific RT to odl, second peer sends RT \
+            route and third peer only establishes connection. Then it is checked that \
+            odl advertizes l3vpn route to second peer. Third peer sends wildcard RT \
+            route and it is checked that odl doesn't advertize l3vpn route to it. \
+            Then second peer removes RT and it is checked that second peer withdrew RT \
+            route and that odl withdrew l3vpn route from it.
+        """)
+    )
     def test_bgp_functional_rt_constrain_validation(
         self, allure_step_with_separate_logging
     ):

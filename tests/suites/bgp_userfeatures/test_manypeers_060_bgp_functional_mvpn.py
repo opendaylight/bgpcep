@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -40,12 +41,15 @@ log = logging.getLogger(__name__)
 class TestBgpfunctionalMvpn:
 
     @allure.description(
-        "**Functional test suite for bgp - mvpn*\n"
-        "\n"
-        "This suite tests advertising mvpn routes to odl. For advertising play.py "
-        "is used, and particular files are stored as \*.hex files. There are "
-        "7 different types of routes used for auto-discovery of multicast network. "
-        "Also 4 more routes with new attributes specific for mvpn.")
+        textwrap.dedent("""
+            **Functional test suite for bgp - mvpn**
+
+            This suite tests advertising mvpn routes to odl. For advertising play.py \
+            is used, and particular files are stored as \*.hex files. There are \
+            7 different types of routes used for auto-discovery of multicast network. \
+            Also 4 more routes with new attributes specific for mvpn.
+            """)
+    )
     def test_bgp_functional_Mvpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             """Configures bgp application peer."""
