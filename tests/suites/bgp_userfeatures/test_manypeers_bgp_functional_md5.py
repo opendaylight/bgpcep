@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 from jinja2 import Environment, FileSystemLoader
@@ -74,10 +75,13 @@ class TestBgpFunctionalMd5:
         infra.save_to_a_file(f"tmp/exa-md5.cfg", config)
 
     @allure.description(
-        "**This suite tests tcpmd5 connections of bgp peers.**\n"
-        "\n"
-        "It uses odl and exabgp as bgp peers. No routes are advertized, "
-        "simple peer presence in the datastore is tested.")
+        textwrap.dedent("""
+            **This suite tests tcpmd5 connections of bgp peers.**
+
+            It uses odl and exabgp as bgp peers. No routes are advertized, \
+            simple peer presence in the datastore is tested.
+        """)
+    )
     def test_bgp_functional_md5(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_prepare_exabgp_config_file"):

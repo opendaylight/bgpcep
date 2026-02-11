@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -37,10 +38,12 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        "**Ensure PCC is being updated after topology change**\n"
-        "\n"
-        "Tests that PCEP statistics are correctly updated after changing "
-        "number of connected PCCs, reflecting the current state."
+        textwrap.dedent("""
+            **Ensure PCC is being updated after topology change**
+
+            Tests that PCEP statistics are correctly updated after changing \
+            number of connected PCCs, reflecting the current state.
+        """)
     )
     def test_stats_updated_after_topology_change(
         self, allure_step_with_separate_logging

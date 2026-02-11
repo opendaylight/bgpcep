@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -40,10 +41,12 @@ class TestPcepUser:
     pcc_mock_process_2 = None
 
     @allure.description(
-        "**Ensure system properly functioning with lost partial topology**\n"
-        "\n"
-        "Verifies that PCEP statistics update correctly when a portion of the topology"
-        "(Simulator 2) is disconnected."
+        textwrap.dedent("""
+            **Ensure system properly functioning with lost partial topology**
+
+            Verifies that PCEP statistics update correctly when a portion \
+            of the topology (Simulator 2) is disconnected.
+        """)
     )
     def test_partial_topology_loss(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_set_timer_value_to_5_second"):

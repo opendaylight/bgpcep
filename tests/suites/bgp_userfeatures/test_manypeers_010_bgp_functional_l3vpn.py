@@ -8,6 +8,7 @@
 
 import json
 import logging
+import textwrap
 
 import allure
 from jinja2 import Environment, FileSystemLoader
@@ -91,17 +92,20 @@ class TestBgpfunctionalL3Vpn:
         infra.save_to_a_file(f"tmp/{L3VPN_EXA_CFG}", config)
 
     @allure.description(
-        "**Functional test suite for bgp - l3vpn-ipv4**\n"
-        "\n"
-        "This suite tests advertising and receiveing routes with l3vpn content. It "
-        "uses odl and exabgp as bgp peers. Routes advertized from odl are configured "
-        "via application peer. Routes advertised from exabgp is statically configured "
-        "in exabgp config file.\n"
-        "For fluorine and further, instead of exabgp, play.py is used. When sending "
-        "routes from odl to peers, first route containg route-target argument "
-        "have to be send from peer to odl, so odl can identify this peer. Than it "
-        "sends l3vpn route containg this argument to odl app peer, and we check "
-        "that app peer advertizes this route back to the peers.")
+        textwrap.dedent("""
+            **Functional test suite for bgp - l3vpn-ipv4**
+
+            This suite tests advertising and receiveing routes with l3vpn content. It \
+            uses odl and exabgp as bgp peers. Routes advertized from odl \
+            are configured via application peer. Routes advertised from exabgp \
+            is statically configured in exabgp config file.
+            For fluorine and further, instead of exabgp, play.py is used. When sending \
+            routes from odl to peers, first route containg route-target argument \
+            have to be send from peer to odl, so odl can identify this peer. Than it \
+            sends l3vpn route containg this argument to odl app peer, and we check \
+            that app peer advertizes this route back to the peers.
+        """)
+    )
     def test_bgp_functional_l3vpn(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_prepare_config_files"):

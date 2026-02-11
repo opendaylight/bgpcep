@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -55,11 +56,14 @@ class TestIbgpPeerLsp:
     bgp_speaker_process = None
 
     @allure.description(
-        "**Basic tests for iBGP peers.**\n"
-        "\n"
-        "Test suite performs basic iBGP functional test case for carrying LSP State "
-        "Information in BGP as described in "
-        "*http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03*")
+        textwrap.dedent("""
+            **Basic tests for iBGP peers.**
+
+            Test suite performs basic iBGP functional test case for carrying LSP State \
+            Information in BGP as described in \
+            *http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03*
+        """)
+    )
     def test_ibgp_peer_lsp(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_tc1_configure_ibgp_peer"):
             """Configure BGP peer module with initiate-connection set to false."""
