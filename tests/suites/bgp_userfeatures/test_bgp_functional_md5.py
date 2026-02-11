@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -64,10 +65,13 @@ class TestBgpFunctionalMd5:
         log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
 
     @allure.description(
-        "**This suite tests tcpmd5 connection of bgp peer.**\n"
-        "\n"
-        "It uses odl and exabgp as bgp peer. No routes are advertized, "
-        "simple peer presence in the datastore is tested.")
+        textwrap.dedent("""
+            **This suite tests tcpmd5 connection of bgp peer.**
+
+            It uses odl and exabgp as bgp peer. No routes are advertized, \
+            simple peer presence in the datastore is tested.
+        """)
+    )
     def test_bgp_functional_md5(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_prepare_exabgp_config_file"):

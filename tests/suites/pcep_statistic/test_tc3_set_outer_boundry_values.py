@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -32,11 +33,13 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        "**Ensure system rejects outer boundary values for delay interval**\n"
-        "\n"
-        "Tests that PCEP statistics timer can not be updated to values "
-        "outside allowed range. It tries to set the timer value below "
-        "min and above max values and expects a failure response from ODL."
+        textwrap.dedent("""
+            **Ensure system rejects outer boundary values for delay interval**
+
+            Tests that PCEP statistics timer can not be updated to values \
+            outside allowed range. It tries to set the timer value below \
+            min and above max values and expects a failure response from ODL.
+        """)
     )
     def test_set_outer_boundry_values(self, allure_step_with_separate_logging):
 

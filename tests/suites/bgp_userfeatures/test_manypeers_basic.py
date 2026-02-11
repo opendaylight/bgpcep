@@ -7,6 +7,7 @@
 #
 
 import logging
+import textwrap
 
 import allure
 import pytest
@@ -130,39 +131,43 @@ class TestBasic:
         )
 
     @allure.description(
-        "**Basic tests for odl-bgpcep-bgp-all feature.**\n"
-        "\n"
-        "Test suite performs basic BGP functional test cases:\n"
-        "BGP peers initiated connections\n"
-        "- introduce and check 3 prefixes in one update message\n"
-        "ODL controller initiated connections:\n"
-        "- introduce and check 3 prefixes in one update message\n"
-        "- introduce 2 prefixes in first update message and then additional "
-        "  2 prefixes in another update while the very first prefix "
-        "  is withdrawn\n"
-        "- introduce 3 prefixes and try to withdraw the first one "
-        "  (to be ignored by controller) in a single update message\n"
-        "\n"
-        "**TC_R** (test case reset) tests session-reset functionality.\n"
-        "Resets the session, and than verifies that example-ipv4-topology is empty "
-        "again.\n"
-        "\n"
-        "**TC_LA** (test case local address) tests configuration of internal peers "
-        "with local-address configured\n"
-        "- configure peers with local-address and connect bgp-speaker to it "
-        "  with tools_system_ips\n"
-        "- check filled topology\n"
-        "\n"
-        "**TC_PG** (test case peer group) tests configuration and reconfiguration of "
-        "peer-groups and neighbors configured by them.\n"
-        "- configure peer-group, and assign neighbors to this peer-group\n"
-        "- check filled topology\n"
-        "- reconfigure peer-group without ipv4 unicast afi-safi\n"
-        "- check empty topology\n"
-        "- reconfigre neighbor without peer-group, delete peer-group\n"
-        "\n"
-        "Brief description how to perform BGP functional test:\n"
-        "*https://wiki.opendaylight.org/view/BGP_LS_PCEP:Lithium_Feature_Tests#How_to_test_2*")
+        textwrap.dedent("""
+            **Basic tests for odl-bgpcep-bgp-all feature.**
+
+            Test suite performs basic BGP functional test cases:
+            BGP peers initiated connections
+            - introduce and check 3 prefixes in one update message \
+            ODL controller initiated connections:
+            - introduce and check 3 prefixes in one update message
+            - introduce 2 prefixes in first update message and then additional \
+              2 prefixes in another update while the very first prefix \
+              is withdrawn
+            - introduce 3 prefixes and try to withdraw the first one \
+              (to be ignored by controller) in a single update message
+
+            **TC_R** (test case reset) tests session-reset functionality.
+            Resets the session, and than verifies that example-ipv4-topology is empty \
+            again.
+
+            **TC_LA** (test case local address) tests configuration of internal peers \
+            with local-address configured
+            - configure peers with local-address and connect bgp-speaker to it \
+              with tools_system_ips
+            - check filled topology
+
+            **TC_PG** (test case peer group) tests configuration and reconfiguration \
+            of peer-groups and neighbors configured by them.
+            - configure peer-group, and assign neighbors to this peer-group
+            - check filled topology
+            - reconfigure peer-group without ipv4 unicast afi-safi
+            - check empty topology
+            - reconfigre neighbor without peer-group, delete peer-group
+
+            Brief description how to perform BGP functional test:
+            *https://wiki.opendaylight.org/view/\
+            BGP_LS_PCEP:Lithium_Feature_Tests#How_to_test_2*
+        """)
+    )
     def test_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
