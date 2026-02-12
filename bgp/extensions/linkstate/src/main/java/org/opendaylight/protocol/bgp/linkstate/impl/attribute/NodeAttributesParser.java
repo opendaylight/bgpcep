@@ -37,7 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.NodeAttributesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SegmentRoutingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Srms;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
@@ -85,7 +86,9 @@ public final class NodeAttributesParser {
         final var topologyMembership = ImmutableSet.<TopologyIdentifier>builder();
         final var areaMembership = ImmutableSet.<IsisAreaIdentifier>builder();
         final NodeAttributesBuilder builder = new NodeAttributesBuilder();
-        final SrCapabilitiesBuilder srBuilder = new SrCapabilitiesBuilder();
+        final SegmentRoutingBuilder srBuilder = new SegmentRoutingBuilder();
+        final SrMplsCapabilitiesBuilder srMplsBuilder = new SrMplsCapabilitiesBuilder();
+        boolean srMpls = false;
         boolean srCapabilities = false;
         for (var entry : attributes.entries()) {
             final int key = entry.getKey();
@@ -120,21 +123,27 @@ public final class NodeAttributesParser {
                     builder.setIpv6RouterId(ip6);
                 }
                 case SR_CAPABILITIES -> {
-                    SrNodeAttributesParser.parseSrCapabilities(srBuilder, value, protocolId);
+                    SrNodeAttributesParser.parseSrCapabilities(srMplsBuilder, value, protocolId);
                     LOG.debug("Parsed SR Capabilities {}", srBuilder);
-                    srCapabilities = true;
+                    srMpls = true;
                 }
                 case SR_ALGORITHMS -> {
                     final var algs = SrNodeAttributesParser.parseSrAlgorithms(value);
                     LOG.debug("Parsed SR Algorithms {}", algs);
-                    srBuilder.setAlgorithms(algs);
-                    srCapabilities = true;
+                    srMplsBuilder.setAlgorithms(algs);
+                    srMpls = true;
                 }
                 case SR_LOCAL_BLOCK -> {
                     final var srlbs = SrNodeAttributesParser.parseSrLocalBlock(value);
                     LOG.debug("Parsed SR Local Block {}", srlbs);
-                    srBuilder.setSrlb(srlbs);
-                    srCapabilities = true;
+                    srMplsBuilder.setSrlb(srlbs);
+                    srMpls = true;
+                }
+                case SRMS -> {
+                    final var srms = new Srms(readUint8(value));
+                    LOG.debug("Parsed SRMS {}", srms);
+                    srMplsBuilder.setPreference(srms);
+                    srMpls = true;
                 }
                 case SR_NODE_MSD -> {
                     final var msds = SrNodeAttributesParser.parseSrNodeMsd(value);
@@ -142,25 +151,25 @@ public final class NodeAttributesParser {
                     srBuilder.setNodeMsd(msds);
                     srCapabilities = true;
                 }
-                case SRMS -> {
-                    final var srms = new Srms(readUint8(value));
-                    LOG.debug("Parsed SRMS {}", srms);
-                    srBuilder.setPreference(srms);
-                }
                 case SRV6_CAPABILITIES -> {
                     final var caps = SRv6AttributesParser.parseSrv6Capabilities(value);
                     LOG.debug("Parsed SRv6 Capabilities {}", caps);
-                    builder.setSrv6Capabilities(caps);
+                    srBuilder.setSrv6Capabilities(caps);
+                    srCapabilities = true;
                 }
                 case SR_FLEX_ALGO -> {
                     final var fad = SrFlexAlgoParser.parseSrFlexAlgoDefinition(value);
                     LOG.debug("Parsed Flex Algo Definition {}", fad);
-                    builder.setFlexAlgoDefinition(fad);
+                    srBuilder.setFlexAlgoDefinition(fad);
+                    srCapabilities = true;
                 }
                 default -> LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
             }
-            if (srCapabilities) {
-                builder.setSrCapabilities(srBuilder.build());
+            if (srMpls) {
+                srBuilder.setSrMplsCapabilities(srMplsBuilder.build());
+            }
+            if (srCapabilities || srMpls) {
+                builder.setSegmentRouting(srBuilder.build());
             }
         }
 
@@ -217,47 +226,50 @@ public final class NodeAttributesParser {
         if (ipv6 != null) {
             TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID, Ipv6Util.byteBufForAddress(ipv6), byteAggregator);
         }
-        final var srCapabilities = nodeAttributes.getSrCapabilities();
+        final var srCapabilities = nodeAttributes.getSegmentRouting();
         if (srCapabilities != null) {
-            final var capBuffer = Unpooled.buffer();
-            SrNodeAttributesParser.serializeSrCapabilities(srCapabilities, capBuffer);
-            TlvUtil.writeTLV(SR_CAPABILITIES, capBuffer, byteAggregator);
-            final var srAlgorithm = srCapabilities.getAlgorithms();
-            if (srAlgorithm != null) {
-                capBuffer.clear();
-                SrNodeAttributesParser.serializeSrAlgorithms(srAlgorithm, capBuffer);
-                TlvUtil.writeTLV(SR_ALGORITHMS, capBuffer, byteAggregator);
-            }
-            final var srlb = srCapabilities.getSrlb();
-            if (srlb != null) {
-                capBuffer.clear();
-                SrNodeAttributesParser.serializeSrLocalBlock(srlb, capBuffer);
-                TlvUtil.writeTLV(SR_LOCAL_BLOCK, capBuffer, byteAggregator);
+            final var srBuffer = Unpooled.buffer();
+            final var srMplsCapabilities = srCapabilities.getSrMplsCapabilities();
+            if (srMplsCapabilities != null) {
+                SrNodeAttributesParser.serializeSrCapabilities(srMplsCapabilities, srBuffer);
+                TlvUtil.writeTLV(SR_CAPABILITIES, srBuffer, byteAggregator);
+                final var srAlgorithm = srMplsCapabilities.getAlgorithms();
+                if (srAlgorithm != null) {
+                    srBuffer.clear();
+                    SrNodeAttributesParser.serializeSrAlgorithms(srAlgorithm, srBuffer);
+                    TlvUtil.writeTLV(SR_ALGORITHMS, srBuffer, byteAggregator);
+                }
+                final var srlb = srMplsCapabilities.getSrlb();
+                if (srlb != null) {
+                    srBuffer.clear();
+                    SrNodeAttributesParser.serializeSrLocalBlock(srlb, srBuffer);
+                    TlvUtil.writeTLV(SR_LOCAL_BLOCK, srBuffer, byteAggregator);
+                }
+                final var srms = srMplsCapabilities.getPreference();
+                if (srms != null) {
+                    srBuffer.clear();
+                    writeUint8(srBuffer, srms.getValue());
+                    TlvUtil.writeTLV(SRMS, srBuffer, byteAggregator);
+                }
             }
             final var msd = srCapabilities.getNodeMsd();
             if (msd != null) {
-                capBuffer.clear();
-                SrNodeAttributesParser.serializeSrNodeMsd(msd, capBuffer);
-                TlvUtil.writeTLV(SR_NODE_MSD, capBuffer, byteAggregator);
+                srBuffer.clear();
+                SrNodeAttributesParser.serializeSrNodeMsd(msd, srBuffer);
+                TlvUtil.writeTLV(SR_NODE_MSD, srBuffer, byteAggregator);
             }
-            final var srms = srCapabilities.getPreference();
-            if (srms != null) {
-                capBuffer.clear();
-                writeUint8(capBuffer, srms.getValue());
-                TlvUtil.writeTLV(SRMS, capBuffer, byteAggregator);
+            final var fad = srCapabilities.getFlexAlgoDefinition();
+            if (fad != null) {
+                srBuffer.clear();
+                SrFlexAlgoParser.serializeSrFlexAlgoDefinition(fad, srBuffer);
+                TlvUtil.writeTLV(SR_FLEX_ALGO, srBuffer, byteAggregator);
             }
-        }
-        final var fad = nodeAttributes.getFlexAlgoDefinition();
-        if (fad != null) {
-            final var fadBuffer = Unpooled.buffer();
-            SrFlexAlgoParser.serializeSrFlexAlgoDefinition(fad, fadBuffer);
-            TlvUtil.writeTLV(SR_FLEX_ALGO, fadBuffer, byteAggregator);
-        }
-        final var srv6Cap = nodeAttributes.getSrv6Capabilities();
-        if (srv6Cap != null) {
-            final var srv6Buffer = Unpooled.buffer();
-            SRv6AttributesParser.serialiseSrv6Capabilities(srv6Cap, srv6Buffer);
-            TlvUtil.writeTLV(SRV6_CAPABILITIES, srv6Buffer, byteAggregator);
+            final var srv6Cap = srCapabilities.getSrv6Capabilities();
+            if (srv6Cap != null) {
+                srBuffer.clear();
+                SRv6AttributesParser.serialiseSrv6Capabilities(srv6Cap, srBuffer);
+                TlvUtil.writeTLV(SRV6_CAPABILITIES, srBuffer, byteAggregator);
+            }
         }
         LOG.trace("Finished serializing Node Attributes");
     }

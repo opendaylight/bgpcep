@@ -34,6 +34,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.node._case.NodeDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.AdvertisingNodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptorsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
@@ -50,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Srv6Sid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -98,6 +103,9 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
             QName.create(NodeDescriptors.QNAME, "ospf-router-id").intern());
     private static final NodeIdentifier LAN_IFACE_NID = NodeIdentifier.create(
             QName.create(NodeDescriptors.QNAME, "lan-interface").intern());
+    @VisibleForTesting
+    public static final NodeIdentifier SRV6_SID_SID = NodeIdentifier.create(
+            QName.create(NodeDescriptors.QNAME, "srv6-sid").intern());
 
     @Override
     protected ObjectType parseObjectType(final ByteBuf buffer) {
@@ -221,6 +229,11 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
         return memberAsn == null ? null : new AsNumber((Uint32) memberAsn.body());
     }
 
+    private static Srv6Sid serializeSrv6Sid(final ContainerNode descriptorsData) {
+        final var srv6Sid = descriptorsData.childByArg(SRV6_SID_SID);
+        return srv6Sid == null ? null : new Srv6Sid((byte[]) srv6Sid.body());
+    }
+
     static LocalNodeDescriptors serializeLocalNodeDescriptors(final ContainerNode descriptorsData) {
         return new LocalNodeDescriptorsBuilder()
                 .setAsNumber(serializeAsNumber(descriptorsData))
@@ -258,6 +271,21 @@ public final class NodeNlriParser extends AbstractNlriTypeCodec {
                 .setDomainId(serializeDomainId(descriptorsData))
                 .setAreaId(serializeAreaId(descriptorsData))
                 .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .build();
+    }
+
+    static Srv6NodeDescriptors serializeSrv6NodeDescriptors(final ContainerNode descriptorsData) {
+        return new Srv6NodeDescriptorsBuilder()
+                .setAsNumber(serializeAsNumber(descriptorsData))
+                .setDomainId(serializeDomainId(descriptorsData))
+                .setAreaId(serializeAreaId(descriptorsData))
+                .setCRouterIdentifier(serializeRouterId(descriptorsData))
+                .build();
+    }
+
+    static Srv6SidDescriptors serializeSrv6SidDescriptors(final ContainerNode descriptorsData) {
+        return new Srv6SidDescriptorsBuilder()
+                .setSrv6Sid(serializeSrv6Sid(descriptorsData))
                 .build();
     }
 }

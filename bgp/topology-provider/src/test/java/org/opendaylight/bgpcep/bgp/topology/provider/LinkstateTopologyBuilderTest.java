@@ -73,7 +73,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.routes.linkstate.routes.linkstate.route.Attributes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SegmentRoutingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.sr.attributes.SrAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.standard.attributes.UnreservedBandwidthBuilder;
@@ -507,7 +508,9 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                             .setDynamicHostname(nodeName)
                             .setIpv4RouterId(new Ipv4RouterIdentifier(ipv4RouterId))
                             .setIsisAreaId(Set.of(new IsisAreaIdentifier(new byte[]{0x47})))
-                            .setSrCapabilities(new SrCapabilitiesBuilder().setSrgb(srgbs).build())
+                            .setSegmentRouting(new SegmentRoutingBuilder()
+                                .setSrMplsCapabilities(new SrMplsCapabilitiesBuilder().setSrgb(srgbs).build())
+                                .build())
                             .build())
                         .build())
                     .build())

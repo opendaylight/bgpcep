@@ -25,12 +25,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.LinkCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.NodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.Srv6SidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.link._case.LinkDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.link._case.LocalNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.link._case.RemoteNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.PrefixDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationLinkstateCase;
@@ -73,6 +76,10 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
     public static final NodeIdentifier PREFIX_DESCRIPTORS_NID = NodeIdentifier.create(PrefixDescriptors.QNAME);
     @VisibleForTesting
     public static final NodeIdentifier LINK_DESCRIPTORS_NID = NodeIdentifier.create(LinkDescriptors.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier SRV6_NODE_DESCRIPTORS_NID = NodeIdentifier.create(Srv6NodeDescriptors.QNAME);
+    @VisibleForTesting
+    public static final NodeIdentifier SRV6_SID_DESCRIPTORS_NID = NodeIdentifier.create(Srv6SidDescriptors.QNAME);
     @VisibleForTesting
     public static final NodeIdentifier PROTOCOL_ID_NID = NodeIdentifier.create(
             QName.create(CLinkstateDestination.QNAME.getModule(), "protocol-id").intern());
@@ -245,6 +252,15 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             // node descriptors
             return new NodeCaseBuilder()
                 .setNodeDescriptors(NodeNlriParser.serializeNodeDescriptors((ContainerNode) node))
+                .build();
+        }
+
+        final var srv6Node = objectType.childByArg(SRV6_NODE_DESCRIPTORS_NID);
+        if (srv6Node != null) {
+            // SRv6 descriptors
+            return new Srv6SidCaseBuilder()
+                .setSrv6NodeDescriptors(NodeNlriParser.serializeSrv6NodeDescriptors((ContainerNode) srv6Node))
+                .setSrv6SidDescriptors(NodeNlriParser.serializeSrv6SidDescriptors((ContainerNode) srv6Node))
                 .build();
         }
 

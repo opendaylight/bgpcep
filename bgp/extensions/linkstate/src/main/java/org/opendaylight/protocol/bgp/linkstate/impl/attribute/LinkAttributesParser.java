@@ -794,7 +794,7 @@ public final class LinkAttributesParser {
     private static void serializedSrv6EndXSID(final Srv6EndXSid srv6EndXSid, final ByteBuf byteAggregator) {
         if (srv6EndXSid != null) {
             final ByteBuf output = Unpooled.buffer();
-            SRv6AttributesParser.serialiseSrv6EndXSid(srv6EndXSid, output);
+            SRv6AttributesParser.serializeSrv6EndXSid(srv6EndXSid, output);
             TlvUtil.writeTLV(SRV6_END_X_SID, output, byteAggregator);
         }
     }
@@ -802,7 +802,7 @@ public final class LinkAttributesParser {
     private static void serializedSrv6LanEndXSID(final Srv6LanEndXSid srv6LanEndXSid, final ByteBuf byteAggregator) {
         if (srv6LanEndXSid != null) {
             final ByteBuf output = Unpooled.buffer();
-            SRv6AttributesParser.serialiseSrv6LanEndXSid(srv6LanEndXSid, output);
+            SRv6AttributesParser.serializeSrv6LanEndXSid(srv6LanEndXSid, output);
             if (srv6LanEndXSid.getNeighborType() instanceof IsisNeighborCase) {
                 TlvUtil.writeTLV(ISIS_SRV6_LAN_SID, output, byteAggregator);
             } else if (srv6LanEndXSid.getNeighborType() instanceof Ospfv3NeighborCase) {

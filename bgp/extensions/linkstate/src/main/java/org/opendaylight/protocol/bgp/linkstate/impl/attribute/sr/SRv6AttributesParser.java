@@ -25,18 +25,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.srv6.Srv6EndXSidBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.srv6.Srv6LanEndXSid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.attribute.srv6.Srv6LanEndXSidBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.Srv6Capabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.Srv6CapabilitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.Srv6Capabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.Srv6CapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.Srv6Locator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.Srv6LocatorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Srv6Sid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.flags.Flags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.flags.FlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.lan.end.x.sid.neighbor.type.IsisNeighborCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.lan.end.x.sid.neighbor.type.IsisNeighborCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.lan.end.x.sid.neighbor.type.Ospfv3NeighborCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.lan.end.x.sid.neighbor.type.Ospfv3NeighborCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.sid.subtlvs.Srv6SidStructure;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.sid.subtlvs.Srv6SidStructureBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.sid.structure.Srv6SidStructure;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.sid.structure.Srv6SidStructureBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 
 public final class SRv6AttributesParser {
@@ -76,55 +77,63 @@ public final class SRv6AttributesParser {
         output.writeZero(RESERVED_TWO);
     }
 
+    // Common SRv6 Flags
+    public static Flags parseSrv6Flags(final ByteBuf buffer) {
+        final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
+        return new FlagsBuilder()
+            .setBackup(flags.get(BACKUP_FLAG))
+            .setPersistent(flags.get(PERSISTENT_FLAG))
+            .setSet(flags.get(SET_FLAG))
+            .build();
+    }
+
+    public static void serializeSrv6Flags(final Flags flags, final ByteBuf output) {
+        final var bs = new BitArray(FLAGS_SIZE);
+        bs.set(BACKUP_FLAG, flags.getBackup());
+        bs.set(SET_FLAG, flags.getSet());
+        bs.set(PERSISTENT_FLAG, flags.getPersistent());
+        bs.toByteBuf(output);
+    }
+
     // Link Attributes SRv6 End X SID & LAN End X SID
     public static Srv6EndXSid parseSrv6EndXSid(final ByteBuf buffer) {
         final var sidBuilder = new Srv6EndXSidBuilder().setEndpointBehavior(readUint16(buffer));
 
-        final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        sidBuilder
-            .setFlags(new FlagsBuilder()
-                .setBackup(flags.get(BACKUP_FLAG))
-                .setPersistent(flags.get(PERSISTENT_FLAG))
-                .setSet(flags.get(SET_FLAG))
-                .build())
+        sidBuilder.setFlags(parseSrv6Flags(buffer))
             .setAlgo(readUint8(buffer))
             .setWeight(readUint8(buffer));
 
         buffer.skipBytes(RESERVED_ONE);
-        return sidBuilder
-            .setSid(new Srv6Sid(ByteArray.readBytes(buffer, SRV6_SID_LENGTH)))
-            .setSrv6SidStructure(parseSrv6SidStructure(buffer))
-            .build();
+
+        sidBuilder.setSid(new Srv6Sid(ByteArray.readBytes(buffer, SRV6_SID_LENGTH)));
+        if (buffer.isReadable()) {
+            sidBuilder.setSrv6SidStructure(parseSidStructure(buffer));
+        }
+        return sidBuilder.build();
     }
 
-    public static void serialiseSrv6EndXSid(final Srv6EndXSid srv6EndXSid, final ByteBuf output) {
+    public static void serializeSrv6EndXSid(final Srv6EndXSid srv6EndXSid, final ByteBuf output) {
         writeUint16(output, srv6EndXSid.getEndpointBehavior());
-        final var bs = new BitArray(FLAGS_SIZE);
-        bs.set(BACKUP_FLAG, srv6EndXSid.getFlags().getBackup());
-        bs.set(SET_FLAG, srv6EndXSid.getFlags().getSet());
-        bs.set(PERSISTENT_FLAG, srv6EndXSid.getFlags().getPersistent());
-        bs.toByteBuf(output);
+        serializeSrv6Flags(srv6EndXSid.getFlags(), output);
         writeUint8(output, srv6EndXSid.getAlgo());
         writeUint8(output, srv6EndXSid.getWeight());
         output.writeZero(RESERVED_ONE);
         output.writeBytes(srv6EndXSid.getSid().getValue());
-        serializeSrv6SidStructure(srv6EndXSid.getSrv6SidStructure(), output);
+        if (srv6EndXSid.getSrv6SidStructure() != null) {
+            serializeSrv6SidStructure(srv6EndXSid.getSrv6SidStructure(), output);
+        }
     }
 
     public static Srv6LanEndXSid parseSrv6LanEndXSid(final ByteBuf buffer, final ProtocolId protocolId) {
         final var sidBuilder = new Srv6LanEndXSidBuilder().setEndpointBehavior(readUint16(buffer));
 
-        final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
-        sidBuilder.setFlags(new FlagsBuilder()
-                .setBackup(flags.get(BACKUP_FLAG))
-                .setSet(flags.get(SET_FLAG))
-                .setPersistent(flags.get(PERSISTENT_FLAG))
-                .build())
+        sidBuilder.setFlags(parseSrv6Flags(buffer))
             .setAlgo(readUint8(buffer))
             .setWeight(readUint8(buffer));
+
         buffer.skipBytes(RESERVED_ONE);
 
-        return sidBuilder
+        sidBuilder
             .setNeighborType(switch (protocolId) {
                 case IsisLevel1, IsisLevel2 ->
                     new IsisNeighborCaseBuilder()
@@ -134,20 +143,16 @@ public final class SRv6AttributesParser {
                     new Ospfv3NeighborCaseBuilder().setNeighborId(Ipv4Util.addressForByteBuf(buffer)).build();
                 default -> null;
             })
-            .setSid(new Srv6Sid(ByteArray.readBytes(buffer, SRV6_SID_LENGTH)))
-            .setSrv6SidStructure(parseSrv6SidStructure(buffer))
-            .build();
+            .setSid(new Srv6Sid(ByteArray.readBytes(buffer, SRV6_SID_LENGTH)));
+        if (buffer.isReadable()) {
+            sidBuilder.setSrv6SidStructure(parseSidStructure(buffer));
+        }
+        return sidBuilder.build();
     }
 
-    public static void serialiseSrv6LanEndXSid(final Srv6LanEndXSid srv6LanEndXSid, final ByteBuf output) {
+    public static void serializeSrv6LanEndXSid(final Srv6LanEndXSid srv6LanEndXSid, final ByteBuf output) {
         writeUint16(output, srv6LanEndXSid.getEndpointBehavior());
-
-        final var bs = new BitArray(FLAGS_SIZE);
-        bs.set(BACKUP_FLAG, srv6LanEndXSid.getFlags().getBackup());
-        bs.set(SET_FLAG, srv6LanEndXSid.getFlags().getSet());
-        bs.set(PERSISTENT_FLAG, srv6LanEndXSid.getFlags().getPersistent());
-        bs.toByteBuf(output);
-
+        serializeSrv6Flags(srv6LanEndXSid.getFlags(), output);
         writeUint8(output, srv6LanEndXSid.getAlgo());
         writeUint8(output, srv6LanEndXSid.getWeight());
         output.writeZero(RESERVED_ONE);
@@ -161,16 +166,22 @@ public final class SRv6AttributesParser {
         }
 
         output.writeBytes(srv6LanEndXSid.getSid().getValue());
-        serializeSrv6SidStructure(srv6LanEndXSid.getSrv6SidStructure(), output);
+        if (srv6LanEndXSid.getSrv6SidStructure() != null) {
+            serializeSrv6SidStructure(srv6LanEndXSid.getSrv6SidStructure(), output);
+        }
     }
 
-    private static Srv6SidStructure parseSrv6SidStructure(final ByteBuf buffer) {
+    private static Srv6SidStructure parseSidStructure(final ByteBuf buffer) {
         final int type = readUint16(buffer).intValue();
         final int length = readUint16(buffer).intValue();
         if (type != SRV6_SID_STRUCTURE || length != SRV6_SID_STRUCTURE_SIZE) {
             return null;
         }
 
+        return parseSrv6SidStructure(buffer);
+    }
+
+    public static Srv6SidStructure parseSrv6SidStructure(final ByteBuf buffer) {
         return new Srv6SidStructureBuilder()
             .setLocatorBlockLength(readUint8(buffer))
             .setLocatorNodeLength(readUint8(buffer))
@@ -179,7 +190,7 @@ public final class SRv6AttributesParser {
             .build();
     }
 
-    private static void serializeSrv6SidStructure(final Srv6SidStructure srv6SidStructure, final ByteBuf aggregator) {
+    public static void serializeSrv6SidStructure(final Srv6SidStructure srv6SidStructure, final ByteBuf aggregator) {
         final ByteBuf output = Unpooled.buffer();
         writeUint8(output, srv6SidStructure.getLocatorBlockLength());
         writeUint8(output, srv6SidStructure.getLocatorNodeLength());
