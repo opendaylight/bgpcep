@@ -19,10 +19,10 @@ import org.opendaylight.ietf.rfc8294.netty.RFC8294ByteBufUtils;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Algorithm;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.MsdType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sr.capabilities.tlv.Srgb;
@@ -44,7 +44,7 @@ public final class SrNodeAttributesParser {
         // Hidden on purpose
     }
 
-    public static void parseSrCapabilities(final SrCapabilitiesBuilder builder, final ByteBuf buffer,
+    public static void parseSrCapabilities(final SrMplsCapabilitiesBuilder builder, final ByteBuf buffer,
             final ProtocolId protocol) {
         final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         setFlags(flags, protocol, builder);
@@ -59,7 +59,8 @@ public final class SrNodeAttributesParser {
         builder.setSrgb(srgb);
     }
 
-    private static void setFlags(final BitArray flags, final ProtocolId protocol, final SrCapabilitiesBuilder builder) {
+    private static void setFlags(final BitArray flags, final ProtocolId protocol,
+        final SrMplsCapabilitiesBuilder builder) {
         if (protocol.equals(ProtocolId.IsisLevel1) || protocol.equals(ProtocolId.IsisLevel2)) {
             builder.setMplsIpv4(flags.get(MPLS_IPV4));
             builder.setMplsIpv6(flags.get(MPLS_IPV6));
@@ -69,7 +70,7 @@ public final class SrNodeAttributesParser {
         }
     }
 
-    public static void serializeSrCapabilities(final SrCapabilities caps, final ByteBuf buffer) {
+    public static void serializeSrCapabilities(final SrMplsCapabilities caps, final ByteBuf buffer) {
         final var bs = new BitArray(FLAGS_SIZE);
         bs.set(MPLS_IPV4, caps.getMplsIpv4());
         bs.set(MPLS_IPV6, caps.getMplsIpv6());

@@ -50,8 +50,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.OspfNodeCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.FlexAlgoDefinition;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SegmentRouting;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.FlexAlgoDefinition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.sr.attributes.SrAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.sr.attributes.SrLanAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -683,8 +683,8 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         }
 
         // Set Segment Routing if present
-        if (na.getSrCapabilities() != null) {
-            builder.setSrNodeAttributes(getSrNodeAttributes(na.getSrCapabilities(), na.getFlexAlgoDefinition()));
+        if (na.getSegmentRouting() != null) {
+            builder.setSrNodeAttributes(getSrNodeAttributes(na.getSegmentRouting()));
         }
 
         return builder.build();
@@ -696,72 +696,77 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
      * @param sr    Node Attributes
      * @return      Segment Routing Node information
      */
-    private static SrNodeAttributes getSrNodeAttributes(final SrCapabilities sr, final FlexAlgoDefinition fad) {
+    private static SrNodeAttributes getSrNodeAttributes(final SegmentRouting sr) {
         final SrNodeAttributesBuilder sraBuilder = new SrNodeAttributesBuilder();
 
-        // SR Flags
-        sraBuilder.setMplsIpv4(sr.getMplsIpv4())
-            .setMplsIpv6(sr.getMplsIpv6());
-        // Algorithms
-        if (sr.getAlgorithms() != null) {
-            final var algos = ImmutableSet.<Algorithm>builder();
-            sr.getAlgorithms().forEach(algo -> algos.add(Algorithm.forValue(algo.getIntValue())));
-            sraBuilder.setAlgorithms(algos.build());
+        // SR MPLS
+        if (sr.getSrMplsCapabilities() != null) {
+            final var srMpls = sr.getSrMplsCapabilities();
+            // SR Flags
+            sraBuilder.setMplsIpv4(srMpls.getMplsIpv4())
+                .setMplsIpv6(srMpls.getMplsIpv6());
+            // Algorithms
+            if (srMpls.getAlgorithms() != null) {
+                final var algos = ImmutableSet.<Algorithm>builder();
+                srMpls.getAlgorithms().forEach(algo -> algos.add(Algorithm.forValue(algo.getIntValue())));
+                sraBuilder.setAlgorithms(algos.build());
+            }
+            // SRGB
+            if (srMpls.getSrgb() != null) {
+                final var srgbs = new ArrayList<Srgb>();
+                srMpls.getSrgb().forEach(srgb -> {
+                    final var labelIndex = srMpls.getSrgb().getFirst().getSidLabelIndex();
+                    if (labelIndex instanceof LabelCase) {
+                        srgbs.add(new SrgbBuilder()
+                                .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                                .setRangeSize(srMpls.getSrgb().getFirst().getRangeSize().getValue())
+                                .build());
+                    } else if (labelIndex instanceof SidCase) {
+                        srgbs.add(new SrgbBuilder()
+                                .setLowerBound(((SidCase) labelIndex).getSid())
+                                .setRangeSize(srMpls.getSrgb().getFirst().getRangeSize().getValue())
+                                .build());
+                    }
+                });
+                sraBuilder.setSrgb(srgbs);
+            }
+            // SRLB
+            if (srMpls.getSrlb() != null) {
+                final var srlbs = new ArrayList<Srlb>();
+                srMpls.getSrlb().forEach(srlb -> {
+                    final var labelIndex = srMpls.getSrlb().getFirst().getSidLabelIndex();
+                    if (labelIndex instanceof LabelCase) {
+                        srlbs.add(new SrlbBuilder()
+                                .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
+                                .setRangeSize(srMpls.getSrlb().getFirst().getRangeSize().getValue())
+                                .build());
+                    } else if (labelIndex instanceof SidCase) {
+                        srlbs.add(new SrlbBuilder()
+                                .setLowerBound(((SidCase) labelIndex).getSid())
+                                .setRangeSize(srMpls.getSrlb().getFirst().getRangeSize().getValue())
+                                .build());
+                    }
+                });
+                sraBuilder.setSrlb(srlbs);
+            }
         }
         // MSD
         if (sr.getNodeMsd() != null) {
             final var msds = new ArrayList<NodeMsd>();
-            sr.getNodeMsd().forEach(msd ->
-                msds.add(new NodeMsdBuilder()
-                    .setMsdType(Uint8.valueOf(msd.getType().getIntValue()))
-                    .setValue(msd.getValue())
-                    .build())
-            );
+            sr.getNodeMsd().forEach(msd -> {
+                if (msd.getType() != null) {
+                    msds.add(new NodeMsdBuilder()
+                        .setMsdType(Uint8.valueOf(msd.getType().getIntValue()))
+                        .setValue(msd.getValue())
+                        .build());
+                }
+            });
             sraBuilder.setNodeMsd(msds);
         }
-        // SRGB
-        if (sr.getSrgb() != null) {
-            final var srgbs = new ArrayList<Srgb>();
-            sr.getSrgb().forEach(srgb -> {
-                final var labelIndex = sr.getSrgb().getFirst().getSidLabelIndex();
-                if (labelIndex instanceof LabelCase) {
-                    srgbs.add(new SrgbBuilder()
-                            .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
-                            .setRangeSize(sr.getSrgb().getFirst().getRangeSize().getValue())
-                            .build());
-                } else if (labelIndex instanceof SidCase) {
-                    srgbs.add(new SrgbBuilder()
-                            .setLowerBound(((SidCase) labelIndex).getSid())
-                            .setRangeSize(sr.getSrgb().getFirst().getRangeSize().getValue())
-                            .build());
-                }
-            });
-            sraBuilder.setSrgb(srgbs);
-        }
-        // SRLB
-        if (sr.getSrlb() != null) {
-            final var srlbs = new ArrayList<Srlb>();
-            sr.getSrlb().forEach(srlb -> {
-                final var labelIndex = sr.getSrlb().getFirst().getSidLabelIndex();
-                if (labelIndex instanceof LabelCase) {
-                    srlbs.add(new SrlbBuilder()
-                            .setLowerBound(((LabelCase) labelIndex).getLabel().getValue())
-                            .setRangeSize(sr.getSrlb().getFirst().getRangeSize().getValue())
-                            .build());
-                } else if (labelIndex instanceof SidCase) {
-                    srlbs.add(new SrlbBuilder()
-                            .setLowerBound(((SidCase) labelIndex).getSid())
-                            .setRangeSize(sr.getSrlb().getFirst().getRangeSize().getValue())
-                            .build());
-                }
-            });
-            sraBuilder.setSrlb(srlbs);
-        }
         // Flex Algo
-        if (fad != null) {
-            sraBuilder.setFlexAlgo(getFlexAlgoDefinition(fad));
+        if (sr.getFlexAlgoDefinition() != null) {
+            sraBuilder.setFlexAlgo(getFlexAlgoDefinition(sr.getFlexAlgoDefinition()));
         }
-
         return sraBuilder.build();
     }
 
