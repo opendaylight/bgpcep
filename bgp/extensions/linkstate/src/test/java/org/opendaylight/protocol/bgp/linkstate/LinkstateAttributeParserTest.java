@@ -38,16 +38,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.LinkCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.NodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.PrefixCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.Srv6SidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.PrefixDescriptorsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.Srv6SidAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.link.attributes._case.LinkAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.node.attributes._case.NodeAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.prefix.attributes._case.PrefixAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.FlexAlgoDefinitionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.srv6.sid.attributes._case.Srv6SidAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.FlexAlgoDefinitionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.IgpBits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.reach.nlri.advertized.routes.destination.type.destination.linkstate._case.DestinationLinkstateBuilder;
@@ -134,8 +138,8 @@ public class LinkstateAttributeParserTest {
         0x04, 0x0a, 0, 0x0d, (byte) 0xc0, 0, 0, 0, 0x0a, 0x04, (byte) 0x89, 0, 0x04, 0x01, 0x02, 0x03, 0x04, // sr-caps
         0x04, 0x0b, 0, 0x02, 0, 0x01, // sr-algorithms
         0x04, 0x0c, 0, 0x0c, 0, 0, 0, 0, 0x0a, 0x04, (byte) 0x89, 0, 0x03, 0, 0x01, 0x02, // SRLB
-        0x01, 0x0a, 0, 0x04, 0x01, 0x0a, 0x02, 0x08, // MSD
         0x04, 0x0d, 0, 0x01, (byte)0xdd, // SRMS
+        0x01, 0x0a, 0, 0x04, 0x01, 0x0a, 0x02, 0x08, // MSD
         0x04, 0x0f, 0, 0x32, (byte)0x80, 0x01, 0x01, 0x0a,  // Flex-Algo Definition + Flex-Algo SubTLVS bellow
         0x04, 0x10, 0, 0x04, 0, 0, 0, 0x01,    // exclude-any
         0x04, 0x11, 0, 0x04, 0, 0, 0, 0,    // include-any
@@ -167,6 +171,16 @@ public class LinkstateAttributeParserTest {
         0x10, 0x30, 0x50, 0x70, 0x04, (byte) 0x82, 0, 0x08, 0x12, 0x34, 0x56, 0x78, 0x10, 0x30, 0x50, 0x70,
         0x04, (byte) 0x83, 0, 0x04, 0, 0, 0, 0x0a,
         0x04, (byte) 0x8a, 0, 0x08, (byte) 0x80, 0x01, 0, 0, 0, 0, 0, 0xa // SRv6 Locator
+    };
+
+    private static final byte[] SRV6_SID_ATTR = {
+        // SRv6 Endpoint Behavior
+        (byte) 0x04, (byte) 0xe2, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01,
+        // SRv6 BGP Peer Node SID
+        (byte) 0x04, (byte) 0xe3, (byte) 0x00, (byte) 0x0c, (byte) 0x60, (byte) 0x0a, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x50, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a,
+        // SRv6 SID Structure
+        (byte) 0x04, (byte) 0xe4, (byte) 0x00, (byte) 0x04, (byte) 0x08, (byte) 0x08, (byte) 0x04, (byte) 0x04,
     };
 
     private LinkstateAttributeParser parser;
@@ -435,31 +449,32 @@ public class LinkstateAttributeParserTest {
         final NodeAttributes ls = ((NodeAttributesCase) attrs.getLinkStateAttribute()).getNodeAttributes();
         assertNotNull(ls);
 
-        // SR Capabilities
-        assertNotNull(ls.getSrCapabilities());
-        assertTrue(ls.getSrCapabilities().getMplsIpv4());
-        assertTrue(ls.getSrCapabilities().getMplsIpv6());
-        assertEquals(Uint32.valueOf(10), ls.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue());
-        assertEquals(Uint32.valueOf(16909060L),
-                ((SidCase) ls.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex()).getSid());
+        // Segment Routing
+        assertNotNull(ls.getSegmentRouting());
+        // SR-MPLS Capabilities
+        final SrMplsCapabilities srMpls = ls.getSegmentRouting().getSrMplsCapabilities();
+        assertNotNull(srMpls);
+        assertTrue(srMpls.getMplsIpv4());
+        assertTrue(srMpls.getMplsIpv6());
+        assertEquals(Uint32.valueOf(10), srMpls.getSrgb().getFirst().getRangeSize().getValue());
+        assertEquals(Uint32.valueOf(16909060L), ((SidCase) srMpls.getSrgb().getFirst().getSidLabelIndex()).getSid());
         // SR Algorithm
-        assertNotNull(ls.getSrCapabilities().getAlgorithms());
+        assertNotNull(srMpls.getAlgorithms());
         assertEquals(Set.of(Algorithm.ShortestPathFirst, Algorithm.StrictShortestPathFirst),
-                ls.getSrCapabilities().getAlgorithms());
+                srMpls.getAlgorithms());
         // SRLB
-        assertNotNull(ls.getSrCapabilities().getSrlb());
-        assertEquals(10, ls.getSrCapabilities().getSrlb().getFirst().getRangeSize().getValue().intValue());
+        assertNotNull(srMpls.getSrlb());
+        assertEquals(10, srMpls.getSrlb().getFirst().getRangeSize().getValue().intValue());
         assertEquals(Uint32.valueOf(258L),
-                ((LabelCase) ls.getSrCapabilities().getSrlb().getFirst().getSidLabelIndex()).getLabel().getValue());
+                ((LabelCase) srMpls.getSrlb().getFirst().getSidLabelIndex()).getLabel().getValue());
         // SRMS
-        assertNotNull(ls.getSrCapabilities().getPreference());
-        assertEquals(221, ls.getSrCapabilities().getPreference().getValue().intValue());
+        assertNotNull(srMpls.getPreference());
+        assertEquals(221, srMpls.getPreference().getValue().intValue());
         // Node MSD
         final List<NodeMsd> msds = new ArrayList<NodeMsd>();
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(1)).setValue(Uint8.valueOf(10)).build());
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(2)).setValue(Uint8.valueOf(8)).build());
-        assertNotNull(ls.getSrCapabilities());
-        assertEquals(msds, ls.getSrCapabilities().getNodeMsd());
+        assertEquals(msds, ls.getSegmentRouting().getNodeMsd());
         // Flex Algo Definition
         final FlexAlgoDefinitionTlv fadTlv = new FlexAlgoDefinitionTlvBuilder()
             .setFlexAlgo(new FlexAlgo(Uint8.valueOf(128)))
@@ -478,9 +493,9 @@ public class LinkstateAttributeParserTest {
                         .build())
                 .build())
             .build();
-        assertNotNull(ls.getFlexAlgoDefinition());
+        assertNotNull(ls.getSegmentRouting().getFlexAlgoDefinition());
         assertEquals(new FlexAlgoDefinitionBuilder().setFlexAlgoDefinitionTlv(List.of(fadTlv)).build(),
-                ls.getFlexAlgoDefinition());
+                ls.getSegmentRouting().getFlexAlgoDefinition());
 
         // serialization
         final ByteBuf buff = Unpooled.buffer();
@@ -499,8 +514,9 @@ public class LinkstateAttributeParserTest {
         assertNotNull(ls);
 
         // SRv6 Capabilities
-        assertNotNull(ls.getSrv6Capabilities());
-        assertTrue(ls.getSrv6Capabilities().getOFlag());
+        assertNotNull(ls.getSegmentRouting());
+        assertNotNull(ls.getSegmentRouting().getSrv6Capabilities());
+        assertTrue(ls.getSegmentRouting().getSrv6Capabilities().getOFlag());
 
         // serialization
         final ByteBuf buff = Unpooled.buffer();
@@ -585,5 +601,38 @@ public class LinkstateAttributeParserTest {
         parser.serializeAttribute(builder.build(), buff);
         buff.skipBytes(3);
         assertArrayEquals(P6_ATTR, ByteArray.getAllBytes(buff));
+    }
+
+    @Test
+    public void testSRv6SidAttributesParser() throws BGPParsingException, BGPDocumentedException {
+        final AttributesBuilder builder = createBuilder(new Srv6SidCaseBuilder().build());
+        parser.parseAttribute(Unpooled.copiedBuffer(SRV6_SID_ATTR), builder, null);
+
+        final Attributes1 attrs = builder.augmentation(Attributes1.class);
+        final Srv6SidAttributes ls = ((Srv6SidAttributesCase) attrs.getLinkStateAttribute()).getSrv6SidAttributes();
+        assertNotNull(ls);
+
+        assertNotNull(ls.getSrv6EndpointBehavior());
+        assertEquals(1, ls.getSrv6EndpointBehavior().getEndpointBehavior().intValue());
+        assertEquals(1, ls.getSrv6EndpointBehavior().getAlgo().intValue());
+        assertNotNull(ls.getSrv6BgpPeerNode());
+        assertFalse(ls.getSrv6BgpPeerNode().getFlags().getBackup());
+        assertTrue(ls.getSrv6BgpPeerNode().getFlags().getSet());
+        assertTrue(ls.getSrv6BgpPeerNode().getFlags().getPersistent());
+        assertEquals(10, ls.getSrv6BgpPeerNode().getWeight().intValue());
+        assertEquals(Uint32.valueOf(80), ls.getSrv6BgpPeerNode().getPeerAsNumber().getValue());
+        assertEquals("42.42.42.42", ls.getSrv6BgpPeerNode().getPeerBgpId().getValue());
+        assertNotNull(ls.getSrv6SidStructure());
+        assertEquals(8, ls.getSrv6SidStructure().getLocatorBlockLength().intValue());
+        assertEquals(8, ls.getSrv6SidStructure().getLocatorNodeLength().intValue());
+        assertEquals(4, ls.getSrv6SidStructure().getFunctionLength().intValue());
+        assertEquals(4, ls.getSrv6SidStructure().getArgumentLength().intValue());
+
+        // serialization
+        final ByteBuf buff = Unpooled.buffer();
+        parser.serializeAttribute(builder.build(), buff);
+        buff.skipBytes(3);
+        assertArrayEquals(SRV6_SID_ATTR, ByteArray.getAllBytes(buff));
+
     }
 }

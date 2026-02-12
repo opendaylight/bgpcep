@@ -26,10 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.LinkCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.NodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.PrefixCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.Srv6SidCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.LinkStateAttribute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.LinkAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.NodeAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.PrefixAttributesCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.path.attribute.link.state.attribute.Srv6SidAttributesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationLinkstateCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
@@ -129,6 +131,7 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
             case PrefixCase prefix -> PrefixAttributesParser::parsePrefixAttributes;
             case LinkCase link -> LinkAttributesParser::parseLinkAttributes;
             case NodeCase node -> NodeAttributesParser::parseNodeAttributes;
+            case Srv6SidCase srv6 -> Srv6SidAttributesParser::parseSrv6SidAttributes;
             default -> throw new IllegalStateException("Unhandled NLRI type " + nlri);
         };
         return parse.apply(getAttributesMap(buffer), protocolId);
@@ -155,6 +158,11 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
             NodeAttributesParser.serializeNodeAttributes(na, lsBuffer);
         } else if (linkState instanceof PrefixAttributesCase pa) {
             PrefixAttributesParser.serializePrefixAttributes(pa, lsBuffer);
+        } else if (linkState instanceof Srv6SidAttributesCase sa) {
+            Srv6SidAttributesParser.serializeSrv6SidAttributes(sa, lsBuffer);
+        } else {
+            LOG.warn("Unknown LinkStateAttribute type {}", linkState);
+            return;
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), lsBuffer, byteAggregator);
     }

@@ -68,6 +68,9 @@ module bgp-segment-routing {
             enum erld {
                 value 2;
             }
+            enum rld {
+                value 3;
+            }
             enum srh-max-sl {
                 value 41;
             }
@@ -154,6 +157,13 @@ module bgp-segment-routing {
         leaf preference {
             type srms;
         }
+    }
+
+    grouping sr-mpls-attributes {
+        uses sr-capabilities-tlv;
+        uses sr-algorithms-tlv;
+        uses sr-local-block-tlv;
+        uses srms-tlv;
     }
 
     grouping srv6-capabilities-tlv {
@@ -365,7 +375,7 @@ module bgp-segment-routing {
         }
     }
 
-    grouping srv6-sid-subtlvs {
+    grouping srv6-sid-structure {
         reference "https://tools.ietf.org/html/rfc9514#section-8";
         container srv6-sid-structure {
             leaf locator-block-length {
@@ -398,7 +408,7 @@ module bgp-segment-routing {
         leaf sid {
             type srv6-sid;
         }
-        uses srv6-sid-subtlvs;
+        uses srv6-sid-structure;
     }
 
     grouping srv6-lan-end-x-sid {
@@ -428,7 +438,7 @@ module bgp-segment-routing {
         leaf sid {
             type srv6-sid;
         }
-        uses srv6-sid-subtlvs;
+        uses srv6-sid-structure;
     }
 
     // Prefix Attributes
@@ -619,6 +629,9 @@ module bgp-segment-routing {
         leaf endpoint-behavior {
             type uint16;
         }
+        leaf flags {
+            type uint8;
+        }
         leaf algo {
             type uint8;
         }
@@ -648,7 +661,7 @@ module bgp-segment-routing {
         container srv6-bgp-peer-node {
             uses srv6-bgp-peer-node;
         }
-        uses srv6-sid-subtlvs;
+        uses srv6-sid-structure;
     }
 
 }
