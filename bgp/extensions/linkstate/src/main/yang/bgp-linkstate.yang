@@ -378,13 +378,10 @@ module bgp-linkstate {
                     uses node-identifier;
                     uses bgp-epe:epe-node-descriptors;
                 }
-                container srv6-sid-information {
-                    leaf srv6-sid-tlv {
+                container srv6-sid-descriptors {
+                    leaf srv6-sid {
                         type bgp-sr:srv6-sid;
                     }
-                }
-                container srv6-attributes {
-                    uses bgp-sr:srv6-attributes;
                 }
             }
         }
@@ -482,21 +479,20 @@ module bgp-linkstate {
         leaf ipv6-remote-router-id {
             type ipv6-router-identifier;
         }
-        container sr-capabilities {
-            uses bgp-sr:sr-capabilities-tlv;
-            uses bgp-sr:sr-algorithms-tlv;
-            uses bgp-sr:sr-local-block-tlv;
-            uses bgp-sr:srms-tlv;
+        container segment-routing {
+            container sr-mpls-capabilities {
+                uses bgp-sr:sr-mpls-attributes;
+            }
+            container srv6-capabilities {
+                uses bgp-sr:srv6-capabilities-tlv;
+            }
             list node-msd {
                 reference "https://tools.ietf.org/html/rfc8814#section-3";
                 uses bgp-sr:msd-tlv;
             }
-        }
-        container srv6-capabilities {
-            uses bgp-sr:srv6-capabilities-tlv;
-        }
-        container flex-algo-definition {
-            uses bgp-sr:flex-algo-definitions;
+            container flex-algo-definition {
+                uses bgp-sr:flex-algo-definitions;
+            }
         }
     }
 
@@ -898,6 +894,8 @@ module bgp-linkstate {
         }
     }
 
+
+    // Link State Path Attributes
     grouping linkstate-path-attribute {
         choice link-state-attribute {
             case node-attributes-case {
@@ -913,6 +911,11 @@ module bgp-linkstate {
             case prefix-attributes-case {
                 container prefix-attributes {
                     uses prefix-state;
+                }
+            }
+            case srv6-sid-attributes-case {
+                container srv6-sid-attributes {
+                    uses bgp-sr:srv6-attributes;
                 }
             }
         }

@@ -38,11 +38,8 @@ import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RemoteNodeDescriptorTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.RouterIdTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6EndpointTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6NodeDescriptorTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6PeerNodeTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6SidInformationTlvParser;
-import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6SidStructureTlvParser;
+import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.SRv6SidDescriptorsTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.NlriTypeCaseParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.NlriTypeCaseSerializer;
@@ -165,21 +162,9 @@ public final class SimpleNlriTypeRegistry {
         tlvParsers.register(srv6NodeDescriptorTlvParser.getType(), srv6NodeDescriptorTlvParser);
         tlvSerializers.register(srv6NodeDescriptorTlvParser.getTlvQName(), srv6NodeDescriptorTlvParser);
 
-        final SRv6SidInformationTlvParser srv6SidInformationTlvParser = new SRv6SidInformationTlvParser();
-        tlvParsers.register(srv6SidInformationTlvParser.getType(), srv6SidInformationTlvParser);
-        tlvSerializers.register(srv6SidInformationTlvParser.getTlvQName(), srv6SidInformationTlvParser);
-
-        final SRv6EndpointTlvParser srv6EndPointTlvParser = new SRv6EndpointTlvParser();
-        tlvParsers.register(srv6EndPointTlvParser.getType(), srv6EndPointTlvParser);
-        tlvSerializers.register(srv6EndPointTlvParser.getTlvQName(), srv6EndPointTlvParser);
-
-        final SRv6PeerNodeTlvParser srv6PeerNodeTlvParser = new SRv6PeerNodeTlvParser();
-        tlvParsers.register(srv6PeerNodeTlvParser.getType(), srv6PeerNodeTlvParser);
-        tlvSerializers.register(srv6PeerNodeTlvParser.getTlvQName(), srv6PeerNodeTlvParser);
-
-        final SRv6SidStructureTlvParser srv6SidStructureParser = new SRv6SidStructureTlvParser();
-        tlvParsers.register(srv6SidStructureParser.getType(), srv6SidStructureParser);
-        tlvSerializers.register(srv6SidStructureParser.getTlvQName(), srv6SidStructureParser);
+        final SRv6SidDescriptorsTlvParser srv6SidDescriptorsTlvParser = new SRv6SidDescriptorsTlvParser();
+        tlvParsers.register(srv6SidDescriptorsTlvParser.getType(), srv6SidDescriptorsTlvParser);
+        tlvSerializers.register(srv6SidDescriptorsTlvParser.getTlvQName(), srv6SidDescriptorsTlvParser);
     }
 
     public static @NonNull SimpleNlriTypeRegistry getInstance() {

@@ -9,9 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
 
@@ -47,9 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.PrefixDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidInformation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
@@ -136,24 +133,17 @@ public class LinkstateNlriParserTest {
     };
 
     private final byte[] srv6Nlri = new byte[] {
-        (byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x64, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x06, (byte) 0x00, (byte) 0x44, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x00, (byte) 0x00,
         (byte) 0x23, (byte) 0x02, (byte) 0x00, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x48, (byte) 0x02, (byte) 0x01, (byte) 0x00, (byte) 0x04, (byte) 0x28, (byte) 0x28, (byte) 0x28,
         (byte) 0x28, (byte) 0x02, (byte) 0x02, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x29, (byte) 0x29,
         (byte) 0x29, (byte) 0x02, (byte) 0x03, (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x39, (byte) 0x05,
-        // SRv6 SID information TLV
+        // SRv6 SID Descriptors TLV
         (byte) 0x02, (byte) 0x06, (byte) 0x00, (byte) 0x10, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03,
         (byte) 0x04, (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
-        // SRv6 Endpoint Behavior
-        (byte) 0x04, (byte) 0xe2, (byte) 0x00, (byte) 0x04, (byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x01,
-        // SRv6 BGP Peer Node SID
-        (byte) 0x04, (byte) 0xe3, (byte) 0x00, (byte) 0x0c, (byte) 0x60, (byte) 0x0a, (byte) 0x00, (byte) 0x00,
-        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x50, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a, (byte) 0x2a,
-        // SRv5 SID Structure
-        (byte) 0x04, (byte) 0xe4, (byte) 0x00, (byte) 0x04, (byte) 0x08, (byte) 0x08, (byte) 0x04, (byte) 0x04
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
 
     private CLinkstateDestination dest;
@@ -405,23 +395,9 @@ public class LinkstateNlriParserTest {
                     new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
             nodeD.getCRouterIdentifier());
 
-        final Srv6SidInformation sidInformation = srv6Case.getSrv6SidInformation();
+        final Srv6SidDescriptors sidDescriptor = srv6Case.getSrv6SidDescriptors();
         assertArrayEquals(new byte [] {0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1},
-            sidInformation.getSrv6SidTlv().getValue());
-
-        final Srv6Attributes sidAttr = srv6Case.getSrv6Attributes();
-        assertEquals(1, sidAttr.getSrv6EndpointBehavior().getEndpointBehavior().intValue());
-        assertEquals(1, sidAttr.getSrv6EndpointBehavior().getAlgo().intValue());
-        assertFalse(sidAttr.getSrv6BgpPeerNode().getFlags().getBackup());
-        assertTrue(sidAttr.getSrv6BgpPeerNode().getFlags().getSet());
-        assertTrue(sidAttr.getSrv6BgpPeerNode().getFlags().getPersistent());
-        assertEquals(10, sidAttr.getSrv6BgpPeerNode().getWeight().intValue());
-        assertEquals(Uint32.valueOf(80), sidAttr.getSrv6BgpPeerNode().getPeerAsNumber().getValue());
-        assertEquals("42.42.42.42", sidAttr.getSrv6BgpPeerNode().getPeerBgpId().getValue());
-        assertEquals(8, sidAttr.getSrv6SidStructure().getLocatorBlockLength().intValue());
-        assertEquals(8, sidAttr.getSrv6SidStructure().getLocatorNodeLength().intValue());
-        assertEquals(4, sidAttr.getSrv6SidStructure().getFunctionLength().intValue());
-        assertEquals(4, sidAttr.getSrv6SidStructure().getArgumentLength().intValue());
+            sidDescriptor.getSrv6Sid().getValue());
 
         final ByteBuf buffer = Unpooled.buffer();
         registry.serializeNlriType(dest, buffer);

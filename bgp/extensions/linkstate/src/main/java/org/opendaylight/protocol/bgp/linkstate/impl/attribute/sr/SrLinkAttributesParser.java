@@ -211,10 +211,12 @@ public final class SrLinkAttributesParser {
     public static List<LinkMsd> parseSrLinkMsd(final ByteBuf buffer) {
         final var msds = new ArrayList<LinkMsd>();
         while (buffer.isReadable()) {
-            msds.add(new LinkMsdBuilder()
-                    .setType(MsdType.forValue(buffer.readByte()))
-                    .setValue(readUint8(buffer))
-                    .build());
+            final var msdType = MsdType.forValue(buffer.readByte());
+            final var value = readUint8(buffer);
+            // Skip Unknown MSD Type
+            if (msdType != null) {
+                msds.add(new LinkMsdBuilder().setType(msdType).setValue(value).build());
+            }
         }
         return msds;
     }
