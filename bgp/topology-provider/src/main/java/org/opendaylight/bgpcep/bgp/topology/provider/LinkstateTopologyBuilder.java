@@ -771,13 +771,14 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
             if (na.getDynamicHostname() != null) {
                 inab.setName(new DomainName(na.getDynamicHostname()));
             }
-            if (na.getSrCapabilities() != null) {
-                final SidLabelIndex sidLabelIndex = na.getSrCapabilities().getSrgb().getFirst().getSidLabelIndex();
+            if (na.getSegmentRouting() != null && na.getSegmentRouting().getSrMplsCapabilities() != null) {
+                final var srMpls = na.getSegmentRouting().getSrMplsCapabilities();
+                final SidLabelIndex sidLabelIndex = srMpls.getSrgb().getFirst().getSidLabelIndex();
                 if (sidLabelIndex instanceof LabelCase) {
                     srgbFirstValue = ((LabelCase) sidLabelIndex).getLabel().getValue().longValue();
                 }
-                srgbRangeSize = na.getSrCapabilities().getSrgb().getFirst().getRangeSize() != null
-                        ? na.getSrCapabilities().getSrgb().getFirst().getRangeSize().getValue().intValue()
+                srgbRangeSize = srMpls.getSrgb().getFirst().getRangeSize() != null
+                        ? srMpls.getSrgb().getFirst().getRangeSize().getValue().intValue()
                         : null;
             }
         }
