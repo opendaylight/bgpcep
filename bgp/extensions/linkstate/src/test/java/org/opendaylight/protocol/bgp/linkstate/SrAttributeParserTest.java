@@ -30,12 +30,12 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.FlexAlgoDefinition;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.FlexAlgoDefinitionBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.SrCapabilitiesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.sr.capabilities.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.FlexAlgoDefinition;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.FlexAlgoDefinitionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsd;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrRange;
@@ -163,7 +163,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc90850#section-2.1.2
     @Test
-    public void testSrCapabilities() {
+    public void testSrMplsCapabilities() {
         final byte[] bytesIsis = { (byte)0xC0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final byte[] bytesOspf = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final List<Srgb> srgb = new ArrayList<Srgb>();
@@ -171,18 +171,19 @@ public class SrAttributeParserTest {
                 .setRangeSize(new Uint24(Uint32.TEN))
                 .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
                 .build());
-        final SrCapabilities capsIsis = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE).setMplsIpv6(Boolean.TRUE)
+        final SrMplsCapabilities capsIsis = new SrMplsCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE)
+                .setMplsIpv6(Boolean.TRUE)
                 .setSrgb(srgb)
                 .build();
-        final SrCapabilities capsOspf = new SrCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
+        final SrMplsCapabilities capsOspf = new SrMplsCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
                 .setMplsIpv6(Boolean.FALSE)
                 .setSrgb(srgb)
                 .build();
-        final SrCapabilitiesBuilder parseCapsIsis = new SrCapabilitiesBuilder();
+        final SrMplsCapabilitiesBuilder parseCapsIsis = new SrMplsCapabilitiesBuilder();
         SrNodeAttributesParser.parseSrCapabilities(parseCapsIsis, Unpooled.wrappedBuffer(bytesIsis),
                 ProtocolId.IsisLevel1);
         assertEquals(capsIsis, parseCapsIsis.build());
-        final SrCapabilitiesBuilder parseCapsOspf = new SrCapabilitiesBuilder();
+        final SrMplsCapabilitiesBuilder parseCapsOspf = new SrMplsCapabilitiesBuilder();
         SrNodeAttributesParser.parseSrCapabilities(parseCapsOspf, Unpooled.wrappedBuffer(bytesIsis), ProtocolId.Ospf);
         assertEquals(capsOspf, parseCapsOspf.build());
         final ByteBuf encodedIsis = Unpooled.buffer();
