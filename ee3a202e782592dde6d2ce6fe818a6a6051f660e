@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "034aadda_cd828ca5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-02-13T12:30:01Z",
+      "side": 1,
+      "message": "Hello Robert, Ivan,\n\nCan you review this patch? It corrects bug for SRv6 NLRI parser in BGP-LS.\n\nThanks,\n\nOlivier",
+      "revId": "ee3a202e782592dde6d2ce6fe818a6a6051f660e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
