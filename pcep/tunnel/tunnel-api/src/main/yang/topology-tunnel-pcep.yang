@@ -121,4 +121,3 @@ module topology-tunnel-pcep {
         uses rsvp:record-route-subobjects;
     }
 }
-

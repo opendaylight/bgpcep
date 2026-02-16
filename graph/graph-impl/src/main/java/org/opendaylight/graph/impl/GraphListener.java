@@ -153,4 +153,3 @@ public final class GraphListener implements DataTreeChangeListener<Graph>, AutoC
         }
     }
 }
-

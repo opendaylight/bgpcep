@@ -91,4 +91,3 @@ public final class FlowspecIpv4NlriParserHelper {
             .collect(Collectors.toList());
     }
 }
-
