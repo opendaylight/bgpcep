@@ -13,4 +13,3 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 public interface SRROSubobjectSerializer {
     void serializeSubobject(SubobjectContainer subobject, ByteBuf buffer);
 }
-

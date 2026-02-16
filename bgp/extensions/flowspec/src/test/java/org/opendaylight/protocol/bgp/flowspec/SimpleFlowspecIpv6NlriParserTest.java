@@ -497,4 +497,3 @@ public class SimpleFlowspecIpv6NlriParserTest {
         assertEquals(List.of(expectedFS.build()), fsParser.extractFlowspec(entry.build()));
     }
 }
-
