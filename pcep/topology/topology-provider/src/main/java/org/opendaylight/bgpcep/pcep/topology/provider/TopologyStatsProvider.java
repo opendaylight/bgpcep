@@ -92,7 +92,8 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
             final long updateInterval = instance.updateInterval();
             if (updateInterval > 0) {
-                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
+                final var update = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
+                STATE.set(this, update);
             } else {
                 LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
             }
@@ -112,7 +113,8 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
 
             final var sw = Stopwatch.createStarted();
-            state = executor.submit(() -> updateStatistics(sw));
+            final var update = executor.submit(() -> updateStatistics(sw));
+            STATE.compareAndSet(this, null, update);
         }
 
         private void updateStatistics(final Stopwatch sw) {
@@ -122,11 +124,11 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var prevState = state;
+            final var prevState = STATE.get(this);
             if (prevState instanceof Future<?> execFuture && !execFuture.isDone()) {
                 final var future = getInstance().updateStatistics();
                 LOG.debug("Task {} update submitted in {}", this, sw);
-                state = future;
+                STATE.compareAndSet(this, prevState, future);
                 future.addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
@@ -163,7 +165,8 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 if (remainingNanos < 0) {
                     remainingNanos = updateInterval;
                 }
-                state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
+                final var update = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
+                STATE.compareAndSet(this, null, update);
             } else {
                 LOG.debug("Task {} has non-positive interval {}, skipping reschedule", this, updateInterval);
             }
@@ -173,7 +176,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
         protected void removeRegistration() {
             tasks.remove(this);
 
-            final var prevState = state;
+            final var prevState = STATE.get(this);
             if (prevState instanceof Timeout timeout) {
                 timeout.cancel();
                 STATE.compareAndSet(this, prevState, null);
