@@ -142,6 +142,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 }, executor);
             } else {
                 LOG.debug("Task {} ignoring unexpected update in state {}", this, prevState);
+                reschedule(null, 0);
             }
         }
 
