@@ -75,6 +75,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
     }
 
     private final class Task extends AbstractObjectRegistration<SessionStateUpdater> implements TimerTask {
+        private static final Object CANCELLED = new Object() {
+            @Override
+            public String toString() {
+                return "CANCELLED";
+            }
+        };
+
         private static final VarHandle STATE;
 
         static {
@@ -175,11 +182,11 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             final var prevState = state;
             if (prevState instanceof Timeout timeout) {
                 timeout.cancel();
-                STATE.compareAndSet(this, prevState, null);
+                setCancelled(prevState);
             } else if (prevState instanceof Future<?> future) {
                 if (!(future instanceof FluentFuture)) {
                     future.cancel(false);
-                    STATE.compareAndSet(this, prevState, null);
+                    setCancelled(prevState);
                 }
             } else {
                 LOG.warn("Task {} in unexpected state {}", this, prevState);
@@ -195,6 +202,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                     LOG.warn("Task {} failed to remove state", Task.this, cause);
                 }
             }, MoreExecutors.directExecutor());
+        }
+
+        private void setCancelled(final Object expected) {
+            final var witness = STATE.compareAndExchange(this, expected, CANCELLED);
+            if (witness != expected) {
+                LOG.warn("Task {} failed to cancel due to unexpected move from {} to {}", this, expected, witness);
+            }
         }
     }
 }
