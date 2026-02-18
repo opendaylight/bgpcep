@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d12aa63e_a9ea13b8",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-18T11:33:33Z",
+      "side": 1,
+      "message": "and this one",
+      "revId": "c17f6d5edbae745cd4929f292ebe5341c7705fc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca19c10f_fc30b90f",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-18T11:33:33Z",
+      "side": 1,
+      "message": "this one is left",
+      "revId": "c17f6d5edbae745cd4929f292ebe5341c7705fc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
