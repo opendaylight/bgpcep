@@ -1,67 +1,67 @@
 ---
-project: 'bgpcep'
-project_creation_date: '2013-07-18'
-project_category: ''
-lifecycle_state: 'Incubation'
+project: "bgpcep"
+project_creation_date: "2013-07-18"
+project_category: ""
+lifecycle_state: "Incubation"
 project_lead: &odl_bgpcep_ptl
-    name: 'Robert Varga'
-    email: 'nite@hq.sk'
-    company: ''
-    id: 'rovarga'
-    timezone: 'Unknown/Unknown'
+  name: "Robert Varga"
+  email: "nite@hq.sk"
+  company: ""
+  id: "rovarga"
+  timezone: "Unknown/Unknown"
 primary_contact: *odl_bgpcep_ptl
 issue_tracking:
-    type: 'jira'
-    url: 'https://jira.opendaylight.org/projects/'
-    key: 'bgpcep'
+  type: "jira"
+  url: "https://jira.opendaylight.org/projects/"
+  key: "bgpcep"
 mailing_list:
-    type: 'groups.io'
-    url: 'app-dev@lists.opendaylight.org'
-    tag: '[]'
+  type: "groups.io"
+  url: "app-dev@lists.opendaylight.org"
+  tag: "[]"
 realtime_discussion:
-    type: 'irc'
-    server: 'freenode.net'
-    channel: '#opendaylight'
+  type: "irc"
+  server: "freenode.net"
+  channel: "#opendaylight"
 meetings:
-    - type: 'zoom'
-      agenda: ''
-      url: 'https://zoom.us/j/185572371'
-      server: 'zoom.us'
-      number: '185572371'
-      repeats: 'Alternative Thursdays'
-      time: '08:30pm to 09:00pm PST'
+  - type: "zoom"
+    agenda: ""
+    url: "https://zoom.us/j/185572371"
+    server: "zoom.us"
+    number: "185572371"
+    repeats: "Alternative Thursdays"
+    time: "08:30pm to 09:00pm PST"
 repositories:
-    - bgpcep
+  - bgpcep
 committers:
-    - <<: *odl_bgpcep_ptl
-    - name: 'Claudio David Gasparini'
-      email: 'claudio.gasparini@pantheon.tech'
-      company: 'pantheon'
-      id: 'cdgasparini'
-      timezone: 'Unknown/Unknown'
-    - name: 'Dana Kutenicsova'
-      email: 'dkutenicsova@frinx.io'
-      company: 'frinx'
-      id: 'dkutenicsova'
-      timezone: 'Unknown/Unknown'
-    - name: 'Ajay Lele'
-      email: 'ajayslele@gmail.com'
-      company: 'VMware'
-      id: 'ajayslele'
-      timezone: 'America/Los Angeles'
-    - name: 'Olivier Dugeon'
-      email: 'olivier.dugeon@orange.com'
-      company: 'Orange'
-      id: 'odd22'
-      timezone: 'CET/UTC+2'
+  - <<: *odl_bgpcep_ptl
+  - name: "Claudio David Gasparini"
+    email: "claudio.gasparini@pantheon.tech"
+    company: "pantheon"
+    id: "cdgasparini"
+    timezone: "Unknown/Unknown"
+  - name: "Dana Kutenicsova"
+    email: "dkutenicsova@frinx.io"
+    company: "frinx"
+    id: "dkutenicsova"
+    timezone: "Unknown/Unknown"
+  - name: "Ajay Lele"
+    email: "ajayslele@gmail.com"
+    company: "VMware"
+    id: "ajayslele"
+    timezone: "America/Los Angeles"
+  - name: "Olivier Dugeon"
+    email: "olivier.dugeon@orange.com"
+    company: "Orange"
+    id: "odd22"
+    timezone: "CET/UTC+2"
 
 tsc:
-    # yamllint disable rule:line-length
-    approval: ''
-    changes:
-        - type: 'Approval'
-          name: 'TSC Vote'
-          link: 'https://wiki.opendaylight.org/display/ODL/BGPCEP+Committer+Approval'
-        - type: 'Approval'
-          name: 'Committer Approval'
-          link: 'https://lists.opendaylight.org/g/app-dev/topic/72808144#353'
+  # yamllint disable rule:line-length
+  approval: ""
+  changes:
+    - type: "Approval"
+      name: "TSC Vote"
+      link: "https://wiki.opendaylight.org/display/ODL/BGPCEP+Committer+Approval"
+    - type: "Approval"
+      name: "Committer Approval"
+      link: "https://lists.opendaylight.org/g/app-dev/topic/72808144#353"
