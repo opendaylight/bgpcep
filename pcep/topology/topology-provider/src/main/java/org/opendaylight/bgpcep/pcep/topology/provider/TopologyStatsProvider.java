@@ -77,12 +77,21 @@ final class TopologyStatsProvider implements SessionStateRegistry {
     }
 
     private final class Task extends AbstractObjectRegistration<SessionStateUpdater> implements TimerTask {
-        private static final Object CANCELLED = new Object() {
-            @Override
-            public String toString() {
-                return "CANCELLED";
-            }
-        };
+        // Singleton state objects, used when we do not have no underlying state
+        private enum SimpleState {
+            /**
+             * The task has been cancelled via {@link Task#close()}.
+             */
+            CANCELLED,
+            /**
+             * The task is awaiting scheduling with the timer.
+             */
+            UNSCHEDULED,
+            /**
+             * The task is awaiting submission to the executor.
+             */
+            UNSUBMITTED,
+        }
 
         private static final VarHandle STATE;
 
@@ -100,10 +109,11 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             super(instance);
 
             final long updateInterval = instance.updateInterval();
-            if (updateInterval > 0) {
-                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
-            } else {
+            if (updateInterval < 1) {
                 LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
+                state = SimpleState.UNSCHEDULED;
+            } else {
+                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
             }
         }
 
@@ -114,7 +124,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var witness = STATE.compareAndExchange(this, timeout, null);
+            final var witness = STATE.compareAndExchange(this, timeout, SimpleState.UNSUBMITTED);
             if (witness != timeout) {
                 LOG.debug("Task {} ignoring unexpected timeout {} in state {}", this, timeout, witness);
                 return;
@@ -164,7 +174,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 // Already closed
                 return;
             }
-            var witness = STATE.compareAndExchange(this, expectedState, null);
+            var witness = STATE.compareAndExchange(this, expectedState, SimpleState.UNSCHEDULED);
             if (witness != expectedState) {
                 LOG.debug("Task {} ignoring reschedule in unexpected state {}", this, witness);
                 return;
@@ -188,17 +198,28 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             tasks.remove(this);
 
             final var prevState = state;
-            if (prevState instanceof Timeout timeout) {
-                timeout.cancel();
-                setCancelled(prevState);
-            } else if (prevState instanceof Future<?> future) {
-                if (!(future instanceof FluentFuture)) {
-                    future.cancel(false);
+            switch (prevState) {
+                case Timeout timeout -> {
+                    // cancel timeout
+                    timeout.cancel();
                     setCancelled(prevState);
                 }
-            } else {
-                LOG.warn("Task {} in unexpected state {}", this, prevState);
+                case Future<?> future -> {
+                    // do not cancel datastore commit futures
+                    if (!(future instanceof FluentFuture)) {
+                        future.cancel(false);
+                        setCancelled(prevState);
+                    }
+                }
+                case SimpleState simple ->
+                    // this is fine:
+                    // - CANCELLED should not be observable, as it set only from here and this method runs at most once
+                    // - UNSCHEDULED will circle back to run(), which is a no-op with isClosed()
+                    // - UNSUBMITTED will circle back to updateStatistics(), which is a no-op with isClosed()
+                    LOG.debug("Task {} closed in state {}", this, prevState);
+                case null, default -> LOG.warn("Task {} in unexpected state {}", this, prevState);
             }
+
             getInstance().removeStatistics().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
@@ -213,7 +234,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
         }
 
         private void setCancelled(final Object expected) {
-            final var witness = STATE.compareAndExchange(this, expected, CANCELLED);
+            final var witness = STATE.compareAndExchange(this, expected, SimpleState.CANCELLED);
             if (witness != expected) {
                 LOG.warn("Task {} failed to cancel due to unexpected move from {} to {}", this, expected, witness);
             }
