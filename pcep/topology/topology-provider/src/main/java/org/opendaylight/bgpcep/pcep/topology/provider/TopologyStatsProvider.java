@@ -111,8 +111,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
                 state = SimpleState.UNSCHEDULED;
             } else {
-                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
+                schedule(updateInterval);
             }
+        }
+
+        // run() may only see access state once we exit this method
+        private synchronized void schedule(final long delay) {
+            state = timer.newTimeout(this, delay, TimeUnit.NANOSECONDS);
         }
 
         @Override
@@ -122,7 +127,11 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var witness = STATE.compareAndExchange(this, timeout, SimpleState.UNSUBMITTED);
+            // ensure schedule() resulting in 'timeout' has finished
+            final Object witness;
+            synchronized (this) {
+                witness = STATE.compareAndExchange(this, timeout, SimpleState.UNSUBMITTED);
+            }
             if (witness != timeout) {
                 LOG.debug("Task {} ignoring unexpected timeout {} in state {}", this, timeout, witness);
                 return;
@@ -188,7 +197,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             if (remainingNanos < 0) {
                 remainingNanos = updateInterval;
             }
-            state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
+            schedule(remainingNanos);
         }
 
         @Override
