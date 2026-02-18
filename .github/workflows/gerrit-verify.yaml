@@ -111,7 +111,6 @@ jobs:
       GERRIT_PROJECT: ${{ inputs.GERRIT_PROJECT }}
       GERRIT_REFSPEC: ${{ inputs.GERRIT_REFSPEC }}
       PRE_COMMIT_VERSION: "4.1.0"
-      ENV_VARS: ${{ toJSON(vars) }}
 
   vote:
     if: ${{ always() }}
