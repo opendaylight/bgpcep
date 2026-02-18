@@ -44,6 +44,9 @@ maven-eclipse.xml
 .tox/
 docs/_build/
 
+# Pre-commit
+.pre-commit-config.yaml~
+
 # PyTest execution
 **/__pycache__/
 tests/allure-results/
