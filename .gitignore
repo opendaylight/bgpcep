@@ -44,3 +44,6 @@ maven-eclipse.xml
 .tox/
 docs/_build/
 
+
+# Pre-commit
+.pre-commit-config.yaml~
