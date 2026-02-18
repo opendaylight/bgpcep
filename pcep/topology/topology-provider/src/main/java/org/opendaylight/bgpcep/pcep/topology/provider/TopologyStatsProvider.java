@@ -130,26 +130,31 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
 
             final var prevState = state;
-            if (prevState instanceof Future<?> execFuture && !execFuture.isDone()) {
-                final var future = getInstance().updateStatistics();
-                LOG.debug("Task {} update submitted in {}", this, sw);
-                state = future;
-                future.addCallback(new FutureCallback<CommitInfo>() {
-                    @Override
-                    public void onSuccess(final CommitInfo result) {
-                        LOG.debug("Task {} update completed in {}", Task.this, sw);
-                        reschedule(future, sw.elapsed(TimeUnit.NANOSECONDS));
-                    }
-
-                    @Override
-                    public void onFailure(final Throwable cause) {
-                        LOG.debug("Task {} update failed in {}", Task.this, sw, cause);
-                        reschedule(future, 0);
-                    }
-                }, executor);
-            } else {
+            if (!(prevState instanceof Future<?> execFuture)) {
                 LOG.debug("Task {} ignoring unexpected update in state {}", this, prevState);
+                return;
             }
+            if (execFuture.isDone()) {
+                LOG.debug("Task {} ignoring unexpected update when {} is done", this, execFuture);
+                return;
+            }
+
+            final var future = getInstance().updateStatistics();
+            LOG.debug("Task {} update submitted in {}", this, sw);
+            state = future;
+            future.addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.debug("Task {} update completed in {}", Task.this, sw);
+                    reschedule(future, sw.elapsed(TimeUnit.NANOSECONDS));
+                }
+
+                @Override
+                public void onFailure(final Throwable cause) {
+                    LOG.debug("Task {} update failed in {}", Task.this, sw, cause);
+                    reschedule(future, 0);
+                }
+            }, executor);
         }
 
         private void reschedule(final Object expectedState, final long elapsedNanos) {
