@@ -1,6 +1,7 @@
 # CSIT - Continuous System Integration Test
 
 ## Overview
+
 This directory contains **Continuous System Integration Tests (CSIT)** and associated testing tools
 for the **BGPCEP** project. Test are written using common python testing framework, PyTest. These tests are used to test
 the core **BGP** and **PCEP** functionality of Opendaylight distribution. These tests are run directly against
@@ -8,15 +9,17 @@ built opendaylight distribution with its associated test tools without relying o
 like nexus.
 
 ## Test File Origin and History
+
 Test data files and test tools scripts contained in this repository were originally created as part of separate
 testing project which used Robot Framework library for system testing. Now as part of moving to more
 lightweight and simpler PyTest framework part of the original test files were reused.
 
 ## Directory Structure
+
 The main directory structure is as following:
 
 | Directory       | Description                                                                                                                |
-|:----------------|:---------------------------------------------------------------------------------------------------------------------------|
+| :-------------- | :------------------------------------------------------------------------------------------------------------------------- |
 | `allure-result` | Directory used for storing Allure reports generated during test runs.                                                      |
 | `libraries`     | Directory containing reusable test functions used in test cases.                                                           |
 | `results`       | Directory used for storing test results (e.g., logs, performance metrics).                                                 |
@@ -26,21 +29,30 @@ The main directory structure is as following:
 | `variables`     | Directory containing test data (mostly templates used for RESTCONF calls).                                                 |
 
 ## Test Execution
+
 Tests can be executed using two primary methods:
 
 ### 1. Part of maven build
+
 Test can be run directly during maven build using `integration-tests` profile
+
 ```sh
 mvn clean install -Pintegration-tests
 ```
+
 ### 2. Using tox command
+
 Tests can be also run separately using tox tool which needs to be invoked from tests directory by running commands such as:
+
 ```sh
 cd tests
 tox -e pytest
 ```
+
 ### Test results
+
 Test results are evaluated using allure reporting system. To view the generated test report run the following command:
+
 ```sh
 allure serve tests/allure-results/
 ```

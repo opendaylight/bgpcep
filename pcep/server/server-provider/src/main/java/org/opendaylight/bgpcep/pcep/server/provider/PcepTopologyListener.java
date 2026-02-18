@@ -452,4 +452,3 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         return PathType.Initiated;
     }
 }
-
