@@ -169,15 +169,16 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
 
             final var updateInterval = getInstance().updateInterval();
-            if (updateInterval > 0) {
-                long remainingNanos = updateInterval - elapsedNanos;
-                if (remainingNanos < 0) {
-                    remainingNanos = updateInterval;
-                }
-                state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
-            } else {
+            if (updateInterval < 1) {
                 LOG.debug("Task {} has non-positive interval {}, skipping reschedule", this, updateInterval);
+                return;
             }
+
+            long remainingNanos = updateInterval - elapsedNanos;
+            if (remainingNanos < 0) {
+                remainingNanos = updateInterval;
+            }
+            state = timer.newTimeout(this, remainingNanos, TimeUnit.NANOSECONDS);
         }
 
         @Override
