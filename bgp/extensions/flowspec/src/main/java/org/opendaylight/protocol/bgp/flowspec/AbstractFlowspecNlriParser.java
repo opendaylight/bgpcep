@@ -639,4 +639,3 @@ public abstract class AbstractFlowspecNlriParser implements NlriParser, NlriSeri
         return null;
     }
 }
-

@@ -47,5 +47,3 @@ public final class BmpTestSessionListener implements BmpSessionListener {
         up = false;
     }
 }
-
-
