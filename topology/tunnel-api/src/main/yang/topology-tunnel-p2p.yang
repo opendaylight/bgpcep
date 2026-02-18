@@ -69,4 +69,3 @@ module topology-tunnel-p2p {
         uses tunnel-p2p-path-oper-attributes;
     }
 }
-

@@ -54,4 +54,3 @@ module topology-tunnel-sr {
         uses tunnel-sr-path-p2p-hop-attributes;
     }
 }
-
