@@ -81,12 +81,21 @@ final class TopologyStatsProvider implements SessionStateRegistry {
     }
 
     private final class Task extends AbstractObjectRegistration<SessionStateUpdater> implements TimerTask {
-        private static final Object CANCELLED = new Object() {
-            @Override
-            public String toString() {
-                return "CANCELLED";
-            }
-        };
+        // Singleton state objects, used when we do not have no underlying state
+        private enum SimpleState {
+            /**
+             * The task has been cancelled via {@link Task#close()}.
+             */
+            CANCELLED,
+            /**
+             * The task is awaiting scheduling with the timer.
+             */
+            UNSCHEDULED,
+            /**
+             * The task is awaiting submission to the executor.
+             */
+            UNSUBMITTED,
+        }
 
         private static final VarHandle STATE;
 
@@ -98,7 +107,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
         }
 
-        private volatile Object state;
+        private volatile Object state = SimpleState.UNSCHEDULED;
 
         Task(final @NonNull SessionStateUpdater instance, final long updateInterval) {
             super(instance);
@@ -112,7 +121,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var witness = STATE.compareAndExchange(this, timeout, null);
+            final var witness = STATE.compareAndExchange(this, timeout, SimpleState.UNSUBMITTED);
             if (witness != timeout) {
                 LOG.debug("Task {} ignoring unexpected timeout {} in state {}", this, timeout, witness);
                 return;
@@ -162,7 +171,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 // Already closed
                 return;
             }
-            var witness = STATE.compareAndExchange(this, expectedState, null);
+            var witness = STATE.compareAndExchange(this, expectedState, SimpleState.UNSCHEDULED);
             if (witness != expectedState) {
                 LOG.debug("Task {} ignoring reschedule in unexpected state {}", this, witness);
                 return;
@@ -210,7 +219,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
         }
 
         private void setCancelled(final Object expected) {
-            final var witness = STATE.compareAndExchange(this, expected, CANCELLED);
+            final var witness = STATE.compareAndExchange(this, expected, SimpleState.CANCELLED);
             if (witness != expected) {
                 LOG.warn("Task {} failed to cancel due to unexpected move from {} to {}", this, expected, witness);
             }
