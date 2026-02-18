@@ -51,4 +51,3 @@ module odl-network-topology {
         ext:context-instance "network-topology-context";
     }
 }
-

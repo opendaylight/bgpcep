@@ -33,4 +33,3 @@ public class ActivatorTest {
             .classForFamily(FLOWSPEC_VPN_SAFI));
     }
 }
-
