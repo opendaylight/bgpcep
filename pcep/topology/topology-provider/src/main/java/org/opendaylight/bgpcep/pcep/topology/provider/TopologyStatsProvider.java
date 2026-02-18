@@ -130,13 +130,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 future.addCallback(new FutureCallback<CommitInfo>() {
                     @Override
                     public void onSuccess(final CommitInfo result) {
-                        LOG.debug("Task {} update completed in {}", this, sw);
+                        LOG.debug("Task {} update completed in {}", Task.this, sw);
                         reschedule(future, sw.elapsed(TimeUnit.NANOSECONDS));
                     }
 
                     @Override
                     public void onFailure(final Throwable cause) {
-                        LOG.debug("Task {} update failed in {}", this, sw, cause);
+                        LOG.debug("Task {} update failed in {}", Task.this, sw, cause);
                         reschedule(future, 0);
                     }
                 }, executor);
@@ -187,12 +187,12 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             getInstance().removeStatistics().addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
-                    LOG.debug("Task {} removed state", this);
+                    LOG.debug("Task {} removed state", Task.this);
                 }
 
                 @Override
                 public void onFailure(final Throwable cause) {
-                    LOG.warn("Task {} failed to remove state", this, cause);
+                    LOG.warn("Task {} failed to remove state", Task.this, cause);
                 }
             }, MoreExecutors.directExecutor());
         }
