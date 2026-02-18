@@ -125,12 +125,12 @@ final class TopologyStatsProvider implements SessionStateRegistry {
         }
 
         private void updateStatistics(final Stopwatch sw) {
-            LOG.debug("Resumed processing task {} after {}", this, sw);
             if (isClosed()) {
-                // Already closed
+                LOG.debug("Task {} is closed, ignoring update submitted {} ago", this, sw);
                 return;
             }
 
+            LOG.debug("Resumed processing task {} after {}", this, sw);
             final var prevState = state;
             if (!(prevState instanceof Future<?> execFuture)) {
                 LOG.debug("Task {} ignoring unexpected update in state {}", this, prevState);
