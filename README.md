@@ -22,20 +22,20 @@ into the underlying network.
 
 ## DIRECTORY ORGANIZATION
 
-* concepts:
-    * Common networking concepts, shared between the protocols
+- concepts:
+  - Common networking concepts, shared between the protocols
 
-* util:
-    * Common utility classes
+- util:
+  - Common utility classes
 
-* bgp:
-    * BGP-related artifacts
+- bgp:
+  - BGP-related artifacts
 
-* pcep:
-    * PCEP-related artifacts
+- pcep:
+  - PCEP-related artifacts
 
-* rsvp:
-    * RSVP modeling concepts (needed by pcep)
+- rsvp:
+  - RSVP modeling concepts (needed by pcep)
 
 ## HOW TO BUILD
 
