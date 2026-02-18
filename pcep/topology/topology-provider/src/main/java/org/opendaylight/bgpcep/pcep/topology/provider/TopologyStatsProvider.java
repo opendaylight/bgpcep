@@ -75,12 +75,21 @@ final class TopologyStatsProvider implements SessionStateRegistry {
     }
 
     private final class Task extends AbstractObjectRegistration<SessionStateUpdater> implements TimerTask {
-        private static final Object CANCELLED = new Object() {
+        private static final class TerminalState {
+            private final String name;
+
+            TerminalState(final String name) {
+                this.name = requireNonNull(name);
+            }
+
             @Override
             public String toString() {
-                return "CANCELLED";
+                return name;
             }
-        };
+        }
+
+        private static final Object CANCELLED = new TerminalState("CANCELLED");
+        private static final Object UNSCHEDULED = new TerminalState("UNSCHEDULED");
 
         private static final VarHandle STATE;
 
@@ -102,6 +111,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
             } else {
                 LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
+                state = UNSCHEDULED;
             }
         }
 
