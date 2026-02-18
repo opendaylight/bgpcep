@@ -69,7 +69,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             return NoOpObjectRegistration.of(sessionState);
         }
 
-        final var task = new Task(sessionState);
+        final var updateInterval = sessionState.updateInterval();
+        if (updateInterval < 1) {
+            LOG.debug("Pcep Node {} has non-positive interval {}, not scheduling it", sessionState, updateInterval);
+            return NoOpObjectRegistration.of(sessionState);
+        }
+
+        final var task = new Task(sessionState, updateInterval);
         tasks.add(task);
         return task;
     }
@@ -94,15 +100,9 @@ final class TopologyStatsProvider implements SessionStateRegistry {
 
         private volatile Object state;
 
-        Task(final @NonNull SessionStateUpdater instance) {
+        Task(final @NonNull SessionStateUpdater instance, final long updateInterval) {
             super(instance);
-
-            final long updateInterval = instance.updateInterval();
-            if (updateInterval > 0) {
-                state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
-            } else {
-                LOG.debug("Task {} has non-positive interval {}, not scheduling it", this, updateInterval);
-            }
+            state = timer.newTimeout(this, updateInterval, TimeUnit.NANOSECONDS);
         }
 
         @Override
