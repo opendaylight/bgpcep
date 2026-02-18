@@ -44,8 +44,10 @@ maven-eclipse.xml
 .tox/
 docs/_build/
 
+
 # Pre-commit
 .pre-commit-config.yaml~
+node_modules/
 
 # PyTest execution
 **/__pycache__/
