@@ -36,6 +36,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "95c31d54_fe00f3f3",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-18T15:44:24Z",
+      "side": 1,
+      "message": "ack, `this.state` would work here, but in callback does not because we are in different context.",
+      "parentUuid": "9f3e663d_96a47c81",
+      "revId": "c17f6d5edbae745cd4929f292ebe5341c7705fc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca19c10f_fc30b90f",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "I do not follow",
       "parentUuid": "ca19c10f_fc30b90f",
+      "revId": "c17f6d5edbae745cd4929f292ebe5341c7705fc4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9863ac72_37807ceb",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-18T15:44:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3ab39f59_9d2e43fd",
       "revId": "c17f6d5edbae745cd4929f292ebe5341c7705fc4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
