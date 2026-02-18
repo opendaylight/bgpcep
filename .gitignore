@@ -47,3 +47,4 @@ docs/_build/
 
 # Pre-commit
 .pre-commit-config.yaml~
+node_modules/
