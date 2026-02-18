@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev181109.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAugBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
@@ -193,5 +195,16 @@ final class SessionStateUpdater {
         } else if (msg instanceof Pcupd) {
             sentUpdMessageCount++;
         }
+    }
+
+    @Override
+    public String toString() {
+        final var nodePath = node.getNodeId();
+
+        return MoreObjects.toStringHelper(this)
+            .add("topology", nodePath.getFirstKeyOf(Topology.class).getTopologyId().getValue())
+            .add("node", nodePath.key().getNodeId().getValue())
+            .add("upFor", sessionUpDuration)
+            .toString();
     }
 }
