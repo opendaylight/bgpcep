@@ -138,4 +138,3 @@ This pseudo code corresponds to the ShortestPathFist.java class.
 Note: Details of SAMCRA algorithm could be found in the article **Concepts of
 Exact QoS Routing Algorithms**, *Piet Van Mieghem and Fernando A. Kuipers,
 IEEE/ACM Transactions on Networking, Volume 12, Number 5, October 2004.*
-

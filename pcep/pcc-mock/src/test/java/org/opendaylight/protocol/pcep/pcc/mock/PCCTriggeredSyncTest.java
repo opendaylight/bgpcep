@@ -66,4 +66,3 @@ public class PCCTriggeredSyncTest extends PCCMockCommon {
         return List.of(new PCEPStatefulCapability(true, true, true, false, false, true));
     }
 }
-

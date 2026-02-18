@@ -49,4 +49,3 @@ module odl-bgp-topology-config {
         uses bgp-topology-configuration;
     }
 }
-

@@ -80,4 +80,3 @@ public final class SimpleFlowspecIpv6NlriParser extends AbstractFlowspecIpNlriPa
         }
     }
 }
-

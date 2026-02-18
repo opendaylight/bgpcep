@@ -41,4 +41,3 @@ public final class Ipv6InterfaceTlvParser implements LinkstateTlvParser<Ipv6Inte
         return IPV6_IFACE_ADDRESS_QNAME;
     }
 }
-

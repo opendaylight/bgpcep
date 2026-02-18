@@ -386,4 +386,3 @@ The Prefix to be deleted is identified by its Prefix Id and must be provide
 within the URL. As the prefix identifier is the ip prefix, '.' and '/' must
 be replace by their respective ASCII representation i.e. '%2e' for dot and
 '%2f' for slash.
-

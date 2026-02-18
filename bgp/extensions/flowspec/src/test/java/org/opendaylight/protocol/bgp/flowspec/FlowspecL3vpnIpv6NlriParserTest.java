@@ -525,4 +525,3 @@ public class FlowspecL3vpnIpv6NlriParserTest {
         assertEquals(List.of(expectedFS.build()), fsParser.extractFlowspec(entry.build()));
     }
 }
-

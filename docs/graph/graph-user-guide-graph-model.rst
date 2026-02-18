@@ -222,4 +222,3 @@ Note that the Unique Key identifier for Connected Edge and Connected Vertex
 must not be equal to zero (and as a consequence the Edge and Vertex key).
 This restriction is due to some algorithms that used the value 0 as a
 special indication during the path computation.
-

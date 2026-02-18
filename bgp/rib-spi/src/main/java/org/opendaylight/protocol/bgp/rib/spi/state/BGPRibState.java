@@ -85,4 +85,3 @@ public interface BGPRibState extends RibReference {
      */
     @NonNull BgpId getRouteId();
 }
-

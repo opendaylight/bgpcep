@@ -132,4 +132,3 @@ public final class FlowspecIpv6NlriParserHelper {
         return sb.toString();
     }
 }
-

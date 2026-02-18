@@ -118,4 +118,3 @@ public abstract class AbstractFlowspecL3vpnNlriParser extends AbstractFlowspecNl
         return fss;
     }
 }
-

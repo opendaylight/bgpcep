@@ -96,4 +96,3 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
         return CRouterIdentifier.QNAME;
     }
 }
-

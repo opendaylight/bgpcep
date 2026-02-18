@@ -919,4 +919,3 @@ public class SimpleFlowspecIpv4NlriParserTest {
             .getDestinationPrefix().getValue());
     }
 }
-
