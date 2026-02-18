@@ -138,7 +138,11 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
 
             final var sw = Stopwatch.createStarted();
-            state = executor.submit(() -> updateStatistics(sw));
+
+            // atomic submit and state update
+            synchronized (this) {
+                state = executor.submit(() -> updateStatistics(sw));
+            }
         }
 
         private void updateStatistics(final Stopwatch sw) {
@@ -148,7 +152,12 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var prevState = state;
+            // ensure run() resulting it this invocation has finished updating state before reading it
+            final Object prevState;
+            synchronized (this) {
+                prevState = state;
+            }
+
             if (!(prevState instanceof Future<?> execFuture)) {
                 LOG.debug("Task {} ignoring unexpected update in state {}", this, prevState);
                 return;
@@ -161,6 +170,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             final var future = getInstance().updateStatistics();
             LOG.debug("Task {} update submitted in {}", this, sw);
             state = future;
+
             future.addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
