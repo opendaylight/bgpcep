@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "daaa7e06_c03f2300",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-19T14:44:42Z",
+      "side": 1,
+      "message": "we need to atomically ExecutorSubmit and store Future in state to avoid error at line #146",
+      "revId": "f2ce542dd7a00d4b09828066a84456fd94558edb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
