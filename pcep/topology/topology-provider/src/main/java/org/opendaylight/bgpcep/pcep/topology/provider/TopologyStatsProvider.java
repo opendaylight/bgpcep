@@ -75,7 +75,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
     }
 
     private final class Task extends AbstractObjectRegistration<SessionStateUpdater> implements TimerTask {
-        // Singleton state objects, used when we do not have no underlying state
+        // Singleton state objects, used when we do not have any underlying state
         private enum SimpleState {
             /**
              * The task has been cancelled via {@link Task#close()}.
@@ -231,7 +231,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                     // - CANCELLED should not be observable, as it set only from here and this method runs at most once
                     // - UNSCHEDULED will circle back to run(), which is a no-op with isClosed()
                     // - UNSUBMITTED will circle back to updateStatistics(), which is a no-op with isClosed()
-                    LOG.debug("Task {} closed in state {}", this, prevState);
+                    LOG.debug("Task {} closed in state {}", this, simple);
                 case null, default -> LOG.warn("Task {} in unexpected state {}", this, prevState);
             }
 
