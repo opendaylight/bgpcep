@@ -137,8 +137,11 @@ final class TopologyNodeState implements FutureCallback<Empty> {
         return initialNodeState;
     }
 
-    synchronized TransactionChain getChain() {
-        return chain;
+    // FIXME: this is ugly: we really should take a collection of operations to apply and return a future, encapsulating
+    //        the lock
+    @Holding("this")
+    WriteTransaction newWriteTransaction() {
+        return chain.newWriteOnlyTransaction();
     }
 
     synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
