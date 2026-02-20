@@ -283,12 +283,14 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 if (srp == null) {
                     return false;
                 }
-                final SrpIdNumber id = srp.getOperationId();
+                final var id = srp.getOperationId();
                 if (SRPID_ZERO.equals(id)) {
                     return false;
                 }
-                final PCEPRequest req = removeRequest(id);
-                ctx.resolveRequest(req);
+                final var req = removeRequest(id);
+                if (req != null) {
+                    ctx.resolveRequest(req);
+                }
             }
             stateSynchronizationAchieved(ctx);
             return true;
