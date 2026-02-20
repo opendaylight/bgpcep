@@ -32,7 +32,7 @@ import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
+import org.opendaylight.mdsal.binding.api.WriteOperations;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
@@ -235,14 +235,21 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             session.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(nodeState.getChain().newWriteOnlyTransaction());
-        updatePccNode(ctx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
-        if (pccSyncState != PccSyncState.Synchronized) {
-            synced.set(false);
-            triggeredResyncInProcess = true;
+
+        final FluentFuture<? extends CommitInfo> future;
+        synchronized (nodeState) {
+            final var tx = nodeState.newWriteTransaction();
+            updatePccNode(tx, new PathComputationClientBuilder().setStateSync(pccSyncState).build());
+            if (pccSyncState != PccSyncState.Synchronized) {
+                synced.set(false);
+                triggeredResyncInProcess = true;
+            }
+
+            // All set, commit the modifications
+            future = tx.commit();
         }
-        // All set, commit the modifications
-        ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Pcc Internal state for session {} updated successfully", session);
@@ -309,37 +316,45 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             psession.close(TerminationReason.UNKNOWN);
             return;
         }
-        final MessageContext ctx = new MessageContext(nodeState.getChain().newWriteOnlyTransaction());
 
-        if (onMessage(ctx, message)) {
-            LOG.warn("Unhandled message {} on session {}", message, psession);
-            //cancel not supported, submit empty transaction
-            ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.trace("Successful commit");
-                }
+        // FIXME: this is an overkill: we are precluding datastore updates from statistics.
+        final FluentFuture<? extends CommitInfo> future;
+        final List<PCEPRequest> resolvedRequests;
+        synchronized (nodeState) {
+            final var tx = nodeState.newWriteTransaction();
+            final var ctx = new MessageContext(tx);
+            if (onMessage(ctx, message)) {
+                LOG.warn("Unhandled message {} on session {}", message, psession);
+                //cancel not supported, submit empty transaction
+                tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+                    @Override
+                    public void onSuccess(final CommitInfo result) {
+                        LOG.trace("Successful commit");
+                    }
 
-                @Override
-                public void onFailure(final Throwable trw) {
-                    LOG.error("Failed commit", trw);
-                }
-            }, MoreExecutors.directExecutor());
-            return;
+                    @Override
+                    public void onFailure(final Throwable trw) {
+                        LOG.error("Failed commit", trw);
+                    }
+                }, MoreExecutors.directExecutor());
+                return;
+            }
+
+            future = tx.commit();
+            resolvedRequests = List.copyOf(ctx.requests);
         }
 
-        ctx.trans.commit().addCallback(new FutureCallback<CommitInfo>() {
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 LOG.trace("Internal state for session {} updated successfully", psession);
-                ctx.notifyRequests();
-
+                resolvedRequests.forEach(req -> req.finish(OperationResults.SUCCESS));
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
                 LOG.error("Failed to update internal state for session {}, closing it", psession, throwable);
-                ctx.notifyRequests();
+                resolvedRequests.forEach(req -> req.finish(OperationResults.SUCCESS));
                 psession.close(TerminationReason.UNKNOWN);
             }
         }, MoreExecutors.directExecutor());
@@ -515,7 +530,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
 
         final var rl = rlb.build();
-        ctx.trans.put(LogicalDatastoreType.OPERATIONAL,
+        ctx.transaction.put(LogicalDatastoreType.OPERATIONAL,
             pccIdentifier.toBuilder().child(ReportedLsp.class, rlb.key()).build(), rl);
         LOG.debug("LSP {} updated to MD-SAL", name);
 
@@ -588,8 +603,12 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         LOG.debug("Session {} achieved synchronized state", session);
     }
 
-    protected final synchronized void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
-        ctx.trans.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier, pcc);
+    protected final void updatePccNode(final MessageContext ctx, final PathComputationClient pcc) {
+        updatePccNode(ctx.transaction, pcc);
+    }
+
+    private synchronized void updatePccNode(final WriteOperations tx, final PathComputationClient pcc) {
+        tx.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier, pcc);
     }
 
     protected final @NonNull WithKey<ReportedLsp, ReportedLspKey> lspIdentifier(final String name) {
@@ -605,7 +624,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     protected final synchronized void removeLsp(final MessageContext ctx, final PlspId id) {
         final String name = lsps.remove(id);
         LOG.debug("LSP {} removed", name);
-        ctx.trans.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
+        ctx.transaction.delete(LogicalDatastoreType.OPERATIONAL, lspIdentifier(name));
         lspData.remove(name);
     }
 
@@ -704,21 +723,15 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     }
 
     static final class MessageContext {
-        private final Collection<PCEPRequest> requests = new ArrayList<>();
-        private final WriteTransaction trans;
+        private final ArrayList<PCEPRequest> requests = new ArrayList<>();
+        private final WriteOperations transaction;
 
-        private MessageContext(final WriteTransaction trans) {
-            this.trans = requireNonNull(trans);
+        private MessageContext(final WriteOperations transaction) {
+            this.transaction = requireNonNull(transaction);
         }
 
         void resolveRequest(final PCEPRequest req) {
             requests.add(requireNonNull(req));
-        }
-
-        private void notifyRequests() {
-            for (final PCEPRequest r : requests) {
-                r.finish(OperationResults.SUCCESS);
-            }
         }
     }
 }
