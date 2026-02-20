@@ -157,7 +157,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
             return triggerSynchronization(input);
-        } else if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
+        }
+        if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
             checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
             return input.getName() == null ? triggerResyncronization(input) : triggerLspSyncronization(input);
         }
@@ -217,22 +218,21 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     private boolean handleErrorMessage(final PcerrMessage message) {
         final var errMsg = message.getPcerrMessage();
-        if (errMsg.getErrorType() instanceof StatefulCase) {
-            final StatefulCase stat = (StatefulCase) errMsg.getErrorType();
-            for (final Srps srps : stat.getStateful().nonnullSrps()) {
-                final SrpIdNumber id = srps.getSrp().getOperationId();
-                if (!SRPID_ZERO.equals(id)) {
-                    final PCEPRequest req = removeRequest(id);
-                    if (req != null) {
-                        req.finish(OperationResults.createFailed(errMsg.getErrors()));
-                    } else {
-                        LOG.warn("Request ID {} not found in outstanding DB", id);
-                    }
-                }
-            }
-        } else {
+        if (!(errMsg.getErrorType() instanceof StatefulCase)) {
             LOG.warn("Unhandled PCErr message {}.", errMsg);
             return true;
+        }
+        final StatefulCase stat = (StatefulCase) errMsg.getErrorType();
+        for (final Srps srps : stat.getStateful().nonnullSrps()) {
+            final SrpIdNumber id = srps.getSrp().getOperationId();
+            if (!SRPID_ZERO.equals(id)) {
+                final PCEPRequest req = removeRequest(id);
+                if (req != null) {
+                    req.finish(OperationResults.createFailed(errMsg.getErrors()));
+                } else {
+                    LOG.warn("Request ID {} not found in outstanding DB", id);
+                }
+            }
         }
         return false;
     }
@@ -314,9 +314,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     .getValue())).toString();
         }
         //get LspDB from LSP and write it to pcc's node
-        final LspDbVersion lspDbVersion = geLspDbVersionTlv(lsp);
+        final var lspDbVersion = geLspDbVersionTlv(lsp);
         if (lspDbVersion != null) {
-            updatePccNode(ctx, new PathComputationClientBuilder()
+            ctx.updatePcc(new PathComputationClientBuilder()
                 .addAugmentation(new PathComputationClient1Builder().setLspDbVersion(lspDbVersion).build()).build());
         }
         updateLsp(ctx, plspid, name, rlb, solicited, lsp.getRemove());
