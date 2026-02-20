@@ -302,9 +302,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     .getValue())).toString();
         }
         //get LspDB from LSP and write it to pcc's node
-        final LspDbVersion lspDbVersion = geLspDbVersionTlv(lsp);
+        final var lspDbVersion = geLspDbVersionTlv(lsp);
         if (lspDbVersion != null) {
-            updatePccNode(ctx, new PathComputationClientBuilder().setLspDbVersion(lspDbVersion).build());
+            ctx.updatePcc(new PathComputationClientBuilder().setLspDbVersion(lspDbVersion).build());
         }
         updateLsp(ctx, plspid, name, rlb, solicited, lsp.getLspFlags().getRemove());
         unmarkStaleLsp(plspid);
