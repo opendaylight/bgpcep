@@ -281,7 +281,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     return false;
                 }
                 final PCEPRequest req = removeRequest(id);
-                ctx.resolveRequest(req);
+                if (req != null) {
+                    ctx.resolveRequest(req);
+                }
             }
             stateSynchronizationAchieved(ctx);
             return true;
