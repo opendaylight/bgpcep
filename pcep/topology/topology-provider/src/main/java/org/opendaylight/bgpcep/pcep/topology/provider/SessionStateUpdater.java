@@ -103,7 +103,7 @@ final class SessionStateUpdater {
 
         // We want to synchronize with node to avoid race in transaction chain
         synchronized (node) {
-            final var tx = node.getChain().newWriteOnlyTransaction();
+            final var tx = node.newWriteTransaction();
             tx.put(LogicalDatastoreType.OPERATIONAL, node.getNodeId().toBuilder()
                 .augmentation(PcepTopologyNodeStatsAug.class)
                 .build(), aug);
@@ -114,7 +114,7 @@ final class SessionStateUpdater {
     @NonNull FluentFuture<? extends @NonNull CommitInfo> removeStatistics() {
         // We want to synchronize with node to avoid race in transaction chain
         synchronized (node) {
-            final var tx = node.getChain().newWriteOnlyTransaction();
+            final var tx = node.newWriteTransaction();
             tx.delete(LogicalDatastoreType.OPERATIONAL,
                 node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build());
             return tx.commit();
