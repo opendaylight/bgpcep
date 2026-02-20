@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4db03f23_79b1ba91",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologyStatsProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-20T11:43:24Z",
+      "side": 0,
+      "message": "its already executed in synchronized block",
+      "revId": "2b72debed0291dc1ade5a8441ff503682dc78808",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
