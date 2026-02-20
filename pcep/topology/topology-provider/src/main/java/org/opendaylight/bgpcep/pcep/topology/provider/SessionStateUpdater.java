@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -97,28 +98,21 @@ final class SessionStateUpdater {
         return topologySessionStats.updateInterval();
     }
 
-    @NonNull FluentFuture<? extends @NonNull CommitInfo> updateStatistics() {
+    @NonNullByDefault
+    FluentFuture<? extends CommitInfo> updateStatistics() {
         // Lockless
         final var aug = new PcepTopologyNodeStatsAugBuilder().setPcepSessionState(toPcepSessionState()).build();
 
-        // We want to synchronize with node to avoid race in transaction chain
-        synchronized (node) {
-            final var tx = node.newWriteTransaction();
-            tx.put(LogicalDatastoreType.OPERATIONAL, node.getNodeId().toBuilder()
-                .augmentation(PcepTopologyNodeStatsAug.class)
-                .build(), aug);
-            return tx.commit();
-        }
+        return node.updateDatastore(tx ->
+            tx.put(LogicalDatastoreType.OPERATIONAL,
+                node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build(), aug));
     }
 
-    @NonNull FluentFuture<? extends @NonNull CommitInfo> removeStatistics() {
-        // We want to synchronize with node to avoid race in transaction chain
-        synchronized (node) {
-            final var tx = node.newWriteTransaction();
+    @NonNullByDefault
+    FluentFuture<? extends CommitInfo> removeStatistics() {
+        return node.updateDatastore(tx ->
             tx.delete(LogicalDatastoreType.OPERATIONAL,
-                node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build());
-            return tx.commit();
-        }
+                node.getNodeId().toBuilder().augmentation(PcepTopologyNodeStatsAug.class).build()));
     }
 
     @VisibleForTesting
