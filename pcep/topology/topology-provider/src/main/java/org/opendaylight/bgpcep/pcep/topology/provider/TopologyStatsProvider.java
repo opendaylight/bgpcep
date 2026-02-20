@@ -144,17 +144,13 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             }
         }
 
-        private void updateStatistics(final Stopwatch sw) {
+        private synchronized void updateStatistics(final Stopwatch sw) {
             if (isClosed()) {
                 LOG.debug("Task {} is closed, ignoring update submitted {} ago", this, sw);
                 return;
             }
 
-            // ensure run() resulting it this invocation has finished updating state before reading it
-            final Object prevState;
-            synchronized (this) {
-                prevState = state;
-            }
+            final Object prevState = state;
             LOG.debug("Resumed processing task {} after {}", this, sw);
 
             if (!(prevState instanceof Future<?> execFuture)) {
