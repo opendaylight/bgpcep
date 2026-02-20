@@ -724,7 +724,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
 
         void resolveRequest(final PCEPRequest req) {
-            requests.add(req);
+            requests.add(requireNonNull(req));
         }
 
         private void notifyRequests() {
