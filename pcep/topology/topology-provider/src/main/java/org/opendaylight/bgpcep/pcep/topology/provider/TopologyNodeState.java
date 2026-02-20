@@ -13,17 +13,20 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
+import org.opendaylight.mdsal.binding.api.WriteOperations;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -137,17 +140,18 @@ final class TopologyNodeState implements FutureCallback<Empty> {
         return initialNodeState;
     }
 
-    // FIXME: this is ugly: we really should take a collection of operations to apply and return a future, encapsulating
-    //        the lock
-    @Holding("this")
-    WriteTransaction newWriteTransaction() {
-        return chain.newWriteOnlyTransaction();
+    @CheckReturnValue
+    @NonNullByDefault
+    synchronized FluentFuture<? extends CommitInfo> updateDatastore(final Consumer<WriteOperations> update) {
+        final var tx = chain.newWriteOnlyTransaction();
+        update.accept(tx);
+        return tx.commit();
     }
 
     synchronized <T extends DataObject> FluentFuture<Optional<T>> readOperationalData(
             final DataObjectIdentifier<T> id) {
-        try (ReadTransaction t = chain.newReadOnlyTransaction()) {
-            return t.read(LogicalDatastoreType.OPERATIONAL, id);
+        try (var tx = chain.newReadOnlyTransaction()) {
+            return tx.read(LogicalDatastoreType.OPERATIONAL, id);
         }
     }
 
