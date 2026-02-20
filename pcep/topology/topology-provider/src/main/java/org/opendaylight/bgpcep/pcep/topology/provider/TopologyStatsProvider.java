@@ -9,6 +9,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
@@ -253,6 +254,14 @@ final class TopologyStatsProvider implements SessionStateRegistry {
             if (witness != expected) {
                 LOG.warn("Task {} failed to cancel due to unexpected move from {} to {}", this, expected, witness);
             }
+        }
+
+        @Override
+        protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+            if (state instanceof Future<?> execFuture) {
+                return toStringHelper.add("state", state);
+            }
+            return toStringHelper;
         }
     }
 }
