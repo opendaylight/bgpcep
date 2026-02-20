@@ -150,11 +150,7 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            // ensure run() resulting it this invocation has finished updating state before reading it
-            final Object prevState;
-            synchronized (this) {
-                prevState = state;
-            }
+            final Object prevState = STATE.get(this);
             LOG.debug("Resumed processing task {} after {}", this, sw);
 
             if (!(prevState instanceof Future<?> execFuture)) {
@@ -166,22 +162,28 @@ final class TopologyStatsProvider implements SessionStateRegistry {
                 return;
             }
 
-            final var future = getInstance().updateStatistics();
-            LOG.debug("Task {} update submitted in {}", this, sw);
-            state = future;
-            future.addCallback(new FutureCallback<CommitInfo>() {
-                @Override
-                public void onSuccess(final CommitInfo result) {
-                    LOG.debug("Task {} update completed in {}", Task.this, sw);
-                    reschedule(future, sw.elapsed(TimeUnit.NANOSECONDS));
-                }
+            synchronized (this) {
+                final var future = getInstance().updateStatistics();
+                if (STATE.compareAndSet(this, prevState, future)) {
+                    LOG.debug("Task {} update submitted in {}", this, sw);
+                    future.addCallback(new FutureCallback<CommitInfo>() {
+                        @Override
+                        public void onSuccess(final CommitInfo result) {
+                            LOG.debug("Task {} update completed in {}", Task.this, sw);
+                            reschedule(future, sw.elapsed(TimeUnit.NANOSECONDS));
+                        }
 
-                @Override
-                public void onFailure(final Throwable cause) {
-                    LOG.debug("Task {} update failed in {}", Task.this, sw, cause);
-                    reschedule(future, 0);
+                        @Override
+                        public void onFailure(final Throwable cause) {
+                            LOG.debug("Task {} update failed in {}", Task.this, sw, cause);
+                            reschedule(future, 0);
+                        }
+                    }, executor);
+                } else {
+                    LOG.warn("Task {} state changed concurrently; cancelling redundant update.", this);
+                    future.cancel(true);
                 }
-            }, executor);
+            }
         }
 
         private void reschedule(final Object expectedState, final long elapsedNanos) {
