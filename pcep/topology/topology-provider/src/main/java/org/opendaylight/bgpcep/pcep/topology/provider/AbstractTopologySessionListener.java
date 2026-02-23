@@ -229,31 +229,29 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
     }
 
-    synchronized void updatePccState(final PccSyncState pccSyncState) {
+    synchronized void updatePccState() {
         if (nodeState == null) {
             LOG.info("Server Session Manager is closed.");
             session.close(TerminationReason.UNKNOWN);
             return;
         }
 
-        nodeState.updateDatastore(tx -> {
-            tx.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier,
-                new PathComputationClientBuilder().setStateSync(pccSyncState).build());
-            if (pccSyncState != PccSyncState.Synchronized) {
-                synced.set(false);
-                triggeredResyncInProcess = true;
-            }
-        }).addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.trace("Pcc Internal state for session {} updated successfully", session);
-            }
+        synced.set(false);
+        triggeredResyncInProcess = true;
 
-            @Override
-            public void onFailure(final Throwable cause) {
-                LOG.error("Failed to update Pcc internal state for session {}", session, cause);
-                session.close(TerminationReason.UNKNOWN);
-            }
+        nodeState.updateDatastore(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier,
+                new PathComputationClientBuilder().setStateSync(PccSyncState.PcepTriggeredResync).build()))
+            .addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.trace("Pcc Internal state for session {} updated successfully", session);
+                }
+
+                @Override
+                public void onFailure(final Throwable cause) {
+                    LOG.error("Failed to update Pcc internal state for session {}", session, cause);
+                    session.close(TerminationReason.UNKNOWN);
+                }
         }, MoreExecutors.directExecutor());
     }
 
