@@ -229,20 +229,18 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         LOG.debug("Peer {} does not advertise stateful TLV", peerAddress);
     }
 
-    synchronized void updatePccState(final PccSyncState pccSyncState) {
+    final synchronized void updatePccState() {
         if (nodeState == null) {
             LOG.info("Server Session Manager is closed.");
             session.close(TerminationReason.UNKNOWN);
             return;
         }
 
-        if (pccSyncState != PccSyncState.Synchronized) {
-            synced.set(false);
-            triggeredResyncInProcess = true;
-        }
+        synced.set(false);
+        triggeredResyncInProcess = true;
 
         nodeState.updateDatastore(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL, pccIdentifier,
-                new PathComputationClientBuilder().setStateSync(pccSyncState).build()))
+                new PathComputationClientBuilder().setStateSync(PccSyncState.PcepTriggeredResync).build()))
             .addCallback(new FutureCallback<CommitInfo>() {
                 @Override
                 public void onSuccess(final CommitInfo result) {
