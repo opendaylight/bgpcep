@@ -77,7 +77,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.LspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.OperationResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.RemoveLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.TriggerSyncArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspArgs;
@@ -166,7 +165,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     private ListenableFuture<OperationResult> triggerResyncronization(final TriggerSyncArgs input) {
         LOG.trace("Trigger Resynchronization {}", input);
         markAllLspAsStale();
-        updatePccState(PccSyncState.PcepTriggeredResync);
+        updatePccState();
         final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
         final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
         final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
@@ -642,7 +641,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     staleLsps.add(path.getLsp().getPlspId());
                 }
             }
-            updatePccState(PccSyncState.PcepTriggeredResync);
+            updatePccState();
             // create PCUpd with mandatory objects and LSP object set to 1
             final SrpBuilder srpBuilder = new SrpBuilder();
             srpBuilder.setOperationId(nextRequest());
