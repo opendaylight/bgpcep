@@ -16,6 +16,23 @@
       "message": "SpotBugs false positive: https://github.com/spotbugs/spotbugs/issues/1051",
       "revId": "878bf4b09d96d7ad584af8be5619555557ae4287",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3b40242_f8a01054",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/AbstractTopologySessionListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-02-23T13:38:07Z",
+      "side": 1,
+      "message": "triggeredResyncInProcess is @GuardedBy(\"this\")",
+      "revId": "878bf4b09d96d7ad584af8be5619555557ae4287",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
