@@ -19,7 +19,7 @@ from variables.tcpmd5user.titanium import variables as tcpmd5_variables
 from libraries.variables import variables
 
 
-PCCS = 150
+PCCS = 100
 LOG_NAME = "pccmock.log"
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
@@ -69,7 +69,7 @@ class TestTcpMd5User:
     def start_pcc_mock_tool_with_password(self, password):
         """Starts pcc-mock with password argument."""
         self.pcep_mock_process = infra.shell(
-            f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1" \
+            f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 " \
             f"--log-level debug --password {password} --reconnect 1 " \
             f"--local-address 127.0.1.0 --remote-address {ODL_IP} " \
             f"2>&1 | tee pccmock.log",
