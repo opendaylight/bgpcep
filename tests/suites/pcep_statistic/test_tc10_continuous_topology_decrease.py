@@ -18,6 +18,9 @@ from libraries import utils
 from libraries.variables import variables
 
 
+INITIAL_PCC_COUNT = 200
+FINAL_PCC_COUNT = 100
+ITERATION_DECREASE_PCC_COUNT = 10
 DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
@@ -45,10 +48,12 @@ class TestPcepUser:
     def test_continuous_topology_decrease(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
-            """Update timer value to lowest possible value."""
+            """Update timer value to one second."""
             pcep.set_stat_timer_value(1)
 
-        for current_count in range(10, 0, -1):
+        for iteration, current_count in enumerate(
+            range(INITIAL_PCC_COUNT, FINAL_PCC_COUNT, -ITERATION_DECREASE_PCC_COUNT), start=1
+        ):
 
             with allure_step_with_separate_logging(
                 f"step_start_pcc_mock_{current_count}_pcc_{current_count}_lsps"
@@ -65,7 +70,7 @@ class TestPcepUser:
                 )
 
             with allure_step_with_separate_logging(
-                f"step_wait_1_second_iteration_{11-current_count}"
+                f"step_wait_1_second_iteration_{iteration}"
             ):
                 """Wait one second until the next pcep stat update."""
                 time.sleep(1)
