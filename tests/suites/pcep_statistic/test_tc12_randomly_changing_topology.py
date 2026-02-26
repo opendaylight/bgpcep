@@ -20,10 +20,10 @@ from libraries.variables import variables
 
 
 DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
-PCC_MIN_COUNT = 1
-PCC_MAX_COUNT = 10
-LSP_MIN_COUNT = 1
-LSP_MAX_COUNT = 10
+PCC_MIN_COUNT = 40
+PCC_MAX_COUNT = 100
+LSP_MIN_COUNT = 400
+LSP_MAX_COUNT = 600
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 
@@ -48,9 +48,9 @@ class TestPcepUser:
     )
     def test_randomly_changing_topology(self, allure_step_with_separate_logging):
 
-        with allure_step_with_separate_logging("step_set_timer_value_to_5_second"):
+        with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
             """Update timer value value."""
-            pcep.set_stat_timer_value(5)
+            pcep.set_stat_timer_value(1)
 
         for iteration in range(1, 11):
 
@@ -77,10 +77,10 @@ class TestPcepUser:
                 )
 
             with allure_step_with_separate_logging(
-                f"step_wait_10_second_iteration_{iteration}"
+                f"step_wait_1_second_iteration_{iteration}"
             ):
                 """Wait one second until the next pcep stat update."""
-                time.sleep(10)
+                time.sleep(1)
 
             with allure_step_with_separate_logging(
                 f"step_verify_{pcc_count}_pcc_{lsp_count}_lsps_"
