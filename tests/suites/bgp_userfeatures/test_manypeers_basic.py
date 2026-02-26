@@ -10,6 +10,7 @@ import logging
 import textwrap
 
 import allure
+from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -19,13 +20,13 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 BGP_PEER_NAME = "example-bgp-peer"
 BGP_TOOL_LOG_LEVEL = "debug"
-BGP_VARIABLES_FOLDER = "variables/bgpuser/"
+BGP_VARIABLES_FOLDER = "variables/bgpuser"
 HOLDTIME = 180
 ODL_BGP_LOG_LEVEL = "DEFAULT"
 ODL_LOG_LEVEL = "INFO"
@@ -109,8 +110,22 @@ class TestBasic:
     def compare_topology(self, folder_name: str):
         """Get current example-ipv4-topology as json, and compare it to
         expected result."""
-        templated_requests.get_templated_request(
-            f"{BGP_VARIABLES_FOLDER}/{folder_name}", dict(), verify=True
+        mapping = {"PREFIXES_COUNT": 3 * BGP_PEERS_COUNT}
+        env = Environment(
+            loader=FileSystemLoader(
+                f"{BGP_VARIABLES_FOLDER}/{folder_name}"
+            )
+        )
+        template = env.get_template("data.j2")
+        expected_response = template.render(mapping)
+        response = templated_requests.get_templated_request(
+            f"{BGP_VARIABLES_FOLDER}/{folder_name}", mapping, verify=False
+        )
+        utils.verify_jsons_match(
+            response.text,
+            expected_response,
+            "received response",
+            "expected response",
         )
 
     def wait_for_topology_to_change_to(
@@ -174,17 +189,17 @@ class TestBasic:
             """Configure karaf logging level."""
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
             """Sanity check example-ipv4-topology is up but empty."""
-            self.wait_for_topology_to_change_to("empty_topology", retry=180)
+            self.wait_for_topology_to_change_to("empty_topology_manypeers", retry=180)
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
@@ -285,12 +300,13 @@ class TestBasic:
             "step_tc_r_check_for_empty_topology_after_resetting"
         ):
             """See example-ipv4-topology empty after resetting session."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_tc_pg_reconfigure_odl_with_peer_group_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
+            self.configure_peer_group("peer_group")
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -299,7 +315,6 @@ class TestBasic:
                 templated_requests.delete_templated_request(
                     f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
                 )
-                self.configure_peer_group("peer_group")
                 mapping = {
                     "IP": f"127.0.1.{i}",
                     "PEER_GROUP_NAME": PEER_GROUP,
@@ -330,7 +345,7 @@ class TestBasic:
             "step_tc_pg_check_for_empty_topology_after_deconfiguration"
         ):
             """Sanity check example-ipv4-topology is up but empty."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_tc_pg_reconfigure_odl_to_accept_connection"
@@ -360,7 +375,7 @@ class TestBasic:
             "step_check_for_empty_topology_after_talking"
         ):
             """See example-ipv4-topology empty again."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging("step_start_listening_bgp_speaker"):
             """Start Python speaker in listening mode, verify that the tool does
@@ -385,7 +400,7 @@ class TestBasic:
             "step_check_for_empty_topology_before_listening"
         ):
             """Sanity check example-ipv4-topology is still empty."""
-            self.verify_that_topology_does_not_change_from("empty_topology")
+            self.verify_that_topology_does_not_change_from("empty_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_initiate_connection"
@@ -425,7 +440,7 @@ class TestBasic:
             "step_check_for_empty_topology_after_listening"
         ):
             """Post-condition: Check example-ipv4-topology is empty again."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_start_listening_bgp_speaker_case_2"
@@ -471,7 +486,7 @@ class TestBasic:
             "step_check_for_empty_topology_after_listening_case_2"
         ):
             """Post-condition: Check example-ipv4-topology is empty again."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging(
             "step_start_listening_bgp_speaker_case_3"
@@ -515,7 +530,7 @@ class TestBasic:
             "step_check_for_empty_topology_after_listening_case_3"
         ):
             """Post-condition: Check example-ipv4-topology is empty again."""
-            self.wait_for_topology_to_change_to("empty_topology")
+            self.wait_for_topology_to_change_to("empty_topology_manypeers")
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
             """Revert the BGP configuration to the original state: without any
