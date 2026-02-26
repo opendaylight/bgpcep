@@ -18,6 +18,9 @@ from libraries import utils
 from libraries.variables import variables
 
 
+STARTING_COUNT = 10
+FINAL_COUNT = 100
+ITERATION_INCREASE_COUNT = 10
 DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
@@ -43,11 +46,13 @@ class TestPcepUser:
     )
     def test_rapidly_changing_topology(self, allure_step_with_separate_logging):
 
-        with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
-            """Update timer value to lowest possible value."""
-            pcep.set_stat_timer_value(1)
+        with allure_step_with_separate_logging("step_set_timer_value_to_5_second"):
+            """Update timer value to five seconds."""
+            pcep.set_stat_timer_value(5)
 
-        for current_count in range(1, 11):
+        for current_count in range(
+            STARTING_COUNT, FINAL_COUNT, ITERATION_INCREASE_COUNT
+        ):
 
             with allure_step_with_separate_logging(
                 f"step_start_pcc_mock_{current_count}_pcc_{current_count}_lsps"
@@ -64,10 +69,10 @@ class TestPcepUser:
                 )
 
             with allure_step_with_separate_logging(
-                f"step_wait_1_second_iteration_{current_count}"
+                f"step_wait_5_second_iteration_{current_count}"
             ):
-                """Wait one second until the next pcep stat update."""
-                time.sleep(1)
+                """Wait five second until the next pcep stat update."""
+                time.sleep(5)
 
             with allure_step_with_separate_logging(
                 f"step_verify_{current_count}_pcc_{current_count}_lsps_"
