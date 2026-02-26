@@ -20,7 +20,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
@@ -105,13 +105,13 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging("step_flowspec_test_1"):
             """Testing flowspec values for bgp-flowspec.cfg."""
             self.setup_test_case(CFG1)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP1)
+            utils.wait_until_function_pass(60, 1, self.verify_flowspec_data, EXP1)
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_flowspec_test_2"):
             """Testing flowspec values for bgp-flowspec-redirect.cfg."""
             self.setup_test_case(CFG2)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP2)
+            utils.wait_until_function_pass(60, 1, self.verify_flowspec_data, EXP2)
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging(

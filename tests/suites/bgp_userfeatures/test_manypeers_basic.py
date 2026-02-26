@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
@@ -291,6 +291,7 @@ class TestBasic:
             "step_tc_pg_reconfigure_odl_with_peer_group_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
+            self.configure_peer_group("peer_group")
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -299,7 +300,6 @@ class TestBasic:
                 templated_requests.delete_templated_request(
                     f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
                 )
-                self.configure_peer_group("peer_group")
                 mapping = {
                     "IP": f"127.0.1.{i}",
                     "PEER_GROUP_NAME": PEER_GROUP,

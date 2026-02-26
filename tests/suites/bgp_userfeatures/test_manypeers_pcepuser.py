@@ -23,7 +23,7 @@ from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables
 
 
-PCCS = 20
+PCCS = 150
 LOG_NAME = "pccmock.log"
 ODL_IP = variables.ODL_IP
 REST_API = variables.REST_API
@@ -209,7 +209,7 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and default instantiated tunnel."""
             updated_default_json = self.get_expected_topology("updated_default_json.j2")
-            self.compare_topology, updated_default_json
+            self.compare_topology(updated_default_json)
 
         with allure_step_with_separate_logging("step_update_instantiated"):
             """Perform update-lsp on the newly instantiated tunnel, check that
@@ -231,7 +231,7 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and updated instantiated tunnel."""
             updated_updated_json = self.get_expected_topology("updated_updated_json.j2")
-            self.compare_topology, updated_updated_json
+            self.compare_topology(updated_updated_json)
 
         with allure_step_with_separate_logging("step_remove_instantiated"):
             """Perform remove-lsp on the instantiated tunnel, check that

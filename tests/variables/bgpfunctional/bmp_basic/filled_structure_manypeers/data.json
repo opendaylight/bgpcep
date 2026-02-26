@@ -1,940 +1,3240 @@
 {
-    "bmp-monitor:bmp-monitor":{
-       "monitor":[
-          {
-             "monitor-id":"example-bmp-monitor",
-             "router":[
-                {
-                   "router-id":"$TOOL_IP",
-                   "peer":[
-                      {
-                         "peer-id":"1.1.1.7",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.7",
-                         "address":"1.1.1.7",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.7"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.17",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.17",
-                         "address":"1.1.1.17",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.17"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.8",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.8",
-                         "address":"1.1.1.8",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.8"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.16",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.16",
-                         "address":"1.1.1.16",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.16"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.9",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.9",
-                         "address":"1.1.1.9",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.9"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.19",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.19",
-                         "address":"1.1.1.19",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.19"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.18",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.18",
-                         "address":"1.1.1.18",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.18"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.3",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.3",
-                         "address":"1.1.1.3",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.3"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.4",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.4",
-                         "address":"1.1.1.4",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.4"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.5",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.5",
-                         "address":"1.1.1.5",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.5"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.6",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.6",
-                         "address":"1.1.1.6",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.6"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.20",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.20",
-                         "address":"1.1.1.20",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.20"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.1",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.1",
-                         "address":"1.1.1.1",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.1"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.11",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.11",
-                         "address":"1.1.1.11",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.11"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.2",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.2",
-                         "address":"1.1.1.2",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.2"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.10",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.10",
-                         "address":"1.1.1.10",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.10"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.13",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.13",
-                         "address":"1.1.1.13",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.13"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.12",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.12",
-                         "address":"1.1.1.12",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.12"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.15",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.15",
-                         "address":"1.1.1.15",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"127.0.1.0",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"127.0.1.0"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.15"
-                            }
-                         },
-                         "as":65431
-                      },
-                      {
-                         "peer-id":"1.1.1.14",
-                         "pre-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "type":"global",
-                         "bgp-id":"1.1.1.14",
-                         "address":"1.1.1.14",
-                         "post-policy-rib":{
-                            "tables":[
-                               {
-                                  "afi":"bgp-types:ipv4-address-family",
-                                  "safi":"bgp-types:unicast-subsequent-address-family",
-                                  "attributes":{
-                                     "uptodate":false
-                                  }
-                               }
-                            ]
-                         },
-                         "peer-session":{
-                            "remote-port":179,
-                            "local-address":"$TOOL_IP",
-                            "status":"up",
-                            "sent-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"$TOOL_IP"
-                            },
-                            "timestamp-sec":0,
-                            "local-port":179,
-                            "received-open":{
-                               "hold-timer":180,
-                               "my-as-number":65431,
-                               "bgp-identifier":"1.1.1.14"
-                            }
-                         },
-                         "as":65431
-                      }
-                   ],
-                   "status":"up",
-                   "description":"OpenDaylight",
-                   "name":"BMP mock",
-                   "info":""
-                }
-             ]
-          }
-       ]
-    }
- }
+   "bmp-monitor:bmp-monitor": {
+      "monitor": [
+         {
+            "monitor-id": "example-bmp-monitor",
+            "router": [
+               {
+                  "router-id": "$TOOL_IP",
+                  "peer": [
+                     {
+                        "peer-id": "1.1.1.1",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.1",
+                        "address": "1.1.1.1",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.1"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.2",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.2",
+                        "address": "1.1.1.2",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.2"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.3",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.3",
+                        "address": "1.1.1.3",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.3"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.4",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.4",
+                        "address": "1.1.1.4",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.4"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.5",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.5",
+                        "address": "1.1.1.5",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.5"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.6",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.6",
+                        "address": "1.1.1.6",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.6"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.7",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.7",
+                        "address": "1.1.1.7",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.7"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.8",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.8",
+                        "address": "1.1.1.8",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.8"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.9",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.9",
+                        "address": "1.1.1.9",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.9"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.10",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.10",
+                        "address": "1.1.1.10",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.10"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.11",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.11",
+                        "address": "1.1.1.11",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.11"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.12",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.12",
+                        "address": "1.1.1.12",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.12"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.13",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.13",
+                        "address": "1.1.1.13",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.13"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.14",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.14",
+                        "address": "1.1.1.14",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.14"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.15",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.15",
+                        "address": "1.1.1.15",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.15"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.16",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.16",
+                        "address": "1.1.1.16",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.16"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.17",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.17",
+                        "address": "1.1.1.17",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.17"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.18",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.18",
+                        "address": "1.1.1.18",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.18"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.19",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.19",
+                        "address": "1.1.1.19",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.19"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.20",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.20",
+                        "address": "1.1.1.20",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.20"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.21",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.21",
+                        "address": "1.1.1.21",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.21"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.22",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.22",
+                        "address": "1.1.1.22",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.22"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.23",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.23",
+                        "address": "1.1.1.23",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.23"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.24",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.24",
+                        "address": "1.1.1.24",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.24"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.25",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.25",
+                        "address": "1.1.1.25",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.25"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.26",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.26",
+                        "address": "1.1.1.26",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.26"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.27",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.27",
+                        "address": "1.1.1.27",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.27"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.28",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.28",
+                        "address": "1.1.1.28",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.28"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.29",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.29",
+                        "address": "1.1.1.29",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.29"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.30",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.30",
+                        "address": "1.1.1.30",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.30"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.31",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.31",
+                        "address": "1.1.1.31",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.31"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.32",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.32",
+                        "address": "1.1.1.32",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.32"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.33",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.33",
+                        "address": "1.1.1.33",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.33"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.34",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.34",
+                        "address": "1.1.1.34",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.34"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.35",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.35",
+                        "address": "1.1.1.35",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.35"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.36",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.36",
+                        "address": "1.1.1.36",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.36"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.37",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.37",
+                        "address": "1.1.1.37",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.37"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.38",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.38",
+                        "address": "1.1.1.38",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.38"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.39",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.39",
+                        "address": "1.1.1.39",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.39"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.40",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.40",
+                        "address": "1.1.1.40",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.40"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.41",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.41",
+                        "address": "1.1.1.41",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.41"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.42",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.42",
+                        "address": "1.1.1.42",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.42"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.43",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.43",
+                        "address": "1.1.1.43",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.43"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.44",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.44",
+                        "address": "1.1.1.44",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.44"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.45",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.45",
+                        "address": "1.1.1.45",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.45"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.46",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.46",
+                        "address": "1.1.1.46",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.46"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.47",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.47",
+                        "address": "1.1.1.47",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.47"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.48",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.48",
+                        "address": "1.1.1.48",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.48"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.49",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.49",
+                        "address": "1.1.1.49",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.49"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.50",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.50",
+                        "address": "1.1.1.50",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.50"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.51",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.51",
+                        "address": "1.1.1.51",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.51"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.52",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.52",
+                        "address": "1.1.1.52",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.52"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.53",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.53",
+                        "address": "1.1.1.53",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.53"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.54",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.54",
+                        "address": "1.1.1.54",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.54"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.55",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.55",
+                        "address": "1.1.1.55",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.55"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.56",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.56",
+                        "address": "1.1.1.56",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.56"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.57",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.57",
+                        "address": "1.1.1.57",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.57"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.58",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.58",
+                        "address": "1.1.1.58",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.58"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.59",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.59",
+                        "address": "1.1.1.59",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.59"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.60",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.60",
+                        "address": "1.1.1.60",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.60"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.61",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.61",
+                        "address": "1.1.1.61",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.61"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.62",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.62",
+                        "address": "1.1.1.62",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.62"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.63",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.63",
+                        "address": "1.1.1.63",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.63"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.64",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.64",
+                        "address": "1.1.1.64",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.64"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.65",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.65",
+                        "address": "1.1.1.65",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.65"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.66",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.66",
+                        "address": "1.1.1.66",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.66"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.67",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.67",
+                        "address": "1.1.1.67",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.67"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.68",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.68",
+                        "address": "1.1.1.68",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.68"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.69",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.69",
+                        "address": "1.1.1.69",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.69"
+                           }
+                        },
+                        "as": 65431
+                     },
+                     {
+                        "peer-id": "1.1.1.70",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.70",
+                        "address": "1.1.1.70",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "$TOOL_IP",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "$TOOL_IP"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.70"
+                           }
+                        },
+                        "as": 65431
+                     }
+                  ],
+                  "status": "up",
+                  "description": "OpenDaylight",
+                  "name": "BMP mock",
+                  "info": ""
+               }
+            ]
+         }
+      ]
+   }
+}

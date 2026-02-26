@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 TOOLS_IP = variables.TOOLS_IP
@@ -105,7 +105,7 @@ class TestIbgpPeerLsp:
                     ),
                     run_in_background=True,
                 )
-                utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid)
+                utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid, retry_count=4)
                 self.bgp_speaker_processes.append(bgp_speaker_process)
 
         with allure_step_with_separate_logging("step_tc1_check_example_bgp_rib"):
@@ -179,7 +179,7 @@ class TestIbgpPeerLsp:
                     ),
                     run_in_background=True,
                 )
-                utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid)
+                utils.verify_process_did_not_stop_immediately(bgp_speaker_process.pid, retry_count=4)
                 self.bgp_speaker_processes.append(bgp_speaker_process)
 
         with allure_step_with_separate_logging("step_tc2_check_example_bgp_rib"):

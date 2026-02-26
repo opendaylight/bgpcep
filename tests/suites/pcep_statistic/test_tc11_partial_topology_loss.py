@@ -19,11 +19,11 @@ from libraries.variables import variables
 
 
 DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
-SIMULATOR_1_PCC_COUNT = 10
-SIMULATOR_1_LSP_PER_PCC_COUNT = 10
+SIMULATOR_1_PCC_COUNT = 55
+SIMULATOR_1_LSP_PER_PCC_COUNT = 400
 SIMULATOR_1_IP = "127.0.1.0"
-SIMULATOR_2_PCC_COUNT = 5
-SIMULATOR_2_LSP_PER_PCC_COUNT = 5
+SIMULATOR_2_PCC_COUNT = 45
+SIMULATOR_2_LSP_PER_PCC_COUNT = 450
 SIMULATOR_2_IP = "127.0.2.0"
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
@@ -50,7 +50,7 @@ class TestPcepUser:
     )
     def test_partial_topology_loss(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_set_timer_value_to_5_second"):
-            """Update timer value value."""
+            """Update timer value."""
             pcep.set_stat_timer_value(5)
 
         with allure_step_with_separate_logging(

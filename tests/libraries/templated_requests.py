@@ -278,8 +278,12 @@ def get_templated_request(
     Returns:
         requests.Response: Response returned by ODL for GET call.
     """
+    if json:
+        headers = {"Accept": "application/yang-data+json"}
+    else:
+        headers = {"Accept": "application/xml"}
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    response = get_from_uri(uri, expected_code=expected_code)
+    response = get_from_uri(uri, headers=headers, expected_code=expected_code)
 
     if verify:
         file_name_suffix = "json" if json else "xml"
