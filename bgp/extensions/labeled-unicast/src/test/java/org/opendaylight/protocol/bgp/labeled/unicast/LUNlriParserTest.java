@@ -68,7 +68,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 22 01 16 <- prefixType IPV4=34.1.22.0/24
      */
-    private static final byte[] LU_REACH_NLRI_IPV4 = new byte[]{
+    private static final byte[] LU_REACH_NLRI_IPV4 = new byte[] {
         (byte) 0x60,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
         (byte) 0x00, (byte) 0x16, (byte) 0x40,
@@ -104,7 +104,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 22 01 16 <- prefixType IPV4=34.1.22.0/24
      */
-    private static final byte[] LU_REACH_NLRI_IPV4_ADD_PATH = new byte[]{
+    private static final byte[] LU_REACH_NLRI_IPV4_ADD_PATH = new byte[] {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
         (byte) 0x60,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
@@ -142,7 +142,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 20 01 D B8 0 1 0 2 0 0 0 0 0 0 0 0 80  <- prefixType IPV6=2001:db8:1:2::/128
      */
-    private static final byte[] LU_REACH_NLRI_IPV6 = new byte[]{
+    private static final byte[] LU_REACH_NLRI_IPV6 = new byte[] {
         (byte) 0xC8,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
         (byte) 0x00, (byte) 0x16, (byte) 0x40,
@@ -183,7 +183,7 @@ public class LUNlriParserTest {
      * 1        <- bottomBit 1
      * 20 01 D B8 0 1 0 2 0 0 0 0 0 0 0 0 80  <- prefixType IPV6=2001:db8:1:2::/128
      */
-    private static final byte[] LU_REACH_NLRI_IPV6_ADD_PATH = new byte[]{
+    private static final byte[] LU_REACH_NLRI_IPV6_ADD_PATH = new byte[] {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01,
         (byte) 0xC8,
         (byte) 0x00, (byte) 0x16, (byte) 0x30,
