@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e6299a1_2b40718e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-03-02T21:15:00Z",
+      "side": 1,
+      "message": "So this needs to be updated to describe what is actually being done -- especially the new test vectors are not explained.\n\nIs this the baseline https://www.rfc-editor.org/rfc/rfc3107 or to https://www.rfc-editor.org/rfc/rfc8277 which obsoletes it?",
+      "revId": "82d6dc74c47b7e3c866b11ad44ed358ba23367d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
