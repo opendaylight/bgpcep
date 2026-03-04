@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae148cc1_0a644019",
+        "filename": "tests/suites/pcep_statistic/test_tc10_continuous_topology_decrease.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-04T13:45:08Z",
+      "side": 1,
+      "message": "count of what? can you document?",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a0b326a_fbaf6e8a",
+        "filename": "tests/suites/pcep_statistic/test_tc10_continuous_topology_decrease.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-04T13:45:08Z",
+      "side": 1,
+      "message": "the one second is only singular",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "304b3f6e_d72adc87",
+        "filename": "tests/suites/pcep_statistic/test_tc11_partial_topology_loss.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-04T13:45:08Z",
+      "side": 1,
+      "message": "why 500 you said we have 400 per PCC",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b148bc48_23a764e2",
+        "filename": "tests/suites/pcep_statistic/test_tc9_rapidly_changing_topology.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-04T13:45:08Z",
+      "side": 1,
+      "message": "second",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
