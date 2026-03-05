@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_RPC_CLIENTS = [bgp.BgpRpcClient(f"127.0.1.{i}") for i in range(BGP_PEERS_COUNT)]

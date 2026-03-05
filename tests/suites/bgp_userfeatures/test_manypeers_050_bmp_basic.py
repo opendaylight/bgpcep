@@ -20,7 +20,7 @@ from libraries.variables import variables
 
 
 BMP_ROUTERS_COUNT = 1
-REPORTED_PEERS_COUNT = 20
+REPORTED_PEERS_COUNT = 70
 
 TOOLS_IP = variables.TOOLS_IP
 BGP_BMP_DIR = "variables/bgpfunctional/bmp_basic/filled_structure_manypeers"
