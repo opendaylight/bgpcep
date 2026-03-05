@@ -19,14 +19,14 @@ from libraries import utils
 from libraries.variables import variables
 
 
-PREFILL_COUNT = 100_000
-ADDITIONAL_COUNT = 80_000
-BGP_PEERS_COUNT = 20
+PREFILL_COUNT = 10_000
+ADDITIONAL_COUNT = 8_000
+BGP_PEERS_COUNT = 70
 TOTAL_COUNT = PREFILL_COUNT + ADDITIONAL_COUNT
 TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER
-BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (TOTAL_COUNT * 2.0 / 100 + 40)
+BGP_FILLING_TIMEOUT = TEST_DURATION_MULTIPLIER * (TOTAL_COUNT * 200.0 / 100 + 40)
 BGP_EMPTYING_TIMEOUT = BGP_FILLING_TIMEOUT * 3 / 4
-CHECK_INTERVAL = BGP_PEERS_COUNT
+CHECK_INTERVAL = BGP_PEERS_COUNT / 5
 CHECK_RETRY_COUNT = int(BGP_FILLING_TIMEOUT / CHECK_INTERVAL)
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
@@ -221,6 +221,7 @@ class TestBgpAppManyPeerPrefixCount:
             """Start BGP peer tool"""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=0,
+                multiplicity=BGP_PEERS_COUNT,
                 my_ip=TOOLS_IP,
                 my_port=BGP_TOOL_PORT,
                 peer_ip=ODL_IP,

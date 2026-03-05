@@ -21,7 +21,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_RPC_CLIENT = bgp.BgpRpcClient(TOOLS_IP)
@@ -72,8 +72,22 @@ class TestBgpfunctionalL3Vpn:
 
     def verify_reported_data(self, exprspdir):
         """Verifies expected response."""
-        templated_requests.get_templated_request(
-            f"{BGP_L3VPN_DIR}/{exprspdir}", None, verify=True
+        mapping = {"PEER_COUNT": BGP_PEERS_COUNT}
+        env = Environment(
+            loader=FileSystemLoader(
+                f"{BGP_L3VPN_DIR}/{exprspdir}"
+            )
+        )
+        template = env.get_template("data.j2")
+        expected_response = template.render(mapping)
+        response = templated_requests.get_templated_request(
+            f"{BGP_L3VPN_DIR}/{exprspdir}", None, verify=False
+        )
+        utils.verify_jsons_match(
+            response.text,
+            expected_response,
+            "received response",
+            "expected response",
         )
 
     def l3vpn_ipv4_to_app(self):

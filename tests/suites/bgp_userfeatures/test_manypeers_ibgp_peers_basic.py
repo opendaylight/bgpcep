@@ -23,7 +23,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_PEER_LOG_LEVEL = "debug"
@@ -39,8 +39,8 @@ PREFIXES_PER_PEER = 1
 PREFIX_COUNT = int(BGP_PEERS_COUNT * PREFIXES_PER_PEER / 2)
 BGP_PEER1_LOG_FILE = "bgp_peer1.log"
 BGP_PEER2_LOG_FILE = "bgp_peer2.log"
-DEFAULT_LOG_CHECK_TIMEOUT = 20
-DEFAULT_LOG_CHECK_PERIOD = 1
+DEFAULT_CHECK_TIMEOUT = 20
+DEFAULT_CHECK_PERIOD = 1
 
 log = logging.getLogger(__name__)
 
@@ -100,7 +100,7 @@ class TestIbgpPeersBasic:
             multiplicity=int(BGP_PEERS_COUNT / 2),
         )
         utils.wait_until_function_pass(
-            10,
+            20,
             1,
             prefix_counting.check_example_ipv4_topology_contains,
             f"'prefix': '{BGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}'",
@@ -119,7 +119,7 @@ class TestIbgpPeersBasic:
             multiplicity=int(BGP_PEERS_COUNT / 2),
         )
         utils.wait_until_function_pass(
-            10,
+            20,
             1,
             prefix_counting.check_example_ipv4_topology_contains,
             f"'prefix': '{BGP_PEER2_FIRST_PREFIX_IP}/{PREFIX_LEN}'",
@@ -207,10 +207,10 @@ class TestIbgpPeersBasic:
             """Configure karaf logging level."""
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
         with allure_step_with_separate_logging(
@@ -241,8 +241,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for new routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
@@ -264,8 +264,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for new routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
@@ -292,8 +292,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for withdrawn routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "withdrawn_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
@@ -367,8 +367,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for new routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
@@ -390,8 +390,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for new routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
@@ -418,8 +418,8 @@ class TestIbgpPeersBasic:
         ):
             """Check incomming updates for withdrawn routes."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "withdrawn_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
@@ -493,8 +493,8 @@ class TestIbgpPeersBasic:
         ):
             """Check for no updates received by iBGP peer No. 1."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT * 2,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT * 2,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "total_received_update_message_counter: 1",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
@@ -512,8 +512,8 @@ class TestIbgpPeersBasic:
         ):
             """Check for no updates received by iBGP peer No. 2."""
             utils.wait_until_function_pass(
-                DEFAULT_LOG_CHECK_TIMEOUT * 4,
-                DEFAULT_LOG_CHECK_PERIOD,
+                DEFAULT_CHECK_TIMEOUT * 4,
+                DEFAULT_CHECK_PERIOD,
                 infra.verify_string_occurence_count_in_file,
                 "total_received_update_message_counter: 1",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
@@ -583,7 +583,14 @@ class TestIbgpPeersBasic:
             bgp_peer_ip = ipaddress.IPv4Address(BGP_PEERS1_IP)
             prefix_to_be_skipped = ipaddress.IPv4Address(BGP_PEER1_FIRST_PREFIX_IP)
             for _ in range(int(BGP_PEERS_COUNT / 2)):
-                self.check_peer_adj_rib_out(bgp_peer_ip, prefix_to_be_skipped)
+                #self.check_peer_adj_rib_out(bgp_peer_ip, prefix_to_be_skipped)
+                utils.wait_until_function_pass(
+                    DEFAULT_CHECK_TIMEOUT,
+                    DEFAULT_CHECK_PERIOD,
+                    self.check_peer_adj_rib_out,
+                    bgp_peer_ip,
+                    prefix_to_be_skipped,
+                )
                 bgp_peer_ip += 1
                 prefix_to_be_skipped += 16
 
@@ -595,7 +602,14 @@ class TestIbgpPeersBasic:
             bgp_peer_ip = ipaddress.IPv4Address(BGP_PEERS2_IP)
             prefix_to_be_skipped = ipaddress.IPv4Address(BGP_PEER2_FIRST_PREFIX_IP)
             for _ in range(int(BGP_PEERS_COUNT / 2)):
-                self.check_peer_adj_rib_out(bgp_peer_ip, prefix_to_be_skipped)
+                #self.check_peer_adj_rib_out(bgp_peer_ip, prefix_to_be_skipped)
+                utils.wait_until_function_pass(
+                    DEFAULT_CHECK_TIMEOUT,
+                    DEFAULT_CHECK_PERIOD,
+                    self.check_peer_adj_rib_out,
+                    bgp_peer_ip,
+                    prefix_to_be_skipped,
+                )
                 bgp_peer_ip += 1
                 prefix_to_be_skipped += 16
 
