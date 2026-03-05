@@ -1,0 +1,50 @@
+{
+  "bgp-flowspec:flowspec-routes": {
+    "flowspec-route": [
+      {% for i in range(PEER_COUNT) %}
+      {
+        "path-id": 0,
+        "route-key": "all packets to 192.168.0.{{ i }}/32 AND from 10.0.0.{{ i }}/32",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "local-pref": {
+            "pref": 100
+          },
+          "extended-communities": [
+            {% if i % 3 == 1 %}
+            {
+              "redirect-extended-community": {
+                "global-administrator": 65500,
+                "local-administrator": "AAAwOQ=="
+              },
+              "transitive": true
+            }
+            {% else %}
+            {
+              "redirect-ip-nh-extended-community": {
+                "copy": false,
+                "next-hop-address": "0.0.0.0"
+              },
+              "transitive": true
+            }
+            {% endif %}
+          ]{% if i % 3 != 1 %},
+          "ipv4-next-hop": {
+            "global": "{% if i % 3 == 0 %}127.0.0.1{% else %}1.2.3.4{% endif %}"
+          }{% endif %}
+        },
+        "flowspec": [
+          {
+            "destination-prefix": "192.168.0.{{ i }}/32"
+          },
+          {
+            "source-prefix": "10.0.0.{{ i }}/32"
+          }
+        ]
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}

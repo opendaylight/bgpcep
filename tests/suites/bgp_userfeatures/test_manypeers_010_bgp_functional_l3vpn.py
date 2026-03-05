@@ -11,7 +11,6 @@ import logging
 import textwrap
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -21,7 +20,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_RPC_CLIENT = bgp.BgpRpcClient(TOOLS_IP)
@@ -72,8 +71,18 @@ class TestBgpfunctionalL3Vpn:
 
     def verify_reported_data(self, exprspdir):
         """Verifies expected response."""
-        templated_requests.get_templated_request(
-            f"{BGP_L3VPN_DIR}/{exprspdir}", None, verify=True
+        expected_response = utils.render_jinja_template(
+            template_path=f"{BGP_L3VPN_DIR}/{exprspdir}/data.j2",
+            mapping={"PEER_COUNT": BGP_PEERS_COUNT},
+        )
+        response = templated_requests.get_templated_request(
+            f"{BGP_L3VPN_DIR}/{exprspdir}", None, verify=False
+        )
+        utils.verify_jsons_match(
+            response.text,
+            expected_response,
+            "received response",
+            "expected response",
         )
 
     def l3vpn_ipv4_to_app(self):
@@ -86,9 +95,11 @@ class TestBgpfunctionalL3Vpn:
         )
 
     def prepare_config_files(self):
-        env = Environment(loader=FileSystemLoader("variables/bgpfunctional/l3vpn_ipv4"))
-        template = env.get_template("bgp-l3vpn-ipv4-manypeers.j2")
-        config = template.render({"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT})
+        config = utils.render_jinja_template(
+            template_path="variables/bgpfunctional/l3vpn_ipv4/" \
+                          "bgp-l3vpn-ipv4-manypeers.j2",
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+        )
         infra.save_to_a_file(f"tmp/{L3VPN_EXA_CFG}", config)
 
     @allure.description(
