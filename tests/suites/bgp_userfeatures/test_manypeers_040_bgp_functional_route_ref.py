@@ -10,7 +10,6 @@ import logging
 import textwrap
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -20,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_RPC_CLIENTS = [bgp.BgpRpcClient(f"127.0.1.{i}") for i in range(BGP_PEERS_COUNT)]
@@ -49,15 +48,14 @@ class TestBgpfunctionalRouteRef:
 
     def setup_config_files(self):
         """Copies exabgp config files."""
-        env = Environment(loader=FileSystemLoader(BGP_VAR_FOLDER))
-        template = env.get_template("exa.j2")
-        config = template.render(
-            {
+        config = utils.render_jinja_template(
+            template_path=f"{BGP_VAR_FOLDER}/exa.j2",
+            mapping={
                 "ODL_IP": ODL_IP,
                 "PEER_COUNT": BGP_PEERS_COUNT,
                 "ROUTEREFRESH": "enable",
                 "ADDPATH": "disable",
-            }
+            },
         )
         infra.save_to_a_file(f"tmp/{BGP_CFG_NAME}", config)
         rc, stdout = infra.shell(f"cat tmp/{BGP_CFG_NAME}")

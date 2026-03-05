@@ -11,7 +11,6 @@ import textwrap
 import time
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -22,7 +21,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_VAR_FOLDER = "variables/bgpfunctional/ipv6"
@@ -87,19 +86,17 @@ class TestBgpIpv6Basic:
     def setup_config_file(
         self, config_file, exabgp_ip_template, odl_ip, router_id_template
     ):
-        env = Environment(loader=FileSystemLoader(f"{BGP_VAR_FOLDER}/manypeers/"))
-        env.filters["format_ip"] = self.format_ip
-        # generate config file for bgp-flowspec-manypeers.cfg
-        template = env.get_template(f"{config_file}.j2")
-        config = template.render(
-            {
+        config = utils.render_jinja_template(
+            template_path=f"{BGP_VAR_FOLDER}/manypeers/{config_file}.j2",
+            mapping={
                 "EXABGPIP_TEMPLATE": exabgp_ip_template,
                 "PEER_COUNT": BGP_PEERS_COUNT,
                 "ODLIP": odl_ip,
                 "ROUTERID_TEMPATE": router_id_template,
                 "ROUTEREFRESH": "disable",
                 "ADDPATH": "disable",
-            }
+            },
+            filters={"format_ip": self.format_ip},
         )
         infra.save_to_a_file(f"tmp/{config_file}.cfg", config)
         rc, stdout = infra.shell(f"cat tmp/{config_file}.cfg")
@@ -107,14 +104,12 @@ class TestBgpIpv6Basic:
 
     def setup_config_files(self):
         for config_file in ("exaipv6", "exabgp_graceful_restart", "exa4"):
-            # infra.shell(f"cp  {BGP_VAR_FOLDER}/{config_file} tmp/")
             self.setup_config_file(
                 config_file,
                 exabgp_ip_template=IPV6_IP_TEMPLATE,
                 odl_ip=CONTROLLER_IPV6,
                 router_id_template=EXABGP_ID_TEMPLATE,
             )
-        # infra.shell(f"cp  {BGP_VAR_FOLDER}/{EXABGP2_CFG} tmp/")
         self.setup_config_file(
             "exaipv4",
             exabgp_ip_template=IPV4_IP_TEMPLATE,

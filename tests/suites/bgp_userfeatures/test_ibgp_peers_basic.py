@@ -152,10 +152,10 @@ class TestIbgpPeersBasic:
             """Configure karaf logging level."""
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
         with allure_step_with_separate_logging(
