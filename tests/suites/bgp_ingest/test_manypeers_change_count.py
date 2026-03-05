@@ -14,7 +14,7 @@ from suites.base_test_manypeers_change_count import BaseTestManyPeerChangeCount
 
 
 COUNT_CHANGE_COUNT_MANY = 600_000
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 INSERT = None
 WITHDRAW = None
 PREFILL = None
@@ -51,7 +51,7 @@ class TestManyPeersChangeCountMixed(BaseTestManyPeerChangeCount):
             "work is being done".Utils provide a nice function to wait for \
             stability, but it needs initial value, that is why \
             store_change_count appears just before work-inducing action. \
-            The time for *wait_for_\*to_become_stable* cases to finish is \
+            The time for *wait_for_\*_to_become_stable* cases to finish is \
             the main performance metric. After waiting for stability \
             is done, full check on number of prefixes present is performed.
 

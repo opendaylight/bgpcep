@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_RPC_CLIENTS = [bgp.BgpRpcClient(f"127.0.1.{i}") for i in range(BGP_PEERS_COUNT)]
@@ -206,13 +206,13 @@ class TestBgpfunctionalRouteRef:
                 # From neon onwards there are extra BGP End-Of-RIB message
                 update_count = 3 * BGP_PEERS_COUNT
                 utils.wait_until_function_pass(
-                    5, 2, self.verify_exaBgps_received_updates, update_count
+                    20, 2, self.verify_exaBgps_received_updates, update_count
                 )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 # per address family
                 update_count = 4 + 3 * BGP_PEERS_COUNT
                 utils.wait_until_function_pass(
-                    10,
+                    2,
                     5,
                     self.verify_odl_operational_state_count,
                     notification_count=0,
@@ -233,13 +233,13 @@ class TestBgpfunctionalRouteRef:
                     f"{BGP_VAR_FOLDER}/route_refresh", mapping, json=False
                 )
                 utils.wait_until_function_pass(
-                    5, 2, self.verify_exaBgp_received_route_refresh, 1
+                    20, 2, self.verify_exaBgp_received_route_refresh, 1
                 )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 # per address family
                 update_count = 9
                 utils.wait_until_function_pass(
-                    3,
+                    20,
                     5,
                     self.verify_odl_operational_state_count,
                     notification_count=1,

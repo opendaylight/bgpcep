@@ -14,7 +14,7 @@ from suites.base_test_manypeers_prefix_count import BaseTestManyPeerPrefixCount
 
 
 COUNT_PREFIX_COUNT_MANY = 600_000
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 INSERT = None
 WITHDRAW = None
 PREFILL = None
@@ -43,7 +43,7 @@ class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
             The suite consists of two halves, differing on which side initiates \
             BGP connection. State of "work is being done" is detected \
             by increasing value of prefixes in topology. The time for \
-            *wait_for_\*to_become_stable* cases to finish is the main \
+            *wait_for_\*_to_become_stable* cases to finish is the main \
             performance metric. After waiting for stability is done, full check \
             on number of prefixes present is performed.
 
