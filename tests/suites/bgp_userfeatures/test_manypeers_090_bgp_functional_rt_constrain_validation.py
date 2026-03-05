@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 TOOLS_IP = variables.TOOLS_IP
@@ -58,7 +58,8 @@ class TestBgpfunctionalRtConstrainValidation:
 
     def start_bgp_peer(self, ip, as_number, port, multiplicity, filename):
         """Starts bgp peer."""
-        bgp.start_bgp_speaker(
+        bgp.start_bgp_speaker_and_verify_connected(
+            speaker_ips=ip,
             ammount=0,
             my_ip=ip,
             peer_ip=ODL_IP,
@@ -169,7 +170,7 @@ class TestBgpfunctionalRtConstrainValidation:
                 ODL_2_IPS[0],
                 BGP_PEER_AS_NUMBERS[1],
                 8003,
-                multiplicity=10,
+                multiplicity=len(ODL_2_IPS),
                 filename=f"play.py.090.3",
             )
             log.info(f"IP: {ODL_3_IPS[0]} as_number: {BGP_PEER_AS_NUMBERS[2]}")
@@ -177,7 +178,7 @@ class TestBgpfunctionalRtConstrainValidation:
                 ODL_3_IPS[0],
                 BGP_PEER_AS_NUMBERS[2],
                 8004,
-                multiplicity=9,
+                multiplicity=len(ODL_3_IPS),
                 filename=f"play.py.090.4",
             )
 

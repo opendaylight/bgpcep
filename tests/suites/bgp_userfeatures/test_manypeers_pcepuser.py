@@ -12,7 +12,6 @@ import time
 
 import allure
 import ipaddr
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import infra
@@ -23,7 +22,7 @@ from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables
 
 
-PCCS = 20
+PCCS = 150
 LOG_NAME = "pccmock.log"
 ODL_IP = variables.ODL_IP
 REST_API = variables.REST_API
@@ -82,11 +81,11 @@ class TestPcepUser:
     def get_expected_topology(self, topology_jinja_template):
         def b64encode_filter(s):
             return base64.b64encode(s.encode("utf-8")).decode("utf-8")
-
-        env = Environment(loader=FileSystemLoader(PCEP_VARIABLES_FOLDER))
-        env.filters["b64encode"] = b64encode_filter
-        template = env.get_template(topology_jinja_template)
-        config = template.render({"PCC_COUNT": PCCS})
+        config = utils.render_jinja_template(
+            template_path=f"{PCEP_VARIABLES_FOLDER}/{topology_jinja_template}",
+            mapping={"PCC_COUNT": PCCS},
+            filters={"b64encode": b64encode_filter},
+        )
 
         return config
 
@@ -209,7 +208,7 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and default instantiated tunnel."""
             updated_default_json = self.get_expected_topology("updated_default_json.j2")
-            self.compare_topology, updated_default_json
+            self.compare_topology(updated_default_json)
 
         with allure_step_with_separate_logging("step_update_instantiated"):
             """Perform update-lsp on the newly instantiated tunnel, check that
@@ -231,7 +230,7 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and updated instantiated tunnel."""
             updated_updated_json = self.get_expected_topology("updated_updated_json.j2")
-            self.compare_topology, updated_updated_json
+            self.compare_topology(updated_updated_json)
 
         with allure_step_with_separate_logging("step_remove_instantiated"):
             """Perform remove-lsp on the instantiated tunnel, check that

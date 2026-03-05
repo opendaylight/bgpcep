@@ -1,0 +1,31 @@
+{% set b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/' %}
+{
+  "bgp-vpn-ipv4:vpn-ipv4-routes": {
+    "vpn-route": [
+      {% for i in range(PEER_COUNT) %}
+      {
+        "path-id": 0,
+        "route-key": "WAABAQIDBA{{ b64[i // 64] }}{{ b64[i % 64] }}AQ{{ b64[4 + (i // 64)] }}{{ b64[i % 64] }}",
+        "prefix": "1.1.{{ i }}.0/24",
+        "route-distinguisher": "1.2.3.4:{{ i }}",
+        "attributes": {
+          "origin": {
+            "value": "igp"
+          },
+          "ipv4-next-hop": {
+            "global": "10.0.255.254"
+          },
+          "local-pref": {
+            "pref": 100
+          }
+        },
+        "label-stack": [
+          {
+            "label-value": {{ 24000 + i }}
+          }
+        ]
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}

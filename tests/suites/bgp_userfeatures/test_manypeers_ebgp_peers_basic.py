@@ -11,7 +11,6 @@ import logging
 import textwrap
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -22,7 +21,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 TOOLS_IP = variables.TOOLS_IP
@@ -133,27 +132,14 @@ class TestEbgpPeersBasic:
                 continue
             route = {"prefix": prefix, "peer_as": eBGP_AS}
             routes.append(route)
-        mapping = {
-            "IP": ip,
-            "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
-            "AS_NUMBER": LOCAL_AS,
-            "ROUTES": routes,
-        }
-        env = Environment(
-            loader=FileSystemLoader(
-                f"{BGP_VARIABLES_FOLDER}/local_as/manypeers_adj_rib_out"
-            )
-        )
-        template = env.get_template("data.j2")
-        expected_rib = template.render(mapping)
-        response = templated_requests.get_templated_request(
-            f"{BGP_VARIABLES_FOLDER}/local_as/adj_rib_out", mapping
-        )
-        utils.verify_jsons_match(
-            response.text,
-            expected_rib,
-            "received response",
-            "expected response",
+        templated_requests.get_jinja_templated_request(
+            temlate_dir=f"{BGP_VARIABLES_FOLDER}/local_as/adj_rib_out",
+            mapping={
+                "IP": ip,
+                "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
+                "AS_NUMBER": LOCAL_AS,
+                "ROUTES": routes,
+            }
         )
 
     @allure.description(
