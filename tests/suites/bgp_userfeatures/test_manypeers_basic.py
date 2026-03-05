@@ -19,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
