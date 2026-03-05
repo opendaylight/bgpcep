@@ -14,7 +14,7 @@ from suites.base_test_manypeers_prefix_count import BaseTestManyPeerPrefixCount
 
 
 COUNT_PREFIX_COUNT_MANY = 200_000
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 INSERT = 10
 WITHDRAW = 9
 PREFILL = 10

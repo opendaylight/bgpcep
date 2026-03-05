@@ -17,7 +17,7 @@ fi
 for i in {1..3}
 do
                   echo    "----------------------------------------------------------"
-                  java -jar ~/$1 --local-address $2 --remote-address $3 --pcc $4 --lsp $5 &>> /tmp/throughpcep_$6.log
+                  java -jar ~/$1 --local-address $2 --remote-address $3 --pcc $4 --lsp $5 --stream $6 &>> /tmp/throughpcep_$6.log
 
                   process_id=`/bin/ps -fu $USER| grep "$HOME/$1" | grep -v "grep" | awk '{print $2}'`
                   echo "PCC MOCK Process id for $a iteration is $process_id"

@@ -1,0 +1,25 @@
+{
+  "network-topology:topology": [
+    {
+      "node": [
+        {
+          "l3-unicast-igp-topology:igp-node-attributes": {
+            "prefix": [
+              {% for i in range(PREFIXES_COUNT) %}
+              {% set r = i % 12 %}
+              {% set octet4 = (r + (r // 3)) * 16 %}
+              { "prefix": "8.0.{{ 1 + (i // 12) }}.{{ octet4 }}/28" }{% if not loop.last %},{% endif %}
+              {% endfor %}
+            ]
+          },
+          "node-id": "192.0.2.1"
+        }
+      ],
+      "server-provided": true,
+      "topology-id": "example-ipv4-topology",
+      "topology-types": {
+        "odl-bgp-topology-types:bgp-ipv4-reachability-topology": {}
+      }
+    }
+  ]
+}
