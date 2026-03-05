@@ -8,7 +8,9 @@
 
 from contextlib import contextmanager
 import difflib
+from jinja2 import Environment, FileSystemLoader
 import logging
+import os
 import time
 from collections.abc import Callable
 from typing import Any, Generator, List, Tuple
@@ -142,6 +144,19 @@ def verify_jsons_match(
         if len(visual_diff) > 2000:
             visual_diff = visual_diff[:2000] + " ... (truncated long output)"
         raise AssertionError(f": \n{visual_diff}")
+
+def render_jinja_template(template_path: str, mapping: dict, filters: dict = None):
+    file_dir, file_name = os.path.split(template_path)
+    env = Environment(
+            loader=FileSystemLoader(
+                file_dir
+            )
+        )
+    if filters:
+        env.filters.update(filters)
+    template = env.get_template(file_name)
+
+    return template.render(mapping)
 
 
 def verify_multiline_text_match(expected_text: str, real_text: str):

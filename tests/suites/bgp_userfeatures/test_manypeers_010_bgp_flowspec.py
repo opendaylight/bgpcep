@@ -9,7 +9,6 @@
 import logging
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -20,7 +19,7 @@ from libraries import utils
 from libraries.variables import variables
 
 
-BGP_PEERS_COUNT = 20
+BGP_PEERS_COUNT = 70
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
@@ -52,14 +51,15 @@ log = logging.getLogger(__name__)
 class TestBgpFlowspec:
 
     def prepare_config_files(self):
-        env = Environment(loader=FileSystemLoader(BGP_VARIABLES_FOLDER))
-        # generate config file for bgp-flowspec-manypeers.cfg
-        template = env.get_template("bgp-flowspec-manypeers.j2")
-        config = template.render({"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT})
+        config = utils.render_jinja_template(
+            template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-manypeers.j2",
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+        )
         infra.save_to_a_file(f"tmp/{CFG1}", config)
-        # generate config file for bgp-flowspec-redirect-manypeers.cfg
-        template = env.get_template("bgp-flowspec-redirect-manypeers.j2")
-        config = template.render({"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT})
+        config = utils.render_jinja_template(
+            template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-redirect-manypeers.j2",
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+        )
         infra.save_to_a_file(f"tmp/{CFG2}", config)
 
     def setup_test_case(self, cfg_file: str):
@@ -71,8 +71,18 @@ class TestBgpFlowspec:
 
     def verify_flowspec_data(self, exprspdir: str):
         """Verify expected response."""
-        templated_requests.get_templated_request(
-            f"{BGP_VARIABLES_FOLDER}/{exprspdir}", mapping=None, verify=True
+        expected_response = utils.render_jinja_template(
+            template_path=f"{BGP_VARIABLES_FOLDER}/{exprspdir}/data.j2",
+            mapping={"PEER_COUNT": BGP_PEERS_COUNT},
+        )
+        response = templated_requests.get_templated_request(
+            f"{BGP_VARIABLES_FOLDER}/{exprspdir}", mapping=None, verify=False
+        )
+        utils.verify_jsons_match(
+            response.text,
+            expected_response,
+            "received response",
+            "expected response",
         )
 
     @allure.description("Functional test for bgp flowspec.")
@@ -105,13 +115,13 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging("step_flowspec_test_1"):
             """Testing flowspec values for bgp-flowspec.cfg."""
             self.setup_test_case(CFG1)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP1)
+            utils.wait_until_function_pass(60, 1, self.verify_flowspec_data, EXP1)
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_flowspec_test_2"):
             """Testing flowspec values for bgp-flowspec-redirect.cfg."""
             self.setup_test_case(CFG2)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP2)
+            utils.wait_until_function_pass(60, 1, self.verify_flowspec_data, EXP2)
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging(

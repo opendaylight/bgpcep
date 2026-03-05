@@ -20,7 +20,7 @@ from libraries.variables import variables
 
 
 BMP_ROUTERS_COUNT = 1
-REPORTED_PEERS_COUNT = 20
+REPORTED_PEERS_COUNT = 70
 
 TOOLS_IP = variables.TOOLS_IP
 BGP_BMP_DIR = "variables/bgpfunctional/bmp_basic/filled_structure_manypeers"
@@ -36,6 +36,13 @@ log = logging.getLogger(__name__)
 @pytest.mark.run(order=59)
 class TestBmpBasic:
     bmp_mock_process = None
+
+    def verify_reproted_data(self):
+        templated_requests.get_jinja_templated_request(
+            BGP_BMP_DIR,
+            mapping={"TOOLS_IP": TOOLS_IP, "PEER_COUNT": REPORTED_PEERS_COUNT},
+            verify=True,
+        )
 
     @allure.description(
         textwrap.dedent("""
@@ -73,15 +80,10 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_verify_data_reported"):
             """Verifies if the tool reported expected data."""
-            mapping = {"TOOL_IP": TOOLS_IP}
             utils.wait_until_function_pass(
                 3,
                 2,
-                templated_requests.get_templated_request,
-                BGP_BMP_DIR,
-                mapping=mapping,
-                json=True,
-                verify=True,
+                self.verify_reproted_data
             )
 
         with allure_step_with_separate_logging("step_stop_bmp_mock"):
