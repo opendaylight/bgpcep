@@ -16,6 +16,24 @@
       "message": "Martin, can you check whether or not this breaks CSIT? The changes to .hex files may be problematic",
       "revId": "24e108b7f2e66c4ee3f1d178c36dcb7d57bef0f9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42965ef2_f0ddd884",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-06T16:11:21Z",
+      "side": 1,
+      "message": "I have checked it and the hex changes does not break tests. They are working as they are using `strip` function to remove additional whitespace characters. Also tested the current change and all test are working as before.",
+      "parentUuid": "b012b164_9986f8f2",
+      "revId": "24e108b7f2e66c4ee3f1d178c36dcb7d57bef0f9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
