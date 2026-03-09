@@ -430,7 +430,7 @@ def start_pcc_mock(
     if log_level:
         command_parts.append(f"--log-level {log_level.upper()}")
 
-    command_parts.append(f"2>1 >tmp/{log_file_name}")
+    command_parts.append(f"2>&1 >tmp/{log_file_name}")
 
     process = infra.shell(
         " ".join(command_parts), use_shell=True, run_in_background=True
