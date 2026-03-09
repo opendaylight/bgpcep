@@ -497,14 +497,3 @@ def backup_file(
     if target_file_name is None:
         target_file_name = src_file_name
     shell(f"cp {src_dir}/{src_file_name} {dst_dir}/{target_file_name}")
-
-
-def search_and_kill_process(filter):
-    """Search for processes, Log the list of them, kill them."""
-    rc, processes = shell(f"ps -elf | egrep python | egrep {filter} | egrep -v grep")
-    log.info(f"{processes=}")
-    if not processes:
-        return
-    rc, commands = shell(f"echo '{processes}' | awk '{{print \"kill -{signal}\",$4}}'")
-    rc, stdout = shell(f" echo 'set -exu; {commands}' | sudo sh")
-    log.info(stdout)
