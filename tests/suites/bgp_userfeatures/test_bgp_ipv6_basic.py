@@ -63,11 +63,11 @@ class TestBgpIpv6Basic:
         main_net_interface = stdout
         infra.shell(
             (
-                f"sudo ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
+                f"ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
                 f"dev {main_net_interface}"
             )
         )
-        infra.shell(f"sudo ip -6 route add default via {IPV6_IP_GW}")
+        infra.shell(f"ip -6 route add default via {IPV6_IP_GW}")
         rc, stdout = infra.shell("ip -6 addr show")
         log.info(stdout)
         rc, stdout = infra.shell("ip -6 route show")
