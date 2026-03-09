@@ -574,7 +574,7 @@ def start_bgp_app_peer(
             {'--' + log_level + ' ' if log_level is not None else ''} \
             --uri {uri} \
             --xml tools/fastbgp/ipv4-routes-template.xml \
-            >tmp/{log_file} 2>&1",
+            --logfile tmp/{log_file}",
         timeout=timeout,
         run_in_background=False,
         check_rc=True,
