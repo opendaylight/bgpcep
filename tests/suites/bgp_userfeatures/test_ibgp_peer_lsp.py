@@ -30,7 +30,7 @@ HOLDTIME = 180
 DEFAULT_RIB_CHECK_PERIOD = 1
 DEFAULT_RIB_CHECK_COUNTS = 10
 BGP_PEER_LOG_LEVEL = "debug"
-BGP_PEER_LOG_FILE = "bgp_peer.log"
+BGP_PEER_LOG_FILE = "tmp/bgp_peer.log"
 BGP_PEER_COMMAND = (
     f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={TOOLS_IP} "
     f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
