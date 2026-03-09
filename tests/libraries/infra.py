@@ -81,7 +81,7 @@ def shell(
         else:
             result = subprocess.run(
                 exec_command,
-                shell=shell,
+                shell=use_shell,
                 check=True,
                 capture_output=True,
                 text=True,
