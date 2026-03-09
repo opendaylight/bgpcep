@@ -119,7 +119,7 @@ class BaseTestSinglePeerPrefixCount:
             """Store results for debugging."""
             infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
-                target_file_name=f"prefixcount-talking-totals-${RESULTS_FILE_NAME}",
+                target_file_name=f"prefixcount-talking-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
             infra.backup_file(
@@ -208,7 +208,7 @@ class BaseTestSinglePeerPrefixCount:
             """Store results for debugging."""
             infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
-                target_file_name=f"prefixcount-listening-totals-${RESULTS_FILE_NAME}",
+                target_file_name=f"prefixcount-listening-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
             infra.backup_file(
