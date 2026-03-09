@@ -136,7 +136,7 @@ class BaseTestSinglePeerChangeCount:
             """Store results for plotting."""
             infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
-                target_file_name=f"changecount-talking-totals-${RESULTS_FILE_NAME}",
+                target_file_name=f"changecount-talking-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
             infra.backup_file(
@@ -221,7 +221,7 @@ class BaseTestSinglePeerChangeCount:
             """Store results for plotting."""
             infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
-                target_file_name=f"changecount-listening-totals-${RESULTS_FILE_NAME}",
+                target_file_name=f"changecount-listening-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
             infra.backup_file(
