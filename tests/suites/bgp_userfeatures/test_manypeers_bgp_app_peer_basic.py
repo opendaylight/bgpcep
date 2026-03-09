@@ -85,6 +85,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
+@pytest.mark.usefixtures("teardown_kill_all_running_bgp_app_peer_script_processes")
 @pytest.mark.run(order=64)
 class TestBgpAppPeerBasic:
     bgp_peer_process = None
@@ -99,11 +100,6 @@ class TestBgpAppPeerBasic:
         utils.wait_until_function_pass(
             retry_count, interval, self.compare_topology, template_path
         )
-
-    def teardown_everything(self):
-        """Make sure Python tool was killed."""
-        infra.search_and_kill_process("play\.py")
-        infra.search_and_kill_process("bgp_app_peer\.py")
 
     @allure.description(
         textwrap.dedent("""
