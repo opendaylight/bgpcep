@@ -106,7 +106,7 @@ class BaseTestCases:
                     rc, output = infra.shell("cat /proc/sys/net/ipv4/tcp_tw_reuse")
                     self.original_tcp_tw_reuse_value = output
                     rc, output = infra.shell(
-                        "sudo -n bash -c 'echo 1 > " "/proc/sys/net/ipv4/tcp_tw_reuse'"
+                        "bash -c 'echo 1 > " "/proc/sys/net/ipv4/tcp_tw_reuse'"
                     )
                     assert rc == 0, (
                         f"Failed to enable tcp_tw_resue, return code "
@@ -633,7 +633,7 @@ class BaseTestCases:
                 In case of failure only log the erorr message."""
                 try:
                     rc, output = infra.shell(
-                        f"sudo -n bash -c 'echo {self.original_tcp_tw_reuse_value} > "
+                        f"bash -c 'echo {self.original_tcp_tw_reuse_value} > "
                         f"/proc/sys/net/ipv4/tcp_tw_reuse'"
                     )
                     assert rc == 0, (

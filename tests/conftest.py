@@ -209,6 +209,24 @@ def teardown_kill_all_running_play_script_processes():
     )
 
 @pytest.fixture(scope="class")
+def teardown_kill_all_running_bgp_app_peer_script_processes():
+    """Fixture to stop bgp_app_peer.py script at the end of test class execution
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    yield
+    infra.shell(
+        (
+            r"pkill -f '^(.*/)?python3?\s+.*bgp_app_peer.py' || "
+            r"echo 'No running instance of bgp_app_peer.py script.'"
+        )
+    )
+
+@pytest.fixture(scope="class")
 def teardown_kill_all_running_exabgp_processes():
     """Fixture to stop exabgp instaces at the end of test class execution
 
