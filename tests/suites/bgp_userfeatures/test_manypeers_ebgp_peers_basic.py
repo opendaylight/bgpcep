@@ -110,10 +110,10 @@ class TestEbgpPeersBasic:
         """Configure karaf logging level"""
         infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
         infra.execute_karaf_command(
-            f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
+            f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
         )
         infra.execute_karaf_command(
-            f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
+            f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
         )
 
     def validate_rib(self, ip, skipped_prefix):
@@ -297,7 +297,7 @@ class TestEbgpPeersBasic:
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 bgp.check_example_ipv4_topology_content,
-                f'"node-id":"${eBGP_PEER2_NEXT_HOP}"',
+                f'"node-id":"{eBGP_PEER2_NEXT_HOP}"',
             )
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
