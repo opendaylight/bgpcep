@@ -31,32 +31,37 @@ BGP_APP_PEER_LOG_LEVEL = "debug"
 BGP_PEER_COMMAND = (
     f"python3 tools/fastbgp/play.py --amount 0 --myip={TOOLS_IP} "
     f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
-    f"--{BGP_PEER_LOG_LEVEL} >bgp_peer.log 2>&1"
+    f"--{BGP_PEER_LOG_LEVEL} >tmp/bgp_peer.log 2>&1"
 )
 BGP_PEER_OPTIONS = ""
 BGP_APP_PEER_ID = ODL_IP
 BGP_APP_PEER_POST_COMMAND = (
     f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} "
     f"--command post --count 3 --prefix 8.0.1.0 --prefixlen 28 "
-    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL} "
+    f"--logfile tmp/bgp_app_peer_post.log"
 )
 BGP_APP_PEER_PUT_COMMAND = (
     f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} "
     f"--command put --count 3 --prefix 8.0.1.0 --prefixlen 28 "
-    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL} "
+    f"--logfile tmp/bgp_app_peer_put.log"
 )
 BGP_APP_PEER_DELETE_COMMAND = (
     f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} "
     f"--command delete --count 3 --prefix 8.0.1.0 --prefixlen 28 "
-    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL}"
+    f"--xml tools/fastbgp/ipv4-routes-template.xml --{BGP_APP_PEER_LOG_LEVEL} "
+    f"--logfile tmp/bgp_app_peer_delete.log"
 )
 BGP_APP_PEER_DELETE_ALL_COMMAND = (
     f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} "
-    f"--command delete-all --{BGP_APP_PEER_LOG_LEVEL}"
+    f"--command delete-all --{BGP_APP_PEER_LOG_LEVEL} "
+    f"--logfile tmp/bgp_app_peer_delete_all.log"
 )
 BGP_APP_PEER_GET_COMMAND = (
     f"python3 tools/fastbgp/bgp_app_peer.py --host {ODL_IP} --port {RESTCONF_PORT} "
     f"--command get --{BGP_APP_PEER_LOG_LEVEL}"
+    f"--logfile tmp/bgp_app_peer_get.log"
 )
 BGP_APP_PEER_OPTIONS = "2>&1 >tmp/bgp_app_peer.log"
 BGP_APP_PEER_TIMEOUT = 30
