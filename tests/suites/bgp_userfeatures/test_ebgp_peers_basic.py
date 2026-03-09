@@ -49,9 +49,9 @@ eBGP_PEER2_PREFIX_COUNT = PREFIX_COUNT
 eBGP_PEERS_AS = 32768
 eBGP_PEER1_AS = eBGP_PEERS_AS
 eBGP_PEER2_AS = eBGP_PEERS_AS
-iBGP_PEER1_LOG_FILE = "bgp_peer1.log"
-eBGP_PEER1_LOG_FILE = "ebgp_peer1.log"
-eBGP_PEER2_LOG_FILE = "ebgp_peer2.log"
+iBGP_PEER1_LOG_FILE = "tmp/bgp_peer1.log"
+eBGP_PEER1_LOG_FILE = "tmp/ebgp_peer1.log"
+eBGP_PEER2_LOG_FILE = "tmp/ebgp_peer2.log"
 iBGP_PEER1_COMMAND = (
     f"python3 tools/fastbgp/play.py --firstprefix {iBGP_PEER1_FIRST_PREFIX_IP} "
     f"--prefixlen {iBGP_PEER1_PREFIX_LEN} --amount {iBGP_PEER1_PREFIX_COUNT} "
