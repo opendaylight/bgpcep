@@ -33,6 +33,74 @@
       "message": "needs a manual rebase",
       "revId": "fbec5e4343e152a057e8315f7e605a5d8f2496b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d377a087_14a68f0d",
+        "filename": "tests/libraries/templated_requests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:27:01Z",
+      "side": 1,
+      "message": "application/yang-data+xml",
+      "revId": "fbec5e4343e152a057e8315f7e605a5d8f2496b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a18cef08_d8aa2386",
+        "filename": "tests/libraries/utils.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:27:01Z",
+      "side": 1,
+      "message": "do you have some special order of imports?",
+      "revId": "fbec5e4343e152a057e8315f7e605a5d8f2496b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99edcbc1_da8bceee",
+        "filename": "tests/suites/bgp_ingest/test_bgp_app_manypeer_prefix_count.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:27:01Z",
+      "side": 1,
+      "message": "magic numbers without explanation",
+      "revId": "fbec5e4343e152a057e8315f7e605a5d8f2496b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc54f47a_4046a45a",
+        "filename": "tests/suites/bgp_userfeatures/test_ibgp_peers_basic.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:27:01Z",
+      "side": 1,
+      "message": "I am not sure we have `org.opendaylight.protocol`",
+      "revId": "fbec5e4343e152a057e8315f7e605a5d8f2496b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
