@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da8a5837_8d8494b6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:33:11Z",
+      "side": 1,
+      "message": "1. you are deleting sudo from writing something to /proc\n2. you are adding some python methods\n\nWhat is this patch about and what and how it solves?",
+      "revId": "37bb07182a4f3834e1ff61f33580e0106959b1e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4609688c_1b4c09a5",
+        "filename": "tests/suites/base_test_cases.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-10T14:33:11Z",
+      "side": 1,
+      "message": "IMO: /proc belongs to root, how its this related to the ticket?",
+      "revId": "37bb07182a4f3834e1ff61f33580e0106959b1e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
