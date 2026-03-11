@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "520c5420_c3c1d27d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-11T07:09:58Z",
+      "side": 1,
+      "message": "This patch is trying to avoid using sudo command. Some environment might not have setup sudo. But probably it would be better to keep it here and not change it. It is not directly related to increasing number of BGP peers.",
+      "parentUuid": "da8a5837_8d8494b6",
+      "revId": "37bb07182a4f3834e1ff61f33580e0106959b1e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4609688c_1b4c09a5",
         "filename": "tests/suites/base_test_cases.py",
         "patchSetId": 3
