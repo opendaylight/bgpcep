@@ -1,0 +1,68 @@
+{
+   "bmp-monitor:bmp-monitor": {
+      "monitor": [
+         {
+            "monitor-id": "example-bmp-monitor",
+            "router": [
+               {
+                  "router-id": "{{ TOOLS_IP }}",
+                  "peer": [
+                     {% for i in range(1, PEER_COUNT + 1) %}
+                     {
+                        "peer-id": "1.1.1.{{ i }}",
+                        "pre-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "type": "global",
+                        "bgp-id": "1.1.1.{{ i }}",
+                        "address": "1.1.1.{{ i }}",
+                        "post-policy-rib": {
+                           "tables": [
+                              {
+                                 "afi": "bgp-types:ipv4-address-family",
+                                 "safi": "bgp-types:unicast-subsequent-address-family",
+                                 "attributes": {
+                                    "uptodate": false
+                                 }
+                              }
+                           ]
+                        },
+                        "peer-session": {
+                           "remote-port": 179,
+                           "local-address": "{{ TOOLS_IP }}",
+                           "status": "up",
+                           "sent-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "{{ TOOLS_IP }}"
+                           },
+                           "timestamp-sec": 0,
+                           "local-port": 179,
+                           "received-open": {
+                              "hold-timer": 180,
+                              "my-as-number": 65431,
+                              "bgp-identifier": "1.1.1.{{ i }}"
+                           }
+                        },
+                        "as": 65431
+                     }{% if not loop.last %},{% endif %}
+                     {% endfor %}
+                  ],
+                  "status": "up",
+                  "description": "OpenDaylight",
+                  "name": "BMP mock",
+                  "info": ""
+               }
+            ]
+         }
+      ]
+   }
+}

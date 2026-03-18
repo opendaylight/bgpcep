@@ -10,12 +10,12 @@ import logging
 import textwrap
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
 from libraries import infra
 from libraries import templated_requests
+from libraries import utils
 from libraries.variables import variables
 
 
@@ -61,16 +61,15 @@ class TestBgpFunctionalMd5:
             templated_requests.delete_templated_request(BGP_PEER_FOLDER, mapping)
 
     def prepare_exabgp_config_file(self):
-        env = Environment(loader=FileSystemLoader("variables/bgpfunctional/bgp_md5/"))
-        template = env.get_template("manypeers-exa-md5.j2")
-        config = template.render(
-            {
+        config = utils.render_jinja_template(
+            template_path="variables/bgpfunctional/bgp_md5/manypeers-exa-md5.j2",
+            mapping={
                 "PEER_COUNT": BGP_PEERS_COUNT,
                 "ODLIP": ODL_IP,
                 "ROUTEREFRESH": "disable",
                 "ADDPATH": "disable",
                 "PASSWORD": MD5_SAME_PASSWD,
-            }
+            },
         )
         infra.save_to_a_file(f"tmp/exa-md5.cfg", config)
 
