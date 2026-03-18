@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e037fa5_364d217b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-18T08:21:26Z",
+      "side": 1,
+      "message": "Please fix in previous patches and abandon this one.",
+      "revId": "7e7ad032ee6a1a0cf1858cfdc3f45eee39126bdf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
