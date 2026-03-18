@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6752d8f3_4fc89ad3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:12:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2cbcd30_a07440da",
+      "revId": "4a54b86aaaa6cbe80c9c8c23fcc5158f69565a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d8ed9927_41c90986",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-03-18T08:53:30Z",
       "side": 1,
       "message": "does this exactly point to tests/tmp/?",
+      "revId": "4a54b86aaaa6cbe80c9c8c23fcc5158f69565a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2b037d2_0ed05cde",
+        "filename": "tests/suites/bgp_userfeatures/test_ebgp_peers_basic.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:12:31Z",
+      "side": 1,
+      "message": "yes, it creates the log file under `tests/tmp/bgp_peer1.log`",
+      "parentUuid": "d8ed9927_41c90986",
       "revId": "4a54b86aaaa6cbe80c9c8c23fcc5158f69565a0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
