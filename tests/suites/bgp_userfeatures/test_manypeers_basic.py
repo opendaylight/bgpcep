@@ -25,7 +25,7 @@ TOOLS_IP = variables.TOOLS_IP
 BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 BGP_PEER_NAME = "example-bgp-peer"
 BGP_TOOL_LOG_LEVEL = "debug"
-BGP_VARIABLES_FOLDER = "variables/bgpuser/"
+BGP_VARIABLES_FOLDER = "variables/bgpuser"
 HOLDTIME = 180
 ODL_BGP_LOG_LEVEL = "DEFAULT"
 ODL_LOG_LEVEL = "INFO"
@@ -174,10 +174,10 @@ class TestBasic:
             """Configure karaf logging level."""
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
             infra.execute_karaf_command(
-                f"log:set ${ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
+                f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
         with allure_step_with_separate_logging(
@@ -291,6 +291,7 @@ class TestBasic:
             "step_tc_pg_reconfigure_odl_with_peer_group_to_accept_connection"
         ):
             """Configure BGP peer module with initiate-connection set to false."""
+            self.configure_peer_group("peer_group")
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -299,7 +300,6 @@ class TestBasic:
                 templated_requests.delete_templated_request(
                     f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping
                 )
-                self.configure_peer_group("peer_group")
                 mapping = {
                     "IP": f"127.0.1.{i}",
                     "PEER_GROUP_NAME": PEER_GROUP,

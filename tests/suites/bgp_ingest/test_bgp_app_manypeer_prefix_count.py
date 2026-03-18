@@ -221,6 +221,7 @@ class TestBgpAppManyPeerPrefixCount:
             """Start BGP peer tool"""
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=0,
+                multiplicity=BGP_PEERS_COUNT,
                 my_ip=TOOLS_IP,
                 my_port=BGP_TOOL_PORT,
                 peer_ip=ODL_IP,

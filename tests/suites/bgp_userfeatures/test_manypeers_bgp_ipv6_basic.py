@@ -107,14 +107,12 @@ class TestBgpIpv6Basic:
 
     def setup_config_files(self):
         for config_file in ("exaipv6", "exabgp_graceful_restart", "exa4"):
-            # infra.shell(f"cp  {BGP_VAR_FOLDER}/{config_file} tmp/")
             self.setup_config_file(
                 config_file,
                 exabgp_ip_template=IPV6_IP_TEMPLATE,
                 odl_ip=CONTROLLER_IPV6,
                 router_id_template=EXABGP_ID_TEMPLATE,
             )
-        # infra.shell(f"cp  {BGP_VAR_FOLDER}/{EXABGP2_CFG} tmp/")
         self.setup_config_file(
             "exaipv4",
             exabgp_ip_template=IPV4_IP_TEMPLATE,
