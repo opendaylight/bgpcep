@@ -12,7 +12,6 @@ import time
 
 import allure
 import ipaddr
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import infra
@@ -82,11 +81,11 @@ class TestPcepUser:
     def get_expected_topology(self, topology_jinja_template):
         def b64encode_filter(s):
             return base64.b64encode(s.encode("utf-8")).decode("utf-8")
-
-        env = Environment(loader=FileSystemLoader(PCEP_VARIABLES_FOLDER))
-        env.filters["b64encode"] = b64encode_filter
-        template = env.get_template(topology_jinja_template)
-        config = template.render({"PCC_COUNT": PCCS})
+        config = utils.render_jinja_template(
+            template_path=f"{PCEP_VARIABLES_FOLDER}/{topology_jinja_template}",
+            mapping={"PCC_COUNT": PCCS},
+            filters={"b64encode": b64encode_filter},
+        )
 
         return config
 

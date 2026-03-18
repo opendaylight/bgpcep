@@ -10,7 +10,6 @@ import logging
 import textwrap
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -54,13 +53,10 @@ class TestBgpPoliciesDefault:
         for i in range(BGP_PEERS_COUNT):
             peer_data = {"index": i, "ip": f"127.0.1.{i}"}
             peers[i % 6].append(peer_data)
-        env = Environment(
-            loader=FileSystemLoader(f"{POLICIES_VAR}/exabgp_manypeers_configs")
-        )
         for i in range(6):
-            template = env.get_template(f"exabgp{i+1}.j2")
-            config = template.render(
-                {
+            config = utils.render_jinja_template(
+                template_path=f"{POLICIES_VAR}/exabgp_manypeers_configs/exabgp{i+1}.j2",
+                mapping={
                     "ODLIP": ODL_IP,
                     "PEERS": peers[i],
                     "ROUTEREFRESH": "disable",

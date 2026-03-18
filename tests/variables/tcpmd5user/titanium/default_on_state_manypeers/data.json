@@ -1,0 +1,110 @@
+{
+    "network-topology:node": [
+        {
+            "network-pcep-topology-stats:pcep-session-state": {
+                "delegated-lsps-count": 1,
+                "local-pref": {
+                    "deadtimer": 120,
+                    "ip-address": "$IP_ODL",
+                    "keepalive": 30,
+                    "session-id": "*"
+                },
+                "messages": {
+                    "error-messages": {$ERRORS
+                        "received-error-msg-count": 0,
+                        "sent-error-msg-count": 0
+                    },
+                    "last-received-rpt-msg-timestamp": "*",
+                    "last-sent-msg-timestamp": 0,
+                    "received-msg-count": 2,
+                    "received-rpt-msg-count": 2,
+                    "reply-time": {
+                        "average-time": 0,
+                        "max-time": 0,
+                        "min-time": 0
+                    },
+                    "sent-init-msg-count": 0,
+                    "sent-msg-count": 0,
+                    "sent-upd-msg-count": 0,
+                    "unknown-msg-received": 0
+                },
+                "peer-capabilities": {
+                    "active": true,
+                    "instantiation": true,
+                    "stateful": true
+                },
+                "peer-pref": {
+                    "deadtimer": 120,
+                    "ip-address": "$IP",
+                    "keepalive": 30,
+                    "session-id": "*"
+                },
+                "session-duration": "*",
+                "synchronized": true
+            },
+            "network-topology-pcep:path-computation-client": {
+                "ip-address": "$IP",
+                "reported-lsp": [
+                    {
+                        "name": "$NAME",
+                        "path": [
+                            {
+                                "ero": {
+                                    "ignore": false,
+                                    "processing-rule": false,
+                                    "subobject": [
+                                        {
+                                            "ip-prefix": {
+                                                "ip-prefix": "1.1.1.1/32"
+                                            },
+                                            "loose": false
+                                        }
+                                    ]
+                                },
+                                "lsp": {
+                                    "ignore": false,
+                                    "lsp-flags": {
+                                        "administrative": true,
+                                        "create": false,
+                                        "delegate": true,
+                                        "operational": "up",
+                                        "pce-allocation": false,
+                                        "remove": false,
+                                        "sync": true
+                                       },
+                                    "plsp-id": 1,
+                                    "processing-rule": false,
+                                    "tlvs": {
+                                        "lsp-identifiers": {
+                                            "ipv4": {
+                                                "ipv4-extended-tunnel-id": "$IP",
+                                                "ipv4-tunnel-endpoint-address": "1.1.1.1",
+                                                "ipv4-tunnel-sender-address": "$IP"
+                                            },
+                                            "lsp-id": 1,
+                                            "tunnel-id": 1
+                                        },
+                                        "symbolic-path-name": {
+                                            "path-name": "$CODE"
+                                        }
+                                    }
+                                },
+                                "lsp-id": 1
+                            }
+                        ]
+                    }
+                ],
+                "state-sync": "synchronized",
+                "stateful-capability": {
+                    "delta-lsp-sync-capability": false,
+                    "include-db-version": false,
+                    "initiation": true,
+                    "lsp-update-capability": true,
+                    "triggered-initial-sync": false,
+                    "triggered-resync": false
+                   }
+            },
+            "node-id": "pcc://$IP"
+        }
+    ]
+}
