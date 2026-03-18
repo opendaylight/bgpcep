@@ -488,3 +488,58 @@ def resolve_volatiles_path(template_dir) -> List[str]:
         volatiles_list = ()
 
     return volatiles_list
+
+def get_jinja_templated_request(
+    temlate_dir: str,
+    mapping: dict,
+    filters=None,
+    json: bool = True,
+    verify: bool = False,
+    expected_code: int | List[int] | None = None,
+) -> requests.Response:
+    """Sends GET request and verifies response using jinja template file.
+
+    Args:
+        temlate_dir (str): Path to directory containing jinja template.
+        mapping (dict): Dictionary with all value mapping between placeholder
+            values specified in template and expected value.
+        filters (dict): Filters for modifying variables within jinja templates.
+        json (bool): If true, request response in json format, otherwise in xml format.
+        verify (bool): If true, verify returned response with stored jinja
+            template file.
+        expected_code (int | List[int] | None): Expected response code(s)
+            returned by ODL. It could be either single numeric value or
+            list of numbers. If not provided requests standard logic for
+            evaluating failure response code is used.
+
+    Returns:
+        requests.Response: Response returned by ODL for GET call.
+    """
+    if json:
+        headers = {"Accept": "application/yang-data+json"}
+    else:
+        headers = {"Accept": "application/yang-data+xml"}
+    uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
+    response = get_from_uri(uri, headers=headers, expected_code=expected_code)
+
+    if verify:
+        expected_response = utils.render_jinja_template(
+            template_path=f"{temlate_dir}/data.j2",
+            mapping=mapping,
+            filters=filters
+        )
+        volatiles_list = resolve_volatiles_path(temlate_dir)
+        try:
+            utils.verify_jsons_match(
+                response.text,
+                expected_response,
+                "received response",
+                "expected response",
+                volatiles_list,
+            )
+        except AssertionError as e:
+            raise AssertionError(
+                "Received response does not match expected response:"
+            ) from e
+
+    return response

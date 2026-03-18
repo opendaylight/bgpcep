@@ -37,6 +37,13 @@ log = logging.getLogger(__name__)
 class TestBmpBasic:
     bmp_mock_process = None
 
+    def verify_reproted_data(self):
+        templated_requests.get_jinja_templated_request(
+            BGP_BMP_DIR,
+            mapping={"TOOLS_IP": TOOLS_IP, "PEER_COUNT": REPORTED_PEERS_COUNT},
+            verify=True,
+        )
+
     @allure.description(
         textwrap.dedent("""
             **This is a basic test for bgp monitoring protocol feature.**
@@ -73,15 +80,10 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_verify_data_reported"):
             """Verifies if the tool reported expected data."""
-            mapping = {"TOOL_IP": TOOLS_IP}
             utils.wait_until_function_pass(
                 3,
                 2,
-                templated_requests.get_templated_request,
-                BGP_BMP_DIR,
-                mapping=mapping,
-                json=True,
-                verify=True,
+                self.verify_reproted_data
             )
 
         with allure_step_with_separate_logging("step_stop_bmp_mock"):

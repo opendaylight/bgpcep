@@ -12,7 +12,6 @@ import textwrap
 from typing import List
 
 import allure
-from jinja2 import Environment, FileSystemLoader
 import pytest
 
 from libraries import bgp
@@ -126,13 +125,6 @@ class TestIbgpPeersBasic:
         )
 
     def check_peer_adj_rib_out(self, peer_ip, skipped_prefix):
-        # Get adj-rib-out data as stored in ODL
-        mapping = {"IP": peer_ip, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
-        response = templated_requests.get_templated_request(
-            f"{BGP_DATA_FOLDER}/cluster_id/peer_rib_out", mapping
-        )
-
-        # Get exepected adj-rib-out data based on peer_rib_out.j2 jinja template
         prefix = ipaddress.IPv4Address(BGP_PEER1_FIRST_PREFIX_IP)
         cluster_id = ipaddress.IPv4Address(BGP_PEERS1_IP)
         peers1_data = [
@@ -155,22 +147,14 @@ class TestIbgpPeersBasic:
             if prefix + i * 16 != skipped_prefix
         ]
         peers_data = peers1_data + peers2_data
-        env = Environment(
-            loader=FileSystemLoader(
-                f"{BGP_DATA_FOLDER}/cluster_id/expected_peer_rib_out_manypeers"
-            )
-        )
-        # generate config file for bgp-flowspec-manypeers.cfg
-        template = env.get_template("peer_rib_out.j2")
-        expected_response = template.render(
-            {"peers_data": peers_data, "skipped_prefix": skipped_prefix}
-        )
-
-        utils.verify_jsons_match(
-            response.text,
-            expected_response,
-            json1_data_label="received data",
-            json2_data_label="expected data",
+        templated_requests.get_jinja_templated_request(
+            temlate_dir=f"{BGP_DATA_FOLDER}/cluster_id/peer_rib_out_manypeers",
+            mapping={
+                "peers_data": peers_data,
+                "skipped_prefix": skipped_prefix,
+                "IP": peer_ip,
+                "BGP_RIB_OPENCONFIG": "example-bgp-rib",
+            },
         )
 
     @allure.description(
