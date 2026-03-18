@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f745c8e2_bcabd865",
+        "filename": "tests/conftest.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-18T09:03:38Z",
+      "side": 1,
+      "message": "what about play.py?",
+      "revId": "836772db953cfec8c2765ea7f89afeb5e7baeaa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18fefb1d_a57063a7",
+        "filename": "tests/suites/base_test_cases.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-18T09:03:38Z",
+      "side": 1,
+      "message": "still sudo?",
+      "revId": "836772db953cfec8c2765ea7f89afeb5e7baeaa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
