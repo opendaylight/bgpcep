@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5939570a_2c03a0a5",
+        "filename": "tests/conftest.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:13:47Z",
+      "side": 1,
+      "message": "the same is already created for `play.py` script in the previous function.",
+      "parentUuid": "f745c8e2_bcabd865",
+      "revId": "836772db953cfec8c2765ea7f89afeb5e7baeaa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "18fefb1d_a57063a7",
         "filename": "tests/suites/base_test_cases.py",
         "patchSetId": 5
