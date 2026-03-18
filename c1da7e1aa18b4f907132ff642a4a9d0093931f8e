@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "494c37b4_18299527",
+        "filename": "tests/suites/pcep_statistic/test_tc10_continuous_topology_decrease.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:15:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae148cc1_0a644019",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a0b326a_fbaf6e8a",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-03-04T13:45:08Z",
       "side": 1,
       "message": "the one second is only singular",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b32af90e_68c65dc0",
+        "filename": "tests/suites/pcep_statistic/test_tc10_continuous_topology_decrease.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:15:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a0b326a_fbaf6e8a",
       "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ad13cb07_22301a99",
+        "filename": "tests/suites/pcep_statistic/test_tc11_partial_topology_loss.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:15:14Z",
+      "side": 1,
+      "message": "It was more approximately, in here it is for distinguishing simulators, one is using 400 and another one is using 500 LSPs.",
+      "parentUuid": "304b3f6e_d72adc87",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b148bc48_23a764e2",
         "filename": "tests/suites/pcep_statistic/test_tc9_rapidly_changing_topology.py",
         "patchSetId": 8
@@ -65,6 +119,24 @@
       "writtenOn": "2026-03-04T13:45:08Z",
       "side": 1,
       "message": "second",
+      "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c41b4268_01a215dc",
+        "filename": "tests/suites/pcep_statistic/test_tc9_rapidly_changing_topology.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-18T21:15:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b148bc48_23a764e2",
       "revId": "c1da7e1aa18b4f907132ff642a4a9d0093931f8e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
