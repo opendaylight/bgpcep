@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "98e3e3f7_e0492ca5",
+        "filename": "tests/suites/bgp_userfeatures/test_manypeers_010_bgp_flowspec.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-18T08:36:33Z",
+      "side": 1,
+      "message": "why not using BGP_PEERS_COUNT ?",
+      "revId": "73c3910317b18db90dc44616d2d709598553e5b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c4fc2a7_08d5b8e8",
         "filename": "tests/variables/bgpuser/filled_topology_manypeers/data.j2",
         "patchSetId": 7
