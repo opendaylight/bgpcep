@@ -51,6 +51,24 @@
       "message": "still sudo?",
       "revId": "836772db953cfec8c2765ea7f89afeb5e7baeaa7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99c94a96_c16f2b94",
+        "filename": "tests/suites/base_test_cases.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-03-20T06:52:26Z",
+      "side": 1,
+      "message": "yes, I am thinking that this part could be completely removed from pytests and user can set it before running these tests.",
+      "parentUuid": "18fefb1d_a57063a7",
+      "revId": "836772db953cfec8c2765ea7f89afeb5e7baeaa7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
