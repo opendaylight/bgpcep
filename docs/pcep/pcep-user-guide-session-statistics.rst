@@ -399,3 +399,62 @@ Get stats
                  }
              }
          }
+
+Configure stats update interval
+'''''''''''''''''''''''''''''''
+
+PCEP stats data are periodically synced with the current state of PCEP topology, for example default ``topology-pcep``.
+Interval of such update can be configured using the following edit (plain PATCH) call:
+
+**URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology/topology-types/network-topology-pcep:topology-pcep``
+
+**Method:** ``PATCH``
+
+.. tabs::
+
+   .. tab:: XML
+
+      **Content-Type:** ``application/xml``
+
+      **Request Body:**
+
+      .. code-block:: xml
+
+          <topology-pcep xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
+              <timer xmlns="urn:opendaylight:params:xml:ns:yang:odl:pcep:stats:provider:config">15</timer>
+          </topology-pcep>
+
+   .. tab:: JSON
+
+      **Content-Type:** ``application/json``
+
+      **Request Body:**
+
+      .. code-block:: json
+
+          {
+              "network-topology-pcep:topology-pcep": {
+                  "odl-pcep-stats-provider:timer": 15
+              }
+          }
+
+Previous example would result in an update interval of 15 seconds in ``topology-pcep``. Default interval is 5 seconds,
+min interval is 1 and max 65,535 seconds.
+
+To verify or determine current update interval, use GET request with the same URL. Confirmation of configuration update
+also can be seen in logs.
+
+This change can be done before or while pcc is connected and will be effective immediately.
+The update interval is described in ``odl-pcep-stats-provider.yang``.
+
+.. note::
+   User has to take into account that setting the timer to any value is not a guarantee that stats are updated exactly
+   after timer time pass by.
+
+   Duration of update can take some time, it depends on system performance and datastore ability to process write
+   operations:
+
+   * if the duration of update take less than ``timer`` - task is rescheduled again after ``timer`` value decreased by
+     elapsed time, this ensures that all consequent updates are run in the same intervals
+   * if the duration of update take longer than ``timer`` value - in this case new update is scheduled after
+     original ``timer`` value
