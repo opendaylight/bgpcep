@@ -4,8 +4,8 @@ Session statistics
 ==================
 The PCEP statistics provides information about PCE <-> PCC session and its stateful listener (topology-provider).
 
-Usage
-'''''
+Session state
+'''''''''''''
 
 **URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43/pcep-session-state?content=nonconfig``
 
@@ -226,8 +226,8 @@ Usage
 Following RPC can be used to fetch PCEP session statistics. If PCEP topology and/or PCC node is not specified in input,
 statistics for all PCEP sessions under the context are returned.
 
-Usage
-'''''
+Get stats
+'''''''''
 
 **URL:** ``/rests/operations/pcep-topology-stats-rpc:get-stats``
 
