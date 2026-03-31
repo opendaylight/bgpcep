@@ -50,6 +50,24 @@
       "message": "use MERGE into pcep topology container instead",
       "revId": "f6007c48a3e40fac0f11d29286b0bdb54e618f72",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a30acd15_4e413683",
+        "filename": "docs/pcep/pcep-user-guide-session-statistics.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-31T07:52:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86652f9f_b68880f9",
+      "revId": "f6007c48a3e40fac0f11d29286b0bdb54e618f72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
