@@ -39,6 +39,30 @@
       },
       "revId": "d6600f98c594cc9679ad29a36b42a3bf8bb1cafc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74d33607_d990f643",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/TopologySessionStats.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-31T11:43:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9a20f31_db77b1a5",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 7
+      },
+      "revId": "d6600f98c594cc9679ad29a36b42a3bf8bb1cafc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
