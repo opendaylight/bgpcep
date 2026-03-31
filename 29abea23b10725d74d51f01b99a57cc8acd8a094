@@ -22,6 +22,30 @@
       },
       "revId": "29abea23b10725d74d51f01b99a57cc8acd8a094",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc0a13a2_6fa4b548",
+        "filename": "docs/pcep/pcep-user-guide-session-statistics.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-03-31T12:08:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2c24f30_2e635417",
+      "range": {
+        "startLine": 407,
+        "startChar": 28,
+        "endLine": 407,
+        "endChar": 30
+      },
+      "revId": "29abea23b10725d74d51f01b99a57cc8acd8a094",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
