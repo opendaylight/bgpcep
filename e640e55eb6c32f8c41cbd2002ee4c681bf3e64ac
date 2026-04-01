@@ -16,6 +16,24 @@
       "message": "is not",
       "revId": "e640e55eb6c32f8c41cbd2002ee4c681bf3e64ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47b083f0_144a2436",
+        "filename": "docs/pcep/pcep-user-guide-session-statistics.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-04-01T10:56:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a423cd26_0766f279",
+      "revId": "e640e55eb6c32f8c41cbd2002ee4c681bf3e64ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
