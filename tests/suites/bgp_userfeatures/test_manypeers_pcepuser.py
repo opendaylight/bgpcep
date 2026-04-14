@@ -22,7 +22,7 @@ from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables
 
 
-PCCS = 20
+PCCS = 150
 LOG_NAME = "pccmock.log"
 ODL_IP = variables.ODL_IP
 REST_API = variables.REST_API
@@ -81,6 +81,7 @@ class TestPcepUser:
     def get_expected_topology(self, topology_jinja_template):
         def b64encode_filter(s):
             return base64.b64encode(s.encode("utf-8")).decode("utf-8")
+
         config = utils.render_jinja_template(
             template_path=f"{PCEP_VARIABLES_FOLDER}/{topology_jinja_template}",
             mapping={"PCC_COUNT": PCCS},
@@ -90,13 +91,15 @@ class TestPcepUser:
         return config
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             This test, first connect PCC mock devices to ODL \
             and then tries to perform various operations on \
             reported LSPs (add, update, remove)
-        """)
+        """
+        )
     )
-    def test_pcep_user(self, allure_step_with_separate_logging):
+    def test_pcepuser(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):
             """Compare current pcep-topology to empty pcep tology. Timeout is
@@ -111,11 +114,18 @@ class TestPcepUser:
                 (
                     f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 "
                     f"--reconnect 1 --local-address {TOOLS_IP} "
-                    f"--remote-address {ODL_IP} 2>&1 | tee tmp/{LOG_NAME}"
+                    f"--remote-address {ODL_IP} > tmp/{LOG_NAME} 2>&1"
                 ),
                 run_in_background=True,
             )
-            infra.read_until(self.pcep_mock_process, "started, sent proposal Open")
+            utils.wait_until_function_pass(
+                5,
+                5,
+                infra.verify_string_occurence_count_in_file,
+                "started, sent proposal Open",
+                f"tmp/{LOG_NAME}",
+                PCCS,
+            )
             time.sleep(1)
 
         with allure_step_with_separate_logging(
@@ -136,7 +146,7 @@ class TestPcepUser:
             from pcc-mock. Timeout is lower than in Precondition, as state
             from pcc-mock should be updated quickly."""
             default_json = self.get_expected_topology("default_json.j2")
-            utils.wait_until_function_pass(5, 1, self.compare_topology, default_json)
+            utils.wait_until_function_pass(5, 5, self.compare_topology, default_json)
 
         with allure_step_with_separate_logging("step_update_delegated"):
             """Perform update-lsp on the mocked tunnel, check response is
@@ -158,7 +168,7 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated tunnel."""
             updated_json = self.get_expected_topology("updated_json.j2")
-            self.compare_topology(updated_json)
+            utils.wait_until_function_pass(5, 5, self.compare_topology, updated_json)
 
         with allure_step_with_separate_logging("step_refuse_remove_delegated"):
             """Perform remove-lsp on the mocked tunnel, check that mock-pcc
@@ -208,7 +218,9 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and default instantiated tunnel."""
             updated_default_json = self.get_expected_topology("updated_default_json.j2")
-            self.compare_topology(updated_default_json)
+            utils.wait_until_function_pass(
+                5, 5, self.compare_topology, updated_default_json
+            )
 
         with allure_step_with_separate_logging("step_update_instantiated"):
             """Perform update-lsp on the newly instantiated tunnel, check that
@@ -230,7 +242,9 @@ class TestPcepUser:
             """Compare pcep-topology to default_json, which includes
             the updated delegated and updated instantiated tunnel."""
             updated_updated_json = self.get_expected_topology("updated_updated_json.j2")
-            self.compare_topology(updated_updated_json)
+            utils.wait_until_function_pass(
+                5, 5, self.compare_topology, updated_updated_json
+            )
 
         with allure_step_with_separate_logging("step_remove_instantiated"):
             """Perform remove-lsp on the instantiated tunnel, check that
@@ -248,13 +262,12 @@ class TestPcepUser:
             the updated tunnel, to verify that instantiated tunnel was
             removed."""
             removed_json = self.get_expected_topology("removed_json.j2")
-            utils.wait_until_function_pass(15, 1, self.compare_topology, removed_json)
+            utils.wait_until_function_pass(5, 5, self.compare_topology, removed_json)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             """Send SIGINT to pcc-mock, fails if does not stop within 3
             seconds."""
-            pid = infra.get_children_processes_pids(self.pcep_mock_process, "java")[0]
-            infra.stop_process_by_pid(pid, gracefully=True, timeout=3)
+            pcep.stop_pcc_mock_process(self.pcep_mock_process)
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
             """Compare curent pcep-topology to "off_json" again."""

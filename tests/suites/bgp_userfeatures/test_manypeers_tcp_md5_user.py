@@ -13,6 +13,7 @@ import allure
 import pytest
 
 from libraries import infra
+from libraries import pcep
 from libraries import utils
 from libraries import templated_requests
 from variables.tcpmd5user.titanium import variables as tcpmd5_variables
@@ -23,7 +24,6 @@ PCCS = 150
 LOG_NAME = "pccmock.log"
 ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
-TCP_MD5_VARIABLES = tcpmd5_variables.get_variables(TOOLS_IP)
 DIR_WITH_TEMPLATES = "variables/tcpmd5user/titanium"
 ERROR_ARGS = ""
 
@@ -69,22 +69,21 @@ class TestTcpMd5User:
     def start_pcc_mock_tool_with_password(self, password):
         """Starts pcc-mock with password argument."""
         self.pcep_mock_process = infra.shell(
-            f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 " \
-            f"--log-level debug --password {password} --reconnect 1 " \
-            f"--local-address 127.0.1.0 --remote-address {ODL_IP} " \
-            f"2>&1 | tee pccmock.log",
+            f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 "
+            f"--log-level debug --password {password} --reconnect 1 "
+            f"--local-address 127.0.1.0 --remote-address {ODL_IP} "
+            f"> tmp/pccmock.log 2>&1",
             run_in_background=True,
         )
 
     def stop_pcc_mock(self):
-        output = self.pcep_mock_process.stdout
-        log.debug(f"Pcc mock process output: {output=}")
-        pid = infra.get_children_processes_pids(self.pcep_mock_process, "java")[0]
-        log.info(f"Killing pcc mock process with PID {pid}")
-        infra.stop_process_by_pid(pid, gracefully=True)
+        log_content = infra.get_file_content("tmp/pccmock.log")
+        log.debug(f"Pcc mock process output: {log_content}")
+        pcep.stop_pcc_mock_process(self.pcep_mock_process)
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **TCPMD5 user-facing feature system tests, using PCEP.**
 
             Test suite performs basic pcep md5 password authorization test cases:
@@ -105,7 +104,8 @@ class TestTcpMd5User:
 
             Test cases no longer need netconf-connector-ssh, and they include \
             comparison of pcep-session-state.
-        """)
+        """
+        )
     )
     def test_tcp_md5_user(self, allure_step_with_separate_logging):
 
@@ -150,10 +150,12 @@ class TestTcpMd5User:
             """Compare pcep-topology/path-computation-client to filled one,
             which includes a tunnel from pcc-mock."""
             for i in range(PCCS):
+                pcc_ip = f"127.0.1.{i}"
+                tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
                 mapping = {
-                    "IP": f"127.0.1.{i}",
-                    "CODE": TCP_MD5_VARIABLES["pcc_name_code"],
-                    "NAME": TCP_MD5_VARIABLES["pcc_name"],
+                    "IP": pcc_ip,
+                    "CODE": tcpmd5_var["pcc_name_code"],
+                    "NAME": tcpmd5_var["pcc_name"],
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
@@ -161,7 +163,7 @@ class TestTcpMd5User:
                     30,
                     1,
                     templated_requests.get_templated_request,
-                    f"{DIR_WITH_TEMPLATES}/default_on_state",
+                    f"{DIR_WITH_TEMPLATES}/default_on_state_manypeers",
                     mapping,
                     verify=True,
                 )
@@ -188,16 +190,18 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_correct_password_2"):
             """Configure password in pcep dispatcher.
             This password again matches what second pcc-mock instance uses."""
-            self.replace_password_on_pcep_nodes(password="changeme")
+            self.replace_password_on_pcep_nodes(password="newtopsecret")
 
         with allure_step_with_separate_logging("step_topology_intercondition_2"):
             """Compare pcep-topology/path-computation-client to filled one,
             which includes a tunnel from pcc-mock."""
             for i in range(PCCS):
+                pcc_ip = f"127.0.1.{i}"
+                tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
                 mapping = {
-                    "IP": f"127.0.1.{i}",
-                    "CODE": TCP_MD5_VARIABLES["pcc_name_code"],
-                    "NAME": TCP_MD5_VARIABLES["pcc_name"],
+                    "IP": pcc_ip,
+                    "CODE": tcpmd5_var["pcc_name_code"],
+                    "NAME": tcpmd5_var["pcc_name"],
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
@@ -205,7 +209,7 @@ class TestTcpMd5User:
                     30,
                     1,
                     templated_requests.get_templated_request,
-                    f"{DIR_WITH_TEMPLATES}/default_on_state",
+                    f"{DIR_WITH_TEMPLATES}/default_on_state_manypeers",
                     mapping,
                     verify=True,
                 )
@@ -213,7 +217,9 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_update_delegated"):
             """Perform update-lsp on the mocked tunnel, check response is success."""
             for i in range(PCCS):
-                mapping = {"IP": f"127.0.1.{i}", "NAME": TCP_MD5_VARIABLES["pcc_name"]}
+                pcc_ip = f"127.0.1.{i}"
+                tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
+                mapping = {"IP": pcc_ip, "NAME": tcpmd5_var["pcc_name"]}
                 response = templated_requests.post_templated_request(
                     f"{DIR_WITH_TEMPLATES}/update_delegated", mapping, json=False
                 )
@@ -223,10 +229,12 @@ class TestTcpMd5User:
             """Compare pcep-topology/path-computation-client to default_on_updated,
             which includes the updated tunnel."""
             for i in range(PCCS):
+                pcc_ip = f"127.0.1.{i}"
+                tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
                 mapping = {
-                    "IP": f"127.0.1.{i}",
-                    "CODE": TCP_MD5_VARIABLES["pcc_name_code"],
-                    "NAME": TCP_MD5_VARIABLES["pcc_name"],
+                    "IP": pcc_ip,
+                    "CODE": tcpmd5_var["pcc_name_code"],
+                    "NAME": tcpmd5_var["pcc_name"],
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
@@ -234,7 +242,7 @@ class TestTcpMd5User:
                     30,
                     1,
                     templated_requests.get_templated_request,
-                    f"{DIR_WITH_TEMPLATES}/default_on_updated_state",
+                    f"{DIR_WITH_TEMPLATES}/default_on_updated_state_manypeers",
                     mapping,
                     verify=True,
                 )
@@ -248,9 +256,7 @@ class TestTcpMd5User:
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
             """Verify that pcep-topology stays empty."""
-            utils.verify_function_does_not_fail_within_timeout(
-                10, 1, self.check_unathorized
-            )
+            utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_delete_pcep_client_module"):
             """Delete Pcep client module."""

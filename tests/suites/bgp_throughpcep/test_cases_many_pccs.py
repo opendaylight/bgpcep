@@ -15,7 +15,7 @@ from suites.base_test_cases import BaseTestCases
 
 
 
-LSPS = 100
+LSPS = 400
 PCCS = 150
 PCEP_READY_VERIFY_TIMEOUT = 180
 UPDATER_TIMEOUT = 900
