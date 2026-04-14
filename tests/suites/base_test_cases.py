@@ -26,7 +26,6 @@ ODL_PASSWD = variables.ODL_PASSWORD
 TOOLS_IP = variables.TOOLS_IP
 TOOLS_USER = variables.TOOLS_USER
 TOOLS_PASSWD = variables.TOOLS_PASSWORD
-ENABLE_TCP_TW_REUSE = variables.ENABLE_TCP_TW_REUSE
 
 log = logging.getLogger(__name__)
 
@@ -88,35 +87,6 @@ class BaseTestCases:
         self.lsps = lsps
         self.updater_timeout = updater_timeout
         self.restconf_reuse = restconf_reuse
-
-        if not ENABLE_TCP_TW_REUSE:
-            with allure_step_with_separate_logging(
-                "Skipped: step_save_and_enable_tcp_tw_reuse"
-            ):
-                log.warn(
-                    "There is no point in running this step if changing TCP RW REUSE "
-                    "is prohibited."
-                )
-        else:
-            with allure_step_with_separate_logging("step_save_and_enable_tcp_tw_reuse"):
-                """If requested, temporarily enable TCP port reuse to allow for high
-                rate of TCP connections. Do not fail whole test on possible step
-                failures. In case of failure only log the erorr message."""
-                try:
-                    rc, output = infra.shell("cat /proc/sys/net/ipv4/tcp_tw_reuse")
-                    self.original_tcp_tw_reuse_value = output
-                    rc, output = infra.shell(
-                        "sudo -n bash -c 'echo 1 > " "/proc/sys/net/ipv4/tcp_tw_reuse'"
-                    )
-                    assert rc == 0, (
-                        f"Failed to enable tcp_tw_resue, return code "
-                        f"is not zero, but: {rc}"
-                    )
-                except Exception as e:
-                    log.warn(
-                        f"Failed step_save_and_enable_tcp_rw_reuse "
-                        f"with the following error message: {e}"
-                    )
 
         with allure_step_with_separate_logging("step_topology_precondition"):
             """Verify that within timeout, PCEP topology is present, with no PCC
@@ -618,30 +588,3 @@ class BaseTestCases:
             utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
             )
-
-        if not ENABLE_TCP_TW_REUSE:
-            with allure_step_with_separate_logging(
-                "Skipped: step_restore_tcp_tw_reuse"
-            ):
-                log.warn(
-                    "There is no point in running this step if changing TCP TW REUSE "
-                    "is prohibited."
-                )
-        else:
-            with allure_step_with_separate_logging("step_restore_tcp_tw_reuse"):
-                """If requested, restore the old tcp_tw_reuse value.
-                In case of failure only log the erorr message."""
-                try:
-                    rc, output = infra.shell(
-                        f"sudo -n bash -c 'echo {self.original_tcp_tw_reuse_value} > "
-                        f"/proc/sys/net/ipv4/tcp_tw_reuse'"
-                    )
-                    assert rc == 0, (
-                        f"Failed to reset tcp_tw_resue, return code"
-                        f"is not zero, but: {rc}"
-                    )
-                except Exception as e:
-                    log.warn(
-                        f"Failed step_restore_tcp_tw_reuse "
-                        f"with the following error message: {e}"
-                    )

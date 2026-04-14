@@ -109,7 +109,5 @@ class TestCasesManyPccs(BaseTestCases):
             **UPDATER_TIMEOUT:** If updater stops itself if running more than \
             this time.
             (Set this limit according to your performance target.)
-            **ENABLE_TCP_TW_REUSE:** Set to false if changing Linux \
-            configuration is not desired.
         """)
     )

@@ -38,7 +38,6 @@ class Variables(BaseSettings):
     KARAF_LOG_LEVEL: str = "INFO"
     TEST_DURATION_MULTIPLIER: int = 1
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
-    ENABLE_TCP_TW_REUSE: bool = False
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
     MAX_HTTP_RESPONSE_BODY_LOG_SIZE: int = 500
 
