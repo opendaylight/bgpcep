@@ -31,9 +31,9 @@
                             "unknown-msg-received": 0
                         },
                         "peer-capabilities": {
-                            "odl-pcep-stateful-stats:active": true,
-                            "odl-pcep-stateful-stats:instantiation": true,
-                            "odl-pcep-stateful-stats:stateful": true
+                            "active": true,
+                            "instantiation": true,
+                            "stateful": true
                         },
                         "peer-pref": {
                             "deadtimer": 120,
