@@ -1,4 +1,4 @@
-odl-pcep-stateful-stats:last-received-rpt-msg-timestamp
+last-received-rpt-msg-timestamp
 session-duration
 session-id
 last-sent-msg-timestamp
