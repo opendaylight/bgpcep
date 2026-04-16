@@ -102,7 +102,8 @@ class TestBgpAppPeerBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             Test suite performs basic BGP functional test cases for BGP application \
             peer operations and checks for IP4 topology updates and updates towards \
             BGP peers as follows:
@@ -131,7 +132,8 @@ class TestBgpAppPeerBasic:
             BGP_Application_Peers_Delete_All_Routes, \
             Check_Example-IPv4-Topology_Is_Empty, \
             BGP_Peers_Check_Incomming_Updates_For_3_Withdrawn_Prefixes, Stop_BGP_Peers.
-        """)
+        """
+        )
     )
     def test_bgp_app_peer_basic(self, allure_step_with_separate_logging):
 

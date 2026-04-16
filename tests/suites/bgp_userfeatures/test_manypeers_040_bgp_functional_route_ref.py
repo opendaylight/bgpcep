@@ -153,7 +153,8 @@ class TestBgpfunctionalRouteRef:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test for bgp - route refresh**
 
             This suite tests sending and receiveing route refresh message. \
@@ -162,7 +163,8 @@ class TestBgpfunctionalRouteRef:
             correct advertising of routes is verified. Receiving of route refresh \
             by odl is verified by checking appropriate message counter via \
             odl-bgpcep-bgp-cli and restconf using BGP neighbor operational state.
-        """)
+        """
+        )
     )
     def test_bgp_functional_route_ref(self, allure_step_with_separate_logging):
 

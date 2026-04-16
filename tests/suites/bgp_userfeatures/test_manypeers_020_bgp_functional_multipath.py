@@ -72,7 +72,7 @@ class TestBgpfunctionalMultipath:
                 "PEER_COUNT": BGP_PEERS_COUNT,
                 "ROUTEREFRESH": "enable",
                 "ADDPATH": add_path,
-            }
+            },
         )
         infra.save_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
         rc, stdout = infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
@@ -180,13 +180,15 @@ class TestBgpfunctionalMultipath:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - n-path and all-path selection**
 
             This suite tests n-path and all-path selection policy. \
             It uses odl and exabgp as bgp peers. Routes advertized from \
             odl are configured via application peer.
-        """)
+        """
+        )
     )
     def test_bgp_functional_multipath(self, allure_step_with_separate_logging):
 

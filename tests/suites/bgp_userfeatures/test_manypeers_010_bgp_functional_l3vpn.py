@@ -96,14 +96,15 @@ class TestBgpfunctionalL3Vpn:
 
     def prepare_config_files(self):
         config = utils.render_jinja_template(
-            template_path="variables/bgpfunctional/l3vpn_ipv4/" \
-                          "bgp-l3vpn-ipv4-manypeers.j2",
-            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+            template_path="variables/bgpfunctional/l3vpn_ipv4/"
+            "bgp-l3vpn-ipv4-manypeers.j2",
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
         infra.save_to_a_file(f"tmp/{L3VPN_EXA_CFG}", config)
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - l3vpn-ipv4**
 
             This suite tests advertising and receiveing routes with l3vpn content. It \
@@ -115,7 +116,8 @@ class TestBgpfunctionalL3Vpn:
             have to be send from peer to odl, so odl can identify this peer. Than it \
             sends l3vpn route containg this argument to odl app peer, and we check \
             that app peer advertizes this route back to the peers.
-        """)
+        """
+        )
     )
     def test_bgp_functional_l3vpn(self, allure_step_with_separate_logging):
 

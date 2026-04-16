@@ -158,7 +158,8 @@ class TestIbgpPeersBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Basic tests for iBGP peers.**
 
             Test suite performs basic iBGP functional test cases for BGP peers in \
@@ -183,7 +184,8 @@ class TestIbgpPeersBasic:
             configuration.
 
             For polices see: *https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP*
-        """)
+        """
+        )
     )
     def test_ibgp_peers_basic(self, allure_step_with_separate_logging):
 
