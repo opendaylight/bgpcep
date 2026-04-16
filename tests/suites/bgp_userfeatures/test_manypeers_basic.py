@@ -89,10 +89,10 @@ class TestBasic:
     def verify_number_of_speaker_connections(self, how_many):
         """Run ss command parse it for number of established connections."""
         count = infra.count_port_occurences(BGP_TOOL_PORT, "ESTAB", "python")
-        assert (
-            count == how_many
-        ), f"Number of found occurences of bgp speaker process port {count} " \
-        f"does not match expected number {how_many}"
+        assert count == how_many, (
+            f"Number of found occurences of bgp speaker process port {count} "
+            f"does not match expected number {how_many}"
+        )
 
     def check_speaker_is_connected(self):
         """Give it several tries to see exactly one established connection."""
@@ -113,7 +113,6 @@ class TestBasic:
             temlate_dir=f"{BGP_VARIABLES_FOLDER}/{folder_name}",
             mapping={"PREFIXES_COUNT": 3 * BGP_PEERS_COUNT},
             verify=True,
-
         )
 
     def wait_for_topology_to_change_to(
@@ -134,7 +133,8 @@ class TestBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Basic tests for odl-bgpcep-bgp-all feature.**
 
             Test suite performs basic BGP functional test cases:
@@ -169,7 +169,8 @@ class TestBasic:
             Brief description how to perform BGP functional test:
             *https://wiki.opendaylight.org/view/\
             BGP_LS_PCEP:Lithium_Feature_Tests#How_to_test_2*
-        """)
+        """
+        )
     )
     def test_basic(self, allure_step_with_separate_logging):
 

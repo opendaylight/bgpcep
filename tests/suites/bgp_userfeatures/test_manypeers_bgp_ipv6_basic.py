@@ -144,7 +144,8 @@ class TestBgpIpv6Basic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test for ipv6 connection with bgp.**
 
             This suite tests simple connection between twnety ibgp peers \
@@ -156,7 +157,8 @@ class TestBgpIpv6Basic:
             a combination of afi-safis on odl and exabgp. ipv6 route injection \
             is carried out from odl to the ibgp peers without ipv6 \
             family enabled on the peers device and checked for exceptions.
-        """)
+        """
+        )
     )
     def test_bgp_ipv6_basic(self, allure_step_with_separate_logging, step_tag_checker):
 

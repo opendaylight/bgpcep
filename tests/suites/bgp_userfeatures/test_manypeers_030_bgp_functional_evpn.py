@@ -223,7 +223,8 @@ class TestBgpfunctionalEvpn:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - evpn**
 
             This suite tests advertising and receiveing routes with evpn content. \
@@ -231,7 +232,8 @@ class TestBgpfunctionalEvpn:
             configured via application peer. Routes advertised from play.py are stored \
             in \*.hex files. These files are used also as expected data which is \
             recevied from odl.
-        """)
+        """
+        )
     )
     def test_bgp_functional_evpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
