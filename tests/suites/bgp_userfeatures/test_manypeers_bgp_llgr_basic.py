@@ -64,13 +64,15 @@ class TestBgpLlgrBasic:
         infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **This suite tests simple connection between twnety ibgp peers \
             (goabgp) and Odl.**
 
             Peers are configured with ipv6, and gobgp connectes to odl \
             via ipv6.
-        """)
+        """
+        )
     )
     def test_bgp_llgr_basic(self, allure_step_with_separate_logging):
 

@@ -53,12 +53,12 @@ class TestBgpFlowspec:
     def prepare_config_files(self):
         config = utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-manypeers.j2",
-            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
         infra.save_to_a_file(f"tmp/{CFG1}", config)
         config = utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-redirect-manypeers.j2",
-            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT}
+            mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
         infra.save_to_a_file(f"tmp/{CFG2}", config)
 
