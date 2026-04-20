@@ -123,7 +123,7 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         doReturn(true).when(future).cancel(true);
         doReturn(future).when(dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
         deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, singletonServiceProvider,
-            actionRegistry, rpcRegistry, extensionContext, dispatcher,
+            actionRegistry, extensionContext, dispatcher,
             new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
             codecsRegistry, getDomBroker(), getDataBroker(), tableTypeRegistry, stateProviderRegistry));
         bgpSingletonObtainedLatch = new CountDownLatch(1);

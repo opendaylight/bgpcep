@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.ActionProviderService;
-import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
@@ -129,8 +128,7 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        bgpPeer = new BgpPeerBean(mock(ActionProviderService.class), mock(RpcProviderService.class),
-            new BGPStateCollector());
+        bgpPeer = new BgpPeerBean(mock(ActionProviderService.class), new BGPStateCollector());
     }
 
     @Test
