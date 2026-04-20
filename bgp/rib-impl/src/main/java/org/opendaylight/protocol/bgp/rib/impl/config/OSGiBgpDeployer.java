@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -36,6 +37,7 @@ public final class OSGiBgpDeployer extends DefaultBgpDeployer {
 
     @Activate
     public OSGiBgpDeployer(@Reference final ClusterSingletonServiceProvider provider,
+                           @Reference final ActionProviderService actionRegistry,
                            @Reference final RpcProviderService rpcRegistry,
                            @Reference final RIBExtensionConsumerContext ribExtensionContext,
                            @Reference final BGPDispatcher bgpDispatcher,
@@ -46,8 +48,9 @@ public final class OSGiBgpDeployer extends DefaultBgpDeployer {
                            @Reference final BGPTableTypeRegistryConsumer mappingService,
                            @Reference final BGPStateProviderRegistry stateProviderRegistry,
                            final Configuration configuration) {
-        super(configuration.networkInstanceName(), provider, rpcRegistry, ribExtensionContext, bgpDispatcher,
-                routingPolicyFactory, codecsRegistry, domDataBroker, dataBroker, mappingService, stateProviderRegistry);
+        super(configuration.networkInstanceName(), provider, actionRegistry, rpcRegistry, ribExtensionContext,
+            bgpDispatcher, routingPolicyFactory, codecsRegistry, domDataBroker, dataBroker, mappingService,
+            stateProviderRegistry);
         init();
     }
 

@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -91,6 +92,8 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     @Mock
     private CodecsRegistry codecsRegistry;
     @Mock
+    private ActionProviderService actionRegistry;
+    @Mock
     private RpcProviderService rpcRegistry;
     @Mock
     private RIBExtensionConsumerContext extensionContext;
@@ -120,9 +123,9 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         doReturn(true).when(future).cancel(true);
         doReturn(future).when(dispatcher).createReconnectingClient(any(), any(), anyInt(), any());
         deployer = spy(new DefaultBgpDeployer(NETWORK_INSTANCE_NAME, singletonServiceProvider,
-                rpcRegistry, extensionContext, dispatcher,
-                new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
-                codecsRegistry, getDomBroker(), getDataBroker(), tableTypeRegistry, stateProviderRegistry));
+            actionRegistry, rpcRegistry, extensionContext, dispatcher,
+            new DefaultBGPRibRoutingPolicyFactory(getDataBroker(), new StatementRegistry()),
+            codecsRegistry, getDomBroker(), getDataBroker(), tableTypeRegistry, stateProviderRegistry));
         bgpSingletonObtainedLatch = new CountDownLatch(1);
         doAnswer(invocationOnMock -> {
                 final var real = (BGPClusterSingletonService) invocationOnMock.callRealMethod();

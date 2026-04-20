@@ -27,6 +27,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
@@ -72,6 +73,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     private final WithKey<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final ClusterSingletonServiceProvider provider;
+    private final ActionProviderService actionRegistry;
     private final RpcProviderService rpcRegistry;
     private final RIBExtensionConsumerContext ribExtensionConsumerContext;
     private final BGPDispatcher bgpDispatcher;
@@ -103,6 +105,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     @Inject
     public DefaultBgpDeployer(final String networkInstanceName,
                               final ClusterSingletonServiceProvider provider,
+                              final ActionProviderService actionRegistry,
                               final RpcProviderService rpcRegistry,
                               final RIBExtensionConsumerContext ribExtensionConsumerContext,
                               final BGPDispatcher bgpDispatcher,
@@ -117,6 +120,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
         this.networkInstanceName = requireNonNull(networkInstanceName);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
+        this.actionRegistry = requireNonNull(actionRegistry);
         this.rpcRegistry = requireNonNull(rpcRegistry);
         this.ribExtensionConsumerContext = requireNonNull(ribExtensionConsumerContext);
         this.bgpDispatcher = requireNonNull(bgpDispatcher);
@@ -287,7 +291,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
         BGPClusterSingletonService old = bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, provider, tableTypeRegistry,
-                    rpcRegistry, ribExtensionConsumerContext, bgpDispatcher, routingPolicyFactory,
+                    actionRegistry, rpcRegistry, ribExtensionConsumerContext, bgpDispatcher, routingPolicyFactory,
                     codecsRegistry, stateProviderRegistry, domDataBroker, bgpInstanceIdentifier);
             bgpCss.put(bgpInstanceIdentifier, old);
         }

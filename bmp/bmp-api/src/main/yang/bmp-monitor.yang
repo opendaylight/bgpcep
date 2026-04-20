@@ -3,7 +3,7 @@ module bmp-monitor {
     namespace "urn:opendaylight:params:xml:ns:yang:bmp-monitor";
     prefix "bmp-mon";
 
-    import bgp-rib { prefix rib; revision-date 2018-03-29; }
+    import bgp-rib { prefix rib; }
     import bgp-multiprotocol { prefix bgp-mp; revision-date 2018-03-29; }
     import bmp-message { prefix bmp-msg; revision-date 2020-01-20; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }

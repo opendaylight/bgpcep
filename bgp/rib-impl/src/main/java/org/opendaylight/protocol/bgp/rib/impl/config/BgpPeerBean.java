@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
@@ -54,8 +55,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.rib.TablesKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -64,6 +65,7 @@ import org.slf4j.LoggerFactory;
 public final class BgpPeerBean extends PeerBean {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerBean.class);
 
+    private final ActionProviderService actionRegistry;
     private final RpcProviderService rpcRegistry;
     private final BGPStateProviderRegistry stateProviderRegistry;
 
@@ -74,7 +76,9 @@ public final class BgpPeerBean extends PeerBean {
     @GuardedBy("this")
     private Registration stateProviderRegistration;
 
-    public BgpPeerBean(final RpcProviderService rpcRegistry, final BGPStateProviderRegistry stateProviderRegistry) {
+    public BgpPeerBean(final ActionProviderService actionRegistry, final RpcProviderService rpcRegistry,
+            final BGPStateProviderRegistry stateProviderRegistry) {
+        this.actionRegistry = requireNonNull(actionRegistry);
         this.rpcRegistry = requireNonNull(rpcRegistry);
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
@@ -267,7 +271,7 @@ public final class BgpPeerBean extends PeerBean {
             }
 
             bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, rpcRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+                    neighborLocalAs, rpcRegistry, actionRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
                     OpenConfigMappingUtil.getTreatAsWithdraw(peerGroup, neighbor),
                     BgpPeerBean.this);
             prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),

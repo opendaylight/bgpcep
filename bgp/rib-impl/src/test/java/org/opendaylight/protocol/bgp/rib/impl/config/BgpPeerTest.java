@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -128,7 +129,8 @@ public class BgpPeerTest extends AbstractConfig {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        bgpPeer = new BgpPeerBean(mock(RpcProviderService.class), new BGPStateCollector());
+        bgpPeer = new BgpPeerBean(mock(ActionProviderService.class), mock(RpcProviderService.class),
+            new BGPStateCollector());
     }
 
     @Test

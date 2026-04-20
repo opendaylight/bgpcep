@@ -13,7 +13,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerId;
 
 public class RouteUpdateKeyTest {
     private static final RouterId PEER_ID = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));

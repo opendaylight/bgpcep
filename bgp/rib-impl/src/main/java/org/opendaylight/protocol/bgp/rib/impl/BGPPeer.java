@@ -38,8 +38,11 @@ import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
+import org.opendaylight.mdsal.binding.api.ActionSpec;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -85,12 +88,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSession;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefully;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequest;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.ResetSession;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RestartGracefully;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RouteRefreshRequest;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.BgpRib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.PeerKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
@@ -112,6 +118,26 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final TablesKey IPV4_UCAST_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
+    private static final ActionSpec<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420
+        .bgp.rib.rib.peer.ResetSession, Peer> RESET_SESSION = ActionSpec.builder(BgpRib.class)
+        .withPathChild(Rib.class)
+        .withPathChild(Peer.class)
+        .build(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer
+            .ResetSession.class);
+    private static final ActionSpec<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420
+        .bgp.rib.rib.peer.RestartGracefully, Peer> RESTART_GRACEFULLY = ActionSpec.builder(BgpRib.class)
+        .withPathChild(Rib.class)
+        .withPathChild(Peer.class)
+        .build(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer
+            .RestartGracefully.class);
+    private static final ActionSpec<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420
+        .bgp.rib.rib.peer.RouteRefreshRequest, Peer> ROUTE_REFRESH_REQUEST = ActionSpec.builder(BgpRib.class)
+        .withPathChild(Rib.class)
+        .withPathChild(Peer.class)
+        .build(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer
+            .RouteRefreshRequest.class);
+
+
     private final RIB rib;
 
     // FIXME: Alright, this right here is a ton of state which has intertwined initialization and dependencies Split
@@ -130,6 +156,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final Map<TablesKey, AdjRibOutListener> adjRibOutListenerSet = new HashMap<>();
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
+    private final ActionProviderService actionRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     // Enable RFC7606 treat-as-withdraw UPDATE handling
     private final boolean treatAsWithdraw;
@@ -149,6 +176,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
     private Registration rpcRegistration;
+    private List<Registration> actionRegistrations;
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
@@ -168,6 +196,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final ClusterIdentifier clusterId,
             final AsNumber localAs,
             final RpcProviderService rpcRegistry,
+            final ActionProviderService actionRegistry,
             final Set<TablesKey> afiSafisAdvertized,
             final Set<TablesKey> afiSafisGracefulAdvertized,
             final Map<TablesKey, Uint24> llGracefulTablesAdvertised,
@@ -178,6 +207,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
+        this.actionRegistry = actionRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
 
@@ -200,7 +230,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
      * @return MpReachNlri with prefixes from the nlri field
      */
     private static MpReachNlri prefixesToMpReach(final Update message) {
-        final List<Ipv4Prefixes> prefixes = message.getNlri().stream()
+        final var prefixes = message.nonnullNlri().stream()
                 .map(n -> new Ipv4PrefixesBuilder().setPrefix(n.getPrefix()).setPathId(n.getPathId()).build())
                 .collect(Collectors.toList());
         final MpReachNlriBuilder b = new MpReachNlriBuilder()
@@ -419,16 +449,28 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(),
                     tables, addPathTableMaps);
 
+            final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
+            final var bgpPeerPath = rib.getInstanceIdentifier().toBuilder()
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp
+                    .rib.rib.Peer.class, new PeerKey(peerId))
+                .build();
+
+            if (actionRegistry != null) {
+                actionRegistrations = List.of(
+                    actionRegistry.registerImplementation(RESET_SESSION, bgpPeerHandler::resetSession,
+                        LogicalDatastoreType.OPERATIONAL, Set.of(bgpPeerPath)),
+                    actionRegistry.registerImplementation(RESTART_GRACEFULLY, bgpPeerHandler::restartGracefully,
+                        LogicalDatastoreType.OPERATIONAL, Set.of(bgpPeerPath)),
+                    actionRegistry.registerImplementation(ROUTE_REFRESH_REQUEST, bgpPeerHandler::routeRefreshRequest,
+                        LogicalDatastoreType.OPERATIONAL, Set.of(bgpPeerPath)));
+            }
+
             if (rpcRegistry != null) {
-                final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
                 rpcRegistration = rpcRegistry.registerRpcImplementations(List.of(
                     (ResetSession) bgpPeerHandler::resetSession,
                     (RestartGracefully) bgpPeerHandler::restartGracefully,
                     (RouteRefreshRequest) bgpPeerHandler::routeRefreshRequest),
-                    ImmutableSet.of(rib.getInstanceIdentifier().toBuilder()
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp
-                            .rib.rib.Peer.class, new PeerKey(peerId))
-                        .build()));
+                    Set.of(bgpPeerPath));
             }
         } else {
             final Set<TablesKey> forwardingTables;
@@ -618,7 +660,13 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         if (rpcRegistration != null) {
             rpcRegistration.close();
+            rpcRegistration = null;
         }
+        if (actionRegistrations != null) {
+            actionRegistrations.forEach(Registration::close);
+            actionRegistrations = null;
+        }
+
         ribWriter.releaseChain();
 
         if (effRibInWriter != null) {

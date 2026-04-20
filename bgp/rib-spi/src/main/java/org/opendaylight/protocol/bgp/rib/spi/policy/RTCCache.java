@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.Route;
 
 public interface RTCCache {
     /**

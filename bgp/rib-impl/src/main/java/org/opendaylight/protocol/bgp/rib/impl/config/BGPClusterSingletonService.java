@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.binding.api.ActionProviderService;
 import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
@@ -70,6 +71,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
     private final @NonNull ServiceGroupIdentifier serviceGroupIdentifier;
     private final AtomicBoolean instantiated = new AtomicBoolean(false);
     private final PeerGroupConfigLoader peerGroupLoader;
+    private final ActionProviderService actionRegistry;
     private final RpcProviderService rpcRegistry;
     private final RIBExtensionConsumerContext ribExtensionContext;
     private final BGPDispatcher bgpDispatcher;
@@ -91,6 +93,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             final @NonNull PeerGroupConfigLoader peerGroupLoader,
             final @NonNull ClusterSingletonServiceProvider provider,
             final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry,
+            final @NonNull ActionProviderService actionRegistry,
             final @NonNull RpcProviderService rpcRegistry,
             final @NonNull RIBExtensionConsumerContext ribExtensionContext,
             final @NonNull BGPDispatcher bgpDispatcher,
@@ -101,6 +104,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
             final @NonNull DataObjectIdentifier<Bgp> bgpIid) {
         this.peerGroupLoader = peerGroupLoader;
         this.tableTypeRegistry = tableTypeRegistry;
+        this.actionRegistry = actionRegistry;
         this.rpcRegistry = rpcRegistry;
         this.ribExtensionContext = ribExtensionContext;
         this.bgpDispatcher = bgpDispatcher;
@@ -286,7 +290,7 @@ public class BGPClusterSingletonService implements ClusterSingletonService, Auto
         if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
             bgpPeer = new AppPeerBean(stateProviderRegistry);
         } else {
-            bgpPeer = new BgpPeerBean(rpcRegistry, stateProviderRegistry);
+            bgpPeer = new BgpPeerBean(actionRegistry, rpcRegistry, stateProviderRegistry);
         }
         final var neighborInstanceIdentifier = getNeighborInstanceIdentifier(bgpIid, neighbor.key());
         initiatePeerInstance(neighbor, bgpPeer);
