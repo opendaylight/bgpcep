@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerRole;
 
 public class PeerRoleUtilTest {
     @Test

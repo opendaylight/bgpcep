@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerId;
 import org.opendaylight.yangtools.concepts.Registration;
 
 /**

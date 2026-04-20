@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.rib;
 
 import static java.util.Objects.requireNonNull;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.RibKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public class DefaultRibReference implements RibReference {
