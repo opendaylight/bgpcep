@@ -259,8 +259,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         final IpAddressNoZone ipAddress = new IpAddressNoZone(peerAddress);
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddressNoZone(peerAddress), null, ribImpl, peerRole,
-            null, null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, false,
-            bean);
+            null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, false, bean);
         final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
                 new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
