@@ -14,34 +14,24 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.PeerRef;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.ResetSessionInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.ResetSessionInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.ResetSessionOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RestartGracefullyInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RestartGracefullyInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RestartGracefullyOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RouteRefreshRequestInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RouteRefreshRequestInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev260420.RouteRefreshRequestOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer.ResetSessionInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer.RestartGracefullyInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.bgp.rib.rib.peer.RouteRefreshRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.Notification;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
@@ -50,8 +40,6 @@ public final class BgpPeerRpcTest {
     private BGPSessionImpl session;
     @Mock
     private PeerRPCs peerRpcs;
-    @Mock
-    private PeerRef peer;
     @Mock
     private ChannelFuture future;
     private BgpPeerRpc rpc;
@@ -75,44 +63,43 @@ public final class BgpPeerRpcTest {
 
     @Test
     public void testRouteRefreshRequestSuccessRequest() throws InterruptedException, ExecutionException {
-        final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
-                .setAfi(Ipv4AddressFamily.VALUE)
-                .setSafi(SubsequentAddressFamily.VALUE)
-                .setPeerRef(peer).build();
-        final Future<RpcResult<RouteRefreshRequestOutput>> result = rpc.routeRefreshRequest(input);
+        final var input = new RouteRefreshRequestInputBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(SubsequentAddressFamily.VALUE)
+            .build();
+        final var result = rpc.routeRefreshRequest(null, input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 
     @Test
-    public void testRouteRefreshRequestFailedRequest() throws InterruptedException, ExecutionException {
-        final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
-                .setAfi(Ipv6AddressFamily.VALUE)
-                .setSafi(SubsequentAddressFamily.VALUE)
-                .setPeerRef(peer).build();
-        final Future<RpcResult<RouteRefreshRequestOutput>> result = rpc.routeRefreshRequest(input);
+    public void testRouteRefreshRequestFailedRequest() throws Exception {
+        final var input = new RouteRefreshRequestInputBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(SubsequentAddressFamily.VALUE)
+            .build();
+        final var result = rpc.routeRefreshRequest(null, input);
         assertEquals(1, result.get().getErrors().size());
         assertEquals("Failed to send Route Refresh message due to unsupported address families.",
                 result.get().getErrors().iterator().next().getMessage());
     }
 
     @Test
-    public void testResetSessionRequestSuccessRequest() throws InterruptedException, ExecutionException {
+    public void testResetSessionRequestSuccessRequest() throws Exception {
         doReturn(Futures.immediateFuture(null)).when(peerRpcs).releaseConnection();
-        final ResetSessionInput input = new ResetSessionInputBuilder()
-                .setPeerRef(peer).build();
-        final Future<RpcResult<ResetSessionOutput>> result = rpc.resetSession(input);
+        final var input = new ResetSessionInputBuilder().build();
+        final var result = rpc.resetSession(null, input);
         assertTrue(result.get().getErrors().isEmpty());
     }
 
     @Test
-    public void testRestartGracefullyRequestFailedRequest() throws ExecutionException, InterruptedException {
+    public void testRestartGracefullyRequestFailedRequest() throws Exception {
         final long referraltimerSeconds = 10L;
         doReturn(new SimpleSessionListener().restartGracefully(referraltimerSeconds))
-                .when(peerRpcs).restartGracefully(referraltimerSeconds);
-        final RestartGracefullyInput input = new RestartGracefullyInputBuilder()
-                .setSelectionDeferralTime(Uint32.valueOf(referraltimerSeconds))
-                .build();
-        final ListenableFuture<RpcResult<RestartGracefullyOutput>> result = rpc.restartGracefully(input);
+            .when(peerRpcs).restartGracefully(referraltimerSeconds);
+        final var input = new RestartGracefullyInputBuilder()
+            .setSelectionDeferralTime(Uint32.valueOf(referraltimerSeconds))
+            .build();
+        final var result = rpc.restartGracefully(null, input);
         assertTrue(!result.get().getErrors().isEmpty());
     }
 }

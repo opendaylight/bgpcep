@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.ActionProviderService;
-import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -66,7 +65,6 @@ public final class BgpPeerBean extends PeerBean {
     private static final Logger LOG = LoggerFactory.getLogger(BgpPeerBean.class);
 
     private final ActionProviderService actionRegistry;
-    private final RpcProviderService rpcRegistry;
     private final BGPStateProviderRegistry stateProviderRegistry;
 
     @GuardedBy("this")
@@ -76,15 +74,14 @@ public final class BgpPeerBean extends PeerBean {
     @GuardedBy("this")
     private Registration stateProviderRegistration;
 
-    public BgpPeerBean(final ActionProviderService actionRegistry, final RpcProviderService rpcRegistry,
+    public BgpPeerBean(final ActionProviderService actionRegistry,
             final BGPStateProviderRegistry stateProviderRegistry) {
         this.actionRegistry = requireNonNull(actionRegistry);
-        this.rpcRegistry = requireNonNull(rpcRegistry);
         this.stateProviderRegistry = requireNonNull(stateProviderRegistry);
     }
 
     private static List<OptionalCapabilities> getBgpCapabilities(final AfiSafis afiSafis, final RIB rib,
-                                                          final BGPTableTypeRegistryConsumer tableTypeRegistry) {
+            final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         final var caps = new ArrayList<OptionalCapabilities>();
         caps.add(new OptionalCapabilitiesBuilder()
             .setCParameters(new CParametersBuilder()
@@ -271,7 +268,7 @@ public final class BgpPeerBean extends PeerBean {
             }
 
             bgpPeer = new BGPPeer(tableTypeRegistry, neighborAddress, peerGroupName, rib, role, clusterId,
-                    neighborLocalAs, rpcRegistry, actionRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
+                    neighborLocalAs, actionRegistry, afiSafisAdvertized, gracefulTables, llGracefulTimers,
                     OpenConfigMappingUtil.getTreatAsWithdraw(peerGroup, neighbor),
                     BgpPeerBean.this);
             prefs = new BGPSessionPreferences(neighborLocalAs, hold, rib.getBgpIdentifier(),
