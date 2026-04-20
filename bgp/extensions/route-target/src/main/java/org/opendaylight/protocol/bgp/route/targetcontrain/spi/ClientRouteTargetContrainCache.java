@@ -8,7 +8,7 @@
 
 package org.opendaylight.protocol.bgp.route.targetcontrain.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.Route;
 
 /**
  * Provide a cache to store client routes advertized, to be used for policy

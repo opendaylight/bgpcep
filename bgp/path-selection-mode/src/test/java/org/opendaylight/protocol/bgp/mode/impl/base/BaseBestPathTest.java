@@ -14,7 +14,7 @@ import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VA
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerId;
 
 public class BaseBestPathTest {
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");

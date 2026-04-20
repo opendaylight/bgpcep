@@ -10,7 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import java.util.concurrent.atomic.LongAdder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.rib.TablesKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.PeerRole;
 
 public final class PeerRoleUtil {
     private PeerRoleUtil() {
