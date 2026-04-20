@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl.state.peer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev260420.rib.TablesKey;
 
 /**
  * Expose Prefixes Installed Count.

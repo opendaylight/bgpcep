@@ -1,5 +1,5 @@
 module bgp-rib {
-    yang-version 1;
+    yang-version 1.1;
     namespace "urn:opendaylight:params:xml:ns:yang:bgp-rib";
     prefix "rib";
 
@@ -20,6 +20,10 @@ module bgp-rib {
         under the terms of the Eclipse Public License v1.0 which
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
+
+    revision "2026-04-20" {
+        description "Add peer-specific actions.";
+    }
 
     revision "2018-03-29" {
         description "Add support for add-path for all afi/safi.";
@@ -144,6 +148,27 @@ module bgp-rib {
                 }
                 container adj-rib-out {
                     uses rib;
+                }
+                action route-refresh-request {
+                    input {
+                         uses bgp-mp:bgp-table-type;
+                    }
+                }
+                action reset-session {
+                    description "Resets the peer session";
+                }
+                action restart-gracefully {
+                    description "Perform graceful restart with peer";
+                    input {
+                        leaf selection-deferral-time {
+                            description
+                                "Time to wait with route selection in seconds. Route selection is postponed until
+                                 End of Rib marker is received or this timer expires.";
+                            type uint32;
+                            units seconds;
+                            mandatory true;
+                        }
+                    }
                 }
             }
 
