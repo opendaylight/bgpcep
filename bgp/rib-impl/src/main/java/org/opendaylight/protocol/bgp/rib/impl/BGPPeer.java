@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
@@ -23,6 +24,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,6 +102,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -411,7 +414,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
             peerPath = createPeerPath(peerId);
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
-            trackerRegistration = rib.getPeerTracker().registerPeer(this);
             createEffRibInWriter();
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
 
@@ -486,12 +488,49 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
         }
 
+        if (!isRestartingGracefully()) {
+            initializePeer();
+        }
+
         if (treatAsWithdraw) {
             currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, switch (getRole()) {
                 case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
                 case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
             });
         }
+    }
+
+    private void initializePeer() {
+        // Explicitly initialize the adj-rib-out and tables containers for new session.
+        // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.
+        final var tx = ribOutChain.newWriteOnlyTransaction();
+        tx.merge(OPERATIONAL, peerRibOutIId, ImmutableNodes.newContainerBuilder()
+            .withNodeIdentifier(ADJRIBOUT_NID)
+            .withChild(ImmutableNodes.newSystemMapBuilder()
+                .withNodeIdentifier(TABLES_NID)
+                .build())
+            .build());
+
+        // Postpone registration until the containers exist in datastore
+        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                synchronized (BGPPeer.this) {
+                    // Prevent registration if the session dropped during write
+                    if (sessionUp) {
+                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
+                    } else {
+                        LOG.debug("Session for peer {} dropped before datastore initialization completed.", peerId);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(final Throwable cause) {
+                LOG.error("Failed to initialize adj-rib-out for peer {}", peerId, cause);
+                BGPPeer.this.releaseConnection();
+            }
+        }, MoreExecutors.directExecutor());
     }
 
     private boolean isRestartingGracefully() {
