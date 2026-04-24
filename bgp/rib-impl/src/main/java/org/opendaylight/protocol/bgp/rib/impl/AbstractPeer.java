@@ -13,6 +13,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -93,6 +94,8 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
     // These seem to be separate
     @GuardedBy("this")
     @VisibleForTesting
+    @SuppressFBWarnings(value = "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR",
+        justification = "Initialized during session startup in BGPPeer subclass")
     DOMTransactionChain ribOutChain;
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
