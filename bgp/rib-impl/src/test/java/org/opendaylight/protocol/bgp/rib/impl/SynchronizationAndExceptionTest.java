@@ -242,13 +242,13 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(wrongMessage.build());
-        verify(tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         verify(tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
         verify(tx, times(0)).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
@@ -290,10 +290,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         correct.setAttributes(ab.setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build()).build());
 
         bgpSession.handleMessage(correct.build());
-        verify(tx, times(2)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         bgpSession.handleMessage(new UpdateBuilder().build());
-        verify(tx, times(3)).merge(eq(LogicalDatastoreType.OPERATIONAL),
+        verify(tx, times(4)).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
 
         verify(tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(TABLE_PATH),
