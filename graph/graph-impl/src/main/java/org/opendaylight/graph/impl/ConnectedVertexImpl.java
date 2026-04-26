@@ -223,10 +223,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
         if (vertex == null) {
             return "Null";
         }
-        if (vertex.getName() != null) {
-            return vertex.getName();
-        } else {
-            return vertex.getRouterId().toString();
-        }
+        final var name = vertex.getName();
+        return name != null ? name : vertex.getRouterId().toString();
     }
 }
