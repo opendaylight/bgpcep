@@ -16,6 +16,74 @@
       "message": "recheck",
       "revId": "1861c5ea34cca1b8192616678bdfdaf411b20884",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ad16235_be67bcef",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T10:16:04Z",
+      "side": 1,
+      "message": "Please add a brief explanation here of why this is separate from the same check at the start of this method. This is maybe a question everyone would ask if they look at this method.",
+      "revId": "1861c5ea34cca1b8192616678bdfdaf411b20884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99bfffd7_90ec924f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T10:16:04Z",
+      "side": 1,
+      "message": "I think we are creating a tables container for a new session. initializePeer is probably not the correct name. I would suggest something like initializeAdjRibOutTables.",
+      "revId": "1861c5ea34cca1b8192616678bdfdaf411b20884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa877dac_3f4933b7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T10:16:04Z",
+      "side": 1,
+      "message": "synchronized",
+      "revId": "1861c5ea34cca1b8192616678bdfdaf411b20884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7646415e_8bb9070c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T10:16:04Z",
+      "side": 1,
+      "message": "releaseConnection(false) -\u003e Probably we do not need to wait for result.",
+      "revId": "1861c5ea34cca1b8192616678bdfdaf411b20884",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
