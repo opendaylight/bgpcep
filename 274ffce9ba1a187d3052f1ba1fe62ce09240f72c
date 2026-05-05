@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8e2f70b_6fa72b12",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SynchronizationAndExceptionTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-05T13:43:04Z",
+      "side": 1,
+      "message": "promote these any() specs to eq() specs to assert exactly what is going on",
+      "range": {
+        "startLine": 246,
+        "startChar": 16,
+        "endLine": 246,
+        "endChar": 19
+      },
+      "revId": "274ffce9ba1a187d3052f1ba1fe62ce09240f72c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
