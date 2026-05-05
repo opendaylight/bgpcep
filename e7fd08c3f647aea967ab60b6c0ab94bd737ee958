@@ -33,6 +33,63 @@
       "message": "recheck",
       "revId": "e7fd08c3f647aea967ab60b6c0ab94bd737ee958",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8601a4f2_647eac35",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T05:44:36Z",
+      "side": 1,
+      "message": "This method is already exhaustingly long. Could you please move this logic into a separate method?",
+      "revId": "e7fd08c3f647aea967ab60b6c0ab94bd737ee958",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d9dabb3_2db21157",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T05:44:36Z",
+      "side": 1,
+      "message": "I would suggest a little cleanup here:\n - Remove the unnecessary newlines.\n - Use static import for LogicalDatastoreType.OPERATIONAL.\n \n ```\n            // Explicitly initialize the adj-rib-out and tables containers for new session.\n            // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.\n            final var tx \u003d ribOutChain.newWriteOnlyTransaction();\n            tx.merge(OPERATIONAL, peerRibOutIId, ImmutableNodes.newContainerBuilder()\n                    .withNodeIdentifier(ADJRIBOUT_NID)\n                    .withChild(ImmutableNodes.newSystemMapBuilder()\n                        .withNodeIdentifier(TABLES_NID)\n                        .build())\n                    .build());\n```",
+      "range": {
+        "startLine": 492,
+        "startChar": 0,
+        "endLine": 503,
+        "endChar": 30
+      },
+      "revId": "e7fd08c3f647aea967ab60b6c0ab94bd737ee958",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a067e7f0_bda7775d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-05-05T05:44:36Z",
+      "side": 1,
+      "message": "So, what about this state? Is logging it enough? Shouldn\u0027t we call closeSession? In this state, we are not tracking registration.",
+      "revId": "e7fd08c3f647aea967ab60b6c0ab94bd737ee958",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
