@@ -35,6 +35,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a3b9f49_7253c1ae",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-07T11:31:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97384e58_7ece6991",
+      "revId": "e3b58eb5b6d4efb6224dbda7c36a6b3f0e519541",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7f7f70db_c825de08",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-05-07T11:00:16Z",
       "side": 1,
       "message": "never()?",
+      "revId": "e3b58eb5b6d4efb6224dbda7c36a6b3f0e519541",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcc10773_d4041b87",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/SynchronizationAndExceptionTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-07T11:31:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f7f70db_c825de08",
       "revId": "e3b58eb5b6d4efb6224dbda7c36a6b3f0e519541",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
