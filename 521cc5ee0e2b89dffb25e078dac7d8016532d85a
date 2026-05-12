@@ -16,6 +16,75 @@
       "message": "recheck",
       "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14d05bdd_ca5962d7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-12T09:49:39Z",
+      "side": 1,
+      "message": "the sole caller already holds the lock, so @Holding(\"this\")",
+      "range": {
+        "startLine": 506,
+        "startChar": 12,
+        "endLine": 506,
+        "endChar": 24
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fb859ee_623e8d7b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-12T09:49:39Z",
+      "side": 1,
+      "message": "hmm... why do we have to execute the callback on the netty thread?",
+      "range": {
+        "startLine": 516,
+        "startChar": 48,
+        "endLine": 516,
+        "endChar": 101
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57b8bbb6_1ba854bd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-12T09:49:39Z",
+      "side": 1,
+      "message": "releaseConnection(boolean) is documented as @Holding(\"this\"), yet we do not acquire the lock -- unlike the success case.",
+      "range": {
+        "startLine": 534,
+        "startChar": 29,
+        "endLine": 534,
+        "endChar": 46
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
