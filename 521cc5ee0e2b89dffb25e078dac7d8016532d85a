@@ -112,6 +112,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "302bdccc_7935ed59",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-12T11:17:05Z",
+      "side": 1,
+      "message": "changed it to MoreExecutors.directExecutor()",
+      "parentUuid": "f0ed6cd4_41973034",
+      "range": {
+        "startLine": 516,
+        "startChar": 48,
+        "endLine": 516,
+        "endChar": 101
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57b8bbb6_1ba854bd",
