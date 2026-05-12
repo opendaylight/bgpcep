@@ -41,6 +41,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a21515e5_5737386c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-12T11:16:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14d05bdd_ca5962d7",
+      "range": {
+        "startLine": 506,
+        "startChar": 12,
+        "endLine": 506,
+        "endChar": 24
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2fb859ee_623e8d7b",
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f0ed6cd4_41973034",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-12T11:16:41Z",
+      "side": 1,
+      "message": "Idea was not to run it on datastore thread, because when that one fires the callback and tries to acquire synchronized (BGPPeer.this), but the BGP/Netty thread currently holds that lock and is making a blocking call to the datastore it could cause a deadlock (This issue was proposed by gemini)",
+      "parentUuid": "2fb859ee_623e8d7b",
+      "range": {
+        "startLine": 516,
+        "startChar": 48,
+        "endLine": 516,
+        "endChar": 101
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57b8bbb6_1ba854bd",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 18
@@ -77,6 +125,30 @@
       "writtenOn": "2026-05-12T09:49:39Z",
       "side": 1,
       "message": "releaseConnection(boolean) is documented as @Holding(\"this\"), yet we do not acquire the lock -- unlike the success case.",
+      "range": {
+        "startLine": 534,
+        "startChar": 29,
+        "endLine": 534,
+        "endChar": 46
+      },
+      "revId": "521cc5ee0e2b89dffb25e078dac7d8016532d85a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9169b36_fdfde3f1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-05-12T11:16:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57b8bbb6_1ba854bd",
       "range": {
         "startLine": 534,
         "startChar": 29,
