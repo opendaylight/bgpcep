@@ -79,6 +79,18 @@ public class VpnIpv6NlriParserTest {
         (byte) 0x20, (byte) 0x01, (byte) 0x23, (byte) 0x45, (byte) 0x56, (byte) 0x89
     };
 
+    /* Default-route Reach NLRI, as sent by Cisco IOS XR:
+     * 58          <- length 88 (24 label + 64 RD + 0 prefix)
+     * 00 16 31    <- label 355, bottom bit
+     * 00 01 01 02 03 04 01 02   <- RD type=1, 1.2.3.4:258
+     *                           <- no prefix bytes, ::/0
+     */
+    private static final byte[] REACH_NLRI_DEFAULT = new byte[] {
+        (byte) 0x58,
+        (byte) 0x00, (byte) 0x16, (byte) 0x31,
+        0, 1, 1, 2, 3, 4, 1, 2,
+    };
+
     static final IpPrefix IPV6PREFIX = new IpPrefix(new Ipv6Prefix("2001:2345:5689::/48"));
     static final List<LabelStack> LABEL_STACK = List.of(
         new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
@@ -157,5 +169,41 @@ public class VpnIpv6NlriParserTest {
             .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(UNREACH_NLRI, ByteArray.readAllBytes(output));
+    }
+
+    @Test
+    public void testMpReachNlriDefaultRoute() {
+        final var ipv6VpnDefault = new VpnDestinationBuilder()
+            .setRouteDistinguisher(DISTINGUISHER)
+            .setPrefix(new IpPrefix(new Ipv6Prefix("::/0")))
+            .setPathId(NON_PATH_ID)
+            .setLabelStack(LABEL_STACK)
+            .build();
+
+        final var mpReachExpected = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE)
+            .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                .setDestinationType(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv6
+                    .rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type
+                    .DestinationVpnIpv6CaseBuilder()
+                    .setVpnIpv6Destination(new VpnIpv6DestinationBuilder()
+                        .setVpnDestination(List.of(new VpnDestinationBuilder(ipv6VpnDefault).setPathId(null).build()))
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        final var mpReachActual = new MpReachNlriBuilder()
+            .setAfi(Ipv6AddressFamily.VALUE)
+            .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE);
+        PARSER.parseNlri(Unpooled.copiedBuffer(REACH_NLRI_DEFAULT), mpReachActual, null);
+        assertEquals(mpReachExpected, mpReachActual.build());
+
+        final var output = Unpooled.buffer();
+        PARSER.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
+            .build(), output);
+        assertArrayEquals(REACH_NLRI_DEFAULT, ByteArray.readAllBytes(output));
     }
 }
