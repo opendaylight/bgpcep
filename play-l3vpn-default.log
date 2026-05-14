@@ -1,0 +1,65 @@
+2026-05-14 11:24:50,546 INFO BGP-Thread-1 (job): Connecting in the talking mode.
+2026-05-14 11:24:50,546 INFO BGP-Thread-1 (job): Connected to ODL.
+2026-05-14 11:24:50,549 INFO BGP-Thread-1 (job): Open message received.
+2026-05-14 11:24:50,549 INFO BGP-Thread-1 (job): ffffffffffffffffffffffffffffffff00d90104fbf000b4c0000202bc02ba41040000fbf0060002000104000100010104000100040104000100850104000200040104000100810104000100840104000200810104000200800104000100860104000200860104000200850104000200050104000100800104000100050104400400470104001900460104000200014046003c00028000000180000002050000010500000285000001850000028600000281000001810000010400000204000002010000010100001946000001840000018600400447004700
+2026-05-14 11:24:50,549 INFO BGP-Thread-1 (job): Generator initialisation
+2026-05-14 11:24:50,549 INFO BGP-Thread-1 (job):   Target total number of prefixes to be introduced: 0
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Prefix base: 8.0.1.0/28
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   My Autonomous System number: 64496
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   My Hold Time: 180
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   My BGP Identifier: 2130706688
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Next Hop: 192.0.2.1
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Originator ID: None
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Cluster list: None
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Prefix count to be inserted at once: 1
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Prefix count to be withdrawn at once: 0
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Fast pre-fill up to 0 prefixes
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Remaining number of prefixes to be processed in parallel with withdrawals: 0
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Two separate UPDATEs will be generated for each NLRI & WITHDRAWN lists
+2026-05-14 11:24:50,550 INFO BGP-Thread-1 (job):   Let's go ...
+
+2026-05-14 11:24:50,552 INFO BGP-Thread-1 (job): total_received_update_message_counter: 0
+2026-05-14 11:24:50,552 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:24:50,552 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:24:50,558 INFO BGP-Thread-1 (job): ... idle for 0.005s
+2026-05-14 11:24:50,558 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 0.005s
+2026-05-14 11:24:58,537 INFO BGP-Thread-1 (job): ... idle for 7.977s
+2026-05-14 11:24:58,537 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 7.984s
+2026-05-14 11:24:58,537 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:24:58,537 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:24:58,537 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:08,544 INFO BGP-Thread-1 (job): ... idle for 10.006s
+2026-05-14 11:25:08,544 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 17.990s
+2026-05-14 11:25:08,544 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:08,544 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:08,544 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:18,568 INFO BGP-Thread-1 (job): ... idle for 10.024s
+2026-05-14 11:25:18,569 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 28.014s
+2026-05-14 11:25:18,569 INFO BGP-Thread-1 (job): Received message: ffffffffffffffffffffffffffffffff006a0200000053900e00210001800c00000000000000000ab00128007805dd910000780268e902980a5c01014001010040020602010000fc628004040000000040050400000064c010100002780200002a080002867300002860
+2026-05-14 11:25:18,570 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:18,570 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:18,570 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:26,537 INFO BGP-Thread-1 (job): ... idle for 7.967s
+2026-05-14 11:25:26,538 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 35.981s
+2026-05-14 11:25:26,539 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:26,539 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:26,539 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:36,558 INFO BGP-Thread-1 (job): ... idle for 10.018s
+2026-05-14 11:25:36,559 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 46.000s
+2026-05-14 11:25:36,561 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:36,562 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:36,562 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:46,517 INFO BGP-Thread-1 (job): ... idle for 9.955s
+2026-05-14 11:25:46,517 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 55.954s
+2026-05-14 11:25:46,518 INFO BGP-Thread-1 (job): KEEP ALIVE message received: 0xffffffffffffffffffffffffffffffff001304
+2026-05-14 11:25:46,518 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:46,518 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:46,518 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:56,533 INFO BGP-Thread-1 (job): ... idle for 10.015s
+2026-05-14 11:25:56,534 INFO BGP-Thread-1 (job): total_rx_idle_time_counter: 65.970s
+2026-05-14 11:25:56,534 INFO BGP-Thread-1 (job): Received message: ffffffffffffffffffffffffffffffff0062020000004b900e001d0001800c00000000000000000ab00128005805dda1000078026933c7384001010040020a02020000fc620000fc5b40050400000064c00804fc58ca35c010080002780200002a0d
+2026-05-14 11:25:56,534 INFO BGP-Thread-1 (job): total_received_update_message_counter: 3
+2026-05-14 11:25:56,534 INFO BGP-Thread-1 (job): total_received_nlri_prefix_counter: 0
+2026-05-14 11:25:56,534 INFO BGP-Thread-1 (job): total_received_withdrawn_prefix_counter: 0
+2026-05-14 11:25:56,539 INFO BGP-Thread-1 (job): NOTIFICATION message received: 0xffffffffffffffffffffffffffffffff0015030301
+2026-05-14 11:26:56,534 INFO BGP-Thread-1 (job): KEEP ALIVE is sent.

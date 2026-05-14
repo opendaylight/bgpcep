@@ -50,7 +50,7 @@ final class VpnDestinationUtil {
             final int prefixLen = length - LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum
                     - RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE;
             builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
-            Preconditions.checkState(prefixLen > 0, "A valid VPN IP prefix is required.");
+            Preconditions.checkState(prefixLen >= 0, "A valid VPN IP prefix is required.");
             builder.setPrefix(LUNlriParser.parseIpPrefix(nlri, prefixLen, afi));
             dests.add(builder.build());
         }

@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.destination.VpnIpv4DestinationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
@@ -79,6 +80,19 @@ public class VpnIpv4NlriParserTest {
         (byte) 0x22, (byte) 0x01, (byte) 0x16,
     };
 
+    /* Default-route Reach NLRI, as sent by Cisco IOS XR:
+     * 58          <- length 88 (24 label + 64 RD + 0 prefix)
+     * 00 16 31    <- label 355, bottom bit
+     * 00 01 01 02 03 04 01 02   <- RD type=1, 1.2.3.4:258
+     *                            <- no prefix bytes, 0.0.0.0/0
+     */
+    private static final byte[] REACH_NLRI_DEFAULT = new byte[] {
+        (byte) 0x58,
+        (byte) 0x00, (byte) 0x16, (byte) 0x31,
+        0, 1, 1, 2, 3, 4, 1, 2,
+    };
+
+
     static final IpPrefix IPV4_PREFIX = new IpPrefix(new Ipv4Prefix("34.1.22.0/24"));
     static final List<LabelStack> LABEL_STACK = List.of(
         new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(355))).build());
@@ -95,8 +109,7 @@ public class VpnIpv4NlriParserTest {
             .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE);
         mpBuilder.setAdvertizedRoutes(
             new AdvertizedRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update
-                        .attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationVpnIpv4CaseBuilder()
+                new DestinationVpnIpv4CaseBuilder()
                         .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(
                                 List.of(new VpnDestinationBuilder(IPV4_VPN).setPathId(null)
                                         .build())).build()).build()).build()).build();
@@ -124,16 +137,14 @@ public class VpnIpv4NlriParserTest {
 
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update
-                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
+                new DestinationVpnIpv4CaseBuilder()
                         .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(
                                 List.of(IPV4_VPN_WITHOUT_LABELS)).build()).build()).build()).build();
         final MpUnreachNlri mpUnreachExpected1 = mpBuilder.build();
 
         mpBuilder.setWithdrawnRoutes(
             new WithdrawnRoutesBuilder().setDestinationType(
-                new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.update
-                        .attributes.mp.unreach.nlri.withdrawn.routes.destination.type.DestinationVpnIpv4CaseBuilder()
+                new DestinationVpnIpv4CaseBuilder()
                         .setVpnIpv4Destination(new VpnIpv4DestinationBuilder().setVpnDestination(
                                 List.of(IPV4_VPN)).build()).build()).build()).build();
         final MpUnreachNlri mpUnreachExpected2 = mpBuilder.build();
@@ -149,5 +160,39 @@ public class VpnIpv4NlriParserTest {
             .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachExpected2).build())
             .build(), output);
         assertArrayEquals(UNREACH_NLRI, ByteArray.readAllBytes(output));
+    }
+
+    @Test
+    public void testMpReachNlriDefaultRoute() throws BGPParsingException {
+        final var ipv4VpnDefault = new VpnDestinationBuilder()
+            .setRouteDistinguisher(DISTINGUISHER)
+            .setPrefix(new IpPrefix(new Ipv4Prefix("0.0.0.0/0")))
+            .setPathId(NON_PATH_ID)
+            .setLabelStack(LABEL_STACK)
+            .build();
+
+        final var mpReachExpected = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE)
+            .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                .setDestinationType(new DestinationVpnIpv4CaseBuilder()
+                    .setVpnIpv4Destination(new VpnIpv4DestinationBuilder()
+                        .setVpnDestination(List.of(new VpnDestinationBuilder(ipv4VpnDefault).setPathId(null).build()))
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        final var mpReachActual = new MpReachNlriBuilder()
+            .setAfi(Ipv4AddressFamily.VALUE)
+            .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE);
+        PARSER.parseNlri(Unpooled.copiedBuffer(REACH_NLRI_DEFAULT), mpReachActual, null);
+        assertEquals(mpReachExpected, mpReachActual.build());
+
+        final var output = Unpooled.buffer();
+        PARSER.serializeAttribute(new AttributesBuilder()
+            .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachExpected).build())
+            .build(), output);
+        assertArrayEquals(REACH_NLRI_DEFAULT, ByteArray.readAllBytes(output));
     }
 }
