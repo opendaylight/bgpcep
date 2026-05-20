@@ -16,6 +16,24 @@
       "message": "Assertions? This only acts as a basic smoke test.\nMake it consistent with the tests above.",
       "revId": "16c3c7889f1adc48832942e89681ac67a60ed266",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "997a4889_c0faa7e5",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/unicast/ipv4/VpnIpv4NlriParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-05-20T11:42:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4959da1_30eb9b03",
+      "revId": "16c3c7889f1adc48832942e89681ac67a60ed266",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
