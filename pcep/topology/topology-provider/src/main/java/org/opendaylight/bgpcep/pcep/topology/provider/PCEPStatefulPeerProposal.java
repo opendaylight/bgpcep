@@ -7,8 +7,6 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
 import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetSocketAddress;
@@ -63,7 +61,7 @@ final class PCEPStatefulPeerProposal extends AbstractRegistration implements PCE
         }
 
         private static @NonNull NodeId extractNodeId(final DataTreeModification<?> modification) {
-            return verifyNotNull(modification.path().firstKeyOf(Node.class)).getNodeId();
+            return modification.path().getFirstKeyOf(Node.class).getNodeId();
         }
     }
 

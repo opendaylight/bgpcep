@@ -922,7 +922,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
         }
         final var iid = getInstanceIdentifier();
         LOG.debug("Adding SR-aware topology-type for topology {}",
-            iid.firstKeyOf(Topology.class).getTopologyId().getValue());
+            iid.getFirstKeyOf(Topology.class).getTopologyId().getValue());
         trans.put(LogicalDatastoreType.OPERATIONAL, iid.toBuilder().child(TopologyTypes.class).build(),
             SR_AWARE_LINKSTATE_TOPOLOGY_TYPE);
         srAwareTopologyTypeAdded = true;
@@ -942,7 +942,7 @@ public class LinkstateTopologyBuilder extends AbstractTopologyBuilder<LinkstateR
 
         final var iid = getInstanceIdentifier();
         LOG.debug("Removing SR-aware topology-type from topology {}",
-            iid.firstKeyOf(Topology.class).getTopologyId().getValue());
+            iid.getFirstKeyOf(Topology.class).getTopologyId().getValue());
         trans.put(LogicalDatastoreType.OPERATIONAL, iid.toBuilder()
             .child(TopologyTypes.class)
             .build(), LINKSTATE_TOPOLOGY_TYPE);
