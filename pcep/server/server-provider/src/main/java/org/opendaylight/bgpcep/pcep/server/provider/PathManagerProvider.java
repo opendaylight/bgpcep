@@ -600,10 +600,8 @@ public final class PathManagerProvider implements FutureCallback<Empty>, AutoClo
         mngNodes.put(nodeId, teNode);
 
         /* Then, create all TE Paths for this Managed Node */
-        if (pccNode.getConfiguredLsp() != null) {
-            for (ConfiguredLsp tePath: pccNode.getConfiguredLsp().values()) {
-                addManagedTePath(teNode, tePath);
-            }
+        for (ConfiguredLsp tePath: pccNode.nonnullConfiguredLsp().values()) {
+            addManagedTePath(teNode, tePath);
         }
 
         LOG.info("Created new Managed TE Node {}", nodeId);
