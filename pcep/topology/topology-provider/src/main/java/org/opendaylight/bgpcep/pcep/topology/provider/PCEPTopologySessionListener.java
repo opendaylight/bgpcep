@@ -45,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.StatefulCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.stateful._case.stateful.Srps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcinitiate.message.PcinitiateMessageBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcinitiate.message.pcinitiate.message.Requests;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcinitiate.message.pcinitiate.message.RequestsBuilder;
@@ -205,22 +204,21 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     private boolean handleErrorMessage(final PcerrMessage message) {
         final var errMsg = message.getPcerrMessage();
-        if (errMsg.getErrorType() instanceof StatefulCase) {
-            final StatefulCase stat = (StatefulCase) errMsg.getErrorType();
-            for (final Srps srps : stat.getStateful().nonnullSrps()) {
-                final SrpIdNumber id = srps.getSrp().getOperationId();
-                if (!SRPID_ZERO.equals(id)) {
-                    final PCEPRequest req = removeRequest(id);
-                    if (req != null) {
-                        req.finish(OperationResults.createFailed(errMsg.getErrors()));
-                    } else {
-                        LOG.warn("Request ID {} not found in outstanding DB", id);
-                    }
-                }
-            }
-        } else {
+        if (!(errMsg.getErrorType() instanceof StatefulCase stat)) {
             LOG.warn("Unhandled PCErr message {}.", errMsg);
             return true;
+        }
+
+        for (var srps : stat.getStateful().nonnullSrps()) {
+            final SrpIdNumber id = srps.getSrp().getOperationId();
+            if (!SRPID_ZERO.equals(id)) {
+                final PCEPRequest req = removeRequest(id);
+                if (req != null) {
+                    req.finish(OperationResults.createFailed(errMsg.getErrors()));
+                } else {
+                    LOG.warn("Request ID {} not found in outstanding DB", id);
+                }
+            }
         }
         return false;
     }
