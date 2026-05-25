@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.Iterables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNull;
@@ -82,7 +81,6 @@ public final class SimpleEvpnNlriRegistry implements EvpnRegistry {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public EvpnChoice parseEvpn(final NlriType type, final ByteBuf buffer) {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         final EvpnParser parser = handlers.getParser(type.getIntValue());

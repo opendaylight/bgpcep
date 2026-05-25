@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.Iterables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNull;
@@ -96,7 +95,6 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public Esi parseEsi(final ByteBuf buffer) {
         checkArgument(buffer != null && buffer.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         checkArgument(buffer.readableBytes() == CONTENT_LENGTH,
@@ -107,7 +105,6 @@ public final class SimpleEsiTypeRegistry implements EsiRegistry {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public Esi parseEsiModel(final ChoiceNode esiChoice) {
         checkArgument(esiChoice != null, "ESI cannot be null");
         final Collection<DataContainerChild> value = esiChoice.body();
