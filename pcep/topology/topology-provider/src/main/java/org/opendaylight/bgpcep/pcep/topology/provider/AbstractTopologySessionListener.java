@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -530,7 +529,12 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private static Map<PathKey, Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
             final String name, final boolean remove) {
         // just one path should be reported
-        final Path path = Iterables.getOnlyElement(rlb.getPath().values());
+        final var paths = rlb.getPath().values();
+        if (paths.size() != 1) {
+            throw new IllegalStateException("Expecting 1 path, got " + paths);
+        }
+
+        final var path = paths.iterator().next();
         final var reportedLspId = path.getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
