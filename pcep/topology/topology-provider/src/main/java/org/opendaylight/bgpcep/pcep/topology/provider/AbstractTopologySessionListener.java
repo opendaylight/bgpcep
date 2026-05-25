@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,9 +38,7 @@ import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Message;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.LspObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.lsp.object.Lsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.PlspId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.SrpIdNumber;
@@ -664,14 +661,27 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
     @Override
     public final int getDelegatedLspsCount() {
-        return Math.toIntExact(lspData.values().stream()
-            .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
-            // pick the first path, as delegate status should be same in each path
-            .map(pathList -> pathList.values().iterator().next())
-            .map(LspObject::getLsp).filter(Objects::nonNull)
-            .map(Lsp::getLspFlags).filter(Objects::nonNull)
-            .filter(delegated -> Boolean.TRUE.equals(delegated.getDelegate()))
-            .count());
+        int ret = 0;
+        for (var reportedLsp : lspData.values()) {
+            if (isDelegated(reportedLsp)) {
+                ret++;
+            }
+        }
+        return ret;
+    }
+
+    // LSP is considered delegated as long as at least one path is delegated
+    private static boolean isDelegated(final ReportedLsp reportedLsp) {
+        for (var path : reportedLsp.nonnullPath().values()) {
+            final var lsp = path.getLsp();
+            if (lsp != null) {
+                final var lspFlags = lsp.getLspFlags();
+                if (lspFlags != null && Boolean.TRUE.equals(lspFlags.getDelegate())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override
