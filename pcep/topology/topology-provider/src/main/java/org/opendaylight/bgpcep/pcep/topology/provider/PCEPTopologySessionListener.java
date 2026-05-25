@@ -561,17 +561,17 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         return reportedLsp;
     }
 
-    private static Optional<PathSetupType> getPST(final Optional<ReportedLsp> rep) {
-        if (rep.isPresent()) {
-            final Path path = rep.orElseThrow().getPath().values().iterator().next();
-            if (path != null) {
-                final PathSetupType pst = path.getPathSetupType();
-                if (!PSTUtil.isDefaultPST(pst)) {
-                    return Optional.of(pst);
+    private static Optional<PathSetupType> getPST(final Optional<ReportedLsp> optRep) {
+        return optRep
+            .flatMap(rep -> {
+                final var paths = rep.nonnullPath().values();
+                if (paths.isEmpty()) {
+                    return Optional.empty();
                 }
-            }
-        }
-        return Optional.empty();
+                // TODO: explain why checking only the first path is okay or consider all paths
+                final var pst = paths.iterator().next().getPathSetupType();
+                return PSTUtil.isDefaultPST(pst) ? Optional.empty() : Optional.of(pst);
+            });
     }
 
     /**
