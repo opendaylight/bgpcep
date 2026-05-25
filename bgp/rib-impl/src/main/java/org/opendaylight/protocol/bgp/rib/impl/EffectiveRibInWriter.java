@@ -18,6 +18,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import com.google.common.base.VerifyException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -56,12 +57,15 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
-import org.opendaylight.protocol.bgp.route.targetcontrain.spi.RouteTargetMembeshipUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainAs4ExtendedCommunityCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainDefaultCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainIpv4RouteCase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.route.target.constrain.choice.RouteTargetConstrainRouteCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.route.target.constrain.routes.route.target.constrain.routes.RouteTargetConstrainRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
@@ -520,7 +524,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void addRouteTarget(final RouteTargetConstrainRoute rtc) {
-        final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
+        final var rtMembership = extractRouteTarget(rtc);
         if (PeerRole.Ebgp != peerImportParameters.getFromPeerRole()) {
             rtCache.cacheRoute(rtc);
         }
@@ -533,7 +537,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     private void deleteRouteTarget(final RouteTargetConstrainRoute rtc) {
-        final RouteTarget rtMembership = RouteTargetMembeshipUtil.getRT(rtc);
+        final var rtMembership = extractRouteTarget(rtc);
         if (PeerRole.Ebgp != peerImportParameters.getFromPeerRole()) {
             rtCache.uncacheRoute(rtc);
         }
@@ -627,5 +631,16 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             }
         }
         return RIBNormalizedNodes.NOT_UPTODATE_ATTRIBUTES;
+    }
+
+    private static RouteTarget extractRouteTarget(final RouteTargetConstrainRoute route) {
+        final var rtcc = route.getRouteTargetConstrainChoice();
+        return switch (rtcc) {
+            case RouteTargetConstrainAs4ExtendedCommunityCase rtc -> rtc.getAs4RouteTargetExtendedCommunity();
+            case RouteTargetConstrainDefaultCase rtc -> rtc.getRouteTargetConstrainDefaultRoute();
+            case RouteTargetConstrainIpv4RouteCase rtc -> rtc.getRouteTargetIpv4();
+            case RouteTargetConstrainRouteCase rtc -> rtc.getRouteTargetExtendedCommunity();
+            default -> throw new VerifyException("Unhandled route target constrain " + rtcc);
+        };
     }
 }
