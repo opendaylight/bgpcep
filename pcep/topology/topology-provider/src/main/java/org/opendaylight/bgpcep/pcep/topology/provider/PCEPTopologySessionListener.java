@@ -152,7 +152,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         LOG.trace("Trigger Lsp Resynchronization {}", input);
 
         // Make sure the LSP exists
-        final var lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.requireName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
             : f.transformAsync(new ResyncLspFunction(input), MoreExecutors.directExecutor());
@@ -401,23 +401,21 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     @Override
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
     public synchronized ListenableFuture<OperationResult> addLsp(final AddLspArgs input) {
-        checkArgument(input != null && input.getName() != null && input.getNode() != null
-                && input.getArguments() != null, MISSING_XML_TAG);
+        checkArgument(input != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("AddLspArgs {}", input);
         // Make sure there is no such LSP
-        final var lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.requireName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
             : f.transformAsync(new AddFunction(input, lsp), MoreExecutors.directExecutor());
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
     public synchronized ListenableFuture<OperationResult> removeLsp(final RemoveLspArgs input) {
-        checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
+        checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
         LOG.trace("RemoveLspArgs {}", input);
         // Make sure the LSP exists, we need it for PLSP-ID
-        final var lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.requireName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
             : f.transformAsync(rep -> {
@@ -494,11 +492,10 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     @Override
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH", justification = "SB does not grok TYPE_USE")
     public synchronized ListenableFuture<OperationResult> updateLsp(final UpdateLspArgs input) {
-        checkArgument(input != null && input.getName() != null && input.getNode() != null
-                && input.getArguments() != null, MISSING_XML_TAG);
+        checkArgument(input != null && input.getNode() != null && input.getArguments() != null, MISSING_XML_TAG);
         LOG.trace("UpdateLspArgs {}", input);
         // Make sure the LSP exists
-        final var lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.requireName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
             : f.transformAsync(new UpdateFunction(input), MoreExecutors.directExecutor());
@@ -506,11 +503,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     @Override
     public synchronized ListenableFuture<OperationResult> ensureLspOperational(final EnsureLspOperationalInput input) {
-        checkArgument(input != null && input.getName() != null && input.getNode() != null, MISSING_XML_TAG);
+        checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
         final OperationalStatus op = input.getArguments() != null ? input.getArguments().getOperational() : null;
 
         // Make sure the LSP exists
-        final var lsp = lspIdentifier(input.getName());
+        final var lsp = lspIdentifier(input.requireName());
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
