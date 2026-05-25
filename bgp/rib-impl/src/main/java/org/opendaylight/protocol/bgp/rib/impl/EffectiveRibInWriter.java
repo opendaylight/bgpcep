@@ -294,23 +294,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final ModificationType modificationType = root.modificationType();
         LOG.debug("Effective table {} modification type {}", effectiveTablePath, modificationType);
         switch (modificationType) {
-            case DISAPPEARED:
-            case DELETE:
-                deleteTable(tx, ribContext, effectiveTablePath, table);
-                break;
-            case APPEARED:
-            case WRITE:
-                writeTable(tx, ribContext, effectiveTablePath, table);
-                break;
-            case SUBTREE_MODIFIED:
-                modifyTable(tx, ribContext, effectiveTablePath, table);
-                break;
-            case UNMODIFIED:
-                LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
-                break;
-            default:
-                LOG.warn("Ignoring unhandled root {}", table);
-                break;
+            case null -> throw new NullPointerException();
+            case DISAPPEARED, DELETE -> deleteTable(tx, ribContext, effectiveTablePath, table);
+            case APPEARED, WRITE -> writeTable(tx, ribContext, effectiveTablePath, table);
+            case SUBTREE_MODIFIED -> modifyTable(tx, ribContext, effectiveTablePath, table);
+            case UNMODIFIED -> LOG.info("Ignoring spurious notification on {} data {}", rootPath, table);
         }
     }
 
@@ -348,32 +336,29 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         final var modifiedRoutes = table.modifiedChild(ROUTES_NID);
         if (modifiedRoutes != null) {
-            final RIBSupport<?, ?> ribSupport = ribContext.getRibSupport();
+            final var ribSupport = ribContext.getRibSupport();
             switch (modifiedRoutes.modificationType()) {
-                case APPEARED:
-                case WRITE:
+                case null -> throw new NullPointerException();
+                case APPEARED, WRITE -> {
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
                     // XXX: YANG Tools seems to have an issue stacking DELETE with child WRITE
                     tx.put(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID), EMPTY_ROUTES);
                     writeRoutesAfter(tx, ribSupport, effectiveTablePath, modifiedRoutes.findDataAfter(),
                         longLivedStale);
-                    break;
-                case DELETE:
-                case DISAPPEARED:
+                }
+                case DELETE, DISAPPEARED -> {
                     deleteRoutesBefore(tx, ribSupport, effectiveTablePath, modifiedRoutes);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath.node(ROUTES_NID));
-                    break;
-                case SUBTREE_MODIFIED:
+                }
+                case SUBTREE_MODIFIED -> {
                     for (DataTreeCandidateNode modifiedRoute : ribSupport.changedRoutes(modifiedRoutes)) {
                         processRoute(tx, ribSupport, effectiveTablePath, modifiedRoute, longLivedStale);
                     }
-                    break;
-                case UNMODIFIED:
+                }
+                case UNMODIFIED -> {
                     // No-op
                     return;
-                default:
-                    LOG.warn("Ignoring modified routes {}", modifiedRoutes);
-                    break;
+                }
             }
         }
     }
@@ -454,23 +439,15 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.name());
-        final YangInstanceIdentifier routePath = ribSupport.routePath(routesPath, route.name());
+        final var routePath = ribSupport.routePath(routesPath, route.name());
         switch (route.modificationType()) {
-            case DELETE:
-            case DISAPPEARED:
-                deleteRoute(tx, ribSupport, routePath, route.dataBefore());
-                break;
-            case UNMODIFIED:
-                // No-op
-                break;
-            case APPEARED:
-            case SUBTREE_MODIFIED:
-            case WRITE:
+            case null -> throw new NullPointerException();
+            case APPEARED, SUBTREE_MODIFIED, WRITE ->
                 writeRoute(tx, ribSupport, routePath, route.dataBefore(), route.getDataAfter(), longLivedStale);
-                break;
-            default:
-                LOG.warn("Ignoring unhandled route {}", route);
-                break;
+            case DELETE, DISAPPEARED -> deleteRoute(tx, ribSupport, routePath, route.dataBefore());
+            case UNMODIFIED -> {
+                // No-op
+            }
         }
     }
 
