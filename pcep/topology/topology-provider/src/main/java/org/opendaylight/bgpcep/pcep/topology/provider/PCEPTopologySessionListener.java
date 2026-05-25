@@ -143,7 +143,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     public synchronized ListenableFuture<OperationResult> triggerSync(final TriggerSyncArgs input) {
         if (isTriggeredInitialSynchro() && !isSynchronized()) {
             return triggerSynchronization(input);
-        } else if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
+        }
+        if (isSessionSynchronized() && isTriggeredReSyncEnabled()) {
             checkArgument(input != null && input.getNode() != null, MISSING_XML_TAG);
             return input.getName() == null ? triggerResyncronization(input) : triggerLspSyncronization(input);
         }
