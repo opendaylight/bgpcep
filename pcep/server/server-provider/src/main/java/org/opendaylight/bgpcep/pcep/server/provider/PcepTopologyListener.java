@@ -13,9 +13,9 @@ import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.DataObjectModification;
+import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
+import org.opendaylight.mdsal.binding.api.DataObjectModification.WithDataAfter;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -52,7 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -97,54 +96,22 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
         }
     }
 
-    /**
-     * Handle reported LSP modifications.
-     *
-     * @param nodeId    Node Identifier to which the modified children belongs to.
-     * @param lspMod    List of Reported LSP modifications.
-     */
-    private void handleLspChange(final NodeId nodeId, final List<DataObjectModification<?>> lspMod) {
-        for (DataObjectModification<?> lsp : lspMod) {
-            ReportedLsp rptLsp;
-
-            switch (lsp.modificationType()) {
-                case DELETE:
-                    rptLsp = (ReportedLsp) lsp.dataBefore();
-                    LOG.debug("Un-Register Managed TE Path: {}", rptLsp.getName());
-                    pathManager.unregisterTePath(nodeId, new ConfiguredLspKey(rptLsp.getName()));
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    rptLsp = (ReportedLsp) lsp.dataAfter();
-                    LOG.debug("Register Managed TE Path {}", rptLsp.getName());
-                    pathManager.registerTePath(nodeId,  getConfiguredLsp(rptLsp), getPathType(rptLsp));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
     @Override
     public void onDataTreeChanged(final List<DataTreeModification<PathComputationClient>> changes) {
         for (var change : changes) {
             final var nodeId = change.path().getFirstKeyOf(Node.class).getNodeId();
-            final var node = change.getRootNode();
 
-            /* First, process PCC modification */
-            switch (node.modificationType()) {
-                case DELETE:
+            switch (change.getRootNode()) {
+                case DataObjectDeleted<PathComputationClient> deleted -> {
                     LOG.debug("Un-Register Managed TE Node: {}", nodeId);
                     pathManager.disableManagedTeNode(nodeId);
-                    /* Should stop here to avoid deleting later the associated Managed TE Path */
-                    continue;
-                case SUBTREE_MODIFIED, WRITE:
+                }
+                case WithDataAfter<PathComputationClient> present -> {
                     /* First look if the PCC was already created or not yet */
                     if (pathManager.checkManagedTeNode(nodeId)) {
                         /* Check if PCC State is Synchronized */
-                        if (node.modifiedChildren() == null || node.modifiedChildren().isEmpty()) {
-                            PathComputationClient pcc = node.dataAfter();
-                            if (pcc.getStateSync() == PccSyncState.Synchronized) {
+                        if (present.modifiedChildren().isEmpty()) {
+                            if (present.dataAfter().getStateSync() == PccSyncState.Synchronized) {
                                 LOG.debug("Synchronize Managed TE Node {}", nodeId);
                                 pathManager.syncManagedTeNode(nodeId);
                             }
@@ -154,17 +121,23 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
                         LOG.debug("Register new Managed TE Node {}", nodeId);
                         pathManager.registerManagedTeNode(nodeId);
                     }
-                    break;
-                default:
-                    break;
-            }
 
-            /* Then, look to reported LSP modification */
-            final List<DataObjectModification<?>> lspMod = node.modifiedChildren()
-                    .stream().filter(mod -> mod.dataType().equals(ReportedLsp.class))
-                    .collect(Collectors.toList());
-            if (!lspMod.isEmpty()) {
-                handleLspChange(nodeId, lspMod);
+                    /* Then, look to reported LSP modification */
+                    for (var lsp : present.getModifiedChildren(ReportedLsp.class)) {
+                        switch (lsp) {
+                            case DataObjectDeleted<ReportedLsp> deletedLsp -> {
+                                final var lspName = deletedLsp.coerceKeyStep(ReportedLsp.class).key().getName();
+                                LOG.debug("Un-Register Managed TE Path: {}", lspName);
+                                pathManager.unregisterTePath(nodeId, new ConfiguredLspKey(lspName));
+                            }
+                            case WithDataAfter<ReportedLsp> presentLsp -> {
+                                final var rptLsp = presentLsp.dataAfter();
+                                LOG.debug("Register Managed TE Path {}", rptLsp.getName());
+                                pathManager.registerTePath(nodeId,  getConfiguredLsp(rptLsp), getPathType(rptLsp));
+                           }
+                        }
+                    }
+                }
             }
         }
     }
