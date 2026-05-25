@@ -378,25 +378,24 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     @Override
     protected synchronized boolean onMessage(final MessageContext ctx, final Message message) {
-        if (message instanceof PcerrMessage) {
-            return handleErrorMessage((PcerrMessage) message);
-        }
-        if (message instanceof Pcreq) {
-            LOG.info("PcReq detected. Start Request Message handler");
-            return handlePcreqMessage(((Pcreq) message).getPcreqMessage());
-        }
-        if (!(message instanceof PcrptMessage)) {
-            return true;
-        }
-        // FIXME: update just a field
-        listenerState().updateLastReceivedRptMsg();
-        final var rpt = ((PcrptMessage) message).getPcrptMessage();
-        for (final Reports report : rpt.nonnullReports()) {
-            if (!manageNextReport(report, ctx)) {
-                return false;
+        return switch (message) {
+            case PcerrMessage pcerr -> handleErrorMessage(pcerr);
+            case Pcreq pcreq -> {
+                LOG.info("PcReq detected. Start Request Message handler");
+                yield handlePcreqMessage(pcreq.getPcreqMessage());
             }
-        }
-        return false;
+            case PcrptMessage pcrpt -> {
+                // FIXME: update just a field
+                listenerState().updateLastReceivedRptMsg();
+                for (var report : pcrpt.getPcrptMessage().nonnullReports()) {
+                    if (!manageNextReport(report, ctx)) {
+                        yield false;
+                    }
+                }
+                yield false;
+            }
+            case null, default -> true;
+        };
     }
 
     private SrpIdNumber nextRequest() {
