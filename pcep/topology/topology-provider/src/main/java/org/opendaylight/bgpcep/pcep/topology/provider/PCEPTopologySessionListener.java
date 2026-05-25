@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.AsyncFunction;
@@ -551,10 +550,14 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
-        final Path path = rep.orElseThrow().getPath().values().iterator().next();
-        checkState(path != null, "Reported LSP reported null from data-store.");
-        final Lsp reportedLsp = path.getLsp();
-        checkState(reportedLsp != null, "Reported LSP does not contain LSP object.");
+        final var paths = rep.orElseThrow().nonnullPath().values();
+        if (paths.isEmpty()) {
+            throw new IllegalStateException("Reported LSP has no paths");
+        }
+        final var reportedLsp = paths.iterator().next().getLsp();
+        if (reportedLsp == null) {
+            throw new IllegalStateException("Reported LSP does not contain LSP object");
+        }
         return reportedLsp;
     }
 
