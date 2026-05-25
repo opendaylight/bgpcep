@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Olivier Dugeon
  */
-public final class PcepTopologyListener implements DataTreeChangeListener<Node>, AutoCloseable {
+public final class PcepTopologyListener implements DataTreeChangeListener<PathComputationClient>, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PcepTopologyListener.class);
 
     private final PathManagerProvider pathManager;
@@ -79,7 +79,8 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             final PathManagerProvider pathManager) {
         this.pathManager = requireNonNull(pathManager);
         listenerRegistration = dataBroker.registerTreeChangeListener(LogicalDatastoreType.OPERATIONAL,
-            topology.toBuilder().toReferenceBuilder().child(Node.class).build(), this);
+            topology.toBuilder().toReferenceBuilder()
+                .child(Node.class).augmentation(Node1.class).child(PathComputationClient.class).build(), this);
         LOG.info("Registered PCE Server listener {} for Operational PCEP Topology {}",
                 listenerRegistration, topology.key().getTopologyId().getValue());
     }
@@ -124,35 +125,30 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
         }
     }
 
-    /**
-     * Parse Sub Tree modification. Given list has been filtered to get only Path Computation Client modifications.
-     * This function first create, update or delete Managed TE Node that corresponds to the given NodeId. Then, it
-     * filter the children to retain only the reported LSP modifications.
-     *
-     * @param nodeId    Node Identifier to which the modified children belongs to.
-     * @param pccMod    List of Path Computation Client modifications.
-     */
-    private void handlePccChange(final NodeId nodeId, final List<DataObjectModification<?>> pccMod) {
-        for (DataObjectModification<?> node : pccMod) {
+    @Override
+    public void onDataTreeChanged(final List<DataTreeModification<PathComputationClient>> changes) {
+        for (var change : changes) {
+            final var nodeId = change.path().getFirstKeyOf(Node.class).getNodeId();
+            final var node = change.getRootNode();
+
             /* First, process PCC modification */
             switch (node.modificationType()) {
                 case DELETE:
                     LOG.debug("Un-Register Managed TE Node: {}", nodeId);
                     pathManager.disableManagedTeNode(nodeId);
                     /* Should stop here to avoid deleting later the associated Managed TE Path */
-                    return;
-                case SUBTREE_MODIFIED:
-                case WRITE:
+                    continue;
+                case SUBTREE_MODIFIED, WRITE:
                     /* First look if the PCC was already created or not yet */
                     if (pathManager.checkManagedTeNode(nodeId)) {
                         /* Check if PCC State is Synchronized */
                         if (node.modifiedChildren() == null || node.modifiedChildren().isEmpty()) {
-                            PathComputationClient pcc = (PathComputationClient) node.dataAfter();
+                            PathComputationClient pcc = node.dataAfter();
                             if (pcc.getStateSync() == PccSyncState.Synchronized) {
                                 LOG.debug("Synchronize Managed TE Node {}", nodeId);
                                 pathManager.syncManagedTeNode(nodeId);
                             }
-                            return;
+                            continue;
                         }
                     } else {
                         LOG.debug("Register new Managed TE Node {}", nodeId);
@@ -169,44 +165,6 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
                     .collect(Collectors.toList());
             if (!lspMod.isEmpty()) {
                 handleLspChange(nodeId, lspMod);
-            }
-        }
-    }
-
-    /**
-     * Parse Sub Tree modification. Given children list has been filtered to get only Node1 modifications.
-     * This function filter again this given list to retain only PathComputationClient modifications.
-     *
-     * @param nodeId    Node Identifier to which the modified children belongs to.
-     * @param node1Mod  List of Node1 modifications.
-     */
-    private void handleNode1Change(final NodeId nodeId, final List<DataObjectModification<?>> node1Mod) {
-        for (DataObjectModification<?> child : node1Mod) {
-            /* Then, look only to PathComputationClient.class modification */
-            final List<DataObjectModification<?>> pccMod = child.modifiedChildren()
-                    .stream().filter(mod -> mod.dataType().equals(PathComputationClient.class))
-                    .collect(Collectors.toList());
-            if (!pccMod.isEmpty()) {
-                handlePccChange(nodeId, pccMod);
-            }
-        }
-    }
-
-    @Override
-    public void onDataTreeChanged(final List<DataTreeModification<Node>> changes) {
-        for (var change : changes) {
-            final var root = change.getRootNode();
-
-            final NodeId nodeId =
-                root.modificationType() == DataObjectModification.ModificationType.DELETE
-                    ? root.dataBefore().getNodeId() : root.dataAfter().getNodeId();
-
-            /* Look only to Node1.class modification */
-            final List<DataObjectModification<?>> node1Mod = root.modifiedChildren().stream()
-                    .filter(mod -> mod.dataType().equals(Node1.class))
-                    .collect(Collectors.toList());
-            if (!node1Mod.isEmpty()) {
-                handleNode1Change(nodeId, node1Mod);
             }
         }
     }
