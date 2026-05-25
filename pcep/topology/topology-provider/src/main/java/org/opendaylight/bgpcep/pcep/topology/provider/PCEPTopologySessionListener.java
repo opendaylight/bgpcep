@@ -11,7 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.AsyncFunction;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -155,10 +154,8 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         // Make sure the LSP exists
         final var lsp = lspIdentifier(input.getName());
         final var f = readOperationalData(lsp);
-        if (f == null) {
-            return OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future();
-        }
-        return Futures.transformAsync(f, new ResyncLspFunction(input), MoreExecutors.directExecutor());
+        return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
+            : f.transformAsync(new ResyncLspFunction(input), MoreExecutors.directExecutor());
     }
 
     private ListenableFuture<OperationResult> triggerResyncronization(final TriggerSyncArgs input) {
@@ -411,7 +408,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         final var lsp = lspIdentifier(input.getName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
-                : Futures.transformAsync(f, new AddFunction(input, lsp), MoreExecutors.directExecutor());
+            : f.transformAsync(new AddFunction(input, lsp), MoreExecutors.directExecutor());
     }
 
     @Override
@@ -423,17 +420,17 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         final var lsp = lspIdentifier(input.getName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
-                : Futures.transformAsync(f, rep -> {
-                    final Lsp reportedLsp = validateReportedLsp(rep, input);
-                    if (reportedLsp == null) {
-                        return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
-                    }
-                    final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
-                    final Requests rb = buildRequest(rep, reportedLsp);
-                    ib.setRequests(List.of(rb));
-                    return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
-                        rb.getSrp().getOperationId(), null);
-                }, MoreExecutors.directExecutor());
+            : f.transformAsync(rep -> {
+                final Lsp reportedLsp = validateReportedLsp(rep, input);
+                if (reportedLsp == null) {
+                    return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
+                }
+                final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder(MESSAGE_HEADER);
+                final Requests rb = buildRequest(rep, reportedLsp);
+                ib.setRequests(List.of(rb));
+                return sendMessage(new PcinitiateBuilder().setPcinitiateMessage(ib.build()).build(),
+                    rb.getSrp().getOperationId(), null);
+            }, MoreExecutors.directExecutor());
     }
 
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
@@ -504,7 +501,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         final var lsp = lspIdentifier(input.getName());
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
-                : Futures.transformAsync(f, new UpdateFunction(input), MoreExecutors.directExecutor());
+            : f.transformAsync(new UpdateFunction(input), MoreExecutors.directExecutor());
     }
 
     @Override
@@ -517,30 +514,24 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         LOG.debug("Checking if LSP {} has operational state {}", lsp, op);
         final var f = readOperationalData(lsp);
         return f == null ? OperationResults.createUnsent(PCEPErrors.LSP_INTERNAL_ERROR).future()
-                : listenableFuture(f, input, op);
-    }
-
-    private static ListenableFuture<OperationResult> listenableFuture(
-            final ListenableFuture<Optional<ReportedLsp>> future, final EnsureLspOperationalInput input,
-            final OperationalStatus op) {
-        return Futures.transform(future, rep -> {
-            if (rep.isEmpty()) {
-                LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
-                return OperationResults.UNSENT;
-            }
-            // check if at least one of the paths has the same status as requested
-            for (var path : rep.orElseThrow().nonnullPath().values()) {
-                final var lspPath = path.getLsp();
-                if (lspPath == null) {
-                    LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
+            : f.transform(rep -> {
+                if (rep.isEmpty()) {
+                    LOG.debug("Node {} does not contain LSP {}", input.getNode(), input.getName());
                     return OperationResults.UNSENT;
                 }
-                if (op.equals(lspPath.getLspFlags().getOperational())) {
-                    return OperationResults.SUCCESS;
+                // check if at least one of the paths has the same status as requested
+                for (var path : rep.orElseThrow().nonnullPath().values()) {
+                    final var lspPath = path.getLsp();
+                    if (lspPath == null) {
+                        LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
+                        return OperationResults.UNSENT;
+                    }
+                    if (op.equals(lspPath.getLspFlags().getOperational())) {
+                        return OperationResults.SUCCESS;
+                    }
                 }
-            }
-            return OperationResults.UNSENT;
-        }, MoreExecutors.directExecutor());
+                return OperationResults.UNSENT;
+            }, MoreExecutors.directExecutor());
     }
 
     @Override
