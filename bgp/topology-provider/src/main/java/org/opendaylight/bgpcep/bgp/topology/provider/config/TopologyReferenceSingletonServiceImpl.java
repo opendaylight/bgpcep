@@ -59,7 +59,7 @@ final class TopologyReferenceSingletonServiceImpl implements TopologyReferenceSi
     @Override
     public ServiceGroupIdentifier getIdentifier() {
         return new ServiceGroupIdentifier(
-            getInstanceIdentifier().firstKeyOf(Topology.class).getTopologyId().getValue());
+            getInstanceIdentifier().getFirstKeyOf(Topology.class).getTopologyId().getValue());
     }
 
     @Override

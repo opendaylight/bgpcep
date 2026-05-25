@@ -83,7 +83,7 @@ final class OpenConfigMappingUtil {
     }
 
     static String getRibInstanceName(final DataObjectIdentifier<Bgp> rootIdentifier) {
-        return rootIdentifier.firstKeyOf(Protocol.class).getName();
+        return rootIdentifier.getFirstKeyOf(Protocol.class).getName();
     }
 
     static KeyMapping getNeighborKey(final Neighbor neighbor) {

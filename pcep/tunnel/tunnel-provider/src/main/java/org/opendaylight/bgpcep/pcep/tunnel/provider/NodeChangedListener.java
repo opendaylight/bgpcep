@@ -129,7 +129,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     }
 
     private static LinkId linkIdForLsp(final DataObjectIdentifier<ReportedLsp> identifier, final ReportedLsp lsp) {
-        return new LinkId(identifier.firstKeyOf(Node.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
+        return new LinkId(identifier.getFirstKeyOf(Node.class).getNodeId().getValue() + "/lsps/" + lsp.getName());
     }
 
     public static DataObjectIdentifier<Link> linkIdentifier(final DataObjectIdentifier<Topology> topology,
@@ -278,12 +278,12 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         final var lb = new LinkBuilder()
             .setLinkId(linkId)
             .setSource(new SourceBuilder()
-                .setSourceNode(src.firstKeyOf(Node.class).getNodeId())
-                .setSourceTp(src.firstKeyOf(TerminationPoint.class).getTpId())
+                .setSourceNode(src.getFirstKeyOf(Node.class).getNodeId())
+                .setSourceTp(src.getFirstKeyOf(TerminationPoint.class).getTpId())
                 .build())
             .setDestination(new DestinationBuilder()
-                .setDestNode(dst.firstKeyOf(Node.class).getNodeId())
-                .setDestTp(dst.firstKeyOf(TerminationPoint.class).getTpId())
+                .setDestNode(dst.getFirstKeyOf(Node.class).getNodeId())
+                .setDestTp(dst.getFirstKeyOf(TerminationPoint.class).getTpId())
                 .build())
             .addAugmentation(lab.build());
 
