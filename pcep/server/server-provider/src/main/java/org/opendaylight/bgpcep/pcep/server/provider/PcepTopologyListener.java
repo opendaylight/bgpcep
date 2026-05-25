@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -325,7 +324,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      */
     private static ConfiguredLsp getConfiguredLsp(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        Path path = Iterables.getLast(rl.getPath().values());
+        Path path = rl.nonnullPath().getLast();
         Float convert;
         ConstraintsBuilder cb = new ConstraintsBuilder();
 
@@ -342,22 +341,20 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
             convert = ByteBuffer.wrap(path.getReoptimizationBandwidth().getBandwidth().getValue()).getFloat();
             cb.setBandwidth(new DecimalBandwidth(Decimal64.valueOf(2, convert.longValue())));
         }
-        if (path.getMetrics() != null) {
-            for (var metric : path.getMetrics()) {
-                convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
-                switch (metric.getMetric().getMetricType().intValue()) {
-                    case MessagesUtil.IGP_METRIC:
-                        cb.setMetric(Uint32.valueOf(convert.longValue()));
-                        break;
-                    case MessagesUtil.TE_METRIC:
-                        cb.setTeMetric(Uint32.valueOf(convert.longValue()));
-                        break;
-                    case MessagesUtil.PATH_DELAY:
-                        cb.setDelay(new Delay(Uint32.valueOf(convert.longValue())));
-                        break;
-                    default:
-                        break;
-                }
+        for (var metric : path.nonnullMetrics()) {
+            convert = ByteBuffer.wrap(metric.getMetric().getValue().getValue()).getFloat();
+            switch (metric.getMetric().getMetricType().intValue()) {
+                case MessagesUtil.IGP_METRIC:
+                    cb.setMetric(Uint32.valueOf(convert.longValue()));
+                    break;
+                case MessagesUtil.TE_METRIC:
+                    cb.setTeMetric(Uint32.valueOf(convert.longValue()));
+                    break;
+                case MessagesUtil.PATH_DELAY:
+                    cb.setDelay(new Delay(Uint32.valueOf(convert.longValue())));
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -441,7 +438,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<Node>,
      */
     private static PathType getPathType(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        final Path p1 = Iterables.getLast(rl.getPath().values());
+        final Path p1 = rl.nonnullPath().getLast();
         if (!p1.getLsp().getLspFlags().getDelegate()) {
             return PathType.Pcc;
         }

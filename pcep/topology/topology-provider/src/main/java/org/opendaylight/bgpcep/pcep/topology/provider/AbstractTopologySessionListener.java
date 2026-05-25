@@ -19,7 +19,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -530,7 +529,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
     private static Map<PathKey, Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
             final String name, final boolean remove) {
         // just one path should be reported
-        final Path path = Iterables.getOnlyElement(rlb.getPath().values());
+        final Path path = Iterables.getOnlyElement(rlb.getPath());
         final var reportedLspId = path.getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
@@ -540,7 +539,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             LOG.debug("Remove previous paths {} to this lsp name {}", previous.getPath(), name);
         } else {
             // check previous report for existing paths
-            final Collection<Path> prev = previous.nonnullPath().values();
+            final var prev = previous.nonnullPath();
             updatedPaths = new ArrayList<>(prev);
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
             for (final Path prevPath : prev) {
@@ -663,7 +662,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         return Math.toIntExact(lspData.values().stream()
             .map(ReportedLsp::getPath).filter(pathList -> pathList != null && !pathList.isEmpty())
             // pick the first path, as delegate status should be same in each path
-            .map(pathList -> pathList.values().iterator().next())
+            .map(List::getFirst)
             .map(LspObject::getLsp).filter(Objects::nonNull)
             .map(Lsp::getLspFlags).filter(Objects::nonNull)
             .filter(delegated -> Boolean.TRUE.equals(delegated.getDelegate()))
