@@ -11,7 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.EnumMap;
@@ -64,7 +63,6 @@ public final class SimpleMvpnNlriRegistry implements MvpnRegistry {
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public MvpnChoice parseMvpn(final NlriType type, final ByteBuf nlriBuf) {
         checkArgument(nlriBuf != null && nlriBuf.isReadable(), "Array of bytes is mandatory. Can't be null or empty.");
         @SuppressWarnings("unchecked")
