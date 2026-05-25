@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.ImmutableMap;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.eclipse.jdt.annotation.NonNull;
@@ -68,7 +67,6 @@ public final class ImmutableRouteTargetConstrainNlriRegistry implements RouteTar
     }
 
     @Override
-    @SuppressFBWarnings(value = "NP_NONNULL_RETURN_VIOLATION", justification = "SB does not grok TYPE_USE")
     public RouteTargetConstrainChoice parseRouteTargetConstrain(final Integer type, final ByteBuf nlriBuf) {
         checkArgument(nlriBuf != null && (nlriBuf.isReadable() || type == null && !nlriBuf.isReadable()),
                 "Array of bytes is mandatory. Can't be null or empty.");
@@ -80,33 +78,30 @@ public final class ImmutableRouteTargetConstrainNlriRegistry implements RouteTar
         final RouteTargetConstrainSerializer<RouteTargetConstrainChoice> serializer =
             serializers.get(routeTarget.implementedInterface());
         return serializer == null ? Unpooled.EMPTY_BUFFER : Unpooled.buffer()
-                .writeByte(serializer.getType())
-                .writeByte(RT_SUBTYPE)
-                .writeBytes(serializer.serializeRouteTargetConstrain(routeTarget));
+            .writeByte(serializer.getType())
+            .writeByte(RT_SUBTYPE)
+            .writeBytes(serializer.serializeRouteTargetConstrain(routeTarget));
     }
 
     private static RouteTargetConstrainChoice parseConstrain(final int type, final ByteBuf nlriBuf) {
-        switch (type) {
-            case 0:
-                return parseASRoute(nlriBuf);
-            case 1:
-                return parseIpv4Route(nlriBuf);
-            case 2:
-                return parseAS4OctetRoute(nlriBuf);
-            default:
-                return null;
-        }
+        return switch (type) {
+            case 0 -> parseASRoute(nlriBuf);
+            case 1 -> parseIpv4Route(nlriBuf);
+            case 2 -> parseAS4OctetRoute(nlriBuf);
+            default -> null;
+        };
     }
 
     private static RouteTargetConstrainChoice parseASRoute(final ByteBuf buffer) {
         return new RouteTargetConstrainRouteCaseBuilder()
-                .setRouteTargetExtendedCommunity(RouteTargetExtendedCommunityHandler.parse(buffer))
-                .build();
+            .setRouteTargetExtendedCommunity(RouteTargetExtendedCommunityHandler.parse(buffer))
+            .build();
     }
 
     private static RouteTargetConstrainChoice parseIpv4Route(final ByteBuf nlriBuf) {
         return new RouteTargetConstrainIpv4RouteCaseBuilder()
-                .setRouteTargetIpv4(RouteTargetIpv4Handler.parse(nlriBuf)).build();
+            .setRouteTargetIpv4(RouteTargetIpv4Handler.parse(nlriBuf))
+            .build();
     }
 
     private static RouteTargetConstrainChoice parseAS4OctetRoute(final ByteBuf nlriBuf) {
