@@ -146,7 +146,7 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
         for (final VpnDestination dest : Collections.singletonList(dests)) {
             final IpPrefix prefix = dest.getPrefix();
             LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
-            AbstractVpnNlriParser.serializeLengtField(prefix, null, nlriByteBuf);
+            AbstractVpnNlriParser.serializeLengthField(prefix, null, nlriByteBuf);
             RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
             Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null,
                     "Ipv6 or Ipv4 prefix is missing.");

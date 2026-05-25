@@ -10,11 +10,15 @@ package org.opendaylight.protocol.bgp.l3vpn.unicast;
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
+import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupportUtil;
 import org.opendaylight.protocol.bgp.parser.spi.NlriParser;
 import org.opendaylight.protocol.bgp.parser.spi.NlriSerializer;
+import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStack;
@@ -26,7 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestination;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +50,12 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     private static void serializeNlri(final List<VpnDestination> dests,
             final boolean isWithdrawnRoute, final ByteBuf buffer) {
-        final ByteBuf nlriByteBuf = Unpooled.buffer();
-        for (final VpnDestination dest : dests) {
-            final List<LabelStack> labelStack = dest.getLabelStack();
-            final IpPrefix prefix = dest.getPrefix();
+        final var nlriByteBuf = Unpooled.buffer();
+        for (var dest : dests) {
+            final var labelStack = dest.getLabelStack();
+            final var prefix = dest.getPrefix();
             LOG.debug("Serializing Nlri: VpnDestination={}, IpPrefix={}", dest, prefix);
-            AbstractVpnNlriParser.serializeLengtField(prefix, labelStack, nlriByteBuf);
+            AbstractVpnNlriParser.serializeLengthField(prefix, labelStack, nlriByteBuf);
             LUNlriParser.serializeLabelStackEntries(labelStack, isWithdrawnRoute, nlriByteBuf);
             RouteDistinguisherUtil.serializeRouteDistinquisher(dest.getRouteDistinguisher(), nlriByteBuf);
             Preconditions.checkArgument(prefix.getIpv6Prefix() != null || prefix.getIpv4Prefix() != null,
@@ -66,29 +73,29 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
      * @param labelStack  list of labelStack
      * @param nlriByteBuf ByteBuf
      */
-    static void serializeLengtField(final IpPrefix prefix, final List<LabelStack> labelStack,
+    static final void serializeLengthField(final IpPrefix prefix, final List<LabelStack> labelStack,
             final ByteBuf nlriByteBuf) {
         final int prefixLenght = LUNlriParser.getPrefixLength(prefix);
-        int labelStackLenght = 0;
+        int labelStackLength = 0;
         if (labelStack != null) {
-            labelStackLenght = LUNlriParser.LABEL_LENGTH * labelStack.size();
+            labelStackLength = LUNlriParser.LABEL_LENGTH * labelStack.size();
         }
-        nlriByteBuf.writeByte((labelStackLenght + prefixLenght + RouteDistinguisherUtil.RD_LENGTH) * Byte.SIZE);
+        nlriByteBuf.writeByte((labelStackLength + prefixLenght + RouteDistinguisherUtil.RD_LENGTH) * Byte.SIZE);
     }
 
     @Override
     public void serializeAttribute(final Attributes pathAttributes, final ByteBuf byteAggregator) {
-        final AttributesReach pathAttributes1 = pathAttributes.augmentation(AttributesReach.class);
-        final AttributesUnreach pathAttributes2 = pathAttributes.augmentation(AttributesUnreach.class);
+        final var reachAttrs = pathAttributes.augmentation(AttributesReach.class);
+        final var unreachAttrs = pathAttributes.augmentation(AttributesUnreach.class);
         List<VpnDestination> vpnDst = null;
         boolean isWithdrawnRoute = false;
-        if (pathAttributes1 != null) {
-            final AdvertizedRoutes routes = pathAttributes1.getMpReachNlri().getAdvertizedRoutes();
+        if (reachAttrs != null) {
+            final var routes = reachAttrs.getMpReachNlri().getAdvertizedRoutes();
             if (routes != null) {
                 vpnDst = getAdvertizedVpnDestination(routes.getDestinationType());
             }
-        } else if (pathAttributes2 != null) {
-            final WithdrawnRoutes routes = pathAttributes2.getMpUnreachNlri().getWithdrawnRoutes();
+        } else if (unreachAttrs != null) {
+            final var routes = unreachAttrs.getMpUnreachNlri().getWithdrawnRoutes();
             if (routes != null) {
                 vpnDst = getWithdrawnVpnDestination(routes.getDestinationType());
                 isWithdrawnRoute = true;
@@ -101,23 +108,47 @@ public abstract class AbstractVpnNlriParser implements NlriParser, NlriSerialize
 
     @Override
     public void parseNlri(final ByteBuf nlri, final MpUnreachNlriBuilder builder,
-        final PeerSpecificParserConstraint constraint) {
+            final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
-                builder.getAfi(), builder.getSafi());
+        final var dst = AbstractVpnNlriParser.parseNlri(nlri, constraint, builder.getAfi(), builder.getSafi());
         builder.setWithdrawnRoutes(getWithdrawnRoutesByDestination(dst));
     }
 
     @Override
     public void parseNlri(final ByteBuf nlri, final MpReachNlriBuilder builder,
-        final PeerSpecificParserConstraint constraint) {
+            final PeerSpecificParserConstraint constraint) {
         if (!nlri.isReadable()) {
             return;
         }
-        final List<VpnDestination> dst = VpnDestinationUtil.parseNlri(nlri, constraint,
-                builder.getAfi(), builder.getSafi());
+        final var dst = AbstractVpnNlriParser.parseNlri(nlri, constraint, builder.getAfi(), builder.getSafi());
         builder.setAdvertizedRoutes(getAdvertizedRoutesByDestination(dst));
+    }
+
+    private static List<VpnDestination> parseNlri(final ByteBuf nlri, final PeerSpecificParserConstraint constraints,
+            final AddressFamily afi, final SubsequentAddressFamily safi) {
+        if (!nlri.isReadable()) {
+            return null;
+        }
+        final var dests = new ArrayList<VpnDestination>();
+
+        while (nlri.isReadable()) {
+            final var builder = new VpnDestinationBuilder();
+            if (MultiPathSupportUtil.isTableTypeSupported(constraints, new BgpTableTypeImpl(afi, safi))) {
+                builder.setPathId(PathIdUtil.readPathId(nlri));
+            }
+            final short length = nlri.readUnsignedByte();
+            final var labels = LUNlriParser.parseLabel(nlri);
+            builder.setLabelStack(labels);
+            final int labelNum = labels != null ? labels.size() : 1;
+            final int prefixLen = length - LUNlriParser.LABEL_LENGTH * Byte.SIZE * labelNum
+                    - RouteDistinguisherUtil.RD_LENGTH * Byte.SIZE;
+            builder.setRouteDistinguisher(RouteDistinguisherUtil.parseRouteDistinguisher(nlri));
+            Preconditions.checkState(prefixLen >= 0, "A valid VPN IP prefix is required.");
+            builder.setPrefix(LUNlriParser.parseIpPrefix(nlri, prefixLen, afi));
+            dests.add(builder.build());
+        }
+        return dests;
     }
 }
