@@ -25,7 +25,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -534,7 +533,6 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    @SuppressFBWarnings("UPM_UNCALLED_PRIVATE_METHOD")
     private static Attributes wrapLongLivedStale(final Attributes attrs) {
         if (attrs == null) {
             return STALE_LLGR_ATTRIBUTES;
