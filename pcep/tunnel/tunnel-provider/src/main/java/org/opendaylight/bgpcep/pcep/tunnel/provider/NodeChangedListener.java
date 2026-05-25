@@ -70,9 +70,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
-import org.opendaylight.yangtools.binding.DataObjectStep;
+import org.opendaylight.yangtools.binding.ExactDataObjectStep;
 import org.opendaylight.yangtools.binding.util.BindingMap;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,19 +91,17 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     private static void categorizeIdentifier(final DataObjectIdentifier<?> identifier,
             final Set<DataObjectIdentifier<ReportedLsp>> changedLsps,
             final Set<DataObjectIdentifier<Node>> changedNodes) {
-        final var legacy = identifier.toLegacy();
-
-        final var li = legacy.firstIdentifierOf(ReportedLsp.class);
-        if (li == null) {
-            final var ni = legacy.firstIdentifierOf(Node.class);
-            if (ni == null) {
-                LOG.warn("Ignoring uncategorized identifier {}", identifier);
-            } else {
-                changedNodes.add(ni.toIdentifier());
-            }
-        } else {
-            changedLsps.add(li.toIdentifier());
+        final var lspId = identifier.tryTrimTo(ReportedLsp.class);
+        if (lspId != null) {
+            changedLsps.add(lspId);
+            return;
         }
+        final var nodeId = identifier.tryTrimTo(Node.class);
+        if (nodeId != null) {
+            changedNodes.add(nodeId);
+            return;
+        }
+        LOG.warn("Ignoring uncategorized identifier {}", identifier);
     }
 
     private static void enumerateLsps(final DataObjectIdentifier<Node> id, final Node node,
@@ -155,7 +152,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
     private void handleSni(final DataObjectIdentifier<Node> sni, final Node node, final Boolean inControl,
             final ReadWriteTransaction trans) {
         if (sni != null) {
-            final NodeKey k = InstanceIdentifier.keyOf(sni.toLegacy());
+            final NodeKey k = sni.getFirstKeyOf(Node.class);
             boolean have = false;
             /*
              * We may have found a termination point which has been created as a destination,
@@ -226,7 +223,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         nb.setTerminationPoint(BindingMap.of(tpb.build()));
         if (sni != null) {
             nb.setSupportingNode(BindingMap.of(
-                createSupportingNode(InstanceIdentifier.keyOf(sni.toLegacy()).getNodeId(), inControl)));
+                createSupportingNode(sni.getFirstKeyOf(Node.class).getNodeId(), inControl)));
         }
         final var nid = target.toBuilder().child(Node.class, nb.key()).build();
         trans.put(LogicalDatastoreType.OPERATIONAL, nid, nb.build());
@@ -235,7 +232,7 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
 
     private void create(final ReadWriteTransaction trans, final DataObjectIdentifier<ReportedLsp> identifier,
             final ReportedLsp value) throws ExecutionException, InterruptedException {
-        final var ni = identifier.toLegacy().firstIdentifierOf(Node.class).toIdentifier();
+        final var ni = identifier.trimTo(Node.class);
 
         final Path rl = value.nonnullPath().values().iterator().next();
 
@@ -466,10 +463,10 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
         }
 
         for (var child : changedNode.modifiedChildren()) {
-            final var pathArguments = new ArrayList<DataObjectStep<?>>();
-            iid.getPathArguments().forEach(pathArguments::add);
+            final var pathArguments = new ArrayList<ExactDataObjectStep<?>>();
+            iid.steps().forEach(pathArguments::add);
             pathArguments.add(child.step());
-            final var childIID = InstanceIdentifier.unsafeOf(pathArguments).toIdentifier();
+            final var childIID = DataObjectIdentifier.ofUnsafeSteps(pathArguments);
             handleChangedNode(child, childIID, lsps, nodes, original, updated, created);
         }
     }
