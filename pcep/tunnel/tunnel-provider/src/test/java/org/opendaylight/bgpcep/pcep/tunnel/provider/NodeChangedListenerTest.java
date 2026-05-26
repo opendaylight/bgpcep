@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.util.CheckTestUtil.readDataOperational;
 
 import com.google.common.collect.Iterables;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
@@ -35,14 +36,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.ipv4._case.Ipv4Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.Ipv4ExtendedTunnelId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1Builder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClientBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.Node1Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.PccSyncState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClientBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.reported.lsp.PathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -205,35 +205,38 @@ public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
     private void createNode(final NodeId nodeId, final String ipv4Address, final String lspName, final Uint32 lspId,
             final String dstIpv4Address) throws InterruptedException, ExecutionException {
-        final NodeBuilder nodeBuilder = new NodeBuilder();
-        nodeBuilder.withKey(new NodeKey(nodeId));
-        nodeBuilder.setNodeId(nodeId);
-        final PathBuilder pathBuilder = new PathBuilder();
-        pathBuilder.withKey(new PathKey(new LspId(lspId)));
-        pathBuilder.setBandwidth(new BandwidthBuilder().setBandwidth(
-                new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff})).build());
-        pathBuilder.setLsp(new LspBuilder()
-                .setTlvs(new TlvsBuilder()
-                    .setLspIdentifiers(new LspIdentifiersBuilder()
-                        .setAddressFamily(new Ipv4CaseBuilder().setIpv4(
-                            new Ipv4Builder().setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(ipv4Address))
-                                .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address))
-                                .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(dstIpv4Address))
+        final var nodeBuilder = new NodeBuilder()
+            .withKey(new NodeKey(nodeId))
+            .setNodeId(nodeId)
+            .addAugmentation(new Node1Builder()
+                .setPathComputationClient(new PathComputationClientBuilder()
+                    .setStateSync(PccSyncState.Synchronized)
+                    .setReportedLsp(BindingMap.of(new ReportedLspBuilder()
+                        .withKey(new ReportedLspKey(lspName))
+                        .setPath(List.of(new PathBuilder()
+                            .withKey(new PathKey(new LspId(lspId)))
+                            .setBandwidth(new BandwidthBuilder()
+                                .setBandwidth(new Bandwidth(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff}))
                                 .build())
-                            .build())
-                        .build())
+                            .setLsp(new LspBuilder()
+                                .setTlvs(new TlvsBuilder()
+                                    .setLspIdentifiers(new LspIdentifiersBuilder()
+                                        .setAddressFamily(new Ipv4CaseBuilder()
+                                            .setIpv4(new Ipv4Builder()
+                                                .setIpv4TunnelSenderAddress(new Ipv4AddressNoZone(ipv4Address))
+                                                .setIpv4ExtendedTunnelId(new Ipv4ExtendedTunnelId(ipv4Address))
+                                                .setIpv4TunnelEndpointAddress(new Ipv4AddressNoZone(dstIpv4Address))
+                                                .build())
+                                            .build())
+                                        .build())
+                                    .build())
+                                .setLspFlags(new LspFlagsBuilder().setAdministrative(true).setDelegate(true).build())
+                                .build())
+                            .build()))
+                        .build()))
+                    .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ipv4Address)))
                     .build())
-                .setLspFlags(new LspFlagsBuilder().setAdministrative(true).setDelegate(true).build())
                 .build());
-        final ReportedLsp reportedLps = new ReportedLspBuilder().withKey(new ReportedLspKey(lspName)).setPath(
-                BindingMap.of(pathBuilder.build())).build();
-        final Node1Builder node1Builder = new Node1Builder();
-        node1Builder.setPathComputationClient(new PathComputationClientBuilder()
-                .setStateSync(PccSyncState.Synchronized)
-                .setReportedLsp(BindingMap.of(reportedLps))
-                .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ipv4Address)))
-                .build());
-        nodeBuilder.addAugmentation(node1Builder.build());
         final WriteTransaction wTx = getDataBroker().newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL,
             PCEP_TOPO_IID.toBuilder().child(Node.class, new NodeKey(nodeId)).build(), nodeBuilder.build());

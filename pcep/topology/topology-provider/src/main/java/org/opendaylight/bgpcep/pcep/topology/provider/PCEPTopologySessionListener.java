@@ -68,23 +68,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersion;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.path.setup.type.tlv.PathSetupType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathNameBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.AddLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.EnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.OperationResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.RemoveLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.TriggerSyncArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspArgs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClientBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.AddLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.EnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.LspId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.RemoveLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.TriggerSyncArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.UpdateLspArgs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClient;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClientBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLspKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
-import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
@@ -290,7 +289,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             super.removeLsp(ctx, plspid);
             return false;
         }
-        rlb.setPath(BindingMap.of(buildPath(report, srp, lsp)));
+        rlb.setPath(List.of(buildPath(report, srp, lsp)));
         String name = lookupLspName(plspid);
         if (lsp.getTlvs() != null && lsp.getTlvs().getSymbolicPathName() != null) {
             name = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(lsp.getTlvs().getSymbolicPathName().getPathName()
@@ -309,9 +308,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     }
 
     private static Path buildPath(final Reports report, final Srp srp, final Lsp lsp) {
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client
                 .attributes.path.computation.client.reported.lsp.PathBuilder pb = new org.opendaylight.yang.gen.v1
-                .urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation
+                .urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation
                 .client.reported.lsp.PathBuilder();
         if (report.getPath() != null) {
             pb.fieldsFrom(report.getPath());
@@ -514,7 +513,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                     return OperationResults.UNSENT;
                 }
                 // check if at least one of the paths has the same status as requested
-                for (var path : rep.orElseThrow().nonnullPath().values()) {
+                for (var path : rep.orElseThrow().nonnullPath()) {
                     final var lspPath = path.getLsp();
                     if (lspPath == null) {
                         LOG.warn("Node {} LSP {} does not contain data", input.getNode(), input.getName());
@@ -535,11 +534,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             return null;
         }
         // it doesn't matter how many lsps there are in the path list, we only need data that is the same in each path
-        final var paths = rep.orElseThrow().nonnullPath().values();
+        final var paths = rep.orElseThrow().nonnullPath();
         if (paths.isEmpty()) {
             throw new IllegalStateException("Reported LSP has no paths");
         }
-        final var reportedLsp = paths.iterator().next().getLsp();
+        final var reportedLsp = paths.getFirst().getLsp();
         if (reportedLsp == null) {
             throw new IllegalStateException("Reported LSP does not contain LSP object");
         }
@@ -549,12 +548,12 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     private static Optional<PathSetupType> getPST(final Optional<ReportedLsp> optRep) {
         return optRep
             .flatMap(rep -> {
-                final var paths = rep.nonnullPath().values();
+                final var paths = rep.nonnullPath();
                 if (paths.isEmpty()) {
                     return Optional.empty();
                 }
                 // TODO: explain why checking only the first path is okay or consider all paths
-                final var pst = paths.iterator().next().getPathSetupType();
+                final var pst = paths.getFirst().getPathSetupType();
                 return PSTUtil.isDefaultPST(pst) ? Optional.empty() : Optional.of(pst);
             });
     }
@@ -570,8 +569,9 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         for (final ReportedLsp reportedLsp : pcc.nonnullReportedLsp().values()) {
             final String lspName = reportedLsp.getName();
             lspData.put(lspName, reportedLsp);
-            if (!reportedLsp.getPath().isEmpty()) {
-                final Path path = reportedLsp.getPath().values().iterator().next();
+            final var paths = reportedLsp.nonnullPath();
+            if (!paths.isEmpty()) {
+                final var path = paths.getFirst();
                 if (path != null) {
                     final PlspId plspId = path.getLsp().getPlspId();
                     if (!incrementalSynchro) {
@@ -620,12 +620,10 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
                 return OperationResults.createUnsent(PCEPErrors.UNKNOWN_PLSP_ID).future();
             }
             // mark lsp as stale
-            final ReportedLsp staleLsp = rep.orElseThrow();
-            if (!staleLsp.getPath().isEmpty()) {
-                final Path path = staleLsp.getPath().values().iterator().next();
-                if (path != null) {
-                    staleLsps.add(path.getLsp().getPlspId());
-                }
+            final var staleLsp = rep.orElseThrow();
+            final var paths = staleLsp.nonnullPath();
+            if (!paths.isEmpty()) {
+                staleLsps.add(paths.getFirst().getLsp().getPlspId());
             }
             updatePccState();
             // create PCUpd with mandatory objects and LSP object set to 1
