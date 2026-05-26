@@ -75,21 +75,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.symbolic.path.name.tlv.SymbolicPathNameBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LspId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.AddLspInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.AddLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.AddLspOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.EnsureLspOperationalInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.EnsureLspOperationalInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.FailureType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.OperationResult;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.RemoveLspInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.RemoveLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.UpdateLspOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.add.lsp.args.ArgumentsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.AddLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.AddLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.AddLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.EnsureLspOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.EnsureLspOperationalInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.FailureType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.OperationResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.RemoveLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.RemoveLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.UpdateLspInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.UpdateLspInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.UpdateLspOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.add.lsp.args.ArgumentsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -167,7 +167,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.nonnullPath().size());
-            final Path path = reportedLsp.nonnullPath().values().iterator().next();
+            final Path path = reportedLsp.nonnullPath().getFirst();
             assertEquals(1, path.getEro().getSubobject().size());
             assertEquals(eroIpPrefix, getLastEroIpPrefix(path.getEro()));
             return pcc;
@@ -186,9 +186,9 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
                 .getSentUpdMsgCount()));
 
         // update-lsp
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.update.lsp.args
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                .topology.pcep.rev250328.update.lsp.args.ArgumentsBuilder();
+                .topology.pcep.rev260528.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.setLsp(new LspBuilder().setLspFlags(new LspFlagsBuilder()
                 .setDelegate(TRUE).setAdministrative(FALSE).build()).build());
@@ -216,7 +216,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.getPath().size());
-            final Path path = reportedLsp.getPath().values().iterator().next();
+            final Path path = reportedLsp.getPath().getFirst();
             assertEquals(2, path.getEro().getSubobject().size());
             assertEquals(dstIpPrefix, getLastEroIpPrefix(path.getEro()));
             assertEquals(Uint16.ONE, listenerState.getDelegatedLspsCount());
@@ -237,9 +237,9 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
         });
 
         // ensure-operational
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.ensure.lsp
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.ensure.lsp
                 .operational.args.ArgumentsBuilder ensureArgs = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-                .xml.ns.yang.topology.pcep.rev250328.ensure.lsp.operational.args.ArgumentsBuilder();
+                .xml.ns.yang.topology.pcep.rev260528.ensure.lsp.operational.args.ArgumentsBuilder();
         ensureArgs.setOperational(OperationalStatus.Active);
         final EnsureLspOperationalInput ensure = new EnsureLspOperationalInputBuilder().setArguments(ensureArgs.build())
                 .setName(tunnelName).setNetworkTopologyRef(new NetworkTopologyRef(TOPO_IID))
@@ -527,9 +527,9 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     @Test
     public void testUpdateUnknownLsp() throws InterruptedException, ExecutionException {
         listener.onSessionUp(session);
-        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.update.lsp.args
+        final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.update.lsp.args
                 .ArgumentsBuilder updArgsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-                .topology.pcep.rev250328.update.lsp.args.ArgumentsBuilder();
+                .topology.pcep.rev260528.update.lsp.args.ArgumentsBuilder();
         updArgsBuilder.setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         updArgsBuilder.setLsp(new LspBuilder()
                 .setLspFlags(new LspFlagsBuilder().setDelegate(TRUE).setAdministrative(TRUE).build())
@@ -575,7 +575,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
 
         // update LSP
         final var builder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep
-                .rev250328.update.lsp.args.ArgumentsBuilder()
+                .rev260528.update.lsp.args.ArgumentsBuilder()
                 .setEro(createEroWithIpPrefixes(List.of(eroIpPrefix, dstIpPrefix)));
         final var input = new UpdateLspInputBuilder().setArguments(builder.build())
                 .setName(tunnelName)

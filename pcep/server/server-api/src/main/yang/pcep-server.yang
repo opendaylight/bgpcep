@@ -6,7 +6,7 @@ module pcep-server {
     import network-topology { prefix nt; revision-date 2013-10-21; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import path-computation { prefix algo; revision-date 2025-10-22; }
-    import network-topology-pcep { prefix topo; revision-date 2025-03-28; }
+    import network-topology-pcep { prefix topo; }
     import odl-codegen-extensions { prefix oce; }
 
     organization "Orange";
