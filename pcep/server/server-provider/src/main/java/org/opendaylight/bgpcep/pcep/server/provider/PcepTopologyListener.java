@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.Iterables;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +46,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.identifiers.tlv.lsp.identifiers.address.family.Ipv6Case;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.IpPrefixSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.IpPrefixCase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.Node1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.PccSyncState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.PathComputationClient;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.Node1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.PccSyncState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.PathComputationClient;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.ReportedLsp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.pcep.client.attributes.path.computation.client.reported.lsp.Path;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -283,7 +282,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
      */
     private static ConfiguredLsp getConfiguredLsp(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        Path path = Iterables.getLast(rl.getPath().values());
+        Path path = rl.nonnullPath().getLast();
         Float convert;
         ConstraintsBuilder cb = new ConstraintsBuilder();
 
@@ -399,7 +398,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
      */
     private static PathType getPathType(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        final Path p1 = Iterables.getLast(rl.getPath().values());
+        final Path p1 = rl.nonnullPath().getLast();
         if (!p1.getLsp().getLspFlags().getDelegate()) {
             return PathType.Pcc;
         }
