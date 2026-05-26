@@ -143,6 +143,7 @@ module network-topology-pcep {
                         mandatory true;
                     }
                     key lsp-id;
+                    ordered-by user;
 
                     uses pcep-object:path-definition;
                     uses pcep-object:lsp-object;

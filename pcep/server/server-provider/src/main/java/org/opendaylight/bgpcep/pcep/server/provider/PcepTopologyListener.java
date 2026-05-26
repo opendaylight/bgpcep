@@ -283,7 +283,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
      */
     private static ConfiguredLsp getConfiguredLsp(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        Path path = Iterables.getLast(rl.getPath().values());
+        Path path = rl.nonnullPath().getLast();
         Float convert;
         ConstraintsBuilder cb = new ConstraintsBuilder();
 
@@ -399,7 +399,7 @@ public final class PcepTopologyListener implements DataTreeChangeListener<PathCo
      */
     private static PathType getPathType(final ReportedLsp rl) {
         /* New reported LSP is always the last Path in the List i.e. old Paths are place before */
-        final Path p1 = Iterables.getLast(rl.getPath().values());
+        final Path p1 = rl.nonnullPath().getLast();
         if (!p1.getLsp().getLspFlags().getDelegate()) {
             return PathType.Pcc;
         }
