@@ -49,7 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLsp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class SegmentRoutingTest extends AbstractPCEPSessionTest {
@@ -78,9 +77,9 @@ public class SegmentRoutingTest extends AbstractPCEPSessionTest {
             final ReportedLsp lsp = reportedLsps.values().iterator().next();
             assertEquals("sr-path1", lsp.getName());
 
-            final Map<PathKey, Path> paths = lsp.getPath();
+            final var paths = lsp.getPath();
             assertNotNull(paths);
-            final Path path = paths.values().iterator().next();
+            final Path path = paths.getFirst();
 
             assertEquals(PsType.SrMpls, path.getPathSetupType().getPst());
             final List<Subobject> subobjects = path.getEro().nonnullSubobject();
@@ -110,8 +109,7 @@ public class SegmentRoutingTest extends AbstractPCEPSessionTest {
             assertEquals(2, reportedLsps.size());
             for (final ReportedLsp rlsp : reportedLsps.values()) {
                 if (rlsp.getName().equals("sr-path1")) {
-                    final List<Subobject> subobjects = rlsp.nonnullPath().values().iterator().next()
-                            .getEro().nonnullSubobject();
+                    final List<Subobject> subobjects = rlsp.nonnullPath().getFirst().getEro().nonnullSubobject();
                     assertEquals(1, subobjects.size());
                     assertEquals("1.1.1.2", ((IpNodeId)((SrEroType)subobjects.get(0)
                         .getSubobjectType()).getNai()).getIpAddress().getIpv4AddressNoZone().getValue());

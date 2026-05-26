@@ -17,7 +17,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,12 +56,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.ReportedLspKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.Path;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev250328.pcep.client.attributes.path.computation.client.reported.lsp.PathKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
-import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.ObjectRegistration;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -498,7 +495,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         final var previous = lspData.get(name);
         // if no previous report about the lsp exist, just proceed
         if (previous != null) {
-            final Map<PathKey, Path> updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
+            final var updatedPaths = makeBeforeBreak(rlb, previous, name, remove);
             // if all paths or the last path were deleted, delete whole tunnel
             if (updatedPaths.isEmpty()) {
                 LOG.debug("All paths were removed, removing LSP with {}.", id);
@@ -523,15 +520,15 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         ctx.updates.add(new PutLsp(rl));
     }
 
-    private static Map<PathKey, Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
+    private static List<Path> makeBeforeBreak(final ReportedLspBuilder rlb, final ReportedLsp previous,
             final String name, final boolean remove) {
         // just one path should be reported
-        final var paths = rlb.getPath().values();
+        final var paths = rlb.getPath();
         if (paths.size() != 1) {
             throw new IllegalStateException("Expecting 1 path, got " + paths);
         }
 
-        final var path = paths.iterator().next();
+        final var path = paths.getFirst();
         final var reportedLspId = path.getLspId();
         final List<Path> updatedPaths;
         //lspId = 0 and remove = false -> tunnel is down, still exists but no path is signaled
@@ -541,7 +538,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             LOG.debug("Remove previous paths {} to this lsp name {}", previous.getPath(), name);
         } else {
             // check previous report for existing paths
-            final Collection<Path> prev = previous.nonnullPath().values();
+            final var prev = previous.nonnullPath();
             updatedPaths = new ArrayList<>(prev);
             LOG.debug("Found previous paths {} to this lsp name {}", updatedPaths, name);
             for (final Path prevPath : prev) {
@@ -572,7 +569,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
             }
         }
         LOG.debug("Setting new paths {} to lsp {}", updatedPaths, name);
-        return BindingMap.ordered(updatedPaths);
+        return updatedPaths;
     }
 
     /**
@@ -672,7 +669,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
     // LSP is considered delegated as long as at least one path is delegated
     private static boolean isDelegated(final ReportedLsp reportedLsp) {
-        for (var path : reportedLsp.nonnullPath().values()) {
+        for (var path : reportedLsp.nonnullPath()) {
             final var lsp = path.getLsp();
             if (lsp != null) {
                 final var lspFlags = lsp.getLspFlags();

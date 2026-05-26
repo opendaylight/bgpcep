@@ -167,7 +167,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.nonnullPath().size());
-            final Path path = reportedLsp.nonnullPath().values().iterator().next();
+            final Path path = reportedLsp.nonnullPath().getFirst();
             assertEquals(1, path.getEro().getSubobject().size());
             assertEquals(eroIpPrefix, getLastEroIpPrefix(path.getEro()));
             return pcc;
@@ -216,7 +216,7 @@ public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
             final ReportedLsp reportedLsp = pcc.getReportedLsp().values().iterator().next();
             assertEquals(tunnelName, reportedLsp.getName());
             assertEquals(1, reportedLsp.getPath().size());
-            final Path path = reportedLsp.getPath().values().iterator().next();
+            final Path path = reportedLsp.getPath().getFirst();
             assertEquals(2, path.getEro().getSubobject().size());
             assertEquals(dstIpPrefix, getLastEroIpPrefix(path.getEro()));
             assertEquals(Uint16.ONE, listenerState.getDelegatedLspsCount());

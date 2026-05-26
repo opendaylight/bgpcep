@@ -234,9 +234,9 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             final ReportedLsp value) throws ExecutionException, InterruptedException {
         final var ni = identifier.trimTo(Node.class);
 
-        final Path rl = value.nonnullPath().values().iterator().next();
+        final Path path0 = value.nonnullPath().getFirst();
 
-        final AddressFamily af = rl.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
+        final AddressFamily af = path0.getLsp().getTlvs().getLspIdentifiers().getAddressFamily();
 
         /*
          * We are trying to ensure we have source and destination nodes.
@@ -255,7 +255,6 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             throw new IllegalArgumentException("Unsupported address family: " + af.implementedInterface());
         }
 
-        final Path path0 = value.nonnullPath().values().iterator().next();
         final Link1Builder lab = new Link1Builder();
         if (path0.getBandwidth() != null) {
             lab.setBandwidth(path0.getBandwidth().getBandwidth());
@@ -264,12 +263,12 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
             lab.setClassType(path0.getClassType().getClassType());
         }
         lab.setSymbolicPathName(value.getName())
-            .setOperationalStatus(rl.getLsp().getLspFlags().getOperational())
-            .setAdministrativeStatus(rl.getLsp().getLspFlags().getAdministrative()
+            .setOperationalStatus(path0.getLsp().getLspFlags().getOperational())
+            .setAdministrativeStatus(path0.getLsp().getLspFlags().getAdministrative()
                     ? AdministrativeStatus.Active
                     : AdministrativeStatus.Inactive);
         final var dst = getIpTerminationPoint(trans, dstIp, null, Boolean.FALSE);
-        final var src = getIpTerminationPoint(trans, srcIp, ni, rl.getLsp().getLspFlags().getDelegate());
+        final var src = getIpTerminationPoint(trans, srcIp, ni, path0.getLsp().getLspFlags().getDelegate());
 
         final var linkId = linkIdForLsp(identifier, value);
         final var lb = new LinkBuilder()
@@ -448,18 +447,13 @@ public final class NodeChangedListener implements DataTreeChangeListener<Node> {
 
         // Get the subtrees
         switch (changedNode.modificationType()) {
-            case DELETE:
-                original.put(iid, changedNode.dataBefore());
-                break;
-            case SUBTREE_MODIFIED:
+            case null -> throw new NullPointerException();
+            case DELETE -> original.put(iid, changedNode.dataBefore());
+            case SUBTREE_MODIFIED -> {
                 original.put(iid, changedNode.dataBefore());
                 updated.put(iid, changedNode.dataAfter());
-                break;
-            case WRITE:
-                created.put(iid, changedNode.dataAfter());
-                break;
-            default:
-                throw new IllegalArgumentException("Unhandled modification type " + changedNode.modificationType());
+            }
+            case WRITE -> created.put(iid, changedNode.dataAfter());
         }
 
         for (var child : changedNode.modifiedChildren()) {

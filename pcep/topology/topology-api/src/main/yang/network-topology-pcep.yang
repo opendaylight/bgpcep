@@ -35,6 +35,10 @@ module network-topology-pcep {
         accompanies this distribution, and is available at
         http://www.eclipse.org/legal/epl-v10.html";
 
+    revision 2026-04-28 {
+        description "Fix reported path order";
+    }
+
     revision 2025-03-28 {
         description "Add Association Group Object";
     }
@@ -143,6 +147,7 @@ module network-topology-pcep {
                         mandatory true;
                     }
                     key lsp-id;
+                    ordered-by user;
 
                     uses pcep-object:path-definition;
                     uses pcep-object:lsp-object;
