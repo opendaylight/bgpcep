@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a3cf0df_0cc30b15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-05-28T11:41:44Z",
+      "side": 1,
+      "message": "@Robert\n\nI just rebase this old patch. Can you review and merge it?\n\nThanks,\n\nOlivier",
+      "revId": "96e56ee34aac6e7d2df9c38355b58d0fc043fd57",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
