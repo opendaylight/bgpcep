@@ -48,6 +48,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a5fb48e_8d8becec",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-29T08:58:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42021ddb_40ee02ce",
+      "range": {
+        "startLine": 128,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 34
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "505fd5eb_7e085801",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Well, my first intention, was to group all PCEP capabilities in the same container to ease the processing within Path Manager. Thus, IMHO, creating a new capabilities container make sense. But, perhaps I\u0027m wrong. Don\u0027t hesitate to propose alternative.\n\nIn fact, this is also a problem inherited to the split of yang models across base, stateful and segment routing. With my proposal to regroup all yang models for PCEP protocol in same place, this issue will disappear: Indeed, stateful capabilities will be defined in the same file as other capabilities and included like others with a `uses pcep:stateful-tlv`. Thus, the empty stateful-tlv container necessary for the augmentation will be removed.\n\nSo, IMHO, this is a temporary model waiting for the new big evolution of PCEP yang models I proposed.\n\nAnyway, I\u0027ll check for model consistency and update the model accordingly.",
       "parentUuid": "505fd5eb_7e085801",
+      "range": {
+        "startLine": 131,
+        "startChar": 26,
+        "endLine": 131,
+        "endChar": 56
+      },
+      "revId": "83cdbef1250d8ed88ff4f0d299ec9920ae9f6762",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d936faa_f11b9302",
+        "filename": "pcep/topology/topology-api/src/main/yang/network-topology-pcep.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-05-29T08:58:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9206eadf_2ca8e79a",
       "range": {
         "startLine": 131,
         "startChar": 26,
