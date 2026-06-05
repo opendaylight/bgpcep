@@ -233,6 +233,11 @@ def parse_arguments():
     )
     str_help = "Open message includes ipv6-unicast family, without message decoding."
     parser.add_argument("--ipv6", default=False, action="store_true", help=str_help)
+    str_help = (
+        "Open message includes IPv4 BGP Labeled Unicast (BGP-LU) capability, "
+        "without message decoding."
+    )
+    parser.add_argument("--bgplu", default=False, action="store_true", help=str_help)
     str_help = "Add all supported families without message decoding."
     parser.add_argument("--allf", default=False, action="store_true", help=str_help)
     parser.add_argument("--wfr", default=10, type=int, help="Wait for read timeout")
@@ -443,6 +448,7 @@ class MessageGenerator(object):
         self.l3vpn = args.l3vpn
         self.rt_constrain = args.rt_constrain
         self.ipv6 = args.ipv6
+        self.bgplu = args.bgplu
         self.allf = args.allf
         self.skipattr = args.skipattr
         self.grace = args.grace
@@ -1091,6 +1097,18 @@ class MessageGenerator(object):
             )
             optional_parameters_hex += optional_parameter_hex
 
+        if self.bgplu or self.allf:
+            optional_parameter_hex = (
+                b"\x02"  # Param type ("Capability Ad")
+                b"\x06"  # Length (6 bytes)
+                b"\x01"  # Multiprotocol extension capability,
+                b"\x04"  # Capability value length
+                b"\x00\x01"  # AFI (IPv4)
+                b"\x00"  # (reserved)
+                b"\x04"  # SAFI (Labeled Unicast)
+            )
+            optional_parameters_hex += optional_parameter_hex
+
         optional_parameter_hex = (
             b"\x02"  # Param type ("Capability Ad")
             b"\x06"  # Length (6 bytes)
@@ -1721,6 +1739,7 @@ class ReadTracker(object):
         l3vpn=False,
         rt_constrain=False,
         ipv6=False,
+        bgplu=False,
         grace=8,
         wait_for_read=10,
     ):
@@ -1736,6 +1755,7 @@ class ReadTracker(object):
             l3vpn_mcast: flag that l3vpn_mcast functionality is tested
             l3vpn: flag that l3vpn unicast functionality is tested
             rt_constrain: flag that rt-constrain functionality is tested
+            bgplu: flag that BGP-LU functionality is tested
             allf: flag for all family testing.
         """
         # References to outside objects.
@@ -1764,6 +1784,7 @@ class ReadTracker(object):
         self.l3vpn = l3vpn
         self.rt_constrain = rt_constrain
         self.ipv6 = ipv6
+        self.bgplu = bgplu
         self.allf = allf
         self.wfr = wait_for_read
         self.grace = grace
@@ -2065,6 +2086,11 @@ class ReadTracker(object):
             logger.debug("Skipping update decoding due to Ipv6 data expected")
             return
 
+        logger.debug("BGP-LU {}".format(self.bgplu))
+        if self.bgplu:
+            logger.debug("Skipping update decoding due to BGP-LU data expected")
+            return
+
         logger.debug("Allf {}".format(self.allf))
         if self.allf:
             logger.debug("Skipping update decoding")
@@ -2255,6 +2281,7 @@ class StateTracker(object):
             allf=cliargs.allf,
             rt_constrain=cliargs.rt_constrain,
             ipv6=cliargs.ipv6,
+            bgplu=cliargs.bgplu,
             grace=cliargs.grace,
             wait_for_read=cliargs.wfr,
         )
