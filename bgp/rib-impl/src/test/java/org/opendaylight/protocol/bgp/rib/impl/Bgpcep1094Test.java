@@ -15,6 +15,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
@@ -130,7 +131,8 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
         doReturn(PEER_B).when(peerB).getPeerId();
         doReturn(PeerRole.RrClient).when(peerB).getRole();
         doReturn(true).when(peerB).supportsTable(any(TablesKey.class));
-        doNothing().when(peerB).initializeRibOut(any(RouteEntryDependenciesContainer.class), anyList());
+        doReturn(CommitInfo.emptyFluentFuture()).when(peerB).initializeRibOut(
+            any(RouteEntryDependenciesContainer.class), anyList());
 
         doNothing().when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
             any(NormalizedNode.class));
@@ -160,6 +162,10 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
             locRibWriter.onDataTreeChanged(List.of(effRibInEvent(PEER_A, tableWithRoute)));
             // PeerB connects. Its empty effective-rib-in table is processed before PeerB registers in the tracker.
             locRibWriter.onDataTreeChanged(List.of(effRibInEvent(PEER_B, ribSupport.emptyTable())));
+            // LocRibWriter now processes batches on its own dedicated executor instead of running inline,
+            // so onDataTreeChanged returns before the batch is actually applied. Wait for both commits
+            // here, so PeerA's route truly exists before PeerB registers.
+            verify(tx, timeout(10_000).times(3)).commit();
             // PeerB registers slightly later. The registration is intentionally not closed, the tracker is per-test.
             peerTracker.registerPeer(peerB);
 
