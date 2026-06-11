@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
@@ -45,19 +46,23 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      * @param entryDep    RouteEntryDependenciesContainer
      * @param staleRoutes routes to be removed.
      * @param newRoutes   routes to be advertized.
+     * @return future completing when the corresponding AdjRibsOut update has been committed to the data store.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void refreshRibOut(
-        @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<StaleBestPathRoute> staleRoutes,
-        @NonNull List<AdvertizedRoute<C, S>> newRoutes);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        @NonNull FluentFuture<? extends CommitInfo> refreshRibOut(
+            @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<StaleBestPathRoute> staleRoutes,
+            @NonNull List<AdvertizedRoute<C, S>> newRoutes);
 
     /**
      * Stores under peers rib Out already present routes, before proceed to process any new route advertizement.
      *
      * @param entryDep RouteEntryDependenciesContainer
      * @param routes   routes to be advertized.
+     * @return future completing when the corresponding AdjRibsOut update has been committed to the data store.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void initializeRibOut(
-        @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<ActualBestPathRoutes<C, S>> routes);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        @NonNull FluentFuture<? extends CommitInfo> initializeRibOut(
+            @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<ActualBestPathRoutes<C, S>> routes);
 
     /**
      * Applies all policies through all present routes, and advertize/withdraws based on new results.
@@ -65,7 +70,9 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
      *
      * @param entryDep RouteEntryDependenciesContainer
      * @param routes   routes to be updated.
+     * @return future completing when the corresponding AdjRibsOut update has been committed to the data store.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void reEvaluateAdvertizement(
-        @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<ActualBestPathRoutes<C, S>> routes);
+    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
+        @NonNull FluentFuture<? extends CommitInfo> reEvaluateAdvertizement(
+            @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<ActualBestPathRoutes<C, S>> routes);
 }
