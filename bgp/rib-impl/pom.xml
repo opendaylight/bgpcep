@@ -209,6 +209,11 @@
 
         <!-- Testing dependencies -->
         <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>bgp-openconfig-rp-impl</artifactId>
             <scope>test</scope>
