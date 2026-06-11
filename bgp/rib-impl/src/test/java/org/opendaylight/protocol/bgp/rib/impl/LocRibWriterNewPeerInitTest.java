@@ -125,7 +125,8 @@ public class LocRibWriterNewPeerInitTest extends AbstractRIBTestSetup {
         doReturn(PEER_B).when(peerB).getPeerId();
         doReturn(PeerRole.RrClient).when(peerB).getRole();
         doReturn(true).when(peerB).supportsTable(any(TablesKey.class));
-        doNothing().when(peerB).initializeRibOut(any(RouteEntryDependenciesContainer.class), anyList());
+        doReturn(CommitInfo.emptyFluentFuture()).when(peerB).initializeRibOut(
+            any(RouteEntryDependenciesContainer.class), anyList());
 
         final DOMDataTreeWriteTransaction tx = mock(DOMDataTreeWriteTransaction.class);
         doNothing().when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
