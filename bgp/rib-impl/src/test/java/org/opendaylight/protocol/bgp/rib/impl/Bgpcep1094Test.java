@@ -135,7 +135,8 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
         doReturn(PEER_B).when(peerB).getPeerId();
         doReturn(PeerRole.RrClient).when(peerB).getRole();
         doReturn(true).when(peerB).supportsTable(any(TablesKey.class));
-        doNothing().when(peerB).initializeRibOut(any(RouteEntryDependenciesContainer.class), anyList());
+        doReturn(CommitInfo.emptyFluentFuture()).when(peerB).initializeRibOut(
+            any(RouteEntryDependenciesContainer.class), anyList());
 
         doNothing().when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
             any(NormalizedNode.class));
