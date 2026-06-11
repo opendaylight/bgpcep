@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -221,11 +222,12 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @Override
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
-                    final List<ActualBestPathRoutes<C, S>> routesToStore) {
+            @NonNull FluentFuture<? extends CommitInfo> initializeRibOut(
+                final @NonNull RouteEntryDependenciesContainer entryDep,
+                final @NonNull List<ActualBestPathRoutes<C, S>> routesToStore) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
-            return;
+            return CommitInfo.emptyFluentFuture();
         }
 
         final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
@@ -257,56 +259,35 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                 attributes -> storeRoute(ribSupport, initRoute, routePath, attributes, tx));
         }
 
-        final FluentFuture<? extends CommitInfo> future = tx.commit();
-        submitted = future;
-        future.addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.trace("Successful update commit");
-            }
-
-            @Override
-            public void onFailure(final Throwable trw) {
-                LOG.error("Failed update commit", trw);
-            }
-        }, MoreExecutors.directExecutor());
+        return submitRibOut(tx);
     }
 
     @Override
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-                final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
+            @NonNull FluentFuture<? extends CommitInfo> refreshRibOut(
+                final @NonNull RouteEntryDependenciesContainer entryDep,
+                final @NonNull List<StaleBestPathRoute> staleRoutes,
+                final @NonNull List<AdvertizedRoute<C, S>> newRoutes) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
-            return;
+            return CommitInfo.emptyFluentFuture();
         }
         final DOMDataTreeWriteTransaction tx = ribOutChain.newWriteOnlyTransaction();
         final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
         deleteRouteRibOut(ribSupport, staleRoutes, tx);
         installRouteRibOut(entryDep, newRoutes, tx);
 
-        final FluentFuture<? extends CommitInfo> future = tx.commit();
-        submitted = future;
-        future.addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                LOG.trace("Successful update commit");
-            }
-
-            @Override
-            public void onFailure(final Throwable trw) {
-                LOG.error("Failed update commit", trw);
-            }
-        }, MoreExecutors.directExecutor());
+        return submitRibOut(tx);
     }
 
     @Override
     public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
-                final List<ActualBestPathRoutes<C, S>> routesToStore) {
+            @NonNull FluentFuture<? extends CommitInfo> reEvaluateAdvertizement(
+                final @NonNull RouteEntryDependenciesContainer entryDep,
+                final @NonNull List<ActualBestPathRoutes<C, S>> routesToStore) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
-            return;
+            return CommitInfo.emptyFluentFuture();
         }
 
         final RIBSupport<C, S> ribSupport = entryDep.getRIBSupport();
@@ -337,6 +318,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             deleteRoute(ribSupport, addPathSupported, tableRibout, actualBestRoute, tx);
         }
 
+        return submitRibOut(tx);
+    }
+
+    @Holding("this")
+    private FluentFuture<? extends CommitInfo> submitRibOut(final @NonNull DOMDataTreeWriteTransaction tx) {
         final FluentFuture<? extends CommitInfo> future = tx.commit();
         submitted = future;
         future.addCallback(new FutureCallback<CommitInfo>() {
@@ -350,6 +336,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                 LOG.error("Failed update commit", trw);
             }
         }, MoreExecutors.directExecutor());
+        return future;
     }
 
     private Optional<ContainerNode> applyExportPolicy(final RouteEntryDependenciesContainer entryDep,
