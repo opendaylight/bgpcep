@@ -17,8 +17,10 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -349,9 +352,32 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        peerTracker.getNonInternalPeers().parallelStream()
-                .filter(toPeer -> toPeer.supportsTable(entryDep.getLocalTablesKey()))
-                .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+        if (!staleRoutes.isEmpty() || !newRoutes.isEmpty()) {
+            // Limit the speed the data store commits. This keeps at most two AdjRibsOut modifications in flight
+            // (one being committed, one being built).
+            FluentFuture<? extends CommitInfo> previous = null;
+            for (final var toPeer : peerTracker.getNonInternalPeers()) {
+                if (toPeer.supportsTable(entryDep.getLocalTablesKey())) {
+                    final var current = toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes);
+                    awaitCommit(previous);
+                    previous = current;
+                }
+            }
+        }
+    }
+
+    private static void awaitCommit(final FluentFuture<? extends CommitInfo> future) {
+        if (future == null) {
+            return;
+        }
+        try {
+            // Uninterruptible: reacting to interruption here would interrupt rest of the batch, as every
+            // subsequent get() would throw immediately while the interrupt flag is set. The wait is bounded, since the
+            // MDSAL completes the future on success, failure or its own request timeout.
+            Uninterruptibles.getUninterruptibly(future);
+        } catch (ExecutionException e) {
+            LOG.debug("AdjRibsOut commit failed, continuing with next peer", e);
+        }
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
