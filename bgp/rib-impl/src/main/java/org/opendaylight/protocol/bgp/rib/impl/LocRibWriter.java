@@ -17,8 +17,10 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
@@ -90,6 +93,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private final BGPPeerTracker peerTracker;
     private final YangInstanceIdentifier ribIId;
     private final YangInstanceIdentifier locRibTableIID;
+    @GuardedBy("this")
+    private final Map<PeerId, FluentFuture<? extends CommitInfo>> pendingRibOut = new HashMap<>();
 
     private DOMTransactionChain chain;
     @GuardedBy("this")
@@ -352,9 +357,44 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        peerTracker.getNonInternalPeers().parallelStream()
-                .filter(toPeer -> toPeer.supportsTable(entryDep.getLocalTablesKey()))
-                .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+        // Nothing to advertise or withdraw, so skip the per-peer fan-out and avoid opening empty transactions.
+        if (staleRoutes.isEmpty() && newRoutes.isEmpty()) {
+            return;
+        }
+        // Wait for the peer's previous commit before writing its next update. A finished commit does not block,
+        // so this only slows the fan-out down while the datastore is falling behind.
+        final var tables = entryDep.getLocalTablesKey();
+        int written = 0;
+        for (final var toPeer : peerTracker.getNonInternalPeers()) {
+            if (toPeer.supportsTable(tables)) {
+                final var peerId = toPeer.getPeerId();
+                awaitCommit(peerId, pendingRibOut.get(peerId));
+                pendingRibOut.put(peerId, toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+                written++;
+            }
+        }
+        // Each peer written above has exactly one entry, so a bigger map holds leftovers of peers that are gone
+        // or lost this table. Drop them: nothing will ever wait on their commits again.
+        if (pendingRibOut.size() > written) {
+            pendingRibOut.keySet().removeIf(peerId -> {
+                final var peer = peerTracker.getPeer(peerId);
+                return peer == null || !peer.supportsTable(tables);
+            });
+        }
+    }
+
+    private static void awaitCommit(final PeerId peerId, final FluentFuture<? extends CommitInfo> future) {
+        if (future == null) {
+            return;
+        }
+        try {
+            // Uninterruptible: reacting to interruption here would interrupt rest of the batch, as every
+            // subsequent get() would throw immediately while the interrupt flag is set. The wait is bounded, since
+            // MDSAL completes the future on success, failure or its own request timeout.
+            Uninterruptibles.getUninterruptibly(future);
+        } catch (ExecutionException e) {
+            LOG.debug("Previous AdjRibsOut commit for peer {} failed, proceeding with its next update", peerId, e);
+        }
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
