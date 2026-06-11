@@ -25,7 +25,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -99,6 +99,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -134,6 +135,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    // Runs the peer tracker registration from onSessionUp. The registration can wait for the LocRibWriter
+    // lock until a commit finishes, so it gets a thread of its own instead of borrowing a shared one.
+    private final ExecutorService registrationExecutor;
     // Enable RFC7606 treat-as-withdraw UPDATE handling
     private final boolean treatAsWithdraw;
 
@@ -181,6 +185,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
         this.rib = requireNonNull(rib);
+        // One thread is enough, a peer registers once per session. When 10 registrations are queued, the caller
+        // waits instead of a registration being thrown away, which would leave the peer without its initial
+        // routes. The thread is created on demand and removed again when idle.
+        this.registrationExecutor = SpecialExecutors.newBlockingBoundedFastThreadPool(1, 10, "bgp-peer-registration-"
+            + Ipv4Util.toStringIP(neighborAddress), BGPPeer.class);
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
@@ -266,6 +275,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final FluentFuture<? extends CommitInfo> future = releaseConnection(true);
         closeDomChain();
         setActive(false);
+        registrationExecutor.shutdown();
         return future;
     }
 
@@ -515,7 +525,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 .withNodeIdentifier(TABLES_NID)
                 .build())
             .build());
-        // Postpone registration until the containers exist in datastore
+        // Postpone registration until the containers exist in datastore. The callback can wait for the
+        // LocRibWriter lock while walkThrough waits in awaitCommit for a slow commit. Such a long wait must not
+        // happen on a thread shared with other components, like netty's GlobalEventExecutor, where it would
+        // stall session setup of other peers.
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -544,7 +557,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     BGPPeer.this.releaseConnection(false);
                 }
             }
-        }, GlobalEventExecutor.INSTANCE);
+        }, registrationExecutor);
     }
 
     private boolean isRestartingGracefully() {

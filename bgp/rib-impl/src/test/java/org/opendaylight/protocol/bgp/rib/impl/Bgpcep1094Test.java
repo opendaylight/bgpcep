@@ -15,16 +15,17 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.util.concurrent.FutureCallback;
-import io.netty.util.concurrent.GlobalEventExecutor;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
@@ -130,7 +131,8 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
         doReturn(PEER_B).when(peerB).getPeerId();
         doReturn(PeerRole.RrClient).when(peerB).getRole();
         doReturn(true).when(peerB).supportsTable(any(TablesKey.class));
-        doNothing().when(peerB).initializeRibOut(any(RouteEntryDependenciesContainer.class), anyList());
+        doReturn(CommitInfo.emptyFluentFuture()).when(peerB).initializeRibOut(
+            any(RouteEntryDependenciesContainer.class), anyList());
 
         doNothing().when(tx).put(any(LogicalDatastoreType.class), any(YangInstanceIdentifier.class),
             any(NormalizedNode.class));
@@ -160,6 +162,9 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
             locRibWriter.onDataTreeChanged(List.of(effRibInEvent(PEER_A, tableWithRoute)));
             // PeerB connects. Its empty effective-rib-in table is processed before PeerB registers in the tracker.
             locRibWriter.onDataTreeChanged(List.of(effRibInEvent(PEER_B, ribSupport.emptyTable())));
+            // The writer works on its own thread. Both batches must be processed, meaning their LocRib
+            // transactions committed, before PeerB registers, otherwise the late registration is not late.
+            verify(tx, timeout(10_000).times(3)).commit();
             // PeerB registers slightly later. The registration is intentionally not closed, the tracker is per-test.
             peerTracker.registerPeer(peerB);
 
@@ -190,7 +195,7 @@ public class Bgpcep1094Test extends AbstractRIBTestSetup {
             final var cb = inv.<FutureCallback<?>>getArgument(0);
             registration.set(() -> cb.onSuccess(null));
             return null;
-        }).when(commitFuture).addCallback(any(FutureCallback.class), any(GlobalEventExecutor.class));
+        }).when(commitFuture).addCallback(any(FutureCallback.class), any(Executor.class));
 
         doReturn(new Ipv4Address("127.0.0.3")).when(session).getBgpId();
         doReturn(Set.of(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)))

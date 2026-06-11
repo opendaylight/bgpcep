@@ -17,8 +17,10 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.LongAdder;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -63,6 +68,7 @@ import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -91,12 +97,16 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private final BGPPeerTracker peerTracker;
     private final YangInstanceIdentifier ribIId;
     private final YangInstanceIdentifier locRibTableIID;
+    @GuardedBy("this")
+    private final Map<PeerId, FluentFuture<? extends CommitInfo>> pendingRibOut = new HashMap<>();
 
     private DOMTransactionChain chain;
     @GuardedBy("this")
     private Registration reg;
     @GuardedBy("this")
     private Registration peerRegistration;
+    // Written only while holding the lock in init and close, read without the lock in onDataTreeChanged.
+    private volatile ExecutorService executor;
 
     private LocRibWriter(final RIBSupport<C, S> ribSupport,
             final DOMTransactionChain chain,
@@ -140,6 +150,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     private synchronized void init() {
+        // One thread, so batches are processed in the order they arrived. When 10000 batches are queued, the
+        // caller waits for free space instead of a batch being thrown away. The thread is created on demand
+        // and removed again when idle.
+        executor = SpecialExecutors.newBlockingBoundedFastThreadPool(1, 10_000, "bgp-locrib-writer",
+            LocRibWriter.class);
         final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
         tx.put(LogicalDatastoreType.OPERATIONAL, locRibTableIID.node(ATTRIBUTES_NID).node(UPTODATE_NID),
                 RIBNormalizedNodes.ATTRIBUTES_UPTODATE_TRUE);
@@ -187,6 +202,12 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             chain.close();
             chain = null;
         }
+        if (executor != null) {
+            // No waiting here: a queued batch needs this writer's lock, which this method holds. Batches left in
+            // the queue run after the lock is released and exit on the chain null check.
+            executor.shutdown();
+            executor = null;
+        }
     }
 
     private @NonNull RouteEntry<C, S> createEntry(final String routeId) {
@@ -202,15 +223,27 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         // FIXME: we need to do something
     }
 
+    @Override
+    public void onDataTreeChanged(final List<DataTreeCandidate> changes) {
+        // onDataTreeChanged is called on a thread shared by every data tree change listener in the controller.
+        // processChanges can wait in awaitCommit for a long time, and that wait must not block the shared
+        // thread, so the batch is handed over to this writer's own thread.
+        final var exec = executor;
+        if (exec == null || exec.isShutdown()) {
+            LOG.trace("Writer closed, ignoring received data change {} to LocRib {}", changes, this);
+            return;
+        }
+        exec.execute(() -> processChanges(changes));
+    }
+
     /**
      * We use two-stage processing here in hopes that we avoid duplicate
      * calculations when multiple peers have changed a particular entry.
      *
      * @param changes on supported table
      */
-    @Override
     @SuppressWarnings("checkstyle:illegalCatch")
-    public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
+    private synchronized void processChanges(final List<DataTreeCandidate> changes) {
         if (chain == null) {
             LOG.trace("Chain closed, ignoring received data change {} to LocRib {}", changes, this);
             return;
@@ -339,6 +372,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         }
     }
 
+    @Holding("this")
     private void walkThrough(final DOMDataTreeWriteOperations tx,
             final Set<Entry<RouteUpdateKey, RouteEntry<C, S>>> toUpdate) {
         final List<StaleBestPathRoute> staleRoutes = new ArrayList<>();
@@ -356,9 +390,30 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        peerTracker.getNonInternalPeers().parallelStream()
-                .filter(toPeer -> toPeer.supportsTable(entryDep.getLocalTablesKey()))
-                .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+        // Nothing to advertise or withdraw, so skip the per-peer fan-out and avoid opening empty transactions.
+        if (staleRoutes.isEmpty() && newRoutes.isEmpty()) {
+            return;
+        }
+        // Wait for the peer's previous commit before writing its next update. A finished commit does not block,
+        // so this only slows the fan-out down while the datastore is falling behind.
+        final var tables = entryDep.getLocalTablesKey();
+        var written = 0;
+        for (final var toPeer : peerTracker.getNonInternalPeers()) {
+            if (toPeer.supportsTable(tables)) {
+                final var peerId = toPeer.getPeerId();
+                awaitCommit(peerId, pendingRibOut.get(peerId));
+                pendingRibOut.put(peerId, toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+                written++;
+            }
+        }
+        // Each peer written above has exactly one entry, so a bigger map holds leftovers of peers that are gone
+        // or lost this table. Drop them, since nothing will ever wait on their commits again.
+        if (pendingRibOut.size() > written) {
+            pendingRibOut.keySet().removeIf(peerId -> {
+                final var peer = peerTracker.getPeer(peerId);
+                return peer == null || !peer.supportsTable(tables);
+            });
+        }
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
@@ -400,17 +455,43 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     }
 
     @Override
-    public synchronized void refreshTable(final TablesKey tk, final PeerId peerId) {
-        final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer = peerTracker.getPeer(peerId);
+    public void refreshTable(final TablesKey tk, final PeerId peerId) {
+        // Called on a thread shared by every data tree change listener in the controller, from
+        // EffectiveRibInWriter. The refresh can wait for this writer's lock while a batch waits in awaitCommit,
+        // so it runs on the writer's own thread instead.
+        final var exec = executor;
+        if (exec == null || exec.isShutdown()) {
+            LOG.trace("Writer closed, ignoring table refresh for peer {}", peerId);
+            return;
+        }
+        exec.execute(() -> refreshTableNow(peerId));
+    }
+
+    private synchronized void refreshTableNow(final PeerId peerId) {
+        final var toPeer = peerTracker.getPeer(peerId);
         if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-            final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
-            for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
-                final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
-                        .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
+            final var routesToStore = new ArrayList<ActualBestPathRoutes<C, S>>();
+            for (final var entry : routeEntries.entrySet()) {
+                final var filteredRoute = entry.getValue().actualBestPaths(ribSupport,
+                    new RouteEntryInfoImpl(toPeer, entry.getKey()));
                 routesToStore.addAll(filteredRoute);
             }
             toPeer.reEvaluateAdvertizement(entryDep, routesToStore);
+        }
+    }
+
+    private static void awaitCommit(final PeerId peerId, final FluentFuture<? extends CommitInfo> future) {
+        if (future == null) {
+            return;
+        }
+        try {
+            // Uninterruptible: reacting to interruption here would interrupt rest of the batch, as every
+            // subsequent get() would throw immediately while the interrupt flag is set. The wait is bounded, since
+            // MDSAL completes the future on success, failure or its own request timeout.
+            Uninterruptibles.getUninterruptibly(future);
+        } catch (ExecutionException e) {
+            LOG.debug("Previous AdjRibsOut commit for peer {} failed, proceeding with its next update", peerId, e);
         }
     }
 }
