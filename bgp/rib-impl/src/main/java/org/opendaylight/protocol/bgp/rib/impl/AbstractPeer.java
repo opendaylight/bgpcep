@@ -254,7 +254,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final YangInstanceIdentifier routePath = createRoutePath(ribSupport, tableRibout, initRoute,
                 addPathSupported);
             applyExportPolicy(entryDep, fromPeerId, route, routePath, initRoute.getAttributes()).ifPresent(
-                attributes -> storeRoute(ribSupport, initRoute, route, routePath, attributes, tx));
+                attributes -> storeRoute(ribSupport, initRoute, routePath, attributes, tx));
         }
 
         final FluentFuture<? extends CommitInfo> future = tx.commit();
@@ -329,7 +329,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                 final Optional<ContainerNode> effAttr = applyExportPolicy(entryDep, fromPeerId, route, routePath,
                     actualBestRoute.getAttributes());
                 if (effAttr.isPresent()) {
-                    storeRoute(ribSupport, actualBestRoute, route, routePath, effAttr.orElseThrow(), tx);
+                    storeRoute(ribSupport, actualBestRoute, routePath, effAttr.orElseThrow(), tx);
                     continue;
                 }
             }
@@ -409,7 +409,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                     addPathSupported);
                 final MapEntryNode route = advRoute.getRoute();
                 applyExportPolicy(entryDep, fromPeerId, route, routePath, attributes).ifPresent(
-                    attrs -> storeRoute(ribSupport, advRoute, route, routePath, attrs, tx));
+                    attrs -> storeRoute(ribSupport, advRoute, routePath, attrs, tx));
             }
         }
     }
@@ -430,10 +430,10 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void storeRoute(
-            final RIBSupport<C, S> ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
+            final RIBSupport<C, S> ribSupport, final AbstractAdvertizedRoute<C, S> advRoute,
             final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
-        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
+        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, advRoute.sharedRouteEntry(ribSupport,
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
