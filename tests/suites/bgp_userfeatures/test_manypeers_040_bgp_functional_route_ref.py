@@ -37,7 +37,11 @@ MSG_STATE_OFFSET = 22
 
 log = logging.getLogger(__name__)
 
-
+@pytest.mark.bgp
+@pytest.mark.ibgp
+@pytest.mark.route_refresh
+@pytest.mark.performance
+@pytest.mark.multi_device
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")

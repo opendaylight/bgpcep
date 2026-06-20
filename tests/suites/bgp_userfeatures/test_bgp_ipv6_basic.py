@@ -47,7 +47,11 @@ RIB_INSTANCE = "example-bgp-rib"
 
 log = logging.getLogger(__name__)
 
-
+@pytest.mark.bgp
+@pytest.mark.ibgp
+@pytest.mark.ipv6
+@pytest.mark.functional
+@pytest.mark.single_device
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")

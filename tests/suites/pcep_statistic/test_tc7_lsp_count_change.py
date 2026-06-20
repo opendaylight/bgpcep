@@ -27,7 +27,10 @@ TOOLS_IP = variables.TOOLS_IP
 
 log = logging.getLogger(__name__)
 
-
+@pytest.mark.pcep
+@pytest.mark.pcep_statistics
+@pytest.mark.performance
+@pytest.mark.multi_device
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")

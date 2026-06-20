@@ -44,7 +44,11 @@ ADJ_RIB_OUT = {"PATH": f"peer=bgp:%2F%2F{ODL_3_IP}/adj-rib-out", "BGP_RIB": RIB_
 
 log = logging.getLogger(__name__)
 
-
+@pytest.mark.bgp
+@pytest.mark.ibgp
+@pytest.mark.rt_constrain
+@pytest.mark.functional
+@pytest.mark.single_device
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
