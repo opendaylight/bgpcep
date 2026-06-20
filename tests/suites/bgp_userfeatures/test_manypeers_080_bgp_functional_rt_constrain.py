@@ -33,6 +33,11 @@ RT_CONSTRAIN_APP_PEER_MAPPING = {"IP": ODL_IP, "BGP_RIB": RIB_NAME}
 log = logging.getLogger(__name__)
 
 
+@pytest.mark.bgp
+@pytest.mark.ibgp
+@pytest.mark.rt_constrain
+@pytest.mark.performance
+@pytest.mark.multi_device
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
