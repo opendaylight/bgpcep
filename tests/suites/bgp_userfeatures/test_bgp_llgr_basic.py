@@ -36,6 +36,12 @@ FILE_NAME = "gobgp_2.18.0_linux_386.tar.gz"
 log = logging.getLogger(__name__)
 
 
+@pytest.mark.bgp
+@pytest.mark.ibgp
+@pytest.mark.llgr
+@pytest.mark.functional
+@pytest.mark.single_device
+@pytest.mark.smoke
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
