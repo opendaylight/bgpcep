@@ -24,7 +24,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -99,6 +99,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -134,6 +135,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    // Runs the peer tracker registration from onSessionUp. That registration takes the LocRibWriter lock (via
+    // onPeerAdded) and can wait for it while an update is being processed, so it gets a thread of its own
+    // instead of borrowing a shared one.
+    private final ExecutorService registrationExecutor;
     // Enable RFC7606 treat-as-withdraw UPDATE handling
     private final boolean treatAsWithdraw;
 
@@ -155,8 +160,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
-    // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
-    private boolean sessionUp;
+    // FIXME: This is for supportsTable() and peer registration -- a trivial behavior thing, where 'peer-down'
+    //        type states always return false
+    private volatile boolean sessionUp;
     private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
     private long currentSelectionDeferralTimerSeconds;
@@ -183,7 +189,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
-
+        // One thread is enough, a peer registers once per session, so the queue of 10 effectively never fills.
+        // If it ever did, newBlockingBoundedFastThreadPool runs the registration on the submitting thread
+        // (CallerRunsPolicy) instead of dropping it, so a registration is never lost.
+        registrationExecutor = SpecialExecutors.newBlockingBoundedFastThreadPool(1, 10, "bgp-peer-registration-"
+            + Ipv4Util.toStringIP(neighborAddress), BGPPeer.class);
         createDomChain();
     }
 
@@ -265,6 +275,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final FluentFuture<? extends CommitInfo> future = releaseConnection(true);
         closeDomChain();
         setActive(false);
+        // shutdown rather than shutdownNow because releaseConnection cleared sessionUp, so any queued registration
+        // already bails on its own, no need to interrupt.
+        registrationExecutor.shutdown();
         return future;
     }
 
@@ -518,12 +531,20 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
+                if (!sessionUp) {
+                    LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                    return;
+                }
+                // Register outside the BGPPeer lock. registerPeer synchronously calls LocRibWriter.onPeerAdded, which
+                // takes the LocRibWriter lock. LocRibWriter.onDataTreeChanged takes the LocRibWriter lock then the
+                // BGPPeer lock, so holding the BGPPeer lock here would reverse that order and deadlock.
+                final var registration = rib.getPeerTracker().registerPeer(BGPPeer.this);
                 synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
                     if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
+                        trackerRegistration = registration;
                     } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                        LOG.warn("Session for peer {} dropped after registration, closing the registration.", peerId);
+                        registration.close();
                     }
                 }
             }
@@ -535,7 +556,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     BGPPeer.this.releaseConnection(false);
                 }
             }
-        }, MoreExecutors.directExecutor());
+        }, registrationExecutor);
     }
 
     private boolean isRestartingGracefully() {
