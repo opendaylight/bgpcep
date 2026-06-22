@@ -143,7 +143,7 @@ class TestBgpfunctionalRtConstrainValidation:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configures BGP peer module with initiate-connection set to false."""
+            # Configures BGP peer module with initiate-connection set to false.
             for odl_ip, type in zip(ODL_IPS, BGP_PEER_TYPES):
                 mapping = {
                     "IP": odl_ip,
@@ -156,11 +156,10 @@ class TestBgpfunctionalRtConstrainValidation:
                 templated_requests.put_templated_request(EBGP_DIR, mapping, json=False)
 
         with allure_step_with_separate_logging("step_start_bgp_peers"):
-            """Start Python speaker to connect to ODL. We give each speaker
-            time until odl really starts to accept incoming bgp connection.
-            The failure happens if the incoming connection comes too quickly
-            after configuring the peer.
-            """
+            # Start Python speaker to connect to ODL. We give each speaker
+            # time until odl really starts to accept incoming bgp connection.
+            # The failure happens if the incoming connection comes too quickly
+            # after configuring the peer.
             for i in range(3):
                 odl_ip = ODL_IPS[i]
                 as_number = BGP_PEER_AS_NUMBERS[i]
@@ -168,10 +167,9 @@ class TestBgpfunctionalRtConstrainValidation:
                 self.start_bgp_peer(odl_ip, as_number, 8002 + i, f"play.py.090.{2+i}")
 
         with allure_step_with_separate_logging("step_play_to_odl_ext_l3vpn_rt_arg"):
-            """This test step sends route-target route containing route-target
-            argument from node 1 to odl so odl can identify this peer as
-            appropriate for advertizement when it recieves such route.
-            """
+            # This test step sends route-target route containing route-target
+            # argument from node 1 to odl so odl can identify this peer as
+            # appropriate for advertizement when it recieves such route.
             self.play_to_odl_non_removal_bgprpcclient(
                 BGP_RPC_CLIENT2, "ext_l3vpn_rt_arg", RT_CONSTRAIN_DIR
             )
@@ -189,10 +187,9 @@ class TestBgpfunctionalRtConstrainValidation:
             )
 
         with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_0"):
-            """This test step sends route-target route containing route-target
-            argument from node 1 to odl so odl can identify this peer as
-            appropriate for advertizement when it recieves such route.
-            """
+            # This test step sends route-target route containing route-target
+            # argument from node 1 to odl so odl can identify this peer as
+            # appropriate for advertizement when it recieves such route.
             self.play_to_odl_non_removal_bgprpcclient(
                 BGP_RPC_CLIENT3, "rt_constrain_type_0", RT_CONSTRAIN_DIR
             )
@@ -209,7 +206,7 @@ class TestBgpfunctionalRtConstrainValidation:
         with allure_step_with_separate_logging(
             "step_check_presence_of_l3vpn_route_in_node_2_effective_rib_in_table"
         ):
-            """Checks l3vpn route is present in node 2 effective-rib-in table."""
+            # Checks l3vpn route is present in node 2 effective-rib-in table.
             utils.wait_until_function_pass(
                 3,
                 2,
@@ -222,8 +219,8 @@ class TestBgpfunctionalRtConstrainValidation:
         with allure_step_with_separate_logging(
             "step_check_l3vpn_route_advertisement_on_each_node"
         ):
-            """Checks that each node received or did not receive update message
-            containing given hex message."""
+            # Checks that each node received or did not receive update message
+            # containing given hex message.
             announce = infra.get_file_content(
                 f"{RT_CONSTRAIN_DIR}/ext_l3vpn_rt_arg/announce_ext_l3vpn_rt_arg.hex"
             )
@@ -231,9 +228,9 @@ class TestBgpfunctionalRtConstrainValidation:
             self.check_for_l3vpn_odl_advertisement(announce_hex)
 
         with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_1"):
-            """Sends RT route from node 3 to odl and then checks that odl does
-            not advertize l3vpn route from previous test step, that is that
-            update message is empty."""
+            # Sends RT route from node 3 to odl and then checks that odl does
+            # not advertize l3vpn route from previous test step, that is that
+            # update message is empty.
             self.play_to_odl_non_removal_bgprpcclient(
                 BGP_RPC_CLIENT4, "rt_constrain_type_1", RT_CONSTRAIN_DIR
             )
@@ -252,15 +249,15 @@ class TestBgpfunctionalRtConstrainValidation:
             update = BGP_RPC_CLIENT4.play_get()
 
         with allure_step_with_separate_logging("step_play_to_odl_remove_rt"):
-            """Removes RT from odl and then checks that second node withdrew
-            l3vpn route and third node did not receive any message."""
+            # Removes RT from odl and then checks that second node withdrew
+            # l3vpn route and third node did not receive any message.
             BGP_RPC_CLIENT3.play_clean()
             self.play_to_odl_routes_removal_template_bgprpcclient(
                 BGP_RPC_CLIENT3, "rt_constrain_type_0", RT_CONSTRAIN_DIR
             )
 
         with allure_step_with_separate_logging("step_play_to_odl_remove_routes"):
-            """Removes rt arguments from odl."""
+            # Removes rt arguments from odl.
             self.play_to_odl_routes_removal_template_bgprpcclient(
                 BGP_RPC_CLIENT2, "ext_l3vpn_rt_arg", RT_CONSTRAIN_DIR
             )
@@ -269,14 +266,14 @@ class TestBgpfunctionalRtConstrainValidation:
             )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speakers"):
-            """Abort all Python speakers."""
+            # Abort all Python speakers.
             for i in range(3):
                 infra.shell(f"cp tmp/play.py.090.{2+i} results/play.py.090.{2+i}")
             bgp.kill_all_bgp_speakers()
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state without any
-            configured peers."""
+            # Revert the BGP configuration to the original state without any
+            # configured peers.
             for odl_ip, type in zip(ODL_IP_INDICES_ALL, BGP_PEER_TYPES):
                 mapping = {
                     "IP": odl_ip,

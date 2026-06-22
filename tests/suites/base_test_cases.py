@@ -89,15 +89,15 @@ class BaseTestCases:
         self.restconf_reuse = restconf_reuse
 
         with allure_step_with_separate_logging("step_topology_precondition"):
-            """Verify that within timeout, PCEP topology is present, with no PCC
-            connected."""
+            # Verify that within timeout, PCEP topology is present, with no PCC
+            # connected.
             utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 1, pcep.check_empty_pcep_topology
             )
 
         with allure_step_with_separate_logging("strep_topology_intercondition"):
-            """Verify that within timeout, PCEP topology contains correct numbers of
-            LSPs."""
+            # Verify that within timeout, PCEP topology contains correct numbers of
+            # LSPs.
             self.pcc_mock_process = pcep.start_pcc_mock(
                 pcc=pccs,
                 lsp=lsps,
@@ -109,7 +109,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_1"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -125,8 +125,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_1"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -136,7 +136,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_2"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -152,8 +152,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_2"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -163,7 +163,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_3"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -179,8 +179,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_3"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -190,7 +190,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_4"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -206,8 +206,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_4"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -217,7 +217,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_5"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -233,8 +233,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_5"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -244,7 +244,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_6"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -260,8 +260,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_6"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -271,7 +271,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_7"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -287,8 +287,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_7"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -298,7 +298,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_8"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -314,8 +314,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_8"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -325,7 +325,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_9"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -341,8 +341,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_9"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -352,7 +352,7 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_10"):
-            """Run updater tool to change hops, using 1 blocking http thread."""
+            # Run updater tool to change hops, using 1 blocking http thread.
             hop = self.get_next_hop()
             rc, stdout = pcep.run_updater(
                 hop=hop,
@@ -368,8 +368,8 @@ class BaseTestCases:
             pcep.check_updater_response(stdout, self.total_lsps, False)
 
         with allure_step_with_separate_logging("step_verify_10"):
-            """Verify that within timeout, the correct number of new hops is in PCEP
-            topology."""
+            # Verify that within timeout, the correct number of new hops is in PCEP
+            # topology.
             utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
@@ -379,8 +379,8 @@ class BaseTestCases:
             )
 
         with allure_step_with_separate_logging("step_updater_with_delegate"):
-            """Run updater tool to revoke the delegate for the given hop, using 1
-            blocking http thread."""
+            # Run updater tool to revoke the delegate for the given hop, using 1
+            # blocking http thread.
             rc, stdout = pcep.run_updater(
                 hop=hop,
                 pcc=pccs,
@@ -416,10 +416,9 @@ class BaseTestCases:
             with allure_step_with_separate_logging(
                 "step_PCEP_sessions_from_multiple_machines"
             ):
-                """Start two instances of pcep mock simulator one on ODL host and one
-                on TOOLS host. If both of these hosts, ODL and TOOLS are the same,
-                then this step is skipped
-                """
+                # Start two instances of pcep mock simulator one on ODL host and one
+                # on TOOLS host. If both of these hosts, ODL and TOOLS are the same,
+                # then this step is skipped
                 ssh_utils.ssh_put_file(
                     local_file_path="build_tools/pcep-pcc-mock.jar",
                     remot_file_path="/tmp/pcep-pcc-mock.jar",
@@ -481,7 +480,7 @@ class BaseTestCases:
                 ssh_utils.ssh_stop_command(self.ssh_handler)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Send ctrl+c to pcc-mock, see prompt again within timeout."""
+            # Send ctrl+c to pcc-mock, see prompt again within timeout.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
             pcep.kill_all_pcc_mock_simulators(gracefully=False)
             utils.wait_until_function_pass(
@@ -491,7 +490,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging(
             "step_PCEP_sessions_flapped_with_LSP_updates"
         ):
-            """Flapping PCEP sessions and perform LSP updates within flapping."""
+            # Flapping PCEP sessions and perform LSP updates within flapping.
             updated_hop = "2.2.2.2/32"
             for _ in range(15):
                 utils.wait_until_function_pass(
@@ -531,7 +530,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging(
             "step_PCEP_sessions_flapped_alongside_LSP_updates"
         ):
-            """Flapping PCEP sessions and perform LSP updates alongside flapping."""
+            # Flapping PCEP sessions and perform LSP updates alongside flapping.
             updated_hop = "2.2.2.2/32"
             utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
@@ -569,7 +568,7 @@ class BaseTestCases:
             self.check_stability()
 
         with allure_step_with_separate_logging("step_download_pccmock_log"):
-            "Transfer pcc-mock output from tmp dir to results."
+            # Transfer pcc-mock output from tmp dir to results.
             infra.shell(
                 f"mv tmp/{LOG_NAME} results/{LOG_NAME}",
                 check_rc=True,
@@ -584,7 +583,7 @@ class BaseTestCases:
                 check_rc=True,
             )
         with allure_step_with_separate_logging("step_topology_postcondition"):
-            "Verify that within timeout, PCEP topology contains no PCCs again."
+            # Verify that within timeout, PCEP topology contains no PCCs again.
             utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
             )

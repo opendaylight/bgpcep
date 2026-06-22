@@ -64,8 +64,8 @@ class BaseTestManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
-            """Wait for example-ipv4-topology to come up and empty. Give large
-            timeout for case when BGP boots slower than restconf."""
+            # Wait for example-ipv4-topology to come up and empty. Give large
+            # timeout for case when BGP boots slower than restconf.
             utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
@@ -73,7 +73,7 @@ class BaseTestManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peers with initiate-connection set to false."""
+            # Configure BGP peers with initiate-connection set to false.
             bgp.set_bgp_neighbours(
                 first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,
@@ -84,8 +84,8 @@ class BaseTestManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
-            """We may want to set more verbose logging here after configuration is
-            done."""
+            # We may want to set more verbose logging here after configuration is
+            # done.
             infra.execute_karaf_command(
                 f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
@@ -94,7 +94,7 @@ class BaseTestManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_managers"):
-            """Start Python manager to connect speakers to ODL."""
+            # Start Python manager to connect speakers to ODL.
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=count_prefix_count_many,
                 multiplicity=bgp_peers_count,
@@ -112,8 +112,8 @@ class BaseTestManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_wait_for_stable_talking_ip_topology"
         ):
-            """Wait until example-ipv4-topology becomes stable. This is done by
-            checking stability of prefix count."""
+            # Wait until example-ipv4-topology becomes stable. This is done by
+            # checking stability of prefix count.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=0,
                 wait_period=CHECK_PERIOD_PREFIX_COUNT_MANY,
@@ -122,18 +122,18 @@ class BaseTestManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
-            """Count the routes in example-ipv4-topology and fail if the count is
-            not correct."""
+            # Count the routes in example-ipv4-topology and fail if the count is
+            # not correct.
             prefix_counting.check_ipv4_topology_prefixes_count(count_prefix_count_many)
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speakers"):
-            """Abort the Python speakers. Also, attempt to stop failing fast."""
+            # Abort the Python speakers. Also, attempt to stop failing fast.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
 
         with allure_step_with_separate_logging(
             "step_wait_for_stable_ip_topology_after_talking"
         ):
-            """Wait until example-ipv4-topology becomes stable again."""
+            # Wait until example-ipv4-topology becomes stable again.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=count_prefix_count_many,
                 wait_period=CHECK_PERIOD_PREFIX_COUNT_MANY,
@@ -144,11 +144,11 @@ class BaseTestManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_for_empty_ip_topology_after_talking"
         ):
-            """Example-ipv4-topology should be empty now."""
+            # Example-ipv4-topology should be empty now.
             prefix_counting.check_ipv4_topology_is_empty()
 
         with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
-            """Set logging on bgpcep and protocol to the global value."""
+            # Set logging on bgpcep and protocol to the global value.
             infra.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
             )
@@ -157,8 +157,8 @@ class BaseTestManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configurations"):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
+            # Revert the BGP configuration to the original state: without any
+            # configured peers.
             bgp.delete_bgp_neighbours(
                 first_neighbour_ip=FIRST_PEER_IP,
                 count=bgp_peers_count,

@@ -71,8 +71,8 @@ class TestSinglePeer300KRoutes:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
-            """Wait for example-ipv4-topology to come up and empty.
-            Give large timeout for case when BGP boots slower than restconf."""
+            # Wait for example-ipv4-topology to come up and empty.
+            # Give large timeout for case when BGP boots slower than restconf.
             utils.wait_until_function_pass(
                 120,
                 1,
@@ -83,7 +83,7 @@ class TestSinglePeer300KRoutes:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             bgp.set_bgp_neighbour(
                 ip=TOOLS_IP,
                 holdtime=HOLDTIME,
@@ -92,7 +92,7 @@ class TestSinglePeer300KRoutes:
             )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
-            """Start Python speaker to connect to ODL."""
+            # Start Python speaker to connect to ODL.
             TestSinglePeer300KRoutes.bgp_speaker_process = (
                 bgp.start_bgp_speaker_with_verify_and_retry(
                     speaker_ips=TOOLS_IP,
@@ -113,8 +113,8 @@ class TestSinglePeer300KRoutes:
         with allure_step_with_separate_logging(
             "step_wait_for_stable_talking_ip_topology"
         ):
-            """Wait until example-ipv4-topology becomes stable. This is done by
-            checking stability of prefix count as seen from all nodes."""
+            # Wait until example-ipv4-topology becomes stable. This is done by
+            # checking stability of prefix count as seen from all nodes.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=0,
                 timeout=BGP_FILLING_TIMEOUT,
@@ -123,20 +123,20 @@ class TestSinglePeer300KRoutes:
             )
 
         with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
-            """Count the routes in example-ipv4-topology and fail if the count is
-            not correct."""
+            # Count the routes in example-ipv4-topology and fail if the count is
+            # not correct.
             prefix_counting.check_ipv4_topology_prefixes_count(
                 PREFIXES_COUNT, topology=EXAMPLE_IPV4_TOPOLOGY
             )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
 
         with allure_step_with_separate_logging(
             "step_wait_for_stable_ip_topology_after_listening"
         ):
-            """Wait until example-ipv4-topology becomes stable again."""
+            # Wait until example-ipv4-topology becomes stable again.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=PREFIXES_COUNT,
                 timeout=BGP_FILLING_TIMEOUT,
@@ -147,10 +147,10 @@ class TestSinglePeer300KRoutes:
         with allure_step_with_separate_logging(
             "step_check_for_empty_ip_topology_after_listening"
         ):
-            """Example-ipv4-topology should be empty."""
+            # Example-ipv4-topology should be empty.
             prefix_counting.check_ipv4_topology_is_empty(EXAMPLE_IPV4_TOPOLOGY)
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
+            # Revert the BGP configuration to the original state: without any
+            # configured peers.
             bgp.delete_bgp_neighbour(ip=TOOLS_IP, rib_instance=RIB_INSTANCE)

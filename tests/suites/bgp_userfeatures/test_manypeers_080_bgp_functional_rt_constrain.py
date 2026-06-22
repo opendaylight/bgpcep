@@ -58,7 +58,7 @@ class TestBgpfunctionalRtConstrain:
     )
     def test_bgp_functional_rt_constrain(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer."""
+            # Configures bgp application peer.
         templated_requests.put_templated_request(
             f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING, json=False
         )
@@ -66,7 +66,7 @@ class TestBgpfunctionalRtConstrain:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -83,11 +83,11 @@ class TestBgpfunctionalRtConstrain:
                 )
 
         with allure_step_with_separate_logging("step_start_bgp_peer"):
-            """Start Python speaker to connect to ODL. We need to wait until
-            odl really starts to accept incomming bgp connections.
-            The failure happens if the incomming connections comes
-            too quickly after configuring the peer in the previous
-            test case."""
+            # Start Python speaker to connect to ODL. We need to wait until
+            # odl really starts to accept incomming bgp connections.
+            # The failure happens if the incomming connections comes
+            # too quickly after configuring the peer in the previous
+            # test case.
             self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
                 retries=3,
                 ammount=0,
@@ -141,15 +141,15 @@ class TestBgpfunctionalRtConstrain:
             )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name="play.py.out", target_file_name="rt_constrain_play.log"
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without
-            any configured peer."""
+            # Revert the BGP configuration to the original state: without
+            # any configured peer.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -160,8 +160,8 @@ class TestBgpfunctionalRtConstrain:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without
-            application peer"""
+            # Revert the BGP configuration to the original state: without
+            # application peer
             templated_requests.delete_templated_request(
                 f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING
             )

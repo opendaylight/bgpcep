@@ -66,14 +66,14 @@ class TestPcepUser:
     def test_pcepuser(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):
-            """Compare current pcep-topology to empty pcep tology. Timeout is
-            long enough to ODL boot, to see that pcep is ready, with no PCC is
-            connected."""
+            # Compare current pcep-topology to empty pcep tology. Timeout is
+            # long enough to ODL boot, to see that pcep is ready, with no PCC is
+            # connected.
             utils.wait_until_function_pass(300, 1, pcep.check_empty_pcep_topology)
 
         with allure_step_with_separate_logging("strep_start_pcc_mock"):
-            """Execute pcc-mock, fail is Open is not sent, keep it running for next
-            tests."""
+            # Execute pcc-mock, fail is Open is not sent, keep it running for next
+            # tests.
             self.pcep_mock_process = infra.shell(
                 (
                 f"java -jar build_tools/pcep-pcc-mock.jar --reconnect 1 "
@@ -88,9 +88,9 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             "step_configure_speaker_entity_identifier"
         ):
-            """Additional PCEP Speaker configuration. Allows PCEP speaker to
-            determine if state synchronization can be skipped when a PCEP
-            session is restarted."""
+            # Additional PCEP Speaker configuration. Allows PCEP speaker to
+            # determine if state synchronization can be skipped when a PCEP
+            # session is restarted.
             mapping = {"IP": ODL_IP}
             templated_requests.put_templated_request(
                 "variables/pcepuser/titanium/node_speaker_entity_identifier",
@@ -99,26 +99,26 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging("step_topology_default"):
-            """Compare pcep-topology to default_json, which includes a tunnel
-            from pcc-mock. Timeout is lower than in Precondition, as state
-            from pcc-mock should be updated quickly."""
+            # Compare pcep-topology to default_json, which includes a tunnel
+            # from pcc-mock. Timeout is lower than in Precondition, as state
+            # from pcc-mock should be updated quickly.
             default_json = PCEP_VARIABLES["default_json"]
             self.compare_topology(default_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_update_delegated"):
-            """Perform update-lsp on the mocked tunnel, check response is
-            success."""
+            # Perform update-lsp on the mocked tunnel, check response is
+            # success.
             pcep.update_lsp(PCEP_VARIABLES["update_delegated_xml"])
 
         with allure_step_with_separate_logging("step_topology_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel.
             updated_json = PCEP_VARIABLES["updated_json"]
             self.compare_topology(updated_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_refuse_remove_delegated"):
-            """Perform remove-lsp on the mocked tunnel, check that mock-pcc
-            has refused to remove it."""
+            # Perform remove-lsp on the mocked tunnel, check that mock-pcc
+            # has refused to remove it.
             resp = pcep.remove_lsp(PCEP_VARIABLES["remove_delegated_xml"])
             expected_response_raw = (
                 '{"network-topology-pcep:output":{"error":[{"error-object":'
@@ -128,51 +128,51 @@ class TestPcepUser:
             utils.verify_jsons_match(resp.text, expected_response_raw)
 
         with allure_step_with_separate_logging("step_topology_still_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel, to verify that refusal did not break topology."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel, to verify that refusal did not break topology.
             updated_json = PCEP_VARIABLES["updated_json"]
             self.compare_topology(updated_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_add_instantiated"):
-            """Perform add-lsp to create new tunnel, check that response
-            is success."""
+            # Perform add-lsp to create new tunnel, check that response
+            # is success.
             pcep.add_lsp(PCEP_VARIABLES["add_instantiated_xml"])
 
         with allure_step_with_separate_logging("step_topology_second_default"):
-            """Compare pcep-topology to default_json, which includes
-            the updated delegated and default instantiated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated delegated and default instantiated tunnel.
             updated_json = PCEP_VARIABLES["updated_default_json"]
             self.compare_topology(updated_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_update_instantiated"):
-            """Perform update-lsp on the newly instantiated tunnel, check that
-            response is success."""
+            # Perform update-lsp on the newly instantiated tunnel, check that
+            # response is success.
             pcep.update_lsp(PCEP_VARIABLES["update_instantiated_xml"])
 
         with allure_step_with_separate_logging("step_topology_second_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated delegated and updated instantiated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated delegated and updated instantiated tunnel.
             updated_json = PCEP_VARIABLES["updated_updated_json"]
             self.compare_topology(updated_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_remove_instantiated"):
-            """Perform remove-lsp on the instantiated tunnel, check that
-            response is success."""
+            # Perform remove-lsp on the instantiated tunnel, check that
+            # response is success.
             pcep.remove_lsp(PCEP_VARIABLES["remove_instantiated_xml"])
 
         with allure_step_with_separate_logging("step_topology_again_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel, to verify that instantiated tunnel was
-            removed."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel, to verify that instantiated tunnel was
+            # removed.
             updated_json = PCEP_VARIABLES["updated_json"]
             self.compare_topology(updated_json, PATH_SESSION_URI)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Send SIGINT to pcc-mock, fails if does not stop within 3
-            seconds."""
+            # Send SIGINT to pcc-mock, fails if does not stop within 3
+            # seconds.
             pid = infra.get_children_processes_pids(self.pcep_mock_process, "java")[0]
             infra.stop_process_by_pid(pid, gracefully=True, timeout=3)
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
-            """Compare curent pcep-topology to "off_json" again."""
+            # Compare curent pcep-topology to "off_json" again.
             pcep.check_empty_pcep_topology()

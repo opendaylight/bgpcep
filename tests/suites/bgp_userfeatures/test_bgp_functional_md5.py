@@ -83,7 +83,7 @@ class TestBgpFunctionalMd5:
             self.prepare_exabgp_config_file()
 
         with allure_step_with_separate_logging("step_verify_exabgp_connected"):
-            """Verifies exabgp connected with md5 settings."""
+            # Verifies exabgp connected with md5 settings.
             self.reconfigure_odl_to_accept_connections(MD5_SAME_PASSWD)
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 BGP_EXAMD5_CFG, TOOLS_IP
@@ -92,7 +92,7 @@ class TestBgpFunctionalMd5:
             self.delete_bgp_peer_configuration()
 
         with allure_step_with_separate_logging("step_verify_exabgp_not_connected"):
-            """Verifies exabgp not connected with md5 settings."""
+            # Verifies exabgp not connected with md5 settings.
             self.reconfigure_odl_to_accept_connections(MD5_DIFF_PASSWD)
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 BGP_EXAMD5_CFG, ODL_IP, expect_connected=False

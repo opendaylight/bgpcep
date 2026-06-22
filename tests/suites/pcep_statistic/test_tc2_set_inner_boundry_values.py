@@ -51,15 +51,15 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             "step_set_timer_value_to_lowest_possible"
         ):
-            """Update timer value to lowest possible value."""
+            # Update timer value to lowest possible value.
             pcep.set_stat_timer_value(MIN_TIMER_VALUE)
 
         with allure_step_with_separate_logging(
             "step_set_timer_value_to_highest_possible"
         ):
-            """Update timer value to highest possible value."""
+            # Update timer value to highest possible value.
             pcep.set_stat_timer_value(MAX_TIMER_VALUE)
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
-            """Update timer value back to the original default value."""
+            # Update timer value back to the original default value.
             pcep.set_stat_timer_value(DEFAULT_PCEP_STATS_UPDATE_INTERVAL)
