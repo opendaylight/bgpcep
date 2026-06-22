@@ -156,7 +156,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
     // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
-    private boolean sessionUp;
+    private volatile boolean sessionUp;
     private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
     private long currentSelectionDeferralTimerSeconds;
@@ -518,12 +518,20 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
+                if (!sessionUp) {
+                    LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                    return;
+                }
+                // Register outside the BGPPeer lock. registerPeer synchronously calls LocRibWriter.onPeerAdded, which
+                // takes the LocRibWriter lock. LocRibWriter.onDataTreeChanged takes the LocRibWriter lock then the
+                // BGPPeer lock, so holding the BGPPeer lock here would reverse that order and deadlock.
+                final var registration = rib.getPeerTracker().registerPeer(BGPPeer.this);
                 synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
                     if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
+                        trackerRegistration = registration;
                     } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                        LOG.warn("Session for peer {} dropped after registration, closing the registration.", peerId);
+                        registration.close();
                     }
                 }
             }
