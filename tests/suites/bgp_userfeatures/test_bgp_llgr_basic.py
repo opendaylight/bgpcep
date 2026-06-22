@@ -81,8 +81,8 @@ class TestBgpLlgrBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to
-            false with short ipv6 address."""
+            # Configure BGP peer modules with initiate-connection set to
+            # false with short ipv6 address.
             mapping = {
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
                 "IP": TOOLS_IP,
@@ -95,21 +95,21 @@ class TestBgpLlgrBasic:
             )
 
         with allure_step_with_separate_logging("step_start_gobgp"):
-            """Starts gobgp peer simulator."""
+            # Starts gobgp peer simulator.
             self.gobgp_process = bgp.start_gobgp_and_verify_connected(
                 f"tmp/gobgpd", f"tmp/{GOBGP_CFG}", TOOLS_IP
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             mapping = {"BGP_RIB_OPENCONFIG": RIB_INSTANCE, "IP": TOOLS_IP}
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/bgp_peer", mapping
             )
 
         with allure_step_with_separate_logging("step_stop_gobgp"):
-            """Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
-            signal."""
+            # Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
+            # signal.
             infra.backup_file(src_file_name="gobgp.log")
             bgp.stop_gobgp(self.gobgp_process)
