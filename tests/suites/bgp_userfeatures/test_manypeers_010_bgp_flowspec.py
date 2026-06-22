@@ -98,13 +98,13 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
-            """Sanity check bgp-flowspec:flowspec-routes is up but empty."""
+            # Sanity check bgp-flowspec:flowspec-routes is up but empty.
             flowspec.wait_until_flowspec_data_is_empty(20, 3)
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -118,7 +118,7 @@ class TestBgpFlowspec:
                 )
 
         with allure_step_with_separate_logging("step_flowspec_test_1"):
-            """Testing flowspec values for bgp-flowspec.cfg."""
+            # Testing flowspec values for bgp-flowspec.cfg.
             self.setup_test_case(CFG1)
             utils.wait_until_function_pass(
                 BGP_PEERS_COUNT,
@@ -129,7 +129,7 @@ class TestBgpFlowspec:
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_flowspec_test_2"):
-            """Testing flowspec values for bgp-flowspec-redirect.cfg."""
+            # Testing flowspec values for bgp-flowspec-redirect.cfg.
             self.setup_test_case(CFG2)
             utils.wait_until_function_pass(
                 BGP_PEERS_COUNT,
@@ -142,7 +142,7 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging(
             "step_deconfigure_odl_to_accept_connections"
         ):
-            """Deconfigure BGP peers."""
+            # Deconfigure BGP peers.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,

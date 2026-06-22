@@ -68,7 +68,7 @@ class TestBmpBasic:
     def test_bmp_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_verify_BMP_feature"):
-            """Verifies if feature is up."""
+            # Verifies if feature is up.
             utils.wait_until_function_pass(
                 180,
                 5,
@@ -80,19 +80,19 @@ class TestBmpBasic:
             )
 
         with allure_step_with_separate_logging("step_start_bmp_mock"):
-            """Starts bmp-mock."""
+            # Starts bmp-mock.
             self.bmp_mock_process = bmp.start_bmp_mock(
                 routers_count=BMP_ROUTERS_COUNT, peers_count=REPORTED_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_verify_data_reported"):
-            """Verifies if the tool reported expected data."""
+            # Verifies if the tool reported expected data.
             utils.wait_until_function_pass(3, 2, self.verify_reproted_data)
 
         with allure_step_with_separate_logging("step_stop_bmp_mock"):
-            """Send ctrl+c to bmp-mock to stop it."""
+            # Send ctrl+c to bmp-mock to stop it.
             bmp.stop_bmp_mock_process(self.bmp_mock_process)
 
         with allure_step_with_separate_logging("step_archive_bgp_bmp_mock_logs"):
-            """Archives bgp bmp mock tool log ouput."""
+            # Archives bgp bmp mock tool log ouput.
             infra.shell(f"mv tmp/{BMP_LOG_FILE} results/{BMP_LOG_FILE}")

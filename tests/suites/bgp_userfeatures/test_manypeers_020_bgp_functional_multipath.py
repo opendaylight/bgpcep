@@ -202,7 +202,7 @@ class TestBgpfunctionalMultipath:
             self.store_rib_configuration()
 
         with allure_step_with_separate_logging("step_odl_allpaths_exa_sendreceived"):
-            """all-paths selected policy selected."""
+            # all-paths selected policy selected.
             self.configure_path_selection_and_app_peer_and_connect_peer(
                 ALLPATHS_SELM, ADDPATHCAP_SR
             )
@@ -217,7 +217,7 @@ class TestBgpfunctionalMultipath:
                 self.remove_odl_and_app_peer_configuration_and_stop_exaBgp()
 
         with allure_step_with_separate_logging("step_odl_npaths_exa_sendreceived"):
-            """n-paths policy selected on odl."""
+            # n-paths policy selected on odl.
             self.configure_path_selection_and_app_peer_and_connect_peer(
                 NPATHS_SELM, ADDPATHCAP_SR
             )
