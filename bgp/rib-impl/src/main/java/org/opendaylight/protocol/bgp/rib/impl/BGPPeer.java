@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.checkerframework.checker.lock.qual.GuardedBy;
@@ -93,6 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -128,6 +130,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private final List<RouteTarget> rtMemberships = new ArrayList<>();
     private final RpcProviderService rpcRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    // Runs the peer tracker registration once both initialization commits complete. That registration takes the
+    // LocRibWriter lock (via onPeerAdded) and can wait for it while an update is being processed, so it gets a thread
+    // of its own instead of borrowing a shared one.
+    private final ExecutorService registrationExecutor;
     // Enable RFC7606 treat-as-withdraw UPDATE handling
     private final boolean treatAsWithdraw;
 
@@ -149,8 +155,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This should be a constant co-located with ApplicationPeer.peerId
     private YangInstanceIdentifier peerPath;
-    // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
-    private boolean sessionUp;
+    // FIXME: This is for supportsTable() and peer registration -- a trivial behavior thing, where 'peer-down'
+    //        type states always return false
+    private volatile boolean sessionUp;
     private boolean llgrSupport;
     private Stopwatch peerRestartStopwatch;
     private long currentSelectionDeferralTimerSeconds;
@@ -177,7 +184,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
-
+        // One thread is enough, a peer registers once per session, so the queue of 10 effectively never fills. Use
+        // an abort policy so a rejected task fails initialization instead of running under the submitting thread's
+        // BGPPeer lock and reversing the lock order described in registerPeer().
+        registrationExecutor = SpecialExecutors.newBoundedFastThreadPool(1, 10, "bgp-peer-registration-"
+            + Ipv4Util.toStringIP(neighborAddress), BGPPeer.class);
         createDomChain();
     }
 
@@ -275,6 +286,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final var future = releaseConnection(true);
         closeDomChain();
         setActive(false);
+        // shutdown rather than shutdownNow because releaseConnection cleared sessionUp, so any queued registration
+        // already bails on its own, no need to interrupt.
+        registrationExecutor.shutdown();
         return future;
     }
 
@@ -488,7 +502,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         // to enforce execution ordering. The listeners (created just above) must be created before the containers
         // are created and the peer is exposed via registration.
         if (!isRestartingGracefully()) {
-            initializeAdjRibOutTables();
+            initializeAdjRibOutTables(ribWriter.initializationFuture());
         }
 
         if (treatAsWithdraw) {
@@ -500,7 +514,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     @Holding("this")
-    private void initializeAdjRibOutTables() {
+    private void initializeAdjRibOutTables(
+            final ListenableFuture<? extends CommitInfo> peerStructureInitialization) {
         // Explicitly initialize the adj-rib-out and tables containers for new session.
         // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.
         final var tx = ribOutChain.newWriteOnlyTransaction();
@@ -508,28 +523,53 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             .withNodeIdentifier(ADJRIBOUT_NID)
             .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
             .build());
-        // Postpone registration until the containers exist in datastore
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+        // The peer structure and its per-AFI/SAFI tables are initialized on a different transaction chain. Wait for
+        // both commits before exposing the peer, so onPeerAdded() can safely populate its Adj-RIB-Out.
+        final ListenableFuture<Empty> initialization = Futures
+            .whenAllSucceed(peerStructureInitialization, tx.commit())
+            .call(() -> {
+                registerPeer();
+                return Empty.value();
+            }, registrationExecutor);
+        Futures.addCallback(initialization, new FutureCallback<>() {
             @Override
-            public void onSuccess(final CommitInfo result) {
-                synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
-                    if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
-                    } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
-                    }
-                }
+            public void onSuccess(final Empty result) {
+                // No-op
             }
 
             @Override
             public void onFailure(final Throwable cause) {
-                LOG.error("Failed to initialize adj-rib-out for peer {}", peerId, cause);
+                if (!sessionUp) {
+                    LOG.trace("Peer {} initialization completed after its session dropped", getPeerId(), cause);
+                    return;
+                }
+                LOG.error("Failed to initialize peer {}", getPeerId(), cause);
                 synchronized (BGPPeer.this) {
-                    BGPPeer.this.releaseConnection(false);
+                    if (sessionUp) {
+                        BGPPeer.this.releaseConnection(false);
+                    }
                 }
             }
         }, MoreExecutors.directExecutor());
+    }
+
+    private void registerPeer() {
+        if (!sessionUp) {
+            LOG.warn("Session for peer {} dropped before datastore initialization completed.", getPeerId());
+            return;
+        }
+        // Register outside the BGPPeer lock. registerPeer synchronously calls LocRibWriter.onPeerAdded, which takes
+        // the LocRibWriter lock. LocRibWriter.onDataTreeChanged takes the LocRibWriter lock then the BGPPeer lock, so
+        // holding the BGPPeer lock here would reverse that order and deadlock.
+        final var registration = rib.getPeerTracker().registerPeer(this);
+        synchronized (this) {
+            if (sessionUp) {
+                trackerRegistration = registration;
+            } else {
+                LOG.warn("Session for peer {} dropped after registration, closing the registration.", peerId);
+                registration.close();
+            }
+        }
     }
 
     private boolean isRestartingGracefully() {
