@@ -136,6 +136,8 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
             doReturn(domChain).when(dom).createMergingTransactionChain();
             doNothing().when(domChain).addCallback(any());
             doReturn(Optional.empty()).when(future).get();
+            // Futures.whenAllSucceed() probes isDone(); ODL mocks throw on unstubbed calls.
+            doReturn(false).when(future).isDone();
             doReturn(future).when(domTransWrite).commit();
             doCallRealMethod().when(future).addCallback(any(), any());
             doNothing().when(future).addListener(any(Runnable.class), any(Executor.class));
