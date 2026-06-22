@@ -71,7 +71,7 @@ class TestIbgpPeerLsp:
     )
     def test_ibgp_peer_lsp(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_tc1_configure_ibgp_peer"):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             mapping = {
                 "IP": TOOLS_IP,
                 "HOLDTIME": HOLDTIME,
@@ -86,12 +86,12 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging(
             "step_tc1_check_example_bgp_rib_is_empty"
         ):
-            """Check RIB for none linkstate-routes."""
+            # Check RIB for none linkstate-routes.
             bgp.check_example_bgp_rib_does_not_contain(JSONKEYSTR)
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
-            """Connect BGP peer with advertising the routes without mandatory
-            params like LOC_PREF."""
+            # Connect BGP peer with advertising the routes without mandatory
+            # params like LOC_PREF.
             infra.log_message_to_karaf(
                 (
                     "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
@@ -105,8 +105,8 @@ class TestIbgpPeerLsp:
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging("step_tc1_check_example_bgp_rib"):
-            """Check RIB for not containig linkstate-route(s), because update
-            messages were not good."""
+            # Check RIB for not containig linkstate-route(s), because update
+            # messages were not good.
             utils.verify_function_does_not_fail_within_timeout(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
@@ -115,15 +115,15 @@ class TestIbgpPeerLsp:
             )
 
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE, target_file_name="tc1_bgp_peer.log"
             )
 
         with allure_step_with_separate_logging("step_tc1_deconfigure_ibgp_peer"):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
@@ -133,7 +133,7 @@ class TestIbgpPeerLsp:
             )
 
         with allure_step_with_separate_logging("step_tc2_configure_ibgp_peer"):
-            """Configures BGP peer module with initiate-connection set to false."""
+            # Configures BGP peer module with initiate-connection set to false.
             mapping = {
                 "IP": TOOLS_IP,
                 "HOLDTIME": HOLDTIME,
@@ -148,18 +148,18 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging(
             "step_tc2_check_example_bgp_rib_is_empty"
         ):
-            """Check RIB for none linkstate-routes."""
+            # Check RIB for none linkstate-routes.
             bgp.check_example_bgp_rib_does_not_contain(JSONKEYSTR)
 
         with allure_step_with_separate_logging("step_tc2_connect_bgp_peer"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.bgp_speaker_process = infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging("step_tc2_check_example_bgp_rib"):
-            """Check RIB for linkstate-route(s) and check all of their attributes."""
+            # Check RIB for linkstate-route(s) and check all of their attributes.
             mapping = {"IP": TOOLS_IP, "ROUTE_KEY": ROUTE_KEY}
             utils.wait_until_function_pass(
                 DEFAULT_RIB_CHECK_COUNTS,
@@ -171,15 +171,15 @@ class TestIbgpPeerLsp:
             )
 
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE, target_file_name="tc2_bgp_peer.log"
             )
 
         with allure_step_with_separate_logging("step_tc2_deconfigure_ibgp_peer"):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,

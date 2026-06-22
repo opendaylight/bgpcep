@@ -125,11 +125,11 @@ class TestBgpPoliciesDefault:
             self.setup_config_files()
 
         with allure_step_with_separate_logging("step_verify_rib_empty"):
-            """Checks empty example-ipv4-topology ready."""
+            # Checks empty example-ipv4-topology ready.
             self.verify_rib_status_empty()
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer, and configures it's routes."""
+            # Configures bgp application peer, and configures it's routes.
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.post_templated_request(
                 f"{POLICIES_VAR}/app_peer", mapping, json=False
@@ -141,10 +141,9 @@ class TestBgpPoliciesDefault:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to false.
-            Configures 6 different peers, two internal, two external and two
-            route-reflectors.
-            """
+            # Configure BGP peer modules with initiate-connection set to false.
+            # Configures 6 different peers, two internal, two external and two
+            # route-reflectors.
             for index, peer_type in enumerate(PEER_TYPES):
                 mapping = {
                     "IP": f"127.0.0.{index+2}",
@@ -158,8 +157,8 @@ class TestBgpPoliciesDefault:
                 )
 
         with allure_step_with_separate_logging("step_start_exabgps"):
-            """Start 6 exabgps as processes in background, each with it's own
-            configuration."""
+            # Start 6 exabgps as processes in background, each with it's own
+            # configuration.
             for index in range(1, 7):
                 exabgp_process = bgp.start_exabgp(
                     f"tmp/exabgp{index}.cfg", log_file=f"exa{index}.log"
@@ -167,18 +166,18 @@ class TestBgpPoliciesDefault:
                 self.exabgp_processes.append(exabgp_process)
 
         with allure_step_with_separate_logging("step_verify_rib_filled"):
-            """Verifies that sent routes are present in particular ribs."""
+            # Verifies that sent routes are present in particular ribs.
             self.verify_rib_status()
 
         with allure_step_with_separate_logging("step_stop_all_peers"):
-            """Send command to kill all exabgp processes."""
+            # Send command to kill all exabgp processes.
             bgp.kill_all_bgp_speakers()
             for index in range(1, 7):
                 infra.shell(f"cp tmp/exa{index}.log results/")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             for index, peer_type in enumerate(PEER_TYPES):
                 mapping = {
                     "IP": f"127.0.0.{index+2}",
@@ -190,8 +189,8 @@ class TestBgpPoliciesDefault:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state without
-            application peer."""
+            # Revert the BGP configuration to the original state without
+            # application peer.
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.delete_templated_request(
                 f"{POLICIES_VAR}/app_peer", mapping
