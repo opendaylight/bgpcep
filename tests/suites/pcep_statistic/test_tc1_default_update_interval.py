@@ -53,13 +53,13 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             "step_change_karaf_logging_levels_to_debug"
         ):
-            """To be able to track time of the last pcep stats update we
-            need to check it in logs with at least DEBUG level."""
+            # To be able to track time of the last pcep stats update we
+            # need to check it in logs with at least DEBUG level.
             infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
             infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
 
         with allure_step_with_separate_logging("step_start_pcc_mock"):
-            """Starts PCC mocks simulator."""
+            # Starts PCC mocks simulator.
             self.pcc_mock_process = pcep.start_pcc_mock(
                 pcc=1,
                 lsp=1,
@@ -72,30 +72,30 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             f"step_wait_{DEFAULT_PCEP_STATS_UPDATE_INTERVAL - 1}_seconds"
         ):
-            """Wait until one second before the next pcep stat update."""
+            # Wait until one second before the next pcep stat update.
             time.sleep(DEFAULT_PCEP_STATS_UPDATE_INTERVAL - 1)
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
-            """Verifies that get-stat RPC does not return any statistics."""
+            # Verifies that get-stat RPC does not return any statistics.
             pcep.verify_odl_does_not_return_statistics_for_pcc(pcc_ip=TOOLS_IP)
 
         with allure_step_with_separate_logging("step_wait_1_second"):
-            """Wait for 1 second."""
+            # Wait for 1 second.
             time.sleep(1)
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
-            """Verifies that get-stat RPC does return statistics."""
+            # Verifies that get-stat RPC does return statistics.
             utils.wait_until_function_pass(
                 5, 0.1, pcep.get_statistics, pcc_ip=TOOLS_IP, verify_response=True
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Stop PCC mocks simulator."""
+            # Stop PCC mocks simulator.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
 
         with allure_step_with_separate_logging(
             "step_change_karaf_logging_levels_to_default"
         ):
-            """Return logging level back to default INFO value."""
+            # Return logging level back to default INFO value.
             infra.execute_karaf_command(f"log:set INFO org.opendaylight.bgpcep")
             infra.execute_karaf_command(f"log:set INFO org.opendaylight.protocol")
