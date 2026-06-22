@@ -44,6 +44,7 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -93,6 +94,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private DOMTransactionChain chain;
     @GuardedBy("this")
     private Registration reg;
+    @GuardedBy("this")
+    private Registration peerRegistration;
 
     private LocRibWriter(final RIBSupport<C, S> ribSupport,
             final DOMTransactionChain chain,
@@ -154,6 +157,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         reg = dataBroker.registerTreeChangeListener(DOMDataTreeIdentifier.of(
             LogicalDatastoreType.OPERATIONAL, ribIId.node(PEER_NID).node(PEER_NID).node(EFFRIBIN_NID).node(TABLES_NID)
                 .node(locRibTableIID.getLastPathArgument())), this);
+        peerRegistration = peerTracker.registerPeerAddedListener(this::onPeerAdded);
     }
 
     /**
@@ -170,6 +174,10 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     @Override
     public synchronized void close() {
+        if (peerRegistration != null) {
+            peerRegistration.close();
+            peerRegistration = null;
+        }
         if (reg != null) {
             reg.close();
             reg = null;
@@ -237,26 +245,28 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         for (final DataTreeCandidate tc : changes) {
             final DataTreeCandidateNode table = tc.getRootNode();
             final RouterId peerUuid = RouterId.forPeerId(IdentifierUtils.peerKeyToPeerId(tc.getRootPath()));
-
-            // Initialize Peer with routes under loc rib
-            if (!routeEntries.isEmpty() && table.dataBefore() == null) {
-                final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
-                        = peerTracker.getPeer(peerUuid.getPeerId());
-                if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
-                    LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-                    final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
-                    for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
-                        final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
-                                .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
-                        routesToStore.addAll(filteredRoute);
-                    }
-                    toPeer.initializeRibOut(entryDep, routesToStore);
-                }
-            }
-            // Process new routes from Peer
             updateNodes(table, peerUuid, tx, ret);
         }
         return ret;
+    }
+
+    /**
+     * Advertise the routes already present in the loc-rib to a peer that has just registered. A peer can register
+     * after its table-creation event has been processed, so its initial routes are sent here rather than on that
+     * event, which would otherwise miss them.
+     */
+    private synchronized void onPeerAdded(final @NonNull Peer peer) {
+        if (routeEntries.isEmpty() || !peer.supportsTable(entryDep.getLocalTablesKey())) {
+            return;
+        }
+        LOG.debug("Peer {} registered, inserting existing loc-rib routes", peer.getPeerId());
+        final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
+        for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
+            final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
+                    .actualBestPaths(ribSupport, new RouteEntryInfoImpl(peer, entry.getKey()));
+            routesToStore.addAll(filteredRoute);
+        }
+        peer.initializeRibOut(entryDep, routesToStore);
     }
 
     private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,

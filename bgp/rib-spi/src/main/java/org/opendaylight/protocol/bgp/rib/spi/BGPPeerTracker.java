@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -48,4 +49,17 @@ public interface BGPPeerTracker {
      * @return Returns map of Peer group by PeerRole
      */
     @NonNull List<Peer> getNonInternalPeers();
+
+    /**
+     * Register a listener notified after a peer is added to the tracker. Used to recover the initial route
+     * advertisement for a peer that registers after its table-creation event has already been processed.
+     *
+     * @param listener invoked with each peer as it is registered
+     * @return registration ticket
+     */
+    default @NonNull Registration registerPeerAddedListener(final @NonNull Consumer<Peer> listener) {
+        return () -> {
+            // no-op for trackers that do not support notifications
+        };
+    }
 }
