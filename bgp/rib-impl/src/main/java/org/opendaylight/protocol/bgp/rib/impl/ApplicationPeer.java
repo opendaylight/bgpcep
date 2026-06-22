@@ -118,41 +118,56 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         createDomChain();
     }
 
-    public synchronized void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
+    public void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
-        setActive(true);
-        final var localTables = rib.getLocalTablesKeys();
-        for (var localTable : localTables) {
-            final var tableSupport = rib.getRibSupportContext().getRIBSupport(localTable);
-            if (tableSupport != null) {
-                supportedTables.add(tableSupport.tablesKey());
+        synchronized (this) {
+            setActive(true);
+            final var localTables = rib.getLocalTablesKeys();
+            for (var localTable : localTables) {
+                final var tableSupport = rib.getRibSupportContext().getRIBSupport(localTable);
+                if (tableSupport != null) {
+                    supportedTables.add(tableSupport.tablesKey());
+                } else {
+                    LOG.warn("Ignoring unsupported table {}", localTable);
+                }
+            }
+            setAdvertizedGracefulRestartTableTypes(List.of());
+
+            createDomChain();
+            adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
+            final RIBSupportContextRegistry context = rib.getRibSupportContext();
+            peerPath = createPeerPath(peerId);
+            adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(),
+                () -> {
+                    synchronized (this) {
+                        if (getDomChain() != null) {
+                            registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+                        }
+                    }
+                });
+
+            final var chain = rib.createPeerDOMChain();
+            chain.addCallback(this);
+
+            effectiveRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, localTables, tableTypeRegistry,
+                new ArrayList<>(), rtCache);
+            effectiveRibInWriter.init();
+            bgpSessionState.registerMessagesCounter(this);
+        }
+        // Register outside this peer's lock. registerPeer synchronously calls LocRibWriter.onPeerAdded, which
+        // takes the LocRibWriter lock, while LocRibWriter.refreshTable takes the LocRibWriter lock and then this
+        // peer's lock via reEvaluateAdvertizement, a synchronized method inherited from AbstractPeer. Holding
+        // this peer's lock here would reverse that order and deadlock.
+        final var peerTrackerRegistration = rib.getPeerTracker().registerPeer(this);
+        synchronized (this) {
+            if (isActive()) {
+                trackerRegistration = peerTrackerRegistration;
             } else {
-                LOG.warn("Ignoring unsupported table {}", localTable);
+                LOG.warn("Application peer {} closed before registration completed, closing the registration.",
+                    peerId);
+                peerTrackerRegistration.close();
             }
         }
-        setAdvertizedGracefulRestartTableTypes(List.of());
-
-        createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
-        final RIBSupportContextRegistry context = rib.getRibSupportContext();
-        peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(),
-            () -> {
-                synchronized (this) {
-                    if (getDomChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
-                }
-            });
-
-        final var chain = rib.createPeerDOMChain();
-        chain.addCallback(this);
-
-        effectiveRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, localTables, tableTypeRegistry,
-            new ArrayList<>(), rtCache);
-        effectiveRibInWriter.init();
-        bgpSessionState.registerMessagesCounter(this);
-        trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }
 
     @Override

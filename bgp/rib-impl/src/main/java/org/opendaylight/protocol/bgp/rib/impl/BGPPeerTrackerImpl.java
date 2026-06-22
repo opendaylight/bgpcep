@@ -8,9 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
@@ -18,25 +20,62 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
+    private static final Logger LOG = LoggerFactory.getLogger(BGPPeerTrackerImpl.class);
+
     @GuardedBy("this")
     private final Map<PeerId, Peer> peers = new HashMap<>();
+    @GuardedBy("this")
+    private final List<Consumer<Peer>> peerAddedListeners = new ArrayList<>();
+
     private ImmutableList<Peer> peersList;
     private ImmutableList<Peer> peersFilteredList;
 
     @Override
-    public synchronized Registration registerPeer(final Peer peer) {
-        this.peers.put(peer.getPeerId(), peer);
-        this.peersList = ImmutableList.copyOf(this.peers.values());
-        this.peersFilteredList = this.peers.values().stream()
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public Registration registerPeer(final Peer peer) {
+        final List<Consumer<Peer>> listeners;
+        synchronized (this) {
+            this.peers.put(peer.getPeerId(), peer);
+            this.peersList = ImmutableList.copyOf(this.peers.values());
+            this.peersFilteredList = this.peers.values().stream()
                 .filter(p1 -> p1.getRole() != PeerRole.Internal)
                 .collect(ImmutableList.toImmutableList());
+            listeners = ImmutableList.copyOf(this.peerAddedListeners);
+        }
+        // Notify outside the lock so a listener may call back into this tracker without risking a deadlock.
+        for (final var listener : listeners) {
+            try {
+                listener.accept(peer);
+            } catch (final RuntimeException e) {
+                // Caught so one failing listener cannot stop the others or abort this registration. Only
+                // logged and ignored. Nothing else reacts to it, this peer stays registered either way.
+                LOG.warn("Listener failed for peer {}, ignored", peer.getPeerId(), e);
+            }
+        }
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BGPPeerTrackerImpl.this) {
                     BGPPeerTrackerImpl.this.peers.remove(peer.getPeerId());
+                }
+            }
+        };
+    }
+
+    @Override
+    public Registration registerPeerAddedListener(final Consumer<Peer> listener) {
+        synchronized (this) {
+            peerAddedListeners.add(listener);
+        }
+        return new AbstractRegistration() {
+            @Override
+            protected void removeRegistration() {
+                synchronized (BGPPeerTrackerImpl.this) {
+                    peerAddedListeners.remove(listener);
                 }
             }
         };

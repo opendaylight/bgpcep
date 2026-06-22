@@ -44,6 +44,7 @@ import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -54,6 +55,7 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
@@ -93,6 +95,8 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private DOMTransactionChain chain;
     @GuardedBy("this")
     private Registration reg;
+    @GuardedBy("this")
+    private Registration peerRegistration;
 
     private LocRibWriter(final RIBSupport<C, S> ribSupport,
             final DOMTransactionChain chain,
@@ -154,6 +158,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         reg = dataBroker.registerTreeChangeListener(DOMDataTreeIdentifier.of(
             LogicalDatastoreType.OPERATIONAL, ribIId.node(PEER_NID).node(PEER_NID).node(EFFRIBIN_NID).node(TABLES_NID)
                 .node(locRibTableIID.getLastPathArgument())), this);
+        peerRegistration = peerTracker.registerPeerAddedListener(this::onPeerAdded);
     }
 
     /**
@@ -170,6 +175,10 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
     @Override
     public synchronized void close() {
+        if (peerRegistration != null) {
+            peerRegistration.close();
+            peerRegistration = null;
+        }
         if (reg != null) {
             reg.close();
             reg = null;
@@ -237,26 +246,34 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         for (final DataTreeCandidate tc : changes) {
             final DataTreeCandidateNode table = tc.getRootNode();
             final RouterId peerUuid = RouterId.forPeerId(IdentifierUtils.peerKeyToPeerId(tc.getRootPath()));
-
-            // Initialize Peer with routes under loc rib
-            if (!routeEntries.isEmpty() && table.dataBefore() == null) {
-                final org.opendaylight.protocol.bgp.rib.spi.Peer toPeer
-                        = peerTracker.getPeer(peerUuid.getPeerId());
-                if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
-                    LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-                    final List<ActualBestPathRoutes<C, S>> routesToStore = new ArrayList<>();
-                    for (final Entry<String, RouteEntry<C, S>> entry : routeEntries.entrySet()) {
-                        final List<ActualBestPathRoutes<C, S>> filteredRoute = entry.getValue()
-                                .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey()));
-                        routesToStore.addAll(filteredRoute);
-                    }
-                    toPeer.initializeRibOut(entryDep, routesToStore);
-                }
-            }
-            // Process new routes from Peer
             updateNodes(table, peerUuid, tx, ret);
         }
         return ret;
+    }
+
+    /**
+     * Advertises the routes already present in the loc-rib to a peer that has just registered.
+     *
+     * <p>A peer can register after its table-creation event has been processed, so its initial routes are sent here
+     * rather than on that event, which would otherwise miss them.
+     *
+     * @param peer the newly added {@link Peer}
+     */
+    private synchronized void onPeerAdded(final @NonNull Peer peer) {
+        // An application peer (PeerRole.Internal) has no BGP session. Nothing sends its AdjRibsOut anywhere and
+        // later route updates never reach it, so skip the dump instead of writing data nothing will read.
+        if (peer.getRole() == PeerRole.Internal || routeEntries.isEmpty()
+                || !peer.supportsTable(entryDep.getLocalTablesKey())) {
+            return;
+        }
+        LOG.debug("Peer {} registered, inserting existing loc-rib routes", peer.getPeerId());
+        final var routesToStore = new ArrayList<ActualBestPathRoutes<C, S>>();
+        for (final var entry : routeEntries.entrySet()) {
+            final var filteredRoute = entry.getValue().actualBestPaths(ribSupport,
+                new RouteEntryInfoImpl(peer, entry.getKey()));
+            routesToStore.addAll(filteredRoute);
+        }
+        peer.initializeRibOut(entryDep, routesToStore);
     }
 
     private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,
