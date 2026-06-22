@@ -518,12 +518,17 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
+                // Register outside the BGPPeer lock. registerPeer synchronously calls LocRibWriter.onPeerAdded, which
+                // takes the LocRibWriter lock. LocRibWriter.onDataTreeChanged takes the LocRibWriter lock then the
+                // BGPPeer lock, so holding the BGPPeer lock here would reverse that order and deadlock.
+                final var registration = rib.getPeerTracker().registerPeer(BGPPeer.this);
                 synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
                     if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
+                        trackerRegistration = registration;
                     } else {
                         LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                        // Session dropped while registering.
+                        registration.close();
                     }
                 }
             }
