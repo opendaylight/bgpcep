@@ -51,11 +51,11 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             f"step_set_timer_to_custom_value_{CUSTOM_TIMER_VALUE}"
         ):
-            """Update timer value to the new custom value."""
+            # Update timer value to the new custom value.
             pcep.set_stat_timer_value(CUSTOM_TIMER_VALUE)
 
         with allure_step_with_separate_logging("step_start_pcc_mock"):
-            """Starts PCC mocks simulator and verify connected."""
+            # Starts PCC mocks simulator and verify connected.
             self.pcc_mock_process = pcep.start_pcc_mock(
                 pcc=1,
                 lsp=1,
@@ -66,17 +66,17 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging(f"step_wait_5_seconds"):
-            """Wait for short duration, shorter then the CUSTOM_TIMER_VALUE."""
+            # Wait for short duration, shorter then the CUSTOM_TIMER_VALUE.
             time.sleep(5)
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_not_present"):
-            """Verifies that get-stat RPC does return statistics."""
+            # Verifies that get-stat RPC does return statistics.
             pcep.verify_odl_does_not_return_statistics_for_pcc(pcc_ip=TOOLS_IP)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Stop PCC mocks simulator."""
+            # Stop PCC mocks simulator.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
-            """Update timer value back to the original default value."""
+            # Update timer value back to the original default value.
             pcep.set_stat_timer_value(DEFAULT_PCEP_STATS_UPDATE_INTERVAL)
