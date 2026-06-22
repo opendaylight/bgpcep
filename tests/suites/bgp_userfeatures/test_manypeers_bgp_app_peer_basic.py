@@ -144,7 +144,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_bgp_peer_connection"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -160,7 +160,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_bgp_application_peer"
         ):
-            """Configure BGP application peer module."""
+            # Configure BGP application peer module.
             mapping = {"IP": BGP_APP_PEER_ID, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
             templated_requests.put_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_application_peer", mapping, json=False
@@ -169,7 +169,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_check_for_empty_example_ipv4_topology"
         ):
-            """Sanity check example-ipv4-topology is up but empty."""
+            # Sanity check example-ipv4-topology is up but empty.
             self.wait_for_topology_to_change_to(
                 "variables/bgpuser/empty_topology", retry_count=180
             )
@@ -177,7 +177,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_bgp_application_peer_post_3_initial_routes"
         ):
-            """Start BGP application peer tool and give it 30s."""
+            # Start BGP application peer tool and give it 30s.
             infra.shell(
                 f"{BGP_APP_PEER_POST_COMMAND} {SCRIPT_URI_OPT} {BGP_APP_PEER_OPTIONS}",
                 timeout=BGP_APP_PEER_TIMEOUT,
@@ -191,12 +191,12 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_check_example_ipv4_topology_is_filled_with_3_routes"
         ):
-            """See new routes in example-ipv4-topology as a proof that
-            synchronization was correct."""
+            # See new routes in example-ipv4-topology as a proof that
+            # synchronization was correct.
             self.wait_for_topology_to_change_to("variables/bgpuser/filled_topology")
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
-            """Start BGP peer tool."""
+            # Start BGP peer tool.
             self.bgp_speaker_process = infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
@@ -205,7 +205,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer_check_incomming_updates_for_3_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             infra.wait_for_string_in_file(
                 20,
                 1,
@@ -229,7 +229,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_bgp_application_peer_delete_3_initial_routes"
         ):
-            """Start BGP application peer tool and give him 30s."""
+            # Start BGP application peer tool and give him 30s.
             infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_COMMAND} {SCRIPT_URI_OPT} "
@@ -246,7 +246,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_check_example_ipv4_topology_is_empty"
         ):
-            """See new routes are deleted."""
+            # See new routes are deleted.
             self.wait_for_topology_to_change_to(
                 "variables/bgpuser/empty_topology", 10, 1
             )
@@ -254,7 +254,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc1_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             infra.wait_for_string_in_file(
                 10,
                 1,
@@ -280,7 +280,7 @@ class TestBgpAppPeerBasic:
             )
 
         with allure_step_with_separate_logging("step_tc1_stop_bgp_peer"):
-            """Stop BGP peer tool."""
+            # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_dir=".",
@@ -289,7 +289,7 @@ class TestBgpAppPeerBasic:
             )
 
         with allure_step_with_separate_logging("step_tc2_reconnect_bgp_peer"):
-            """Start BGP peer tool."""
+            # Start BGP peer tool.
             self.bgp_speaker_process = infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
@@ -309,7 +309,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_bgp_application_peer_put_3_routes"
         ):
-            """Start BGP application peer tool and give him 30s."""
+            # Start BGP application peer tool and give him 30s.
             bgp.start_bgp_app_peer(
                 3,
                 command="put",
@@ -332,14 +332,14 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_check_example_ipv4_topology_is_filled_with_3_routes"
         ):
-            """See new routes in example-ipv4-topology as a proof that
-            synchronization was correct."""
+            # See new routes in example-ipv4-topology as a proof that
+            # synchronization was correct.
             self.wait_for_topology_to_change_to("variables/bgpuser/filled_topology")
 
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer_check_incomming_updates_for_3_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             infra.wait_for_string_in_file(
                 10,
                 1,
@@ -363,7 +363,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_bgp_application_peer_delete_all_routes"
         ):
-            """Start BGP application peer tool and give him 30s."""
+            # Start BGP application peer tool and give him 30s.
             infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_ALL_COMMAND} {SCRIPT_URI_OPT} "
@@ -380,7 +380,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_check_example_ipv4_topology_is_empty"
         ):
-            """See new routes are deleted."""
+            # See new routes are deleted.
             self.wait_for_topology_to_change_to(
                 "variables/bgpuser/empty_topology", 10, 1
             )
@@ -388,7 +388,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             infra.wait_for_string_in_file(
                 10,
                 1,
@@ -414,7 +414,7 @@ class TestBgpAppPeerBasic:
             )
 
         with allure_step_with_separate_logging("step_tc2_stop_bgp_peer"):
-            """Stop BGP peer tool."""
+            # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_dir=".",
@@ -425,7 +425,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc3_bgp_application_peer_put_3_routes"
         ):
-            """Start BGP application peer tool and give him 30s."""
+            # Start BGP application peer tool and give him 30s.
             infra.shell(
                 f"{BGP_APP_PEER_PUT_COMMAND} {SCRIPT_URI_OPT} {BGP_APP_PEER_OPTIONS}",
                 timeout=BGP_APP_PEER_TIMEOUT,
@@ -439,14 +439,14 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc3_check_example_ipv4_topology_is_filled_with_3_routes"
         ):
-            """See new routes in example-ipv4-topology as a proof that synchronization
-            was correct."""
+            # See new routes in example-ipv4-topology as a proof that synchronization
+            # was correct.
             self.wait_for_topology_to_change_to("variables/bgpuser/filled_topology")
 
         with allure_step_with_separate_logging(
             "step_tc3_reconnect_bgp_peer_and_check_incomming_updates_for_3_introduced_prefixes"
         ):
-            """Start BGP peer tool."""
+            # Start BGP peer tool.
             self.bgp_speaker_process = infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
@@ -478,7 +478,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc3_bgp_application_peer_delete_all_routes"
         ):
-            """Start BGP application peer tool and give him 30s."""
+            # Start BGP application peer tool and give him 30s.
             infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_ALL_COMMAND} {SCRIPT_URI_OPT} "
@@ -495,7 +495,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc3_check_example_ipv4_topology_is_empty"
         ):
-            """See new routes are deleted."""
+            # See new routes are deleted.
             self.wait_for_topology_to_change_to(
                 "variables/bgpuser/empty_topology", 10, 1
             )
@@ -503,7 +503,7 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_tc3_bgp_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             infra.wait_for_string_in_file(
                 10,
                 1,
@@ -529,7 +529,7 @@ class TestBgpAppPeerBasic:
             )
 
         with allure_step_with_separate_logging("step_tc3_stop_bgp_peer"):
-            """Stop BGP peer tool."""
+            # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_dir=".",
@@ -538,8 +538,8 @@ class TestBgpAppPeerBasic:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without
-            any configured peers."""
+            # Revert the BGP configuration to the original state: without
+            # any configured peers.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -552,8 +552,8 @@ class TestBgpAppPeerBasic:
         with allure_step_with_separate_logging(
             "step_delete_bgp_application_peer_configuration"
         ):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_application_peer", mapping

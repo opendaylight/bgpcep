@@ -140,7 +140,7 @@ class TestEbgpPeersBasic:
     )
     def test_ebgp_peers_basic(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_bgp_peers"):
-            """Configure an iBGP and two eBGP peers."""
+            # Configure an iBGP and two eBGP peers.
             mapping = {
                 "IP": iBGP_PEER1_IP,
                 "HOLDTIME": HOLDTIME,
@@ -177,7 +177,7 @@ class TestEbgpPeersBasic:
                 f"{BGP_VARIABLES_FOLDER}/ebgp_peers", mapping, json=False
             )
         with allure_step_with_separate_logging("step_connect_ibgp_peer1"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.ibgp_peer1_process = infra.shell(
                 f"{iBGP_PEER1_COMMAND} {iBGP_PEER1_OPTIONS}", run_in_background=True
             )
@@ -185,7 +185,7 @@ class TestEbgpPeersBasic:
             prefix_counting.check_example_ipv4_topology_does_not_contain("prefix")
 
         with allure_step_with_separate_logging("step_connect_ebgp_peer1"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.ebgp_peer1_process = infra.shell(
                 f"{eBGP_PEER1_COMMAND} {eBGP_PEER1_OPTIONS}", run_in_background=True
             )
@@ -194,8 +194,8 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_check_ipv4_topology_for_first_path"
         ):
-            """The IPv4 topology shall contain the route announced by
-            the first eBGP."""
+            # The IPv4 topology shall contain the route announced by
+            # the first eBGP.
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
@@ -209,7 +209,7 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_ibgp_check_log_for_introduced_prefixes"
         ):
-            """Check incomming updates for introduced routes."""
+            # Check incomming updates for introduced routes.
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
@@ -228,22 +228,22 @@ class TestEbgpPeersBasic:
             assert count == 0
 
         with allure_step_with_separate_logging("step_connect_ebgp_peer2"):
-            """Check incomming updates for introduced routes."""
+            # Check incomming updates for introduced routes.
             self.ebgp_peer2_process = infra.shell(
                 f"{eBGP_PEER2_COMMAND} {eBGP_PEER2_OPTIONS}", run_in_background=True
             )
             utils.verify_process_did_not_stop_immediately(self.ebgp_peer2_process.pid)
 
         with allure_step_with_separate_logging("step_disconnect_ebgp_peer1"):
-            """Stop BGP peer and store logs."""
+            # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ebgp_peer1_process)
             infra.backup_file(eBGP_PEER1_LOG_FILE)
 
         with allure_step_with_separate_logging(
             "step_check_ipv4_topology_for_second_path"
         ):
-            """The IPv4 topology shall contain the route announced by
-            the second eBGP now."""
+            # The IPv4 topology shall contain the route announced by
+            # the second eBGP now.
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
@@ -260,7 +260,7 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_ibgp_check_log_for_updated_prefixes"
         ):
-            """Check incomming updates for updated routes."""
+            # Check incomming updates for updated routes.
             total_prefix_count = eBGP_PEER1_PREFIX_COUNT + eBGP_PEER2_PREFIX_COUNT
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
@@ -280,12 +280,12 @@ class TestEbgpPeersBasic:
             assert count == eBGP_PEER2_PREFIX_COUNT
 
         with allure_step_with_separate_logging("step_disconnect_ebgp_peer2"):
-            """Stop BGP peer and store logs."""
+            # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ebgp_peer2_process)
             infra.backup_file(eBGP_PEER2_LOG_FILE)
 
         with allure_step_with_separate_logging("step_check_for_empty_ipv4_topology"):
-            """The IPv4 topology shall be empty."""
+            # The IPv4 topology shall be empty.
             utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
@@ -296,7 +296,7 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_ibgp_check_log_for_withdrawn_prefixes"
         ):
-            """Check incomming updates for withdrawn routes."""
+            # Check incomming updates for withdrawn routes.
             prefixes_to_be_removed = max(
                 eBGP_PEER1_PREFIX_COUNT, eBGP_PEER2_PREFIX_COUNT
             )
@@ -310,12 +310,12 @@ class TestEbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_disconnect_ibgp_peer1"):
-            """Stop BGP peer and store logs."""
+            # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ibgp_peer1_process)
             infra.backup_file(iBGP_PEER1_LOG_FILE)
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Delete all previously configured BGP peers."""
+            # Delete all previously configured BGP peers.
             mapping = {"IP": iBGP_PEER1_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/ibgp_peers", mapping
@@ -332,8 +332,8 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc_las_reconfigure_odl_to_accept_connection"
         ):
-            """Configure neighbors. One ibgp and one ebgp neighbor with
-            local-as configured."""
+            # Configure neighbors. One ibgp and one ebgp neighbor with
+            # local-as configured.
             mapping = {
                 "IP": iBGP_PEER1_IP,
                 "HOLDTIME": HOLDTIME,
@@ -360,8 +360,8 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc_las_start_ibgp_speaker_and_verify_connected"
         ):
-            """Verify that peer is present in odl's rib. Peer is configured
-            with local-as."""
+            # Verify that peer is present in odl's rib. Peer is configured
+            # with local-as.
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
                 speaker_ips=iBGP_PEER1_IP,
                 firstprefix=iBGP_PEER1_FIRST_PREFIX_IP,
@@ -377,8 +377,8 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc_las_start_ebgp_speaker_and_verify_connected"
         ):
-            """Verify that peer is present in odl's rib. Peer is configured
-            with local-as."""
+            # Verify that peer is present in odl's rib. Peer is configured
+            # with local-as.
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
                 speaker_ips=eBGP_PEER1_IP,
                 firstprefix=eBGP_PEER1_FIRST_PREFIX_IP,
@@ -393,8 +393,8 @@ class TestEbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc_las_verify_ibgp_rib_out"):
-            """Verifies iBGP's adj-rib-out output. Expects local-as, and ebgp
-            peer-as presence."""
+            # Verifies iBGP's adj-rib-out output. Expects local-as, and ebgp
+            # peer-as presence.
             mapping = {
                 "IP": iBGP_PEER1_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
@@ -412,8 +412,8 @@ class TestEbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc_las_verify_ebgp_rib_out"):
-            """Verifies eBGP's adj-rib-out output. Expects local-as, and ibgp
-            peer-as presence."""
+            # Verifies eBGP's adj-rib-out output. Expects local-as, and ibgp
+            # peer-as presence.
             mapping = {
                 "IP": eBGP_PEER1_IP,
                 "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG,
@@ -433,19 +433,19 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc_las_kill_ibgp_speaker_after_talking"
         ):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.ibgp_peer1_process)
 
         with allure_step_with_separate_logging(
             "step_tc_las_kill_ibgp_speaker_after_talking"
         ):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.ebgp_peer1_process)
 
         with allure_step_with_separate_logging(
             "step_tc_las_delete_bgp_peer_configurations"
         ):
-            """Delete peer configuration."""
+            # Delete peer configuration.
             mapping = {"IP": iBGP_PEER1_IP, "BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG}
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping

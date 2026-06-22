@@ -129,14 +129,14 @@ class TestBgpfunctionalL3Vpn:
             self.prepare_config_files()
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon
-            and above."""
+            # Configures bgp application peer. Openconfig is used for carbon
+            # and above.
             bgp.set_bgp_application_peer(ip=ODL_IP)
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -147,7 +147,7 @@ class TestBgpfunctionalL3Vpn:
                 )
 
         with allure_step_with_separate_logging("step_l3vpn_ipv4_to_odl"):
-            """Testing mpls vpn ipv4 routes reported to odl from exabgp."""
+            # Testing mpls vpn ipv4 routes reported to odl from exabgp.
             utils.wait_until_function_pass(3, 2, self.verify_empty_reported_data)
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 f"tmp/{L3VPN_EXA_CFG}", TOOLS_IP, "exabgp.log"
@@ -157,11 +157,11 @@ class TestBgpfunctionalL3Vpn:
             utils.wait_until_function_pass(3, 2, self.verify_empty_reported_data)
 
         with allure_step_with_separate_logging("step_start_play"):
-            """Start Python speaker to connect to ODL. We need to wait until
-            odl really starts to accept incomming bgp connections.
-            The failure happens if the incomming connection comes
-            too quickly after configuring the peers in the previous
-            test case."""
+            # Start Python speaker to connect to ODL. We need to wait until
+            # odl really starts to accept incomming bgp connections.
+            # The failure happens if the incomming connection comes
+            # too quickly after configuring the peers in the previous
+            # test case.
             peers_ips = [f"127.0.1.{i}" for i in range(BGP_PEERS_COUNT)]
             self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
                 retries=3,
@@ -177,30 +177,30 @@ class TestBgpfunctionalL3Vpn:
             utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
 
         with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_0"):
-            """Sends route-target route containg route-target argument so odl
-            can identify this peer as appropriate for advertizement when it
-            recieves such route."""
+            # Sends route-target route containg route-target argument so odl
+            # can identify this peer as appropriate for advertizement when it
+            # recieves such route.
             bgp.play_to_odl_non_removal_template(
                 "rt_constrain_type_0", RT_CONSTRAIN_DIR, BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_odl_to_play_l3vpn_rt_arg"):
-            """Same as test step before but fluorine and further this l3vpn
-            route also needs to contain route-target argument."""
+            # Same as test step before but fluorine and further this l3vpn
+            # route also needs to contain route-target argument.
             bgp.odl_to_play_template(
                 "l3vpn_rt_arg", RT_CONSTRAIN_DIR, False, BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name="play.py.out", target_file_name="010_l3vpn_play.log"
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without
-            any configured peer."""
+            # Revert the BGP configuration to the original state: without
+            # any configured peer.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -211,6 +211,6 @@ class TestBgpfunctionalL3Vpn:
                 )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without
-            application peer."""
+            # Revert the BGP configuration to the original state: without
+            # application peer.
             bgp.delete_bgp_application_peer(ip=ODL_IP)

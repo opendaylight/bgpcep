@@ -113,8 +113,8 @@ class TestTcpMd5User:
     def test_tcp_md5_user(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):
-            """Compare current pcep-topology to empty pcep tology. Timeout is long
-            enough to ODL boot, to see that pcep is ready, with no PCC is connected."""
+            # Compare current pcep-topology to empty pcep tology. Timeout is long
+            # enough to ODL boot, to see that pcep is ready, with no PCC is connected.
             utils.wait_until_function_pass(
                 300,
                 1,
@@ -125,33 +125,33 @@ class TestTcpMd5User:
             )
 
         with allure_step_with_separate_logging("step_start_secure_pcc_mock"):
-            """Execute pcc-mock with password set, fail if pcc-mock promptly exits.
-            Keep pcc-mock running for next test cases."""
+            # Execute pcc-mock with password set, fail if pcc-mock promptly exits.
+            # Keep pcc-mock running for next test cases.
             self.start_pcc_mock_tool_with_password(password="topsecret")
 
         with allure_step_with_separate_logging("step_topology_unauthorized_1"):
-            """Try to catch a glimpse of pcc-mock in pcep-topology.
-            Pass if no change from Precondition is detected over 10 seconds."""
+            # Try to catch a glimpse of pcc-mock in pcep-topology.
+            # Pass if no change from Precondition is detected over 10 seconds.
             utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_set_wrong_password"):
-            """The same logic as step_topology_unauthorized_1 as incorrect
-            password was provided to ODL."""
+            # The same logic as step_topology_unauthorized_1 as incorrect
+            # password was provided to ODL.
             self.replace_password_on_pcep_nodes(password="changeme")
 
         with allure_step_with_separate_logging("step_topology_unauthorized_2"):
-            """The same logic as topology_unauthorized_1 as incorrect
-            password was provided to ODL."""
+            # The same logic as topology_unauthorized_1 as incorrect
+            # password was provided to ODL.
             utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_set_correct_password"):
-            """Configure password in pcep dispatcher for client with Mininet
-            IP address. This password finally matches what pcc-mock uses."""
+            # Configure password in pcep dispatcher for client with Mininet
+            # IP address. This password finally matches what pcc-mock uses.
             self.replace_password_on_pcep_nodes(password="topsecret")
 
         with allure_step_with_separate_logging("step_topology_intercondition"):
-            """Compare pcep-topology/path-computation-client to filled one,
-            which includes a tunnel from pcc-mock."""
+            # Compare pcep-topology/path-computation-client to filled one,
+            # which includes a tunnel from pcc-mock.
             for i in range(PCCS):
                 pcc_ip = f"127.0.1.{i}"
                 tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
@@ -172,32 +172,32 @@ class TestTcpMd5User:
                 )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock_1"):
-            """Stops First instance of pcc-mock."""
+            # Stops First instance of pcc-mock.
             self.stop_pcc_mock()
 
         with allure_step_with_separate_logging("step_topology_unauthorized_3"):
-            """The same logic as Topology_Unauthorized_1, with no pcc-mock running."""
+            # The same logic as Topology_Unauthorized_1, with no pcc-mock running.
             utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_start_secure_pcc_mock_2"):
-            """Execute pcc-mock on Mininet with new password set, fail if
-            pcc-mock promptly exits. Keep pcc-mock running for next test
-            cases."""
+            # Execute pcc-mock on Mininet with new password set, fail if
+            # pcc-mock promptly exits. Keep pcc-mock running for next test
+            # cases.
             self.start_pcc_mock_tool_with_password(password="newtopsecret")
 
         with allure_step_with_separate_logging("step_topology_unauthorized_4"):
-            """The same logic as Topology_Unauthorized_1, but ODL password
-            became incorrect with new pcc-mock running."""
+            # The same logic as Topology_Unauthorized_1, but ODL password
+            # became incorrect with new pcc-mock running.
             utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_correct_password_2"):
-            """Configure password in pcep dispatcher.
-            This password again matches what second pcc-mock instance uses."""
+            # Configure password in pcep dispatcher.
+            # This password again matches what second pcc-mock instance uses.
             self.replace_password_on_pcep_nodes(password="newtopsecret")
 
         with allure_step_with_separate_logging("step_topology_intercondition_2"):
-            """Compare pcep-topology/path-computation-client to filled one,
-            which includes a tunnel from pcc-mock."""
+            # Compare pcep-topology/path-computation-client to filled one,
+            # which includes a tunnel from pcc-mock.
             for i in range(PCCS):
                 pcc_ip = f"127.0.1.{i}"
                 tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
@@ -218,7 +218,7 @@ class TestTcpMd5User:
                 )
 
         with allure_step_with_separate_logging("step_update_delegated"):
-            """Perform update-lsp on the mocked tunnel, check response is success."""
+            # Perform update-lsp on the mocked tunnel, check response is success.
             for i in range(PCCS):
                 pcc_ip = f"127.0.1.{i}"
                 tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
@@ -229,8 +229,8 @@ class TestTcpMd5User:
                 log.info(response.text)
 
         with allure_step_with_separate_logging("step_topology_updated"):
-            """Compare pcep-topology/path-computation-client to default_on_updated,
-            which includes the updated tunnel."""
+            # Compare pcep-topology/path-computation-client to default_on_updated,
+            # which includes the updated tunnel.
             for i in range(PCCS):
                 pcc_ip = f"127.0.1.{i}"
                 tcpmd5_var = tcpmd5_variables.get_variables(pcc_ip)
@@ -251,18 +251,18 @@ class TestTcpMd5User:
                 )
 
         with allure_step_with_separate_logging("step_Unset_Password"):
-            """De-configure password for pcep dispatcher."""
+            # De-configure password for pcep dispatcher.
             self.unset_password_on_pcep_nodes()
 
         with allure_step_with_separate_logging("step_stop_pcc_mock_2"):
             self.stop_pcc_mock()
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
-            """Verify that pcep-topology stays empty."""
+            # Verify that pcep-topology stays empty.
             utils.wait_until_function_pass(10, 1, self.check_unathorized)
 
         with allure_step_with_separate_logging("step_delete_pcep_client_module"):
-            """Delete Pcep client module."""
+            # Delete Pcep client module.
             for i in range(PCCS):
                 mapping = {"IP": f"127.0.1.{i}"}
                 templated_requests.delete_templated_request(

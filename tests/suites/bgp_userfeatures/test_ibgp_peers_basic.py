@@ -153,7 +153,7 @@ class TestIbgpPeersBasic:
     def test_ibgp_peers_basic(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
-            """Configure karaf logging level."""
+            # Configure karaf logging level.
             infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
             infra.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
@@ -165,22 +165,22 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc1_configure_two_ibgp_route_reflector_client_peers"
         ):
-            """Configure two iBGP peers as routing reflector clients."""
+            # Configure two iBGP peers as routing reflector clients.
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=True, cluster_id=False)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=True, cluster_id=False)
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer1"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer1_and_verify()
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer2"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer2_and_verify()
 
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer1_check_log_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -201,7 +201,7 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer2_check_log_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -220,14 +220,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer1"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
             infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc1_{BGP_PEER1_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer2_check_log_for_withdrawn_prefixes"
         ):
-            """Check incomming updates for withdrawn routes."""
+            # Check incomming updates for withdrawn routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -243,14 +243,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer2"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
             infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc1_{BGP_PEER2_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc1_check_for_empty_ipv4_topology"
         ):
-            """Checks for empty topology after."""
+            # Checks for empty topology after.
             utils.wait_until_function_pass(
                 10,
                 1,
@@ -261,30 +261,30 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc1_delete_bgp_peers_configuration"
         ):
-            """Delete all previously configured BGP peers."""
+            # Delete all previously configured BGP peers.
             self.delete_ibgp_peer_configuration(BGP_PEER1_IP, cluster_id=False)
             self.delete_ibgp_peer_configuration(BGP_PEER2_IP, cluster_id=False)
 
         with allure_step_with_separate_logging(
             "step_tc2_configure_one_ibgp_route_reflector_client_and_one_ibgp_non_client"
         ):
-            """Configure iBGP peers: 1st one as RR client, 2nd one as RR
-            non-client."""
+            # Configure iBGP peers: 1st one as RR client, 2nd one as RR
+            # non-client.
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=True, cluster_id=False)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=False, cluster_id=False)
 
         with allure_step_with_separate_logging("step_tc2_connect_bgp_peer1"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer1_and_verify()
 
         with allure_step_with_separate_logging("step_tc2_connect_bgp_peer2"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer2_and_verify()
 
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer1_check_log_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -305,7 +305,7 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer2_check_log_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes."""
+            # Check incomming updates for new routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -324,14 +324,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer1"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
             infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc2_{BGP_PEER1_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer2_check_log_for_withdrawn_prefixes"
         ):
-            """Check incomming updates for withdrawn routes."""
+            # Check incomming updates for withdrawn routes.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -347,14 +347,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer2"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
             infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc2_{BGP_PEER2_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc2_check_for_empty_ipv4_topology"
         ):
-            """Checks for empty topology after"""
+            # Checks for empty topology after
             utils.wait_until_function_pass(
                 10,
                 1,
@@ -365,30 +365,30 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc2_delete_bgp_peers_configuration"
         ):
-            """Delete all previously configured BGP peers."""
+            # Delete all previously configured BGP peers.
             self.delete_ibgp_peer_configuration(BGP_PEER1_IP, cluster_id=False)
             self.delete_ibgp_peer_configuration(BGP_PEER2_IP, cluster_id=False)
 
         with allure_step_with_separate_logging(
             "step_tc3_configure_two_ibgp_non_client_peers"
         ):
-            """Configure iBGP peers: 1st one as RR client, 2nd one as RR
-            non-client."""
+            # Configure iBGP peers: 1st one as RR client, 2nd one as RR
+            # non-client.
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=False, cluster_id=False)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=False, cluster_id=False)
 
         with allure_step_with_separate_logging("step_tc3_connect_bgp_peer1"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer1_and_verify()
 
         with allure_step_with_separate_logging("step_tc3_connect_bgp_peer2"):
-            """Connect BGP peer."""
+            # Connect BGP peer.
             self.connect_bgp_peer2_and_verify()
 
         with allure_step_with_separate_logging(
             "step_tc3_bgp_peer1_check_log_for_no_updates"
         ):
-            """Check for no updates received by iBGP peer No. 1."""
+            # Check for no updates received by iBGP peer No. 1.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -399,14 +399,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc3_disconnect_bgp_peer1"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
             infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc3_{BGP_PEER1_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc3_bgp_peer2_check_log_for_no_updates"
         ):
-            """Check for no updates received by iBGP peer No. 2."""
+            # Check for no updates received by iBGP peer No. 2.
             utils.wait_until_function_pass(
                 DEFAULT_LOG_CHECK_TIMEOUT * 2,
                 DEFAULT_LOG_CHECK_PERIOD,
@@ -417,14 +417,14 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc3_disconnect_bgp_peer2"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
             infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc3_{BGP_PEER2_LOG_FILE}")
 
         with allure_step_with_separate_logging(
             "step_tc3_check_for_empty_ipv4_topology"
         ):
-            """Checks for empty topology after"""
+            # Checks for empty topology after
             utils.wait_until_function_pass(
                 10,
                 1,
@@ -435,20 +435,20 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc3_delete_bgp_peers_configuration"
         ):
-            """Delete all previously configured BGP peers."""
+            # Delete all previously configured BGP peers.
             self.delete_ibgp_peer_configuration(BGP_PEER1_IP, cluster_id=False)
             self.delete_ibgp_peer_configuration(BGP_PEER2_IP, cluster_id=False)
 
         with allure_step_with_separate_logging(
             "step_tc4_configure_two_ibgp_rr_clients_with_cluster_id"
         ):
-            """Configure two iBGP peers as routing reflector clients with
-            cluster-id argument."""
+            # Configure two iBGP peers as routing reflector clients with
+            # cluster-id argument.
             self.configure_ibgp_peer(BGP_PEER1_IP, rr_client=True, cluster_id=True)
             self.configure_ibgp_peer(BGP_PEER2_IP, rr_client=True, cluster_id=False)
 
         with allure_step_with_separate_logging("step_tc4_connect_bgp_peers"):
-            """Connect BGP peers, each set to send 3 prefixes."""
+            # Connect BGP peers, each set to send 3 prefixes.
             default_cluster_id = "192.0.2.2"
             self.connect_bgp_peer1_and_verify(cluster_id="127.0.0.4")
             self.connect_bgp_peer2_and_verify(cluster_id=BGP_PEER2_IP)
@@ -456,9 +456,9 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc4_bgp_peer1_check_rib_out_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes and respective cluster-ids
-            on first peer which should contain default-cluster id from global
-            config reflected from the second peer equal to router-id."""
+            # Check incomming updates for new routes and respective cluster-ids
+            # on first peer which should contain default-cluster id from global
+            # config reflected from the second peer equal to router-id.
             mapping = {
                 "IP": BGP_PEER1_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
@@ -478,8 +478,8 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc4_bgp_peer2_check_rib_out_for_introduced_prefixes"
         ):
-            """Check incomming updates for new routes and respective cluster-ids
-            in second peer which has local route-reflector-cluster-id."""
+            # Check incomming updates for new routes and respective cluster-ids
+            # in second peer which has local route-reflector-cluster-id.
             mapping = {
                 "IP": BGP_PEER2_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
@@ -497,7 +497,7 @@ class TestIbgpPeersBasic:
             )
 
         with allure_step_with_separate_logging("step_tc4_disconnect_bgp_peers"):
-            """Stop BGP peer & store logs."""
+            # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
             infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc4_{BGP_PEER1_LOG_FILE}")
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
@@ -506,7 +506,7 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc4_check_for_empty_ipv4_topology"
         ):
-            """Checks for empty topology after"""
+            # Checks for empty topology after
             utils.wait_until_function_pass(
                 10,
                 1,
@@ -517,6 +517,6 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging(
             "step_tc4_delete_bgp_peers_configuration"
         ):
-            """Delete all previously configured BGP peers."""
+            # Delete all previously configured BGP peers.
             self.delete_ibgp_peer_configuration(BGP_PEER1_IP, cluster_id=True)
             self.delete_ibgp_peer_configuration(BGP_PEER2_IP, cluster_id=False)

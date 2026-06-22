@@ -52,7 +52,7 @@ class TestPcepUser:
     def test_randomly_changing_topology(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
-            """Update timer value value."""
+            # Update timer value value.
             pcep.set_stat_timer_value(1)
 
         for iteration in range(1, 11):
@@ -60,7 +60,7 @@ class TestPcepUser:
             with allure_step_with_separate_logging(
                 f"generate_rundom_numbers_for_pcc_and_lsp_count"
             ):
-                """Choose number of pcc nodes and lsps for this iteration."""
+                # Choose number of pcc nodes and lsps for this iteration.
                 pcc_count = random.randint(PCC_MIN_COUNT, PCC_MAX_COUNT)
                 lsp_count = random.randint(LSP_MIN_COUNT, LSP_MAX_COUNT)
 
@@ -68,8 +68,8 @@ class TestPcepUser:
                 f"step_start_pcc_mock_{pcc_count}_pcc_{lsp_count}_lsps_"
                 f"iteration_{iteration}"
             ):
-                """Starts PCC mocks simulator with {pcc_count} simulated PCC device
-                and {lsp_count} reported LSPs."""
+                # Starts PCC mocks simulator with {pcc_count} simulated PCC device
+                # and {lsp_count} reported LSPs.
                 self.pcc_mock_process = pcep.start_pcc_mock(
                     pcc=pcc_count,
                     lsp=lsp_count,
@@ -82,15 +82,15 @@ class TestPcepUser:
             with allure_step_with_separate_logging(
                 f"step_wait_1_second_iteration_{iteration}"
             ):
-                """Wait one second until the next pcep stat update."""
+                # Wait one second until the next pcep stat update.
                 time.sleep(1)
 
             with allure_step_with_separate_logging(
                 f"step_verify_{pcc_count}_pcc_{lsp_count}_lsps_"
                 f"stats_are_present_iteration_{iteration}"
             ):
-                """Verifies that get-stat RPC does return correct statistics containing
-                {pcc_count} PCC devices and {lsp_count} reported LSPs."""
+                # Verifies that get-stat RPC does return correct statistics containing
+                # {pcc_count} PCC devices and {lsp_count} reported LSPs.
                 utils.wait_until_function_pass(
                     5,
                     0.1,
@@ -103,9 +103,9 @@ class TestPcepUser:
                 f"step_stop_pcc_mock_with_{pcc_count}_pcc_{lsp_count}_lsps_"
                 f"iteration_{iteration}"
             ):
-                """Stop PCC mocks simulator."""
+                # Stop PCC mocks simulator.
                 pcep.stop_pcc_mock_process(self.pcc_mock_process)
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
-            """Update timer value back to the original default value."""
+            # Update timer value back to the original default value.
             pcep.set_stat_timer_value(DEFAULT_PCEP_STATS_UPDATE_INTERVAL)

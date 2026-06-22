@@ -87,8 +87,8 @@ class TestBgpLlgrBasic:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer modules with initiate-connection set to
-            false with short ipv6 address."""
+            # Configure BGP peer modules with initiate-connection set to
+            # false with short ipv6 address.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {
                     "IP": f"127.0.1.{i}",
@@ -102,7 +102,7 @@ class TestBgpLlgrBasic:
                 )
 
         with allure_step_with_separate_logging("step_start_gobgp"):
-            """Starts gobgp peer simulator."""
+            # Starts gobgp peer simulator.
             for i in range(BGP_PEERS_COUNT):
                 ip = f"127.0.1.{i}"
                 gobgp_process = bgp.start_gobgp_and_verify_connected(
@@ -115,8 +115,8 @@ class TestBgpLlgrBasic:
                 self.gobgp_processes.append(gobgp_process)
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state without any
-            configured peer."""
+            # Revert the BGP configuration to the original state without any
+            # configured peer.
             for i in range(BGP_PEERS_COUNT):
                 mapping = {"IP": f"127.0.1.{i}", "BGP_RIB_OPENCONFIG": RIB_INSTANCE}
                 templated_requests.delete_templated_request(
@@ -124,8 +124,8 @@ class TestBgpLlgrBasic:
                 )
 
         with allure_step_with_separate_logging("step_stop_gobgp"):
-            """Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
-            signal."""
+            # Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
+            # signal.
             for i in range(BGP_PEERS_COUNT):
                 infra.backup_file(src_file_name=f"{GOBGP_CFG}-{i}.cfg")
                 bgp.stop_gobgp(self.gobgp_processes[i])

@@ -80,13 +80,13 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_talking"
         ):
-            """Sanity check bgp-flowspec:flowspec-routes is up but empty."""
+            # Sanity check bgp-flowspec:flowspec-routes is up but empty.
             flowspec.wait_until_flowspec_data_is_empty(20, 3)
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             mapping = {
                 "IP": TOOLS_IP,
                 "HOLDTIME": HOLDTIME,
@@ -99,13 +99,13 @@ class TestBgpFlowspec:
             )
 
         with allure_step_with_separate_logging("step_flowspec_test_1"):
-            """Testing flowspec values for bgp-flowspec.cfg."""
+            # Testing flowspec values for bgp-flowspec.cfg.
             self.setup_test_case(CFG1)
             utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP1)
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_flowspec_test_2"):
-            """Testing flowspec values for bgp-flowspec-redirect.cfg."""
+            # Testing flowspec values for bgp-flowspec-redirect.cfg.
             self.setup_test_case(CFG2)
             utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP2)
             bgp.stop_exabgp(self.exabgp_process)
@@ -113,7 +113,7 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging(
             "step_deconfigure_odl_to_accept_connection"
         ):
-            """Deconfigure BGP peer."""
+            # Deconfigure BGP peer.
             mapping = {"BGP_RIB_OPENCONFIG": PROTOCOL_OPENCONFIG, "IP": TOOLS_IP}
             templated_requests.delete_templated_request(
                 f"{BGP_VARIABLES_FOLDER}/bgp_peer", mapping

@@ -105,14 +105,14 @@ class TestPcepUser:
     def test_pcepuser(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_topology_precondition"):
-            """Compare current pcep-topology to empty pcep tology. Timeout is
-            long enough to ODL boot, to see that pcep is ready, with no PCC is
-            connected."""
+            # Compare current pcep-topology to empty pcep tology. Timeout is
+            # long enough to ODL boot, to see that pcep is ready, with no PCC is
+            # connected.
             utils.wait_until_function_pass(300, 1, pcep.check_empty_pcep_topology)
 
         with allure_step_with_separate_logging("strep_start_pcc_mock"):
-            """Execute pcc-mock, fail is Open is not sent, keep it running for next
-            tests."""
+            # Execute pcc-mock, fail is Open is not sent, keep it running for next
+            # tests.
             self.pcep_mock_process = infra.shell(
                 (
                     f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 "
@@ -134,9 +134,9 @@ class TestPcepUser:
         with allure_step_with_separate_logging(
             "step_configure_speaker_entity_identifier"
         ):
-            """Additional PCEP Speaker configuration. Allows PCEP speaker to
-            determine if state synchronization can be skipped when a PCEP
-            session is restarted."""
+            # Additional PCEP Speaker configuration. Allows PCEP speaker to
+            # determine if state synchronization can be skipped when a PCEP
+            # session is restarted.
             mapping = {"IP": ODL_IP}
             templated_requests.put_templated_request(
                 "variables/pcepuser/titanium/node_speaker_entity_identifier",
@@ -145,15 +145,15 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging("step_topology_default"):
-            """Compare pcep-topology to default_json, which includes a tunnel
-            from pcc-mock. Timeout is lower than in Precondition, as state
-            from pcc-mock should be updated quickly."""
+            # Compare pcep-topology to default_json, which includes a tunnel
+            # from pcc-mock. Timeout is lower than in Precondition, as state
+            # from pcc-mock should be updated quickly.
             default_json = self.get_expected_topology("default_json.j2")
             utils.wait_until_function_pass(5, 5, self.compare_topology, default_json)
 
         with allure_step_with_separate_logging("step_update_delegated"):
-            """Perform update-lsp on the mocked tunnel, check response is
-            success."""
+            # Perform update-lsp on the mocked tunnel, check response is
+            # success.
             pcc_ip = ipaddr.IPAddress(TOOLS_IP)
             for i in range(PCCS):
                 mapping = {
@@ -168,14 +168,14 @@ class TestPcepUser:
                 pcc_ip += 1
 
         with allure_step_with_separate_logging("step_topology_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel.
             updated_json = self.get_expected_topology("updated_json.j2")
             utils.wait_until_function_pass(5, 5, self.compare_topology, updated_json)
 
         with allure_step_with_separate_logging("step_refuse_remove_delegated"):
-            """Perform remove-lsp on the mocked tunnel, check that mock-pcc
-            has refused to remove it."""
+            # Perform remove-lsp on the mocked tunnel, check that mock-pcc
+            # has refused to remove it.
             pcc_ip = ipaddr.IPAddress(TOOLS_IP)
             for i in range(PCCS):
                 mapping = {"IP": str(pcc_ip), "LSP_NAME": f"pcc_{pcc_ip}_tunnel_1"}
@@ -194,16 +194,16 @@ class TestPcepUser:
                 pcc_ip += 1
 
         with allure_step_with_separate_logging("step_topology_still_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel, to verify that refusal did not break topology."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel, to verify that refusal did not break topology.
             failed_updated_json = self.get_expected_topology("failed_updated_json.j2")
             utils.wait_until_function_pass(
                 15, 1, self.compare_topology, failed_updated_json
             )
 
         with allure_step_with_separate_logging("step_add_instantiated"):
-            """Perform add-lsp to create new tunnel, check that response
-            is success."""
+            # Perform add-lsp to create new tunnel, check that response
+            # is success.
             pcc_ip = ipaddr.IPAddress(TOOLS_IP)
             for i in range(PCCS):
                 mapping = {
@@ -218,16 +218,16 @@ class TestPcepUser:
                 pcc_ip += 1
 
         with allure_step_with_separate_logging("step_topology_second_default"):
-            """Compare pcep-topology to default_json, which includes
-            the updated delegated and default instantiated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated delegated and default instantiated tunnel.
             updated_default_json = self.get_expected_topology("updated_default_json.j2")
             utils.wait_until_function_pass(
                 5, 5, self.compare_topology, updated_default_json
             )
 
         with allure_step_with_separate_logging("step_update_instantiated"):
-            """Perform update-lsp on the newly instantiated tunnel, check that
-            response is success."""
+            # Perform update-lsp on the newly instantiated tunnel, check that
+            # response is success.
             pcc_ip = ipaddr.IPAddress(TOOLS_IP)
             for i in range(PCCS):
                 mapping = {
@@ -242,16 +242,16 @@ class TestPcepUser:
                 pcc_ip += 1
 
         with allure_step_with_separate_logging("step_topology_second_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated delegated and updated instantiated tunnel."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated delegated and updated instantiated tunnel.
             updated_updated_json = self.get_expected_topology("updated_updated_json.j2")
             utils.wait_until_function_pass(
                 5, 5, self.compare_topology, updated_updated_json
             )
 
         with allure_step_with_separate_logging("step_remove_instantiated"):
-            """Perform remove-lsp on the instantiated tunnel, check that
-            response is success."""
+            # Perform remove-lsp on the instantiated tunnel, check that
+            # response is success.
             pcc_ip = ipaddr.IPAddress(TOOLS_IP)
             for i in range(PCCS):
                 mapping = {"IP": str(pcc_ip), "LSP_NAME": f"Instantiated tunnel"}
@@ -261,17 +261,17 @@ class TestPcepUser:
                 pcc_ip += 1
 
         with allure_step_with_separate_logging("step_topology_again_updated"):
-            """Compare pcep-topology to default_json, which includes
-            the updated tunnel, to verify that instantiated tunnel was
-            removed."""
+            # Compare pcep-topology to default_json, which includes
+            # the updated tunnel, to verify that instantiated tunnel was
+            # removed.
             removed_json = self.get_expected_topology("removed_json.j2")
             utils.wait_until_function_pass(5, 5, self.compare_topology, removed_json)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Send SIGINT to pcc-mock, fails if does not stop within 3
-            seconds."""
+            # Send SIGINT to pcc-mock, fails if does not stop within 3
+            # seconds.
             pcep.stop_pcc_mock_process(self.pcep_mock_process)
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
-            """Compare curent pcep-topology to "off_json" again."""
+            # Compare curent pcep-topology to "off_json" again.
             pcep.check_empty_pcep_topology()

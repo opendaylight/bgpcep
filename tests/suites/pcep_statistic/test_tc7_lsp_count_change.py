@@ -52,13 +52,13 @@ class TestPcepUser:
     ):
 
         with allure_step_with_separate_logging("step_set_timer_value_to_1_second"):
-            """Update timer value to lowest possible value."""
+            # Update timer value to lowest possible value.
             pcep.set_stat_timer_value(1)
 
         with allure_step_with_separate_logging(
             f"step_start_pcc_mock_{PCC_COUNT}_pcc_{INITAL_LSP_PER_PCC_COUNT}_lsps"
         ):
-            """Starts PCC mocks simulator with inital count of reported LSPs."""
+            # Starts PCC mocks simulator with inital count of reported LSPs.
             self.pcc_mock_process = pcep.start_pcc_mock(
                 pcc=PCC_COUNT,
                 lsp=INITAL_LSP_PER_PCC_COUNT,
@@ -69,11 +69,11 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging(f"step_wait_1_second"):
-            """Wait one second until the next pcep stat update."""
+            # Wait one second until the next pcep stat update.
             time.sleep(1)
 
         with allure_step_with_separate_logging("step_verify_correct_stats_are_present"):
-            """Verifies that get-stat RPC does return statistics."""
+            # Verifies that get-stat RPC does return statistics.
             utils.wait_until_function_pass(
                 5,
                 0.1,
@@ -83,13 +83,13 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Stop PCC mocks simulator."""
+            # Stop PCC mocks simulator.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
 
         with allure_step_with_separate_logging(
             f"step_start_pcc_mock_{PCC_COUNT}_pcc_{UPDATED_LSP_PER_PCC_COUNT}_lsps"
         ):
-            """Starts PCC mocks simulator with updated count of reported LSPs."""
+            # Starts PCC mocks simulator with updated count of reported LSPs.
             self.pcc_mock_process = pcep.start_pcc_mock(
                 pcc=PCC_COUNT,
                 lsp=UPDATED_LSP_PER_PCC_COUNT,
@@ -100,11 +100,11 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging(f"step_wait_1_second"):
-            """Wait one second until the next pcep stat update."""
+            # Wait one second until the next pcep stat update.
             time.sleep(1)
 
         with allure_step_with_separate_logging("step_verify_updated_stats_are_present"):
-            """Verifies that get-stat RPC does return statistics."""
+            # Verifies that get-stat RPC does return statistics.
             utils.wait_until_function_pass(
                 5,
                 0.1,
@@ -114,9 +114,9 @@ class TestPcepUser:
             )
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
-            """Stop PCC mocks simulator."""
+            # Stop PCC mocks simulator.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
-            """Update timer value back to the original default value."""
+            # Update timer value back to the original default value.
             pcep.set_stat_timer_value(DEFAULT_PCEP_STATS_UPDATE_INTERVAL)

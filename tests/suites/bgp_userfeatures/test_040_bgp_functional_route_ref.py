@@ -165,8 +165,8 @@ class TestBgpfunctionalRouteRef:
             self.setup_config_files()
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon
-            and above."""
+            # Configures bgp application peer. Openconfig is used for carbon
+            # and above.
             mapping = {"IP": ODL_IP, "BGP_RIB_OPENCONFIG": "example-bgp-rib"}
             templated_requests.put_templated_request(
                 f"{BGP_VAR_FOLDER}/app_peer", mapping, json=False
@@ -175,7 +175,7 @@ class TestBgpfunctionalRouteRef:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configures BGP peer module with initiate-connection set to false."""
+            # Configures BGP peer module with initiate-connection set to false.
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
@@ -188,7 +188,7 @@ class TestBgpfunctionalRouteRef:
             )
 
         with allure_step_with_separate_logging("step_exa_to_send_route_refresh"):
-            """Exabgp sends route refresh and count received updates."""
+            # Exabgp sends route refresh and count received updates.
             self.configure_routes_and_start_exabgp(f"tmp/{BGP_CFG_NAME}")
             try:
                 BGP_RPC_CLIENT.exa_clean_received_update_count()
@@ -213,7 +213,7 @@ class TestBgpfunctionalRouteRef:
                 self.deconfigure_routes_and_stop_exabgp()
 
         with allure_step_with_separate_logging("step_odl_to_send_route_refresh"):
-            """Sends route refresh request and checks if exabgp receives it."""
+            # Sends route refresh request and checks if exabgp receives it.
             bgp.start_exabgp_and_verify_connected(f"tmp/{BGP_CFG_NAME}", TOOLS_IP)
             try:
                 BGP_RPC_CLIENT.exa_clean_received_route_refresh_count()
@@ -239,8 +239,8 @@ class TestBgpfunctionalRouteRef:
                 bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without
-            any configured peers."""
+            # Revert the BGP configuration to the original state: without
+            # any configured peers.
             mapping = {
                 "IP": TOOLS_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",
@@ -250,8 +250,8 @@ class TestBgpfunctionalRouteRef:
             )
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without
-            application peer."""
+            # Revert the BGP configuration to the original state: without
+            # application peer.
             mapping = {
                 "IP": ODL_IP,
                 "BGP_RIB_OPENCONFIG": "example-bgp-rib",

@@ -47,13 +47,13 @@ class TestPcepUser:
     def test_set_outer_boundry_values(self, allure_step_with_separate_logging):
 
         with allure_step_with_separate_logging("step_set_timer_value_below_min"):
-            """Update timer to a value below lowest allowed value."""
+            # Update timer to a value below lowest allowed value.
             pcep.set_stat_timer_value(BELOW_MIN_TIMER_VALUE, expected_response_code=400)
 
         with allure_step_with_separate_logging("step_set_timer_value_above_max"):
-            """Update timer to a value above highest allowed value."""
+            # Update timer to a value above highest allowed value.
             pcep.set_stat_timer_value(ABOVE_MAX_TIMER_VALUE, expected_response_code=400)
 
         with allure_step_with_separate_logging("step_set_timer_value_back_to_default"):
-            """Update timer value back to the original default value."""
+            # Update timer value back to the original default value.
             pcep.set_stat_timer_value(DEFAULT_PCEP_STATS_UPDATE_INTERVAL)

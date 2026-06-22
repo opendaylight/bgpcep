@@ -217,22 +217,22 @@ class TestBgpfunctionalEvpn:
     )
     def test_bgp_functional_evpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
-            """Configures bgp application peer. Openconfig is used for carbon
-            and above."""
+            # Configures bgp application peer. Openconfig is used for carbon
+            # and above.
             self.set_app_peer()
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             self.set_bgp_peer_configuration()
 
         with allure_step_with_separate_logging("step_start_bgp_peer"):
-            """Start Python speaker to connect to ODL. We need to wait until
-            odl really starts to accept incomming bgp connection.
-            The failure happens if the incomming connection comes
-            too quickly after configuring the peer in the previous
-            test case."""
+            # Start Python speaker to connect to ODL. We need to wait until
+            # odl really starts to accept incomming bgp connection.
+            # The failure happens if the incomming connection comes
+            # too quickly after configuring the peer in the previous
+            # test case.
             self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
                 retries=3,
                 ammount=0,
@@ -485,16 +485,16 @@ class TestBgpfunctionalEvpn:
             self.play_to_odl_template("pmsi_mldp_mp2mp_lsp")
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
-            """Abort the Python speaker."""
+            # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.shell("cp play.py.out results/evpn_play.log")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            """Revert the BGP configuration to the original state: without
-            any configured peers."""
+            # Revert the BGP configuration to the original state: without
+            # any configured peers.
             self.delete_bgp_peer_configuration()
 
         with allure_step_with_separate_logging("step_deconfigure_app_peer"):
-            """Revert the BGP configuration to the original state: without
-            application peer"""
+            # Revert the BGP configuration to the original state: without
+            # application peer
             self.delete_app_peer()
