@@ -96,8 +96,8 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_before_starting"
         ):
-            """Wait for example-ipv4-topology to come up and empty. Give large
-            timeout for case when BGP boots slower than restconf."""
+            # Wait for example-ipv4-topology to come up and empty. Give large
+            # timeout for case when BGP boots slower than restconf.
             utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
@@ -105,7 +105,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connections"
         ):
-            """Configure BGP peer module with initiate-connection set to false."""
+            # Configure BGP peer module with initiate-connection set to false.
             bgp.set_bgp_neighbours(
                 first_neighbour_ip=TOOLS_IP,
                 count=BGP_PEERS_COUNT,
@@ -117,11 +117,11 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_bgp_application_peer"
         ):
-            """Configure BGP application peer module."""
+            # Configure BGP application peer module.
             bgp.set_bgp_application_peer(ip=BGP_APP_PEER_ID, rib_instance=RIB_INSTANCE)
 
         with allure_step_with_separate_logging("step_connect_bgp_peers"):
-            """Start BGP peer tool"""
+            # Start BGP peer tool
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=0,
                 multiplicity=BGP_PEERS_COUNT,
@@ -138,7 +138,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_prefill_routes"
         ):
-            """Start BGP application peer tool and prefill routes."""
+            # Start BGP application peer tool and prefill routes.
             bgp.start_bgp_app_peer(
                 count=PREFILL_COUNT, log_level="info", timeout=BGP_FILLING_TIMEOUT
             )
@@ -150,7 +150,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_wait_for_ip_topology_is_prefilled"
         ):
-            """Wait until example-ipv4-topology reaches the target prfix count."""
+            # Wait until example-ipv4-topology reaches the target prfix count.
             utils.wait_until_function_pass(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -161,7 +161,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_prefilled_routes"
         ):
-            """Count the routes introduced by updates."""
+            # Count the routes introduced by updates.
             count = infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -177,7 +177,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_intorduce_single_routes"
         ):
-            """Start BGP application peer tool and introduce routes."""
+            # Start BGP application peer tool and introduce routes.
             bgp.start_bgp_app_peer(
                 count=ADDITIONAL_COUNT,
                 command="add",
@@ -191,7 +191,7 @@ class TestBgpAppManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_wait_for_ip_topology_is_filled"):
-            """Wait until example-ipv4-topology reaches the target prfix count."""
+            # Wait until example-ipv4-topology reaches the target prfix count.
             utils.wait_until_function_pass(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -202,7 +202,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_all_routes"
         ):
-            """Count the routes introduced by updates."""
+            # Count the routes introduced by updates.
             count = infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -216,7 +216,7 @@ class TestBgpAppManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_disconnect_bgp_peer"):
-            """Stop BGP peer tool"""
+            # Stop BGP peer tool
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name={BGP_PEER_LOG_FILE},
@@ -224,7 +224,7 @@ class TestBgpAppManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_reconnect_bgp_peer"):
-            """Start BGP peer tool"""
+            # Start BGP peer tool
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=0,
                 multiplicity=BGP_PEERS_COUNT,
@@ -241,7 +241,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_reintroduced_routes"
         ):
-            """Count the routes introduced by updates."""
+            # Count the routes introduced by updates.
             count = infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -257,7 +257,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_delete_all_routes"
         ):
-            """Start BGP application peer tool and delete all routes."""
+            # Start BGP application peer tool and delete all routes.
             bgp.start_bgp_app_peer(
                 command="delete-all", log_level="info", timeout=BGP_EMPTYING_TIMEOUT
             )
@@ -269,7 +269,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_wait_for_stable_topology_after_deletion"
         ):
-            """Wait until example-ipv4-topology becomes stable again."""
+            # Wait until example-ipv4-topology becomes stable again.
             prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
                 excluded_value=TOTAL_COUNT, timeout=BGP_EMPTYING_TIMEOUT
             )
@@ -277,13 +277,13 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_check_for_empty_topology_after_deletion"
         ):
-            """Example-ipv4-topology should be empty now."""
+            # Example-ipv4-topology should be empty now.
             prefix_counting.check_ipv4_topology_is_empty()
 
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_prefix_withdrawals"
         ):
-            """Count the routes withdrawn by updates."""
+            # Count the routes withdrawn by updates.
             count = infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
@@ -297,7 +297,7 @@ class TestBgpAppManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_stop_bgp_peers"):
-            """Stop BGP peer tool"""
+            # Stop BGP peer tool
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
             infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE,
@@ -305,8 +305,8 @@ class TestBgpAppManyPeerPrefixCount:
             )
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
+            # Revert the BGP configuration to the original state: without any
+            # configured peers.
             bgp.delete_bgp_neighbours(
                 TOOLS_IP, BGP_PEERS_COUNT, rib_instance=RIB_INSTANCE
             )
@@ -314,6 +314,6 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging(
             "step_delete_bgp_application_peer_configuration"
         ):
-            """Revert the BGP configuration to the original state: without any
-            configured peers."""
+            # Revert the BGP configuration to the original state: without any
+            # configured peers.
             bgp.delete_bgp_application_peer(ip=BGP_APP_PEER_ID)
