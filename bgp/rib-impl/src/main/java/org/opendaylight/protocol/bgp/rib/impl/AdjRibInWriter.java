@@ -96,17 +96,20 @@ final class AdjRibInWriter {
     private final YangInstanceIdentifier ribPath;
     private final PeerTransactionChain chain;
     private final PeerRole role;
+    private final FluentFuture<? extends CommitInfo> initializationFuture;
     @GuardedBy("this")
     private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final PeerTransactionChain chain, final PeerRole role,
-            final Map<TablesKey, TableContext> tables) {
+            final Map<TablesKey, TableContext> tables,
+            final FluentFuture<? extends CommitInfo> initializationFuture) {
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
         this.role = requireNonNull(role);
+        this.initializationFuture = requireNonNull(initializationFuture);
     }
 
     /**
@@ -117,7 +120,7 @@ final class AdjRibInWriter {
      */
     static AdjRibInWriter create(final @NonNull YangInstanceIdentifier ribId, final @NonNull PeerRole role,
             final @NonNull PeerTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
+        return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap(), CommitInfo.emptyFluentFuture());
     }
 
     /**
@@ -148,7 +151,8 @@ final class AdjRibInWriter {
         final ImmutableMap<TablesKey, TableContext> tb = createNewTableInstances(peerPath, registry, tableTypes,
                 addPathTablesType, tx);
 
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
+        final var future = tx.commit();
+        future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
                 if (registerAppPeerListener != null) {
@@ -162,12 +166,18 @@ final class AdjRibInWriter {
                 if (registerAppPeerListener != null) {
                     LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
                             throwable);
-                } else {
-                    LOG.error("Failed to create Empty Structure", throwable);
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(ribPath, chain, role, tb);
+        return new AdjRibInWriter(ribPath, chain, role, tb, future);
+    }
+
+    /**
+     * Returns the commit creating the peer structure and its tables. For an untransformed writer, this future is
+     * already complete because no peer initialization is pending.
+     */
+    FluentFuture<? extends CommitInfo> initializationFuture() {
+        return initializationFuture;
     }
 
     /**
