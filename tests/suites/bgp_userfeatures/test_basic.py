@@ -134,7 +134,8 @@ class TestBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Basic tests for odl-bgpcep-bgp-all feature.**
 
             Test suite performs basic BGP functional test cases:
@@ -169,7 +170,8 @@ class TestBasic:
             Brief description how to perform BGP functional test:
             *https://wiki.opendaylight.org/view/BGP_LS_PCEP:Lithium_Feature_Tests\
             #How_to_test_2*
-        """)
+        """
+        )
     )
     def test_basic(self, allure_step_with_separate_logging):
 

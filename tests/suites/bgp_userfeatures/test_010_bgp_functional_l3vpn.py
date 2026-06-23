@@ -97,7 +97,8 @@ class TestBgpfunctionalL3Vpn:
         infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{L3VPN_EXA_CFG}")
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - l3vpn-ipv4**
 
             This suite tests advertising and receiveing routes with l3vpn content. It \
@@ -109,7 +110,8 @@ class TestBgpfunctionalL3Vpn:
             have to be send from peer to odl, so odl can identify this peer. Than it \
             sends l3vpn route containg this argument to odl app peer, and we check \
             that app peer advertizes this route back to the peer.
-        """)
+        """
+        )
     )
     def test_bgp_functional_l3vpn(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_prepare_config_files"):

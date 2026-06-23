@@ -43,12 +43,14 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure system properly working with randomly changing topologies**
 
             Tests that module for PCEP statistics is able to correctly handle random \
             changes in number of connected PCC devices and reported LSPs.
-        """)
+        """
+        )
     )
     def test_randomly_changing_topology(self, allure_step_with_separate_logging):
 

@@ -41,13 +41,15 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure system properly functioning with lost topology items**
 
             Tests that module for PCEP statistics is able to correctly handle \
             continuous decrease in the number of connected PCC devices and reported \
             LSPs.
-        """)
+        """
+        )
     )
     def test_continuous_topology_decrease(self, allure_step_with_separate_logging):
 
@@ -56,7 +58,8 @@ class TestPcepUser:
             pcep.set_stat_timer_value(1)
 
         for iteration, current_count in enumerate(
-            range(INITIAL_PCC_COUNT, FINAL_PCC_COUNT, -ITERATION_DECREASE_PCC_COUNT), start=1
+            range(INITIAL_PCC_COUNT, FINAL_PCC_COUNT, -ITERATION_DECREASE_PCC_COUNT),
+            start=1,
         ):
 
             with allure_step_with_separate_logging(

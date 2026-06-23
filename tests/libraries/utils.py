@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 class DeferredLogHandler(logging.Handler):
     """Stores log records in memory instead of writing them immediately."""
+
     def __init__(self):
         """Initialize the deferred handler with an empty record list."""
         super().__init__()
@@ -55,7 +56,7 @@ class DeferredLogHandler(logging.Handler):
 
 
 @contextmanager
-def deferred_logging() -> Generator['DeferredLogHandler', None, None]:
+def deferred_logging() -> Generator["DeferredLogHandler", None, None]:
     """Context manager for temporary log buffering.
 
     This replaces the root logger's handlers with a temporary buffer. Logs
@@ -94,7 +95,7 @@ def truncate_long_text(text: str, max_size: int) -> str:
         return text
 
     if len(text) > max_size:
-            text = text[:max_size] + " ... (truncated long output)"
+        text = text[:max_size] + " ... (truncated long output)"
 
     return text
 
@@ -146,13 +147,10 @@ def verify_jsons_match(
             visual_diff = visual_diff[:2000] + " ... (truncated long output)"
         raise AssertionError(f": \n{visual_diff}")
 
+
 def render_jinja_template(template_path: str, mapping: dict, filters: dict = None):
     file_dir, file_name = os.path.split(template_path)
-    env = Environment(
-            loader=FileSystemLoader(
-                file_dir
-            )
-        )
+    env = Environment(loader=FileSystemLoader(file_dir))
     if filters:
         env.filters.update(filters)
     template = env.get_template(file_name)

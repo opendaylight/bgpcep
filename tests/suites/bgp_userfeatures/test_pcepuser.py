@@ -61,11 +61,13 @@ class TestPcepUser:
         utils.verify_jsons_match(resp.text, exp)
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             This test, first connect PCC mock device to ODL \
             and then tries to perform various operations on \
             reported LSPs (add, update, remove)
-        """)
+        """
+        )
     )
     def test_pcepuser(self, allure_step_with_separate_logging):
 
@@ -80,9 +82,9 @@ class TestPcepUser:
             # tests.
             self.pcep_mock_process = infra.shell(
                 (
-                f"java -jar build_tools/pcep-pcc-mock.jar --reconnect 1 "
-                f"--local-address {TOOLS_IP} --remote-address {ODL_IP} 2>&1 "
-                f"| tee tmp/{LOG_NAME}"
+                    f"java -jar build_tools/pcep-pcc-mock.jar --reconnect 1 "
+                    f"--local-address {TOOLS_IP} --remote-address {ODL_IP} 2>&1 "
+                    f"| tee tmp/{LOG_NAME}"
                 ),
                 run_in_background=True,
             )

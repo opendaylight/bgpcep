@@ -69,7 +69,9 @@ def get_from_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in GET response.") from e
     else:
-        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        response_text = utils.truncate_long_text(
+            response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE
+        )
         log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -123,7 +125,9 @@ def put_to_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in PUT response.") from e
     else:
-        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        response_text = utils.truncate_long_text(
+            response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE
+        )
         log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -177,7 +181,9 @@ def post_to_uri(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in POST response.") from e
     else:
-        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        response_text = utils.truncate_long_text(
+            response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE
+        )
         log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -224,7 +230,9 @@ def delete_from_uri_request(
         log.error(f"Response headers: {response.headers}")
         raise AssertionError("Unexpected failure in DELETE response.") from e
     else:
-        response_text = utils.truncate_long_text(response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+        response_text = utils.truncate_long_text(
+            response.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE
+        )
         log.debug(f"Response: {response_text}")
         log.info(f"Response code: {response.status_code}")
         log.debug(f"Response headers: {response.headers}")
@@ -489,6 +497,7 @@ def resolve_volatiles_path(template_dir) -> List[str]:
 
     return volatiles_list
 
+
 def get_jinja_templated_request(
     temlate_dir: str,
     mapping: dict,
@@ -524,9 +533,7 @@ def get_jinja_templated_request(
 
     if verify:
         expected_response = utils.render_jinja_template(
-            template_path=f"{temlate_dir}/data.j2",
-            mapping=mapping,
-            filters=filters
+            template_path=f"{temlate_dir}/data.j2", mapping=mapping, filters=filters
         )
         volatiles_list = resolve_volatiles_path(temlate_dir)
         try:

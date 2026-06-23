@@ -117,7 +117,8 @@ class TestEbgpPeersBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Basic tests for eBGP application peers.**
 
             Test suite performs basic eBGP functional tests: Two eBGP peers advertise \
@@ -140,7 +141,8 @@ class TestEbgpPeersBasic:
             **TODO**: Extend testsuite by tests dedicated to path selection algorithm
             **TODO**: Choose functions used by more than one test suite to be placed \
             in a common place.
-        """)
+        """
+        )
     )
     def test_ebgp_peers_basic(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_bgp_peers"):
