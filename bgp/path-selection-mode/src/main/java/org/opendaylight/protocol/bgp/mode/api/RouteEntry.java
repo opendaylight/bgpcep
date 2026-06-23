@@ -23,6 +23,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  * A single route entry inside a route table. Maintains the attributes of from all contributing peers. The information
  * is stored in arrays with a shared map of offsets for peers to allow lookups. This is needed to maintain low memory
  * overhead in face of large number of routes and peers, where individual object overhead becomes the dominating factor.
+ *
+ * <p>A {@link RouteEntry} is bound to a has bound to {@link RIBSupport} and a {@link RouteEntryInfo#getRouteKey()},
+ * These are known invariants and all method callers are expected to supply functionality-equivalent instances at all
+ * times. Failure to do so will result in undefined behaviour.
  */
 @NonNullByDefault
 public interface RouteEntry {
