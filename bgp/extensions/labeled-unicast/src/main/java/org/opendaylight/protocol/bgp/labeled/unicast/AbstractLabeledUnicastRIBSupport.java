@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -114,6 +115,14 @@ abstract class AbstractLabeledUnicastRIBSupport<
 
     protected List<CLabeledUnicastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractCLabeledUnicastDestination).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean requiresWithdrawalOnReplace(final @NonNull MapEntryNode before, final @NonNull MapEntryNode after) {
+        // The BGP-LU NLRI identity is the prefix together with the label stack (and path-id). An in-place change of
+        // any of these (while the route-key stays stable, as happens for application-rib routes) advertises a
+        // different NLRI, so the superseded one must be withdrawn or the peer would retain it.
+        return !Objects.equals(extractCLabeledUnicastDestination(before), extractCLabeledUnicastDestination(after));
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode labeledUnicast) {
