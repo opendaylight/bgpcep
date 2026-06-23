@@ -315,7 +315,17 @@ final class LocRibWriter
                         }
                     }
                 }
-                case SUBTREE_MODIFIED, WRITE -> {
+                case SUBTREE_MODIFIED -> {
+                    entry = routeEntries.get(routeKey);
+                    if (entry == null) {
+                        entry = createEntry(routeKey);
+                    }
+
+                    final var routeAfter = route.getDataAfter();
+                    verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
+                    entry.updateRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                }
+                case WRITE -> {
                     entry = routeEntries.get(routeKey);
                     if (entry == null) {
                         entry = createEntry(routeKey);
@@ -324,7 +334,9 @@ final class LocRibWriter
                     final var routeAfter = route.getDataAfter();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
                     entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
-                    totalPathsCounter.increment();
+                    if (route.dataBefore() == null) {
+                        totalPathsCounter.increment();
+                    }
                 }
                 default -> throw new IllegalStateException("Unhandled route modification " + route);
             }
