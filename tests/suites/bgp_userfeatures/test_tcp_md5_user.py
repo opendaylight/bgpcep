@@ -73,9 +73,9 @@ class TestTcpMd5User:
     def start_pcc_mock_tool_with_password(self, password):
         """Starts pcc-mock with password argument."""
         self.pcep_mock_process = infra.shell(
-            f"java -jar build_tools/pcep-pcc-mock.jar --log-level debug " \
-            f"--password {password} --reconnect 1 " \
-            f"--local-address {TOOLS_IP} --remote-address {ODL_IP} " \
+            f"java -jar build_tools/pcep-pcc-mock.jar --log-level debug "
+            f"--password {password} --reconnect 1 "
+            f"--local-address {TOOLS_IP} --remote-address {ODL_IP} "
             f"2>&1 | tee pccmock.log",
             run_in_background=True,
         )
@@ -88,7 +88,8 @@ class TestTcpMd5User:
         infra.stop_process_by_pid(pid, gracefully=True)
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **TCPMD5 user-facing feature system tests, using PCEP.**
 
             Test suite performs basic pcep md5 password authorization test cases:
@@ -109,7 +110,8 @@ class TestTcpMd5User:
 
             Test cases no longer need netconf-connector-ssh, and they include \
             comparison of pcep-session-state.
-        """)
+        """
+        )
     )
     def test_tcp_md5_user(self, allure_step_with_separate_logging):
 

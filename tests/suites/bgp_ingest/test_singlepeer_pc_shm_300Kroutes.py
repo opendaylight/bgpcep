@@ -57,9 +57,9 @@ log = logging.getLogger(__name__)
 class TestSinglePeer300KRoutes:
     bgp_speaker_process = None
 
-
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **BGP performance of ingesting from 1 iBGP peer**
 
             Data change counter is NOT used.This suite uses play.py \
@@ -67,7 +67,8 @@ class TestSinglePeer300KRoutes:
             checks changes of the the example-ipv4-topology on all nodes. \
             RIB is not examined.
             test_singlepeer_pc_300kroutes: pc - prefix counting.
-        """)
+        """
+        )
     )
     def test_single_peer_300K_routes(self, allure_step_with_separate_logging):
 
