@@ -55,6 +55,7 @@ final class BaseRouteEntry<C extends Routes & DataObject, S extends ChildOf<? su
     private MapEntryNode[] values = EMPTY_VALUES;
     private BaseBestPath bestPath = null;
     private BaseBestPath removedBestPath;
+    private boolean bestRouteChanged;
 
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
@@ -86,7 +87,7 @@ final class BaseRouteEntry<C extends Routes & DataObject, S extends ChildOf<? su
 
         // Get the newly-selected best path.
         final var newBestPath = selector.result();
-        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath);
+        final var modified = newBestPath == null || !newBestPath.equals(bestPath) || bestRouteChanged;
         if (modified) {
             if (offsets.isEmpty()) {
                 removedBestPath = bestPath;
@@ -94,6 +95,7 @@ final class BaseRouteEntry<C extends Routes & DataObject, S extends ChildOf<? su
             LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
             bestPath = newBestPath;
         }
+        bestRouteChanged = false;
         return modified;
     }
 
@@ -110,6 +112,15 @@ final class BaseRouteEntry<C extends Routes & DataObject, S extends ChildOf<? su
 
         offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
+        return offset;
+    }
+
+    @Override
+    public int updateRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final var offset = addRoute(routerId, remotePathId, route);
+        if (bestPath != null && bestPath.getRouterId().equals(routerId)) {
+            bestRouteChanged = true;
+        }
         return offset;
     }
 

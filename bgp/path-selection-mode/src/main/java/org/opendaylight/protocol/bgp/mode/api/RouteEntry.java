@@ -58,6 +58,18 @@ public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? s
     int addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull MapEntryNode route);
 
     /**
+     * Update an existing route. Unlike {@link #addRoute(RouterId, Uint32, MapEntryNode)}, this method signals that the
+     * route node was reported as {@code SUBTREE_MODIFIED} and therefore needs to be re-advertised if it remains a best
+     * path, even when its path-selection attributes are unchanged.
+     *
+     * @param routerId     router ID in unsigned integer format from an Ipv4Address
+     * @param remotePathId remote path Id received
+     * @param route        updated route
+     * @return returns the offset
+     */
+    int updateRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull MapEntryNode route);
+
+    /**
      * Returns collections of present selected best path.
      *
      * @param ribSupport RIB Support
